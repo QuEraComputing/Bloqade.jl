@@ -1,3 +1,1 @@
 # RydbergEmulator
-
-Rydberg Emulator.

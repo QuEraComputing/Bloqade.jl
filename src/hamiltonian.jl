@@ -1,4 +1,5 @@
 using BitBasis
+using ExponentialUtils
 export to_matrix, RydbergHamiltonian
 
 struct RydbergHamiltonian
@@ -64,10 +65,18 @@ function to_matrix(graph, Ω, ϕ, Δ)
             end
         end
     end
-    return H
+    return Hermitian(H)
 end
 
 function to_matrix(h::RydbergHamiltonian)
     g = unit_disk_graph(h.atoms)
     return to_matrix(g, h.Ω, h.ϕ, h.Δ)
+end
+
+function timestep!(st::Vector, h::RydbergHamiltonian, t::Float64, dt::Float64)
+    H = to_matrix(h)
+    for _ in 0:dt:t
+        st = expv(dt, H, st)
+    end
+    return st
 end

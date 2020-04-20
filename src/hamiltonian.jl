@@ -1,5 +1,5 @@
 using BitBasis
-using ExponentialUtils
+using ExponentialUtilities
 export to_matrix, RydbergHamiltonian
 
 struct RydbergHamiltonian

@@ -50,7 +50,7 @@ function Base.iterate(it::AtomPosition, st=1)
     if st > length(it)
         return
     else
-        return it.coordinates[:, st], st + 1
+        return it[st], st + 1
     end
 end
 
@@ -60,7 +60,7 @@ function unit_disk_graph(atoms::AtomPosition, radius::Float64)
 
     for k in 1:n_atoms
         indices = findall(atoms) do x
-            norm(atoms.coordinates[:, k] - x) <= radius
+            norm(atoms[k] - x) <= radius
         end
 
         for p in indices

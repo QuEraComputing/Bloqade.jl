@@ -1,5 +1,6 @@
 using BitBasis
-using ExponentialUtils
+using ExponentialUtilities
+using SparseArrays
 export to_matrix, RydbergHamiltonian
 
 struct RydbergHamiltonian
@@ -17,16 +18,8 @@ function subspace(n::Int, mis::Vector)
         fixed_points = setdiff(1:n, each)
         itercontrol(n, fixed_points, zero(fixed_points))
     end
+    # TODO: sort this list
     return unique(Iterators.flatten(it))
-end
-
-function count_ones(n::Integer)
-    count = zero(n)
-    while !iszero(n)
-        n = n & (n - 1)
-        count += 1
-    end
-    return count
 end
 
 function to_matrix(graph, Ω, ϕ, Δ)
@@ -35,7 +28,7 @@ function to_matrix(graph, Ω, ϕ, Δ)
     n = nv(graph)
     subspace_v = subspace(n, mis)
     m = length(subspace_v)
-    H = zeros(ComplexF64, m, m)
+    H = spzeros(ComplexF64, m, m)
 
     for (i, lhs) in enumerate(subspace_v)
         # sum sigma_z
@@ -75,8 +68,5 @@ end
 
 function timestep!(st::Vector, h::RydbergHamiltonian, t::Float64, dt::Float64)
     H = to_matrix(h)
-    for _ in 0:dt:t
-        st = expv(dt, H, st)
-    end
-    return st
+    return expv(-im * t, H, st)
 end

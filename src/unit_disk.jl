@@ -47,7 +47,7 @@ Base.getindex(x::AtomPosition, k::Int) = getindex(x.coordinates, :, k)
 Base.keys(x::AtomPosition) = LinearIndices(1:length(x))
 
 function Base.iterate(it::AtomPosition, st=1)
-    if st > size(it.coordinates, 2)
+    if st > length(it)
         return
     else
         return it.coordinates[:, st], st + 1
@@ -55,7 +55,7 @@ function Base.iterate(it::AtomPosition, st=1)
 end
 
 function unit_disk_graph(atoms::AtomPosition, radius::Float64)
-    n_atoms = size(atoms.coordinates, 2)
+    n_atoms = length(atoms)
     g = SimpleGraph(n_atoms)
 
     for k in 1:n_atoms

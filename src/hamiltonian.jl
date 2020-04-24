@@ -19,7 +19,7 @@ function subspace(n::Int, mis::Vector)
         itercontrol(n, fixed_points, zero(fixed_points))
     end
     # TODO: sort this list
-    return unique(Iterators.flatten(it))
+    return sort(unique(Iterators.flatten(it)))
 end
 
 function to_matrix(graph, Ω, ϕ, Δ)

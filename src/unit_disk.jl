@@ -54,7 +54,7 @@ function Base.iterate(it::AtomPosition, st=1)
     end
 end
 
-function unit_disk_graph(atoms::AtomPosition, radius::Float64)
+function unit_disk_graph(atoms::AtomPosition, radius::Float64=1)
     n_atoms = length(atoms)
     g = SimpleGraph(n_atoms)
 

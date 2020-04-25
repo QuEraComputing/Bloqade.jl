@@ -33,7 +33,7 @@ getscalarmaybe(x::Number, k) = x
 Sigma X term of the Rydberg Hamiltonian in MIS subspace:
 
 ```math
-\\sum_{i=0}^n Ω_i (e^{iϕ_i})|0⟩⟨1| + e^{-iϕ_i}|1⟩⟨0|)
+\\sum_{i=1}^n Ω_i (e^{iϕ_i})|0⟩⟨1| + e^{-iϕ_i}|1⟩⟨0|)
 ```
 """
 function sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω::ParameterType, ϕ::ParameterType) where {T}
@@ -80,7 +80,7 @@ end
 """
     to_matrix!(dst::AbstractMatrix{T}, n::Int, subspace_v, Ω, ϕ[, Δ]) where T
 
-Create a Rydberg Hamiltonian matrix from given parameters inplacely with blakable approximation.
+Create a Rydberg Hamiltonian matrix from given parameters inplacely with blockade approximation.
 The matrix is preallocated as `dst`.
 """
 function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω::ParameterType, ϕ::ParameterType, Δ::ParameterType)
@@ -141,12 +141,12 @@ struct RydbergHamiltonian{T <: Real, OmegaT <: ParameterType{T}, PhiT <: Paramet
     Δ::DeltaT
 end
 
-function to_matrix(h::AbstractRydbergHamiltonian, atoms::AtomPosition)
-    g = unit_disk_graph(atoms)
+function to_matrix(h::AbstractRydbergHamiltonian, atoms::AtomPosition, radius::Float64)
+    g = unit_disk_graph(atoms,radius)
     return to_matrix(g, h.Ω, h.ϕ, h.Δ)
 end
 
-function timestep!(st::Vector, h::AbstractRydbergHamiltonian, atoms, t::Float64, dt::Float64)
+function timestep!(st::Vector, h::AbstractRydbergHamiltonian, atoms, t::Float64)
     H = to_matrix(h, atoms)
     return expv(-im * t, H, st)
 end
@@ -161,7 +161,7 @@ function evaluate_qaoa! end
 function evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}) where T
     m = length(subspace_v)
     H = spzeros(Complex{T}, m, m)
-    
+
     # Krylov Subspace Cfg
     Ks_m = min(30, size(H, 1))
     Ks = KrylovSubspace{Complex{T}, T}(length(st), Ks_m)

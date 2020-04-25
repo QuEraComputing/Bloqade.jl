@@ -1,7 +1,7 @@
 using BitBasis
 using ExponentialUtilities
 using SparseArrays
-export to_matrix, RydbergHamiltonian
+export to_matrix, SimpleRydberg, RydbergHamiltonian, AbstractRydbergHamiltonian
 
 """
     subspace(n::Int, mis::Vector)
@@ -25,7 +25,7 @@ getscalarmaybe(x::Number, k) = x
 Sigma X term of the Rydberg Hamiltonian in MIS subspace:
 
 ```math
-\sum_{i=0}^n \Omega_i (e^{iϕ_i})|0⟩⟨1| + e^{-iϕ_i}|1⟩⟨0|)
+\\sum_{i=0}^n Ω_i (e^{iϕ_i})|0⟩⟨1| + e^{-iϕ_i}|1⟩⟨0|)
 ```
 """
 function sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω, ϕ) where {T}
@@ -53,7 +53,7 @@ end
 Sigma Z term of the Rydberg Hamiltonian in MIS subspace.
 
 ```math
-\sum_{i=1}^n Δ_i σ_i^z
+\\sum_{i=1}^n Δ_i σ_i^z
 ```
 """
 function sigma_z_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, Δ) where {T <: Number}
@@ -72,7 +72,8 @@ end
 """
     to_matrix!(dst::AbstractMatrix{T}, n::Int, subspace_v, Ω, ϕ[, Δ]) where T
 
-Create a Rydberg Hamiltonian matrix from given parameters inplace. The matrix is preallocated as `dst`.
+Create a Rydberg Hamiltonian matrix from given parameters inplacely with blakable approximation.
+The matrix is preallocated as `dst`.
 """
 function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω, ϕ, Δ)
     for (i, lhs) in enumerate(subspace_v)
@@ -82,7 +83,6 @@ function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω, ϕ, Δ)
     return dst
 end
 
-# TODO: RL: polish this part to make it more compact
 function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω, ϕ)
     for (i, lhs) in enumerate(subspace_v)
         sigma_x_term!(dst, n, lhs, i, subspace_v, Ω, ϕ)
@@ -101,22 +101,62 @@ function to_matrix(graph, Ω, ϕ, Δ)
     return Hermitian(H)
 end
 
-struct RydbergHamiltonian
-    C::Float64
-    Ω::Vector{Float64}
-    ϕ::Vector{Float64}
-    Δ::Vector{Float64}
-    atoms::AtomPosition
+const ParameterType{T} = Union{T, Vector{T}} where {T <: Number}
+
+abstract type AbstractRydbergHamiltonian end
+
+"""
+    SimpleRydberg{T <: Number} <: AbstractRydbergHamiltonian
+
+Simple Rydberg Hamiltonian, there is only one global parameter ϕ, and Δ=0, Ω=1.
+"""
+struct SimpleRydberg{T <: Number} <: AbstractRydbergHamiltonian
+    ϕ::T
 end
 
-n_atoms(h::RydbergHamiltonian) = length(h.atoms)
+function Base.getproperty(x::SimpleRydberg{T}, name::Symbol) where T
+    name == :Ω && return one(T)
+    name == :Δ && return zero(T)
+    return getfield(x, name)
+end
 
-function to_matrix(h::RydbergHamiltonian)
-    g = unit_disk_graph(h.atoms)
+# general case
+struct RydbergHamiltonian{T <: Real, OmegaT <: ParameterType{T}, PhiT <: ParameterType{T}, DeltaT <: ParameterType{T}}
+    C::T
+    Ω::OmegaT
+    ϕ::PhiT
+    Δ::DeltaT
+end
+
+function to_matrix(h::AbstractRydbergHamiltonian, atoms::AtomPosition)
+    g = unit_disk_graph(atoms)
     return to_matrix(g, h.Ω, h.ϕ, h.Δ)
 end
 
-function timestep!(st::Vector, h::RydbergHamiltonian, t::Float64, dt::Float64)
-    H = to_matrix(h)
+function timestep!(st::Vector, h::AbstractRydbergHamiltonian, atoms, t::Float64, dt::Float64)
+    H = to_matrix(h, atoms)
     return expv(-im * t, H, st)
+end
+
+function evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, atoms, ts::Vector{T}) where T
+    graph = unit_disk_graph(atoms)
+    cg = complement(graph)
+    mis = maximal_cliques(cg)
+    n = nv(graph)
+    subspace_v = subspace(n, mis)
+    m = length(subspace_v)
+    H = spzeros(Complex{T}, m, m)
+    
+    # Krylov Subspace Cfg
+    Ks_m = min(30, size(H, 1))
+    Ks = KrylovSubspace{Complex{T}, T}(length(st), Ks_m)
+
+    for (h, t) in zip(hs, ts)
+        to_matrix!(H, n, subspace_v, one(T), h.ϕ)
+        # qaoa step
+        arnoldi!(Ks, H, st; m=Ks_m, ishermitian=true)
+        st = expv!(st, t, Ks)
+        dropzeros!(fill!(H, zero(Complex{T})))
+    end
+    return st
 end

@@ -117,6 +117,6 @@ end
 
     st = naive_qaoa(st, g, hs, ts)
     @test st ≈ final_st
-    @test isone(norm(st))
-    @test isone(norm(final_st))
+    @test norm(st) ≈ 1.0
+    @test norm(final_st) ≈ 1.0
 end

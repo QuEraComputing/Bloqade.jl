@@ -19,6 +19,15 @@ end
 getscalarmaybe(x::Vector, k) = x[k]
 getscalarmaybe(x::Number, k) = x
 
+"""
+    sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω, ϕ) where {T}
+
+Sigma X term of the Rydberg Hamiltonian in MIS subspace:
+
+```math
+\sum_{i=0}^n \Omega_i (e^{iϕ_i})|0⟩⟨1| + e^{-iϕ_i}|1⟩⟨0|)
+```
+"""
 function sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω, ϕ) where {T}
     sigma_x = zero(T)
     for k in 1:n
@@ -38,6 +47,15 @@ function sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω, �
     return dst
 end
 
+"""
+    sigma_z_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, Δ) where {T <: Number}
+
+Sigma Z term of the Rydberg Hamiltonian in MIS subspace.
+
+```math
+\sum_{i=1}^n Δ_i σ_i^z
+```
+"""
 function sigma_z_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, Δ) where {T <: Number}
     sigma_z = zero(T)
     for k in 1:n

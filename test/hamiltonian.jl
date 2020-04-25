@@ -1,7 +1,16 @@
 using Test
 using RydbergEmulator
 using LightGraphs
-import RydbergEmulator.subspace
+using ExponentialUtilities
+using RydbergEmulator: subspace
+
+function naive_qaoa(st, g, hs, ts)
+    for (h, t) in zip(hs, ts)
+        st = expv(t, to_matrix(g, h.Ω, h.ϕ), st)
+    end
+    return st
+end
+
 
 @testset "hamiltonian" begin
     g = SimpleGraph(5)
@@ -98,4 +107,12 @@ import RydbergEmulator.subspace
 
     @test to_matrix(g, Ω, ϕ, Δ) ≈ matrix_hamiltonian
 
+    hs = SimpleRydberg.(rand(10))
+    ts = rand(10)
+    subspace_v = subspace(g)
+    st = rand(ComplexF64, length(subspace_v))
+    final_st = evaluate_qaoa!(copy(st), hs, nv(g), subspace_v, ts)
+
+    st = naive_qaoa(st, g, hs, ts)
+    @test st ≈ final_st
 end

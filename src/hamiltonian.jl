@@ -172,7 +172,7 @@ function evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n:
         # NOTE: we share the Krylov subspace here since
         #       the Hamiltonians have the same shape
         arnoldi!(Ks, H, st; m=Ks_m, ishermitian=true)
-        st = expv!(st, t, Ks)
+        st = expv!(st, -im*t, Ks)
         dropzeros!(fill!(H, zero(Complex{T})))
     end
     return st

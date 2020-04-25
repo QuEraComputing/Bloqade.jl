@@ -6,7 +6,7 @@ using RydbergEmulator: subspace
 
 function naive_qaoa(st, g, hs, ts)
     for (h, t) in zip(hs, ts)
-        st = expv(t, to_matrix(g, h.Ω, h.ϕ), st)
+        st = expv(t, -im * to_matrix(g, h.Ω, h.ϕ), st)
     end
     return st
 end

@@ -138,6 +138,13 @@ function timestep!(st::Vector, h::AbstractRydbergHamiltonian, atoms, t::Float64,
     return expv(-im * t, H, st)
 end
 
+"""
+    evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{<:AbstractRydbergHamiltonian}, atoms, ts::Vector{<:Real})
+
+Evaluate a QAOA sequence `hs` along with parameters `ts` given initial state `st` and atom geometry `atoms`.
+"""
+function evaluate_qaoa! end
+
 function evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, atoms, ts::Vector{T}) where T
     graph = unit_disk_graph(atoms)
     cg = complement(graph)
@@ -154,6 +161,8 @@ function evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, at
     for (h, t) in zip(hs, ts)
         to_matrix!(H, n, subspace_v, one(T), h.ϕ)
         # qaoa step
+        # NOTE: we share the Krylov subspace here since
+        #       the Hamiltonians have the same shape
         arnoldi!(Ks, H, st; m=Ks_m, ishermitian=true)
         st = expv!(st, t, Ks)
         dropzeros!(fill!(H, zero(Complex{T})))

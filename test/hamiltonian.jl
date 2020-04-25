@@ -2,6 +2,7 @@ using Test
 using RydbergEmulator
 using LightGraphs
 using ExponentialUtilities
+using LinearAlgebra
 using RydbergEmulator: subspace
 
 function naive_qaoa(st, g, hs, ts)
@@ -111,8 +112,11 @@ end
     ts = rand(10)
     subspace_v = subspace(g)
     st = rand(ComplexF64, length(subspace_v))
+    normalize!(st)
     final_st = evaluate_qaoa!(copy(st), hs, nv(g), subspace_v, ts)
 
     st = naive_qaoa(st, g, hs, ts)
     @test st ≈ final_st
+    @test isone(norm(st))
+    @test isone(norm(final_st))
 end

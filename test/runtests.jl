@@ -3,8 +3,13 @@ using Test
 using Random
 Random.seed!(42)
 
-@testset "measure" begin
+@testset "Yao interfaces" begin
+    include("register.jl")
     include("measure.jl")
+end
+
+@testset "QAOA emulator" begin
+    include("qaoa.jl")
 end
 
 @testset "optimizers" begin

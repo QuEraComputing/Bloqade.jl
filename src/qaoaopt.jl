@@ -3,17 +3,18 @@ export qaoa_on_graph, mean_independent_set, cmaes_train_mis
 """
     qaoa_on_graph(graph, ϕs::AbstractVector, ts::AbstractVector)
 
-Execute qaoa circuit on a graph model and return a `SubspaceReg` register.
+Execute qaoa circuit on a graph model and return a `RydbergReg` register.
 """
 function qaoa_on_graph(graph, ϕs::AbstractVector, ts::AbstractVector)
     hs = SimpleRydberg.(ϕs)
     # prepair a zero state
     subspace_v = subspace(graph)
     st = zeros(ComplexF64, length(subspace_v)); st[1] = 1
-    reg = SubspaceReg(st, subspace_v)
+    reg = RydbergReg{nv(graph)}(st, subspace_v)
 
     # evolve
-    evaluate_qaoa!(reg, hs, nv(graph), ts)
+    reg |> QAOA{nv(graph)}(subspace_v, hs, ts)
+    return reg
 end
 
 """

@@ -10,10 +10,11 @@ function qaoa_on_graph(graph, ϕs::AbstractVector, ts::AbstractVector)
     # prepair a zero state
     subspace_v = subspace(graph)
     st = zeros(ComplexF64, length(subspace_v)); st[1] = 1
-    reg = RydbergReg(st, subspace_v)
+    reg = RydbergReg{nv(graph)}(st, subspace_v)
 
     # evolve
-    evaluate_qaoa!(reg, hs, nv(graph), ts)
+    reg |> QAOA{nv(graph)}(subspace_v, hs, ts)
+    return reg
 end
 
 """

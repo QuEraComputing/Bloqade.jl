@@ -15,6 +15,17 @@ struct QAOA{N, Hs <: Vector, TimeType <: Real, HMatrixType <: AbstractMatrix{Com
     Ks::KrylovT
 end
 
+"""
+    QAOA{N}(subspace_v, hs::Vector, ts::Vector{TimeType}; kwargs...)
+
+Create a QAOA block, where `subspace_v` is the emulation subspace, `hs` is the vector of hamiltonians,
+`ts` is the time parameters.
+
+### Keywords
+
+- `cache=(m=length(subspace_v);spzeros(Complex{TimeType}, m, m))`, hamiltonian matrix cache
+- `krylov_niteration=min(30, length(subspace_v))`, maximum number of iteration for Krylov method
+"""
 function QAOA{N}(subspace_v::Vector{Int}, hs::Vector, ts::Vector{TimeType};
         cache=(m=length(subspace_v);spzeros(Complex{TimeType}, m, m)),
         krylov_niteration=min(30, length(subspace_v))) where {N, TimeType}
@@ -42,15 +53,7 @@ end
 # only defined for single batch for now
 function Yao.apply!(r::RydbergReg{N, 1}, x::QAOA{N, Hs, T}) where {N, Hs, T}
     st = vec(r.state)
-    for (h, t) in zip(x.hamiltonians, x.ts)
-        to_matrix!(x.hamiltonian_cache, N, x.subspace_v, one(T), h.ϕ)
-        # qaoa step
-        # NOTE: we share the Krylov subspace here since
-        #       the Hamiltonians have the same shape
-        arnoldi!(x.Ks, x.hamiltonian_cache, st)
-        st = expv!(st, -im*t, x.Ks)
-        fillzero!(x.hamiltonian_cache)
-    end
+    qaoa_routine!(vec(r.state), x.hamiltonians, N, x.subspace_v, x.ts, x.Ks, x.hamiltonian_cache)
     return r
 end
 
@@ -69,30 +72,15 @@ function update_ansatz!(x::QAOA{N, Vector{SimpleRydberg{T}}, T}, ϕ::Vector{T}, 
     return x
 end
 
-# TODO: deprecate this in a new PR.
-"""
-    evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{<:AbstractRydbergHamiltonian}, n, subspace_v, ts::Vector{<:Real})
-
-Evaluate a QAOA sequence `hs` along with parameters `ts` given initial state `st` and atom geometry `atoms`.
-"""
-function evaluate_qaoa! end
-
-function evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}) where T
-    m = length(subspace_v)
-    H = spzeros(Complex{T}, m, m)
-
-    # Krylov Subspace Cfg
-    Ks_m = min(30, size(H, 1))
-    Ks = KrylovSubspace{Complex{T}, T}(length(st), Ks_m)
-
+function qaoa_routine!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}, Ks::KrylovSubspace, cache::AbstractMatrix) where T
     for (h, t) in zip(hs, ts)
-        to_matrix!(H, n, subspace_v, one(T), h.ϕ)
+        to_matrix!(cache, n, subspace_v, one(T), h.ϕ)
         # qaoa step
         # NOTE: we share the Krylov subspace here since
         #       the Hamiltonians have the same shape
-        arnoldi!(Ks, H, st; m=Ks_m, ishermitian=true)
+        arnoldi!(Ks, cache, st)
         st = expv!(st, -im*t, Ks)
-        dropzeros!(fill!(H, zero(Complex{T})))
+        fillzero!(cache)
     end
     return st
 end

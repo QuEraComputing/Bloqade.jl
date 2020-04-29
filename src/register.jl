@@ -24,7 +24,7 @@ Yao.nqubits(reg::RydbergReg{N}) where N = N
 Yao.nactive(reg::RydbergReg{N}) where N = N
 Yao.state(reg::RydbergReg) = reg.state
 Yao.statevec(reg::RydbergReg) = Yao.matvec(reg.state)
-Yao.relaxedvec(reg::RydbergReg{1}) = vec(reg.state)
+Yao.relaxedvec(reg::RydbergReg{N, 1}) where N = vec(reg.state)
 Yao.relaxedvec(reg::RydbergReg) = reg.state
 
 """

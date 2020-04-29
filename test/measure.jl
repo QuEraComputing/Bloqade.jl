@@ -22,15 +22,18 @@ end
     ϕs = params[2:2:end]
     hs = SimpleRydberg.(ϕs)
 
-    # prepair a zero state
+    # prepare a zero state
     subspace_v = subspace(g)
-    st = zeros(ComplexF64, length(subspace_v)); st[1] = 1
-    reg = evaluate_qaoa!(RydbergReg(st, subspace_v), hs, nv(g), ts)
+    r = RydbergEmulator.zero_state(5, subspace_v)
+    qaoa = QAOA{5}(subspace_v, hs, ts)
+    r |> qaoa
     @test norm(st) ≈ 1
     # 1. sampling
-    isets = measure_mis(reg; nshots=10000)
+    isets = measure_mis(r; nshots=10000)
     expected_sampling = Statistics.mean(isets)
     # 2. exact
     expected_exact = expect_mis(reg)
     @test isapprox(expected_exact, expected_sampling; rtol=1e-1)
 end
+
+RydbergReg{5}(st, subspace_v)

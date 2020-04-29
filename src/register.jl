@@ -11,9 +11,9 @@ struct RydbergReg{N,B,ST,SST} <: AbstractRegister{B}
     end
 end
 
-function RydbergReg{N}(state::VT, subspace::SST) where {N, VT<:AbstractVector, SST}
+function RydbergReg{N}(state::AbstractVector, subspace::SST) where {N, SST}
     state = reshape(state,:,1)
-    return RydbergReg{N, 1, VT, SST}(state, subspace)
+    return RydbergReg{N, 1, typeof(state), SST}(state, subspace)
 end
 
 function RydbergReg{N}(state::VT, subspace::SST) where {N, VT<:AbstractMatrix, SST}

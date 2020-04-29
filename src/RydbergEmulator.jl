@@ -5,8 +5,8 @@ using LinearAlgebra
 using BitBasis
 using ExponentialUtilities
 using SparseArrays
-using YaoBase, YaoArrayRegister
 using Random
+using Yao
 
 include("register.jl")
 include("measure.jl")

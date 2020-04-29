@@ -25,7 +25,7 @@ end
     # prepair a zero state
     subspace_v = subspace(g)
     st = zeros(ComplexF64, length(subspace_v)); st[1] = 1
-    reg = evaluate_qaoa!(SubspaceReg(st, subspace_v), hs, nv(g), ts)
+    reg = evaluate_qaoa!(RydbergReg(st, subspace_v), hs, nv(g), ts)
     @test norm(st) ≈ 1
     # 1. sampling
     isets = measure_mis(reg; nshots=10000)

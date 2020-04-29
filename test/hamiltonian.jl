@@ -108,12 +108,13 @@ end
 
     @test to_matrix(g, Ω, ϕ, Δ) ≈ matrix_hamiltonian
 
+    # TODO: remove this in a new PR
     hs = SimpleRydberg.(rand(10))
     ts = rand(10)
     subspace_v = subspace(g)
     st = rand(ComplexF64, length(subspace_v))
     normalize!(st)
-    final_st = evaluate_qaoa!(SubspaceReg(copy(st), subspace_v), hs, nv(g), ts)
+    final_st = evaluate_qaoa!(RydbergReg(copy(st), subspace_v), hs, nv(g), ts)
 
     st = naive_qaoa(st, g, hs, ts)
     @test st ≈ final_st.state

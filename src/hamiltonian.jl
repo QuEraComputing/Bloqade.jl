@@ -98,25 +98,48 @@ function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω::ParameterType, 
     return dst
 end
 
-function to_matrix(graph, Ω::ParameterType, ϕ::ParameterType, Δ::ParameterType)
-    n = nv(graph)
+function init_matrix_and_subspace(graph)
     subspace_v = subspace(graph)
     m = length(subspace_v)
     H = spzeros(ComplexF64, m, m)
+    return H, subspace_v
+end
+
+function to_matrix(graph, Ω::ParameterType, ϕ::ParameterType, Δ::ParameterType)
+    n = nv(graph)
+    H, subspace_v = init_matrix_and_subspace(graph)
     to_matrix!(H, n, subspace_v, Ω, ϕ, Δ)
     return Hermitian(H)
 end
 
 function to_matrix(graph, Ω::ParameterType, ϕ::ParameterType)
     n = nv(graph)
-    subspace_v = subspace(graph)
-    m = length(subspace_v)
-    H = spzeros(ComplexF64, m, m)
+    H, subspace_v = init_matrix_and_subspace(graph)
     to_matrix!(H, n, subspace_v, Ω, ϕ)
     return Hermitian(H)
 end
 
 abstract type AbstractRydbergHamiltonian end
+
+"""
+    phase(rydberg_hamiltonian)
+
+Return the phase ϕ on X term of a given Rydberg Hamiltonian.
+"""
+function phase end
+
+"""
+    magnetic_field(Val(:X), rydberg_hamiltonian)
+
+Return the magnetic field Ω of a given Rydberg Hamiltonian for Pauli X.
+
+    magnetic_field(Val(:Z), rydberg_hamiltonian)
+
+Return the magnetic field Δ of a given Rydberg Hamiltonian for Pauli Z.
+"""
+function magnetic_field end
+
+
 
 """
     SimpleRydberg{T <: Number} <: AbstractRydbergHamiltonian
@@ -127,11 +150,9 @@ struct SimpleRydberg{T <: Number} <: AbstractRydbergHamiltonian
     ϕ::T
 end
 
-function Base.getproperty(x::SimpleRydberg{T}, name::Symbol) where T
-    name == :Ω && return one(T)
-    name == :Δ && return zero(T)
-    return getfield(x, name)
-end
+phase(h::SimpleRydberg) = h.ϕ
+magnetic_field(::Val{:X}, h::SimpleRydberg{T}) where T = one(T)
+magnetic_field(::Val{:Z}, h::SimpleRydberg{T}) where T = zero(T)
 
 # general case
 struct RydbergHamiltonian{T <: Real, OmegaT <: ParameterType{T}, PhiT <: ParameterType{T}, DeltaT <: ParameterType{T}}
@@ -141,6 +162,10 @@ struct RydbergHamiltonian{T <: Real, OmegaT <: ParameterType{T}, PhiT <: Paramet
     Δ::DeltaT
 end
 
+phase(h::RydbergHamiltonian) = h.ϕ
+magnetic_field(::Val{:X}, h::RydbergHamiltonian{T}) where T = h.Ω
+magnetic_field(::Val{:Z}, h::RydbergHamiltonian{T}) where T = h.Δ
+
 function to_matrix(h::AbstractRydbergHamiltonian, atoms::AtomPosition, radius::Float64)
     g = unit_disk_graph(atoms,radius)
     return to_matrix(g, h.Ω, h.ϕ, h.Δ)
@@ -149,31 +174,4 @@ end
 function timestep!(st::Vector, h::AbstractRydbergHamiltonian, atoms, t::Float64)
     H = to_matrix(h, atoms)
     return expv(-im * t, H, st)
-end
-
-"""
-    evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{<:AbstractRydbergHamiltonian}, n, subspace_v, ts::Vector{<:Real})
-
-Evaluate a QAOA sequence `hs` along with parameters `ts` given initial state `st` and atom geometry `atoms`.
-"""
-function evaluate_qaoa! end
-
-function evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}) where T
-    m = length(subspace_v)
-    H = spzeros(Complex{T}, m, m)
-
-    # Krylov Subspace Cfg
-    Ks_m = min(30, size(H, 1))
-    Ks = KrylovSubspace{Complex{T}, T}(length(st), Ks_m)
-
-    for (h, t) in zip(hs, ts)
-        to_matrix!(H, n, subspace_v, one(T), h.ϕ)
-        # qaoa step
-        # NOTE: we share the Krylov subspace here since
-        #       the Hamiltonians have the same shape
-        arnoldi!(Ks, H, st; m=Ks_m, ishermitian=true)
-        st = expv!(st, -im*t, Ks)
-        dropzeros!(fill!(H, zero(Complex{T})))
-    end
-    return st
 end

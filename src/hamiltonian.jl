@@ -152,13 +152,15 @@ function timestep!(st::Vector, h::AbstractRydbergHamiltonian, atoms, t::Float64)
 end
 
 """
-    evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{<:AbstractRydbergHamiltonian}, n, subspace_v, ts::Vector{<:Real})
+    evaluate_qaoa!(reg::SubspaceReg, hs::Vector{<:AbstractRydbergHamiltonian}, n, ts::Vector{<:Real})
 
-Evaluate a QAOA sequence `hs` along with parameters `ts` given initial state `st` and atom geometry `atoms`.
+Evaluate a QAOA sequence `hs` along with parameters `ts` given initial state `reg` and atom geometry `atoms`.
 """
 function evaluate_qaoa! end
 
-function evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}) where T
+function evaluate_qaoa!(reg::SubspaceReg{1}, hs::Vector{SimpleRydberg{T}}, n::Int, ts::Vector{T}) where T
+    st = statevec(reg)
+    subspace_v = reg.subspace
     m = length(subspace_v)
     H = spzeros(Complex{T}, m, m)
 
@@ -175,5 +177,5 @@ function evaluate_qaoa!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n:
         st = expv!(st, -im*t, Ks)
         dropzeros!(fill!(H, zero(Complex{T})))
     end
-    return st
+    return reg
 end

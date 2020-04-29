@@ -113,10 +113,10 @@ end
     subspace_v = subspace(g)
     st = rand(ComplexF64, length(subspace_v))
     normalize!(st)
-    final_st = evaluate_qaoa!(copy(st), hs, nv(g), subspace_v, ts)
+    final_st = evaluate_qaoa!(SubspaceReg(copy(st), subspace_v), hs, nv(g), ts)
 
     st = naive_qaoa(st, g, hs, ts)
-    @test st ≈ final_st
+    @test st ≈ final_st.state
     @test norm(st) ≈ 1.0
-    @test norm(final_st) ≈ 1.0
+    @test norm(final_st.state) ≈ 1.0
 end

@@ -32,7 +32,7 @@ function Yao.apply!(r::AbstractRegister{1}, x::QAOA{N, Hs, T}) where {N, Hs, T}
         #       the Hamiltonians have the same shape
         arnoldi!(x.Ks, x.hamiltonian_cache, r.state; m=Ks_m, ishermitian=true)
         st = expv!(st, -im*t, Ks)
-        dropzeros!(fill!(H, zero(Complex{T})))
+        fill!(H, zero(Complex{T}))
     end
     return st
 end

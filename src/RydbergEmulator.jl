@@ -13,8 +13,6 @@ include("measure.jl")
 include("unit_disk.jl")
 include("hamiltonian.jl")
 include("qaoa.jl")
-
-include("optimizers/optimizers.jl")
-include("qaoaopt.jl")
+include("qaoa_mis.jl")
 
 end # module

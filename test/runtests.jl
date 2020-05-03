@@ -12,12 +12,8 @@ end
     include("qaoa.jl")
 end
 
-@testset "optimizers" begin
-    include("optimizers/optimizers.jl")
-end
-
-@testset "qaoaopt" begin
-    include("qaoaopt.jl")
+@testset "qaoa_mis" begin
+    include("qaoa_mis.jl")
 end
 
 @testset "RydbergEmulator.jl" begin

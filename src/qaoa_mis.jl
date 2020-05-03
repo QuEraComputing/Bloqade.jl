@@ -1,4 +1,4 @@
-export qaoa_on_graph, mean_independent_set, cmaes_train_mis
+export qaoa_on_graph, mean_independent_set
 
 """
     qaoa_on_graph(graph, ϕs::AbstractVector, ts::AbstractVector)
@@ -30,24 +30,6 @@ function mean_independent_set(graph, ϕs::AbstractVector, ts::AbstractVector; ns
         expect_mis(reg)
     else
         isets = measure_mis(reg; nshots=nshots)
-        Statistics.mean(isets)
+        sum(isets)/length(isets)
     end
-end
-
-"""
-    cmaes_train_mis(graph, ϕs0, ts0)
-
-Obtain the MIS using CMA-ES training. Return the optimal `ϕs` and `ts`.
-"""
-function cmaes_train_mis(graph, ϕs0, ts0)
-    @assert length(ϕs0) == length(ts0)
-    p = length(ϕs0)
-    params = vcat(ϕs0, ts0)
-    optparams = cmaes(params; num_offsprings=50, num_parents=10, maxiter=100, tol=1e-5) do params
-        p = length(params)÷2
-        ϕs = params[1:p]
-        ts = params[p+1:end]
-        -mean_independent_set(graph, ϕs, ts; nshots=nothing)
-    end
-    optparams[1:p], optparams[p+1:end]
 end

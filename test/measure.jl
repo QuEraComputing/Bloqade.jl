@@ -1,6 +1,5 @@
 using Test, RydbergEmulator
 using Random
-using Statistics
 using LightGraphs, LinearAlgebra
 
 function test_graph()
@@ -29,7 +28,7 @@ end
     r |> qaoa
     # 1. sampling
     isets = measure_mis(r; nshots=10000)
-    expected_sampling = Statistics.mean(isets)
+    expected_sampling = sum(isets)/length(isets)
     # 2. exact
     expected_exact = expect_mis(r)
     @test isapprox(expected_exact, expected_sampling; rtol=1e-1)

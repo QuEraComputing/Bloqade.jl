@@ -1,6 +1,25 @@
 using Test, RydbergEmulator
 using Random
 using LightGraphs
+using Evolutionary
+
+"""
+    cmaes_train_mis(graph, ϕs0, ts0)
+
+Obtain the MIS using CMA-ES training. Return the optimal `ϕs` and `ts`.
+"""
+function cmaes_train_mis(graph, ϕs0, ts0)
+    @assert length(ϕs0) == length(ts0)
+    p = length(ϕs0)
+    params = vcat(ϕs0, ts0)
+    res = Evolutionary.optimize(params, CMAES(μ = 5, λ = 100)) do params
+        p = length(params)÷2
+        ϕs = params[1:p]
+        ts = params[p+1:end]
+        -mean_independent_set(graph, ϕs, ts; nshots=nothing)
+    end
+    res.minimizer[1:p], res.minimizer[p+1:end]
+end
 
 function test_graph()
     g = SimpleGraph(5)

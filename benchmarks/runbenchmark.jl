@@ -24,3 +24,5 @@ r = RydbergEmulator.zero_state(n, subspace_v)
 qaoa = QAOA{n}(subspace_v, hs, ts)
 
 @benchmark r |> qaoa
+
+@profiler r |> qaoa

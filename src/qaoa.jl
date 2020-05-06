@@ -1,6 +1,7 @@
 using Yao
 using ExponentialUtilities
 using SparseArrays
+using LuxurySparse
 
 export QAOA, update_ansatz!
 # NOTE: we use a type parameter Hs here to let Julia specialize the type when possible.
@@ -15,6 +16,12 @@ struct QAOA{N, Hs <: Vector, TimeType <: Real, HMatrixType <: AbstractMatrix{Com
     Ks::KrylovT
 end
 
+function init_hamiltonian(::Type{T}, n::Int, m::Int, subspace_v, Ω, ϕ) where T
+    H = SparseMatrixCOO{Complex{T}}(undef, m, m)
+    to_matrix!(H, n, subspace_v, Ω, ϕ)
+    return SparseMatrixCSC(H)
+end
+
 """
     QAOA{N}(subspace_v, hs::Vector, ts::Vector{TimeType}; kwargs...)
 
@@ -27,11 +34,15 @@ Create a QAOA block, where `subspace_v` is the emulation subspace, `hs` is the v
 - `krylov_niteration=min(30, length(subspace_v))`, maximum number of iteration for Krylov method
 """
 function QAOA{N}(subspace_v::Vector{Int}, hs::Vector, ts::Vector{TimeType};
-        cache=(m=length(subspace_v);spzeros(Complex{TimeType}, m, m)),
+        cache=nothing,
         krylov_niteration=min(30, length(subspace_v))) where {N, TimeType}
     
     m = length(subspace_v)
     Ks = KrylovSubspace{Complex{TimeType}, TimeType}(m, krylov_niteration)
+
+    if cache === nothing
+        cache = init_hamiltonian(TimeType, N, m, subspace_v, one(TimeType), first(hs).ϕ)
+    end
     return QAOA{N, typeof(hs), eltype(ts), typeof(cache), typeof(Ks)}(hs, cache, ts, subspace_v, Ks)
 end
 
@@ -74,13 +85,12 @@ end
 
 function qaoa_routine!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}, Ks::KrylovSubspace, cache::AbstractMatrix) where T
     for (h, t) in zip(hs, ts)
-        to_matrix!(cache, n, subspace_v, one(T), h.ϕ)
+        update_hamiltonian!(cache, n, subspace_v, one(T), h.ϕ)
         # qaoa step
         # NOTE: we share the Krylov subspace here since
         #       the Hamiltonians have the same shape
         arnoldi!(Ks, cache, st)
         st = expv!(st, -im*t, Ks)
-        fillzero!(cache)
     end
     return st
 end

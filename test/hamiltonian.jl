@@ -107,4 +107,7 @@ end
     matrix_hamiltonian[11,10] = Ω[1] * exp(-im * ϕ[1])
 
     @test to_matrix(g, Ω, ϕ, Δ) ≈ matrix_hamiltonian
+
+    M = to_matrix(g, Ω, ϕ, Δ)
+    @test update_hamiltonian!(copy(M), 5, sort(set_subspace), Ω, ϕ, Δ) ≈ M
 end

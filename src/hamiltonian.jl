@@ -36,9 +36,9 @@ Sigma X term of the Rydberg Hamiltonian in MIS subspace:
 \\sum_{i=1}^n Ω_i (e^{iϕ_i})|0⟩⟨1| + e^{-iϕ_i}|1⟩⟨0|)
 ```
 """
-function sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω::ParameterType, ϕ::ParameterType) where {T}
+Base.@propagate_inbounds function sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω::ParameterType, ϕ::ParameterType) where {T}
     sigma_x = zero(T)
-    @inbounds for k in 1:n
+    for k in 1:n
         each_k = readbit(lhs, k)
         rhs = flip(lhs, 1 << (k - 1))
         # TODO: optimize this part by reusing node id
@@ -64,7 +64,7 @@ Sigma Z term of the Rydberg Hamiltonian in MIS subspace.
 \\sum_{i=1}^n Δ_i σ_i^z
 ```
 """
-function sigma_z_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, Δ::ParameterType) where {T <: Number}
+Base.@propagate_inbounds function sigma_z_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, Δ::ParameterType) where {T <: Number}
     sigma_z = zero(T)
     for k in 1:n
         if readbit(lhs, k) == 1
@@ -84,7 +84,7 @@ Create a Rydberg Hamiltonian matrix from given parameters inplacely with blockad
 The matrix is preallocated as `dst`.
 """
 function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω::ParameterType, ϕ::ParameterType, Δ::ParameterType)
-    for (i, lhs) in enumerate(subspace_v)
+    @inbounds for (i, lhs) in enumerate(subspace_v)
         sigma_z_term!(dst, n, lhs, i, Δ)
         sigma_x_term!(dst, n, lhs, i, subspace_v, Ω, ϕ)
     end
@@ -92,7 +92,7 @@ function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω::ParameterType, 
 end
 
 function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω::ParameterType, ϕ::ParameterType)
-    for (i, lhs) in enumerate(subspace_v)
+    @inbounds for (i, lhs) in enumerate(subspace_v)
         sigma_x_term!(dst, n, lhs, i, subspace_v, Ω, ϕ)
     end
     return dst

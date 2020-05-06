@@ -4,18 +4,13 @@ using LightGraphs
 using Random
 
 Random.seed!(42)
-n = 10; depth = 5
+n = 32; depth = 5
 g = SimpleGraph(n)
-add_edge!(g, 1, 2)
-add_edge!(g, 2, 3)
-add_edge!(g, 2, 4)
-add_edge!(g, 2, 5)
-add_edge!(g, 3, 4)
-add_edge!(g, 4, 5)
-add_edge!(g, 5, 10)
-add_edge!(g, 8, 5)
-add_edge!(g, 7, 5)
-add_edge!(g, 2, 10)
+for i in 1:n, j in 1:n
+    if rand() < 0.2
+        add_edge!(g, i, j)
+    end
+end
 
 subspace_v = subspace(g)
 hs = SimpleRydberg.(rand(depth))
@@ -25,4 +20,3 @@ qaoa = QAOA{n}(subspace_v, hs, ts)
 
 @benchmark r |> qaoa
 
-@profiler r |> qaoa

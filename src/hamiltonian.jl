@@ -27,14 +27,19 @@ end
 getscalarmaybe(x::Vector, k) = x[k]
 getscalarmaybe(x::Number, k) = x
 
-function update_hamiltonian!(dst::AbstractMatrix, n::Int, subspace_v, Ω::ParameterType, ϕ::ParameterType, Δ::ParameterType)
-    return to_matrix!(dst, n, subspace_v, Δ, Ω, ϕ)
+function update_hamiltonian!(dst::AbstractMatrix, n::Int, subspace_v, ps...)
+    return to_matrix!(dst, n, subspace_v, ps...)
 end
 
-function update_z_term!(dst::SparseMatrixCSC, n, col, lhs)
+function update_hamiltonian!(dst::Hermitian, n::Int, subspace_v, ps...)
+    update_hamiltonian!(parent(dst), n, subspace_v, ps...)
+    return dst
+end
+
+function update_z_term!(dst::SparseMatrixCSC{T}, n::Int, count::Int, col::Int, lhs::Int, Δ) where T
     sigma_z = zero(T)
     for k in 1:n
-        if readbit(lhs, col) == 1
+        if readbit(lhs, k) == 1
             sigma_z -= getscalarmaybe(Δ, k)
         else
             sigma_z += getscalarmaybe(Δ, k)
@@ -44,9 +49,9 @@ function update_z_term!(dst::SparseMatrixCSC, n, col, lhs)
     return dst
 end
 
-function update_x_term!(dst::SparseMatrixCSC, row, col, lhs, Ω, ϕ)
-    mask = col ⊻ row
-    k = log2i(mask)
+function update_x_term!(dst::SparseMatrixCSC, count::Int, row::Int, col::Int, lhs::Int, rhs::Int, Ω, ϕ)
+    mask = lhs ⊻ rhs
+    k = log2i(mask) + 1
     if lhs & mask == 0
         dst.nzval[count] = getscalarmaybe(Ω, k) * exp(im * getscalarmaybe(ϕ, k))
     else
@@ -64,16 +69,17 @@ function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Ω, ϕ)
 
         row = dst.rowval[count]
         lhs = subspace_v[row]
+        rhs = subspace_v[col]
         # we don't check if row == col
         # since there is only x term
         # update x term
-        update_x_term!(dst, row, col, lhs, Ω, ϕ)
+        update_x_term!(dst, count, row, col, lhs, rhs, Ω, ϕ)
     end
     return dst
 end
 
 # specialize for SparseMatrixCSC
-function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Δ, Ω, ϕ)
+function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Ω, ϕ, Δ)
     col = 1
     for (count, v) in enumerate(dst.nzval)
         if count == dst.colptr[col+1]
@@ -83,9 +89,10 @@ function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Δ, Ω, �
         row = dst.rowval[count]
         lhs = subspace_v[row]
         if row == col
-            update_z_term!(dst, n, col, lhs)
+            update_z_term!(dst, n, count, col, lhs, Δ)
         else
-            update_x_term!(dst, row, col, lhs, Ω, ϕ)
+            rhs = subspace_v[col]
+            update_x_term!(dst, count, row, col, lhs, rhs, Ω, ϕ)
         end
     end
     return dst

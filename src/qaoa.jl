@@ -85,13 +85,12 @@ end
 
 function qaoa_routine!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}, Ks::KrylovSubspace, cache::AbstractMatrix) where T
     for (h, t) in zip(hs, ts)
-        to_matrix!(cache, n, subspace_v, one(T), h.ϕ)
+        update_hamiltonian!(cache, n, subspace_v, one(T), h.ϕ)
         # qaoa step
         # NOTE: we share the Krylov subspace here since
         #       the Hamiltonians have the same shape
         arnoldi!(Ks, cache, st)
         st = expv!(st, -im*t, Ks)
-        fillzero!(cache)
     end
     return st
 end

@@ -106,8 +106,7 @@ Base.@propagate_inbounds function sigma_x_term!(dst::AbstractMatrix{T}, n::Int, 
         rhs = flip(lhs, 1 << (k - 1))
 
         j = searchsortedfirst(subspace_v, rhs)
-        if (j != length(subspace_v) + 1) && (rhs == subspace_v[i])
-            each_k = readbit(lhs, k)
+        if (j != length(subspace_v) + 1) && (rhs == subspace_v[j])
             if each_k == 0
                 dst[i, j] = getscalarmaybe(Ω, k) * exp(im * getscalarmaybe(ϕ, k))
             else

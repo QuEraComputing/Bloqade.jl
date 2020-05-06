@@ -109,5 +109,5 @@ end
     @test to_matrix(g, Ω, ϕ, Δ) ≈ matrix_hamiltonian
 
     M = to_matrix(g, Ω, ϕ, Δ)
-    @test update_hamiltonian!(copy(M), 5, subspace_v, Ω, ϕ, Δ) ≈ M
+    @test update_hamiltonian!(copy(M), 5, sort(set_subspace), Ω, ϕ, Δ) ≈ M
 end

@@ -13,11 +13,17 @@ end
 
 function RydbergReg{N}(state::AbstractVector, subspace::SST) where {N, SST}
     state = reshape(state,:,1)
-    return RydbergReg{N, 1, typeof(state), SST}(state, subspace)
+    if !(eltype(subspace) <: BitStr)
+        subspace = BitStr64{N}.(subspace)
+    end
+    return RydbergReg{N, 1, typeof(state), typeof(subspace)}(state, subspace)
 end
 
 function RydbergReg{N}(state::VT, subspace::SST) where {N, VT<:AbstractMatrix, SST}
-    return RydbergReg{N, size(state,2),VT,SST}(state, subspace)
+    if !(eltype(subspace) <: BitStr)
+        subspace = BitStr64{N}.(subspace)
+    end
+    return RydbergReg{N, size(state,2),VT,typeof(subspace)}(state, subspace)
 end
 
 Yao.nqubits(reg::RydbergReg{N}) where N = N

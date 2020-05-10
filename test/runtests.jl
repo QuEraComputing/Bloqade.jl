@@ -16,7 +16,10 @@ end
     include("qaoa_mis.jl")
 end
 
-@testset "RydbergEmulator.jl" begin
+@testset "unit disk" begin
     include("unit_disk.jl")
+end
+
+@testset "hamiltonian" begin
     include("hamiltonian.jl")
 end

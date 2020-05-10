@@ -36,7 +36,7 @@ Create a QAOA block, where `subspace_v` is the emulation subspace, `hs` is the v
 function QAOA{N}(subspace_v::Vector{Int}, hs::Vector, ts::Vector{TimeType};
         cache=nothing,
         krylov_niteration=min(30, length(subspace_v))) where {N, TimeType}
-    
+
     m = length(subspace_v)
     Ks = KrylovSubspace{Complex{TimeType}, TimeType}(m, krylov_niteration)
 

@@ -1,4 +1,4 @@
-export measure, measure_mis, measure!, measure_mis!, expect_mis
+export measure, measure_mis, measure!, measure_mis!
 
 function YaoBase.measure(
     ::ComputationalBasis,
@@ -23,29 +23,6 @@ function YaoBase.measure!(
     return reg.subspace[ind]
 end
 
-"""
-    measure_mis!(reg::RydbergReg)
-
-Measure the independent set size on `reg`, and collapse the state.
-"""
-function measure_mis!(reg::RydbergReg)
-    count_ones(measure!(reg))
-end
-
-"""
-    measure_mis(reg::RydbergReg; nshots=1)
-
-Measure the independent set size on `reg` for `nshots` times.
-"""
-function measure_mis(reg::RydbergReg; nshots=1)
-    count_ones.(measure(reg; nshots=nshots))
-end
-
-"""
-    expect_mis(reg::RydbergReg)
-
-Get the expected size of independent set on `reg`.
-"""
-function expect_mis(reg::RydbergReg)
-    sum(t -> abs2(t[2]) * count_ones(t[1]), zip(reg.subspace, relaxedvec(reg)))
+function YaoBase.measure(; nshots=1)
+    reg -> measure(reg; nshots=nshots)
 end

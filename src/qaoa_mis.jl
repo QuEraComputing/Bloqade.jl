@@ -1,4 +1,11 @@
-export qaoa_on_graph, mean_independent_set
+export qaoa_on_graph, mean_nv, count_vertices, mean, soft_misloss, logsumexp
+
+"""
+    count_vertices(config::Integer)
+
+counter the number of vertices in a spin configuration.
+"""
+count_vertices(config::Integer) = count_ones(config)
 
 """
     qaoa_on_graph(graph, ϕs::AbstractVector, ts::AbstractVector)
@@ -18,18 +25,40 @@ function qaoa_on_graph(graph, ϕs::AbstractVector, ts::AbstractVector)
 end
 
 """
-    mean_independent_set(graph, ϕs::AbstractVector, ts::AbstractVector; nshots=nothing)
+    mean_nv(reg)
 
-Estimate the mean independent set by executing qaoa circuit on a graph model.
-If `nshots` is nothing, there is no sampling error.
+Mean size of vertex set.
+`reg` can be a measurement result or a register.
 """
-function mean_independent_set(graph, ϕs::AbstractVector, ts::AbstractVector; nshots=nothing)
-    reg = qaoa_on_graph(graph, ϕs, ts)
-    # compute loss
-    if nshots isa Nothing
-        expect_mis(reg)
-    else
-        isets = measure_mis(reg; nshots=nshots)
-        sum(isets)/length(isets)
-    end
+function mean_nv(reg::RydbergReg)
+    sum(t -> abs2(t[2]) * count_vertices(t[1]), zip(reg.subspace, relaxedvec(reg)))
 end
+
+mean_nv(samples::AbstractVector{<:BitStr}) = mean(count_vertices, samples)
+
+"""
+    soft_misloss([reg::RydbergReg], α::Real)
+
+The soften maximum independent set loss defined as
+```math
+L = -1/α \\log(\\langle ψ|\\exp(α \\sum(n))|ψ\\rangle),
+```
+where `n` is the vertex set size.
+"""
+function soft_misloss(reg::RydbergReg, α::Real)
+    expected = sum(zip(reg.subspace, relaxedvec(reg))) do (config, amp)
+        abs2(amp) * exp(α * count_vertices(config))
+    end
+    -log(expected)/α
+end
+
+function logsumexp(x::AbstractVector)
+    xmax = maximum(x)
+    log(sum(exp.(x .- xmax))) + xmax
+end
+
+function soft_misloss(samples::AbstractVector{<:BitStr}, α::Real)
+    -(logsumexp(α .* count_vertices.(samples)) - log(length(samples)))/α
+end
+
+soft_misloss(α::Real) = reg -> soft_misloss(reg, α)

@@ -235,7 +235,7 @@ phase(h::RydbergHamiltonian) = h.ϕ
 magnetic_field(::Val{:X}, h::RydbergHamiltonian{T}) where T = h.Ω
 magnetic_field(::Val{:Z}, h::RydbergHamiltonian{T}) where T = h.Δ
 
-function to_matrix(h::AbstractRydbergHamiltonian, atoms::AtomPosition, radius::Float64)
+function to_matrix(h::AbstractRydbergHamiltonian, atoms::AbstractVector{<:RydAtom}, radius::Float64)
     g = unit_disk_graph(atoms,radius)
     return to_matrix(g, h.Ω, h.ϕ, h.Δ)
 end

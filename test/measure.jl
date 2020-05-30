@@ -25,6 +25,8 @@ end
     # prepare a zero state
     subspace_v = subspace(g)
     r = RydbergEmulator.zero_state(5, subspace_v)
+    sample1 = measure!(r)
+    @test sample1 == zero(BitStr64{5})
     qaoa = QAOA{5}(subspace_v, hs, ts)
     r |> qaoa
     Random.seed!(5)

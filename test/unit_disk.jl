@@ -6,6 +6,8 @@ using LightGraphs
     g = SimpleGraph(4)
     positions = [0 0 0.3 0.4; 0 0.6 0 0.6]
     atms = rydatoms(positions)
+    g2 = unit_disk_graph(atms)
+    @test ne(g2) == 6
 
     radius = 0.5
     for edge = [(1,3),(2,4)]

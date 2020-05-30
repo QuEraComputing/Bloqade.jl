@@ -1,5 +1,5 @@
 using StatsBase
-export RydAtom, unit_disk_graph, rand_unit_disk_graph
+export RydAtom, Atom2D, unit_disk_graph, rand_unit_disk_graph
 export rydatoms, axis, distance, lattice_atoms, rand_atoms
 
 abstract type AbstractAtom end
@@ -50,7 +50,7 @@ function lattice_atoms(n::Int, ff::Float64, geometry::String)
     end
 end
 
-function unit_disk_graph(atoms::AbstractVector{<:Atom2D}, radius::Float64=1)
+function unit_disk_graph(atoms::AbstractVector{<:Atom2D}, radius=1)
     n_atoms = length(atoms)
     g = SimpleGraph(n_atoms)
 

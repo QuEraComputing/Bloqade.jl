@@ -17,7 +17,7 @@ function YaoBase.measure!(
     ::AllLocs;
     rng::AbstractRNG = Random.GLOBAL_RNG,
     ) where N
-    ind = sample(rng, 1:length(reg.subspace), Weights(relaxedvec(reg)))
+    ind = sample(rng, 1:length(reg.subspace), Weights(abs2.(relaxedvec(reg))))
     reg.state .= 0
     reg.state[ind] = 1
     return reg.subspace[ind]

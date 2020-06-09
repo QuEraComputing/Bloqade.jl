@@ -2,3 +2,5 @@
 /dev/
 /docs/build
 __pycache__/
+
+Manifest.toml

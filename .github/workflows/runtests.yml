@@ -10,12 +10,11 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: [self-hosted, linux, x64]
     strategy:
       matrix:
         julia-version: ['1.4']
         julia-arch: [x86]
-        os: [ubuntu-latest, macOS-latest]
         exclude:
           - os: macOS-latest
             julia-arch: x86

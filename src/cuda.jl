@@ -5,6 +5,8 @@ using ExponentialUtilities: getV, getH, get_cache, _exp!
 using LinearAlgebra: BlasReal, BlasComplex
 using SparseArrays
 using CUDA: CUBLAS
+using CUDA: GPUArrays
+using CUDA.GPUArrays: AbstractGPUVecOrMat, AbstractGPUArray, AbstractGPUVector
 
 function CUDA.cu(r::RydbergReg{N}) where {N}
     return RydbergReg{N}(cu(r.state), cu(r.subspace))
@@ -74,6 +76,12 @@ end
     end
 end
 
+# GPUArray patch
+@inline function LinearAlgebra.mul!(C::AbstractGPUArray{Complex{Float64},1},
+        A::AbstractGPUVecOrMat{Complex{Float64}}, B::AbstractGPUVector, a::Real, b::Real)
+    GPUArrays.generic_matmatmul!(C, A, B, a, b)
+end
+
 # CUDA.expv!
 
 function ExponentialUtilities.expv!(w::CuVector{Tw}, t::Real, Ks::KrylovSubspace{T, U};
@@ -103,7 +111,7 @@ function ExponentialUtilities.expv!(w::CuVector{Tw}, t::Real, Ks::KrylovSubspace
 end
 
 
-function expv!(w::CuVector{Complex{Tw}}, t::Complex{Tt}, Ks::KrylovSubspace{T, U};
+function ExponentialUtilities.expv!(w::CuVector{Complex{Tw}}, t::Real, Ks::KrylovSubspace{T, U};
         cache=nothing, dexpHe::CuVector = CuVector{U}(undef, Ks.m)) where {Tw, Tt, T, U}
     m, beta, V, H = Ks.m, Ks.beta, getV(Ks), getH(Ks)
     @assert length(w) == size(V, 1) "Dimension mismatch"
@@ -129,6 +137,7 @@ function expv!(w::CuVector{Complex{Tw}}, t::Complex{Tt}, Ks::KrylovSubspace{T, U
     lmul!(beta, mul!(w, @view(V[:, 1:m]), dexpHe)) # exp(A) ≈ norm(b) * V * exp(H)e
 end
 
+export CuQAOA
 # hamiltonian
 struct CuQAOA{N, Hs <: Vector, TimeType <: Real, KrylovT <: KrylovSubspace} <: Yao.PrimitiveBlock{N}
     hamiltonians::Hs
@@ -152,19 +161,25 @@ function CuQAOA{N}(subspace_v::Vector{Int}, hs::Vector, ts::Vector{TimeType};
     m = length(subspace_v)
     V = CuMatrix{Complex{TimeType}}(undef, m, krylov_niteration + 1)
     H = fill(zero(TimeType), krylov_niteration + 1, krylov_niteration)
-    Ks = KrylovSubspace{Complex{TimeType}, TimeType, TimeType, typeof(V), typeof(H)}(m, m, false, zero(TimeType), V, H);
+    Ks = KrylovSubspace{Complex{TimeType}, TimeType, TimeType, typeof(V), typeof(H)}(krylov_niteration, krylov_niteration, false, zero(TimeType), V, H);
     if cache === nothing
         cpu_cache = init_hamiltonian(TimeType, N, m, subspace_v, one(TimeType), first(hs).ϕ)
         m_cache = CuSparseMatrixCSR(cpu_cache)
-        dexpHe = CuVector{T}(undef, Ks.maxiter)
+        dexpHe = CuVector{TimeType}(undef, Ks.maxiter)
     else
         m_cache, dexpHe = cache
     end
-    return QAOA{N, typeof(hs), eltype(ts), typeof(Ks)}(hs, ts, subspace_v, cu(subspace_v), Ks, m_cache, dexpHe)
+    return CuQAOA{N, typeof(hs), eltype(ts), typeof(Ks)}(hs, ts, subspace_v, cu(subspace_v), Ks, m_cache, dexpHe)
+end
+
+function Yao.apply!(r::RydbergReg{N, 1, <:CuArray, <:CuArray}, x::CuQAOA{N, Hs, T}) where {N, Hs, T}
+    st = vec(r.state)
+    qaoa_routine!(vec(r.state), x.hamiltonians, N, x.device_subspace_v, x.ts, x.Ks, x.h_cache, x.dexpHe)
+    return r
 end
 
 # TODO: polish this routine so we don't need to have two similar routines
-function qaoa_routine!(st::CuVector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int,
+function qaoa_routine!(st::CuVector{Complex{T}}, hs::Vector{<:SimpleRydberg}, n::Int,
         subspace_v::CuVector, ts::Vector{T}, Ks::KrylovSubspace, cache::CuSparseMatrixCSR, dexpHe::CuVector) where T
 
     for (h, t) in zip(hs, ts)
@@ -172,61 +187,52 @@ function qaoa_routine!(st::CuVector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n
         # qaoa step
         # NOTE: we share the Krylov subspace here since
         #       the Hamiltonians have the same shape
+        lmul!(-im, cache.nzVal)
         arnoldi!(Ks, cache, st; ishermitian=false)
-        expv!(st, -im*t, Ks; dexpHe=dexpHe)
+        expv!(st, t, Ks; dexpHe=dexpHe)
     end
     return st
 end
 
-function update_hamiltonian!(dst::CuSparseMatrixCSR, n::Int, subspace_v::CuVector, Ω::Real, ϕ::Real)
-    function kernel(dst, subspace_v, Ω, ϕ)
+function update_hamiltonian!(dst::CuSparseMatrixCSR, n::Int, subspace_v::CuVector, Ω, ϕ)
+    function kernel(rowPtr, colVal, nzVal, subspace_v, Ω, ϕ)
         row = threadIdx().x
-        for k in dst.rowPtr[row]:dst.rowPtr[row+1]
-            col = dst.colVal[k]
+        for k in rowPtr[row]:rowPtr[row+1]-1
+            col = colVal[k]
             lhs = subspace_v[row]
             rhs = subspace_v[col]
 
             mask = lhs ⊻ rhs
             if lhs & mask == 0
-                dst.nzVal[k] = Ω * exp(im * ϕ)
+                nzVal[k] = Ω * exp(im * ϕ)
             else
-                dst.nzVal[k] = Ω * exp(-im * ϕ)
+                nzVal[k] = Ω * exp(-im * ϕ)
             end
+            # update_x_term!(nzVal, lhs, rhs, k, Ω, ϕ)
         end
         return
     end
     
-    @cuda threads=size(dst, 2) kernel(dst, subspace_v, Ω, ϕ)
+    @cuda threads=size(dst, 2) kernel(dst.rowPtr, dst.colVal, dst.nzVal, subspace_v, Ω, ϕ)
+    return dst
 end
 
-function update_hamiltonian!(dst::CuSparseMatrixCSC, n::Int, subspace_v::CuVector, Ω::Real, ϕ::Real, Δ::Real)
-    function kernel(dst, subspace_v, Ω, ϕ, Δ)
+function update_hamiltonian!(dst::CuSparseMatrixCSR, n::Int, subspace_v::CuVector, Ω, ϕ, Δ)
+    function kernel(rowPtr, colVal, nzVal, subspace_v, Ω, ϕ, Δ)
         row = threadIdx().x
-        for k in dst.rowPtr[row]:dst.rowPtr[row+1]
-            col = dst.colVal[k]
+        for k in rowPtr[row]:rowPtr[row+1]-1
+            col = colVal[k]
             lhs = subspace_v[row]
             rhs = subspace_v[col]
 
-            if row == col # z term
-                sigma_z = zero(T)
-                for i in 1:n
-                    if readbit(lhs, i) == 1
-                        sigma_z -= Δ
-                    else
-                        sigma_z += Δ
-                    end
-                end
-                dst.nzVal[k] = sigma_z
+            if row == col
+                update_z_term!(nzVal, lhs, n, k, Δ)
             else
-                mask = lhs ⊻ rhs
-                if lhs & mask == 0
-                    dst.nzVal[k] = Ω * exp(im * ϕ)
-                else
-                    dst.nzVal[k] = Ω * exp(-im * ϕ)
-                end
+                update_x_term!(nzVal, lhs, rhs, k, Ω, ϕ)
             end
         end
         return
     end
-    @cuda threads=size(dst, 2) kernel(dst, subspace_v, Ω, ϕ, Δ)
+    @cuda threads=size(dst, 2) kernel(dst.rowPtr, dst.colVal, dst.nzVal, subspace_v, Ω, ϕ, Δ)
+    return dst
 end

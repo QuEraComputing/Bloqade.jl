@@ -36,67 +36,84 @@ function update_hamiltonian!(dst::Hermitian, n::Int, subspace_v, ps...)
     return dst
 end
 
-function update_z_term!(dst::SparseMatrixCSC{T}, n::Int, count::Int, col::Int, lhs::Int, Δ) where T
-    sigma_z = zero(T)
+# specialize for SparseMatrixCSC
+function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Ω, ϕ)
+    @inbounds for col in 1:size(dst, 1)
+        for k in dst.colptr[col]:dst.colptr[col+1]-1
+            row = dst.rowval[k]
+            lhs = subspace_v[row]
+            rhs = subspace_v[col]
+            update_x_term!(dst.nzval, lhs, rhs, k, Ω, ϕ)
+        end
+    end
+    return dst
+end
+
+function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Ω, ϕ, Δ)
+    @inbounds for col in 1:size(dst, 1)
+        for k in dst.colptr[col]:dst.colptr[col+1]-1
+            row = dst.rowval[k]
+            lhs = subspace_v[row]
+            rhs = subspace_v[col]
+
+            if row == col
+                update_z_term!(dst.nzval, lhs, n, k, Δ)
+            else
+                update_x_term!(dst.nzval, lhs, rhs, k, Ω, ϕ)
+            end
+        end
+    end
+    return dst
+end
+
+Base.@propagate_inbounds function update_x_term!(nzval, lhs, rhs, k, Ω::Real, ϕ::Real)
+    mask = lhs ⊻ rhs
+    if lhs & mask == 0
+        nzval[k] = Ω * exp(im * ϕ)
+    else
+        nzval[k] = Ω * exp(-im * ϕ)
+    end
+    return nzval
+end
+
+Base.@propagate_inbounds function update_x_term!(nzval, lhs, rhs, k, Ω::AbstractVector{<:Real}, ϕ::AbstractVector{<:Real})
+    mask = lhs ⊻ rhs
+    # dispatch to nonsigned version to make CUDA happy
+    l = log2i(UInt(mask)) + 1
+    if lhs & mask == 0
+        nzval[k] = Ω[l] * exp(im * ϕ[l])
+    else
+        nzval[k] = Ω[l] * exp(-im * ϕ[l])
+    end
+    return nzval
+end
+
+Base.@propagate_inbounds function update_z_term!(nzval::AbstractVector{Td}, lhs, n, l, Δ::Real) where Td
+    sigma_z = zero(Td)
     for k in 1:n
         if readbit(lhs, k) == 1
-            sigma_z -= getscalarmaybe(Δ, k)
+            sigma_z -= Δ
         else
-            sigma_z += getscalarmaybe(Δ, k)
+            sigma_z += Δ
         end
     end
-    dst.nzval[count] = sigma_z
+    nzval[l] = sigma_z
     return dst
 end
 
-function update_x_term!(dst::SparseMatrixCSC, count::Int, row::Int, col::Int, lhs::Int, rhs::Int, Ω, ϕ)
-    mask = lhs ⊻ rhs
-    k = log2i(mask) + 1
-    if lhs & mask == 0
-        dst.nzval[count] = getscalarmaybe(Ω, k) * exp(im * getscalarmaybe(ϕ, k))
-    else
-        dst.nzval[count] = getscalarmaybe(Ω, k) * exp(-im * getscalarmaybe(ϕ, k))
-    end
-    return dst
-end
-
-function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Ω, ϕ)
-    col = 1
-    for (count, v) in enumerate(dst.nzval)
-        if count == dst.colptr[col+1]
-            col += 1
-        end
-
-        row = dst.rowval[count]
-        lhs = subspace_v[row]
-        rhs = subspace_v[col]
-        # we don't check if row == col
-        # since there is only x term
-        # update x term
-        update_x_term!(dst, count, row, col, lhs, rhs, Ω, ϕ)
-    end
-    return dst
-end
-
-# specialize for SparseMatrixCSC
-function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Ω, ϕ, Δ)
-    col = 1
-    for (count, v) in enumerate(dst.nzval)
-        if count == dst.colptr[col+1]
-            col += 1
-        end
-
-        row = dst.rowval[count]
-        lhs = subspace_v[row]
-        if row == col
-            update_z_term!(dst, n, count, col, lhs, Δ)
+Base.@propagate_inbounds function update_z_term!(nzval::AbstractVector{Td}, lhs, n, l, Δ::AbstractVector{<:Real}) where Td
+    sigma_z = zero(Td)
+    for k in 1:n
+        if readbit(lhs, k) == 1
+            sigma_z -= Δ[k]
         else
-            rhs = subspace_v[col]
-            update_x_term!(dst, count, row, col, lhs, rhs, Ω, ϕ)
+            sigma_z += Δ[k]
         end
     end
+    nzval[l] = sigma_z
     return dst
 end
+
 
 """
     sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω, ϕ) where {T}

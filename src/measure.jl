@@ -1,20 +1,20 @@
 export measure, measure_mis, measure!, measure_mis!
 
-function YaoBase.measure(
-    ::ComputationalBasis,
+function Yao.measure(
+    ::Yao.ComputationalBasis,
     reg::RydbergReg{N, 1},
-    ::AllLocs;
+    ::Yao.AllLocs;
     nshots::Int = 1,
     rng::AbstractRNG = Random.GLOBAL_RNG,
     ) where N
     sample(rng, reg.subspace, Weights(abs2.(relaxedvec(reg))), nshots)
 end
 
-function YaoBase.measure!(
-    ::YaoBase.NoPostProcess,
-    ::ComputationalBasis,
+function Yao.measure!(
+    ::Yao.NoPostProcess,
+    ::Yao.ComputationalBasis,
     reg::RydbergReg{N, 1},
-    ::AllLocs;
+    ::Yao.AllLocs;
     rng::AbstractRNG = Random.GLOBAL_RNG,
     ) where N
     ind = sample(rng, 1:length(reg.subspace), Weights(abs2.(relaxedvec(reg))))
@@ -23,6 +23,6 @@ function YaoBase.measure!(
     return reg.subspace[ind]
 end
 
-function YaoBase.measure(; nshots=1)
+function Yao.measure(; nshots=1)
     reg -> measure(reg; nshots=nshots)
 end

@@ -83,7 +83,7 @@ function update_ansatz!(x::QAOA{N, Vector{SimpleRydberg{T}}, T}, ϕ::Vector{T}, 
     return x
 end
 
-function qaoa_routine!(st::AbstractVector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}, Ks::KrylovSubspace, cache::AbstractMatrix) where T
+function qaoa_routine!(st::AbstractVector{Complex{T}}, hs::Vector{<:SimpleRydberg}, n::Int, subspace_v, ts::Vector{T}, Ks::KrylovSubspace, cache::AbstractMatrix) where T
     for (h, t) in zip(hs, ts)
         update_hamiltonian!(cache, n, subspace_v, one(T), h.ϕ)
         # qaoa step

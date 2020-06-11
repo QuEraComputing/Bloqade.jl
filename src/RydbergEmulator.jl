@@ -6,8 +6,9 @@ using BitBasis
 using ExponentialUtilities
 using SparseArrays
 using Random
-using Yao
 using CUDA
+import Yao
+using Yao: AbstractBlock, AbstractRegister
 
 include("register.jl")
 include("measure.jl")

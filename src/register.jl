@@ -33,6 +33,9 @@ Yao.statevec(reg::RydbergReg) = Yao.matvec(reg.state)
 Yao.relaxedvec(reg::RydbergReg{N, 1}) where N = vec(reg.state)
 Yao.relaxedvec(reg::RydbergReg) = reg.state
 
+Base.copy(reg::RydbergReg{N, B, ST, SST}) where {N, B, ST, SST} =
+    RydbergReg{N, B, ST, SST}(copy(reg.state), copy(reg.subspace))
+
 """
     zero_state([T=ComplexF64], n::Int, subspace; nbatch=1)
 

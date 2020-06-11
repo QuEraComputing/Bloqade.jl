@@ -3,7 +3,7 @@ export RydbergReg
 struct RydbergReg{N,B,ST,SST} <: AbstractRegister{B}
     state::ST
     subspace::SST
-    function RydbergReg{N,B,ST,SST}(state, subspace) where {N, B, ST, SST}
+    function RydbergReg{N,B,ST,SST}(state::ST, subspace::SST) where {N, B, ST, SST}
         if length(state) != subspace
             DimensionMismatch("size of state $(size(state)) does not match size of subspace $(size(subspace))")
         end

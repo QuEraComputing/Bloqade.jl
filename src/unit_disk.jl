@@ -46,7 +46,7 @@ function lattice_atoms(n::Int, ff::Float64, geometry::String)
         atom_coordinates_x = (atom_coordinates_linear .- 1) .÷ L .+ 1
         atom_coordinates_y = (atom_coordinates_linear .- 1) .% L .+ 1
         atom_coordinates = vcat(atom_coordinates_x', atom_coordinates_y')
-        RydAtom(atom_coordinates)
+        rydatoms(atom_coordinates)
     end
 end
 

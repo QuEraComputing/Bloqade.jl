@@ -6,13 +6,13 @@ using LuxurySparse
 export QAOA, update_ansatz!
 # NOTE: we use a type parameter Hs here to let Julia specialize the type when possible.
 # but this should be a Vector in general, since we need a mutable array object
-struct QAOA{N, Hs <: Vector, TimeType <: Real, HMatrixType <: AbstractMatrix{Complex{TimeType}},KrylovT <: KrylovSubspace} <: Yao.PrimitiveBlock{N}
+struct QAOA{N, Hs <: Vector, TimeType <: Real, HMatrixType <: AbstractMatrix{Complex{TimeType}}, VT <: AbstractVector{Int}, KrylovT <: KrylovSubspace} <: Yao.PrimitiveBlock{N}
     hamiltonians::Hs
     hamiltonian_cache::HMatrixType
     ts::Vector{TimeType}
     # we use Int for now since we are not
     # targeting system above 64 qubits for now
-    subspace_v::Vector{Int}
+    subspace_v::VT
     Ks::KrylovT
 end
 
@@ -43,7 +43,7 @@ function QAOA{N}(subspace_v::Vector{Int}, hs::Vector, ts::Vector{TimeType};
     if cache === nothing
         cache = init_hamiltonian(TimeType, N, m, subspace_v, one(TimeType), first(hs).ϕ)
     end
-    return QAOA{N, typeof(hs), eltype(ts), typeof(cache), typeof(Ks)}(hs, cache, ts, subspace_v, Ks)
+    return QAOA{N, typeof(hs), eltype(ts), typeof(cache), typeof(subspace_v), typeof(Ks)}(hs, cache, ts, subspace_v, Ks)
 end
 
 # TODO: move this to utils.jl
@@ -83,7 +83,7 @@ function update_ansatz!(x::QAOA{N, Vector{SimpleRydberg{T}}, T}, ϕ::Vector{T}, 
     return x
 end
 
-function qaoa_routine!(st::Vector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}, Ks::KrylovSubspace, cache::AbstractMatrix) where T
+function qaoa_routine!(st::AbstractVector{Complex{T}}, hs::Vector{SimpleRydberg{T}}, n::Int, subspace_v, ts::Vector{T}, Ks::KrylovSubspace, cache::AbstractMatrix) where T
     for (h, t) in zip(hs, ts)
         update_hamiltonian!(cache, n, subspace_v, one(T), h.ϕ)
         # qaoa step

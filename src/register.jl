@@ -3,7 +3,7 @@ export RydbergReg
 struct RydbergReg{N,B,ST,SST} <: AbstractRegister{B}
     state::ST
     subspace::SST
-    function RydbergReg{N,B,ST,SST}(state, subspace) where {N, B, ST, SST}
+    function RydbergReg{N,B,ST,SST}(state::ST, subspace::SST) where {N, B, ST, SST}
         if length(state) != subspace
             DimensionMismatch("size of state $(size(state)) does not match size of subspace $(size(subspace))")
         end
@@ -32,6 +32,9 @@ Yao.state(reg::RydbergReg) = reg.state
 Yao.statevec(reg::RydbergReg) = Yao.matvec(reg.state)
 Yao.relaxedvec(reg::RydbergReg{N, 1}) where N = vec(reg.state)
 Yao.relaxedvec(reg::RydbergReg) = reg.state
+
+Base.copy(reg::RydbergReg{N, B, ST, SST}) where {N, B, ST, SST} =
+    RydbergReg{N, B, ST, SST}(copy(reg.state), copy(reg.subspace))
 
 """
     zero_state([T=ComplexF64], n::Int, subspace; nbatch=1)

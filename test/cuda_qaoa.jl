@@ -9,7 +9,7 @@ using ExponentialUtilities
 using LinearAlgebra
 using RydbergEmulator: subspace
 
-N = 25
+N = 28
 graph = unit_disk_graph(lattice_atoms(N, 0.8, "square"), 1.0)
 ϕs = rand(5)
 hs = SimpleRydberg.(ϕs)

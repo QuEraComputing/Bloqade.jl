@@ -111,16 +111,39 @@ dM2 = update_hamiltonian!(copy(dM), 5, cu(sort(set_subspace)), cu(Ω), cu(ϕ), c
 @test isapprox(dM, dM2, atol=1e-5)
 
 
-graph = unit_disk_graph(lattice_atoms(10, 0.8, "square"), 1.0)
+N = 20
+graph = unit_disk_graph(lattice_atoms(N, 0.8, "square"), 1.0)
 ϕs = rand(5)
 hs = SimpleRydberg.(ϕs)
 ts = rand(length(hs))
 # prepair a zero state
 subspace_v = subspace(graph)
-reg = RydbergEmulator.zero_state(10, subspace_v)
+reg = RydbergEmulator.zero_state(N, subspace_v)
 dreg = cu(reg)
-qaoa = CuQAOA{nv(graph)}(subspace_v, hs, ts)
-r1 = Yao.apply!(copy(dreg), qaoa)
+dqaoa = CuQAOA{nv(graph)}(subspace_v, hs, ts)
+r1 = Yao.apply!(copy(dreg), dqaoa)
 
-r2 = copy(reg) |> QAOA{nv(graph)}(subspace_v, hs, ts)
+qaoa = QAOA{nv(graph)}(subspace_v, hs, ts)
+r2 = copy(reg) |> qaoa
 @test Array(r1.state) ≈ r2.state
+
+
+@benchmark CUDA.@sync update_hamiltonian!(dqaoa.h_cache, 10, dqaoa.device_subspace_v, 1.0, ϕs[1])
+@benchmark update_hamiltonian!(qaoa.hamiltonian_cache, 10, qaoa.subspace_v, 1.0, ϕs[1])
+
+dqaoa.h_cache
+
+@benchmark CUDA.@sync begin
+    lmul!(-im, dqaoa.h_cache.nzVal)
+    arnoldi!(dqaoa.Ks, dqaoa.h_cache, $(vec(dreg.state)); ishermitian=false)
+    expv!($(vec(dreg.state)), ts[1], dqaoa.Ks; dexpHe=dqaoa.dexpHe)
+end
+
+@benchmark begin
+    arnoldi!(qaoa.Ks, qaoa.hamiltonian_cache, $(vec(reg.state)))
+    expv!($(vec(reg.state)), -im*ts[1], qaoa.Ks)
+end
+
+
+@benchmark CUDA.@sync(Yao.apply!(r, qaoa)) setup=(r=copy($dreg))
+@benchmark Yao.apply!(r, QAOA{nv(graph)}(subspace_v, hs, ts)) setup=(r=copy($reg))

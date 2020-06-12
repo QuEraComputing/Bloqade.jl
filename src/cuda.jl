@@ -107,7 +107,7 @@ function ExponentialUtilities.expv!(w::CuVector{Tw}, t::Real, Ks::KrylovSubspace
     end
 
     copyto!(dexpHe, expHe)
-    lmul!(beta, mul!(w, @view(V[:, 1:m]), dexpHe)) # exp(A) ≈ norm(b) * V * exp(H)e
+    lmul!(beta, mul!(w, @view(V[:, 1:m]), @view(dexpHe[1:m]))) # exp(A) ≈ norm(b) * V * exp(H)e
 end
 
 
@@ -134,7 +134,7 @@ function ExponentialUtilities.expv!(w::CuVector{Complex{Tw}}, t::Real, Ks::Krylo
     end
 
     copyto!(dexpHe, expHe)
-    lmul!(beta, mul!(w, @view(V[:, 1:m]), dexpHe)) # exp(A) ≈ norm(b) * V * exp(H)e
+    lmul!(beta, mul!(w, @view(V[:, 1:m]), @view(dexpHe[1:m]))) # exp(A) ≈ norm(b) * V * exp(H)e
 end
 
 export CuQAOA
@@ -196,7 +196,11 @@ end
 
 function update_hamiltonian!(dst::CuSparseMatrixCSR, n::Int, subspace_v::CuVector, Ω, ϕ)
     function kernel(rowPtr, colVal, nzVal, subspace_v, Ω, ϕ)
-        row = threadIdx().x
+        row = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+        if row > length(rowPtr) - 1
+            return
+        end
+
         for k in rowPtr[row]:rowPtr[row+1]-1
             col = colVal[k]
             lhs = subspace_v[row]
@@ -213,13 +217,25 @@ function update_hamiltonian!(dst::CuSparseMatrixCSR, n::Int, subspace_v::CuVecto
         return
     end
     
-    @cuda threads=size(dst, 2) kernel(dst.rowPtr, dst.colVal, dst.nzVal, subspace_v, Ω, ϕ)
+    if size(dst, 2) < 256
+        threads = size(dst, 2)
+        nblocks = 1
+    else
+        threads = 256
+        nblocks = ceil(Int, size(dst, 2) / 256)
+    end
+
+    @cuda threads=threads blocks=nblocks kernel(dst.rowPtr, dst.colVal, dst.nzVal, subspace_v, Ω, ϕ)
     return dst
 end
 
 function update_hamiltonian!(dst::CuSparseMatrixCSR, n::Int, subspace_v::CuVector, Ω, ϕ, Δ)
     function kernel(rowPtr, colVal, nzVal, subspace_v, Ω, ϕ, Δ)
-        row = threadIdx().x
+        row = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+        if row > length(rowPtr) - 1
+            return
+        end
+
         for k in rowPtr[row]:rowPtr[row+1]-1
             col = colVal[k]
             lhs = subspace_v[row]
@@ -233,6 +249,15 @@ function update_hamiltonian!(dst::CuSparseMatrixCSR, n::Int, subspace_v::CuVecto
         end
         return
     end
-    @cuda threads=size(dst, 2) kernel(dst.rowPtr, dst.colVal, dst.nzVal, subspace_v, Ω, ϕ, Δ)
+
+    if size(dst, 2) < 256
+        threads = size(dst, 2)
+        nblocks = 1
+    else
+        threads = 256
+        nblocks = ceil(Int, size(dst, 2) / 256)
+    end
+
+    @cuda threads=threads blocks=nblocks kernel(dst.rowPtr, dst.colVal, dst.nzVal, subspace_v, Ω, ϕ, Δ)
     return dst
 end

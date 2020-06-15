@@ -52,13 +52,17 @@ function soft_misloss(reg::RydbergReg, α::Real)
     -log(expected)/α
 end
 
-function logsumexp(x::AbstractVector)
+function logsumexp(x::AbstractArray)
     xmax = maximum(x)
     log(sum(exp.(x .- xmax))) + xmax
 end
 
 function soft_misloss(samples::AbstractVector{<:BitStr}, α::Real)
     -(logsumexp(α .* count_vertices.(samples)) - log(length(samples)))/α
+end
+
+function soft_misloss(samples::AbstractMatrix, α::Real)
+    -(logsumexp(α .* sum(samples, dims=(2,))) - log(size(samples, 1)))/α
 end
 
 soft_misloss(α::Real) = reg -> soft_misloss(reg, α)

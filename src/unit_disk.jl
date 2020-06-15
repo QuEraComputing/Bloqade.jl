@@ -4,11 +4,21 @@ export rydatoms, axis, distance, lattice_atoms, rand_atoms
 
 abstract type AbstractAtom end
 
+"""
+    RydAtom{N,T} <: AbstractAtom
+    RydAtom(locations...)
+    RydAtom(locations)
+
+Rydberg atom.
+"""
 struct RydAtom{N,T} <: AbstractAtom
     loc::NTuple{N,T}
 end
 
 # constructors
+"""
+    Atom2D{T} = RydAtom{2,T}
+"""
 const Atom2D{T} = RydAtom{2,T}
 RydAtom(args...) = RydAtom(args)
 RydAtom(x::AbstractVector) = RydAtom(x...)
@@ -50,6 +60,13 @@ function lattice_atoms(n::Int, ff::Float64, geometry::String)
     end
 end
 
+"""
+    unit_disk_graph(atoms::AbstractVector{<:Atom2D}, radius=1)
+
+Create a unit disk graph from atom positions `atoms`. It returns a `LightGraphs.SimpleGraph` instance.
+* `atoms` is vector of atoms positions.
+* `radius` is the unit in the unit disk graph definition.
+"""
 function unit_disk_graph(atoms::AbstractVector{<:Atom2D}, radius=1)
     n_atoms = length(atoms)
     g = SimpleGraph(n_atoms)

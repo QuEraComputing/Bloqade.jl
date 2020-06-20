@@ -4,26 +4,6 @@ export to_matrix, SimpleRydberg, subspace,
 
 const ParameterType{T} = Union{T, Vector{T}} where {T <: Number}
 
-"""
-    subspace(n::Int, mis::Vector)
-
-Create a subspace from given maximal independent set `mis`.
-"""
-function subspace(n::Int, mis::Vector)
-    it = map(mis) do each
-        fixed_points = setdiff(1:n, each)
-        itercontrol(n, fixed_points, zero(fixed_points))
-    end
-    return sort(unique(Iterators.flatten(it)))
-end
-
-function subspace(graph::SimpleGraph)
-    cg = complement(graph)
-    mis = maximal_cliques(cg)
-    n = nv(graph)
-    subspace_v = subspace(n, mis)
-end
-
 getscalarmaybe(x::Vector, k) = x[k]
 getscalarmaybe(x::Number, k) = x
 

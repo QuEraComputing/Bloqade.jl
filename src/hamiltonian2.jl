@@ -32,6 +32,9 @@ nsites(t::ZTerm) = length(t.Δs)
 nsites(t::Hamiltonian) = length(t.terms[1])
 nsites(t;::RydInteract) = length(t.atoms)
 
+hilbert_space(n::Int) = 0:((1<<n)-1)
+hilbert_space(t::AbstractTerm) = hilbert_space(nsites(t))
+
 function Base.show(io::IO, t::RydInteract)
     print(io, "C/|r_i - r_j|^6 ")
     printstyled(io, "n_i n_j", color=:light_blue)
@@ -105,15 +108,41 @@ function to_matrix! end
 
 # full space
 function to_matrix!(dst::AbstractMatrix{T}, t::RydInteract) where T
+    for i in 1:nsites(t), j in 1:nsites(t)
+        r_i, r_j = t.atoms[i], t.atoms[j]
+        alpha = t.C / norm(r_i - r_j)^6
+
+        
+    end
 end
 
 function to_matrix!(dst::AbstractMatrix{T}, t::XTerm) where T
+    @inbounds for lhs in hilbert_space(t)
+        for k in 1:nsites(t)
+            k_site = readbit(lhs, k)
+            rhs = flip(lhs, 1 << (k - 1))
+            dst[lhs, rhs] = getterm(t, k, k_site)
+        end
+    end
+    return dst
 end
 
 function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm) where T
+    @inbounds for lhs in hilbert_space(t)
+        sigma_z = zero(T)
+        for k in 1:nsites(t)
+            sigma_z += getterm(t, k, readbit(lhs, k))
+        end
+        dst[lhs, lhs] = sigma_z
+    end
+    return dst
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::Hamiltonian) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::Hamiltonian, xs...) where T
+    for term in t.terms
+        to_matrix!(dst, term, xs...)
+    end
+    return dst
 end
 
 # subspace
@@ -138,13 +167,6 @@ function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm, subspace_v) where T
             sigma_z += getterm(t, k, readbit(lhs, k))
         end
         dst[i, i] = sigma_z
-    end
-    return dst
-end
-
-function to_matrix!(dst::AbstractMatrix{T}, t::Hamiltonian, subspace_v) where T
-    for term in t.terms
-        to_matrix!(dst, term, subspace_v)
     end
     return dst
 end

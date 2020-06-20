@@ -1,5 +1,11 @@
 module RydbergEmulator
 
+using Printf
+using BitBasis
+using SparseArrays
+
+export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian
+
 include("atoms.jl")
 include("hamiltonian2.jl")
 

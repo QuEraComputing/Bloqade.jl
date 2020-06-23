@@ -8,6 +8,7 @@ on:
     branches:
       - master
 
+
 jobs:
   test:
     runs-on: [self-hosted, linux, x64]
@@ -15,10 +16,15 @@ jobs:
       matrix:
         julia-version: ['1.4']
         julia-arch: [x86]
-
+    
     steps:
       - uses: actions/checkout@v1.0.0
-      - uses: julia-actions/setup-julia@latest
+      - name: "Set up Julia"
+        uses: julia-actions/setup-julia@latest
         with:
           version: ${{ matrix.julia-version }}
-      - uses: julia-actions/julia-runtest@master
+      - name: "Add Registry"
+        run: julia -e 'using Pkg; pkg"registry add https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"'
+      - name: "Test Package"
+        run: julia --color=yes --check-bounds=yes --project -e 'using Pkg; Pkg.test(coverage=true)'
+        shell: bash

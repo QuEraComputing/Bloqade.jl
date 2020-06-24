@@ -31,3 +31,9 @@ include("utils.jl")
     H = to_matrix(h, subspace)
     @test H ≈ update_term!(copy(H), h, subspace)
 end
+
+using CUDA
+using CUDA.CUSPARSE
+dH = CuSparseMatrixCSR(H)
+ds = cu(subspace)
+update_term!(dH, h, ds)

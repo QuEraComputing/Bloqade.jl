@@ -7,6 +7,7 @@ using LightGraphs
 using LinearAlgebra
 using OrderedCollections
 using Yao
+using Random
 using CUDA
 
 using LinearAlgebra: BlasReal, BlasComplex

@@ -1,3 +1,5 @@
+update_term!(H::CuSparseMatrixCSR, t::AbstractTerm, s::Subspace) = update_term!(H, t, s.subspace_v)
+
 function update_term!(dst::CuSparseMatrixCSR, t::AbstractTerm, subspace_v::Vector)
     update_term!(dst, t, CuVector(subspace_v)) # copy to device, if subspace is given on CPU
 end

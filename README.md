@@ -6,4 +6,6 @@ This is a Rydberg Emulator.
 
 ## Installation
 
-
+```julia
+]add RydbergEmulator
+```

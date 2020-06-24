@@ -6,6 +6,7 @@ using SparseArrays
 using LightGraphs
 using LinearAlgebra
 using OrderedCollections
+using Yao
 using CUDA
 
 using LinearAlgebra: BlasReal, BlasComplex

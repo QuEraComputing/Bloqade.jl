@@ -188,6 +188,16 @@ function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm, s::Subspace) where T
     return dst
 end
 
+
+"""
+    update_term!(H, term[, subspace])
+
+Update matrix `H` based on the given Hamiltonian term. This can be faster when the sparse structure of
+`H` is known (e.g `H` is a `SparseMatrixCSC`). It fallbacks to `to_matrix!(H, term[, subspace])` if the
+sparse structure is unknown.
+"""
+function update_term! end
+
 # forward to to_matrix! as fallback
 update_term!(H::AbstractMatrix, t::AbstractTerm, s::Subspace) = to_matrix!(H, t, s)
 

@@ -3,13 +3,15 @@ module RydbergEmulator
 using Printf
 using BitBasis
 using SparseArrays
-using LightGraph
+using LightGraphs
 using LinearAlgebra
+using OrderedCollections
 export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian
+export to_matrix, to_matrix!, update_term!
 
 include("atoms.jl")
 include("subspace.jl")
-include("hamiltonian2.jl")
+include("hamiltonian.jl")
 
 # using LightGraphs
 # using LinearAlgebra

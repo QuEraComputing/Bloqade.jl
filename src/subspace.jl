@@ -1,16 +1,22 @@
 export Subspace
 
+"""
+    Subspace
+
+A `Dict`-like object stores the mapping between subspace and full space.
+"""
 struct Subspace
-    map::Dict{Int, Int} # fullspace_index => subspace_index
+    map::OrderedDict{Int, Int} # fullspace_index => subspace_index
+    subspace_v::Vector{Int}
 end
 
 function Subspace(subspace_v::Vector{Int})
     subspace_v = sort(subspace_v)
-    map = Dict{Int, Int}()
+    map = OrderedDict{Int, Int}()
     for (subspace_index, fullspace_index) in enumerate(subspace_v)
         map[fullspace_index] = subspace_index
     end
-    return Subspace(map)
+    return Subspace(map, subspace_v)
 end
 
 """
@@ -30,3 +36,9 @@ function Subspace(graph::SimpleGraph)
 end
 
 Base.getindex(s::Subspace, key::Int) = s.map[key]
+Base.keys(s::Subspace) = keys(s.map)
+Base.values(s::Subspace) = values(s.map)
+Base.length(s::Subspace) = length(s.subspace_v)
+Base.iterate(s::Subspace) = iterate(s.map)
+Base.iterate(s::Subspace, st) = iterate(s.map, st)
+Base.haskey(s::Subspace, key) = haskey(s.map, key)

@@ -242,6 +242,6 @@ Base.@propagate_inbounds function update_nzval!(nzval, k, t::ZTerm, col, row, rh
     return nzval
 end
 
-Base.@propagate_inbounds getscalarmaybe(x::Vector, k) = x[k]
+Base.@propagate_inbounds getscalarmaybe(x::AbstractVector, k) = x[k]
 Base.@propagate_inbounds getscalarmaybe(x::Number, k) = x
 Base.@propagate_inbounds getscalarmaybe(x::Nothing, k) = 0

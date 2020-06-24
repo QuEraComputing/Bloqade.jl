@@ -1,6 +1,7 @@
 using Test
 using RydbergEmulator
 using LightGraphs
+using SparseArrays
 using OrderedCollections
 
 include("utils.jl")
@@ -34,6 +35,11 @@ end
 
 using CUDA
 using CUDA.CUSPARSE
+dΩ = cu(Ω)
+dϕ = cu(ϕ)
+dΔ = cu(Δ)
+h = XTerm(dΩ, dϕ) + ZTerm(dΔ)
 dH = CuSparseMatrixCSR(H)
 ds = cu(subspace)
 update_term!(dH, h, ds)
+@test isapprox(SparseMatrixCSC(dH), H; rtol=1e-7)

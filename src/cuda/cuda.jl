@@ -11,4 +11,5 @@ end
 CUDA.cu(s::Subspace) = Subspace(s.map, cu(s.subspace_v))
 
 include("patch.jl")
+include("device.jl")
 include("hamiltonian.jl")

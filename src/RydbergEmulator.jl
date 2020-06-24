@@ -22,6 +22,8 @@ include("hamiltonian.jl")
 include("register.jl")
 include("measure.jl")
 
+include("unit_disk.jl")
+
 # using LightGraphs
 # using LinearAlgebra
 # using BitBasis
@@ -32,13 +34,8 @@ include("measure.jl")
 # import Yao
 # using Yao: AbstractBlock, AbstractRegister
 
-# include("register.jl")
-# include("measure.jl")
-# include("unit_disk.jl")
-# include("hamiltonian.jl")
 # include("qaoa.jl")
 # include("qaoa_mis.jl")
-
 
 @static if CUDA.functional()
     include("cuda/cuda.jl")

@@ -25,8 +25,6 @@ include("utils.jl")
     ϕ = Float64[0.5, 0.4, -0.2, -1.2, 10.2]
 
     target = create_test_hamiltonian(Δ, Ω, ϕ)
-    @test to_matrix(g, Ω, ϕ, Δ) ≈ target
-
     h = XTerm(Ω, ϕ) + ZTerm(Δ)
     @test to_matrix(h, subspace) ≈ target
 

@@ -5,9 +5,9 @@ export Subspace
 
 A `Dict`-like object stores the mapping between subspace and full space.
 """
-struct Subspace
+struct Subspace{S <: AbstractVector{Int}}
     map::OrderedDict{Int, Int} # fullspace_index => subspace_index
-    subspace_v::Vector{Int}
+    subspace_v::S
 end
 
 function Subspace(subspace_v::Vector{Int})

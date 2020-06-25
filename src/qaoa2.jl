@@ -7,6 +7,10 @@ struct QAOA{N, T, Term, C, S, K, E} <: Yao.PrimitiveBlock{N}
     expHe::E # expv cache
 end
 
+function QAOA{N}(ts::Vector{T}, terms::Vector{Term}, cache, subspace, Ks, expHe=nothing) where {N, T, Term}
+    QAOA{N, T, Term, typeof(cache), typeof(subspace), typeof(Ks), typeof(expHe)}(ts, terms, cache, subspace, Ks, expHe)
+end
+
 """
     QAOA{N}(subspace_v, hs::Vector, ts::Vector{TimeType}; kwargs...)
 

@@ -257,3 +257,9 @@ end
 Base.@propagate_inbounds getscalarmaybe(x::AbstractVector, k) = x[k]
 Base.@propagate_inbounds getscalarmaybe(x::Number, k) = x
 Base.@propagate_inbounds getscalarmaybe(x::Nothing, k) = 0
+
+simple_rydberg(ϕ) = XTerm(one(ϕ), ϕ)
+
+function rydberg_h(C, atoms, Ω, ϕ, Δ)
+    return RydInteract(C, atoms) + XTerm(Ω, ϕ) + ZTerm(Δ)
+end

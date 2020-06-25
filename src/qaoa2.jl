@@ -1,4 +1,4 @@
-struct QAOA{N, T, Term, C, S, K, E} <: Yao.AbstractBlock{N, T}
+struct QAOA{N, T, Term, C, S, K, E} <: Yao.PrimitiveBlock{N}
     ts::Vector{T}
     term::Vector{Term}
     cache::C

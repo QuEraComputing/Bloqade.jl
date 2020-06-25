@@ -14,8 +14,8 @@ import Yao
 
 using LinearAlgebra: BlasReal, BlasComplex
 
-export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian
-export to_matrix, to_matrix!, update_term!
+export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, QAOA
+export to_matrix, to_matrix!, update_term!, simple_rydberg, rydberg_h
 
 include("atoms.jl")
 include("subspace.jl")

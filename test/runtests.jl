@@ -7,14 +7,15 @@ Random.seed!(42)
     include("hamiltonian.jl")
 end
 
+@testset "QAOA emulator" begin
+    include("qaoa.jl")
+end
+
 @testset "Yao interfaces" begin
     include("register.jl")
     include("measure.jl")
 end
 
-@testset "QAOA emulator" begin
-    include("qaoa.jl")
-end
 
 @testset "qaoa_mis" begin
     include("qaoa_mis.jl")

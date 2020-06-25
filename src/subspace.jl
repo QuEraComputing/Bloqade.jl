@@ -1,11 +1,14 @@
 export Subspace
 
+abstract type AbstractSpace end
+struct FullSpace <: AbstractSpace end
+
 """
     Subspace
 
 A `Dict`-like object stores the mapping between subspace and full space.
 """
-struct Subspace{S <: AbstractVector{Int}}
+struct Subspace{S <: AbstractVector{Int}} <: AbstractSpace
     map::OrderedDict{Int, Int} # fullspace_index => subspace_index
     subspace_v::S
 end

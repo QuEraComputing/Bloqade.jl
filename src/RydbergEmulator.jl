@@ -3,12 +3,14 @@ module RydbergEmulator
 using Printf
 using BitBasis
 using SparseArrays
+using LuxurySparse
 using LightGraphs
 using LinearAlgebra
 using OrderedCollections
-using Yao
+using ExponentialUtilities
 using Random
 using CUDA
+import Yao
 
 using LinearAlgebra: BlasReal, BlasComplex
 
@@ -23,6 +25,8 @@ include("register.jl")
 include("measure.jl")
 
 include("unit_disk.jl")
+
+include("qaoa2.jl")
 
 # using LightGraphs
 # using LinearAlgebra

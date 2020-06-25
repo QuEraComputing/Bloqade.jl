@@ -199,10 +199,22 @@ sparse structure is unknown.
 function update_term! end
 
 # forward to to_matrix! as fallback
+update_term!(H::AbstractMatrix, t::AbstractTerm, s::Nothing) = update_term!(H, t)
+update_term!(H::AbstractMatrix, t::AbstractTerm) = to_matrix!(H, t)
 update_term!(H::AbstractMatrix, t::AbstractTerm, s::Subspace) = to_matrix!(H, t, s)
 
 # specialize on sparse matrix
 update_term!(H::SparseMatrixCSC, t::AbstractTerm, s::Subspace) = update_term!(H, t, s.subspace_v)
+
+function update_term!(H::SparseMatrixCSC, t::AbstractTerm)
+    @inbounds for rhs in 1:size(H, 1)
+        for k in H.colptr[rhs]:H.colptr[rhs+1]-1
+            lhs = H.rowval[k]
+            update_nzval!(H.nzval, k, t, rhs, lhs, rhs, lhs)
+        end
+    end
+    return H
+end
 
 function update_term!(H::SparseMatrixCSC, t::AbstractTerm, subspace_v)
     @inbounds for col in 1:size(H, 1)
@@ -210,20 +222,20 @@ function update_term!(H::SparseMatrixCSC, t::AbstractTerm, subspace_v)
             row = H.rowval[k]
             lhs = subspace_v[row]
             rhs = subspace_v[col]
-            update_nzval!(H.nzval, k, t, col, row, rhs, lhs)
+            update_nzval!(H.nzval, k, t, rhs, lhs, col, row)
         end
     end
     return H
 end
 
-Base.@propagate_inbounds function update_nzval!(nzval, k, t::Hamiltonian, col, row, rhs, lhs)
+Base.@propagate_inbounds function update_nzval!(nzval, k, t::Hamiltonian, rhs, lhs, col, row)
     for term in t.terms
-        update_nzval!(nzval, k, term, col, row, rhs, lhs)
+        update_nzval!(nzval, k, term, rhs, lhs, col, row)
     end
     return nzval
 end
 
-Base.@propagate_inbounds function update_nzval!(nzval, k, t::XTerm, col, row, rhs, lhs)
+Base.@propagate_inbounds function update_nzval!(nzval, k, t::XTerm, rhs, lhs, col, row)
     col == row && return nzval
     mask = lhs ⊻ rhs
     l = log2i(UInt(mask)) + 1
@@ -232,7 +244,7 @@ Base.@propagate_inbounds function update_nzval!(nzval, k, t::XTerm, col, row, rh
     return nzval
 end
 
-Base.@propagate_inbounds function update_nzval!(nzval, k, t::ZTerm, col, row, rhs, lhs)
+Base.@propagate_inbounds function update_nzval!(nzval, k, t::ZTerm, rhs, lhs, col, row)
     col != row && return nzval
     sigma_z = zero(eltype(nzval))
     for k in 1:nsites(t)

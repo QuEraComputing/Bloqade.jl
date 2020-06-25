@@ -1,6 +1,6 @@
 export RydbergReg
 
-struct RydbergReg{N,B,ST,SST} <: AbstractRegister{B}
+struct RydbergReg{N,B,ST,SST} <: Yao.AbstractRegister{B}
     state::ST
     subspace::SST
     function RydbergReg{N,B,ST,SST}(state::ST, subspace::SST) where {N, B, ST, SST}

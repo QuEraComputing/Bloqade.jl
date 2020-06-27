@@ -28,6 +28,6 @@ jobs:
             url = "https://github.com/JuliaRegistries/General.git"),
           Pkg.RegistrySpec(name = "Miskatonic",
             uuid = "79f41a6d-793b-449f-b026-1dc9b55489e6",
-            url = "git@github.com:Happy-Diode/Miskatonic.git")
+            url = "https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git")
           ];
          CompatHelper.main(; registries = my_registries)'

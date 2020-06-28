@@ -12,7 +12,7 @@ function cmaes_train_mis(graph, ϕs0, ts0)
     @assert length(ϕs0) == length(ts0)
     p = length(ϕs0)
     params = vcat(ϕs0, ts0)
-    res = Evolutionary.optimize(params, CMAES(μ = 5, λ = 100)) do params
+    res = Evolutionary.optimize(params, CMAES(mu = 5, lambda = 100)) do params
         p = length(params)÷2
         ϕs = params[1:p]
         ts = params[p+1:end]

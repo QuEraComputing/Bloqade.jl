@@ -3,13 +3,30 @@ module RydbergEmulator
 using Printf
 using BitBasis
 using SparseArrays
-using LightGraph
+using LuxurySparse
+using LightGraphs
 using LinearAlgebra
-export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian
+using OrderedCollections
+using ExponentialUtilities
+using Random
+using CUDA
+import Yao
+
+using LinearAlgebra: BlasReal, BlasComplex
+
+export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, QAOA
+export to_matrix, to_matrix!, update_term!, simple_rydberg, rydberg_h
 
 include("atoms.jl")
 include("subspace.jl")
-include("hamiltonian2.jl")
+include("hamiltonian.jl")
+
+include("register.jl")
+include("measure.jl")
+
+include("unit_disk.jl")
+
+include("qaoa2.jl")
 
 # using LightGraphs
 # using LinearAlgebra
@@ -21,17 +38,11 @@ include("hamiltonian2.jl")
 # import Yao
 # using Yao: AbstractBlock, AbstractRegister
 
-# include("register.jl")
-# include("measure.jl")
-# include("unit_disk.jl")
-# include("hamiltonian.jl")
 # include("qaoa.jl")
 # include("qaoa_mis.jl")
 
-
-# @static if CUDA.functional()
-#     using CUDA.CUSPARSE
-#     include("cuda.jl")
-# end
+@static if CUDA.functional()
+    include("cuda/cuda.jl")
+end
 
 end # module

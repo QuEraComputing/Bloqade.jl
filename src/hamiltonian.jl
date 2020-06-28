@@ -1,243 +1,265 @@
-export to_matrix, SimpleRydberg, subspace,
-    RydbergHamiltonian, AbstractRydbergHamiltonian,
-    update_hamiltonian!
+abstract type AbstractTerm end
 
-const ParameterType{T} = Union{T, Vector{T}} where {T <: Number}
-
-getscalarmaybe(x::Vector, k) = x[k]
-getscalarmaybe(x::Number, k) = x
-
-function update_hamiltonian!(dst::AbstractMatrix, n::Int, subspace_v, ps...)
-    return to_matrix!(dst, n, subspace_v, ps...)
-end
-
-function update_hamiltonian!(dst::Hermitian, n::Int, subspace_v, ps...)
-    update_hamiltonian!(parent(dst), n, subspace_v, ps...)
-    return dst
-end
-
-# specialize for SparseMatrixCSC
-function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Ω, ϕ)
-    @inbounds for col in 1:size(dst, 1)
-        for k in dst.colptr[col]:dst.colptr[col+1]-1
-            row = dst.rowval[k]
-            lhs = subspace_v[row]
-            rhs = subspace_v[col]
-            update_x_term!(dst.nzval, lhs, rhs, k, Ω, ϕ)
-        end
-    end
-    return dst
-end
-
-function update_hamiltonian!(dst::SparseMatrixCSC, n::Int, subspace_v, Ω, ϕ, Δ)
-    @inbounds for col in 1:size(dst, 1)
-        for k in dst.colptr[col]:dst.colptr[col+1]-1
-            row = dst.rowval[k]
-            lhs = subspace_v[row]
-            rhs = subspace_v[col]
-
-            if row == col
-                update_z_term!(dst.nzval, lhs, n, k, Δ)
-            else
-                update_x_term!(dst.nzval, lhs, rhs, k, Ω, ϕ)
-            end
-        end
-    end
-    return dst
-end
-
-Base.@propagate_inbounds function update_x_term!(nzval, lhs, rhs, k, Ω::Real, ϕ::Real)
-    mask = lhs ⊻ rhs
-    if lhs & mask == 0
-        nzval[k] = Ω * exp(im * ϕ)
-    else
-        nzval[k] = Ω * exp(-im * ϕ)
-    end
-    return nzval
-end
-
-Base.@propagate_inbounds function update_x_term!(nzval, lhs, rhs, k, Ω::AbstractVector{<:Real}, ϕ::AbstractVector{<:Real})
-    mask = lhs ⊻ rhs
-    # dispatch to nonsigned version to make CUDA happy
-    l = log2i(UInt(mask)) + 1
-    if lhs & mask == 0
-        nzval[k] = Ω[l] * exp(im * ϕ[l])
-    else
-        nzval[k] = Ω[l] * exp(-im * ϕ[l])
-    end
-    return nzval
-end
-
-Base.@propagate_inbounds function update_z_term!(nzval::AbstractVector{Td}, lhs, n, l, Δ::Real) where Td
-    sigma_z = zero(Td)
-    for k in 1:n
-        if readbit(lhs, k) == 1
-            sigma_z -= Δ
-        else
-            sigma_z += Δ
-        end
-    end
-    nzval[l] = sigma_z
-    return dst
-end
-
-Base.@propagate_inbounds function update_z_term!(nzval::AbstractVector{Td}, lhs, n, l, Δ::AbstractVector{<:Real}) where Td
-    sigma_z = zero(Td)
-    for k in 1:n
-        if readbit(lhs, k) == 1
-            sigma_z -= Δ[k]
-        else
-            sigma_z += Δ[k]
-        end
-    end
-    nzval[l] = sigma_z
-    return dst
-end
-
-
-"""
-    sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω, ϕ) where {T}
-
-Sigma X term of the Rydberg Hamiltonian in MIS subspace:
-
-```math
-\\sum_{i=1}^n Ω_i (e^{iϕ_i})|0⟩⟨1| + e^{-iϕ_i}|1⟩⟨0|)
-```
-"""
-Base.@propagate_inbounds function sigma_x_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, subspace_v, Ω::ParameterType, ϕ::ParameterType) where {T}
-    for k in 1:n
-        each_k = readbit(lhs, k)
-        rhs = flip(lhs, 1 << (k - 1))
-
-        j = searchsortedfirst(subspace_v, rhs)
-        if (j != length(subspace_v) + 1) && (rhs == subspace_v[j])
-            if each_k == 0
-                dst[i, j] = getscalarmaybe(Ω, k) * exp(im * getscalarmaybe(ϕ, k))
-            else
-                dst[i, j] = getscalarmaybe(Ω, k) * exp(-im * getscalarmaybe(ϕ, k))
-            end
-        end
-    end
-    return dst
-end
-
-"""
-    sigma_z_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, Δ) where {T <: Number}
-
-Sigma Z term of the Rydberg Hamiltonian in MIS subspace.
-
-```math
-\\sum_{i=1}^n Δ_i σ_i^z
-```
-"""
-Base.@propagate_inbounds function sigma_z_term!(dst::AbstractMatrix{T}, n::Int, lhs, i, Δ::ParameterType) where {T <: Number}
-    sigma_z = zero(T)
-    for k in 1:n
-        if readbit(lhs, k) == 1
-            sigma_z -= getscalarmaybe(Δ, k)
-        else
-            sigma_z += getscalarmaybe(Δ, k)
-        end
-    end
-    dst[i, i] = sigma_z
-    return dst
-end
-
-"""
-    to_matrix!(dst::AbstractMatrix{T}, n::Int, subspace_v, Ω, ϕ[, Δ]) where T
-
-Create a Rydberg Hamiltonian matrix from given parameters inplacely with blockade approximation.
-The matrix is preallocated as `dst`.
-"""
-function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω::ParameterType, ϕ::ParameterType, Δ::ParameterType)
-    @inbounds for (i, lhs) in enumerate(subspace_v)
-        sigma_z_term!(dst, n, lhs, i, Δ)
-        sigma_x_term!(dst, n, lhs, i, subspace_v, Ω, ϕ)
-    end
-    return dst
-end
-
-function to_matrix!(dst::AbstractMatrix, n::Int, subspace_v, Ω::ParameterType, ϕ::ParameterType)
-    @inbounds for (i, lhs) in enumerate(subspace_v)
-        sigma_x_term!(dst, n, lhs, i, subspace_v, Ω, ϕ)
-    end
-    return dst
-end
-
-function init_matrix_and_subspace(graph)
-    subspace_v = subspace(graph)
-    m = length(subspace_v)
-    H = spzeros(ComplexF64, m, m)
-    return H, subspace_v
-end
-
-function to_matrix(graph, Ω::ParameterType, ϕ::ParameterType, Δ::ParameterType)
-    n = nv(graph)
-    H, subspace_v = init_matrix_and_subspace(graph)
-    to_matrix!(H, n, subspace_v, Ω, ϕ, Δ)
-    return Hermitian(H)
-end
-
-function to_matrix(graph, Ω::ParameterType, ϕ::ParameterType)
-    n = nv(graph)
-    H, subspace_v = init_matrix_and_subspace(graph)
-    to_matrix!(H, n, subspace_v, Ω, ϕ)
-    return Hermitian(H)
-end
-
-abstract type AbstractRydbergHamiltonian end
-
-"""
-    phase(rydberg_hamiltonian)
-
-Return the phase ϕ on X term of a given Rydberg Hamiltonian.
-"""
-function phase end
-
-"""
-    magnetic_field(Val(:X), rydberg_hamiltonian)
-
-Return the magnetic field Ω of a given Rydberg Hamiltonian for Pauli X.
-
-    magnetic_field(Val(:Z), rydberg_hamiltonian)
-
-Return the magnetic field Δ of a given Rydberg Hamiltonian for Pauli Z.
-"""
-function magnetic_field end
-
-
-
-"""
-    SimpleRydberg{T <: Number} <: AbstractRydbergHamiltonian
-
-Simple Rydberg Hamiltonian, there is only one global parameter ϕ, and Δ=0, Ω=1.
-"""
-struct SimpleRydberg{T <: Number} <: AbstractRydbergHamiltonian
-    ϕ::T
-end
-
-phase(h::SimpleRydberg) = h.ϕ
-magnetic_field(::Val{:X}, h::SimpleRydberg{T}) where T = one(T)
-magnetic_field(::Val{:Z}, h::SimpleRydberg{T}) where T = zero(T)
-
-# general case
-struct RydbergHamiltonian{T <: Real, OmegaT <: ParameterType{T}, PhiT <: ParameterType{T}, DeltaT <: ParameterType{T}}
+struct RydInteract{T, Atom <: RydAtom} <: AbstractTerm
     C::T
-    Ω::OmegaT
-    ϕ::PhiT
-    Δ::DeltaT
+    atoms::Vector{Atom}
 end
 
-phase(h::RydbergHamiltonian) = h.ϕ
-magnetic_field(::Val{:X}, h::RydbergHamiltonian{T}) where T = h.Ω
-magnetic_field(::Val{:Z}, h::RydbergHamiltonian{T}) where T = h.Δ
-
-function to_matrix(h::AbstractRydbergHamiltonian, atoms::AbstractVector{<:RydAtom}, radius::Float64)
-    g = unit_disk_graph(atoms,radius)
-    return to_matrix(g, h.Ω, h.ϕ, h.Δ)
+struct XTerm{Omega, Phi} <: AbstractTerm
+    Ωs::Omega
+    ϕs::Phi
 end
 
-function timestep!(st::Vector, h::AbstractRydbergHamiltonian, atoms, t::Float64)
-    H = to_matrix(h, atoms)
-    return expv(-im * t, H, st)
+struct ZTerm{Delta} <: AbstractTerm
+    Δs::Delta
+end
+
+struct Hamiltonian{Terms <: Tuple} <: AbstractTerm
+    terms::Terms
+end
+
+XTerm(Ωs) = XTerm(Ωs, nothing)
+
+"""
+    nsites(term)
+
+Return the number of sites of given Hamiltonian term.
+"""
+function nsites end
+
+nsites(t::XTerm) = length(t.Ωs)
+nsites(t::ZTerm) = length(t.Δs)
+nsites(t::Hamiltonian) = nsites(t.terms[1])
+nsites(t::RydInteract) = length(t.atoms)
+
+hilbert_space(n::Int) = 0:((1<<n)-1)
+hilbert_space(t::AbstractTerm) = hilbert_space(nsites(t))
+
+function Base.show(io::IO, t::RydInteract)
+    print(io, "C/|r_i - r_j|^6 ")
+    printstyled(io, "n_i n_j", color=:light_blue)
+end
+
+function Base.show(io::IO, t::XTerm)
+    print(io, "Ω ⋅ (e^{iϕ}")
+    printstyled(io, "|0)⟨1|", color=:light_blue)
+    print(io, "+e^{-iϕ}")
+    printstyled(io, "|1⟩⟨0|", color=:light_blue)
+end
+
+function Base.show(io::IO, t::XTerm{<:Any, Nothing})
+    print(io, "Ω")
+    printstyled(io, " σ^x", color=:light_blue)
+end
+
+function Base.show(io::IO, t::ZTerm)
+    print(io, "Δ")
+    printstyled(io, " σ^z", color=:light_blue)
+end
+
+function Base.show(io::IO, x::Hamiltonian)
+    print(io, x.terms[1])
+    for t in x.terms[2:end]
+        print(io, " + ")
+        print(io, t)
+    end
+end
+
+Base.:(+)(x::AbstractTerm, y::AbstractTerm) = Hamiltonian((x, y))
+Base.:(+)(x::AbstractTerm, y::Hamiltonian) = Hamiltonian((x, y.terms...))
+Base.:(+)(x::Hamiltonian, y::AbstractTerm) = Hamiltonian((x.terms..., y))
+Base.:(+)(x::Hamiltonian, y::Hamiltonian) = Hamiltonian((x.terms..., y.terms...))
+
+"""
+    getterm(terms, k, k_site)
+
+Get the value of k-th local term in `terms`
+given the site configuration as `k_site`.
+"""
+function getterm end
+
+function getterm(t::XTerm, k, k_site)
+    if k_site == 0
+        return getscalarmaybe(t.Ωs, k) * exp(im * getscalarmaybe(t.ϕs, k))
+    else
+        return getscalarmaybe(t.Ωs, k) * exp(-im * getscalarmaybe(t.ϕs, k))
+    end
+end
+
+function getterm(t::ZTerm, k, k_site)
+    if k_site == 0
+        return getscalarmaybe(t.Δs, k)
+    else
+        return -getscalarmaybe(t.Δs, k)
+    end
+end
+
+function getterm(t::Hamiltonian, k, k_site)
+    error("composite Hamiltonian term cannot be indexed")
+end
+
+"""
+    to_matrix!(dst, term[, subspace])
+
+Create given term to a matrix and assign it to `dst`. An optional argument `subspace`
+can be taken to construct the matrix in subspace. `dst` should be initialized to zero
+entries by the user.
+"""
+function to_matrix! end
+
+to_matrix(term::AbstractTerm, xs...) = to_matrix(ComplexF64, term, xs...)
+
+function to_matrix(::Type{T}, term::AbstractTerm) where T
+    N = 1 << nsites(term)
+    return to_matrix!(spzeros(T, N, N), term)
+end
+
+function to_matrix(::Type{T}, term::AbstractTerm, s::Subspace) where T
+    N = length(s)
+    return to_matrix!(spzeros(T, N, N), term, s)
+end
+
+# full space
+# C/|r_i - r_j|^6 n_i n_j
+function to_matrix!(dst::AbstractMatrix{T}, t::RydInteract) where T
+    for i in 1:nsites(t), j in 1:nsites(t)
+        r_i, r_j = t.atoms[i], t.atoms[j]
+        alpha = t.C / norm(r_i - r_j)^6
+        # |11⟩⟨11|
+        for lhs in itercontrol(nsites(t), [i, j], [1, 1])
+            dst[lhs, lhs] = alpha
+        end
+    end
+    return dst
+end
+
+# Ω ⋅ (e^{iϕ}|0)⟨1| + e^{-iϕ} |1⟩⟨0|)
+function to_matrix!(dst::AbstractMatrix{T}, t::XTerm) where T
+    @inbounds for lhs in hilbert_space(t)
+        for k in 1:nsites(t)
+            k_site = readbit(lhs, k)
+            rhs = flip(lhs, 1 << (k - 1))
+            dst[lhs+1, rhs+1] = getterm(t, k, k_site)
+        end
+    end
+    return dst
+end
+
+function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm) where T
+    @inbounds for lhs in hilbert_space(t)
+        sigma_z = zero(T)
+        for k in 1:nsites(t)
+            sigma_z += getterm(t, k, readbit(lhs, k))
+        end
+        dst[lhs+1, lhs+1] = sigma_z
+    end
+    return dst
+end
+
+function to_matrix!(dst::AbstractMatrix{T}, t::Hamiltonian, xs...) where T
+    for term in t.terms
+        to_matrix!(dst, term, xs...)
+    end
+    return dst
+end
+
+# subspace
+function to_matrix!(dst::AbstractMatrix, t::XTerm, s::Subspace)
+    @inbounds for (lhs, i) in s
+        for k in 1:nsites(t)
+            k_site = readbit(lhs, k)
+            rhs = flip(lhs, 1 << (k - 1))
+            if haskey(s, rhs)
+                dst[i, s[rhs]] = getterm(t, k, k_site)
+            end
+        end
+    end
+    return dst
+end
+
+function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm, s::Subspace) where T
+    @inbounds for (lhs, i) in s
+        sigma_z = zero(T)
+        for k in 1:nsites(t)
+            sigma_z += getterm(t, k, readbit(lhs, k))
+        end
+        dst[i, i] = sigma_z
+    end
+    return dst
+end
+
+
+"""
+    update_term!(H, term[, subspace])
+
+Update matrix `H` based on the given Hamiltonian term. This can be faster when the sparse structure of
+`H` is known (e.g `H` is a `SparseMatrixCSC`). It fallbacks to `to_matrix!(H, term[, subspace])` if the
+sparse structure is unknown.
+"""
+function update_term! end
+
+# forward to to_matrix! as fallback
+update_term!(H::AbstractMatrix, t::AbstractTerm, s::Nothing) = update_term!(H, t)
+update_term!(H::AbstractMatrix, t::AbstractTerm) = to_matrix!(H, t)
+update_term!(H::AbstractMatrix, t::AbstractTerm, s::Subspace) = to_matrix!(H, t, s)
+
+# specialize on sparse matrix
+update_term!(H::SparseMatrixCSC, t::AbstractTerm, s::Subspace) = update_term!(H, t, s.subspace_v)
+
+function update_term!(H::SparseMatrixCSC, t::AbstractTerm)
+    @inbounds for rhs in 1:size(H, 1)
+        for k in H.colptr[rhs]:H.colptr[rhs+1]-1
+            lhs = H.rowval[k]
+            update_nzval!(H.nzval, k, t, rhs, lhs, rhs, lhs)
+        end
+    end
+    return H
+end
+
+function update_term!(H::SparseMatrixCSC, t::AbstractTerm, subspace_v)
+    @inbounds for col in 1:size(H, 1)
+        for k in H.colptr[col]:H.colptr[col+1]-1
+            row = H.rowval[k]
+            lhs = subspace_v[row]
+            rhs = subspace_v[col]
+            update_nzval!(H.nzval, k, t, rhs, lhs, col, row)
+        end
+    end
+    return H
+end
+
+Base.@propagate_inbounds function update_nzval!(nzval, k, t::Hamiltonian, rhs, lhs, col, row)
+    for term in t.terms
+        update_nzval!(nzval, k, term, rhs, lhs, col, row)
+    end
+    return nzval
+end
+
+Base.@propagate_inbounds function update_nzval!(nzval, k, t::XTerm, rhs, lhs, col, row)
+    col == row && return nzval
+    mask = lhs ⊻ rhs
+    l = log2i(UInt(mask)) + 1
+    l_site = lhs & mask
+    nzval[k] = getterm(t, l, l_site)
+    return nzval
+end
+
+Base.@propagate_inbounds function update_nzval!(nzval, k, t::ZTerm, rhs, lhs, col, row)
+    col != row && return nzval
+    sigma_z = zero(eltype(nzval))
+    for k in 1:nsites(t)
+        sigma_z += getterm(t, k, readbit(lhs, k))
+    end
+    nzval[k] = sigma_z
+    return nzval
+end
+
+Base.@propagate_inbounds getscalarmaybe(x::AbstractVector, k) = x[k]
+Base.@propagate_inbounds getscalarmaybe(x::Number, k) = x
+Base.@propagate_inbounds getscalarmaybe(x::Nothing, k) = 0
+
+simple_rydberg(ϕ) = XTerm(one(ϕ), ϕ)
+
+function rydberg_h(C, atoms, Ω, ϕ, Δ)
+    return RydInteract(C, atoms) + XTerm(Ω, ϕ) + ZTerm(Δ)
 end

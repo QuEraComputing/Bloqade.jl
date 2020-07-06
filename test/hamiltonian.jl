@@ -10,7 +10,7 @@ using CUDA
     @test collect(keys(subspace)) == sort(test_subspace_v)
     @test collect(values(subspace)) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
-    # test to_matrix (hamiltonian creation)
+    # test hamiltonian creation
     Ω = Float64[2.5, 3.4, 0.2, 1.7, 4.3]
     Δ = Float64[1.2, 3.4, 2.6, 0.2, 1.8]
     ϕ = Float64[0.5, 0.4, -0.2, -1.2, 10.2]

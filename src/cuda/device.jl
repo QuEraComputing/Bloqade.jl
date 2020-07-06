@@ -40,3 +40,21 @@ function Adapt.adapt_structure(to, r::RydbergReg{N}) where {N}
 end
 
 Adapt.adapt_structure(to, s::Subspace) = Subspace(s.map, adapt(to, s.subspace_v))
+
+function Adapt.adapt_structure(to, Ks::KrylovSubspace)
+    KrylovSubspace(Ks.m, Ks.maxiter, Ks.augmented, Ks.beta, adapt(to, Ks.V), adapt(to, Ks.H))
+end
+
+function Adapt.adapt_structure(to::Type{<:CuArray}, cache::EmulatorCache)
+    return EmulatorCache(adapt(to, cache.Ks), CuSparseMatrixCSR(cache.H))
+end
+
+function emulate!(r::Yao.ArrayReg{<:Any, <:Any, <:CuArray}, ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}, cache=cu(EmulatorCache(ts, hs)))
+    emulate_routine!(r, ts, hs, cache.Ks, cache.H)
+    return r
+end
+
+function emulate!(r::RydbergReg{<:Any, <:Any, <:CuArray}, ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}, cache=cu(EmulatorCache(ts, hs, r.subspace)))
+    emulate_routine!(r, ts, hs, cache.Ks, cache.H)
+    return r
+end

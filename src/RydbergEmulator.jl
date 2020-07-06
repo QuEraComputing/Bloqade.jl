@@ -17,8 +17,8 @@ import Yao
 
 using LinearAlgebra: BlasReal, BlasComplex
 
-export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, QAOA
-export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, unit_disk_graph, rand_unit_disk_graph
+export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, EmulatorCache
+export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, unit_disk_graph, rand_unit_disk_graph, emulate!
 
 include("atoms.jl")
 include("subspace.jl")
@@ -28,7 +28,7 @@ include("register.jl")
 include("measure.jl")
 
 include("unit_disk.jl")
-include("qaoa.jl")
+include("emulate.jl")
 include("qaoa_mis.jl")
 
 export cpu

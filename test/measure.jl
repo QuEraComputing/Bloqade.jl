@@ -15,8 +15,7 @@ using Yao
     r = RydbergEmulator.zero_state(5, test_subspace)
     sample1 = Yao.measure!(r)
     @test sample1 == zero(BitStr64{5})
-    qaoa = QAOA(hs[1], test_subspace)
-    r |> qaoa(ts, hs)
+    emulate!(r, ts, hs)
     Random.seed!(5)
     # 1. sampling
     samples = measure(r; nshots=10000)

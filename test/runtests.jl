@@ -10,7 +10,7 @@ include("utils.jl")
 end
 
 @testset "QAOA emulator" begin
-    include("qaoa.jl")
+    include("emulate.jl")
 end
 
 @testset "Yao interfaces" begin

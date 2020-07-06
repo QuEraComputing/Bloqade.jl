@@ -31,16 +31,15 @@ end
     s = Subspace(test_subspace_v)
     r = RydbergEmulator.zero_state(5, s)
 
-    qaoa = QAOA(hs[1], s)
-    r1 = copy(r) |> qaoa(ts, hs)
+    cache = EmulatorCache(ts, hs, s)
+    r1 = emulate!(copy(r), ts, hs, cache)
     r2 = naive_qaoa!(copy(r), hs, ts, s)
 
     @test r1 ≈ r2
 
     @testset "cuda" begin
         if CUDA.functional()
-            dqaoa = cu(qaoa)
-            @test isapprox((cu(r) |> dqaoa(ts, hs) |> cpu), r1, atol=1e-6)
+            @test isapprox((emulate!(cu(r), ts, hs, cu(cache)) |> cpu), r1, atol=1e-6)
         end
     end
 end

@@ -20,7 +20,7 @@ function qaoa_on_graph(graph, ϕs::AbstractVector, ts::AbstractVector)
     reg = RydbergReg{nv(graph)}(st, subspace)
 
     # evolve
-    reg |> QAOA(hs[1], subspace)
+    emulate!(reg, ts, hs, subspace)
     return reg
 end
 

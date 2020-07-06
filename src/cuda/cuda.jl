@@ -8,4 +8,3 @@ using ExponentialUtilities: getV, getH, get_cache, _exp!
 include("patch.jl")
 include("device.jl")
 include("hamiltonian.jl")
-include("qaoa.jl")

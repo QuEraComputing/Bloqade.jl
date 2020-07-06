@@ -34,19 +34,6 @@ include("qaoa_mis.jl")
 export cpu
 cpu(x) = adapt(Array, x)
 
-# using LightGraphs
-# using LinearAlgebra
-# using BitBasis
-# using ExponentialUtilities
-# using SparseArrays
-# using Random
-# using CUDA
-# import Yao
-# using Yao: AbstractBlock, AbstractRegister
-
-# include("qaoa.jl")
-# include("qaoa_mis.jl")
-
 @static if CUDA.functional()
     include("cuda/cuda.jl")
 end

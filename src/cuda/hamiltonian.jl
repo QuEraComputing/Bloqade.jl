@@ -15,7 +15,7 @@ function update_kernel(dst, t::AbstractTerm, subspace_v)
         col = dst.colVal[k]
         lhs = subspace_v[row]
         rhs = subspace_v[col]
-        update_nzval!(dst.nzVal, k, t, col, row, rhs, lhs)
+        update_nzval!(dst.nzVal, k, t, rhs, lhs, col, row)
     end
 end
 

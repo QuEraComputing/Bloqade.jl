@@ -1,3 +1,17 @@
+using LightGraphs
+using RydbergEmulator
+
+const test_graph = SimpleGraph(5)
+add_edge!(test_graph, 1, 2)
+add_edge!(test_graph, 2, 3)
+add_edge!(test_graph, 2, 4)
+add_edge!(test_graph, 2, 5)
+add_edge!(test_graph, 3, 4)
+add_edge!(test_graph, 4, 5)
+
+const test_subspace_v = [0, 1, 2, 4, 5, 8, 9, 16, 17, 20, 21]
+const test_subspace = Subspace(test_graph)
+
 create_test_hamiltonian(Δ, Ω, ϕ) = create_test_hamiltonian!(zeros(ComplexF64, 11, 11), Δ, Ω, ϕ)
 
 function create_test_hamiltonian!(H::AbstractMatrix, Δ, Ω, ϕ)

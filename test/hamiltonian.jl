@@ -1,23 +1,13 @@
 using Test
 using RydbergEmulator
-using LightGraphs
+using LightGraphs: SimpleGraph, add_edge!
 using SparseArrays
 using OrderedCollections
-
-include("utils.jl")
+using CUDA
 
 @testset "simple graph hamiltonian subspace" begin
-    g = SimpleGraph(5)
-    add_edge!(g, 1, 2)
-    add_edge!(g, 2, 3)
-    add_edge!(g, 2, 4)
-    add_edge!(g, 2, 5)
-    add_edge!(g, 3, 4)
-    add_edge!(g, 4, 5)
-
-    subspace = Subspace(g)
-    set_subspace = [0,1,2,4,8,16,5,9,17,20,21]
-    @test collect(keys(subspace)) == sort(set_subspace)
+    subspace = Subspace(test_graph)
+    @test collect(keys(subspace)) == sort(test_subspace_v)
     @test collect(values(subspace)) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
     # test to_matrix (hamiltonian creation)
@@ -27,19 +17,23 @@ include("utils.jl")
 
     target = create_test_hamiltonian(Δ, Ω, ϕ)
     h = XTerm(Ω, ϕ) + ZTerm(Δ)
-    @test to_matrix(h, subspace) ≈ target
+    @test SparseMatrixCSC(h, subspace) ≈ target
 
-    H = to_matrix(h, subspace)
+    H = SparseMatrixCSC(h, subspace)
     @test H ≈ update_term!(copy(H), h, subspace)
-end
 
-using CUDA
-using CUDA.CUSPARSE
-dΩ = cu(Ω)
-dϕ = cu(ϕ)
-dΔ = cu(Δ)
-h = XTerm(dΩ, dϕ) + ZTerm(dΔ)
-dH = CuSparseMatrixCSR(H)
-ds = cu(subspace)
-update_term!(dH, h, ds)
-@test isapprox(SparseMatrixCSC(dH), H; rtol=1e-7)
+    @testset "cuda" begin
+        if CUDA.functional()
+            using CUDA
+            using CUDA.CUSPARSE
+            dΩ = cu(Ω)
+            dϕ = cu(ϕ)
+            dΔ = cu(Δ)
+            h = XTerm(dΩ, dϕ) + ZTerm(dΔ)
+            dH = CuSparseMatrixCSR(H)
+            ds = cu(subspace)
+            update_term!(dH, h, ds)
+            @test isapprox(SparseMatrixCSC(dH), H; rtol=1e-7)
+        end
+    end
+end

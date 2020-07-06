@@ -1,9 +1,8 @@
 function CUDA.cu(Ks::KrylovSubspace)
+    KrylovSubspace(Ks.m, Ks.maxiter, Ks.augmented, Ks.beta, cu(Ks.V), cu(Ks.H))
 end
 
-function CUDA.cu(qaoa::QAOA{N, T}) where {N, T}
+function CUDA.cu(qaoa::QAOA)
     cache = CuSparseMatrixCSR(qaoa.cache)
-    Ks = cu(qaoa.Ks)
-    expHe = CuVector{T}(undef, Ks.maxiter)
-    QAOA{N}(qaoa.ts, cu.(qaoa.term), cache, cu(qaoa.subspace), Ks, expHe)
+    return QAOA(cu(qaoa.Ks), cache)
 end

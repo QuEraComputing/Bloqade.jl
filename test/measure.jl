@@ -2,33 +2,21 @@ using Test, RydbergEmulator
 using Random
 using LightGraphs, LinearAlgebra
 using BitBasis
-
-function test_graph()
-    g = SimpleGraph(5)
-    add_edge!(g, 1, 2)
-    add_edge!(g, 2, 3)
-    add_edge!(g, 2, 4)
-    add_edge!(g, 2, 5)
-    add_edge!(g, 3, 4)
-    add_edge!(g, 4, 5)
-    return g
-end
+using Yao
 
 @testset "test measurement" begin
     Random.seed!(8)
-    g = test_graph()
     params = randn(10)
     ts = params[1:2:end]
     ϕs = params[2:2:end]
-    hs = SimpleRydberg.(ϕs)
+    hs = simple_rydberg.(nv(test_graph), ϕs)
 
     # prepare a zero state
-    subspace_v = subspace(g)
-    r = RydbergEmulator.zero_state(5, subspace_v)
-    sample1 = measure!(r)
+    r = RydbergEmulator.zero_state(5, test_subspace)
+    sample1 = Yao.measure!(r)
     @test sample1 == zero(BitStr64{5})
-    qaoa = QAOA{5}(subspace_v, hs, ts)
-    r |> qaoa
+    qaoa = QAOA(hs[1], test_subspace)
+    r |> qaoa(ts, hs)
     Random.seed!(5)
     # 1. sampling
     samples = measure(r; nshots=10000)

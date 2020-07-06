@@ -1,5 +1,3 @@
-using Adapt
-
 struct CuSparseDeviceMatrixCSR{Tv} <: AbstractCuSparseMatrix{Tv}
     rowPtr::CuDeviceVector{Cint, AS.Global}
     colVal::CuDeviceVector{Cint, AS.Global}
@@ -22,11 +20,11 @@ function Base.show(io::IO, ::MIME"text/plain", A::CuSparseDeviceMatrixCSR)
 end
 
 function Adapt.adapt_structure(to::CUDA.Adaptor, t::XTerm)
-    XTerm(cudaconvert(t.Ωs), cudaconvert(t.ϕs))
+    XTerm(t.nsites, cudaconvert(t.Ωs), cudaconvert(t.ϕs))
 end
 
 function Adapt.adapt_structure(to::CUDA.Adaptor, t::ZTerm)
-    ZTerm(cudaconvert(t.Δs))
+    ZTerm(t.nsites, cudaconvert(t.Δs))
 end
 
 function Adapt.adapt_structure(to::CUDA.Adaptor, t::RydInteract)
@@ -36,3 +34,9 @@ end
 function Adapt.adapt_structure(to::CUDA.Adaptor, t::Hamiltonian)
     Hamiltonian(cudaconvert.(t.terms))
 end
+
+function Adapt.adapt_structure(to, r::RydbergReg{N}) where {N}
+    return RydbergReg{N}(adapt(to, r.state), adapt(to, r.subspace))
+end
+
+Adapt.adapt_structure(to, s::Subspace) = Subspace(s.map, adapt(to, s.subspace_v))

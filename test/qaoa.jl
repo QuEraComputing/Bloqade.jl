@@ -1,42 +1,46 @@
 using Test
 using Yao
+using SparseArrays
 using RydbergEmulator
 using LightGraphs
 using ExponentialUtilities
 using LinearAlgebra
-using RydbergEmulator: subspace
+using CUDA
 
-function naive_qaoa(st, g, hs, ts)
+function naive_qaoa!(r::AbstractRegister, hs, ts, s::Subspace)
+    st = vec(r.state)
     for (h, t) in zip(hs, ts)
-        st = expv(-im * t, to_matrix(g, 1.0, h.ϕ), st)
+        st = expv(-im * t, SparseMatrixCSC(h, s), st)
     end
-    return st
+    r.state .= st
+    return r
 end
 
-@testset "standard qaoa" begin
-    g = SimpleGraph(5)
-    add_edge!(g, 1, 2)
-    add_edge!(g, 2, 3)
-    add_edge!(g, 2, 4)
-    add_edge!(g, 2, 5)
-    add_edge!(g, 3, 4)
-    add_edge!(g, 4, 5)
+function naive_qaoa!(r::AbstractRegister, hs, ts)
+    st = vec(r.state)
+    for (h, t) in zip(hs, ts)
+        st = expv(-im * t, SparseMatrixCSC(h), st)
+    end
+    r.state .= st
+    return r
+end
 
+@testset "subspace qaoa" begin
+    hs = simple_rydberg.(5, rand(5))
+    ts = rand(5)
+    s = Subspace(test_subspace_v)
+    r = RydbergEmulator.zero_state(5, s)
 
-    hs = SimpleRydberg.(rand(10))
-    ts = rand(10)
-    subspace_v = [0, 1, 2, 4, 5, 8, 9, 16, 17, 20, 21]
-    r = RydbergEmulator.zero_state(5, subspace_v)
-    qaoa = QAOA{5}(subspace_v, hs, ts)
-    target = naive_qaoa(copy(vec(r.state)), g, hs, ts)
-    r |> qaoa
-    @test  vec(r.state) ≈ target
-    @test isnormalized(r)
+    qaoa = QAOA(hs[1], s)
+    r1 = copy(r) |> qaoa(ts, hs)
+    r2 = naive_qaoa!(copy(r), hs, ts, s)
 
-    new_hs = rand(10)
-    new_ts = rand(10)
+    @test r1 ≈ r2
 
-    update_ansatz!(qaoa, new_hs, new_ts)
-    @test map(x->x.ϕ, qaoa.hamiltonians) ≈ new_hs
-    @test qaoa.ts ≈ ts
+    @testset "cuda" begin
+        if CUDA.functional()
+            dqaoa = cu(qaoa)
+            @test isapprox((cu(r) |> dqaoa(ts, hs) |> cpu), r1, atol=1e-6)
+        end
+    end
 end

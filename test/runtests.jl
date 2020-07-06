@@ -3,6 +3,8 @@ using Test
 using Random
 Random.seed!(42)
 
+include("utils.jl")
+
 @testset "hamiltonian" begin
     include("hamiltonian.jl")
 end
@@ -16,10 +18,10 @@ end
     include("measure.jl")
 end
 
-
-@testset "qaoa_mis" begin
-    include("qaoa_mis.jl")
-end
+# TODO: move this to StochasitcOptimizer
+# @testset "qaoa_mis" begin
+#     include("qaoa_mis.jl")
+# end
 
 @testset "unit disk" begin
     include("unit_disk.jl")

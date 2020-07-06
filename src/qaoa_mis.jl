@@ -13,14 +13,14 @@ count_vertices(config::Integer) = count_ones(config)
 Execute qaoa circuit on a graph model and return a `RydbergReg` register.
 """
 function qaoa_on_graph(graph, ϕs::AbstractVector, ts::AbstractVector)
-    hs = SimpleRydberg.(ϕs)
+    hs = simple_rydberg.(nv(graph), ϕs)
     # prepair a zero state
-    subspace_v = subspace(graph)
-    st = zeros(ComplexF64, length(subspace_v)); st[1] = 1
-    reg = RydbergReg{nv(graph)}(st, subspace_v)
+    subspace = Subspace(graph)
+    st = zeros(ComplexF64, length(subspace)); st[1] = 1
+    reg = RydbergReg{nv(graph)}(st, subspace)
 
     # evolve
-    reg |> QAOA{nv(graph)}(subspace_v, hs, ts)
+    reg |> QAOA(hs[1], subspace)
     return reg
 end
 
@@ -31,7 +31,7 @@ Mean size of vertex set.
 `reg` can be a measurement result or a register.
 """
 function mean_nv(reg::RydbergReg)
-    sum(t -> abs2(t[2]) * count_vertices(t[1]), zip(reg.subspace, relaxedvec(reg)))
+    sum(t -> abs2(t[2]) * count_vertices(t[1]), zip(vec(reg.subspace), Yao.relaxedvec(reg)))
 end
 
 mean_nv(samples::AbstractVector{<:BitStr}) = mean(count_vertices, samples)
@@ -46,7 +46,7 @@ L = -1/α \\log(\\langle ψ|\\exp(α \\sum(n))|ψ\\rangle),
 where `n` is the vertex set size.
 """
 function soft_misloss(reg::RydbergReg, α::Real)
-    expected = sum(zip(reg.subspace, relaxedvec(reg))) do (config, amp)
+    expected = sum(zip(vec(reg.subspace), Yao.relaxedvec(reg))) do (config, amp)
         abs2(amp) * exp(α * count_vertices(config))
     end
     -log(expected)/α

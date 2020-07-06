@@ -64,3 +64,29 @@ end
         A::AbstractGPUVecOrMat{Complex{Float64}}, B::AbstractGPUVector, a::Real, b::Real)
     GPUArrays.generic_matmatmul!(C, A, B, a, b)
 end
+
+# CUDA.expv!
+function ExponentialUtilities.expv!(w::CuVector{Complex{Tw}}, t::Complex, Ks::KrylovSubspace{T, U};
+               cache=nothing, dexpHe::CuVector = CuVector{Complex{real(U)}}(undef, Ks.m)) where {Tw, T, U}
+    m, beta, V, H = Ks.m, Ks.beta, getV(Ks), getH(Ks)
+    @assert length(w) == size(V, 1) "Dimension mismatch"
+    if cache === nothing
+        cache = Matrix{U}(undef, m, m)
+    elseif isa(cache, ExpvCache)
+        cache = get_cache(cache, m)
+    else
+        throw(ArgumentError("Cache must be an ExpvCache"))
+    end
+    copyto!(cache, @view(H[1:m, :]))
+    if ishermitian(cache)
+        # Optimize the case for symtridiagonal H
+        F = eigen!(SymTridiagonal(cache))
+        expHe = F.vectors * (exp.(lmul!(t,F.values)) .* @view(F.vectors[1, :]))
+    else
+        expH = t .* cache # Complex
+        _exp!(expH)
+        expHe = @view(expH[:, 1])
+    end
+    copyto!(dexpHe, expHe)
+    lmul!(beta, mul!(w, @view(V[:, 1:m]), @view(dexpHe[1:m]))) # exp(A) ≈ norm(b) * V * exp(H)e
+end

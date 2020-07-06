@@ -6,11 +6,13 @@ struct RydInteract{T, Atom <: RydAtom} <: AbstractTerm
 end
 
 struct XTerm{Omega, Phi} <: AbstractTerm
+    nsites::Int
     Ωs::Omega
     ϕs::Phi
 end
 
 struct ZTerm{Delta} <: AbstractTerm
+    nsites::Int
     Δs::Delta
 end
 
@@ -18,7 +20,13 @@ struct Hamiltonian{Terms <: Tuple} <: AbstractTerm
     terms::Terms
 end
 
-XTerm(Ωs) = XTerm(Ωs, nothing)
+# try to infer number of sites from the input
+XTerm(Ωs::AbstractVector, ϕs::AbstractVector) = XTerm(length(Ωs), Ωs, ϕs)
+XTerm(Ωs::Number, ϕs::AbstractVector) = XTerm(length(ϕs), Ωs, ϕs)
+XTerm(Ωs::AbstractVector, ϕs::Number) = XTerm(length(Ωs), Ωs, ϕs)
+XTerm(n::Int, Ωs) = XTerm(n, Ωs, nothing)
+XTerm(Ωs::AbstractVector) = XTerm(length(Ωs), Ωs)
+ZTerm(Δs::AbstractVector) = ZTerm(length(Δs), Δs)
 
 """
     nsites(term)
@@ -27,8 +35,8 @@ Return the number of sites of given Hamiltonian term.
 """
 function nsites end
 
-nsites(t::XTerm) = length(t.Ωs)
-nsites(t::ZTerm) = length(t.Δs)
+nsites(t::XTerm) = t.nsites
+nsites(t::ZTerm) = t.nsites
 nsites(t::Hamiltonian) = nsites(t.terms[1])
 nsites(t::RydInteract) = length(t.atoms)
 
@@ -107,17 +115,21 @@ entries by the user.
 """
 function to_matrix! end
 
-to_matrix(term::AbstractTerm, xs...) = to_matrix(ComplexF64, term, xs...)
-
-function to_matrix(::Type{T}, term::AbstractTerm) where T
+function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm) where Tv
     N = 1 << nsites(term)
-    return to_matrix!(spzeros(T, N, N), term)
+    H = SparseMatrixCOO{Tv}(undef, N, N)
+    to_matrix!(H, term)
+    return SparseMatrixCSC(H)
 end
 
-function to_matrix(::Type{T}, term::AbstractTerm, s::Subspace) where T
+function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::Subspace) where Tv
     N = length(s)
-    return to_matrix!(spzeros(T, N, N), term, s)
+    H = SparseMatrixCOO{Tv}(undef, N, N)
+    to_matrix!(H, term, s)
+    return SparseMatrixCSC(H)
 end
+
+SparseArrays.SparseMatrixCSC(term::AbstractTerm, xs...) = SparseMatrixCSC{ComplexF64}(term, xs...)
 
 # full space
 # C/|r_i - r_j|^6 n_i n_j
@@ -247,8 +259,8 @@ end
 Base.@propagate_inbounds function update_nzval!(nzval, k, t::ZTerm, rhs, lhs, col, row)
     col != row && return nzval
     sigma_z = zero(eltype(nzval))
-    for k in 1:nsites(t)
-        sigma_z += getterm(t, k, readbit(lhs, k))
+    for i in 1:nsites(t)
+        sigma_z += getterm(t, i, readbit(lhs, i))
     end
     nzval[k] = sigma_z
     return nzval
@@ -258,8 +270,8 @@ Base.@propagate_inbounds getscalarmaybe(x::AbstractVector, k) = x[k]
 Base.@propagate_inbounds getscalarmaybe(x::Number, k) = x
 Base.@propagate_inbounds getscalarmaybe(x::Nothing, k) = 0
 
-simple_rydberg(ϕ) = XTerm(one(ϕ), ϕ)
+simple_rydberg(n::Int, ϕ::Number) = XTerm(n, one(ϕ), ϕ)
 
 function rydberg_h(C, atoms, Ω, ϕ, Δ)
-    return RydInteract(C, atoms) + XTerm(Ω, ϕ) + ZTerm(Δ)
+    return RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)
 end

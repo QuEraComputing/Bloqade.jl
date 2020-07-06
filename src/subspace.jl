@@ -45,3 +45,6 @@ Base.length(s::Subspace) = length(s.subspace_v)
 Base.iterate(s::Subspace) = iterate(s.map)
 Base.iterate(s::Subspace, st) = iterate(s.map, st)
 Base.haskey(s::Subspace, key) = haskey(s.map, key)
+Base.copy(s::Subspace) = Subspace(copy(s.map), copy(s.subspace_v))
+Base.vec(s::Subspace) = s.subspace_v
+Base.:(==)(x::Subspace, y::Subspace) = (x.map == y.map) && (x.subspace_v == y.subspace_v)

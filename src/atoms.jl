@@ -45,13 +45,17 @@ end
 Create a random atom position of `n` atoms and with a filling factor `ff`
 in 2D space on a `square` lattice.
 """
-function lattice_atoms(n::Int, ff::Float64, geometry::String)
-    if geometry == "square"
-        L = round(Int64,sqrt(n/ff))
-        atom_coordinates_linear = sample(1:L^2,n,replace = false)
-        atom_coordinates_x = (atom_coordinates_linear .- 1) .÷ L .+ 1
-        atom_coordinates_y = (atom_coordinates_linear .- 1) .% L .+ 1
-        atom_coordinates = vcat(atom_coordinates_x', atom_coordinates_y')
-        rydatoms(atom_coordinates)
+function lattice_atoms(n::Int, ff::Float64, geometry=:square)
+    if geometry == :square
+        square_lattice(n, ff)
     end
+end
+
+function square_lattice(n::Int, ff::Float64)
+    L = round(Int64,sqrt(n/ff))
+    atom_coordinates_linear = sample(1:L^2,n,replace = false)
+    atom_coordinates_x = (atom_coordinates_linear .- 1) .÷ L .+ 1
+    atom_coordinates_y = (atom_coordinates_linear .- 1) .% L .+ 1
+    atom_coordinates = vcat(atom_coordinates_x', atom_coordinates_y')
+    rydatoms(atom_coordinates)
 end

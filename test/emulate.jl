@@ -7,6 +7,7 @@ using ExponentialUtilities
 using LinearAlgebra
 using CUDA
 
+
 function naive_qaoa!(r::AbstractRegister, hs, ts, s::Subspace)
     st = vec(r.state)
     for (h, t) in zip(hs, ts)

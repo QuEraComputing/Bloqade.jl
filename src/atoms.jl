@@ -52,7 +52,7 @@ function lattice_atoms(n::Int, ff::Float64, geometry=:square)
 end
 
 function square_lattice(n::Int, ff::Float64)
-    L = round(Int64,sqrt(n/ff))
+    L = ceil(Int64,sqrt(n/ff))
     atom_coordinates_linear = sample(1:L^2,n,replace = false)
     atom_coordinates_x = (atom_coordinates_linear .- 1) .÷ L .+ 1
     atom_coordinates_y = (atom_coordinates_linear .- 1) .% L .+ 1

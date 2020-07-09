@@ -43,6 +43,11 @@ nsites(t::RydInteract) = length(t.atoms)
 hilbert_space(n::Int) = 0:((1<<n)-1)
 hilbert_space(t::AbstractTerm) = hilbert_space(nsites(t))
 
+Base.eltype(t::XTerm) = eltype(t.Ωs)
+Base.eltype(t::ZTerm) = eltype(t.Δs)
+Base.eltype(t::RydInteract) = typeof(t.C)
+Base.eltype(t::Hamiltonian) = promote_type(eltype.(t.terms)...)
+
 function Base.show(io::IO, t::RydInteract)
     print(io, "C/|r_i - r_j|^6 ")
     printstyled(io, "n_i n_j", color=:light_blue)
@@ -52,7 +57,7 @@ function Base.show(io::IO, t::XTerm)
     print(io, "Ω ⋅ (e^{iϕ}")
     printstyled(io, "|0)⟨1|", color=:light_blue)
     print(io, "+e^{-iϕ}")
-    printstyled(io, "|1⟩⟨0|", color=:light_blue)
+    printstyled(io, "|1⟩⟨0|)", color=:light_blue)
 end
 
 function Base.show(io::IO, t::XTerm{<:Any, Nothing})
@@ -133,13 +138,17 @@ SparseArrays.SparseMatrixCSC(term::AbstractTerm, xs...) = SparseMatrixCSC{Comple
 
 # full space
 # C/|r_i - r_j|^6 n_i n_j
-function to_matrix!(dst::AbstractMatrix{T}, t::RydInteract) where T
+# specialize on COO
+function to_matrix!(dst::SparseMatrixCOO, t::RydInteract)
+    C = t.C / 2 # only count once
     for i in 1:nsites(t), j in 1:nsites(t)
         r_i, r_j = t.atoms[i], t.atoms[j]
-        alpha = t.C / norm(r_i - r_j)^6
+        alpha = C / distance(r_i, r_j)^6
         # |11⟩⟨11|
-        for lhs in itercontrol(nsites(t), [i, j], [1, 1])
-            dst[lhs, lhs] = alpha
+        if i != j
+            for lhs in itercontrol(nsites(t), [i, j], [1, 1])
+                dst[lhs+1, lhs+1] = alpha # this will be accumulated by COO format converter
+            end
         end
     end
     return dst
@@ -212,58 +221,96 @@ function update_term! end
 
 # forward to to_matrix! as fallback
 update_term!(H::AbstractMatrix, t::AbstractTerm, s::Nothing) = update_term!(H, t)
+update_term!(H::SparseMatrixCSC, t::AbstractTerm, s::Nothing) = update_term!(H, t) # disambiguity
 update_term!(H::AbstractMatrix, t::AbstractTerm) = to_matrix!(H, t)
 update_term!(H::AbstractMatrix, t::AbstractTerm, s::Subspace) = to_matrix!(H, t, s)
 
 # specialize on sparse matrix
-update_term!(H::SparseMatrixCSC, t::AbstractTerm, s::Subspace) = update_term!(H, t, s.subspace_v)
+update_term!(H::AbstractSparseMatrix, t::AbstractTerm, s::Subspace) = update_term!(H, t, s.subspace_v)
 
-function update_term!(H::SparseMatrixCSC, t::AbstractTerm)
-    @inbounds for rhs in 1:size(H, 1)
-        for k in H.colptr[rhs]:H.colptr[rhs+1]-1
-            lhs = H.rowval[k]
-            update_nzval!(H.nzval, k, t, rhs, lhs, rhs, lhs)
+function foreach_nnz(f, H::SparseMatrixCSC)
+    for lhs in 1:size(H, 1)
+        @inbounds start = H.colptr[lhs]
+        @inbounds stop = H.colptr[lhs+1]-1
+
+        for k in start:stop
+            @inbounds rhs = H.rowval[k]
+            f(k, lhs, rhs)
         end
+    end
+end
+
+function update_term!(H::AbstractSparseMatrix, t::AbstractTerm)
+    nzval = nonzeros(H)
+    foreach_nnz(H) do k, col, row
+        @inbounds nzval[k] = term_value(t, col-1, row-1, col, row)
     end
     return H
 end
 
-function update_term!(H::SparseMatrixCSC, t::AbstractTerm, subspace_v)
-    @inbounds for col in 1:size(H, 1)
-        for k in H.colptr[col]:H.colptr[col+1]-1
-            row = H.rowval[k]
-            lhs = subspace_v[row]
-            rhs = subspace_v[col]
-            update_nzval!(H.nzval, k, t, rhs, lhs, col, row)
-        end
+function update_term!(H::AbstractSparseMatrix, t::AbstractTerm, subspace_v::AbstractVector)
+    nzval = nonzeros(H)
+    @inbounds foreach_nnz(H) do k, col, row
+        lhs = subspace_v[col]
+        rhs = subspace_v[row]
+
+        nzval[k] = term_value(t, lhs, rhs, col, row)
     end
     return H
 end
 
-Base.@propagate_inbounds function update_nzval!(nzval, k, t::Hamiltonian, rhs, lhs, col, row)
-    for term in t.terms
-        update_nzval!(nzval, k, term, rhs, lhs, col, row)
+"""
+    term_value(term, lhs, rhs, col, row)
+
+Return the value of given term at `H[col, row]` with left basis `lhs` and right basis `rhs`.
+For full space, `lhs = col - 1` and `rhs = row - 1`, for subspace, `lhs = subspace_v[col]` and
+`rhs = subspace_v[row]`.
+"""
+function term_value end
+
+@generated function term_value(t::Hamiltonian{Term}, lhs, rhs, col, row) where Term
+    ex = Expr(:block)
+
+    push!(ex.args, Expr(:meta, :inline, :propagate_inbounds))
+    push!(ex.args, :(val = term_value(t.terms[1], lhs, rhs, col, row)))
+    for k in 2:length(Term.parameters)
+        push!(ex.args, :(val += term_value(t.terms[$k], lhs, rhs, col, row)))
     end
-    return nzval
+
+    push!(ex.args, :val)
+    return ex
 end
 
-Base.@propagate_inbounds function update_nzval!(nzval, k, t::XTerm, rhs, lhs, col, row)
-    col == row && return nzval
+Base.@propagate_inbounds function term_value(t::XTerm, lhs, rhs, col, row)
+    col == row && return zero(eltype(t))
     mask = lhs ⊻ rhs
     l = log2i(UInt(mask)) + 1
-    l_site = lhs & mask
-    nzval[k] = getterm(t, l, l_site)
-    return nzval
+    l_site = rhs & mask
+    return getterm(t, l, l_site)
 end
 
-Base.@propagate_inbounds function update_nzval!(nzval, k, t::ZTerm, rhs, lhs, col, row)
-    col != row && return nzval
-    sigma_z = zero(eltype(nzval))
+Base.@propagate_inbounds function term_value(t::ZTerm, lhs, rhs, col, row)
+    col != row && return zero(eltype(t))
+    sigma_z = zero(eltype(t))
     for i in 1:nsites(t)
         sigma_z += getterm(t, i, readbit(lhs, i))
     end
-    nzval[k] = sigma_z
-    return nzval
+    return sigma_z
+end
+
+Base.@propagate_inbounds function term_value(t::RydInteract, lhs, rhs, col, row)
+    col != row && return zero(eltype(t))
+    C = t.C / 2
+    # all the nonzeros indices contains
+    v = zero(eltype(t))
+    for i in 1:nsites(t), j in 1:nsites(t)
+        if (i != j) && (readbit(lhs, i) == 1) && (readbit(lhs, j) == 1)
+            r_i, r_j = t.atoms[i], t.atoms[j]
+            alpha = C / distance(r_i, r_j)^6
+            v += alpha
+        end
+    end
+    return v
 end
 
 Base.@propagate_inbounds getscalarmaybe(x::AbstractVector, k) = x[k]

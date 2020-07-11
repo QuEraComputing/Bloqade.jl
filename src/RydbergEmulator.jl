@@ -18,7 +18,8 @@ import Yao
 using LinearAlgebra: BlasReal, BlasComplex
 
 export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, EmulatorCache
-export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, unit_disk_graph, rand_unit_disk_graph, emulate!
+export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms,
+    unit_disk_graph, rand_unit_disk_graph, emulate!, square_lattice
 
 include("utils.jl")
 include("atoms.jl")

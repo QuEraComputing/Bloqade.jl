@@ -24,6 +24,11 @@ function emulate_routine!(r::Yao.ArrayReg, ts::Vector, hs::Vector{<: AbstractTer
     return r
 end
 
+"""
+    EmulatorCache
+
+Cache type for the emulator.
+"""
 struct EmulatorCache{K <: KrylovSubspace, C}
     Ks::K
     H::C

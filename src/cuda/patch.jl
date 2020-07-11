@@ -90,3 +90,10 @@ function ExponentialUtilities.expv!(w::CuVector{Complex{Tw}}, t::Complex, Ks::Kr
     copyto!(dexpHe, expHe)
     lmul!(beta, mul!(w, @view(V[:, 1:m]), @view(dexpHe[1:m]))) # exp(A) ≈ norm(b) * V * exp(H)e
 end
+
+using Cassette, KernelAbstractions
+
+function Cassette.overdub(ctx::KernelAbstractions.CUDACtx, ::typeof(BitBasis.log2i), x::Int64)
+    @Base._inline_meta
+    return 63 - leading_zeros(x)
+end

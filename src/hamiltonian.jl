@@ -1,17 +1,19 @@
 abstract type AbstractTerm end
 
-struct RydInteract{T, Atom <: RydAtom} <: AbstractTerm
+struct RydInteract{T, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     C::T
-    atoms::Vector{Atom}
+    atoms::AtomList
 end
 
-struct XTerm{Omega, Phi} <: AbstractTerm
+const PType = Union{Number, Tuple, Nothing}
+
+struct XTerm{Omega <: PType, Phi <: PType} <: AbstractTerm
     nsites::Int
     Ωs::Omega
     ϕs::Phi
 end
 
-struct ZTerm{Delta} <: AbstractTerm
+struct ZTerm{Delta <: PType} <: AbstractTerm
     nsites::Int
     Δs::Delta
 end
@@ -21,12 +23,18 @@ struct Hamiltonian{Terms <: Tuple} <: AbstractTerm
 end
 
 # try to infer number of sites from the input
-XTerm(Ωs::AbstractVector, ϕs::AbstractVector) = XTerm(length(Ωs), Ωs, ϕs)
-XTerm(Ωs::Number, ϕs::AbstractVector) = XTerm(length(ϕs), Ωs, ϕs)
-XTerm(Ωs::AbstractVector, ϕs::Number) = XTerm(length(Ωs), Ωs, ϕs)
-XTerm(n::Int, Ωs) = XTerm(n, Ωs, nothing)
-XTerm(Ωs::AbstractVector) = XTerm(length(Ωs), Ωs)
-ZTerm(Δs::AbstractVector) = ZTerm(length(Δs), Δs)
+to_tuple(xs) = (xs..., ) # make it type stable
+to_tuple(xs::Tuple) = xs
+
+XTerm(Ωs::AbstractVector, ϕs::AbstractVector) = XTerm(length(Ωs), to_tuple(Ωs), to_tuple(ϕs))
+XTerm(Ωs::Number, ϕs::AbstractVector) = XTerm(length(ϕs), Ωs, to_tuple(ϕs))
+XTerm(Ωs::AbstractVector, ϕs::Number) = XTerm(length(Ωs), to_tuple(Ωs), ϕs)
+
+# convenient constructor for simple case
+XTerm(n::Int, Ωs::AbstractVector) = XTerm(n, Ωs, nothing)
+XTerm(n::Int, Ω::Number) = XTerm(n, Ω, nothing)
+XTerm(Ωs::AbstractVector) = XTerm(length(Ωs), to_tuple(Ωs))
+ZTerm(Δs::AbstractVector) = ZTerm(length(Δs), to_tuple(Δs))
 
 """
     nsites(term)
@@ -48,6 +56,8 @@ Base.eltype(t::ZTerm) = eltype(t.Δs)
 Base.eltype(t::RydInteract) = typeof(t.C)
 Base.eltype(t::Hamiltonian) = promote_type(eltype.(t.terms)...)
 
+Base.getindex(t::Hamiltonian, i::Int) = t.terms[i]
+
 function Base.show(io::IO, t::RydInteract)
     print(io, "C/|r_i - r_j|^6 ")
     printstyled(io, "n_i n_j", color=:light_blue)
@@ -60,7 +70,7 @@ function Base.show(io::IO, t::XTerm)
     printstyled(io, "|1⟩⟨0|)", color=:light_blue)
 end
 
-function Base.show(io::IO, t::XTerm{<:Any, Nothing})
+function Base.show(io::IO, t::XTerm{<:PType, Nothing})
     print(io, "Ω")
     printstyled(io, " σ^x", color=:light_blue)
 end
@@ -120,14 +130,14 @@ entries by the user.
 """
 function to_matrix! end
 
-function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm) where Tv
+function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm) where {Tv <: Complex}
     N = 1 << nsites(term)
     H = SparseMatrixCOO{Tv}(undef, N, N)
     to_matrix!(H, term)
     return SparseMatrixCSC(H)
 end
 
-function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::Subspace) where Tv
+function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::Subspace) where {Tv <: Complex}
     N = length(s)
     H = SparseMatrixCOO{Tv}(undef, N, N)
     to_matrix!(H, term, s)
@@ -140,15 +150,13 @@ SparseArrays.SparseMatrixCSC(term::AbstractTerm, xs...) = SparseMatrixCSC{Comple
 # C/|r_i - r_j|^6 n_i n_j
 # specialize on COO
 function to_matrix!(dst::SparseMatrixCOO, t::RydInteract)
-    C = t.C / 2 # only count once
-    for i in 1:nsites(t), j in 1:nsites(t)
+    n = nsites(t)
+    @inbounds for i in 1:n, j in 1:i-1
         r_i, r_j = t.atoms[i], t.atoms[j]
-        alpha = C / distance(r_i, r_j)^6
+        alpha = t.C / distance(r_i, r_j)^6
         # |11⟩⟨11|
-        if i != j
-            for lhs in itercontrol(nsites(t), [i, j], [1, 1])
-                dst[lhs+1, lhs+1] = alpha # this will be accumulated by COO format converter
-            end
+        for lhs in itercontrol(nsites(t), [i, j], [1, 1])
+            dst[lhs+1, lhs+1] = alpha # this will be accumulated by COO format converter
         end
     end
     return dst
@@ -284,7 +292,7 @@ end
 Base.@propagate_inbounds function term_value(t::XTerm, lhs, rhs, col, row)
     col == row && return zero(eltype(t))
     mask = lhs ⊻ rhs
-    l = log2i(UInt(mask)) + 1
+    l = unsafe_log2i(mask) + 1
     l_site = rhs & mask
     return getterm(t, l, l_site)
 end
@@ -300,13 +308,13 @@ end
 
 Base.@propagate_inbounds function term_value(t::RydInteract, lhs, rhs, col, row)
     col != row && return zero(eltype(t))
-    C = t.C / 2
     # all the nonzeros indices contains
     v = zero(eltype(t))
-    for i in 1:nsites(t), j in 1:nsites(t)
-        if (i != j) && (readbit(lhs, i) == 1) && (readbit(lhs, j) == 1)
+    n = nsites(t)
+    for i in 1:n, j in 1:i-1
+        if (readbit(lhs, i) == 1) && (readbit(lhs, j) == 1)
             r_i, r_j = t.atoms[i], t.atoms[j]
-            alpha = C / distance(r_i, r_j)^6
+            alpha = t.C / distance(r_i, r_j)^6
             v += alpha
         end
     end
@@ -315,6 +323,7 @@ end
 
 Base.@propagate_inbounds getscalarmaybe(x::AbstractVector, k) = x[k]
 Base.@propagate_inbounds getscalarmaybe(x::Number, k) = x
+Base.@propagate_inbounds getscalarmaybe(x::Tuple, k) = x[k]
 Base.@propagate_inbounds getscalarmaybe(x::Nothing, k) = 0
 
 simple_rydberg(n::Int, ϕ::Number) = XTerm(n, one(ϕ), ϕ)

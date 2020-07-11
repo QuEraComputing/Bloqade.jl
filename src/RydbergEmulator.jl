@@ -20,6 +20,7 @@ using LinearAlgebra: BlasReal, BlasComplex
 export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, EmulatorCache
 export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, unit_disk_graph, rand_unit_disk_graph, emulate!
 
+include("utils.jl")
 include("atoms.jl")
 include("subspace.jl")
 include("hamiltonian.jl")

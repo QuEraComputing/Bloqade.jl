@@ -44,9 +44,10 @@ end
             dϕ = cu(ϕ)
             dΔ = cu(Δ)
             h = XTerm(dΩ, dϕ) + ZTerm(dΔ)
+            H = SparseMatrixCSC(h, subspace)
             dH = CuSparseMatrixCSR(H)
             ds = cu(subspace)
-            update_term!(dH, h, ds)
+            update_term!(dH, cu(h), ds)
             @test isapprox(SparseMatrixCSC(dH), H; rtol=1e-7)
         end
     end

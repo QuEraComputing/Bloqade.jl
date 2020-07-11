@@ -19,20 +19,20 @@ function Base.show(io::IO, ::MIME"text/plain", A::CuSparseDeviceMatrixCSR)
     print(io, "  nzVal $(pointer(A.nzVal))")
 end
 
-function Adapt.adapt_structure(to::CUDA.Adaptor, t::XTerm)
-    XTerm(t.nsites, cudaconvert(t.Ωs), cudaconvert(t.ϕs))
+function Adapt.adapt_structure(to, t::XTerm)
+    XTerm(t.nsites, adapt(to, t.Ωs), adapt(to, t.ϕs))
 end
 
-function Adapt.adapt_structure(to::CUDA.Adaptor, t::ZTerm)
-    ZTerm(t.nsites, cudaconvert(t.Δs))
+function Adapt.adapt_structure(to, t::ZTerm)
+    ZTerm(t.nsites, adapt(to, t.Δs))
 end
 
-function Adapt.adapt_structure(to::CUDA.Adaptor, t::RydInteract)
-    RydInteract(cudaconvert(t.C), cudaconvert(t.atoms))
+function Adapt.adapt_structure(to, t::RydInteract)
+    RydInteract(t.C, adapt(to, t.atoms))
 end
 
-function Adapt.adapt_structure(to::CUDA.Adaptor, t::Hamiltonian)
-    Hamiltonian(cudaconvert.(t.terms))
+function Adapt.adapt_structure(to, t::Hamiltonian)
+    Hamiltonian(map(x->Adapt.adapt(to, x), t.terms))
 end
 
 function Adapt.adapt_structure(to, r::RydbergReg{N}) where {N}

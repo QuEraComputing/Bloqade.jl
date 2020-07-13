@@ -33,7 +33,7 @@ function qaoa_on_graph(graph, ts::AbstractVector{<:Real}, ϕs::AbstractVector)
     hs = simple_rydberg.(nv(graph), ϕs)
     subspace = Subspace(graph)
     cache = EmulatorCache(ts, hs, subspace)
-    r = zero_state(eltype(ts), nv(graph), subspace)
+    r = zero_state(Complex{eltype(ts)}, nv(graph), subspace)
     emulate!(r, ts, hs, cache)
     return r
 end

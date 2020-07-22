@@ -50,7 +50,7 @@ end
 
 function mean_nv(reg::Yao.ArrayReg)
     return sum(enumerate(Yao.relaxedvec(reg))) do (c, amp)
-        abs2(amp) * count_vertices(c)
+        abs2(amp) * count_vertices(c - 1)
     end
 end
 
@@ -74,7 +74,7 @@ end
 
 function soft_misloss(reg::Yao.ArrayReg, α::Real)
     expected = sum(enumerate(Yao.relaxedvec(reg))) do (config, amp)
-        abs2(amp) * exp(α * count_vertices(config))
+        abs2(amp) * exp(α * count_vertices(config - 1))
     end
     return -log(expected) / α
 end

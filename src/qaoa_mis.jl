@@ -48,6 +48,12 @@ function mean_nv(reg::RydbergReg)
     sum(t -> abs2(t[2]) * count_vertices(t[1]), zip(vec(reg.subspace), Yao.relaxedvec(reg)))
 end
 
+function mean_nv(reg::Yao.ArrayReg)
+    return sum(enumerate(Yao.relaxedvec(reg))) do (c, amp)
+        abs2(amp) * count_vertices(c - 1)
+    end
+end
+
 mean_nv(samples::AbstractVector{<:BitStr}) = mean(count_vertices, samples)
 
 """
@@ -64,6 +70,13 @@ function soft_misloss(reg::RydbergReg, α::Real)
         abs2(amp) * exp(α * count_vertices(config))
     end
     -log(expected)/α
+end
+
+function soft_misloss(reg::Yao.ArrayReg, α::Real)
+    expected = sum(enumerate(Yao.relaxedvec(reg))) do (config, amp)
+        abs2(amp) * exp(α * count_vertices(config - 1))
+    end
+    return -log(expected) / α
 end
 
 function logsumexp(x::AbstractArray)

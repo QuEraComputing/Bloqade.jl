@@ -1,5 +1,6 @@
 abstract type AbstractTerm end
-
+# Ω = 2π * 4 MHz
+# C = 
 struct RydInteract{T, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     C::T
     atoms::AtomList

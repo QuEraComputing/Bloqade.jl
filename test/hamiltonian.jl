@@ -95,3 +95,14 @@ end
     H = SparseMatrixCSC(h, subspace)
     @test update_term!(copy(H), h, subspace) ≈ H
 end
+
+@testset "redberg interact term subspace" begin
+    atoms = RydbergEmulator.square_lattice(4, 0.8)
+    graph = unit_disk_graph(atoms, 1.5)
+    s = Subspace(graph)
+    H = mat(rydinteract(2.0, atoms));
+    h = RydInteract(2.0, atoms)
+
+    @test SparseMatrixCSC(h)[s.subspace_v.+1, s.subspace_v.+1] ≈ SparseMatrixCSC(h, s)
+    @test update_term!(SparseMatrixCSC(h, s), h, s) ≈ SparseMatrixCSC(h, s)
+end

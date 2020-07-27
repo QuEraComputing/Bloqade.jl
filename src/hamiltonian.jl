@@ -218,6 +218,20 @@ function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm, s::Subspace) where T
     return dst
 end
 
+function to_matrix!(dst::SparseMatrixCOO, t::RydInteract, s::Subspace)
+    n = nsites(t)
+    for (k, lhs) in enumerate(s.subspace_v)
+        for i in 1:n, j in 1:i-1
+            if (readbit(lhs, i) == 1) && (readbit(lhs, j) == 1)
+                r_i, r_j = t.atoms[i], t.atoms[j]
+                alpha = t.C / distance(r_i, r_j)^6
+                dst[k, k] = alpha
+            end
+        end
+    end
+    return dst
+end
+
 
 """
     update_term!(H, term[, subspace])

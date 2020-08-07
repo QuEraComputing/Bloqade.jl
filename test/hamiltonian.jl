@@ -3,7 +3,6 @@ using RydbergEmulator
 using LightGraphs: SimpleGraph, add_edge!
 using SparseArrays
 using OrderedCollections
-using CUDA
 using LuxurySparse
 using Yao
 using Yao.ConstGate: P0, P1
@@ -36,21 +35,21 @@ end
     H = SparseMatrixCSC(h, subspace)
     @test H ≈ update_term!(copy(H), h, subspace)
 
-    @testset "cuda" begin
-        if CUDA.functional()
-            using CUDA
-            using CUDA.CUSPARSE
-            dΩ = cu(Ω)
-            dϕ = cu(ϕ)
-            dΔ = cu(Δ)
-            h = XTerm(dΩ, dϕ) + ZTerm(dΔ)
-            H = SparseMatrixCSC(h, subspace)
-            dH = CuSparseMatrixCSR(H)
-            ds = cu(subspace)
-            update_term!(dH, cu(h), ds)
-            @test isapprox(SparseMatrixCSC(dH), H; rtol=1e-7)
-        end
-    end
+    # @testset "cuda" begin
+    #     if CUDA.functional()
+    #         using CUDA
+    #         using CUDA.CUSPARSE
+    #         dΩ = cu(Ω)
+    #         dϕ = cu(ϕ)
+    #         dΔ = cu(Δ)
+    #         h = XTerm(dΩ, dϕ) + ZTerm(dΔ)
+    #         H = SparseMatrixCSC(h, subspace)
+    #         dH = CuSparseMatrixCSR(H)
+    #         ds = cu(subspace)
+    #         update_term!(dH, cu(h), ds)
+    #         @test isapprox(SparseMatrixCSC(dH), H; rtol=1e-7)
+    #     end
+    # end
 end
 
 @testset "X term" begin

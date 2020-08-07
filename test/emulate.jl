@@ -5,8 +5,6 @@ using RydbergEmulator
 using LightGraphs
 using ExponentialUtilities
 using LinearAlgebra
-using CUDA
-
 
 function naive_qaoa!(r::AbstractRegister, hs, ts, s::Subspace)
     st = vec(r.state)
@@ -38,9 +36,9 @@ end
 
     @test r1 ≈ r2
 
-    @testset "cuda" begin
-        if CUDA.functional()
-            @test isapprox((emulate!(cu(r), ts, hs, cu(cache)) |> cpu), r1, atol=1e-6)
-        end
-    end
+    # @testset "cuda" begin
+    #     if CUDA.functional()
+    #         @test isapprox((emulate!(cu(r), ts, hs, cu(cache)) |> cpu), r1, atol=1e-6)
+    #     end
+    # end
 end

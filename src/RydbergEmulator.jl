@@ -10,7 +10,6 @@ using OrderedCollections
 using ExponentialUtilities
 using StatsBase
 using Random
-using CUDA
 using Adapt
 
 import Yao
@@ -35,9 +34,5 @@ include("qaoa_mis.jl")
 
 export cpu
 cpu(x) = adapt(Array, x)
-
-@static if CUDA.functional()
-    include("cuda/cuda.jl")
-end
 
 end # module

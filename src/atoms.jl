@@ -32,7 +32,7 @@ distance(a::RydAtom, b::RydAtom) = sqrt(mapreduce(x->x^2, +, axis(a) .- axis(b))
     rand_atoms(n::Int, ρ::Float64; ndims::Int=2)
 
 Create a random atom position of `n` atoms and with density `ρ` in `ndims` space.
-The size of the box is L^ndims, where the linear dimension L = (n/ρ)^(1/ndims).
+The size of the box is ``L^ndims``, where the linear dimension ``L = (n/ρ)^(1/ndims)``.
 """
 function rand_atoms(n::Int, ρ::Float64; ndims::Int=2)
     L = (n/ρ)^(1/ndims)

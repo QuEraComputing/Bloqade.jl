@@ -10,7 +10,6 @@ using OrderedCollections
 using ExponentialUtilities
 using StatsBase
 using Random
-using Adapt
 
 import Yao
 
@@ -31,8 +30,5 @@ include("measure.jl")
 include("unit_disk.jl")
 include("emulate.jl")
 include("qaoa_mis.jl")
-
-export cpu
-cpu(x) = adapt(Array, x)
 
 end # module

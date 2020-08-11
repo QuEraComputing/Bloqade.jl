@@ -3,6 +3,12 @@ uuid = "6b142359-0b0c-4dfb-9c9b-84981bce612e"
 authors = ["QuEra Computing Inc."]
 version = "0.1.0"
 
+[deps]
+Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18"
+RydbergEmulator = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
+
 [compat]
 julia = "1"
 

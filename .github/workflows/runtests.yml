@@ -28,3 +28,5 @@ jobs:
       - name: "Test Package"
         run: julia --color=yes --check-bounds=yes --project -e 'using Pkg; Pkg.test(coverage=true)'
         shell: bash
+      - name: "Submit Codecov"
+        run: julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'

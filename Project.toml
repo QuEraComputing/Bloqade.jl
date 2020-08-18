@@ -10,6 +10,7 @@ ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18"
 RydbergEmulator = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
 
 [compat]
+ExponentialUtilities = "1.8"
 julia = "1"
 
 [extras]

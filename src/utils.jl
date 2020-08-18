@@ -1,4 +1,6 @@
-function unsafe_log2i end
+function unsafe_log2i(x)
+    error("unsupported type $(typeof(x))")
+end
 
 for N in [8, 16, 32, 64, 128]
     T = Symbol(:Int, N)

@@ -47,14 +47,6 @@ function EmulatorCache(::Type{T}, H::AbstractTerm, s::Subspace; kwargs...) where
     return EmulatorCache(length(s), SparseMatrixCSC{Complex{T}}(H, s); kwargs...)
 end
 
-function EmulatorCache(::AbstractVector{T}, hs::Vector{<:AbstractTerm}) where T
-    EmulatorCache(T, first(hs), nsites(first(hs)))
-end
-
-function EmulatorCache(::AbstractVector{T}, hs::Vector{<:AbstractTerm}, s::Subspace) where T
-    EmulatorCache(T, first(hs), s)
-end
-
 EmulatorCache(H::AbstractTerm, xs...; kwargs...) = EmulatorCache(Float64, H, xs...; kwargs...)
 
 """
@@ -65,12 +57,12 @@ An optional argument can be feeded to preallocate the memory.
 """
 function emulate! end
 
-function emulate!(r::Yao.ArrayReg, ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}, cache=EmulatorCache(ts, hs))
+function emulate!(r::Yao.ArrayReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}, cache=EmulatorCache(T, first(hs))) where {T <: Real}
     emulate_routine!(r, ts, hs, cache.Ks, cache.H)
     return r
 end
 
-function emulate!(r::RydbergReg, ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}, cache=EmulatorCache(ts, hs, r.subspace))
+function emulate!(r::RydbergReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}, cache=EmulatorCache(T, first(hs), r.subspace)) where {T <: Real}
     emulate_routine!(r, ts, hs, cache.Ks, cache.H)
     return r
 end

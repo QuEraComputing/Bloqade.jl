@@ -47,14 +47,6 @@ function EmulatorCache(::Type{T}, H::AbstractTerm, s::Subspace; kwargs...) where
     return EmulatorCache(length(s), SparseMatrixCSC{Complex{T}}(H, s); kwargs...)
 end
 
-function EmulatorCache(::AbstractVector{T}, hs::Vector{<:AbstractTerm}) where T
-    EmulatorCache(T, first(hs), nsites(first(hs)))
-end
-
-function EmulatorCache(::AbstractVector{T}, hs::Vector{<:AbstractTerm}, s::Subspace) where T
-    EmulatorCache(T, first(hs), s)
-end
-
 EmulatorCache(H::AbstractTerm, xs...; kwargs...) = EmulatorCache(Float64, H, xs...; kwargs...)
 
 """

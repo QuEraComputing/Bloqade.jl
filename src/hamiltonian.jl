@@ -24,6 +24,7 @@ struct Hamiltonian{Terms <: Tuple} <: AbstractTerm
 end
 
 # try to infer number of sites from the input
+# this is only necessary for CUDA
 to_tuple(xs) = (xs..., ) # make it type stable
 to_tuple(xs::Tuple) = xs
 
@@ -341,8 +342,22 @@ Base.@propagate_inbounds getscalarmaybe(x::Number, k) = x
 Base.@propagate_inbounds getscalarmaybe(x::Tuple, k) = x[k]
 Base.@propagate_inbounds getscalarmaybe(x::Nothing, k) = 0
 
+"""
+    simple_rydberg(n::Int, ϕ::Number)
+
+Create a simple rydberg hamiltonian that has only [`XTerm`](@ref).
+"""
 simple_rydberg(n::Int, ϕ::Number) = XTerm(n, one(ϕ), ϕ)
 
+"""
+    rydberg_h(C, atoms, Ω, ϕ, Δ)
+
+Create a rydberg hamiltonian
+
+```math
+∑ \frac{C}{|r_i - r_j|^6} n_i n_j + Ω σ_x + Δ σ_z
+```
+"""
 function rydberg_h(C, atoms, Ω, ϕ, Δ)
     return RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)
 end

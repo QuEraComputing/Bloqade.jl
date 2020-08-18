@@ -1,9 +1,12 @@
+"""
+    AbstractAtom
+
+Abstract type for atoms.
+"""
 abstract type AbstractAtom end
 
 """
     RydAtom{N,T} <: AbstractAtom
-    RydAtom(locations...)
-    RydAtom(locations)
 
 Rydberg atom.
 """
@@ -16,9 +19,27 @@ end
     Atom2D{T} = RydAtom{2,T}
 """
 const Atom2D{T} = RydAtom{2,T}
+
+"""
+    RydAtom(locations...)
+
+Create a `RydAtom` from given locations.
+"""
 RydAtom(args...) = RydAtom(args)
+
+"""
+    RydAtom(locations::Vector)
+
+Create a `RydAtom` from given list of locations.
+"""
 RydAtom(x::AbstractVector) = RydAtom(x...)
 # NOTE: the following code is not fast
+
+"""
+    rydatoms(::AbstractMatrix)
+
+Create a list of [`RydAtom`](@ref)s from a nx2 location matrix.
+"""
 rydatoms(locs::AbstractMatrix) = [RydAtom(locs[:,i]...) for i=1:size(locs,2)]
 
 # interfaces
@@ -26,6 +47,12 @@ Base.ndims(x::RydAtom{N}) where N = N
 Base.getindex(x::RydAtom, k::Int) = getindex(x.loc, k)
 
 axis(a::RydAtom) = a.loc
+
+"""
+    distance(a::RydAtom, b::RydAtom)
+
+Return the distance between two Rydberg atoms.
+"""
 distance(a::RydAtom, b::RydAtom) = sqrt(mapreduce(x->x^2, +, axis(a) .- axis(b)))
 
 """
@@ -51,6 +78,12 @@ function lattice_atoms(n::Int, ff::Float64, geometry=:square)
     end
 end
 
+"""
+    square_lattice(n::Int, ff::Float64)
+
+Create a list of Rydberg atoms on a square lattice with given size `n` and
+filling factor `ff`.
+"""
 function square_lattice(n::Int, ff::Float64)
     L = ceil(Int64,sqrt(n/ff))
     atom_coordinates_linear = sample(1:L^2,n,replace = false)

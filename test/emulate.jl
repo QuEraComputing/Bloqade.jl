@@ -30,7 +30,7 @@ end
     s = Subspace(test_subspace_v)
     r = RydbergEmulator.zero_state(5, s)
 
-    cache = EmulatorCache(ts, hs, s)
+    cache = EmulatorCache(eltype(ts), first(hs), s)
     r1 = emulate!(copy(r), ts, hs, cache)
     r2 = naive_qaoa!(copy(r), hs, ts, s)
 

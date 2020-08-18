@@ -9,8 +9,6 @@ using Yao
     @test state(RydbergEmulator.zero_state(10, Subspace(subspace); nbatch=5)) ≈ raw_st
 
     raw_st = rand(ComplexF64, length(subspace), 5)
-    RydbergEmulator.RydbergReg(raw_st)
-
     r = RydbergEmulator.RydbergReg{10}(raw_st, Subspace(subspace))
     set_zero_state!(r)
     @test all(r.state[1, :] .== 1)

@@ -5,6 +5,10 @@ Random.seed!(42)
 
 include("utils.jl")
 
+@testset "atoms" begin
+    include("atoms.jl")
+end
+
 @testset "hamiltonian" begin
     include("hamiltonian.jl")
 end

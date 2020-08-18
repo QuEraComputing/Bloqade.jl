@@ -42,3 +42,13 @@ end
     #     end
     # end
 end
+
+@testset "fullspace" begin
+    hs = simple_rydberg.(4, rand(4))
+    ts = rand(4)
+    r = Yao.zero_state(4)
+    cache = EmulatorCache(eltype(ts), first(hs), 4)
+    r1 = emulate!(copy(r), ts, hs, cache)
+    r2 = naive_qaoa!(copy(r), hs, ts)
+    @test r1 ≈ r2
+end

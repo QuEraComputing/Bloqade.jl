@@ -3,7 +3,7 @@ struct RydbergReg{N,B,ST,SST} <: Yao.AbstractRegister{B}
     subspace::SST
     function RydbergReg{N,B,ST,SST}(state::ST, subspace::SST) where {N, B, ST, SST}
         if size(state, 1) != length(subspace)
-            DimensionMismatch("size of state $(size(state, 1)) does not match size of subspace $(length(subspace))")
+            throw(DimensionMismatch("size of state $(size(state, 1)) does not match size of subspace $(length(subspace))"))
         end
         new{N, B,ST,SST}(state, subspace)
     end
@@ -53,8 +53,8 @@ Set the given register to |00...00⟩.
 """
 function set_zero_state! end
 
-set_zero_state!(r::RydbergReg) = _set_zero_state!(r.state)
-set_zero_state!(r::Yao.ArrayReg) = _set_zero_state!(r.state)
+set_zero_state!(r::RydbergReg) = (_set_zero_state!(r.state); r)
+set_zero_state!(r::Yao.ArrayReg) = (_set_zero_state!(r.state); r)
 
 function _set_zero_state!(st::AbstractMatrix{T}) where T
     fill!(st, zero(T))

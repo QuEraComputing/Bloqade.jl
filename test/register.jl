@@ -12,6 +12,7 @@ using Yao
     r = RydbergReg{10}(raw_st, Subspace(subspace))
     set_zero_state!(r)
     @test all(r.state[1, :] .== 1)
+    @test relaxedvec(r) isa Matrix
 
     raw_st = rand(ComplexF64, length(subspace))
     r = RydbergReg{10}(raw_st, Subspace(subspace))
@@ -24,4 +25,8 @@ using Yao
     @test state(r) isa Matrix
     @test statevec(r) isa Vector
     @test isnormalized(r)
+
+    @test set_zero_state!(Yao.rand_state(5)) ≈ Yao.zero_state(5)
+
+    @test_throws DimensionMismatch RydbergReg{5}(rand(5), Subspace(rand(Int, 6)))
 end

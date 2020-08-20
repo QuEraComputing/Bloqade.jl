@@ -134,7 +134,6 @@ print_term(io::IO, t::XTerm) = _print_xterm(io, t.nsites, t.Ωs, t.ϕs)
 
 function print_term(io::IO, t::RydInteract)
     indent = get(io, :indent, 0)
-    print(io, " "^indent)
     _print_sum(io, nsites(t))
     _print(io, t.C)
     print(io, "/|r_i - r_j|^6 ")
@@ -458,9 +457,9 @@ Base.@propagate_inbounds function term_value(t::RydInteract, lhs, rhs, col, row)
 end
 
 Base.@propagate_inbounds getscalarmaybe(x::AbstractVector, k) = x[k]
-Base.@propagate_inbounds getscalarmaybe(x::Number, k) = x
 Base.@propagate_inbounds getscalarmaybe(x::Tuple, k) = x[k]
-Base.@propagate_inbounds getscalarmaybe(x::Nothing, k) = 0
+@inline getscalarmaybe(x::Number, k) = x
+@inline getscalarmaybe(x::Nothing, k) = 0
 
 """
     simple_rydberg(n::Int, ϕ::Number)
@@ -479,6 +478,6 @@ Create a rydberg hamiltonian, shorthand for
 ∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + Ω σ_x + Δ σ_z
 ```
 """
-function rydberg_h(C, atoms, Ω, ϕ, Δ)
+function rydberg_h(atoms, C, Ω, ϕ, Δ)
     return RydInteract(atoms, C) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)
 end

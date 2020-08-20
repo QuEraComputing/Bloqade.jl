@@ -2,8 +2,8 @@ abstract type AbstractTerm end
 # Ω = 2π * 4 MHz
 # C = 
 struct RydInteract{T, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
-    C::T
     atoms::AtomList
+    C::T
 end
 
 const PType = Union{Number, Tuple, Nothing}
@@ -359,5 +359,5 @@ Create a rydberg hamiltonian
 ```
 """
 function rydberg_h(C, atoms, Ω, ϕ, Δ)
-    return RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)
+    return RydInteract(atoms, C) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)
 end

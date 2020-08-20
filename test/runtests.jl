@@ -22,11 +22,6 @@ end
     include("measure.jl")
 end
 
-# TODO: move this to StochasitcOptimizer
-# @testset "qaoa_mis" begin
-#     include("qaoa_mis.jl")
-# end
-
 @testset "unit disk" begin
     include("unit_disk.jl")
 end

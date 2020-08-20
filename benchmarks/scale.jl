@@ -43,7 +43,7 @@ dh = cu(h)
 update_term!(dH, dh)
 
 N = 10
-h = RydInteract(2.0, atoms) + XTerm(N, 0.4) + ZTerm(N, 0.3)
+h = RydInteract(atoms, 2.0) + XTerm(N, 0.4) + ZTerm(N, 0.3)
 H = SparseMatrixCSC{ComplexF32}(h);
 dH = CuSparseMatrixCSR(H);
 
@@ -60,7 +60,7 @@ function runbenchmarks(nd)
     cpu_benchmarks = []
     gpu_benchmarks = []
     for n in nd
-        h = RydInteract(2.0, atoms) + XTerm(N, 0.4) + ZTerm(N, 0.3)
+        h = RydInteract(atoms, 2.0) + XTerm(N, 0.4) + ZTerm(N, 0.3)
         H = SparseMatrixCSC{ComplexF32}(h)
         dH = CuSparseMatrixCSR(H)
         dh = cu(h)

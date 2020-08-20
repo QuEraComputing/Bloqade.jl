@@ -31,4 +31,6 @@ include("unit_disk.jl")
 include("emulate.jl")
 include("qaoa_mis.jl")
 
+include("deprecations.jl")
+
 end # module

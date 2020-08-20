@@ -25,11 +25,11 @@ using Yao
     expected_exact = r |> mean_nv
     @test isapprox(expected_exact, expected_sampling; rtol=1e-1)
 
-    ####### softmis
+    ####### gibbs
     Random.seed!(5)
     # 1. sampling
-    expected_sampling = r |> measure(nshots=10000) |> soft_misloss(0.5)
+    expected_sampling = r |> measure(nshots=10000) |> gibbs_loss(0.5)
     # 2. exact
-    expected_exact = r |> soft_misloss(0.5)
+    expected_exact = r |> gibbs_loss(0.5)
     @test isapprox(expected_exact, expected_sampling; rtol=1e-1)
 end

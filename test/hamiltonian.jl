@@ -7,7 +7,7 @@ using LuxurySparse
 using Yao
 using Yao.ConstGate: P0, P1
 
-function rydinteract(C, atoms)
+function rydinteract(atoms, C)
     n = length(atoms)
     terms = []
     for i in 1:n, j in 1:n
@@ -68,16 +68,16 @@ end
 
 @testset "rydberg interact term" begin
     atoms = RydbergEmulator.square_lattice(4, 0.8)
-    H = mat(rydinteract(2.0, atoms))
-    h = RydInteract(2.0, atoms)
+    H = mat(rydinteract(atoms, 2.0))
+    h = RydInteract(atoms, 2.0)
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
 end
 
 @testset "composite term" begin
     atoms = RydbergEmulator.square_lattice(5, 0.8)
-    h = XTerm(5, 2.0) + RydInteract(2.0, atoms) + ZTerm(5, 1.0)
-    H = rydinteract(2.0, atoms) +
+    h = XTerm(5, 2.0) + RydInteract(atoms, 2.0) + ZTerm(5, 1.0)
+    H = rydinteract(atoms, 2.0) +
         sum([1.0 * kron(5, k=>Yao.Z) for k in 1:5]) +
         sum([2.0 * kron(5, k=>Yao.X) for k in 1:5])
     H = mat(H)
@@ -99,8 +99,8 @@ end
     atoms = RydbergEmulator.square_lattice(4, 0.8)
     graph = unit_disk_graph(atoms, 1.5)
     s = Subspace(graph)
-    H = mat(rydinteract(2.0, atoms));
-    h = RydInteract(2.0, atoms)
+    H = mat(rydinteract(atoms, 2.0));
+    h = RydInteract(atoms, 2.0)
 
     @test SparseMatrixCSC(h)[s.subspace_v.+1, s.subspace_v.+1] ≈ SparseMatrixCSC(h, s)
     @test update_term!(SparseMatrixCSC(h, s), h, s) ≈ SparseMatrixCSC(h, s)

@@ -5,7 +5,6 @@ Abstract term for hamiltonian terms.
 """
 abstract type AbstractTerm end
 
-
 """
     RydInteract{T<:Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
 
@@ -108,33 +107,106 @@ Base.eltype(t::Hamiltonian) = promote_type(eltype.(t.terms)...)
 
 Base.getindex(t::Hamiltonian, i::Int) = t.terms[i]
 
-function Base.show(io::IO, t::RydInteract)
-    print(io, "C/|r_i - r_j|^6 ")
+# Custom multi-line printing
+_print(io::IO, x::AbstractFloat) = printstyled(io, @sprintf("%.2f", x); color=:green)
+_print(io::IO, x::Number) = printstyled(io, x; color=:green)
+_print(io::IO, x) = print(io, x)
+_print(io::IO, xs...) = foreach(x->_print(io, x), xs)
+
+function _print_eachterm(f, io::IO, nsites::Int)
+    indent = get(io, :indent, 0)
+    for k in 1:nsites
+        print(io, " "^indent)
+        f(k)
+        if k != nsites
+            println(io, " +")
+        end
+    end
+end
+
+function Base.show(io::IO, ::MIME"text/plain", t::AbstractTerm)
+    println(io, nameof(typeof(t)))
+    print_term(IOContext(io, :indent=>1), t)
+end
+
+print_term(io::IO, t::ZTerm) = _print_zterm(io, t.nsites, t.Δs)
+print_term(io::IO, t::XTerm) = _print_xterm(io, t.nsites, t.Ωs, t.ϕs)
+
+function print_term(io::IO, t::RydInteract)
+    indent = get(io, :indent, 0)
+    print(io, " "^indent)
+    _print_sum(io, nsites(t))
+    _print(io, t.C)
+    print(io, "/|r_i - r_j|^6 ")
     printstyled(io, "n_i n_j", color=:light_blue)
 end
 
-function Base.show(io::IO, t::XTerm)
-    print(io, "Ω ⋅ (e^{iϕ}")
-    printstyled(io, "|0)⟨1|", color=:light_blue)
-    print(io, "+e^{-iϕ}")
-    printstyled(io, "|1⟩⟨0|)", color=:light_blue)
+function print_term(io::IO, t::Hamiltonian)
+    for (i, each) in enumerate(t.terms)
+        println(io, " Term ", i)
+        print_term(IOContext(io, :indent=>2), each)
+        
+        if i != lastindex(t.terms)
+            println(io)
+            println(io)
+        end
+    end
 end
 
-function Base.show(io::IO, t::XTerm{<:PType, Nothing})
-    print(io, "Ω")
-    printstyled(io, " σ^x", color=:light_blue)
+function _print_single_xterm(io::IO, Ω, ϕ)
+    if !isone(Ω)
+        _print(io, Ω)
+    end
+
+    if isnothing(ϕ) || iszero(ϕ)
+        printstyled(io, " σ^x", color=:light_blue)
+    else
+        _print(io, " (e^{", ϕ, "i}")
+        printstyled(io, "|0)⟨1|", color=:light_blue)
+        _print(io, " + e^{-", ϕ, "i}")
+        printstyled(io, "|1⟩⟨0|", color=:light_blue)
+        print(io, ")")
+    end
 end
 
-function Base.show(io::IO, t::ZTerm)
-    print(io, "Δ")
+function _print_sum(io::IO, nsites::Int)
+    indent = get(io, :indent, 0)
+    print(io, " "^indent, "∑(n=1:$nsites) ")
+end
+
+function _print_xterm(io::IO, nsites::Int, Ω::Union{Number, Nothing}, ϕ::Union{Number, Nothing})
+    _print_sum(io, nsites)
+    _print_single_xterm(io, Ω, ϕ)
+end
+
+function _print_xterm(io::IO, nsites::Int, Ω::Union{Number, Nothing}, ϕs)
+    _print_eachterm(io, nsites) do k
+        _print_single_xterm(io, Ω, getscalarmaybe(ϕs, k))
+    end
+end
+
+function _print_xterm(io::IO, nsites::Int, Ωs, ϕ::Union{Number, Nothing})
+    _print_eachterm(io, nsites) do k
+        _print_single_xterm(io, getscalarmaybe(Ωs, k), ϕ)
+    end
+end
+
+function _print_xterm(io::IO, nsites::Int, Ωs, ϕs)
+    _print_eachterm(io, nsites) do k
+        _print_single_xterm(io, getscalarmaybe(Ωs, k), getscalarmaybe(ϕs, k))
+    end
+end
+
+function _print_zterm(io::IO, nsites::Int, Δ::Number)
+    _print_sum(io, nsites)
+    _print(io, Δ)
     printstyled(io, " σ^z", color=:light_blue)
 end
 
-function Base.show(io::IO, x::Hamiltonian)
-    print(io, x.terms[1])
-    for t in x.terms[2:end]
-        print(io, " + ")
-        print(io, t)
+function _print_zterm(io::IO, nsites::Int, Δs)
+    _print_eachterm(io, nsites) do k
+        _print(io, getscalarmaybe(Δs, k))
+        printstyled(io, " σ^z", color=:light_blue)
     end
 end
 
@@ -400,10 +472,11 @@ simple_rydberg(n::Int, ϕ::Number) = XTerm(n, one(ϕ), ϕ)
 """
     rydberg_h(C, atoms, Ω, ϕ, Δ)
 
-Create a rydberg hamiltonian
+Create a rydberg hamiltonian, shorthand for
+`RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)`
 
 ```math
-∑ \frac{C}{|r_i - r_j|^6} n_i n_j + Ω σ_x + Δ σ_z
+∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + Ω σ_x + Δ σ_z
 ```
 """
 function rydberg_h(C, atoms, Ω, ϕ, Δ)

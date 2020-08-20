@@ -10,6 +10,7 @@ using OrderedCollections
 using ExponentialUtilities
 using StatsBase
 using Random
+using Printf
 
 import Yao
 

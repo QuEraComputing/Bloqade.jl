@@ -5,6 +5,7 @@ using SparseArrays
 using OrderedCollections
 using LuxurySparse
 using BitBasis
+using Printf
 using Yao
 using Yao.ConstGate: P0, P1
 
@@ -17,6 +18,11 @@ function rydinteract(atoms, C)
         end
     end
     return sum(terms)
+end
+
+function test_print(f, h)
+    ans = sprint((io, x)->show(io, MIME("text/plain"), x), h; context=:color=>true)
+    @test ans == f()
 end
 
 @testset "simple graph hamiltonian subspace" begin
@@ -58,6 +64,11 @@ end
     h = XTerm(5, 2.0)
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
+    test_print(h) do
+        """
+        XTerm
+         ∑(n=1:5) \e[32m2.00\e[39m\e[94m σ^x\e[39m"""
+    end
 
     Ωs = rand(5)
     h = XTerm(Ωs)
@@ -65,6 +76,28 @@ end
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
     @test eltype(h) == Float64
+    test_print(h) do
+        """
+        XTerm
+         \e[32m$(@sprintf("%.2f", Ωs[1]))\e[39m\e[94m σ^x\e[39m +
+         \e[32m$(@sprintf("%.2f", Ωs[2]))\e[39m\e[94m σ^x\e[39m +
+         \e[32m$(@sprintf("%.2f", Ωs[3]))\e[39m\e[94m σ^x\e[39m +
+         \e[32m$(@sprintf("%.2f", Ωs[4]))\e[39m\e[94m σ^x\e[39m +
+         \e[32m$(@sprintf("%.2f", Ωs[5]))\e[39m\e[94m σ^x\e[39m"""
+    end
+
+    Ωs = rand(5)
+    ϕs = rand(5)
+    h = XTerm(Ωs, ϕs)
+    test_print(h) do
+        """
+        XTerm
+         \e[32m$(@sprintf("%.2f", Ωs[1]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[1]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[1]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
+         \e[32m$(@sprintf("%.2f", Ωs[2]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[2]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[2]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
+         \e[32m$(@sprintf("%.2f", Ωs[3]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[3]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[3]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
+         \e[32m$(@sprintf("%.2f", Ωs[4]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[4]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[4]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
+         \e[32m$(@sprintf("%.2f", Ωs[5]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[5]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[5]))\e[39mi}\e[94m|1⟩⟨0|\e[39m)"""
+    end
 end
 
 @testset "Z term" begin
@@ -73,12 +106,27 @@ end
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
 
+    test_print(h) do
+        """
+        ZTerm
+         ∑(n=1:5) \e[32m2.00\e[39m\e[94m σ^z\e[39m"""
+    end
+
     Δs = rand(5)
     h = ZTerm(Δs)
     H = mat(sum([Δs[k] * kron(5, k=>Yao.Z) for k in 1:5]))
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
     @test eltype(h) == Float64
+    test_print(h) do
+        """
+        ZTerm
+         \e[32m$(@sprintf("%.2f", Δs[1]))\e[39m\e[94m σ^z\e[39m +
+         \e[32m$(@sprintf("%.2f", Δs[2]))\e[39m\e[94m σ^z\e[39m +
+         \e[32m$(@sprintf("%.2f", Δs[3]))\e[39m\e[94m σ^z\e[39m +
+         \e[32m$(@sprintf("%.2f", Δs[4]))\e[39m\e[94m σ^z\e[39m +
+         \e[32m$(@sprintf("%.2f", Δs[5]))\e[39m\e[94m σ^z\e[39m"""
+    end
 end
 
 @testset "rydberg interact term" begin
@@ -120,4 +168,9 @@ end
 
     @test SparseMatrixCSC(h)[s.subspace_v.+1, s.subspace_v.+1] ≈ SparseMatrixCSC(h, s)
     @test update_term!(SparseMatrixCSC(h, s), h, s) ≈ SparseMatrixCSC(h, s)
+end
+
+@testset "utils" begin
+    @test RydbergEmulator.to_tuple((1, 2, 3)) == (1, 2, 3)
+    @test RydbergEmulator.to_tuple([1, 2, 3]) == (1, 2, 3)
 end

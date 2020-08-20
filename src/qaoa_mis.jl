@@ -8,7 +8,7 @@ counter the number of vertices in a spin configuration.
 count_vertices(config::Integer) = count_ones(config)
 
 """
-    qaoa_on_graph(graph, ts, ϕs[, cache, state])
+    qaoa_on_graph(graph, ts, ϕs)
 
 Execute qaoa circuit on a graph model with `simple_rydberg` hamiltonians
 and return a [`RydbergReg`](@ref) register. One can preallocate
@@ -16,23 +16,10 @@ the cache and register state by feeding two more arugments. The state
 has to be an `Array` or `CuArray`, feeding other types will cause undefined
 behaviour.
 """
-function qaoa_on_graph end
-
-function qaoa_on_graph(graph, ts::AbstractVector{<:Real}, ϕs::AbstractVector, cache::EmulatorCache, state)
-    hs = simple_rydberg.(nv(graph), ϕs)
-    subspace = Subspace(graph)
-    fill!(state, zero(eltype(ts)))
-    state[1, :] .= 1
-    reg = RydbergReg{nv(graph)}(state, subspace)
-    # evolve
-    emulate!(reg, ts, hs, cache)
-    return reg
-end
-
 function qaoa_on_graph(graph, ts::AbstractVector{<:Real}, ϕs::AbstractVector)
     hs = simple_rydberg.(nv(graph), ϕs)
     subspace = Subspace(graph)
-    cache = EmulatorCache(ts, hs, subspace)
+    cache = EmulatorCache(eltype(ts), first(hs), subspace)
     r = zero_state(Complex{eltype(ts)}, nv(graph), subspace)
     emulate!(r, ts, hs, cache)
     return r

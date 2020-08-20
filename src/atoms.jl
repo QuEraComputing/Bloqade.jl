@@ -67,18 +67,6 @@ function rand_atoms(n::Int, ρ::Float64; ndims::Int=2)
 end
 
 """
-    lattice_atoms(n::Int, ff::Float64, geometry::String)
-
-Create a random atom position of `n` atoms and with a filling factor `ff`
-in 2D space on a `square` lattice.
-"""
-function lattice_atoms(n::Int, ff::Float64, geometry=:square)
-    if geometry == :square
-        square_lattice(n, ff)
-    end
-end
-
-"""
     square_lattice(n::Int, ff::Float64)
 
 Create a list of Rydberg atoms on a square lattice with given size `n` and

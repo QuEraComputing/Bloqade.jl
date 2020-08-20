@@ -4,6 +4,7 @@ using LightGraphs: SimpleGraph, add_edge!
 using SparseArrays
 using OrderedCollections
 using LuxurySparse
+using BitBasis
 using Yao
 using Yao.ConstGate: P0, P1
 
@@ -57,6 +58,13 @@ end
     h = XTerm(5, 2.0)
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
+
+    Ωs = rand(5)
+    h = XTerm(Ωs)
+    H = mat(sum([Ω * kron(5, k=>Yao.X) for (k, Ω) in enumerate(Ωs)]))
+    @test SparseMatrixCSC(h) ≈ H
+    @test update_term!(SparseMatrixCSC(h), h) ≈ H
+    @test eltype(h) == Float64
 end
 
 @testset "Z term" begin
@@ -64,6 +72,13 @@ end
     h = ZTerm(5, 2.0)
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
+
+    Δs = rand(5)
+    h = ZTerm(Δs)
+    H = mat(sum([Δs[k] * kron(5, k=>Yao.Z) for k in 1:5]))
+    @test SparseMatrixCSC(h) ≈ H
+    @test update_term!(SparseMatrixCSC(h), h) ≈ H
+    @test eltype(h) == Float64
 end
 
 @testset "rydberg interact term" begin
@@ -72,6 +87,7 @@ end
     h = RydInteract(atoms, 2.0)
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
+    @test eltype(h) == Float64
 end
 
 @testset "composite term" begin

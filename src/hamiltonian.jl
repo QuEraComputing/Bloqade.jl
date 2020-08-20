@@ -1,7 +1,21 @@
+"""
+    AbstractTerm
+
+Abstract term for hamiltonian terms.
+"""
 abstract type AbstractTerm end
-# Ω = 2π * 4 MHz
-# C = 
-struct RydInteract{T, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
+
+
+"""
+    RydInteract{T<:Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
+
+Type for Rydberg interactive term.
+
+    RydInteract(C::Number, atoms::AbstractVector{<:RydAtom})
+
+Create a `RydInteract` term from given `C` and list of atom position `atoms`.
+"""
+struct RydInteract{T <: Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     atoms::AtomList
     C::T
 end
@@ -28,14 +42,48 @@ end
 to_tuple(xs) = (xs..., ) # make it type stable
 to_tuple(xs::Tuple) = xs
 
+"""
+    XTerm(Ωs::AbstractVector, ϕs::AbstractVector)
+
+Create the `XTerm` from given `Ωs` and `ϕs`.
+"""
 XTerm(Ωs::AbstractVector, ϕs::AbstractVector) = XTerm(length(Ωs), to_tuple(Ωs), to_tuple(ϕs))
+
+"""
+    XTerm(Ωs::Number, ϕs::AbstractVector)
+
+Create the `XTerm` from given `Ωs` and `ϕs`.
+"""
 XTerm(Ωs::Number, ϕs::AbstractVector) = XTerm(length(ϕs), Ωs, to_tuple(ϕs))
+
+"""
+    XTerm(Ωs::AbstractVector, ϕs::Number)
+
+Create the `XTerm` from given `Ωs` and `ϕs`.
+"""
 XTerm(Ωs::AbstractVector, ϕs::Number) = XTerm(length(Ωs), to_tuple(Ωs), ϕs)
 
 # convenient constructor for simple case
-XTerm(n::Int, Ωs::AbstractVector) = XTerm(n, Ωs, nothing)
+"""
+    XTerm(n::Int, Ωs::AbstractVector)
+
+Create a simple `XTerm` from given `Ωs`.
+"""
+XTerm(Ωs::AbstractVector) = XTerm(length(Ωs), to_tuple(Ωs), nothing)
+
+"""
+    XTerm(n::Int, Ω::Number)
+
+Create a simple `XTerm` from given number of atoms `n`
+and `Ω`.
+"""
 XTerm(n::Int, Ω::Number) = XTerm(n, Ω, nothing)
-XTerm(Ωs::AbstractVector) = XTerm(length(Ωs), to_tuple(Ωs))
+
+"""
+    ZTerm(Δs::AbstractVector)
+
+Create a simple `ZTerm` from given `Δs`.
+"""
 ZTerm(Δs::AbstractVector) = ZTerm(length(Δs), to_tuple(Δs))
 
 """

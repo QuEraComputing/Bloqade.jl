@@ -13,6 +13,7 @@ using Random
 using Printf
 
 import Yao
+using Yao: measure
 
 using LinearAlgebra: BlasReal, BlasComplex
 

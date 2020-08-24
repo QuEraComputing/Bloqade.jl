@@ -2,7 +2,6 @@ using Test, RydbergEmulator
 using Random
 using LightGraphs, LinearAlgebra
 using BitBasis
-using Yao
 
 @testset "test measurement" begin
     Random.seed!(8)
@@ -13,7 +12,7 @@ using Yao
 
     # prepare a zero state
     r = RydbergEmulator.zero_state(5, test_subspace)
-    sample1 = Yao.measure!(r)
+    sample1 = measure!(r)
     @test sample1 == zero(BitStr64{5})
     emulate!(r, ts, hs)
     Random.seed!(5)

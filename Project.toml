@@ -1,0 +1,13 @@
+name = "ContinuousEmulator"
+uuid = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
+authors = ["QuEra Computing Inc."]
+version = "0.1.0"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

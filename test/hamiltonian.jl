@@ -25,6 +25,10 @@ function test_print(f, h; color=true)
     @test ans == f()
 end
 
+if !isdefined(@__MODULE__, :test_graph)
+    include("utils.jl")
+end
+
 @testset "simple graph hamiltonian subspace" begin
     subspace = Subspace(test_graph)
     @test collect(keys(subspace)) == sort(test_subspace_v)
@@ -110,6 +114,26 @@ end
          \e[32m2.02\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[4]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[4]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
          \e[32m2.02\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[5]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[5]))\e[39mi}\e[94m|1⟩⟨0|\e[39m)"""
     end
+
+    h = XTerm(5, sin)
+    @test h(0.1) isa XTerm
+    @test h(0.1).Ωs == sin(0.1)
+    @test h(0.1).ϕs === nothing
+
+    h = XTerm(5, sin, cos)
+    @test h(0.1) isa XTerm
+    @test h(0.1).Ωs == sin(0.1)
+    @test h(0.1).ϕs == cos(0.1)
+
+    test_print(h; color=false) do
+        """
+        XTerm
+         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|) +
+         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|) +
+         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|) +
+         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|) +
+         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|)"""
+    end
 end
 
 @testset "Z term" begin
@@ -139,6 +163,14 @@ end
          \e[32m$(@sprintf("%.2f", Δs[4]))\e[39m\e[94m σ^z\e[39m +
          \e[32m$(@sprintf("%.2f", Δs[5]))\e[39m\e[94m σ^z\e[39m"""
     end
+
+    h = ZTerm(5, sin)
+    @test h(0.1).Δs == sin(0.1)
+
+    h = ZTerm(3, [sin, cos, tanh])
+    @test h(0.1).Δs[1] == sin(0.1)
+    @test h(0.1).Δs[2] == cos(0.1)
+    @test h(0.1).Δs[3] == tanh(0.1)
 end
 
 @testset "rydberg interact term" begin

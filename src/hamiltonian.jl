@@ -19,15 +19,13 @@ struct RydInteract{T <: Number, AtomList <: AbstractVector{<:RydAtom}} <: Abstra
     C::T
 end
 
-const PType = Union{Number, Tuple, Nothing}
-
-struct XTerm{Omega <: PType, Phi <: PType} <: AbstractTerm
+struct XTerm{Omega, Phi} <: AbstractTerm
     nsites::Int
     Ωs::Omega
     ϕs::Phi
 end
 
-struct ZTerm{Delta <: PType} <: AbstractTerm
+struct ZTerm{Delta} <: AbstractTerm
     nsites::Int
     Δs::Delta
 end
@@ -53,14 +51,14 @@ XTerm(Ωs::AbstractVector, ϕs::AbstractVector) = XTerm(length(Ωs), to_tuple(Ω
 
 Create the `XTerm` from given `Ωs` and `ϕs`.
 """
-XTerm(Ωs::Number, ϕs::AbstractVector) = XTerm(length(ϕs), Ωs, to_tuple(ϕs))
+XTerm(Ωs, ϕs::AbstractVector) = XTerm(length(ϕs), Ωs, to_tuple(ϕs))
 
 """
     XTerm(Ωs::AbstractVector, ϕs::Number)
 
 Create the `XTerm` from given `Ωs` and `ϕs`.
 """
-XTerm(Ωs::AbstractVector, ϕs::Number) = XTerm(length(Ωs), to_tuple(Ωs), ϕs)
+XTerm(Ωs::AbstractVector, ϕs) = XTerm(length(Ωs), to_tuple(Ωs), ϕs)
 
 # convenient constructor for simple case
 """
@@ -76,7 +74,7 @@ XTerm(Ωs::AbstractVector) = XTerm(length(Ωs), to_tuple(Ωs), nothing)
 Create a simple `XTerm` from given number of atoms `n`
 and `Ω`.
 """
-XTerm(n::Int, Ω::Number) = XTerm(n, Ω, nothing)
+XTerm(n::Int, Ω) = XTerm(n, Ω, nothing)
 
 """
     ZTerm(Δs::AbstractVector)
@@ -110,7 +108,15 @@ Base.getindex(t::Hamiltonian, i::Int) = t.terms[i]
 # Custom multi-line printing
 _print(io::IO, x::AbstractFloat) = printstyled(io, @sprintf("%.2f", x); color=:green)
 _print(io::IO, x::Number) = printstyled(io, x; color=:green)
-_print(io::IO, x) = print(io, x)
+
+function _print(io::IO, x)
+    if _iscallable(x)
+        print(io, x, "(t)")
+    else
+        print(io, x)
+    end
+end
+
 _print(io::IO, xs...) = foreach(x->_print(io, x), xs)
 
 function _print_eachterm(f, io::IO, nsites::Int)
@@ -152,12 +158,16 @@ function print_term(io::IO, t::Hamiltonian)
     end
 end
 
+# NOTE: This should not be used in performance required code
+# calculation intensive code should use generated version.
+_iscallable(f) = !isempty(methods(f))
+
 function _print_single_xterm(io::IO, Ω, ϕ)
-    if !isone(Ω)
+    if _iscallable(Ω) || (!isone(Ω))
         _print(io, Ω)
     end
 
-    if isnothing(ϕ) || iszero(ϕ)
+    if !_iscallable(ϕ) && (isnothing(ϕ) || iszero(ϕ))
         printstyled(io, " σ^x", color=:light_blue)
     else
         _print(io, " (e^{", ϕ, "i}")
@@ -460,6 +470,7 @@ Base.@propagate_inbounds getscalarmaybe(x::AbstractVector, k) = x[k]
 Base.@propagate_inbounds getscalarmaybe(x::Tuple, k) = x[k]
 @inline getscalarmaybe(x::Number, k) = x
 @inline getscalarmaybe(x::Nothing, k) = 0
+@inline getscalarmaybe(x, k) = x
 
 """
     simple_rydberg(n::Int, ϕ::Number)
@@ -481,3 +492,24 @@ Create a rydberg hamiltonian, shorthand for
 function rydberg_h(atoms, C, Ω, ϕ, Δ)
     return RydInteract(atoms, C) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)
 end
+
+# Time dependent Term
+attime(x::Nothing, t::Real) = nothing
+attime(x::Number, t::Real) = x
+attime(x, t::Real) = x(t)
+attime(x::AbstractArray, t::Real) = attime.(x, t)
+
+function (tm::XTerm)(t::Real)
+    return XTerm(tm.nsites, attime(tm.Ωs, t), attime(tm.ϕs, t))
+end
+
+function (tm::ZTerm)(t::Real)
+    return ZTerm(tm.nsites, attime(tm.Δs, t))
+end
+
+function (tm::Hamiltonian)(t::Real)
+    return Hamiltonian(map(x->x(t), tm.terms))
+end
+
+# fallback to constants
+(tm::AbstractTerm)(t::Real) = tm

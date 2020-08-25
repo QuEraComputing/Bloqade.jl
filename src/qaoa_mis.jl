@@ -21,7 +21,7 @@ function qaoa_on_graph(graph, ts::AbstractVector{<:Real}, ϕs::AbstractVector)
     subspace = Subspace(graph)
     cache = EmulatorCache(eltype(ts), first(hs), subspace)
     r = zero_state(Complex{eltype(ts)}, nv(graph), subspace)
-    emulate!(r, ts, hs, cache)
+    emulate!(r, ts, hs; cache=cache)
     return r
 end
 

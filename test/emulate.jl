@@ -6,6 +6,10 @@ using LightGraphs
 using ExponentialUtilities
 using LinearAlgebra
 
+if !isdefined(@__MODULE__, :test_graph)
+    include("utils.jl")
+end
+
 function naive_qaoa!(r::AbstractRegister, hs, ts, s::Subspace)
     st = vec(r.state)
     for (h, t) in zip(hs, ts)
@@ -31,16 +35,10 @@ end
     r = RydbergEmulator.zero_state(5, s)
 
     cache = EmulatorCache(eltype(ts), first(hs), s)
-    r1 = emulate!(copy(r), ts, hs, cache)
+    r1 = emulate!(copy(r), ts, hs; cache=cache)
     r2 = naive_qaoa!(copy(r), hs, ts, s)
 
     @test r1 ≈ r2
-
-    # @testset "cuda" begin
-    #     if CUDA.functional()
-    #         @test isapprox((emulate!(cu(r), ts, hs, cu(cache)) |> cpu), r1, atol=1e-6)
-    #     end
-    # end
 end
 
 @testset "fullspace" begin
@@ -48,7 +46,19 @@ end
     ts = rand(4)
     r = Yao.zero_state(4)
     cache = EmulatorCache(eltype(ts), first(hs), 4)
-    r1 = emulate!(copy(r), ts, hs, cache)
+    r1 = emulate!(copy(r), ts, hs; cache=cache)
     r2 = naive_qaoa!(copy(r), hs, ts)
     @test r1 ≈ r2
+end
+
+@testset "contiguous time" begin
+    h = XTerm(5, 1.0, sin)
+    r1 = RydbergEmulator.zero_state(5, test_subspace)
+    emulate!(r1, 0.2, h)
+
+    dt = 1e-5
+    r2 = RydbergEmulator.zero_state(5, test_subspace)
+    emulate!(r2, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
+
+    @test isapprox(r1.state, r2.state; atol=1e-4)
 end

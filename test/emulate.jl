@@ -53,12 +53,22 @@ end
 
 @testset "contiguous time" begin
     h = XTerm(5, 1.0, sin)
-    r1 = RydbergEmulator.zero_state(5, test_subspace)
-    emulate!(r1, 0.2, h)
-
     dt = 1e-5
-    r2 = RydbergEmulator.zero_state(5, test_subspace)
-    emulate!(r2, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
+    @testset "subspace" begin
+        r1 = RydbergEmulator.zero_state(5, test_subspace)
+        emulate!(r1, 0.2, h)
 
-    @test isapprox(r1.state, r2.state; atol=1e-4)
+        r2 = RydbergEmulator.zero_state(5, test_subspace)
+        emulate!(r2, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
+
+        @test isapprox(r1.state, r2.state; atol=1e-4)
+    end
+
+    @testset "fullspace" begin
+        r1 = Yao.zero_state(5)
+        emulate!(r1, 0.2, h)
+        r2 = Yao.zero_state(5)
+        emulate!(r2, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
+        @test isapprox(r1.state, r2.state; atol=1e-4)
+    end
 end

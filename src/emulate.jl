@@ -55,11 +55,28 @@ EmulatorCache(H::AbstractTerm, xs...; kwargs...) = EmulatorCache(Float64, H, xs.
 Emulate the time evolution of a sequence of Hamiltonians `hs` of time length `ts` for each Hamiltonian.
 An optional argument can be feeded to preallocate the memory.
 
-    emulate!(r, t::Real, h::AbstractTerm[; algo=Tsit5(), kwargs...])
+    emulate!(r, t::Real, h::AbstractTerm[; algo=Tsit5(), cache=<default cache>, kwargs...])
 
 Emulate the contiguous time evolution of given Hamiltonian `h` that has dependency on `t`. The default algorithm
 we use is `Tsit5`. Available `kwargs` can be found in [Common Solver Options](https://diffeq.sciml.ai/latest/basics/common_solver_opts/).
 Available algorithms can be found at [Full List of Methods](https://diffeq.sciml.ai/latest/solvers/ode_solve/#Full-List-of-Methods).
+
+# Emulation Cache
+
+Emulation of time evolution requires allocating intermediate variables that can be large. Thus preallocating
+these intermediate variables and share this memory between iterations can speed up the simulation when `emulate!`
+is called for multiple times for similar Hamiltonian. By similar Hamiltonian, we mean Hamiltonians that contains
+the same term but can have different parameters.
+
+## Time Independent Cache
+
+The cache for time independent simulation contains two part: a) a `SparseMatrixCSC` matrix to store the intermediate
+Hamiltonian matrices. b) a `KrylovSubspace` object to store the Krylov subspace.
+
+## Continouns Time Cache
+
+For continouns time emulation, one only needs to create a `SparseMatrixCSC` matrix to store the intermediate
+Hamiltonian matrices.
 """
 function emulate! end
 
@@ -74,41 +91,37 @@ function emulate!(r::RydbergReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cach
 end
 
 
-# contiguous
+# continouns
 """
-    shordinger(s::Subspace)
+    shordinger(h::AbstractTerm, s::Subspace; cache=SparseMatrixCSC(h(1e-2), s))
 
 Create a Shordinger equation in given subspace `s`.
 """
-function shordinger(h::AbstractTerm, s::Subspace)
-    H = SparseMatrixCSC(h(0.1), s)
-
+function shordinger(h::AbstractTerm, s::Subspace; cache=SparseMatrixCSC(h(1e-2), s))
     return function equation(dstate, state, h, t)
-        dstate .= -im .* update_term!(H, h(t), s) * state
+        dstate .= -im .* update_term!(cache, h(t), s) * state
     end
 end
 
 """
-    shordinger()
+    shordinger(h::AbstractTerm; cache=SparseMatrixCSC(h(1e-2)))
 
 Create a Shordinger equation.
 """
-function shordinger(h::AbstractTerm)
-    H = SparseMatrixCSC(h(0.1))
-
+function shordinger(h::AbstractTerm; cache=SparseMatrixCSC(h(1e-2)))
     return function equation(dstate, state, h, t)
-        dstate .= -im .* update_term!(H, h(t)) * state
+        dstate .= -im .* update_term!(cache, h(t)) * state
     end
 end
 
-function emulate!(r::Yao.ArrayReg, t::Real, h::AbstractTerm; algo=Tsit5(), kwargs...)
-    prob = ODEProblem(shordinger(h), vec(r.state), (zero(t), t), h; save_everystep=false, save_start=false, alias_u0=true, kwargs...)
+function emulate!(r::Yao.ArrayReg, t::Real, h::AbstractTerm; algo=Tsit5(), cache=SparseMatrixCSC(h(1e-2)), kwargs...)
+    prob = ODEProblem(shordinger(h; cache=cache), vec(r.state), (zero(t), t), h; save_everystep=false, save_start=false, alias_u0=true, kwargs...)
     result = solve(prob, algo)
     return r
 end
 
-function emulate!(r::RydbergReg, t::Real, h::AbstractTerm; algo=Tsit5(), kwargs...)
-    prob = ODEProblem(shordinger(h, r.subspace), vec(r.state), (zero(t), t), h; save_everystep=false, save_start=false, alias_u0=true, kwargs...)
+function emulate!(r::RydbergReg, t::Real, h::AbstractTerm; algo=Tsit5(), cache=SparseMatrixCSC(h(1e-2), r.subspace), kwargs...)
+    prob = ODEProblem(shordinger(h, r.subspace; cache=cache), vec(r.state), (zero(t), t), h; save_everystep=false, save_start=false, alias_u0=true, kwargs...)
     result = solve(prob, algo)
     return r
 end

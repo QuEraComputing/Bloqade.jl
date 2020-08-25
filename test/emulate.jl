@@ -50,25 +50,3 @@ end
     r2 = naive_qaoa!(copy(r), hs, ts)
     @test r1 ≈ r2
 end
-
-@testset "contiguous time" begin
-    h = XTerm(5, 1.0, sin)
-    dt = 1e-5
-    @testset "subspace" begin
-        r1 = RydbergEmulator.zero_state(5, test_subspace)
-        emulate!(r1, 0.2, h)
-
-        r2 = RydbergEmulator.zero_state(5, test_subspace)
-        emulate!(r2, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
-
-        @test isapprox(r1.state, r2.state; atol=1e-4)
-    end
-
-    @testset "fullspace" begin
-        r1 = Yao.zero_state(5)
-        emulate!(r1, 0.2, h)
-        r2 = Yao.zero_state(5)
-        emulate!(r2, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
-        @test isapprox(r1.state, r2.state; atol=1e-4)
-    end
-end

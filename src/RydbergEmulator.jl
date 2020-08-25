@@ -8,7 +8,6 @@ using LightGraphs
 using LinearAlgebra
 using OrderedCollections
 using ExponentialUtilities
-using OrdinaryDiffEq
 using StatsBase
 using Random
 using Printf

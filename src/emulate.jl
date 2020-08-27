@@ -89,3 +89,21 @@ function emulate!(r::RydbergReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cach
     emulate_routine!(r, ts, hs, cache.Ks, cache.H)
     return r
 end
+
+"""
+    emulate(ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kwargs...)
+
+Non in-place version of [`emulate!`](@ref). See [`emulate!`](@ref) for valid kwargs.
+"""
+function emulate(ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kwargs...)
+    return emulate!(Yao.zero_state(Complex{eltype(ts)}, nsites(first(hs))), ts, hs; kwargs...)
+end
+
+"""
+    emulate(s::Subspace, ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kwargs...)
+
+Non in-place version of [`emulate!`](@ref). See [`emulate!`](@ref) for valid kwargs.
+"""
+function emulate(s::Subspace, ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kwargs...)
+    return emulate!(zero_state(Complex{eltype(ts)}, nsites(first(hs)), s), ts, hs; kwargs...)
+end

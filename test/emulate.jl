@@ -50,3 +50,10 @@ end
     r2 = naive_qaoa!(copy(r), hs, ts)
     @test r1 ≈ r2
 end
+
+@testset "emulate" begin
+    hs = simple_rydberg.(5, rand(3))
+    ts = rand(3)
+    @test emulate(ts, hs) ≈ emulate!(Yao.zero_state(5), ts, hs)
+    @test emulate(test_subspace, ts, hs) ≈ emulate!(RydbergEmulator.zero_state(5, test_subspace), ts, hs)
+end

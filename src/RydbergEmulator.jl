@@ -19,7 +19,7 @@ using LinearAlgebra: BlasReal, BlasComplex
 
 export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, EmulatorCache, RydbergReg
 export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms,
-    unit_disk_graph, rand_unit_disk_graph, emulate!, square_lattice, set_zero_state!, measure
+    unit_disk_graph, rand_unit_disk_graph, emulate!, emulate, square_lattice, set_zero_state!, measure
 
 include("utils.jl")
 include("atoms.jl")

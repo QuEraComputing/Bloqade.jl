@@ -1,4 +1,4 @@
-export qaoa_on_graph, mean_nv, count_vertices, mean, gibbs_loss, logsumexp
+export qaoa_on_graph, mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp
 
 """
     count_vertices(config::Integer)
@@ -26,22 +26,22 @@ function qaoa_on_graph(graph, ts::AbstractVector{<:Real}, ϕs::AbstractVector)
 end
 
 """
-    mean_nv(reg)
+    mean_rydberg(reg)
 
 Mean size of vertex set.
 `reg` can be a measurement result or a register.
 """
-function mean_nv(reg::RydbergReg)
+function mean_rydberg(reg::RydbergReg)
     sum(t -> abs2(t[2]) * count_vertices(t[1]), zip(vec(reg.subspace), Yao.relaxedvec(reg)))
 end
 
-function mean_nv(reg::Yao.ArrayReg)
+function mean_rydberg(reg::Yao.ArrayReg)
     return sum(enumerate(Yao.relaxedvec(reg))) do (c, amp)
         abs2(amp) * count_vertices(c - 1)
     end
 end
 
-mean_nv(samples::AbstractVector{<:BitStr}) = mean(count_vertices, samples)
+mean_rydberg(samples::AbstractVector{<:BitStr}) = mean(count_vertices, samples)
 
 """
     gibbs_loss([reg::RydbergReg], α::Real)

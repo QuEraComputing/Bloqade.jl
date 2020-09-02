@@ -35,10 +35,24 @@ Create a `RydbergReg` in zero state in given subspace.
 """
 Yao.zero_state(n::Int, subspace::Subspace; nbatch=1) = zero_state(ComplexF64, n, subspace; nbatch=nbatch)
 
-function Yao.zero_state(::Type{T}, n::Int, subspace::Subspace; nbatch=1) where {T <: Complex}
-    st = zeros(T, length(subspace), nbatch)
+function Yao.zero_state(::Type{T}, n::Int, s::Subspace; nbatch=1) where {T <: Complex}
+    st = zeros(T, length(s), nbatch)
     st[1, :] .= 1
-    return RydbergReg{n}(st, subspace)
+    return RydbergReg{n}(st, s)
+end
+
+Yao.rand_state(n::Int, s::Subspace; nbatch::Int=1) = Yao.rand_state(ComplexF64, n, s; nbatch=nbatch)
+function Yao.rand_state(::Type{T}, n::Int, s::Subspace; nbatch::Int=1) where T
+    st = Yao.batch_normalize!(rand(T, length(s), nbatch))
+    return RydbergReg{n}(st, s)
+end
+
+Yao.product_state(n::Int, c::BitStr, s::Subspace; nbatch::Int=1) = Yao.product_state(ComplexF64, n, c, s; nbatch=nbatch)
+function Yao.product_state(::Type{T}, n::Int, c::BitStr, s::Subspace; nbatch::Int=1) where T
+    c in s.subspace_v || error("$c is not in given subspace")
+    st = zeros(T, length(s), nbatch)
+    st[s[c], :] .= 1
+    return RydbergReg{n}(st, s)
 end
 
 # TODO: make upstream implementation more generic

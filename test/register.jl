@@ -30,3 +30,17 @@ using Yao
 
     @test_throws DimensionMismatch RydbergReg{5}(rand(5), Subspace(rand(Int, 6)))
 end
+
+@testset "rand_state" begin
+    subspace = [0, 1, 4, 8]
+    s = Subspace(subspace)
+    @test isnormalized(rand_state(5, s)) 
+end
+
+@testset "product_state" begin
+    subspace = [0, 1, 4, 8]
+    s = Subspace(subspace)
+    @test_throws ErrorException product_state(5, bit"010", s)
+    r = product_state(5, bit"1000", s)
+    @test isone(r.state[end])    
+end

@@ -50,6 +50,7 @@ function blockade_subspace(atoms::Vector{<:RydAtom}, radius::AbstractFloat=1.0)
 end
 
 Base.getindex(s::Subspace, key::Int) = s.map[key]
+Base.getindex(s::Subspace, key::BitStr) = s.map[buffer(key)]
 Base.keys(s::Subspace) = keys(s.map)
 Base.values(s::Subspace) = values(s.map)
 Base.length(s::Subspace) = length(s.subspace_v)

@@ -1,5 +1,3 @@
-export Subspace, blockade_subspace
-
 abstract type AbstractSpace end
 struct FullSpace <: AbstractSpace end
 
@@ -28,6 +26,10 @@ end
 Create a subspace from given graph's maximal independent set.
 """
 function blockade_subspace(graph::SimpleGraph)
+    if isempty(edges(graph))
+        @warn "graph has empty edges, creating a subspace contains the entire fullspace, consider using a full space register."
+    end
+
     cg = complement(graph)
     mis = maximal_cliques(cg)
     n = nv(graph)

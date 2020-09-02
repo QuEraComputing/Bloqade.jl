@@ -20,6 +20,7 @@ function unit_disk_graph(atoms::AbstractVector{<:Atom2D}, radius=1)
             end
         end
     end
+
     return g
 end
 

@@ -39,8 +39,8 @@ function EmulatorCache(N::Int, H::AbstractMatrix{Complex{T}}; krylov_niteration=
     return EmulatorCache(Ks, H)
 end
 
-function EmulatorCache(::Type{T}, H::AbstractTerm, n::Int; kwargs...) where {T <: Real}
-    return EmulatorCache(1 << n, SparseMatrixCSC{Complex{T}}(H); kwargs...)
+function EmulatorCache(::Type{T}, H::AbstractTerm; kwargs...) where {T <: Real}
+    return EmulatorCache(1 << nsites(H), SparseMatrixCSC{Complex{T}}(H); kwargs...)
 end
 
 function EmulatorCache(::Type{T}, H::AbstractTerm, s::Subspace; kwargs...) where {T <: Real}
@@ -77,10 +77,43 @@ Hamiltonian matrices. b) a `KrylovSubspace` object to store the Krylov subspace.
 
 For continouns time emulation, one only needs to create a `SparseMatrixCSC` matrix to store the intermediate
 Hamiltonian matrices.
+
+## Examples
+
+The simplest way to use cache inside a large loop is via closure. The following example
+returns a closure that takes time `ts` as parameters during simulation.
+
+```jl
+function your_emulation_task(n, subspace, hs)
+    r = zero_state(n, subspace)
+    cache = EmulatorCache(first(hs), subspace)
+    return function task(ts)
+        set_zero_state!(r)
+        emulate!(r, ts, hs; cache=cache)
+    end
+end
+```
+
+or if you just want to use `ts` and `ϕs` as your parameters
+
+```jl
+function your_emulation_task(n, subspace)
+    r = zero_state(n, subspace)
+    cache = EmulatorCache(simple_rydberg(n, 1.0), subspace)
+
+    return function task(xs)
+        set_zero_state!(r)
+        ts = xs[1:length(xs)÷2]
+        ϕs = xs[length(xs)÷2+1:end]
+        hs = simple_rydberg.(n, ϕs)
+        emulate!(r, ts, hs; cache=cache)
+    end
+end
+```
 """
 function emulate! end
 
-function emulate!(r::Yao.ArrayReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cache=EmulatorCache(T, first(hs), nsites(first(hs)))) where {T <: Real}
+function emulate!(r::Yao.ArrayReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cache=EmulatorCache(T, first(hs))) where {T <: Real}
     emulate_routine!(r, ts, hs, cache.Ks, cache.H)
     return r
 end

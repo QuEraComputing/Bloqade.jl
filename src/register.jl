@@ -31,11 +31,11 @@ Base.copy(reg::RydbergReg{N, B, ST, SST}) where {N, B, ST, SST} =
 """
     zero_state([T=ComplexF64], n::Int, subspace; nbatch=1)
 
-Create a Rydberg zero state in given subspace.
+Create a `RydbergReg` in zero state in given subspace.
 """
-zero_state(n::Int, subspace::Subspace; nbatch=1) = zero_state(ComplexF64, n, subspace; nbatch=nbatch)
+Yao.zero_state(n::Int, subspace::Subspace; nbatch=1) = zero_state(ComplexF64, n, subspace; nbatch=nbatch)
 
-function zero_state(::Type{T}, n::Int, subspace; nbatch=1) where {T <: Complex}
+function Yao.zero_state(::Type{T}, n::Int, subspace::Subspace; nbatch=1) where {T <: Complex}
     st = zeros(T, length(subspace), nbatch)
     st[1, :] .= 1
     return RydbergReg{n}(st, subspace)

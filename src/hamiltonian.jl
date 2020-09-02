@@ -277,6 +277,10 @@ end
 
 SparseArrays.SparseMatrixCSC(term::AbstractTerm, xs...) = SparseMatrixCSC{ComplexF64}(term, xs...)
 
+Yao.mat(::Type{T}, t::AbstractTerm) where T = SparseMatrixCSC{T}(t)
+Yao.mat(::Type{T}, t::AbstractTerm, s::Subspace) where T = SparseMatrixCSC{T}(t, s)
+Yao.mat(t::AbstractTerm, xs...) = Yao.mat(ComplexF64, t, xs...)
+
 # full space
 # C/|r_i - r_j|^6 n_i n_j
 # specialize on COO

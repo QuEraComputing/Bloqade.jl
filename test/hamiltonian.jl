@@ -249,3 +249,9 @@ end
     h2 = RydInteract(atoms, 1.0) + XTerm(5, 2.21, 3.32) + ZTerm(5, 2.22)
     @test h1 == h2
 end
+
+@testset "Yao.mat" begin
+    t = simple_rydberg(5, 0.8)
+    @test mat(t) ≈ SparseMatrixCSC(t)
+    @test mat(t, test_subspace) ≈ SparseMatrixCSC(t, test_subspace)
+end

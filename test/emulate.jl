@@ -45,7 +45,7 @@ end
     hs = simple_rydberg.(4, rand(4))
     ts = rand(4)
     r = Yao.zero_state(4)
-    cache = EmulatorCache(eltype(ts), first(hs), 4)
+    cache = EmulatorCache(eltype(ts), first(hs))
     r1 = emulate!(copy(r), ts, hs; cache=cache)
     r2 = naive_qaoa!(copy(r), hs, ts)
     @test r1 ≈ r2

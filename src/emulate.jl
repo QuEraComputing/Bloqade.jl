@@ -57,7 +57,7 @@ An optional argument can be feeded to preallocate the memory.
 
     emulate!(r, t::Real, h::AbstractTerm[; algo=Tsit5(), cache=<default cache>, kwargs...])
 
-Emulate the contiguous time evolution of given Hamiltonian `h` that has dependency on `t`. The default algorithm
+Emulate the continuous time evolution of given Hamiltonian `h` that has dependency on `t`. The default algorithm
 we use is `Tsit5`. Available `kwargs` can be found in [Common Solver Options](https://diffeq.sciml.ai/latest/basics/common_solver_opts/).
 Available algorithms can be found at [Full List of Methods](https://diffeq.sciml.ai/latest/solvers/ode_solve/#Full-List-of-Methods).
 
@@ -73,9 +73,9 @@ the same term but can have different parameters.
 The cache for time independent simulation contains two part: a) a `SparseMatrixCSC` matrix to store the intermediate
 Hamiltonian matrices. b) a `KrylovSubspace` object to store the Krylov subspace.
 
-## Continouns Time Cache
+## continuous Time Cache
 
-For continouns time emulation, one only needs to create a `SparseMatrixCSC` matrix to store the intermediate
+For continuous time emulation, one only needs to create a `SparseMatrixCSC` matrix to store the intermediate
 Hamiltonian matrices.
 
 ## Examples

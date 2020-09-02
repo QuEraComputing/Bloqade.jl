@@ -63,7 +63,8 @@ The size of the box is ``L^ndims``, where the linear dimension ``L = (n/ρ)^(1/n
 """
 function rand_atoms(n::Int, ρ::Float64; ndims::Int=2)
     L = (n/ρ)^(1/ndims)
-    rydatoms(rand(ndims, n) .* L)
+    atoms = rydatoms(rand(ndims, n) .* L)
+    return sort_atoms!(atoms)
 end
 
 """
@@ -78,5 +79,19 @@ function square_lattice(n::Int, ff::Float64)
     atom_coordinates_x = (atom_coordinates_linear .- 1) .÷ L .+ 1
     atom_coordinates_y = (atom_coordinates_linear .- 1) .% L .+ 1
     atom_coordinates = vcat(atom_coordinates_x', atom_coordinates_y')
-    rydatoms(atom_coordinates)
+    return sort_atoms!(rydatoms(atom_coordinates))
+end
+
+"""
+    sort_atoms!(atoms; by=nothing)
+
+Sort a list of atom positions. Sort by coordinates if `by` is `nothing`.
+"""
+function sort_atoms!(atoms::Vector{<:RydAtom}; by=nothing)
+    if isnothing(by)
+        sort!(atoms, by=p->p.loc)
+    else
+        sort!(atoms, by=by)
+    end
+    return atoms
 end

@@ -21,7 +21,7 @@ using BitBasis
     @test samples isa Vector{<:BitStr}
     expected_sampling = samples .|> count_vertices |> mean
     # 2. exact
-    expected_exact = r |> mean_nv
+    expected_exact = r |> mean_rydberg
     @test isapprox(expected_exact, expected_sampling; rtol=1e-1)
 
     ####### gibbs

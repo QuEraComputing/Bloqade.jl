@@ -30,7 +30,7 @@ if !isdefined(@__MODULE__, :test_graph)
 end
 
 @testset "simple graph hamiltonian subspace" begin
-    subspace = Subspace(test_graph)
+    subspace = blockade_subspace(test_graph)
     @test collect(keys(subspace)) == sort(test_subspace_v)
     @test collect(values(subspace)) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 
@@ -222,15 +222,14 @@ end
     ϕ = Float64[0.5, 0.4, -0.2, -1.2, 10.2]
     h = XTerm(Ω, ϕ)
 
-    subspace = Subspace(test_graph)
+    subspace = blockade_subspace(test_graph)
     H = SparseMatrixCSC(h, subspace)
     @test update_term!(copy(H), h, subspace) ≈ H
 end
 
 @testset "redberg interact term subspace" begin
     atoms = RydbergEmulator.square_lattice(4, 0.8)
-    graph = unit_disk_graph(atoms, 1.5)
-    s = Subspace(graph)
+    s = blockade_subspace(atoms, 1.5)
     H = mat(rydinteract(atoms, 2.0));
     h = RydInteract(atoms, 2.0)
 

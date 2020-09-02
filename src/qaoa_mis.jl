@@ -18,7 +18,7 @@ behaviour.
 """
 function qaoa_on_graph(graph, ts::AbstractVector{<:Real}, ϕs::AbstractVector)
     hs = simple_rydberg.(nv(graph), ϕs)
-    subspace = Subspace(graph)
+    subspace = blockade_subspace(graph)
     cache = EmulatorCache(eltype(ts), first(hs), subspace)
     r = zero_state(Complex{eltype(ts)}, nv(graph), subspace)
     emulate!(r, ts, hs; cache=cache)

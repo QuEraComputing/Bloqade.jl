@@ -1,4 +1,4 @@
-export Subspace
+export Subspace, blockade_subspace
 
 abstract type AbstractSpace end
 struct FullSpace <: AbstractSpace end
@@ -23,11 +23,11 @@ function Subspace(subspace_v::Vector{Int})
 end
 
 """
-    Subspace(graph)
+    blockade_subspace(graph)
 
 Create a subspace from given graph's maximal independent set.
 """
-function Subspace(graph::SimpleGraph)
+function blockade_subspace(graph::SimpleGraph)
     cg = complement(graph)
     mis = maximal_cliques(cg)
     n = nv(graph)
@@ -36,6 +36,15 @@ function Subspace(graph::SimpleGraph)
         itercontrol(n, fixed_points, zero(fixed_points))
     end
     return Subspace(unique(Iterators.flatten(it)))
+end
+
+"""
+    blockade_subspace(atoms[, radius=1.0])
+
+Create a blockade approximation subspace from given atom positions and radius.
+"""
+function blockade_subspace(atoms::Vector{<:RydAtom}, radius::AbstractFloat=1.0)
+    return blockade_subspace(unit_disk_graph(atoms, radius))
 end
 
 Base.getindex(s::Subspace, key::Int) = s.map[key]

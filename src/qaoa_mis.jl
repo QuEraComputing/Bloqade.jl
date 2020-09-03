@@ -1,4 +1,4 @@
-export qaoa_on_graph, mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp
+export mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp
 
 """
     count_vertices(config::Integer)
@@ -6,24 +6,6 @@ export qaoa_on_graph, mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp
 counter the number of vertices in a spin configuration.
 """
 count_vertices(config::Integer) = count_ones(config)
-
-"""
-    qaoa_on_graph(graph, ts, ϕs)
-
-Execute qaoa circuit on a graph model with `simple_rydberg` hamiltonians
-and return a [`RydbergReg`](@ref) register. One can preallocate
-the cache and register state by feeding two more arugments. The state
-has to be an `Array` or `CuArray`, feeding other types will cause undefined
-behaviour.
-"""
-function qaoa_on_graph(graph, ts::AbstractVector{<:Real}, ϕs::AbstractVector)
-    hs = simple_rydberg.(nv(graph), ϕs)
-    subspace = blockade_subspace(graph)
-    cache = EmulatorCache(eltype(ts), first(hs), subspace)
-    r = zero_state(Complex{eltype(ts)}, nv(graph), subspace)
-    emulate!(r, ts, hs; cache=cache)
-    return r
-end
 
 """
     mean_rydberg(reg)

@@ -1,7 +1,7 @@
 name = "ContinuousEmulator"
 uuid = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
 authors = ["QuEra Computing Inc."]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
@@ -12,7 +12,7 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
 [compat]
 OrdinaryDiffEq = "5.42"
-RydbergEmulator = "0.7"
+RydbergEmulator = "0.7, 0.8"
 Yao = "0.6"
 julia = "1"
 

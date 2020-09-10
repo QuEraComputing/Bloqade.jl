@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.11.11
+# v0.11.13
 
 using Markdown
 using InteractiveUtils
@@ -8,7 +8,7 @@ using InteractiveUtils
 using Pkg; Pkg.status()
 
 # ╔═╡ 895e5adc-e161-11ea-0dbf-cd1b5aeb5956
-using RydbergEmulator, Plots, MISExperimentUtils, Yao
+using RydbergEmulator, MISExperimentUtils, Yao
 
 # ╔═╡ a23a135e-e3d9-11ea-3452-a3cbd8793251
 md"""

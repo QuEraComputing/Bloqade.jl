@@ -1,17 +1,5 @@
 # This file is machine-generated - editing it directly is not advised
 
-[[AbstractFFTs]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "051c95d6836228d120f5f4b984dd5aba1624f716"
-uuid = "621f4979-c628-5d54-868e-fcf4e3e8185c"
-version = "0.5.0"
-
-[[Adapt]]
-deps = ["LinearAlgebra"]
-git-tree-sha1 = "0fac443759fa829ed8066db6cf1077d888bb6573"
-uuid = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
-version = "2.0.2"
-
 [[ArnoldiMethod]]
 deps = ["DelimitedFiles", "LinearAlgebra", "Random", "SparseArrays", "StaticArrays", "Test"]
 git-tree-sha1 = "2b6845cea546604fb4dca4e31414a6a59d39ddcd"
@@ -21,40 +9,17 @@ version = "0.0.4"
 [[Base64]]
 uuid = "2a0f44e3-6c83-55bd-87e4-b1978d98bd5f"
 
-[[BinaryProvider]]
-deps = ["Libdl", "Logging", "SHA"]
-git-tree-sha1 = "ecdec412a9abc8db54c0efc5548c64dfce072058"
-uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
-version = "0.5.10"
-
 [[BitBasis]]
 deps = ["LinearAlgebra", "StaticArrays"]
 git-tree-sha1 = "c22d181d2cfa0f649295d9ee8316bc105cd05280"
 uuid = "50ba71b6-fa0f-514d-ae9a-0916efc90dcf"
 version = "0.7.0"
 
-[[CEnum]]
-git-tree-sha1 = "215a9aa4a1f23fbd05b92769fdd62559488d70e9"
-uuid = "fa961155-64e5-5f13-b03f-caf6b980ea82"
-version = "0.4.1"
-
-[[CUDA]]
-deps = ["AbstractFFTs", "Adapt", "BinaryProvider", "CEnum", "DataStructures", "ExprTools", "GPUArrays", "GPUCompiler", "LLVM", "Libdl", "LinearAlgebra", "Logging", "MacroTools", "NNlib", "Pkg", "Printf", "Random", "Reexport", "Requires", "SparseArrays", "Statistics", "TimerOutputs"]
-git-tree-sha1 = "781992b10035c34f11f79801c4f7777f1bb10af2"
-uuid = "052768ef-5323-5732-b1bb-66c8b64840ba"
-version = "1.1.0"
-
 [[CacheServers]]
 deps = ["Distributed", "Test"]
 git-tree-sha1 = "b584b04f236d3677b4334fab095796a128445bf8"
 uuid = "a921213e-d44a-5460-ac04-5d720a99ba71"
 version = "0.2.0"
-
-[[CpuId]]
-deps = ["Markdown", "Test"]
-git-tree-sha1 = "f0464e499ab9973b43c20f8216d088b61fda80c6"
-uuid = "adafc99b-e345-5852-983c-f28acb93d879"
-version = "0.2.2"
 
 [[DataAPI]]
 git-tree-sha1 = "176e23402d80e7743fc26c19c681bfb11246af32"
@@ -97,23 +62,6 @@ git-tree-sha1 = "91f7498b66205431fe3e35833cda97a22b1ab6a5"
 uuid = "d4d017d3-3776-5f7e-afef-a10c40355c18"
 version = "1.7.0"
 
-[[ExprTools]]
-git-tree-sha1 = "6f0517056812fd6aa3af23d4b70d5325a2ae4e95"
-uuid = "e2ba6199-217a-4e67-a87a-7c52f15ade04"
-version = "0.1.1"
-
-[[GPUArrays]]
-deps = ["AbstractFFTs", "Adapt", "LinearAlgebra", "Printf", "Random", "Serialization"]
-git-tree-sha1 = "ae20accf251c6da038fe33cbc2c53d5af7f51344"
-uuid = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"
-version = "4.0.0"
-
-[[GPUCompiler]]
-deps = ["DataStructures", "InteractiveUtils", "LLVM", "Libdl", "TimerOutputs", "UUIDs"]
-git-tree-sha1 = "374baab8247bf5b3301eb23c5996b33af2b07289"
-uuid = "61eb1bfa-7361-4325-ad38-22787b887f55"
-version = "0.5.1"
-
 [[Inflate]]
 git-tree-sha1 = "f5fc07d4e706b84f72d54eedcc1c13d92fb0871c"
 uuid = "d25df0c9-e2be-5dd7-82c8-3ad0b3e990b9"
@@ -128,12 +76,6 @@ deps = ["Dates", "Mmap", "Parsers", "Unicode"]
 git-tree-sha1 = "b34d7cef7b337321e97d22242c3c2b91f476748e"
 uuid = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 version = "0.21.0"
-
-[[LLVM]]
-deps = ["CEnum", "Libdl", "Printf", "Unicode"]
-git-tree-sha1 = "a662366a5d485dee882077e8da3e1a95a86d097f"
-uuid = "929cbde3-209d-540e-8aea-75f648917ca0"
-version = "2.0.0"
 
 [[LegibleLambdas]]
 deps = ["MLStyle", "MacroTools", "Test"]
@@ -160,12 +102,6 @@ uuid = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 
 [[Logging]]
 uuid = "56ddb016-857b-54e1-b83d-db4d58db5568"
-
-[[LoopVectorization]]
-deps = ["DocStringExtensions", "LinearAlgebra", "OffsetArrays", "SIMDPirates", "SLEEFPirates", "UnPack", "VectorizationBase"]
-git-tree-sha1 = "b595e15d20e45d2eb36c6b4462d2a34143872a45"
-uuid = "bdcacae8-1622-11e9-2a5c-532679323890"
-version = "0.8.15"
 
 [[LuxurySparse]]
 deps = ["LinearAlgebra", "Random", "SparseArrays", "StaticArrays"]
@@ -196,23 +132,6 @@ version = "0.4.3"
 
 [[Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
-
-[[NNPACK_jll]]
-deps = ["Libdl", "Pkg"]
-git-tree-sha1 = "c3d1a616362645754b18e12dbba96ec311b0867f"
-uuid = "a6bfbf70-4841-5cb9-aa18-3a8ad3c413ee"
-version = "2018.6.22+0"
-
-[[NNlib]]
-deps = ["Libdl", "LinearAlgebra", "LoopVectorization", "NNPACK_jll", "Pkg", "Requires", "Statistics"]
-git-tree-sha1 = "f593bdb98b00a4f5b87cc2c18231b81433111590"
-uuid = "872c559c-99b0-510c-b3b7-b6c96a88d5cd"
-version = "0.7.2"
-
-[[OffsetArrays]]
-git-tree-sha1 = "4ba4cd84c88df8340da1c3e2d8dcb9d18dd1b53b"
-uuid = "6fe1bfb0-de20-5000-8ca7-80f57d26f881"
-version = "1.1.1"
 
 [[OrderedCollections]]
 git-tree-sha1 = "293b70ac1780f9584c89268a6e2a560d938a7065"
@@ -254,25 +173,13 @@ uuid = "ae029012-a4dd-5104-9daa-d747884805df"
 version = "1.0.1"
 
 [[RydbergEmulator]]
-deps = ["Adapt", "BitBasis", "CUDA", "ExponentialUtilities", "LightGraphs", "LinearAlgebra", "LuxurySparse", "OrderedCollections", "Printf", "Random", "SparseArrays", "StatsBase", "TimerOutputs", "Yao"]
-git-tree-sha1 = "7a4cb46511788ebef57f20f815cd676347a8b76c"
+deps = ["BitBasis", "ExponentialUtilities", "LightGraphs", "LinearAlgebra", "LuxurySparse", "OrderedCollections", "Printf", "Random", "SparseArrays", "StatsBase", "TimerOutputs", "Yao"]
+path = "/Users/roger/julia_code/RydbergEmulator"
 uuid = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
-version = "0.2.1"
+version = "0.8.0"
 
 [[SHA]]
 uuid = "ea8e919c-243c-51af-8825-aaa63cd721ce"
-
-[[SIMDPirates]]
-deps = ["VectorizationBase"]
-git-tree-sha1 = "dae629e96c1819d77882256e6cb29736f493bc30"
-uuid = "21efa798-c60a-11e8-04d3-e1a92915a26a"
-version = "0.8.13"
-
-[[SLEEFPirates]]
-deps = ["Libdl", "SIMDPirates", "VectorizationBase"]
-git-tree-sha1 = "c750d618b7c8268a97e55c70e8c88e56080d30fa"
-uuid = "476501e8-09a2-5ece-8869-fb82de89a1fa"
-version = "0.5.4"
 
 [[Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
@@ -335,19 +242,8 @@ version = "1.2.0"
 deps = ["Random", "SHA"]
 uuid = "cf7118a7-6976-5b1a-9a39-7adc72f591a4"
 
-[[UnPack]]
-git-tree-sha1 = "d4bfa022cd30df012700cf380af2141961bb3bfb"
-uuid = "3a884ed6-31ef-47d7-9d2a-63182c4928ed"
-version = "1.0.1"
-
 [[Unicode]]
 uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
-
-[[VectorizationBase]]
-deps = ["CpuId", "LLVM", "Libdl", "LinearAlgebra"]
-git-tree-sha1 = "bb72c58beab6c9e544851f5373fcd72f8f1f157a"
-uuid = "3d5dd08c-fd9d-11e8-17fa-ed2836048c2f"
-version = "0.12.21"
 
 [[Yao]]
 deps = ["BitBasis", "Reexport", "YaoArrayRegister", "YaoBase", "YaoBlocks", "YaoSym"]

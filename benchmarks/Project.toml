@@ -1,0 +1,4 @@
+[deps]
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+RydbergEmulator = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"

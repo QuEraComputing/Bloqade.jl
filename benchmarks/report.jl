@@ -3,12 +3,7 @@ using StatsPlots
 using RydbergEmulator
 using Yao
 using BenchmarkTools
-using ProgressLogging
-using TerminalLoggers
 using DelimitedFiles
-using Logging: global_logger
-
-global_logger(TerminalLogger())
 
 function benchmark_blockade(atoms::Vector{<:RydAtom})
     n = length(atoms)
@@ -29,22 +24,26 @@ function benchmark_fullspace(atoms::Vector{<:RydAtom})
 end
 
 function run(range)
-    blockade_times = Float64[]
-    fullspace_times = Float64[]
-    @progress for n in range
+    for n in range
         atoms = square_lattice(n, 0.8)
-        if n > 25
-            push!(blockade_times, benchmark_blockade(atoms))
+        @info n
+        blockade_t = benchmark_blockade(atoms)
+        @info blockade_t
+        open("blockade.dat", "a+") do f
+            println(f, n, ", ", blockade_t)
         end
-        push!(fullspace_times, benchmark_fullspace(atoms))
+        if n < 26
+            fullspace_t = benchmark_fullspace(atoms)
+            @info fullspace_t
+            open("fullspace.dat", "a+") do f
+                println(f, n, ", ", fullspace_t)
+            end 
+        end
     end
-    return blockade_times, fullspace_times
+    return
 end
 
-blockade_times, fullspace_times = run(10:30)
-
-writedlm("blockade.dat", blockade_times)
-writedlm("fullspace.dat", fullspace_times)
+run(10:30)
 
 # using DelimitedFiles
 # times = readdlm("benchmarks/timings.dat")

@@ -38,20 +38,24 @@ end
 
 run(26:40)
 
-# using DelimitedFiles
-# times = readdlm("benchmarks/timings.dat")
-# plot(times[:, 1])
-# group = repeat(["blockade", "fullspace"], inner = 11)
-# xs = repeat(string.(collect(10:20)), outer = 2)
+using DelimitedFiles
+using Unitful: ns, ms
+blockade_times = readdlm("benchmarks/blockade.dat")
+fullspace_times = readdlm("benchmarks/fullspace.dat")
 
-# plt = plot(legend=:topleft, yaxis="ns", xaxis="number of atoms")
-# plot!(plt, string.(10:20), times[:, 1], yscale=:log10, label="blockade", markershape = :circle)
-# plot!(plt, string.(10:20), times[:, 2], yscale=:log10, label="fullspace", markershape = :circle)
+to_ms(x) = map(x->x.val, uconvert.(ms, x .* ns))
 
-# groupedbar(xs, times;
-#     yaxis="ns", xaxis="number of atoms",
-#     yscale=:log10, bar_position=:dodge, group,
-#     legend=:topleft,
-# )
-# savefig("benchmark.png")
-# times[:,2]./times[:, 1]
+plt = plot(
+    legend=:topleft,
+    xticks=9:2:37,
+    yaxis="ms", xaxis="number of atoms",
+    size=(1000, 600),
+    xtickfontsize=14, ytickfontsize=14,
+    xguidefontsize=14, yguidefontsize=14,
+    legendfont=14,
+    thickness_scaling=1.5,
+)
+plot!(plt, 10:36, to_ms(blockade_times[:, 2]), yscale=:log10, label="blockade", markershape = :circle)
+plot!(plt, 10:24, to_ms(fullspace_times[:, 2]), yscale=:log10, label="fullspace", markershape = :circle)
+
+savefig("benchmark.png")

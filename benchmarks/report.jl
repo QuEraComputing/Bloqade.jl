@@ -32,18 +32,11 @@ function run(range)
         open("blockade.dat", "a+") do f
             println(f, n, ", ", blockade_t)
         end
-        if n < 26
-            fullspace_t = benchmark_fullspace(atoms)
-            @info fullspace_t
-            open("fullspace.dat", "a+") do f
-                println(f, n, ", ", fullspace_t)
-            end 
-        end
     end
     return
 end
 
-run(10:30)
+run(26:40)
 
 # using DelimitedFiles
 # times = readdlm("benchmarks/timings.dat")

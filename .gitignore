@@ -5,3 +5,4 @@ __pycache__/
 
 /.vscode/
 Manifest.toml
+!/notebooks/Manifest.toml

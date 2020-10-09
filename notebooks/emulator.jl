@@ -1,11 +1,8 @@
 ### A Pluto.jl notebook ###
-# v0.11.13
+# v0.12.3
 
 using Markdown
 using InteractiveUtils
-
-# ╔═╡ b96793ec-eda7-11ea-237b-2daaf5170aeb
-using Pkg; Pkg.status()
 
 # ╔═╡ 895e5adc-e161-11ea-0dbf-cd1b5aeb5956
 using RydbergEmulator, MISExperimentUtils, Yao
@@ -46,10 +43,13 @@ atoms = square_lattice(20, 0.8)
 @doc square_lattice
 
 # ╔═╡ 0cffc54a-e166-11ea-16cd-196aac923257
-graph = unit_disk_graph(atoms, 1.5)
+graph = unit_disk_graph(atoms, 1)
 
 # ╔═╡ 14e0bc60-e166-11ea-09b8-9d809ebcde21
 viz_atoms(atoms, graph)
+
+# ╔═╡ b4c31a4e-0a64-11eb-1a28-e75924d1cadf
+viz_atoms(atoms, graph)|>typeof
 
 # ╔═╡ 1f88793c-e166-11ea-1a74-77d0c432a7c3
 md"exact MIS = $(exact_solve_mis(graph))"
@@ -187,7 +187,6 @@ you can open an issue to post a description of your use case
 md"run this in XSTM"
 
 # ╔═╡ Cell order:
-# ╠═b96793ec-eda7-11ea-237b-2daaf5170aeb
 # ╠═895e5adc-e161-11ea-0dbf-cd1b5aeb5956
 # ╟─a23a135e-e3d9-11ea-3452-a3cbd8793251
 # ╟─6b52529e-e3ef-11ea-32eb-8322ff3746cb
@@ -196,6 +195,7 @@ md"run this in XSTM"
 # ╠═ed6880c6-e18f-11ea-2dba-f5319a439d01
 # ╠═0cffc54a-e166-11ea-16cd-196aac923257
 # ╠═14e0bc60-e166-11ea-09b8-9d809ebcde21
+# ╠═b4c31a4e-0a64-11eb-1a28-e75924d1cadf
 # ╟─1f88793c-e166-11ea-1a74-77d0c432a7c3
 # ╟─33634d74-e166-11ea-0733-1de6e1898dc1
 # ╠═5ff566a6-e166-11ea-398d-af937ed47243

@@ -224,6 +224,14 @@ Base.:(+)(x::AbstractTerm, y::Hamiltonian) = Hamiltonian((x, y.terms...))
 Base.:(+)(x::Hamiltonian, y::AbstractTerm) = Hamiltonian((x.terms..., y))
 Base.:(+)(x::Hamiltonian, y::Hamiltonian) = Hamiltonian((x.terms..., y.terms...))
 
+function Base.:(==)(x::RydInteract, y::RydInteract)
+    return (x.atoms == y.atoms) && (x.C == y.C)
+end
+
+function Base.:(==)(x::Hamiltonian, y::Hamiltonian)
+    return all(t in y.terms for t in x.terms) && all(t in x.terms for t in y.terms)
+end
+
 """
     getterm(terms, k, k_site)
 

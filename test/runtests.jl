@@ -33,3 +33,7 @@ end
 @testset "utils" begin
     @test_throws ErrorException RydbergEmulator.unsafe_log2i(2.2)
 end
+
+@testset "serialize" begin
+    include("serialize.jl")
+end

@@ -37,7 +37,7 @@ function blockade_subspace(graph::SimpleGraph)
         fixed_points = setdiff(1:n, each)
         itercontrol(n, fixed_points, zero(fixed_points))
     end
-    return Subspace(unique(Iterators.flatten(it)))
+    return Subspace(collect(Int, unique(Iterators.flatten(it))))
 end
 
 """

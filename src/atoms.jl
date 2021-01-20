@@ -45,7 +45,9 @@ rydatoms(locs::AbstractMatrix) = [RydAtom(locs[:,i]...) for i=1:size(locs,2)]
 # interfaces
 Base.ndims(x::RydAtom{N}) where N = N
 Base.getindex(x::RydAtom, k::Int) = getindex(x.loc, k)
-
+Base.length(::RydAtom{N}) where N = N
+Base.eltype(::RydAtom{N, T}) where {N, T} = T
+Base.iterate(x::RydAtom, st...) = iterate(x.loc, st...)
 axis(a::RydAtom) = a.loc
 
 """

@@ -14,7 +14,7 @@ jobs:
     runs-on: [self-hosted, linux, x64]
     strategy:
       matrix:
-        julia-version: ['1.4']
+        julia-version: ['1.4', '1.5']
         julia-arch: [x64]
     
     steps:

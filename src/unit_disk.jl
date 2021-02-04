@@ -1,11 +1,11 @@
 """
-    unit_disk_graph(atoms::AbstractVector{<:Atom2D}, radius=1)
+    unit_disk_graph(atoms::AbstractVector{<:RydAtom}, radius=1)
 
 Create a unit disk graph from atom positions `atoms`. It returns a `LightGraphs.SimpleGraph` instance.
 * `atoms` is vector of atoms positions.
 * `radius` is the unit in the unit disk graph definition.
 """
-function unit_disk_graph(atoms::AbstractVector{<:Atom2D}, radius=1)
+function unit_disk_graph(atoms::AbstractVector{<:RydAtom}, radius=1)
     n_atoms = length(atoms)
     g = SimpleGraph(n_atoms)
 

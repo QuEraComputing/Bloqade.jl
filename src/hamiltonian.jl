@@ -5,7 +5,7 @@ Abstract term for hamiltonian terms.
 """
 abstract type AbstractTerm end
 
-"""
+raw"""
     RydInteract{T<:Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     RydInteract(atoms::AbstractVector{<:RydAtom}, C::Number)
 
@@ -22,7 +22,7 @@ struct RydInteract{T <: Number, AtomList <: AbstractVector{<:RydAtom}} <: Abstra
     C::T
 end
 
-"""
+raw"""
     XTerm{Omega, Phi} <: AbstractTerm
     XTerm(nsites::Int, Ωs::Omega, ϕs::Phi)
 
@@ -40,7 +40,7 @@ struct XTerm{Omega, Phi} <: AbstractTerm
     ϕs::Phi
 end
 
-"""
+raw"""
     ZTerm{Delta} <: AbstractTerm
     ZTerm(nsites, Δs::Delta)
 

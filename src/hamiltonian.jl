@@ -10,7 +10,13 @@ abstract type AbstractTerm end
 
 Type for Rydberg interactive term.
 
-    RydInteract(C::Number, atoms::AbstractVector{<:RydAtom})
+# Expression
+
+```math
+\sum_{i, j} \frac{C}{|r_i - r_j|^6} n_i n_j
+```
+
+    RydInteract(atoms::AbstractVector{<:RydAtom}, C::Number)
 
 Create a `RydInteract` term from given `C` and list of atom position `atoms`.
 """
@@ -19,12 +25,42 @@ struct RydInteract{T <: Number, AtomList <: AbstractVector{<:RydAtom}} <: Abstra
     C::T
 end
 
+"""
+    XTerm{Omega, Phi} <: AbstractTerm
+
+Type for X term.
+
+# Expression
+
+```math
+\sum_{i} \Omega_i (e^{i\phi_i} |0\rangle_i\langle 1| + e^{-i\phi_i}|1\rangle_i\langle 0|)
+```
+
+    XTerm(nsites::Int, Ωs::Omega, ϕs::Phi)
+
+Create a `XTerm` term from given `nsites`, `Ωs` and `ϕs`.
+"""
 struct XTerm{Omega, Phi} <: AbstractTerm
     nsites::Int
     Ωs::Omega
     ϕs::Phi
 end
 
+"""
+    ZTerm{Delta} <: AbstractTerm
+
+Type for Z term.
+
+# Expression
+
+```math
+\sum_i \Delta_i\sigma_i^z
+```
+
+    ZTerm(nsites, Δs::Delta)
+
+Create a `ZTerm` term from given `nsites` and `Δs`.
+"""
 struct ZTerm{Delta} <: AbstractTerm
     nsites::Int
     Δs::Delta

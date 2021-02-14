@@ -5,6 +5,22 @@ Abstract term for hamiltonian terms.
 """
 abstract type AbstractTerm end
 
+default_unit(unit, x) = x
+
+default_unit(unit, x::Quantity) = uconvert(unit, x).val
+default_unit(unit::typeof(NoUnits), x::Quantity) = uconvert(unit, x)
+default_unit(unit, xs::Tuple{}) = ()
+default_unit(unit, xs::Tuple{T}) where T = default_unit(unit, first(xs))
+default_unit(unit, xs::Tuple) = (default_unit(unit, Base.heads(xs)), default_unit(unit, Base.tail(xs))...)
+
+function default_unit(unit, x::AbstractArray{S}) where {T, S <: Quantity{T}}
+    y = similar(x, T)
+    @inbounds for i in eachindex(x)
+        y[i] = default_unit(unit, x[i]).val
+    end
+    return y
+end
+
 raw"""
     RydInteract{T<:Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     RydInteract(atoms::AbstractVector{<:RydAtom}, C::Number)
@@ -16,11 +32,27 @@ Type for Rydberg interactive term.
 ```math
 \sum_{i, j} \frac{C}{|r_i - r_j|^6} n_i n_j
 ```
+
+# Parameters
+
+- `atoms`: a list of atom positions, must be type `RydAtom`, default unit is `μm`.
+- `C`: the interaction strength, default unit is `MHz⋅μm^6`.
 """
 struct RydInteract{T <: Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     atoms::AtomList
     C::T
+
+    function RydInteract{T, AtomList}(atoms::AtomList, C::T) where {T <: Number, AtomList}
+        new{T, AtomList}(atoms, C)
+    end
+
+    function RydInteract(atoms::AtomList, C) where AtomList
+        c = default_unit(MHz * µm^6, C)
+        new{typeof(c), AtomList}(atoms, c)
+    end
 end
+
+RydInteract(atoms::AbstractVector) = RydInteract(atoms, 2π*858386*MHz*µm^6)
 
 raw"""
     XTerm{Omega, Phi} <: AbstractTerm
@@ -33,11 +65,26 @@ Type for X term.
 ```math
 \sum_{i} \Omega_i (e^{i\phi_i} |0\rangle_i\langle 1| + e^{-i\phi_i}|1\rangle_i\langle 0|)
 ```
+
+# Parameters
+
+- `Ω`: rabi-frequency, the default unit for `Ωs` is `MHz`
+- `ϕs` phase, has no unit (or `NoUnits` in `Unitful`).
 """
 struct XTerm{Omega, Phi} <: AbstractTerm
     nsites::Int
     Ωs::Omega
     ϕs::Phi
+
+    function XTerm{Omega, Phi}(nsites::Int, Ωs::Omega, ϕs::Phi) where {Omega, Phi}
+        new{Omega, Phi}(nsites, Ωs, ϕs)
+    end
+
+    function XTerm(nsites::Int, Ωs, ϕs)
+        Ωs = default_unit(MHz, Ωs)
+        ϕs = default_unit(NoUnits, ϕs)
+        new{typeof(Ωs), typeof(ϕs)}(nsites, Ωs, ϕs)
+    end
 end
 
 raw"""
@@ -51,10 +98,23 @@ Type for Z term.
 ```math
 \sum_i \Delta_i\sigma_i^z
 ```
+
+# Parameters
+
+- `Δs`: the detuning parameter, the default unit is `MHz`.
 """
 struct ZTerm{Delta} <: AbstractTerm
     nsites::Int
     Δs::Delta
+
+    function ZTerm{Delta}(nsites::Int, Δs::Delta) where {Delta}
+        new{Delta}(nsites, Δs)
+    end
+
+    function ZTerm(nsites::Int, Δs)
+        Δs = default_unit(MHz, Δs)
+        new{typeof(Δs)}(nsites, Δs)
+    end
 end
 
 struct Hamiltonian{Terms <: Tuple} <: AbstractTerm

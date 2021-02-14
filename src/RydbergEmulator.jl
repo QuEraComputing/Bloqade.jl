@@ -1,6 +1,8 @@
 module RydbergEmulator
 
+using Random
 using Printf
+using Unitful
 using BitBasis
 using SparseArrays
 using LuxurySparse
@@ -11,12 +13,10 @@ using ExponentialUtilities
 using Configurations
 using DelimitedFiles
 using StatsBase
-using Random
-using Printf
 
 import Yao
 using Yao: measure, zero_state
-
+using Unitful: Quantity, uconvert, MHz, µm, μs
 using LinearAlgebra: BlasReal, BlasComplex
 
 export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, EmulatorCache, RydbergReg, Subspace

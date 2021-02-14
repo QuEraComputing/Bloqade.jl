@@ -8,11 +8,17 @@ abstract type AbstractAtom end
 """
     RydAtom{N,T} <: AbstractAtom
 
-Rydberg atom.
+Position of one Rydberg atom.
+
+    RydAtom(locs::NTuple{N, T})
+
+Create a position of one Rydberg atom. The default unit is `μm`.
 """
-struct RydAtom{N,T} <: AbstractAtom
+struct RydAtom{N,T <: Real} <: AbstractAtom
     loc::NTuple{N,T}
 end
+
+RydAtom(locs::Tuple) = RydAtom(default_unit(μm, locs))
 
 # constructors
 """

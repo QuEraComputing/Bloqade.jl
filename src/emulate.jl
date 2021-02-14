@@ -113,30 +113,30 @@ end
 """
 function emulate! end
 
-function emulate!(r::Yao.ArrayReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cache=EmulatorCache(T, first(hs))) where {T <: Real}
-    emulate_routine!(r, ts, hs, cache.Ks, cache.H)
+function emulate!(r::Yao.ArrayReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cache=EmulatorCache(T, first(hs))) where {T <: Number}
+    emulate_routine!(r, default_unit(μs, ts), hs, cache.Ks, cache.H)
     return r
 end
 
-function emulate!(r::RydbergReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cache=EmulatorCache(T, first(hs), r.subspace)) where {T <: Real}
-    emulate_routine!(r, ts, hs, cache.Ks, cache.H)
+function emulate!(r::RydbergReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cache=EmulatorCache(T, first(hs), r.subspace)) where {T <: Number}
+    emulate_routine!(r, default_unit(μs, ts), hs, cache.Ks, cache.H)
     return r
 end
 
 """
-    emulate(ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kwargs...)
+    emulate(ts::Vector{<:Number}, hs::Vector{<:AbstractTerm}; kwargs...)
 
 Non in-place version of [`emulate!`](@ref). See [`emulate!`](@ref) for valid kwargs.
 """
-function emulate(ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kwargs...)
+function emulate(ts::Vector{<:Number}, hs::Vector{<:AbstractTerm}; kwargs...)
     return emulate!(Yao.zero_state(Complex{eltype(ts)}, nsites(first(hs))), ts, hs; kwargs...)
 end
 
 """
-    emulate(s::Subspace, ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kwargs...)
+    emulate(s::Subspace, ts::Vector{<:Number}, hs::Vector{<:AbstractTerm}; kwargs...)
 
 Non in-place version of [`emulate!`](@ref). See [`emulate!`](@ref) for valid kwargs.
 """
-function emulate(s::Subspace, ts::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kwargs...)
+function emulate(s::Subspace, ts::Vector{<:Number}, hs::Vector{<:AbstractTerm}; kwargs...)
     return emulate!(zero_state(Complex{eltype(ts)}, nsites(first(hs)), s), ts, hs; kwargs...)
 end

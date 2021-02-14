@@ -6,7 +6,9 @@ using OrderedCollections
 using LuxurySparse
 using BitBasis
 using Printf
+using Unitful
 using Yao
+using Unitful: μm, mm, μs, ns, MHz, GHz
 using Yao.ConstGate: P0, P1
 
 function rydinteract(atoms, C)
@@ -253,4 +255,34 @@ end
     t = simple_rydberg(5, 0.8)
     @test mat(t) ≈ SparseMatrixCSC(t)
     @test mat(t, test_subspace) ≈ SparseMatrixCSC(t, test_subspace)
+end
+
+@testset "units" begin
+    atom = RydAtom(1mm, 2μm)
+    @test atom[1] == 1000
+    @test atom[2] == 2
+
+    h = RydInteract([RydAtom(1.0mm, 2.0μm), RydAtom(1.1mm, 2.2μm)], 2GHz * μm^6)
+    @test h.C == 2000
+    @test h.atoms[1][1] == 1000
+    @test h.atoms[2][1] == 1100
+
+    h = RydInteract([RydAtom(1.0mm, 2.0μm), RydAtom(1.1mm, 2.2μm)])
+    @test h.C == 2π* 858386
+
+    h = XTerm(5, 1.0GHz)
+    @test h.Ωs == 1000
+    h = XTerm([1.0GHz, 2.0MHz])
+    @test h.Ωs[1] == 1000
+    @test h.Ωs[2] == 2
+
+    h = XTerm(5, 1.0GHz, 2.0MHz * μs)
+    @test h.ϕs == 2.0
+
+    h = ZTerm(5, 1.0GHz)
+    @test h.Δs == 1000
+
+    h = ZTerm([1.0GHz, 2.0MHz])
+    @test h.Δs[1] == 1000
+    @test h.Δs[2] == 2.0
 end

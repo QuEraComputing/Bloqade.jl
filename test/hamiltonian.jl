@@ -22,8 +22,8 @@ function rydinteract(atoms, C)
     return sum(terms)
 end
 
-function test_print(f, h; color=true)
-    ans = sprint((io, x)->show(io, MIME("text/plain"), x), h; context=:color=>color)
+function test_print(f, h)
+    ans = sprint((io, x)->show(io, MIME("text/plain"), x), h)
     @test ans == f()
 end
 
@@ -67,18 +67,18 @@ end
 
 @testset "X term" begin
     H = mat(sum([2.0 * kron(5, k=>Yao.X) for k in 1:5]))
-    h = XTerm(5, 2.0)
+    h = XTerm(5, 4.0)
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
     test_print(h) do
         """
         XTerm
-         ∑(n=1:5) \e[32m2.00\e[39m\e[94m σ^x\e[39m"""
+         ∑(n=1:5) 2.00 σ^x"""
     end
 
     Ωs = rand(5)
     h = XTerm(Ωs)
-    H = mat(sum([Ω * kron(5, k=>Yao.X) for (k, Ω) in enumerate(Ωs)]))
+    H = mat(sum([Ω/2 * kron(5, k=>Yao.X) for (k, Ω) in enumerate(Ωs)]))
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
     @test eltype(h) == Float64
@@ -192,10 +192,10 @@ end
 
 @testset "composite term" begin
     atoms = RydbergEmulator.square_lattice(5, 0.8)
-    h = XTerm(5, 2.0) + RydInteract(atoms, 2.0) + ZTerm(5, 1.0)
+    h = XTerm(5, 4.0) + RydInteract(atoms, 2.0) + ZTerm(5, 1.0)
     H = rydinteract(atoms, 2.0) +
         sum([1.0 * kron(5, k=>Yao.Z) for k in 1:5]) +
-        sum([2.0 * kron(5, k=>Yao.X) for k in 1:5])
+        sum([4.0/2 * kron(5, k=>Yao.X) for k in 1:5])
     H = mat(H)
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
@@ -213,7 +213,7 @@ end
           ∑(n=1:5) 1.00 σ^z"""
     end
 
-    h1 = XTerm(5, 2.0) + RydInteract(atoms, 2.0)
+    h1 = XTerm(5, 4.0) + RydInteract(atoms, 2.0)
     @test ZTerm(5, 1.0) + h1 == Hamiltonian((ZTerm(5, 1.0), h1.terms...))
     @test h1 + ZTerm(5, 1.0) == Hamiltonian((h1.terms..., ZTerm(5, 1.0)))
     @test h1 + h1 == Hamiltonian((h1.terms..., h1.terms...))

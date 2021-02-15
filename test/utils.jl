@@ -15,6 +15,7 @@ const test_subspace = blockade_subspace(test_graph)
 create_test_hamiltonian(Δ, Ω, ϕ) = create_test_hamiltonian!(zeros(ComplexF64, 11, 11), Δ, Ω, ϕ)
 
 function create_test_hamiltonian!(H::AbstractMatrix, Δ, Ω, ϕ)
+    Ω = Ω ./ 2
     H[1,1] = Δ[1] + Δ[2] + Δ[3] + Δ[4] + Δ[5]
     H[2,2] = - Δ[1] + Δ[2] + Δ[3] + Δ[4] + Δ[5]
     H[3,3] = Δ[1] - Δ[2] + Δ[3] + Δ[4] + Δ[5]

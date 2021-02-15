@@ -251,7 +251,7 @@ _iscallable(f) = !isempty(methods(f))
 
 function _print_single_xterm(io::IO, Ω, ϕ)
     if _iscallable(Ω) || (!isone(Ω))
-        _print(io, Ω)
+        _print(io, Ω, "/2")
     end
 
     if !_iscallable(ϕ) && (isnothing(ϕ) || iszero(ϕ))
@@ -329,9 +329,9 @@ function getterm end
 
 function getterm(t::XTerm, k, k_site)
     if k_site == 0
-        return getscalarmaybe(t.Ωs, k) * exp(im * getscalarmaybe(t.ϕs, k))
+        return getscalarmaybe(t.Ωs, k)/2 * exp(im * getscalarmaybe(t.ϕs, k))
     else
-        return getscalarmaybe(t.Ωs, k) * exp(-im * getscalarmaybe(t.ϕs, k))
+        return getscalarmaybe(t.Ωs, k)/2 * exp(-im * getscalarmaybe(t.ϕs, k))
     end
 end
 

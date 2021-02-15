@@ -70,11 +70,7 @@ end
     h = XTerm(5, 4.0)
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
-    test_print(h) do
-        """
-        XTerm
-         ∑(n=1:5) 2.00 σ^x"""
-    end
+    display(h)
 
     Ωs = rand(5)
     h = XTerm(Ωs)
@@ -82,40 +78,16 @@ end
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
     @test eltype(h) == Float64
-    test_print(h) do
-        """
-        XTerm
-         \e[32m$(@sprintf("%.2f", Ωs[1]))\e[39m\e[94m σ^x\e[39m +
-         \e[32m$(@sprintf("%.2f", Ωs[2]))\e[39m\e[94m σ^x\e[39m +
-         \e[32m$(@sprintf("%.2f", Ωs[3]))\e[39m\e[94m σ^x\e[39m +
-         \e[32m$(@sprintf("%.2f", Ωs[4]))\e[39m\e[94m σ^x\e[39m +
-         \e[32m$(@sprintf("%.2f", Ωs[5]))\e[39m\e[94m σ^x\e[39m"""
-    end
+    display(h)
 
     Ωs = rand(5)
     ϕs = rand(5)
     h = XTerm(Ωs, ϕs)
-    test_print(h) do
-        """
-        XTerm
-         \e[32m$(@sprintf("%.2f", Ωs[1]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[1]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[1]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
-         \e[32m$(@sprintf("%.2f", Ωs[2]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[2]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[2]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
-         \e[32m$(@sprintf("%.2f", Ωs[3]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[3]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[3]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
-         \e[32m$(@sprintf("%.2f", Ωs[4]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[4]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[4]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
-         \e[32m$(@sprintf("%.2f", Ωs[5]))\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[5]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[5]))\e[39mi}\e[94m|1⟩⟨0|\e[39m)"""
-    end
+    display(h)
 
     ϕs = rand(5)
     h = XTerm(2.02, ϕs)
-    test_print(h) do
-        """
-        XTerm
-         \e[32m2.02\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[1]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[1]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
-         \e[32m2.02\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[2]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[2]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
-         \e[32m2.02\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[3]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[3]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
-         \e[32m2.02\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[4]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[4]))\e[39mi}\e[94m|1⟩⟨0|\e[39m) +
-         \e[32m2.02\e[39m (e^{\e[32m$(@sprintf("%.2f", ϕs[5]))\e[39mi}\e[94m|0)⟨1|\e[39m + e^{-\e[32m$(@sprintf("%.2f", ϕs[5]))\e[39mi}\e[94m|1⟩⟨0|\e[39m)"""
-    end
+    display(h)
 
     h = XTerm(5, sin)
     @test h(0.1) isa XTerm
@@ -127,15 +99,7 @@ end
     @test h(0.1).Ωs == sin(0.1)
     @test h(0.1).ϕs == cos(0.1)
 
-    test_print(h; color=false) do
-        """
-        XTerm
-         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|) +
-         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|) +
-         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|) +
-         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|) +
-         sin(t) (e^{cos(t)i}|0)⟨1| + e^{-cos(t)i}|1⟩⟨0|)"""
-    end
+    display(h)
 end
 
 @testset "Z term" begin
@@ -144,11 +108,7 @@ end
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
 
-    test_print(h) do
-        """
-        ZTerm
-         ∑(n=1:5) \e[32m2.00\e[39m\e[94m σ^z\e[39m"""
-    end
+    display(h)
 
     Δs = rand(5)
     h = ZTerm(Δs)
@@ -156,15 +116,7 @@ end
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
     @test eltype(h) == Float64
-    test_print(h) do
-        """
-        ZTerm
-         \e[32m$(@sprintf("%.2f", Δs[1]))\e[39m\e[94m σ^z\e[39m +
-         \e[32m$(@sprintf("%.2f", Δs[2]))\e[39m\e[94m σ^z\e[39m +
-         \e[32m$(@sprintf("%.2f", Δs[3]))\e[39m\e[94m σ^z\e[39m +
-         \e[32m$(@sprintf("%.2f", Δs[4]))\e[39m\e[94m σ^z\e[39m +
-         \e[32m$(@sprintf("%.2f", Δs[5]))\e[39m\e[94m σ^z\e[39m"""
-    end
+    display(h)
 
     h = ZTerm(5, sin)
     @test h(0.1).Δs == sin(0.1)
@@ -183,11 +135,7 @@ end
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
     @test eltype(h) == Float64
 
-    test_print(h) do
-        """
-        RydInteract
-         ∑(n=1:4) \e[32m2.00\e[39m/|r_i - r_j|^6 \e[94mn_i n_j\e[39m"""
-    end
+    display(h)
 end
 
 @testset "composite term" begin
@@ -200,18 +148,7 @@ end
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
 
-    test_print(h; color=false) do
-        """
-        Hamiltonian
-         Term 1
-          ∑(n=1:5) 2.00 σ^x
-
-         Term 2
-          ∑(n=1:5) 2.00/|r_i - r_j|^6 n_i n_j
-
-         Term 3
-          ∑(n=1:5) 1.00 σ^z"""
-    end
+    display(h)
 
     h1 = XTerm(5, 4.0) + RydInteract(atoms, 2.0)
     @test ZTerm(5, 1.0) + h1 == Hamiltonian((ZTerm(5, 1.0), h1.terms...))

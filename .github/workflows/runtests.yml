@@ -29,4 +29,4 @@ jobs:
         run: julia --color=yes --check-bounds=yes --project -e 'using Pkg; Pkg.test(coverage=true)'
         shell: bash
       - name: "Submit Codecov"
-        run: COVERALLS_TOKEN=fhOq6SynDoIJC01GwNBNCfVBpCRnPnCEo julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'
+        run: COVERALLS_TOKEN=${{ secrets.COVERALL_TOKEN }} julia -e 'using Pkg; Pkg.add("Coverage"); using Coverage; Coveralls.submit(process_folder())'

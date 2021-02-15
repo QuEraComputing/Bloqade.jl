@@ -21,7 +21,7 @@ h3 = XTerm([0.1, 0.2, 0.3, 0.4, 0.5], 0.1) + ZTerm(5, 0.1) + RydInteract(atoms, 
 
 @test to_dict(h1) == OrderedDict{String, Any}(
     "rydberg" => OrderedDict{String, Any}(
-        "atoms" => [[2, 2], [3, 5], [4, 4], [4, 5], [5, 4]],
+        "atoms" => [collect(Int, each) for each in atoms],
         "C" => 1.0,
     ),
     "xterm" => OrderedDict{String, Any}(

@@ -9,7 +9,6 @@ using LuxurySparse
 using LightGraphs
 using LinearAlgebra
 using OrderedCollections
-using ExponentialUtilities
 using Configurations
 using DelimitedFiles
 using StatsBase
@@ -26,6 +25,7 @@ export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms
     # reexport from Yao
     measure, zero_state
 
+include("expmv.jl")
 include("utils.jl")
 include("atoms.jl")
 include("subspace.jl")

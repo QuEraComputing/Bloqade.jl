@@ -3,7 +3,6 @@ using Yao
 using SparseArrays
 using RydbergEmulator
 using LightGraphs
-using ExponentialUtilities
 using LinearAlgebra
 
 if !isdefined(@__MODULE__, :test_graph)
@@ -13,7 +12,7 @@ end
 function naive_qaoa!(r::AbstractRegister, hs, ts, s::Subspace)
     st = vec(r.state)
     for (h, t) in zip(hs, ts)
-        st = expv(-im * t, SparseMatrixCSC(h, s), st)
+        st = exp(-im * t * Matrix(SparseMatrixCSC(h, s))) * st
     end
     r.state .= st
     return r
@@ -22,7 +21,7 @@ end
 function naive_qaoa!(r::AbstractRegister, hs, ts)
     st = vec(r.state)
     for (h, t) in zip(hs, ts)
-        st = expv(-im * t, SparseMatrixCSC(h), st)
+        st = exp(-im * t * Matrix(SparseMatrixCSC(h))) * st
     end
     r.state .= st
     return r

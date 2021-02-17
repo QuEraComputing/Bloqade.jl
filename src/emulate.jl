@@ -1,25 +1,17 @@
-function emulate_routine!(r::RydbergReg, ts::Vector, hs::Vector{<: AbstractTerm}, Ks::KrylovSubspace, cache)
+function emulate_routine!(r::RydbergReg, ts::Vector, hs::Vector{<: AbstractTerm}, cache)
     st = vec(r.state)
     for (h, t) in zip(hs, ts)
         update_term!(cache, h, r.subspace)
-        # qaoa step
-        # NOTE: we share the Krylov subspace here since
-        #       the Hamiltonians have the same shape
-        arnoldi!(Ks, cache, st)
-        expv!(st, -im*t, Ks)
+        expmv!(-im * t, cache, st)
     end
     return r
 end
 
-function emulate_routine!(r::Yao.ArrayReg, ts::Vector, hs::Vector{<: AbstractTerm}, Ks::KrylovSubspace, cache)
+function emulate_routine!(r::Yao.ArrayReg, ts::Vector, hs::Vector{<: AbstractTerm}, cache)
     st = vec(r.state)
     for (h, t) in zip(hs, ts)
         update_term!(cache, h)
-        # qaoa step
-        # NOTE: we share the Krylov subspace here since
-        #       the Hamiltonians have the same shape
-        arnoldi!(Ks, cache, st)
-        expv!(st, -im*t, Ks)
+        expmv!(-im * t, cache, st)
     end
     return r
 end
@@ -29,25 +21,19 @@ end
 
 Cache type for the emulator.
 """
-struct EmulatorCache{K <: KrylovSubspace, C}
-    Ks::K
+struct EmulatorCache{C}
     H::C
 end
 
-function EmulatorCache(N::Int, H::AbstractMatrix{Complex{T}}; krylov_niteration=min(30, N)) where T
-    Ks = KrylovSubspace{Complex{T}, T}(N, krylov_niteration)
-    return EmulatorCache(Ks, H)
+function EmulatorCache(::Type{T}, H::AbstractTerm) where {T <: Real}
+    return EmulatorCache(SparseMatrixCSC{Complex{T}}(H))
 end
 
-function EmulatorCache(::Type{T}, H::AbstractTerm; kwargs...) where {T <: Real}
-    return EmulatorCache(1 << nsites(H), SparseMatrixCSC{Complex{T}}(H); kwargs...)
+function EmulatorCache(::Type{T}, H::AbstractTerm, s::Subspace) where {T <: Real}
+    return EmulatorCache(SparseMatrixCSC{Complex{T}}(H, s))
 end
 
-function EmulatorCache(::Type{T}, H::AbstractTerm, s::Subspace; kwargs...) where {T <: Real}
-    return EmulatorCache(length(s), SparseMatrixCSC{Complex{T}}(H, s); kwargs...)
-end
-
-EmulatorCache(H::AbstractTerm, xs...; kwargs...) = EmulatorCache(Float64, H, xs...; kwargs...)
+EmulatorCache(H::AbstractTerm, xs...) = EmulatorCache(Float64, H, xs...)
 
 """
     emulate!(r, ts, hs[; cache=EmulatorCache(ts, hs)])
@@ -114,12 +100,12 @@ end
 function emulate! end
 
 function emulate!(r::Yao.ArrayReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cache=EmulatorCache(T, first(hs))) where {T <: Number}
-    emulate_routine!(r, default_unit(μs, ts), hs, cache.Ks, cache.H)
+    emulate_routine!(r, default_unit(μs, ts), hs, cache.H)
     return r
 end
 
 function emulate!(r::RydbergReg, ts::Vector{T}, hs::Vector{<:AbstractTerm}; cache=EmulatorCache(T, first(hs), r.subspace)) where {T <: Number}
-    emulate_routine!(r, default_unit(μs, ts), hs, cache.Ks, cache.H)
+    emulate_routine!(r, default_unit(μs, ts), hs, cache.H)
     return r
 end
 

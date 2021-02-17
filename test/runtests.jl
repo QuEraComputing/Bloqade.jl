@@ -5,6 +5,10 @@ Random.seed!(42)
 
 include("utils.jl")
 
+@testset "expmv" begin
+    include("expmv.jl")
+end
+
 @testset "atoms" begin
     include("atoms.jl")
 end

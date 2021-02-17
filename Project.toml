@@ -21,13 +21,14 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
 [compat]
 BitBasis = "0.7"
+Configurations = "0.10 - 0.11"
 ExponentialUtilities = "1.7"
 LightGraphs = "1.3"
 LuxurySparse = "0.6"
 OrderedCollections = "1.3"
 StatsBase = "0.33"
-Unitful="1.5"
 TimerOutputs = "0.5"
+Unitful = "1.5"
 Yao = "0.6"
 julia = "1.4"
 

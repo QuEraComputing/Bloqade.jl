@@ -9,7 +9,7 @@ function Configurations.field_default(::Type{<:AbstractTerm}, ::Symbol)
     return Configurations.no_default
 end
 
-function Configurations.dictionalize(term::XTerm)
+function Configurations.to_dict(term::XTerm)
     d = OrderedDict{String, Any}(
         "nsites" => term.nsites,
     )
@@ -19,7 +19,7 @@ function Configurations.dictionalize(term::XTerm)
     return d
 end
 
-function Configurations.dictionalize(term::ZTerm)
+function Configurations.to_dict(term::ZTerm)
     d = OrderedDict{String, Any}(
         "nsites" => term.nsites,
     )
@@ -27,17 +27,17 @@ function Configurations.dictionalize(term::ZTerm)
     return d
 end
 
-function Configurations.dictionalize(term::RydInteract)
+function Configurations.to_dict(term::RydInteract)
     return OrderedDict{String, Any}(
         "atoms" => [collect(x) for x in term.atoms],
         "C" => term.C,
     )
 end
 
-function Configurations.dictionalize(term::Hamiltonian)
+function Configurations.to_dict(term::Hamiltonian)
     d = OrderedDict{String, Any}()
     for t in term.terms
-        d[Configurations.alias(typeof(t))] = Configurations.dictionalize(t)
+        d[Configurations.alias(typeof(t))] = Configurations.to_dict(t)
     end
     return d
 end

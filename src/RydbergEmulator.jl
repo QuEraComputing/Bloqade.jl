@@ -15,7 +15,7 @@ using StatsBase
 
 import Yao
 using Yao: measure, zero_state
-using Unitful: Quantity, uconvert, MHz, µm, μs
+using Unitful: Quantity, uconvert, MHz, µm, μs, ns
 using LinearAlgebra: BlasReal, BlasComplex
 
 export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, EmulatorCache, RydbergReg, Subspace
@@ -23,7 +23,9 @@ export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms
     unit_disk_graph, rand_unit_disk_graph, emulate!, emulate,
     square_lattice, set_zero_state!, blockade_subspace,
     # reexport from Yao
-    measure, zero_state
+    measure, zero_state,
+    # units
+    MHz, μs, ns
 
 include("expmv.jl")
 include("utils.jl")

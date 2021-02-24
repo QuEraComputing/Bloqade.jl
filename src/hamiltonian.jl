@@ -36,7 +36,7 @@ Type for Rydberg interactive term.
 # Parameters
 
 - `atoms`: a list of atom positions, must be type `RydAtom`, default unit is `μm`.
-- `C`: the interaction strength, default unit is `MHz⋅μm^6`.
+- `C`: the interaction strength, default unit is `MHz⋅μm^6`. default value is `2π * 109.133 * MHz*µm^6`.
 """
 struct RydInteract{T <: Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     atoms::AtomList
@@ -52,7 +52,7 @@ struct RydInteract{T <: Number, AtomList <: AbstractVector{<:RydAtom}} <: Abstra
     end
 end
 
-RydInteract(atoms::AbstractVector) = RydInteract(atoms, 2π*858386*MHz*µm^6)
+RydInteract(atoms::AbstractVector) = RydInteract(atoms, 2π * 109.133 * MHz*µm^6)
 
 raw"""
     XTerm{Omega, Phi} <: AbstractTerm

@@ -41,3 +41,7 @@ end
 @testset "serialize" begin
     include("serialize.jl")
 end
+
+@testset "mis" begin
+    include("mis.jl")
+end

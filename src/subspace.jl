@@ -33,6 +33,20 @@ function blockade_subspace(graph::SimpleGraph)
     cg = complement(graph)
     mis = maximal_cliques(cg)
     n = nv(graph)
+    return create_subspace_from_mis(n, mis)
+end
+
+"""
+    create_subspace_from_mis(n::Int, mis::AbstractVector)
+
+Create `Subspace` from given list of maximal cliques/maximal independent set.
+
+# Arguments
+
+- `n`: number of vertices of the graph.
+- `mis`: the list of maximal independent set.
+"""
+function create_subspace_from_mis(n::Int, mis::AbstractVector)
     it = map(mis) do each
         fixed_points = setdiff(1:n, each)
         itercontrol(n, fixed_points, zero(fixed_points))

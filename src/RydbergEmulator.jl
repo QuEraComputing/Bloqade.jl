@@ -18,7 +18,7 @@ using Yao: measure, zero_state
 using Unitful: Quantity, uconvert, MHz, µm, μs, ns
 using LinearAlgebra: BlasReal, BlasComplex
 
-export RydInteract, RydAtom, XTerm, ZTerm, Hamiltonian, EmulatorCache, RydbergReg, Subspace
+export RydInteract, RydAtom, XTerm, ZTerm, NTerm, Hamiltonian, EmulatorCache, RydbergReg, Subspace
 export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms, read_atoms, write_atoms,
     unit_disk_graph, rand_unit_disk_graph, emulate!, emulate,
     square_lattice, set_zero_state!, blockade_subspace,

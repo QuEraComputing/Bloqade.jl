@@ -117,6 +117,36 @@ struct ZTerm{Delta} <: AbstractTerm
     end
 end
 
+raw"""
+    NTerm{Delta} <: AbstractTerm
+    NTerm(nsites, Δs::Delta)
+
+Type for N term
+
+# Expression
+
+```math
+\sum_i \Delta_i n_i
+```
+
+# Parameters
+
+- `Δs`: the detuning parameter, the default unit is `MHz`.
+"""
+struct NTerm{Delta} <: AbstractTerm
+    nsites::Int
+    Δs::Delta
+
+    function NTerm{Delta}(nsites::Int, Δs::Delta) where {Delta}
+        new{Delta}(nsites, Δs)
+    end
+
+    function NTerm(nsites::Int, Δs)
+        Δs = default_unit(MHz, Δs)
+        new{typeof(Δs)}(nsites, Δs)
+    end
+end
+
 struct Hamiltonian{Terms <: Tuple} <: AbstractTerm
     terms::Terms
 end
@@ -171,6 +201,13 @@ Create a simple `ZTerm` from given `Δs`.
 ZTerm(Δs::AbstractVector) = ZTerm(length(Δs), to_tuple(Δs))
 
 """
+    NTerm(Δs::AbstractVector)
+
+Create a simple `NTerm` from given `Δs`.
+"""
+NTerm(Δs::AbstractVector) = NTerm(length(Δs), to_tuple(Δs))
+
+"""
     nsites(term)
 
 Return the number of sites of given Hamiltonian term.
@@ -179,6 +216,7 @@ function nsites end
 
 nsites(t::XTerm) = t.nsites
 nsites(t::ZTerm) = t.nsites
+nsites(t::NTerm) = t.nsites
 nsites(t::Hamiltonian) = nsites(t.terms[1])
 nsites(t::RydInteract) = length(t.atoms)
 
@@ -187,6 +225,7 @@ hilbert_space(t::AbstractTerm) = hilbert_space(nsites(t))
 
 Base.eltype(t::XTerm) = eltype(t.Ωs)
 Base.eltype(t::ZTerm) = eltype(t.Δs)
+Base.eltype(t::NTerm) = eltype(t.Δs)
 Base.eltype(t::RydInteract) = typeof(t.C)
 Base.eltype(t::Hamiltonian) = promote_type(eltype.(t.terms)...)
 
@@ -223,6 +262,7 @@ function Base.show(io::IO, ::MIME"text/plain", t::AbstractTerm)
 end
 
 print_term(io::IO, t::ZTerm) = _print_zterm(io, t.nsites, t.Δs)
+print_term(io::IO, t::NTerm) = _print_nterm(io, t.nsites, t.Δs)
 print_term(io::IO, t::XTerm) = _print_xterm(io, t.nsites, t.Ωs, t.ϕs)
 
 function print_term(io::IO, t::RydInteract)
@@ -306,6 +346,19 @@ function _print_zterm(io::IO, nsites::Int, Δs)
     end
 end
 
+function _print_nterm(io::IO, nsites::Int, Δ::Number)
+    _print_sum(io, nsites)
+    _print(io, Δ)
+    printstyled(io, " n", color=:light_blue)
+end
+
+function _print_nterm(io::IO, nsites::Int, Δs)
+    _print_eachterm(io, nsites) do k
+        _print(io, getscalarmaybe(Δs, k))
+        printstyled(io, " n", color=:light_blue)
+    end
+end
+
 Base.:(+)(x::AbstractTerm, y::AbstractTerm) = Hamiltonian((x, y))
 Base.:(+)(x::AbstractTerm, y::Hamiltonian) = Hamiltonian((x, y.terms...))
 Base.:(+)(x::Hamiltonian, y::AbstractTerm) = Hamiltonian((x.terms..., y))
@@ -340,6 +393,14 @@ function getterm(t::ZTerm, k, k_site)
         return getscalarmaybe(t.Δs, k)
     else
         return -getscalarmaybe(t.Δs, k)
+    end
+end
+
+function getterm(t::NTerm, k, k_site)
+    if k_site == 0
+        return getscalarmaybe(t.Δs, k)
+    else
+        return 0
     end
 end
 
@@ -415,6 +476,17 @@ function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm) where T
     return dst
 end
 
+function to_matrix!(dst::AbstractMatrix{T}, t::NTerm) where T
+    @inbounds for lhs in hilbert_space(t)
+        n_ij = zero(T)
+        for k in 1:nsites(t)
+            n_ij += getterm(t, k, readbit(lhs, k))
+        end
+        dst[lhs+1, lhs+1] = n_ij
+    end
+    return dst
+end
+
 function to_matrix!(dst::AbstractMatrix{T}, t::Hamiltonian, xs...) where T
     for term in t.terms
         to_matrix!(dst, term, xs...)
@@ -446,6 +518,18 @@ function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm, s::Subspace) where T
     end
     return dst
 end
+
+function to_matrix!(dst::AbstractMatrix{T}, t::NTerm, s::Subspace) where T
+    @inbounds for (lhs, i) in s
+        n_ij = zero(T)
+        for k in 1:nsites(t)
+            n_ij += getterm(t, k, readbit(lhs, k))
+        end
+        dst[i, i] = n_ij
+    end
+    return dst
+end
+
 
 function to_matrix!(dst::SparseMatrixCOO, t::RydInteract, s::Subspace)
     n = nsites(t)
@@ -550,6 +634,16 @@ Base.@propagate_inbounds function term_value(t::ZTerm, lhs, rhs, col, row)
     return sigma_z
 end
 
+Base.@propagate_inbounds function term_value(t::NTerm, lhs, rhs, col, row)
+    col != row && return zero(eltype(t))
+    n_ij = zero(eltype(t))
+    for i in 1:nsites(t)
+        n_ij += getterm(t, i, readbit(lhs, i))
+    end
+    return n_ij
+end
+
+
 Base.@propagate_inbounds function term_value(t::RydInteract, lhs, rhs, col, row)
     col != row && return zero(eltype(t))
     # all the nonzeros indices contains
@@ -604,6 +698,10 @@ end
 
 function (tm::ZTerm)(t::Real)
     return ZTerm(tm.nsites, attime(tm.Δs, t))
+end
+
+function (tm::NTerm)(t::Real)
+    return NTerm(tm.nsites, attime(tm.Δs, t))
 end
 
 function (tm::Hamiltonian)(t::Real)

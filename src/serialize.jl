@@ -3,6 +3,7 @@ Configurations.is_option(::Type{<:AbstractTerm}) = true
 
 Configurations.alias(::Type{<:XTerm}) = "xterm"
 Configurations.alias(::Type{<:ZTerm}) = "zterm"
+Configurations.alias(::Type{<:NTerm}) = "nterm"
 Configurations.alias(::Type{<:RydInteract}) = "rydberg"
 
 function Configurations.field_default(::Type{<:AbstractTerm}, ::Symbol)
@@ -20,6 +21,14 @@ function Configurations.to_dict(term::XTerm)
 end
 
 function Configurations.to_dict(term::ZTerm)
+    d = OrderedDict{String, Any}(
+        "nsites" => term.nsites,
+    )
+    isnothing(term.Δs) || (d["delta"] = term.Δs)
+    return d
+end
+
+function Configurations.to_dict(term::NTerm)
     d = OrderedDict{String, Any}(
         "nsites" => term.nsites,
     )
@@ -80,6 +89,20 @@ function Configurations.from_dict_validate(::Type{T}, d::AbstractDict{String}) w
     return Configurations.from_dict_inner(T, d)
 end
 
+function Configurations.from_dict_validate(::Type{T}, d::AbstractDict{String}) where {T <: NTerm}
+    validate_term_keys(d, ["Δs", "delta", "nsites"])
+    haskey(d, "Δs") || haskey(d, "delta") || error("key Δs/delta (detuning) is required")
+    detuning = haskey(d, "Δs") ? d["Δs"] : d["delta"]
+
+    if detuning isa Number
+        haskey(d, "nsites") || error("key nsites is required for scalar Δs/delta (detuning)")
+    end
+
+    # check duplicated keys
+    haskey(d, "Δs") && haskey(d, "delta") && error("key Δs/delta (detuning) is duplicated")
+    return Configurations.from_dict_inner(T, d)
+end
+
 function Configurations.from_dict_validate(::Type{T}, d::AbstractDict{String}) where {T <: RydInteract}
     validate_term_keys(d, ["atoms", "C"])
 
@@ -91,7 +114,7 @@ function Configurations.from_dict_validate(::Type{T}, d::AbstractDict{String}) w
 end
 
 function Configurations.from_dict_validate(::Type{T}, d::AbstractDict{String}) where {T <: Hamiltonian}
-    validate_term_keys(d, ["xterm", "zterm", "rydberg"])
+    validate_term_keys(d, ["xterm", "zterm", "nterm", "rydberg"])
     return Configurations.from_dict_inner(T, d)
 end
 
@@ -113,6 +136,14 @@ function Configurations.from_dict_inner(::Type{T}, d::AbstractDict{String}) wher
     return ZTerm(args...)
 end
 
+function Configurations.from_dict_inner(::Type{T}, d::AbstractDict{String}) where {T <: NTerm}
+    args = []
+    haskey(d, "nsites") && push!(args, d["nsites"])
+    haskey(d, "Δs") && push!(args, d["Δs"])
+    haskey(d, "delta") && push!(args, d["delta"])
+    return NTerm(args...)
+end
+
 function Configurations.from_dict_inner(::Type{T}, d::AbstractDict{String}) where {T <: RydInteract}
     if d["atoms"] isa String
         path = haskey(d, "#filename#") ? joinpath(d["#filename#"], d["atoms"]) : d["atoms"]
@@ -129,6 +160,7 @@ function Configurations.from_dict_inner(::Type{T}, d::AbstractDict{String}) wher
     terms = []
     haskey(d, "xterm") && push!(terms, from_dict(XTerm, d["xterm"]))
     haskey(d, "zterm") && push!(terms, from_dict(ZTerm, d["zterm"]))
+    haskey(d, "nterm") && push!(terms, from_dict(NTerm, d["nterm"]))
     haskey(d, "rydberg") && push!(terms, from_dict(RydInteract, d["rydberg"]))
     return Hamiltonian((terms..., ))
 end

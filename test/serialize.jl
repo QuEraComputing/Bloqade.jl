@@ -34,3 +34,6 @@ h3 = XTerm([0.1, 0.2, 0.3, 0.4, 0.5], 0.1) + ZTerm(5, 0.1) + RydInteract(atoms, 
         "delta" => 0.1,
     )
 )
+
+h4 = XTerm([0.1, 0.2, 0.3, 0.4, 0.5], 0.1) + NTerm(5, 0.1) + RydInteract(atoms, 1.0)
+@test from_toml(Hamiltonian, "hamiltonians/h4.toml") == h4

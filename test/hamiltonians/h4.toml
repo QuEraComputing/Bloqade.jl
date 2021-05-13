@@ -1,0 +1,11 @@
+[xterm]
+omega=[0.1, 0.2, 0.3, 0.4, 0.5]
+phi=0.1
+
+[nterm]
+nsites=5
+delta=0.1
+
+[rydberg]
+C=1.0
+atoms="test.atoms"

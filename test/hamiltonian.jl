@@ -127,6 +127,32 @@ end
     @test h(0.1).Δs[3] == tanh(0.1)
 end
 
+@testset "N term" begin
+    H = mat(sum([2.0 * kron(5, k=>P0) for k in 1:5]))
+    h = NTerm(5, 2.0)
+    @test SparseMatrixCSC(h) ≈ H
+    @test update_term!(SparseMatrixCSC(h), h) ≈ H
+
+    display(h)
+
+    Δs = rand(5)
+    h = NTerm(Δs)
+    H = mat(sum([Δs[k] * kron(5, k=>P0) for k in 1:5]))
+    @test SparseMatrixCSC(h) ≈ H
+    @test update_term!(SparseMatrixCSC(h), h) ≈ H
+    @test eltype(h) == Float64
+    display(h)
+
+    h = NTerm(5, sin)
+    @test h(0.1).Δs == sin(0.1)
+
+    h = NTerm(3, [sin, cos, tanh])
+    @test h(0.1).Δs[1] == sin(0.1)
+    @test h(0.1).Δs[2] == cos(0.1)
+    @test h(0.1).Δs[3] == tanh(0.1)
+end
+
+
 @testset "rydberg interact term" begin
     atoms = RydbergEmulator.square_lattice(4, 0.8)
     H = mat(rydinteract(atoms, 2.0))
@@ -205,7 +231,7 @@ end
     @test h.atoms[2][1] == 1100
 
     h = RydInteract([RydAtom(1.0mm, 2.0μm), RydAtom(1.1mm, 2.2μm)])
-    @test h.C == 2π* 858386
+    @test h.C == 2π * 109.133
 
     h = XTerm(5, 1.0GHz)
     @test h.Ωs == 1000

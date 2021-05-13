@@ -7,16 +7,17 @@ on:
 
 jobs:
   test:
-    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
-    runs-on: ['self-hosted']
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         version:
           - "1"    # Latest Release
-          - "^1.6.0-0"
+          - "nightly"
         os:
-          - linux
+          - ubuntu-latest
+          - macOS-latest
         arch:
           - x64
 

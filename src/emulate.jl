@@ -33,7 +33,7 @@ function EmulatorCache(::Type{T}, H::AbstractTerm, s::Subspace) where {T <: Real
     return EmulatorCache(SparseMatrixCSC{Complex{T}}(H, s))
 end
 
-EmulatorCache(H::AbstractTerm, xs...) = EmulatorCache(Float64, H, xs...)
+EmulatorCache(H::AbstractTerm, xs...) = EmulatorCache(eltype(H), H, xs...)
 
 """
     emulate!(r, ts, hs[; cache=EmulatorCache(ts, hs)])

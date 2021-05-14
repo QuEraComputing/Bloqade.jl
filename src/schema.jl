@@ -54,14 +54,19 @@ end
     nshots::Int = 1000
     lattice_angle::Float64 = 90
     lattice_constant_a::Float64 = 3 * 0.844
-    lattice_constant_b::Float64 = 3 * 0.844 * sin(lattice_angle)
+    lattice_constant_b::Float64 = 3 * 0.844 * sind(lattice_angle)
     positions::Maybe{Vector{Tuple{Int, Int}}} = nothing
     natoms::Maybe{Int} = nothing
     pulses::Vector{Pulse}
 
+    # this is only for emulators
+    seed::Int=1234
+    radius::Maybe{Float64} = 1.0
+    ff::Maybe{Float64} = nothing
+
     function PulseJob(backend_name, version, job_id, nshots,
             lattice_angle, lattice_constant_a, lattice_constant_b,
-            positions, natoms, pulses)
+            positions, natoms, pulses, seed, radius, ff)
         d = 0.844
         @assert 0 ≤ lattice_angle ≤ 180
         @assert lattice_constant_a ≥ 3d
@@ -70,6 +75,49 @@ end
         # TODO: check lattice_constant_b is multiple of 0.1d
         new(backend_name, version, job_id, nshots,
             lattice_angle, lattice_constant_a, lattice_constant_b,
-            positions, natoms, pulses)
+            positions, natoms, pulses, seed, radius, ff)
     end
+end
+
+function emulate(job::PulseJob)
+    @assert job.lattice_angle == 90 "emulator doesn't support square lattice"
+    @assert job.lattice_constant_a == 3 * 0.844 "emulator doesn't support variable lattice constant"
+    @assert job.lattice_constant_b == 3 * 0.844 "emulator doesn't support variable lattice constant"
+
+    Random.seed!(job.seed)
+    if isnothing(job.positions)
+        natoms = job.natoms::Int
+        atoms = square_lattice(natoms, isnothing(job.ff) ? 1.0 : job.ff)
+    else
+        atoms = RydAtom.(job.positions)
+        natoms = length(job.positions)
+    end
+
+    space = blockade_subspace(atoms, job.radius)
+    r = zero_state(natoms, space)
+    hs = map(p->pulse_hamiltonian(p, atoms), job.pulses)
+    ts = map(p->p.duration, job.pulses)
+    cache = EmulatorCache(hs[1], space)
+    emulate!(r, ts, hs; cache)
+    return r
+end
+
+function pulse_hamiltonian(p::Pulse, atoms)
+    # remove this when we have 3-level support
+    isnothing(p.hyperfine) || error("emulator doesn't support hyperfine pulse")
+
+    if isnothing(p.atom_indices)
+        h = RydInteract(atoms)
+    else
+        h = RydInteract(atoms[p.atom_indices])
+    end
+
+    if !isnothing(p.rydberg.rabi) || !isnothing(p.rydberg.phase)
+        h += XTerm(nsites(h), p.rydberg.rabi, p.rydberg.phase)
+    end
+
+    if !isnothing(p.rydberg.detuning)
+        h += NTerm(nsites(h), p.rydberg.detuning)
+    end
+    return h
 end

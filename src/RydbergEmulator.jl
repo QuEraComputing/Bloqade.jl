@@ -28,7 +28,12 @@ export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms
     # units
     MHz, μs, ns
 
-include("expmv.jl")
+
+# TODO: move to ExpV.jl
+include("expv/exp.jl")
+include("expv/expv.jl")
+include("expv/krylov.jl")
+
 include("utils.jl")
 include("atoms.jl")
 include("subspace.jl")

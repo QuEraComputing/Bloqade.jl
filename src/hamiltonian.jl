@@ -21,7 +21,7 @@ function default_unit(unit, x::AbstractArray{S}) where {T, S <: Quantity{T}}
     return y
 end
 
-raw"""
+"""
     RydInteract{T<:Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     RydInteract(atoms::AbstractVector{<:RydAtom}, C::Number)
 
@@ -30,7 +30,7 @@ Type for Rydberg interactive term.
 # Expression
 
 ```math
-\sum_{i, j} \frac{C}{|r_i - r_j|^6} n_i n_j
+\\sum_{i, j} \\frac{C}{|r_i - r_j|^6} n_i n_j
 ```
 
 # Parameters
@@ -54,7 +54,7 @@ end
 
 RydInteract(atoms::AbstractVector) = RydInteract(atoms, 2π * 109.133 * MHz*µm^6)
 
-raw"""
+"""
     XTerm{Omega, Phi} <: AbstractTerm
     XTerm(nsites::Int, Ωs::Omega, ϕs::Phi)
 
@@ -63,7 +63,7 @@ Type for X term.
 # Expression
 
 ```math
-\sum_{i} \Omega_i (e^{i\phi_i} |0\rangle_i\langle 1| + e^{-i\phi_i}|1\rangle_i\langle 0|)
+\\sum_{i} Ω_i (e^{iϕ_i} |0⟩_i⟨1| + e^{-iϕ_i}|1⟩_i⟨0|)
 ```
 
 # Parameters
@@ -87,7 +87,7 @@ struct XTerm{Omega, Phi} <: AbstractTerm
     end
 end
 
-raw"""
+"""
     ZTerm{Delta} <: AbstractTerm
     ZTerm(nsites, Δs::Delta)
 
@@ -96,7 +96,7 @@ Type for Z term.
 # Expression
 
 ```math
-\sum_i \Delta_i\sigma_i^z
+\\sum_i Δ_iσ_i^z
 ```
 
 # Parameters
@@ -117,7 +117,7 @@ struct ZTerm{Delta} <: AbstractTerm
     end
 end
 
-raw"""
+"""
     NTerm{Delta} <: AbstractTerm
     NTerm(nsites, Δs::Delta)
 
@@ -126,7 +126,7 @@ Type for N term
 # Expression
 
 ```math
-\sum_i \Delta_i n_i
+\\sum_i Δ_i n_i
 ```
 
 # Parameters

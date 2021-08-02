@@ -14,6 +14,7 @@ using OrderedCollections
 using Configurations
 using DelimitedFiles
 using EliminateGraphs
+using ProgressLogging
 using StatsBase
 
 import Yao

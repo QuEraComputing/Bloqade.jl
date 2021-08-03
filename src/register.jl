@@ -9,11 +9,21 @@ struct RydbergReg{N,B,ST,SST} <: Yao.AbstractRegister{B}
     end
 end
 
+"""
+    RydbergReg{N}(state::AbstractVector, subspace::Subspace)
+
+Create a `RydbergReg` from state vector and its corresponding subspace of `N` atoms.
+"""
 function RydbergReg{N}(state::AbstractVector, subspace::Subspace) where {N}
     state = reshape(state,:,1)
     return RydbergReg{N, 1, typeof(state), typeof(subspace)}(state, subspace)
 end
 
+"""
+    RydbergReg{N}(state::VT, subspace::Subspace) where {N, VT<:AbstractMatrix}
+
+Create a `RydbergReg` from a batch of state vectors and their corresponding subspace of `N` atoms.
+"""
 function RydbergReg{N}(state::VT, subspace::Subspace) where {N, VT<:AbstractMatrix}
     return RydbergReg{N, size(state,2),VT,typeof(subspace)}(state, subspace)
 end

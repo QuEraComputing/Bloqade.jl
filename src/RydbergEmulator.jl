@@ -28,7 +28,7 @@ export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms
     unit_disk_graph, rand_unit_disk_graph, emulate!, emulate,
     square_lattice, set_zero_state!, blockade_subspace, is_independent_set, to_independent_set!,
     # reexport from Yao
-    measure, zero_state,
+    measure, zero_state, reduced_mean_rydberg,
     # units
     MHz, μs, ns
 

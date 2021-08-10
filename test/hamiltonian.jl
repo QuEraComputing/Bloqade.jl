@@ -128,7 +128,7 @@ end
 end
 
 @testset "N term" begin
-    H = mat(sum([2.0 * kron(5, k=>P0) for k in 1:5]))
+    H = mat(sum([2.0 * kron(5, k=>P1) for k in 1:5]))
     h = NTerm(5, 2.0)
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
@@ -137,7 +137,7 @@ end
 
     Δs = rand(5)
     h = NTerm(Δs)
-    H = mat(sum([Δs[k] * kron(5, k=>P0) for k in 1:5]))
+    H = mat(sum([Δs[k] * kron(5, k=>P1) for k in 1:5]))
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
     @test eltype(h) == Float64

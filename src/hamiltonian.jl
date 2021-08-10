@@ -397,7 +397,7 @@ function getterm(t::ZTerm, k, k_site)
 end
 
 function getterm(t::NTerm, k, k_site)
-    if k_site == 0
+    if k_site == 1
         return getscalarmaybe(t.Δs, k)
     else
         return 0

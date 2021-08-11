@@ -58,3 +58,32 @@ end
 Return the exact MIS size of a graph `g`.
 """
 exact_solve_mis(g::AbstractGraph) = mis2(EliminateGraph(adjacency_matrix(g)))
+
+"""
+    reduced_mean_rydberg(reg::RydbergReg, graph::AbstractGraph; add_vertices::Bool=false)
+
+independent set eliminated mean rydberg.
+"""
+function reduced_mean_rydberg(reg::RydbergReg, graph::AbstractGraph; add_vertices::Bool=false)
+    mean_ryd = zero(real(eltype(reg.state)))
+    for (c, amp) in zip(vec(reg.subspace), vec(reg.state))
+        new_c = to_independent_set!(graph, bitarray(c, nv(graph)))
+        add_vertices && add_vertices!(new_c, graph)
+        mean_ryd += abs2(amp) * count_vertices(packbits(new_c))
+    end
+    return mean_ryd
+end
+
+function add_vertices!(config::AbstractVector, graph::AbstractGraph)
+    for (k, c) in enumerate(config)
+        if iszero(c)
+            config[k] = 1
+            if is_independent_set(graph, config)
+                continue
+            else
+                config[k] = 0
+            end
+        end
+    end
+    return config
+end

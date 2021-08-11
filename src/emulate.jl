@@ -1,6 +1,6 @@
 function emulate_routine!(r::RydbergReg, ts::Vector, hs::Vector{<: AbstractTerm}, cache)
     st = vec(r.state)
-    for (h, t) in zip(hs, ts)
+    @progress for (h, t) in zip(hs, ts)
         update_term!(cache, h, r.subspace)
         expmv!(-im * t, cache, st)
     end
@@ -9,7 +9,7 @@ end
 
 function emulate_routine!(r::Yao.ArrayReg, ts::Vector, hs::Vector{<: AbstractTerm}, cache)
     st = vec(r.state)
-    for (h, t) in zip(hs, ts)
+    @progress for (h, t) in zip(hs, ts)
         update_term!(cache, h)
         expmv!(-im * t, cache, st)
     end

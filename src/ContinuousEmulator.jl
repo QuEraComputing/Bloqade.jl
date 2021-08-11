@@ -31,13 +31,13 @@ function shordinger(h::AbstractTerm; cache=SparseMatrixCSC(h(1e-2)))
     end
 end
 
-function RydbergEmulator.emulate!(r::Yao.ArrayReg, t::Real, h::AbstractTerm; algo=Tsit5(), cache=SparseMatrixCSC(h(1e-2)), kwargs...)
+function RydbergEmulator.emulate!(r::Yao.ArrayReg, t::Real, h::AbstractTerm; algo=lsoda(), cache=SparseMatrixCSC(h(1e-2)), kwargs...)
     prob = ODEProblem(shordinger(h; cache=cache), vec(r.state), (zero(t), t), h; save_everystep=false, save_start=false, alias_u0=true, kwargs...)
     result = solve(prob, algo)
     return r
 end
 
-function RydbergEmulator.emulate!(r::RydbergReg, t::Real, h::AbstractTerm; algo=Tsit5(), cache=SparseMatrixCSC(h(1e-2), r.subspace), kwargs...)
+function RydbergEmulator.emulate!(r::RydbergReg, t::Real, h::AbstractTerm; algo=lsoda(), cache=SparseMatrixCSC(h(1e-2), r.subspace), kwargs...)
     prob = ODEProblem(shordinger(h, r.subspace; cache=cache), vec(r.state), (zero(t), t), h; save_everystep=false, save_start=false, alias_u0=true, kwargs...)
     result = solve(prob, algo)
     return r

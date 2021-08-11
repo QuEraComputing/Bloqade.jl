@@ -3,7 +3,7 @@ using Yao
 using ContinuousEmulator
 using Test
 
-const test_graph = SimpleGraph(5)
+test_graph = SimpleGraph(5)
 add_edge!(test_graph, 1, 2)
 add_edge!(test_graph, 2, 3)
 add_edge!(test_graph, 2, 4)
@@ -11,8 +11,8 @@ add_edge!(test_graph, 2, 5)
 add_edge!(test_graph, 3, 4)
 add_edge!(test_graph, 4, 5)
 
-const test_subspace_v = [0, 1, 2, 4, 5, 8, 9, 16, 17, 20, 21]
-const test_subspace = Subspace(test_graph)
+test_subspace_v = [0, 1, 2, 4, 5, 8, 9, 16, 17, 20, 21]
+test_subspace = Subspace(test_graph)
 
 @testset "contiguous time" begin
     h = XTerm(5, 1.0, sin)

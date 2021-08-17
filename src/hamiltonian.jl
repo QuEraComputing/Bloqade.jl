@@ -417,14 +417,14 @@ entries by the user.
 """
 function to_matrix! end
 
-function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm) where {Tv <: Complex}
+function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm) where {Tv}
     N = 1 << nsites(term)
     H = SparseMatrixCOO{Tv}(undef, N, N)
     to_matrix!(H, term)
     return SparseMatrixCSC(H)
 end
 
-function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::Subspace) where {Tv <: Complex}
+function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::Subspace) where {Tv}
     N = length(s)
     H = SparseMatrixCOO{Tv}(undef, N, N)
     to_matrix!(H, term, s)

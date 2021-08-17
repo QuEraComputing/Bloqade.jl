@@ -12,7 +12,7 @@ add_edge!(test_graph, 3, 4)
 add_edge!(test_graph, 4, 5)
 
 test_subspace_v = [0, 1, 2, 4, 5, 8, 9, 16, 17, 20, 21]
-test_subspace = Subspace(test_graph)
+test_subspace = blockade_subspace(test_graph)
 
 @testset "contiguous time" begin
     h = XTerm(5, 1.0, sin)

@@ -21,6 +21,9 @@ function default_unit(unit, x::AbstractArray{S}) where {T, S <: Quantity{T}}
     return y
 end
 
+const ConstParamType = Union{Number, AbstractVector{<:Number}, NTuple{N, <:Number} where N}
+const ConstParamListType = Union{AbstractVector{<:Number}, NTuple{N, <:Number} where N}
+
 """
     RydInteract{T<:Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     RydInteract(atoms::AbstractVector{<:RydAtom}, C::Number)
@@ -247,11 +250,25 @@ _print(io::IO, xs...) = foreach(x->_print(io, x), xs)
 
 function _print_eachterm(f, io::IO, nsites::Int)
     indent = get(io, :indent, 0)
-    for k in 1:nsites
-        print(io, " "^indent)
-        f(k)
-        if k != nsites
-            println(io, " +")
+    limit = get(io, :limit, false)
+
+    if limit && nsites > 6
+        print(io, " "^indent);f(1);println(io, " +")
+        print(io, " "^indent);f(2);println(io, " +")
+        print(io, " "^indent);f(3);println(io, " +")
+
+        println(io, " "^(indent + 2), "⋯")
+
+        print(io, " "^indent);f(nsites-2);println(io, " +")
+        print(io, " "^indent);f(nsites-1);println(io, " +")
+        print(io, " "^indent);f(nsites)
+    else
+        for k in 1:nsites
+            print(io, " "^indent)
+            f(k)
+            if k != nsites
+                println(io, " +")
+            end
         end
     end
 end
@@ -290,7 +307,7 @@ end
 _iscallable(f) = !isempty(methods(f))
 
 function _print_single_xterm(io::IO, Ω, ϕ)
-    if _iscallable(Ω) || (!isone(Ω))
+    if _iscallable(Ω) || !(Ω ≈ 2)
         _print(io, Ω, "/2")
     end
 
@@ -310,49 +327,49 @@ function _print_sum(io::IO, nsites::Int)
     print(io, " "^indent, "∑(n=1:$nsites) ")
 end
 
-function _print_xterm(io::IO, nsites::Int, Ω::Union{Number, Nothing}, ϕ::Union{Number, Nothing})
+function _print_xterm(io::IO, nsites::Int, Ω, ϕ)
     _print_sum(io, nsites)
     _print_single_xterm(io, Ω, ϕ)
 end
 
-function _print_xterm(io::IO, nsites::Int, Ω::Union{Number, Nothing}, ϕs)
+function _print_xterm(io::IO, nsites::Int, Ω, ϕs::ConstParamListType)
     _print_eachterm(io, nsites) do k
         _print_single_xterm(io, Ω, getscalarmaybe(ϕs, k))
     end
 end
 
-function _print_xterm(io::IO, nsites::Int, Ωs, ϕ::Union{Number, Nothing})
+function _print_xterm(io::IO, nsites::Int, Ωs::ConstParamListType, ϕ)
     _print_eachterm(io, nsites) do k
         _print_single_xterm(io, getscalarmaybe(Ωs, k), ϕ)
     end
 end
 
-function _print_xterm(io::IO, nsites::Int, Ωs, ϕs)
+function _print_xterm(io::IO, nsites::Int, Ωs::ConstParamListType, ϕs::ConstParamListType)
     _print_eachterm(io, nsites) do k
         _print_single_xterm(io, getscalarmaybe(Ωs, k), getscalarmaybe(ϕs, k))
     end
 end
 
-function _print_zterm(io::IO, nsites::Int, Δ::Number)
+function _print_zterm(io::IO, nsites::Int, Δ)
     _print_sum(io, nsites)
     _print(io, Δ)
     printstyled(io, " σ^z", color=:light_blue)
 end
 
-function _print_zterm(io::IO, nsites::Int, Δs)
+function _print_zterm(io::IO, nsites::Int, Δs::ConstParamListType)
     _print_eachterm(io, nsites) do k
         _print(io, getscalarmaybe(Δs, k))
         printstyled(io, " σ^z", color=:light_blue)
     end
 end
 
-function _print_nterm(io::IO, nsites::Int, Δ::Number)
+function _print_nterm(io::IO, nsites::Int, Δ)
     _print_sum(io, nsites)
     _print(io, Δ)
     printstyled(io, " n", color=:light_blue)
 end
 
-function _print_nterm(io::IO, nsites::Int, Δs)
+function _print_nterm(io::IO, nsites::Int, Δs::ConstParamListType)
     _print_eachterm(io, nsites) do k
         _print(io, getscalarmaybe(Δs, k))
         printstyled(io, " n", color=:light_blue)

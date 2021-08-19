@@ -22,11 +22,6 @@ function rydinteract(atoms, C)
     return sum(terms)
 end
 
-function test_print(f, h)
-    ans = sprint((io, x)->show(io, MIME("text/plain"), x), h)
-    @test ans == f()
-end
-
 if !isdefined(@__MODULE__, :test_graph)
     include("utils.jl")
 end
@@ -248,4 +243,40 @@ end
     h = ZTerm([1.0GHz, 2.0MHz])
     @test h.Δs[1] == 1000
     @test h.Δs[2] == 2.0
+end
+
+check_print(term, line::String) = check_print(term, [line])
+
+function check_print(term, lines::Vector{String})
+    buf = IOBuffer()
+    io = IOContext(buf, :limit=>true)
+    show(io, MIME"text/plain"(), term)
+    s = String(take!(buf))
+
+    pass = true
+    for (i, l) in enumerate(lines)
+        if i != lastindex(lines)
+            test_string = l * '\n'
+        else
+            test_string = l
+        end
+        pass = pass && occursin(test_string, s)
+    end
+    return pass
+end
+
+@testset "limit printing" begin
+    @test check_print(XTerm(10, sin), ["XTerm", " ∑(n=1:10) sin(t)/2 σ^x"])
+    @test check_print(XTerm([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]), [
+        "XTerm",
+        " 1/2 σ^x +",
+        " σ^x +",
+        " 3/2 σ^x +",
+        "   ⋯",
+        " 8/2 σ^x +",
+        " 9/2 σ^x +",
+        " 10/2 σ^x"
+    ])
+
+    @test check_print(NTerm(10, sin), ["NTerm", " ∑(n=1:10) sin(t) n"])
 end

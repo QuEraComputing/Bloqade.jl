@@ -228,6 +228,14 @@ nsites(t::NTerm) = t.nsites
 nsites(t::Hamiltonian) = nsites(t.terms[1])
 nsites(t::RydInteract) = length(t.atoms)
 
+function nsites(terms::Vector{<:AbstractTerm})
+    term_nsites = nsites(first(terms))
+    for i in 2:length(terms)
+        term_nsites == nsites(terms[i]) || error("number of sites is not consistent in the list of hamiltonians")
+    end
+    return term_nsites
+end
+
 hilbert_space(n::Int) = 0:((1<<n)-1)
 hilbert_space(t::AbstractTerm) = hilbert_space(nsites(t))
 

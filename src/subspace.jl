@@ -59,7 +59,7 @@ end
 
 Create a blockade approximation subspace from given atom positions and radius.
 """
-function blockade_subspace(atoms::Vector{<:RydAtom}, radius::AbstractFloat=1.0)
+function blockade_subspace(atoms::AbstractVector{<:RydAtom}, radius::AbstractFloat=1.0)
     return blockade_subspace(unit_disk_graph(atoms, radius))
 end
 

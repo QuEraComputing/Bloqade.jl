@@ -16,6 +16,7 @@ using DelimitedFiles
 using EliminateGraphs
 using ProgressLogging
 using StatsBase
+using StaticArrays
 
 import Yao
 using Yao: measure, zero_state

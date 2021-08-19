@@ -166,11 +166,11 @@ function Configurations.from_dict_inner(::Type{T}, d::AbstractDict{String}) wher
 end
 
 """
-    write_atoms(io::IO, atoms::Vector{<:RydAtom})
+    write_atoms(io::IO, atoms::AbstractVector{<:RydAtom})
 
 Write a list of atom positions to stream `io`.
 """
-function write_atoms(io::IO, atoms::Vector{<:RydAtom})
+function write_atoms(io::IO, atoms::AbstractVector{<:RydAtom})
     for atom in atoms
         println(io, join(map(x->string(x), atom), "  "))
     end
@@ -178,7 +178,7 @@ function write_atoms(io::IO, atoms::Vector{<:RydAtom})
 end
 
 """
-    write_atoms(filename::String, atoms::Vector{<:RydAtom})
+    write_atoms(filename::String, atoms::AbstractVector{<:RydAtom})
 
 Write a list of atom positions to the file given by `filename`.
 
@@ -192,7 +192,7 @@ atoms = square_lattice(5, 0.8)
 write_atoms("demo.atoms", atoms)
 ```
 """
-function write_atoms(filename::String, atoms::Vector{<:RydAtom})
+function write_atoms(filename::String, atoms::AbstractVector{<:RydAtom})
     return open(filename, "w+") do io
         write_atoms(io, atoms)
     end
@@ -206,7 +206,8 @@ read_atoms(io::IO) = read_atoms(io, Int)
 Read atom positions from stream `io`.
 """
 function read_atoms(io::IO, ::Type{T}) where T
-    return [RydAtom(row) for row in eachrow(readdlm(io, T))]
+    atoms = [RydAtom(row) for row in eachrow(readdlm(io, T))]
+    return SVector{length(atoms)}(atoms)
 end
 
 """

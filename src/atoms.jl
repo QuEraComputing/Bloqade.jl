@@ -72,7 +72,8 @@ The size of the box is ``L^ndims``, where the linear dimension ``L = (n/ρ)^(1/n
 function rand_atoms(n::Int, ρ::Float64; ndims::Int=2)
     L = (n/ρ)^(1/ndims)
     atoms = rydatoms(rand(ndims, n) .* L)
-    return sort_atoms!(atoms)
+    sort_atoms!(atoms)
+    return SVector{length(atoms)}(atoms)
 end
 
 """
@@ -87,7 +88,8 @@ function square_lattice(n::Int, ff::Float64)
     atom_coordinates_x = (atom_coordinates_linear .- 1) .÷ L .+ 1
     atom_coordinates_y = (atom_coordinates_linear .- 1) .% L .+ 1
     atom_coordinates = vcat(atom_coordinates_x', atom_coordinates_y')
-    return sort_atoms!(rydatoms(atom_coordinates))
+    atoms = sort_atoms!(rydatoms(atom_coordinates))
+    return SVector{length(atoms)}(atoms)
 end
 
 """

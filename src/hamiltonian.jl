@@ -173,6 +173,11 @@ Create the `XTerm` from given `Ωs` and `ϕs`.
 """
 XTerm(Ωs, ϕs::AbstractVector) = XTerm(length(ϕs), Ωs, to_tuple(ϕs))
 
+function XTerm(nsites::Int, Ωs::AbstractVector)
+    @assert nsites == length(Ωs) "number of sites does not match number of rabi frequencies"
+    return XTerm(Ωs)
+end
+
 """
     XTerm(Ωs::AbstractVector, ϕs::Number)
 
@@ -380,6 +385,21 @@ Base.:(+)(x::AbstractTerm, y::AbstractTerm) = Hamiltonian((x, y))
 Base.:(+)(x::AbstractTerm, y::Hamiltonian) = Hamiltonian((x, y.terms...))
 Base.:(+)(x::Hamiltonian, y::AbstractTerm) = Hamiltonian((x.terms..., y))
 Base.:(+)(x::Hamiltonian, y::Hamiltonian) = Hamiltonian((x.terms..., y.terms...))
+
+# absorb - to RHS
+Base.:(-)(x::AbstractTerm, y::AbstractTerm) = Hamiltonian((x, -y))
+Base.:(-)(x::AbstractTerm, y::Hamiltonian) = Hamiltonian((x, map(-, y.terms)...))
+Base.:(-)(x::Hamiltonian, y::AbstractTerm) = Hamiltonian((x.terms..., -y))
+Base.:(-)(x::Hamiltonian, y::Hamiltonian) = Hamiltonian((x.terms..., map(-, y.terms)...))
+
+Base.:(-)(x::XTerm{<:ConstParamType}) = XTerm(x.nsites, map(-, x.Ωs), x.ϕs)
+Base.:(-)(x::XTerm) = XTerm(x.nsites, t->-x.Ωs(t), x.ϕs)
+
+Base.:(-)(x::ZTerm{<:ConstParamType}) = ZTerm(x.nsites, map(-, x.Δs))
+Base.:(-)(x::ZTerm) = ZTerm(x.nsites, t->-x.Δs(t))
+Base.:(-)(x::NTerm{<:ConstParamType}) = NTerm(x.nsites, map(-, x.Δs))
+Base.:(-)(x::NTerm) = NTerm(x.nsites, t->-x.Δs(t))
+
 
 function Base.:(==)(x::RydInteract, y::RydInteract)
     return (x.atoms == y.atoms) && (x.C == y.C)

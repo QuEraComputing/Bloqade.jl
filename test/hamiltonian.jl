@@ -95,6 +95,8 @@ end
     @test h(0.1).ϕs == cos(0.1)
 
     display(h)
+
+    @test_throws AssertionError XTerm(5, [1, 2, 3, 4])
 end
 
 @testset "Z term" begin
@@ -175,6 +177,28 @@ end
     @test ZTerm(5, 1.0) + h1 == Hamiltonian((ZTerm(5, 1.0), h1.terms...))
     @test h1 + ZTerm(5, 1.0) == Hamiltonian((h1.terms..., ZTerm(5, 1.0)))
     @test h1 + h1 == Hamiltonian((h1.terms..., h1.terms...))
+
+    h2 = RydInteract(atoms, 2.0) - XTerm(5, 4.0)
+    h3 = RydInteract(atoms, 2.0) + XTerm(5, -4.0)
+    @test SparseMatrixCSC(h2) == SparseMatrixCSC(h3)
+
+    h4 = RydInteract(atoms, 2.0) + XTerm(5, 4.0) - ZTerm(5,  1.2)
+    h5 = RydInteract(atoms, 2.0) + XTerm(5, 4.0) + ZTerm(5, -1.2)
+    @test SparseMatrixCSC(h4) == SparseMatrixCSC(h5)
+
+    h6 = RydInteract(atoms, 2.0) - XTerm([ 1,  2,  3,  4,  5]) - ZTerm(5,  1.2)
+    h7 = RydInteract(atoms, 2.0) + XTerm([-1, -2, -3, -4, -5]) + ZTerm(5, -1.2)
+    @test SparseMatrixCSC(h6) == SparseMatrixCSC(h7)
+
+    h8 = RydInteract(atoms, 2.0) - XTerm(5, sin) - ZTerm(5,  cos)
+    h9 = RydInteract(atoms, 2.0) + XTerm(5, x->-sin(x)) + ZTerm(5, x->-cos(x))
+    @test h8(1.0) == h9(1.0)
+
+    h = XTerm(5, sin) + NTerm(5, cos) - (XTerm(5, sin) + NTerm(5, cos))
+    @test iszero(SparseMatrixCSC(h(1.0)))
+
+    h = NTerm(5, cos) - (XTerm(5, sin) + NTerm(5, cos))
+    @test SparseMatrixCSC(h(1.0)) ≈ SparseMatrixCSC(-XTerm(5, sin(1.0)))
 end
 
 @testset "XTerm subspace" begin

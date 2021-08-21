@@ -4,10 +4,11 @@
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/ContinuousEmulator.jl/badge.svg?branch=master&t=9ZJKMI)](https://coveralls.io/github/Happy-Diode/ContinuousEmulator.jl?branch=master)
 
 ## Installation
+
 <p>
 ContinuousEmulator is a &nbsp;
     <a href="https://julialang.org">
-        <img src="https://julialang.org/favicon.ico" width="16em">
+        <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
         Julia Language
     </a>
     &nbsp; package. To install ContinuousEmulator,

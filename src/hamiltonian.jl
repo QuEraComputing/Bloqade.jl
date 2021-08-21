@@ -245,6 +245,16 @@ Base.eltype(t::NTerm) = eltype(t.Δs)
 Base.eltype(t::RydInteract) = typeof(t.C)
 Base.eltype(t::Hamiltonian) = promote_type(eltype.(t.terms)...)
 
+function Base.isreal(t::XTerm)
+    isnothing(t.ϕs) ? true :
+    t.ϕs isa Number ? iszero(t.ϕs) : false
+end
+
+Base.isreal(t::ZTerm) = true
+Base.isreal(t::NTerm) = true
+Base.isreal(t::RydInteract) = true
+Base.isreal(t::Hamiltonian) = all(isreal, t.terms)
+
 Base.getindex(t::Hamiltonian, i::Int) = t.terms[i]
 
 # Custom multi-line printing
@@ -287,8 +297,9 @@ function _print_eachterm(f, io::IO, nsites::Int)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", t::AbstractTerm)
-    println(io, nameof(typeof(t)))
-    print_term(IOContext(io, :indent=>1), t)
+    indent = get(io, :indent, 0)
+    println(io, " "^indent, nameof(typeof(t)))
+    print_term(IOContext(io, :indent=>indent + 1), t)
 end
 
 print_term(io::IO, t::ZTerm) = _print_zterm(io, t.nsites, t.Δs)
@@ -304,9 +315,10 @@ function print_term(io::IO, t::RydInteract)
 end
 
 function print_term(io::IO, t::Hamiltonian)
+    indent = get(io, :indent, 2)
     for (i, each) in enumerate(t.terms)
-        println(io, " Term ", i)
-        print_term(IOContext(io, :indent=>2), each)
+        println(io, " "^indent, " Term ", i)
+        print_term(IOContext(io, :indent=>indent+2), each)
         
         if i != lastindex(t.terms)
             println(io)

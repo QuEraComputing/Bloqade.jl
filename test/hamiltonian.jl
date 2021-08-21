@@ -85,6 +85,7 @@ end
     display(h)
 
     h = XTerm(5, sin)
+    @test isreal(h) == true
     @test h(0.1) isa XTerm
     @test h(0.1).Ωs == sin(0.1)
     @test h(0.1).ϕs === nothing
@@ -93,6 +94,8 @@ end
     @test h(0.1) isa XTerm
     @test h(0.1).Ωs == sin(0.1)
     @test h(0.1).ϕs == cos(0.1)
+
+    @test isreal(h) == false
 
     display(h)
 
@@ -116,6 +119,7 @@ end
     display(h)
 
     h = ZTerm(5, sin)
+    @test isreal(h) == true
     @test h(0.1).Δs == sin(0.1)
 
     h = ZTerm(3, [sin, cos, tanh])
@@ -141,6 +145,7 @@ end
     display(h)
 
     h = NTerm(5, sin)
+    @test isreal(h) == true
     @test h(0.1).Δs == sin(0.1)
 
     h = NTerm(3, [sin, cos, tanh])
@@ -174,6 +179,7 @@ end
     display(h)
 
     h1 = XTerm(5, 4.0) + RydInteract(atoms, 2.0)
+    @test isreal(h1) == true
     @test ZTerm(5, 1.0) + h1 == Hamiltonian((ZTerm(5, 1.0), h1.terms...))
     @test h1 + ZTerm(5, 1.0) == Hamiltonian((h1.terms..., ZTerm(5, 1.0)))
     @test h1 + h1 == Hamiltonian((h1.terms..., h1.terms...))
@@ -184,6 +190,7 @@ end
 
     h4 = RydInteract(atoms, 2.0) + XTerm(5, 4.0) - ZTerm(5,  1.2)
     h5 = RydInteract(atoms, 2.0) + XTerm(5, 4.0) + ZTerm(5, -1.2)
+    @test isreal(h4) == true
     @test SparseMatrixCSC(h4) == SparseMatrixCSC(h5)
 
     h6 = RydInteract(atoms, 2.0) - XTerm([ 1,  2,  3,  4,  5]) - ZTerm(5,  1.2)

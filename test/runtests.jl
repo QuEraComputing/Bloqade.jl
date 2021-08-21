@@ -14,6 +14,23 @@ add_edge!(test_graph, 4, 5)
 test_subspace_v = [0, 1, 2, 4, 5, 8, 9, 16, 17, 20, 21]
 test_subspace = blockade_subspace(test_graph)
 
+@testset "ShordingerEquation" begin
+    h = XTerm(5, 1.0, sin)
+    eq = ShordingerEquation(test_subspace, h)
+    @test eltype(eq.cache.hamiltonian) === ComplexF64
+    @test eltype(eq.cache.state) === ComplexF64
+
+    h = XTerm(5, 1.0)
+    eq = ShordingerEquation(test_subspace, h)
+    @test eltype(eq.cache.hamiltonian) === Float64
+    @test eltype(eq.cache.state) === ComplexF64
+
+    h = XTerm(5, 1.0)
+    eq = ShordingerEquation(Float32, test_subspace, h)
+    @test eltype(eq.cache.hamiltonian) === Float32
+    @test eltype(eq.cache.state) === ComplexF32
+end
+
 @testset "contiguous time" begin
     h = XTerm(5, 1.0, sin)
     dt = 1e-5

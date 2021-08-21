@@ -59,7 +59,7 @@ function create_subspace_from_mis(n::Int, mis::AbstractVector)
     # NOTE: ThreadsX doesn't support auto init when using union as op
     # need the following PR merged
     # https://github.com/JuliaFolds/InitialValues.jl/pull/60
-    subspace_v = ThreadsX.reduce(union, iterators; init=Int[])
+    subspace_v = ThreadsX.reduce(union, iterators; init=OnInit(Vector{Int}))
     return Subspace(subspace_v)
 end
 

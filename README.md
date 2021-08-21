@@ -1,6 +1,7 @@
 # ContinuousEmulator
 
 [![Build Status](https://github.com/Happy-Diode/ContinuousEmulator.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/ContinuousEmulator.jl/actions)
+[![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/ContinuousEmulator.jl/badge.svg?branch=HEAD&t=gLyoGX)](https://coveralls.io/github/Happy-Diode/ContinuousEmulator.jl?branch=HEAD)
 
 ## Installation
 <p>

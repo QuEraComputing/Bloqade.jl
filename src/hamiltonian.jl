@@ -1,5 +1,3 @@
-using KernelAbstractions
-
 function RydbergEmulator.update_term!(dst::CuSparseMatrixCSR, t::AbstractTerm, subspace_v::Vector)
     update_term!(dst, t, CuVector(subspace_v)) # copy to device, if subspace is given on CPU
 end
@@ -27,25 +25,25 @@ function update_term_kernel(H, t, subspace_v)
         lhs = subspace_v[col]
         rhs = subspace_v[row]
 
-        H.nzVal[k] = term_value(t, lhs, rhs, col, row)
+        H.nzVal[k] = RydbergEmulator.term_value(t, lhs, rhs, col, row)
     end
     return
 end
 
-@kernel function update_term_kernel!(H, t)
-    row = @index(Global)
+function update_term_kernel(H, t)
+    row = (blockIdx().x - 1) * blockDim().x + threadIdx().x
 
     @inbounds for k in H.rowPtr[row]:H.rowPtr[row+1]-1
         col = H.colVal[k]
-        H.nzVal[k] = term_value(t, col-1, row-1, col, row)
+
+        H.nzVal[k] = RydbergEmulator.term_value(t, col-1, row-1, col, row)
     end
+    return
 end
 
 function RydbergEmulator.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm)
-    kernel = update_term_kernel!(CUDADevice(), 16, size(H, 1))
-    event = kernel(H, t, ndrange=size(H, 1))
-    wait(event)
-    # @cuda threads=threads blocks=nblocks update_term_kernel!(H, t)
+    threads, nblocks = thread_layout(H)
+    @cuda threads=threads blocks=nblocks update_term_kernel(H, t)
     return H
 end
 

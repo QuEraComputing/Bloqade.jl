@@ -19,16 +19,19 @@ test_subspace = blockade_subspace(test_graph)
     eq = ShordingerEquation(test_subspace, h)
     @test eltype(eq.cache.hamiltonian) === ComplexF64
     @test eltype(eq.cache.state) === ComplexF64
+    display(eq)
 
     h = XTerm(5, 1.0)
     eq = ShordingerEquation(test_subspace, h)
     @test eltype(eq.cache.hamiltonian) === Float64
     @test eltype(eq.cache.state) === ComplexF64
+    display(eq)
 
     h = XTerm(5, 1.0)
     eq = ShordingerEquation(Float32, test_subspace, h)
     @test eltype(eq.cache.hamiltonian) === Float32
     @test eltype(eq.cache.state) === ComplexF32
+    display(eq)
 end
 
 @testset "contiguous time" begin

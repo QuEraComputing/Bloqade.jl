@@ -16,6 +16,7 @@ using DelimitedFiles
 using EliminateGraphs
 using ProgressLogging
 using StatsBase
+using ThreadsX
 using StaticArrays
 
 import Yao
@@ -33,7 +34,12 @@ export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms
     # units
     MHz, μs, ns
 
+# NOTE: remove this after expv get fixed
 include("expmv.jl")
+
+# NOTE: remove this after BQCESubroutine beta version is released
+include("bsubspace.jl")
+
 include("utils.jl")
 include("atoms.jl")
 include("subspace.jl")

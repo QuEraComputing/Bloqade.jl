@@ -47,11 +47,20 @@ Create `Subspace` from given list of maximal cliques/maximal independent set.
 - `mis`: the list of maximal independent set.
 """
 function create_subspace_from_mis(n::Int, mis::AbstractVector)
-    it = map(mis) do each
+    iterators = ThreadsX.map(mis) do each
         fixed_points = setdiff(1:n, each)
-        itercontrol(n, fixed_points, zero(fixed_points))
+        locs = sort!(fixed_points)
+        # copied from bsubspace to use runtime length
+        masks, shift_len = group_shift(locs)
+        len = 1 << (n - length(locs))
+        BitSubspace(n, len, length(masks), masks, shift_len)
     end
-    return Subspace(collect(Int, unique(Iterators.flatten(it))))
+
+    # NOTE: ThreadsX doesn't support auto init when using union as op
+    # need the following PR merged
+    # https://github.com/JuliaFolds/InitialValues.jl/pull/60
+    subspace_v = ThreadsX.reduce(union, iterators; init=Int[])
+    return Subspace(subspace_v)
 end
 
 """

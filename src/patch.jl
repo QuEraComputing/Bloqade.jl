@@ -120,7 +120,12 @@ end
 Base.size(H::CuSparseDeviceMatrixCSR) = H.dims
 
 function Adapt.adapt_structure(to::CUDA.Adaptor, x::CuSparseMatrixCSR{Tv}) where Tv
-    CuSparseDeviceMatrixCSR(cudaconvert(x.rowPtr), cudaconvert(x.colVal), cudaconvert(x.nzVal), x.dims, x.nnz)
+    CuSparseDeviceMatrixCSR(
+        cudaconvert(x.rowPtr),
+        cudaconvert(x.colVal),
+        cudaconvert(x.nzVal),
+        x.dims, x.nnz
+    )
 end
 
 function Base.show(io::IO, ::MIME"text/plain", A::CuSparseDeviceMatrixCSR)

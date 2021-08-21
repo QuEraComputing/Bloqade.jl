@@ -9,8 +9,13 @@ CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 ContinuousEmulator = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
+ProgressLogging = "33c8b6b6-d38a-422a-b730-caa89a2f386c"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 RydbergEmulator = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+ThreadsX = "ac1d9e8a-700a-412c-b207-f0111f4b6c0d"
+Transducers = "28d57a85-8fef-5791-bfe6-a80928e7c999"
+Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
 [compat]
 Adapt = "3"

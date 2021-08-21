@@ -1,17 +1,22 @@
 using Test
 using CUDA
+using Adapt
+using ContinuousEmulator
 using CuRydbergEmulator
+using SparseArrays
+
 using CUDA.CUSPARSE: CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseMatrix
 using RydbergEmulator: AbstractTerm
-using SparseArrays
+using ContinuousEmulator: ShordingerEquation
+
 
 CUDA.allowscalar(false)
 
-@testset "update_term" begin
-    atoms = square_lattice(5, 0.8)
-    space = blockade_subspace(atoms, 1.5)
-    h = RydInteract(atoms) + XTerm(length(atoms), 1.0) - NTerm(length(atoms), 1.2)
+atoms = square_lattice(5, 0.8)
+space = blockade_subspace(atoms, 1.5)
+h = RydInteract(atoms) + XTerm(length(atoms), 1.0) - NTerm(length(atoms), 1.2)
 
+@testset "update_term" begin
     H = SparseMatrixCSC{ComplexF32}(h, space)
     cuH = CuSparseMatrixCSR{ComplexF32}(H)
     update_term!(cuH, h, cu(space.subspace_v))
@@ -23,13 +28,69 @@ CUDA.allowscalar(false)
     @test SparseMatrixCSC(cuH) ≈ H
 end
 
-# st = rand(ComplexF32, size(H, 1))
-# @benchmark $H * $st
+@testset "cu(ShordingerEquation)" begin
+    eq = ShordingerEquation(Float32, space, h)
+    @test eltype(eq.cache.state) == ComplexF32
+    @test eltype(eq.cache.hamiltonian) == Float32
+
+    # hamiltonian should be complex since cuSPARSE
+    # doesn't support complex-real mv routine
+    deq = cu(eq)
+    @test eltype(deq.cache.state) == ComplexF32
+    @test eltype(deq.cache.hamiltonian) == ComplexF32
+
+    # we don't convert to Float32 automatically like cu(x)
+    # we still want explicit control of numerical precision
+    eq = ShordingerEquation(space, h)
+    deq = cu(eq)
+    @test eltype(deq.cache.state) == ComplexF64
+    @test eltype(deq.cache.hamiltonian) == ComplexF64
+end
+
+@testset "ode solver" begin
+    r = zero_state(ComplexF32, length(atoms), space)
+    dr = cu(r)
+
+    emulate!(r, 1e-3, h)
+    emulate!(dr, 1e-3, h)
+
+    @test cpu(dr) ≈ r
+
+    r = zero_state(ComplexF64, length(atoms), space)
+    dr = cu(r)
+
+    emulate!(r, 1e-3, h)
+    emulate!(dr, 1e-3, h)
+
+    @test cpu(dr) ≈ r
+end
+
+# # st = rand(ComplexF32, size(H, 1))
+# # @benchmark $H * $st
+# # using BenchmarkTools
+# # st = CUDA.rand(ComplexF32, size(cuH, 1))
+
+# # cuH = CuSparseMatrixCSR{ComplexF32}(H)
+# # @benchmark CUDA.@sync $cuH * $st
+
+# # cuH = CuSparseMatrixCSC{ComplexF32}(H)
+# # @benchmark CUDA.@sync $cuH * $st
+
 # using BenchmarkTools
-# st = CUDA.rand(ComplexF32, size(cuH, 1))
+# 7 * 7 * 0.8
+# atoms = square_lattice(40, 0.8)
+# graph = unit_disk_graph(atoms, 1.5)
+# space = blockade_subspace(graph)
+# r = zero_state(ComplexF32, 40, space)
 
-# cuH = CuSparseMatrixCSR{ComplexF32}(H)
-# @benchmark CUDA.@sync $cuH * $st
+# h = RydInteract(atoms) + XTerm(length(atoms), 1.0) - NTerm(length(atoms), 1.2)
+# r = zero_state(ComplexF32, length(atoms), space)
+# dr = cu(r)
 
-# cuH = CuSparseMatrixCSC{ComplexF32}(H)
-# @benchmark CUDA.@sync $cuH * $st
+# SparseMatrixCSC(h, space)
+
+# emulate!(r, 1e-3, h)
+# @time emulate!(dr, 1e-3, h; progress=true, progress_steps=1)
+
+# @benchmark emulate!($r, 1e-3, h)
+# @benchmark CUDA.@sync emulate!($dr, 1e-3, h)

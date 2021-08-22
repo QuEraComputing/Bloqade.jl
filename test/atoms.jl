@@ -2,12 +2,19 @@ using Test
 using RydbergEmulator
 using Random
 
-atom = RydAtom([1, 2])
-@test atom.loc == (1, 2)
-@test atom[1] == 1
-@test atom[2] == 2
-atoms = rand_atoms(10, 0.2)
-@test all(ndims.(atoms) .== 2)
+@testset "interfaces" begin
+    atom = RydAtom([1, 2])
+    @test atom.loc == (1, 2)
+    @test atom[1] == 1
+    @test atom[2] == 2
+    atoms = rand_atoms(10, 0.2)
+    @test all(ndims.(atoms) .== 2)
+
+    atom = RydAtom((1, 2, 3))
+    @test length(atom) == 3
+    @test ndims(atom) == 3
+    @test eltype(atom) === Int
+end
 
 @testset "canonical order" begin
     prev = -1

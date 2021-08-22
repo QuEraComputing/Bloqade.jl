@@ -47,8 +47,10 @@ end
 @testset "X term" begin
     H = mat(sum([2.0 * kron(5, k=>Yao.X) for k in 1:5]))
     h = XTerm(5, 4.0)
+    @test h(0.1) == h
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
+    @test update_term!(SparseMatrixCSC(h), h, nothing) ≈ H
     display(h)
 
     Ωs = rand(5)
@@ -56,6 +58,7 @@ end
     H = mat(sum([Ω/2 * kron(5, k=>Yao.X) for (k, Ω) in enumerate(Ωs)]))
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
+    @test update_term!(SparseMatrixCSC(h), h, nothing) ≈ H
     @test eltype(h) == Float64
     display(h)
 

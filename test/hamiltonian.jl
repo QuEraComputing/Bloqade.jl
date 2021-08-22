@@ -42,22 +42,6 @@ end
 
     H = SparseMatrixCSC(h, subspace)
     @test H ≈ update_term!(copy(H), h, subspace)
-
-    # @testset "cuda" begin
-    #     if CUDA.functional()
-    #         using CUDA
-    #         using CUDA.CUSPARSE
-    #         dΩ = cu(Ω)
-    #         dϕ = cu(ϕ)
-    #         dΔ = cu(Δ)
-    #         h = XTerm(dΩ, dϕ) + ZTerm(dΔ)
-    #         H = SparseMatrixCSC(h, subspace)
-    #         dH = CuSparseMatrixCSR(H)
-    #         ds = cu(subspace)
-    #         update_term!(dH, cu(h), ds)
-    #         @test isapprox(SparseMatrixCSC(dH), H; rtol=1e-7)
-    #     end
-    # end
 end
 
 @testset "X term" begin
@@ -214,8 +198,27 @@ end
     h = XTerm(Ω, ϕ)
 
     subspace = blockade_subspace(test_graph)
-    H = SparseMatrixCSC(h, subspace)
-    @test update_term!(copy(H), h, subspace) ≈ H
+    M = SparseMatrixCSC(h, subspace)
+    @test update_term!(copy(M), h, subspace) ≈ M
+
+    N = length(subspace)
+    @test to_matrix!(zeros(ComplexF64, N, N), h, subspace) ≈ M
+
+    @test_throws DimensionMismatch to_matrix!(zeros(ComplexF64, N, N), h)
+    @test_throws DimensionMismatch to_matrix!(zeros(ComplexF64, N-1, N-1), h, subspace)
+end
+
+@testset "$term subspace" for (term, op) in [(ZTerm, Z), (NTerm, P1)]
+    atoms = square_lattice(5, 0.8)
+    space = blockade_subspace(atoms, 1.0)
+    N = length(space)
+    h = term(5, 1.0)
+    H = Matrix(sum(kron(5, k=>op) for k in 1:5))
+    target_H = H[space.subspace_v .+ 1, space.subspace_v .+ 1]
+    test_H = to_matrix!(zeros(ComplexF64, N, N), h, space)
+    @test test_H ≈ target_H
+
+    @test_throws DimensionMismatch to_matrix!(zeros(ComplexF64, N-1, N-1), h, space)
 end
 
 @testset "redberg interact term subspace" begin

@@ -497,8 +497,16 @@ Yao.mat(t::AbstractTerm, xs...) = Yao.mat(ComplexF64, t, xs...)
 # full space
 # C/|r_i - r_j|^6 n_i n_j
 # specialize on COO
+function check_size(dst, space_sz::Int)
+    M = LinearAlgebra.checksquare(dst)
+    M == space_sz || throw(DimensionMismatch(
+        "destination has size $M, the hilbert space expect $space_sz entries"
+    ))
+end
+
 function to_matrix!(dst::SparseMatrixCOO, t::RydInteract)
     n = nsites(t)
+    check_size(dst, 1 << n)
     @inbounds for i in 1:n, j in 1:i-1
         r_i, r_j = t.atoms[i], t.atoms[j]
         alpha = t.C / distance(r_i, r_j)^6
@@ -512,6 +520,7 @@ end
 
 # Ω ⋅ (e^{iϕ}|0)⟨1| + e^{-iϕ} |1⟩⟨0|)
 function to_matrix!(dst::AbstractMatrix{T}, t::XTerm) where T
+    check_size(dst, 1<<nsites(t))
     @inbounds for lhs in hilbert_space(t)
         for k in 1:nsites(t)
             k_site = readbit(lhs, k)
@@ -522,24 +531,14 @@ function to_matrix!(dst::AbstractMatrix{T}, t::XTerm) where T
     return dst
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::Union{ZTerm, NTerm}) where T
+    check_size(dst, 1<<nsites(t))
     @inbounds for lhs in hilbert_space(t)
         sigma_z = zero(T)
         for k in 1:nsites(t)
             sigma_z += getterm(t, k, readbit(lhs, k))
         end
         dst[lhs+1, lhs+1] = sigma_z
-    end
-    return dst
-end
-
-function to_matrix!(dst::AbstractMatrix{T}, t::NTerm) where T
-    @inbounds for lhs in hilbert_space(t)
-        n_ij = zero(T)
-        for k in 1:nsites(t)
-            n_ij += getterm(t, k, readbit(lhs, k))
-        end
-        dst[lhs+1, lhs+1] = n_ij
     end
     return dst
 end
@@ -553,6 +552,7 @@ end
 
 # subspace
 function to_matrix!(dst::AbstractMatrix, t::XTerm, s::Subspace)
+    check_size(dst, length(s))
     @inbounds for (lhs, i) in s
         for k in 1:nsites(t)
             k_site = readbit(lhs, k)
@@ -565,38 +565,96 @@ function to_matrix!(dst::AbstractMatrix, t::XTerm, s::Subspace)
     return dst
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::ZTerm, s::Subspace) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::Union{ZTerm, NTerm}, s::Subspace) where T
+    check_size(dst, length(s))
     @inbounds for (lhs, i) in s
-        sigma_z = zero(T)
+        entry = zero(T)
         for k in 1:nsites(t)
-            sigma_z += getterm(t, k, readbit(lhs, k))
+            entry += getterm(t, k, readbit(lhs, k))
         end
-        dst[i, i] = sigma_z
+        dst[i, i] = entry
     end
     return dst
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::NTerm, s::Subspace) where T
-    @inbounds for (lhs, i) in s
-        n_ij = zero(T)
+# NOTE: we need to specialize on COO to get rid of the race condition
+# caused by COO setindex!
+function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::XTerm, s::Subspace) where {Tv, Ti}
+    check_size(dst, length(s))
+    vals = zeros(Tv, nsites(t), length(s))
+    subspace_rhs = zeros(Ti, nsites(t), length(s))
+
+    ThreadsX.foreach(enumerate(s.subspace_v)) do (i, lhs)
+        for k in 1:nsites(t)
+            k_site = readbit(lhs, k)
+            rhs = flip(lhs, 1 << (k - 1))
+            if haskey(s, rhs)
+                # dst[i, s[rhs]] = getterm(t, k, k_site)
+                vals[k, i] = getterm(t, k, k_site)
+                subspace_rhs[k, i] = s.map[rhs]
+            end
+        end
+    end
+
+    for i in axes(vals, 2), k in axes(vals, 1)
+        v = vals[k, i]
+        j = subspace_rhs[k, i]
+        # !iszero(v) && iszero(j) && println("v=", v, "k=", k, "i=", i)
+
+        if !iszero(j)
+            push!(dst.is, i)
+            push!(dst.js, j)
+            push!(dst.vs, v)
+        end
+    end
+    return dst
+end
+
+function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::Union{NTerm, ZTerm}, s::Subspace) where {Tv, Ti}
+    check_size(dst, length(s))
+    vals = zeros(Tv, length(s))
+
+    ThreadsX.foreach(enumerate(s.subspace_v)) do (i, lhs)
+        n_ij = zero(Tv)
         for k in 1:nsites(t)
             n_ij += getterm(t, k, readbit(lhs, k))
         end
-        dst[i, i] = n_ij
+        @inbounds vals[i] += n_ij
     end
+
+    _assign_diag!(dst, vals)
     return dst
 end
 
+function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::RydInteract, s::Subspace) where {Tv, Ti}
+    check_size(dst, length(s))
 
-function to_matrix!(dst::SparseMatrixCOO, t::RydInteract, s::Subspace)
     n = nsites(t)
-    for (k, lhs) in enumerate(s.subspace_v)
-        for i in 1:n, j in 1:i-1
+    vals = zeros(Tv, length(s))
+
+    ThreadsX.foreach(enumerate(s.subspace_v)) do (k, lhs)
+        @inbounds for i in 1:n, j in 1:i-1
             if (readbit(lhs, i) == 1) && (readbit(lhs, j) == 1)
                 r_i, r_j = t.atoms[i], t.atoms[j]
                 alpha = t.C / distance(r_i, r_j)^6
-                dst[k, k] = alpha
+                vals[k] += alpha
             end
+        end
+    end
+
+    _assign_diag!(dst, vals)
+    return dst
+end
+
+function _assign_diag!(dst::SparseMatrixCOO, vals)
+    sizehint!(dst.is, length(dst.is) + length(vals))
+    sizehint!(dst.js, length(dst.js) + length(vals))
+
+    for (k, v) in enumerate(vals)
+        if !iszero(v)
+            push!(dst.is, k)
+            push!(dst.js, k)
+            push!(dst.vs, v)
         end
     end
     return dst

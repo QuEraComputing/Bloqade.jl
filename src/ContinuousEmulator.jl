@@ -86,9 +86,16 @@ function cpu_equation_cache(::Type{T}, h::AbstractTerm) where T
     EquationCache(SparseMatrixCSC{T}(h(1e-2)))
 end
 
+estimate_size(S::SparseMatrixCSC) = sizeof(S.colptr) + sizeof(S.rowval) + sizeof(S.nzval)
+estimate_size(S) = sizeof(S)
+estimate_size(S::EquationCache) = estimate_size(S.hamiltonian) + estimate_size(S.state)
+
 function Base.show(io::IO, m::MIME"text/plain", eq::ShordingerEquation)
     indent = get(io, :indent, 0)
     println(io, " "^indent, "Shordinger Equation:")
+    print(io, " "^indent, "  Storage Size: ")
+    printstyled(io, Base.format_bytes(estimate_size(eq.cache)); color=:green)
+    println(io)
     print(io, " "^indent, "  State Storage: ")
     printstyled(io, typeof(eq.cache.state); color=:green)
     println(io)

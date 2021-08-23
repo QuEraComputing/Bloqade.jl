@@ -220,3 +220,44 @@ function read_atoms(filename::String, T...)
         read_atoms(io, T...)
     end
 end
+
+"""
+    write_subspace(io::IO, s::Subspace)
+
+Write `Subspace` object `s` to `IO` as human readable format.
+"""
+function write_subspace(io::IO, s::Subspace)
+    writedlm(io, s.subspace_v)
+end
+
+"""
+    read_subspace(io::IO)
+
+Read `Subspace` from given `io`.
+"""
+function read_subspace(io::IO)
+    subspace_v = readdlm(io, Int)
+    return Subspace(vec(subspace_v))
+end
+
+"""
+    write_subspace(filename::AbstractString, s::Subspace)
+
+Write `Subspace` to `filename` as human readable format.
+"""
+function write_subspace(filename::AbstractString, s::Subspace)
+    return open(filename, "w+") do f
+        write_subspace(f, s)
+    end
+end
+
+"""
+    read_subspace(filename::AbstractString)
+
+Read `Subspace` from a file `filename`.
+"""
+function read_subspace(filename::AbstractString)
+    return open(filename) do f
+        read_subspace(f)
+    end
+end

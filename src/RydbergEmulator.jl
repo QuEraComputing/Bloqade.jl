@@ -26,8 +26,9 @@ using Transducers: OnInit
 using LinearAlgebra: BlasReal, BlasComplex
 
 export RydInteract, RydAtom, XTerm, ZTerm, NTerm, Hamiltonian, EmulatorCache, RydbergReg, Subspace,
-    PulseJob, Pulse, HyperfinePulse, RydbergPulse
-export to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms, read_atoms, write_atoms,
+    PulseJob, Pulse, HyperfinePulse, RydbergPulse,
+    to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms,
+    read_atoms, write_atoms, read_subspace, write_subspace,
     unit_disk_graph, rand_unit_disk_graph, emulate!, emulate,
     square_lattice, set_zero_state!, blockade_subspace, is_independent_set, to_independent_set!,
     # reexport from Yao

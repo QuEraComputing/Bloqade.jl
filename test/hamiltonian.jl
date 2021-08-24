@@ -28,6 +28,9 @@ end
 
 @testset "simple graph hamiltonian subspace" begin
     subspace = blockade_subspace(test_graph)
+    show(stdout, MIME"text/plain"(), subspace)
+    show(IOContext(stdout, :limit=>true), MIME"text/plain"(), subspace)
+
     @test collect(keys(subspace)) == sort(test_subspace_v)
     @test collect(values(subspace)) == [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
 

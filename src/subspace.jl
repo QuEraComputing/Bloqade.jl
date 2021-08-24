@@ -20,6 +20,53 @@ function Subspace(subspace_v::Vector{Int})
     return Subspace(map, subspace_v)
 end
 
+function Base.show(io::IO, ::MIME"text/plain", s::Subspace{S}) where S
+    print(io, length(s.subspace_v), "-elements ")
+    summary(io, s)
+    println(io, ":")
+
+    mid_indent = 2
+    tab(n) = " "^n
+
+    N = length(s.subspace_v)
+    lcol_width = ndigits(N) + mid_indent
+    rcol_title = "fullspace"
+
+    function print_line(sub_idx, ful_idx)
+        print(io, tab(ndigits(N)-ndigits(sub_idx)+1))
+        printstyled(io, sub_idx; color=:light_black)
+        # NOTE: right col also need a tab
+        print(io, '│', tab(1))
+        printstyled(io, ful_idx)
+    end
+
+    println(io, '─'^(ndigits(N)+1), "┬", '─'^(ndigits(maximum(s.subspace_v))+1))
+
+    if get(io, :limit, false) && N > 10 # compact print
+        print_line(1, s.subspace_v[1])
+        println(io)
+        print_line(2, s.subspace_v[2])
+        println(io)
+        print_line(3, s.subspace_v[3])
+        println(io)
+        print(io, tab(ndigits(N)÷2+1))
+        printstyled(io, '⋮'; color=:light_black)
+        println(io, '│', tab(1), '⋮')
+        print_line(N-2, s.subspace_v[end-2])
+        println(io)
+        print_line(N-1, s.subspace_v[end-1])
+        println(io)
+        print_line(N  , s.subspace_v[end  ])
+    else
+        for (sub_idx, ful_idx) in enumerate(s.subspace_v)
+            print_line(sub_idx, ful_idx)
+            if sub_idx != N
+                println(io)
+            end
+        end
+    end
+end
+
 """
     blockade_subspace(graph)
 

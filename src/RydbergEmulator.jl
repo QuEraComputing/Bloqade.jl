@@ -23,7 +23,7 @@ import Yao
 using Yao: measure, zero_state
 using Unitful: Quantity, uconvert, MHz, µm, μs, ns
 using Transducers: OnInit
-using LinearAlgebra: BlasReal, BlasComplex
+using LinearAlgebra: BlasInt, BlasReal, BlasComplex
 
 export RydInteract, RydAtom, XTerm, ZTerm, NTerm, Hamiltonian, EmulatorCache, RydbergReg, Subspace,
     PulseJob, Pulse, HyperfinePulse, RydbergPulse,

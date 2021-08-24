@@ -474,25 +474,32 @@ entries by the user.
 """
 function to_matrix! end
 
-function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm) where {Tv}
+function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm) where {Tv, Ti}
     N = 1 << nsites(term)
-    H = SparseMatrixCOO{Tv}(undef, N, N)
+    H = SparseMatrixCOO{Tv, Ti}(undef, N, N)
     to_matrix!(H, term)
     return SparseMatrixCSC(H)
 end
 
-function SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::Subspace) where {Tv}
+function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm, s::Subspace) where {Tv, Ti}
     N = length(s)
-    H = SparseMatrixCOO{Tv}(undef, N, N)
+    H = SparseMatrixCOO{Tv, Ti}(undef, N, N)
     to_matrix!(H, term, s)
     return SparseMatrixCSC(H)
 end
 
-SparseArrays.SparseMatrixCSC(term::AbstractTerm, xs...) = SparseMatrixCSC{ComplexF64}(term, xs...)
+# NOTE: we use BlasInt as Ti, since MKLSparse uses BlasInt as Ti
+# on some devices BlasInt != Int, thus this is necessary to trigger
+# dispatch to MKLSparse
+SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm) where Tv = SparseMatrixCSC{Tv, BlasInt}(term)
+SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::Subspace) where Tv = SparseMatrixCSC{Tv, BlasInt}(term, s)
+SparseArrays.SparseMatrixCSC(term::AbstractTerm) = SparseMatrixCSC{ComplexF64}(term)
+SparseArrays.SparseMatrixCSC(term::AbstractTerm, s::Subspace) = SparseMatrixCSC{ComplexF64}(term, s)
 
 Yao.mat(::Type{T}, t::AbstractTerm) where T = SparseMatrixCSC{T}(t)
 Yao.mat(::Type{T}, t::AbstractTerm, s::Subspace) where T = SparseMatrixCSC{T}(t, s)
-Yao.mat(t::AbstractTerm, xs...) = Yao.mat(ComplexF64, t, xs...)
+Yao.mat(t::AbstractTerm) = SparseMatrixCSC(t)
+Yao.mat(t::AbstractTerm, s::Subspace) = SparseMatrixCSC(t, s)
 
 # full space
 # C/|r_i - r_j|^6 n_i n_j

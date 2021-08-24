@@ -32,7 +32,7 @@ export RydInteract, RydAtom, XTerm, ZTerm, NTerm, Hamiltonian, EmulatorCache, Ry
     unit_disk_graph, rand_unit_disk_graph, emulate!, emulate,
     square_lattice, set_zero_state!, blockade_subspace, is_independent_set, to_independent_set!,
     # reexport from Yao
-    measure, zero_state, reduced_mean_rydberg,
+    measure, zero_state, reduced_mean_rydberg, independent_set_probabilities,
     # units
     MHz, μs, ns
 

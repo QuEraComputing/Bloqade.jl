@@ -88,7 +88,21 @@ function add_vertices!(config::AbstractVector, graph::AbstractGraph)
     return config
 end
 
-function mis_probabilities(reg::RydbergReg, graph::AbstractGraph, mis::Int = exact_solve_mis(graph); add_vertices::Bool = false)
+"""
+    independent_set_probabilities(reg::RydbergReg, graph::AbstractGraph, mis::Int = exact_solve_mis(graph); add_vertices::Bool = false)
+
+Return a `Vector` of the probabilities of all independent set size.
+An optional argument `mis` can be applied to use pre-calculated mis size.
+
+The probability of each size can be queried via `prob[size+1]`, e.g
+
+```julia
+prob = independent_set_probabilities(r, graph)
+prob[end]   # the probability of mis
+prob[end-1] # the probability of mis - 1
+```
+"""
+function independent_set_probabilities(reg::RydbergReg, graph::AbstractGraph, mis::Int = exact_solve_mis(graph); add_vertices::Bool = false)
     probs = zeros(real(eltype(reg.state)), mis+1)
 
     for (c, amp) in zip(vec(reg.subspace), vec(reg.state))

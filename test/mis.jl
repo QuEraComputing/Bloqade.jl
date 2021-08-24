@@ -1,5 +1,6 @@
 using Test
 using RydbergEmulator
+using LinearAlgebra
 using BitBasis
 
 # generate random atom positions
@@ -29,4 +30,12 @@ raw_state[space.map[packbits(config)]] = 1.0
 r = RydbergReg{length(atoms)}(raw_state, space)
 @test reduced_mean_rydberg(r, graph) == mean_rydberg(r)
 
+
 # TODO: add an violation test
+
+@testset "mis probabilities" begin
+    raw_state = normalize!(rand(ComplexF64, length(space)))
+    r = RydbergReg{length(atoms)}(raw_state, space)
+    @test sum(RydbergEmulator.mis_probabilities(r, graph; add_vertices=false)) ≈ 1
+    @test sum(RydbergEmulator.mis_probabilities(r, graph; add_vertices=true)) ≈ 1
+end

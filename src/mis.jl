@@ -87,3 +87,17 @@ function add_vertices!(config::AbstractVector, graph::AbstractGraph)
     end
     return config
 end
+
+function mis_probabilities(reg::RydbergReg, graph::AbstractGraph, mis::Int = exact_solve_mis(graph); add_vertices::Bool = false)
+    probs = zeros(real(eltype(reg.state)), mis+1)
+
+    for (c, amp) in zip(vec(reg.subspace), vec(reg.state))
+        new_c_array = to_independent_set!(graph, bitarray(c, nv(graph)))
+        add_vertices && add_vertices!(new_c_array, graph)
+        new_c = packbits(new_c_array)
+
+        nvertices = count_vertices(new_c)
+        probs[nvertices+1] += abs2(amp)
+    end
+    return probs
+end

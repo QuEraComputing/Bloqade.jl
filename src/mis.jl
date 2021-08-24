@@ -105,7 +105,7 @@ prob[end-1] # the probability of mis - 1
 function independent_set_probabilities(reg::RydbergReg, graph::AbstractGraph, mis::Int = exact_solve_mis(graph); add_vertices::Bool = false)
     probs = zeros(real(eltype(reg.state)), mis+1)
 
-    for (c, amp) in zip(vec(reg.subspace), vec(reg.state))
+    @progress name="IS probabilities (add_vertices=$add_vertices)" for (c, amp) in zip(vec(reg.subspace), vec(reg.state))
         new_c_array = to_independent_set!(graph, bitarray(c, nv(graph)))
         add_vertices && add_vertices!(new_c_array, graph)
         new_c = packbits(new_c_array)

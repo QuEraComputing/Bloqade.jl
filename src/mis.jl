@@ -76,7 +76,7 @@ independent set eliminated mean rydberg.
 """
 function reduced_mean_rydberg(reg::RydbergReg, graph::AbstractGraph; add_vertices::Bool=false)
     mean_ryd = zero(real(eltype(reg.state)))
-    for (c, amp) in zip(vec(reg.subspace), vec(reg.state))
+    @progress name="reduced_mean_rydberg (add_vertices=$add_vertices)" for (c, amp) in zip(vec(reg.subspace), vec(reg.state))
         new_c = to_independent_set!(graph, bitarray(c, nv(graph)))
         add_vertices && add_vertices!(new_c, graph)
         mean_ryd += abs2(amp) * count_vertices(packbits(new_c))

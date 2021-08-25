@@ -46,10 +46,20 @@ function to_independent_set!(graph::AbstractGraph, config::AbstractVector)
     return config
 end
 
-function num_mis_violation(config, graph::AbstractGraph, i::Int)
+"""
+    num_mis_violation(config, graph::AbstractGraph, i::Int)
+
+Calculate the number of MIS violations for `i`-th vertex in `graph`
+and configuration `config`. The `config` should be a subtype of
+`AbstractVector`.
+"""
+Base.@propagate_inbounds function num_mis_violation(config, graph::AbstractGraph, i::Int)
     ci = config[i]
     ci == 1 || return 0
-    count(j -> config[j] == 1 && has_edge(graph, i, j), 1:length(config))
+
+    return count(1:length(config)) do j
+        config[j] == 1 && has_edge(graph, i, j)
+    end
 end
 
 """

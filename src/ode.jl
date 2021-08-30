@@ -9,7 +9,7 @@ function Adapt.adapt_structure(to::CUDA.CuArrayAdaptor, cache::EquationCache{<:S
 end
 
 function RydbergEmulator.emulate!(r::Yao.ArrayReg{B, ST}, t::Real, h::AbstractTerm;
-        algo=Vern8(), reltol=1e-8, abstol=1e-8, kwargs...
+        algo=Vern8(), force_normalize=true, reltol=1e-8, abstol=1e-8, kwargs...
     ) where {B, ST <: CuArray}
 
     # NOTE: we force the hamiltonian matrix to be Complex on GPU
@@ -25,11 +25,16 @@ function RydbergEmulator.emulate!(r::Yao.ArrayReg{B, ST}, t::Real, h::AbstractTe
     )
 
     result = solve(prob, algo; reltol, abstol)
+
+    # force normalize
+    if force_normalize
+        r.state ./= norm(vec(r.state))
+    end
     return r
 end
 
 function RydbergEmulator.emulate!(r::RydbergReg{N, B, ST}, t::Real, h::AbstractTerm;
-        algo=Vern8(), reltol=1e-8, abstol=1e-8, kwargs...
+        algo=Vern8(), force_normalize=true, reltol=1e-8, abstol=1e-8, kwargs...
     ) where {N, B, ST <: CuArray}
 
     # NOTE: we force the hamiltonian matrix to be Complex on GPU
@@ -48,5 +53,10 @@ function RydbergEmulator.emulate!(r::RydbergReg{N, B, ST}, t::Real, h::AbstractT
         save_everystep=false, save_start=false, alias_u0=true, kwargs...
     )
     result = solve(prob, algo; reltol, abstol)
+
+    # force normalize
+    if force_normalize
+        r.state ./= norm(vec(r.state))
+    end
     return r
 end

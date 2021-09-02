@@ -30,10 +30,6 @@ end
     include("unit_disk.jl")
 end
 
-@testset "qaoa_mis" begin
-    include("qaoa_mis.jl")
-end
-
 @testset "utils" begin
     @test_throws ErrorException RydbergEmulator.unsafe_log2i(2.2)
 end

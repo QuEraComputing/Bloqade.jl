@@ -283,12 +283,19 @@ function independent_set_probabilities(f, reg::Yao.AbstractRegister, graph::Abst
 end
 
 function independent_set_probabilities(f, reg::Yao.AbstractRegister, mis::Int)
-    probs = zeros(real(eltype(reg.state)), mis+1)
-    @progress name="independent_set_probabilities" for (c, amp) in _config_amplitude(reg)
-        nvertices = count_vertices(f(c))
-        @inbounds probs[nvertices+1] += abs2(amp)
+    v2amp = ThreadsX.map(_config_amplitude(reg)) do (c, amp)
+        return count_vertices(f(c)), amp
     end
-    return probs
+
+    return ThreadsX.map(0:mis) do k
+        ThreadsX.sum(v2amp) do (nvertices, amp)
+            if nvertices == k
+                abs2(amp)
+            else
+                zero(real(typeof(amp)))
+            end
+        end
+    end
 end
 
 """

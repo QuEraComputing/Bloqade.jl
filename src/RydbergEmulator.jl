@@ -25,13 +25,16 @@ using Unitful: Quantity, uconvert, MHz, µm, μs, ns
 using Transducers: OnInit
 using LinearAlgebra: BlasInt, BlasReal, BlasComplex
 
-export RydInteract, RydAtom, XTerm, ZTerm, NTerm, Hamiltonian, EmulatorCache, RydbergReg, Subspace,
+export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
+    Hamiltonian, EmulatorCache, RydbergReg, Subspace,
     PulseJob, Pulse, HyperfinePulse, RydbergPulse,
-    to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms, rand_atoms,
-    read_atoms, write_atoms, read_subspace, write_subspace,
-    unit_disk_graph, rand_unit_disk_graph, emulate!, emulate,
+    to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms,
+    rand_atoms, read_atoms, write_atoms, read_subspace,
+    write_subspace, unit_disk_graph, rand_unit_disk_graph,
+    emulate!, emulate,
     mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp,
-    square_lattice, set_zero_state!, blockade_subspace, is_independent_set, to_independent_set!,
+    square_lattice, set_zero_state!, blockade_subspace, is_independent_set,
+    to_independent_set!, to_independent_set,
     # reexport from Yao
     measure, zero_state, independent_set_probabilities,
     mis_postprocessing,

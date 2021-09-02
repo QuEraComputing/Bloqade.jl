@@ -27,12 +27,12 @@ To implement the postprocessing protocal in MIS experiment:
 1. calculating `mean_rydberg` by first reducing the configuration
 to independent set using [`to_independent_set`](@ref)
 2. randomly adding vertices then pick the largest [`count_vertices`](@ref)
-using [`add_random_vertices!`](@ref).
+using [`add_random_vertices`](@ref).
 
 ```julia
 mean_rydberg(r) do config
     config = to_independent_set(graph, config)
-    add_random_vertices!(config, graph, 10)
+    add_random_vertices(config, graph, 10)
     return config
 end
 ```
@@ -191,7 +191,7 @@ Return the exact MIS size of a graph `g`.
 exact_solve_mis(g::AbstractGraph) = mis2(EliminateGraph(adjacency_matrix(g)))
 
 """
-    add_random_vertices!([rng=GLOBAL_RNG], config::AbstractVector, graph::AbstractGraph, ntrials::Int = 10)
+    add_random_vertices([rng=GLOBAL_RNG], config::AbstractVector, graph::AbstractGraph, ntrials::Int = 10)
 
 Add vertices randomly to given configuration for `ntrials` times and
 pick the one that has largest [`count_vertices`](@ref).
@@ -203,12 +203,12 @@ pick the one that has largest [`count_vertices`](@ref).
 - `graph`: problem graph.
 - `ntrials`: number of trials to use, default is `10`.
 """
-function add_random_vertices!(
+function add_random_vertices(
     config::AbstractVector,
     graph::AbstractGraph,
     ntrials::Int = 10)
 
-    return add_random_vertices!(
+    return add_random_vertices(
         Random.GLOBAL_RNG,
         config,
         graph,
@@ -216,7 +216,7 @@ function add_random_vertices!(
     )
 end
 
-function add_random_vertices!(
+function add_random_vertices(
         rng::AbstractRNG,
         config::AbstractVector,
         graph::AbstractGraph,
@@ -224,19 +224,21 @@ function add_random_vertices!(
     )
     perm = collect(1:nv(graph))
     nvertices = count_vertices(config)
-    config_candidate = copy(config)
+    origin = config
+    maximum_config = copy(origin)
+    config_candidate = copy(origin)
 
     for _ in 1:ntrials
         randperm!(rng, perm)
-        copyto!(config_candidate, config)
+        copyto!(config_candidate, origin)
         add_vertices!(config_candidate, graph, perm)
-        nvertices_config = count_vertices(config)
-        if nvertices_config > nvertices
-            copyto!(config, config_candidate)
-            nvertices = nvertices_config
+        nvertices_candidate = count_vertices(config_candidate)
+        if nvertices_candidate > nvertices
+            copyto!(maximum_config, config_candidate)
+            nvertices = nvertices_candidate
         end
     end
-    return config
+    return maximum_config
 end
 
 add_vertices(config::AbstractVector, graph::AbstractGraph, perm=eachindex(config)) =
@@ -314,7 +316,7 @@ The postprocessing protocal used in Harvard.
 """
 function mis_postprocessing(config, graph::AbstractGraph; ntrials::Int=10)
     config = to_independent_set(graph, config)
-    add_random_vertices!(config, graph, ntrials)
+    add_random_vertices(config, graph, ntrials)
     return config
 end
 

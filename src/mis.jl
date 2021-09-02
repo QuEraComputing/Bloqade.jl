@@ -59,12 +59,10 @@ function _config_amplitude(r::Yao.ArrayReg)
 end
 
 function mean_rydberg(f, reg::Yao.AbstractRegister)
-    mean_ryd = zero(real(eltype(reg.state)))
-    for (c, amp) in _config_amplitude(reg)
+    return ThreadsX.sum(_config_amplitude(reg)) do (c, amp)
         nvertices = count_vertices(f(c))
-        mean_ryd += abs2(amp) * nvertices
+        return abs2(amp) * nvertices
     end
-    return mean_ryd
 end
 
 function mean_rydberg(f, samples::AbstractVector)
@@ -95,7 +93,7 @@ where `n` is the vertex set size.
 gibbs_loss(reg_or_samples, α::Real) = gibbs_loss(identity, reg_or_samples, α)
 
 function gibbs_loss(f, reg::Yao.AbstractRegister, α::Real)
-    expected = sum(_config_amplitude(reg)) do (config, amp)
+    expected = ThreadsX.sum(_config_amplitude(reg)) do (config, amp)
         abs2(amp) * exp(α * count_vertices(config))
     end
     return -log(expected) / α 
@@ -107,7 +105,7 @@ function logsumexp(x::AbstractArray)
 end
 
 function gibbs_loss(f, samples::AbstractVector, α::Real)
-    expect = map(x->α * count_vertices(f(x)), samples)
+    expect = ThreadsX.map(x->α * count_vertices(f(x)), samples)
     return -(logsumexp(expect) - log(length(samples)))/α
 end
 
@@ -259,34 +257,6 @@ function add_vertices!(config::AbstractVector, graph::AbstractGraph, perm=eachin
 end
 
 """
-    independent_set_probabilities(reg::RydbergReg, graph::AbstractGraph, mis::Int = exact_solve_mis(graph); add_vertices::Bool = false)
-
-Return a `Vector` of the probabilities of all independent set size.
-An optional argument `mis` can be applied to use pre-calculated mis size.
-
-The probability of each size can be queried via `prob[size+1]`, e.g
-
-```julia
-prob = independent_set_probabilities(r, graph)
-prob[end]   # the probability of mis
-prob[end-1] # the probability of mis - 1
-```
-"""
-function independent_set_probabilities(reg::RydbergReg, graph::AbstractGraph, mis::Int = exact_solve_mis(graph); add_vertices::Bool = false)
-    probs = zeros(real(eltype(reg.state)), mis+1)
-
-    @progress name="IS probabilities (add_vertices=$add_vertices)" for (c, amp) in zip(vec(reg.subspace), vec(reg.state))
-        new_c_array = to_independent_set!(graph, bitarray(c, nv(graph)))
-        add_vertices && add_vertices!(new_c_array, graph)
-        new_c = packbits(new_c_array)
-
-        nvertices = count_vertices(new_c)
-        probs[nvertices+1] += abs2(amp)
-    end
-    return probs
-end
-
-"""
     independent_set_probabilities([f], reg::Yao.AbstractRegister, graph_or_mis)
 
 Calculate the probabilities of independent sets with given postprocessing function
@@ -314,7 +284,7 @@ end
 
 function independent_set_probabilities(f, reg::Yao.AbstractRegister, mis::Int)
     probs = zeros(real(eltype(reg.state)), mis+1)
-    for (c, amp) in _config_amplitude(reg)
+    @progress name="independent_set_probabilities" for (c, amp) in _config_amplitude(reg)
         nvertices = count_vertices(f(c))
         @inbounds probs[nvertices+1] += abs2(amp)
     end

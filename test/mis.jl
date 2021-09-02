@@ -28,7 +28,7 @@ space = blockade_subspace(graph)
 raw_state = zeros(ComplexF64, length(space))
 raw_state[space.map[packbits(config)]] = 1.0
 r = RydbergReg{length(atoms)}(raw_state, space)
-@test reduced_mean_rydberg(r, graph) == mean_rydberg(r)
+@test mean_rydberg(mis_postprocessing(graph), r) == mean_rydberg(r)
 
 
 # TODO: add an violation test
@@ -36,6 +36,6 @@ r = RydbergReg{length(atoms)}(raw_state, space)
 @testset "mis probabilities" begin
     raw_state = normalize!(rand(ComplexF64, length(space)))
     r = RydbergReg{length(atoms)}(raw_state, space)
-    @test sum(independent_set_probabilities(r, graph; add_vertices=false)) ≈ 1
-    @test sum(independent_set_probabilities(r, graph; add_vertices=true)) ≈ 1
+    @test sum(independent_set_probabilities(r, graph)) ≈ 1
+    @test sum(independent_set_probabilities(mis_postprocessing(graph), r, graph)) ≈ 1
 end

@@ -6,6 +6,7 @@ using Unitful
 using BitBasis
 using MLStyle
 using UUIDs
+using Adapt
 using SparseArrays
 using LuxurySparse
 using LightGraphs
@@ -26,12 +27,12 @@ using Transducers: OnInit
 using LinearAlgebra: BlasInt, BlasReal, BlasComplex
 
 export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
-    Hamiltonian, EmulatorCache, RydbergReg, FullSpace, Subspace,
-    PulseJob, Pulse, HyperfinePulse, RydbergPulse,
+    Hamiltonian, DiscreteEmulationCache, RydbergReg, FullSpace, fullspace, Subspace,
+    PulseJob, Pulse, HyperfinePulse, RydbergPulse, is_time_dependent,
     to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms,
     rand_atoms, read_atoms, write_atoms, read_subspace,
     write_subspace, unit_disk_graph, rand_unit_disk_graph,
-    emulate!, emulate,
+    DiscreteProblem, emulate!, emulate,
     mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp,
     square_lattice, set_zero_state!, blockade_subspace, is_independent_set,
     to_independent_set!, to_independent_set, add_vertices, add_vertices!,

@@ -13,6 +13,13 @@ A trait for the full space.
 struct FullSpace <: AbstractSpace end
 
 """
+    fullspace
+
+A constant for the [`FullSpace`](@ref).
+"""
+const fullspace = FullSpace()
+
+"""
     Subspace{S <: AbstractVector{Int}} <: AbstractSpace
 
 A `Dict`-like object stores the mapping between subspace and full space.
@@ -21,6 +28,8 @@ struct Subspace{S <: AbstractVector{Int}} <: AbstractSpace
     map::OrderedDict{Int, Int} # fullspace_index => subspace_index
     subspace_v::S
 end
+
+Adapt.adapt_structure(to, x::Subspace) = Subspace(x.map, adapt(to, x.subspace_v))
 
 """
     Subspace(subspace_v::AbstractVector{Int})

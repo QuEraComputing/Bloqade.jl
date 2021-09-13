@@ -5,6 +5,9 @@ Abstract term for hamiltonian terms.
 """
 abstract type AbstractTerm end
 
+# TODO: use an actual symbolic zero, maybe consider SymbolicUtils Term
+# struct Zero <: Number end
+
 default_unit(unit, x) = x
 
 default_unit(unit, x::Quantity) = uconvert(unit, x).val
@@ -12,6 +15,13 @@ default_unit(unit::typeof(NoUnits), x::Quantity) = uconvert(unit, x)
 default_unit(unit, xs::Tuple{}) = ()
 default_unit(unit, xs::Tuple{T}) where T = default_unit(unit, first(xs))
 default_unit(unit, xs::Tuple) = (default_unit(unit, Base.heads(xs)), default_unit(unit, Base.tail(xs))...)
+
+function default_unit(unit, range::AbstractRange)
+    a = default_unit(unit, first(range))
+    b = default_unit(unit, step(range))
+    c = default_unit(unit, last(range))
+    return a:b:c
+end
 
 function default_unit(unit, x::AbstractArray{S}) where {T, S <: Quantity{T}}
     y = similar(x, T)
@@ -23,6 +33,18 @@ end
 
 const ConstParamType = Union{Number, AbstractVector{<:Number}, NTuple{N, <:Number} where N}
 const ConstParamListType = Union{AbstractVector{<:Number}, NTuple{N, <:Number} where N}
+
+assert_has_time_method(::ConstParamType, name) = nothing
+assert_has_time_method(::Nothing, name) = nothing # skip symbolic zero (currently nothing)
+function assert_has_time_method(fs::AbstractVector, name)
+    for f in fs
+        assert_has_time_method(f, name)
+    end
+end
+
+function assert_has_time_method(f, name)
+    hasmethod(f, Tuple{Real}) || throw(ArgumentError("invalid input for $name: method $f(::Real) is not defined"))
+end
 
 """
     RydInteract{T<:Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
@@ -84,6 +106,9 @@ struct XTerm{Omega, Phi} <: AbstractTerm
     end
 
     function XTerm(nsites::Int, Ωs, ϕs)
+        assert_has_time_method(Ωs, "Ωs")
+        assert_has_time_method(ϕs, "ϕs")
+
         Ωs = default_unit(MHz, Ωs)
         ϕs = default_unit(NoUnits, ϕs)
         new{typeof(Ωs), typeof(ϕs)}(nsites, Ωs, ϕs)
@@ -115,6 +140,8 @@ struct ZTerm{Delta} <: AbstractTerm
     end
 
     function ZTerm(nsites::Int, Δs)
+        assert_has_time_method(Δs, "Δs")
+
         Δs = default_unit(MHz, Δs)
         new{typeof(Δs)}(nsites, Δs)
     end
@@ -145,10 +172,18 @@ struct NTerm{Delta} <: AbstractTerm
     end
 
     function NTerm(nsites::Int, Δs)
+        assert_has_time_method(Δs, "Δs")
         Δs = default_unit(MHz, Δs)
         new{typeof(Δs)}(nsites, Δs)
     end
 end
+
+struct Negative{Term} <: AbstractTerm
+    term::Term
+end
+
+Base.:(-)(t::AbstractTerm) = Negative(t)
+Base.:(-)(t::Negative) = t.term
 
 struct Hamiltonian{Terms <: Tuple} <: AbstractTerm
     terms::Terms
@@ -226,6 +261,7 @@ nsites(t::XTerm) = t.nsites
 nsites(t::ZTerm) = t.nsites
 nsites(t::NTerm) = t.nsites
 nsites(t::Hamiltonian) = nsites(t.terms[1])
+nsites(t::Negative) = nsites(t.term)
 nsites(t::RydInteract) = length(t.atoms)
 
 function nsites(terms::Vector{<:AbstractTerm})
@@ -242,6 +278,7 @@ hilbert_space(t::AbstractTerm) = hilbert_space(nsites(t))
 Base.eltype(t::XTerm) = eltype(t.Ωs)
 Base.eltype(t::ZTerm) = eltype(t.Δs)
 Base.eltype(t::NTerm) = eltype(t.Δs)
+Base.eltype(t::Negative) = eltype(t.term)
 Base.eltype(t::RydInteract) = typeof(t.C)
 Base.eltype(t::Hamiltonian) = promote_type(eltype.(t.terms)...)
 
@@ -253,12 +290,19 @@ end
 Base.isreal(t::ZTerm) = true
 Base.isreal(t::NTerm) = true
 Base.isreal(t::RydInteract) = true
+Base.isreal(t::Negative) = isreal(t.term)
 Base.isreal(t::Hamiltonian) = all(isreal, t.terms)
+
+Base.iszero(t::XTerm) = iszero(t.Ωs)
+Base.iszero(t::Union{NTerm, ZTerm}) = iszero(t.Δs)
+Base.iszero(t::RydInteract) = iszero(t.C)
+Base.iszero(t::Negative) = iszero(t.term)
+Base.iszero(t::Hamiltonian) = all(iszero, t.terms)
 
 Base.getindex(t::Hamiltonian, i::Int) = t.terms[i]
 
 # Custom multi-line printing
-_print(io::IO, x::AbstractFloat) = printstyled(io, @sprintf("%.2f", x); color=:green)
+_print(io::IO, x::AbstractFloat) = printstyled(io, round(x, sigdigits=3); color=:green)
 _print(io::IO, x::Number) = printstyled(io, x; color=:green)
 
 function _print(io::IO, x)
@@ -327,6 +371,10 @@ function print_term(io::IO, t::Hamiltonian)
     end
 end
 
+function print_term(io::IO, t::Negative)
+    print_term(IOContext(io, :negative=>true), t.term)
+end
+
 # NOTE: This should not be used in performance required code
 # calculation intensive code should use generated version.
 _iscallable(f) = !isempty(methods(f))
@@ -349,7 +397,10 @@ end
 
 function _print_sum(io::IO, nsites::Int)
     indent = get(io, :indent, 0)
-    print(io, " "^indent, "∑(n=1:$nsites) ")
+    negative = get(io, :negative, false)
+    print(io, " "^indent)
+    negative && print(io, "-")
+    print(io, "∑(n=1:$nsites) ")
 end
 
 function _print_xterm(io::IO, nsites::Int, Ω, ϕ)
@@ -412,13 +463,13 @@ Base.:(-)(x::AbstractTerm, y::Hamiltonian) = Hamiltonian((x, map(-, y.terms)...)
 Base.:(-)(x::Hamiltonian, y::AbstractTerm) = Hamiltonian((x.terms..., -y))
 Base.:(-)(x::Hamiltonian, y::Hamiltonian) = Hamiltonian((x.terms..., map(-, y.terms)...))
 
-Base.:(-)(x::XTerm{<:ConstParamType}) = XTerm(x.nsites, map(-, x.Ωs), x.ϕs)
-Base.:(-)(x::XTerm) = XTerm(x.nsites, t->-x.Ωs(t), x.ϕs)
+# Base.:(-)(x::XTerm{<:ConstParamType}) = XTerm(x.nsites, map(-, x.Ωs), x.ϕs)
+# Base.:(-)(x::XTerm) = XTerm(x.nsites, t->-x.Ωs(t), x.ϕs)
 
-Base.:(-)(x::ZTerm{<:ConstParamType}) = ZTerm(x.nsites, map(-, x.Δs))
-Base.:(-)(x::ZTerm) = ZTerm(x.nsites, t->-x.Δs(t))
-Base.:(-)(x::NTerm{<:ConstParamType}) = NTerm(x.nsites, map(-, x.Δs))
-Base.:(-)(x::NTerm) = NTerm(x.nsites, t->-x.Δs(t))
+# Base.:(-)(x::ZTerm{<:ConstParamType}) = ZTerm(x.nsites, map(-, x.Δs))
+# Base.:(-)(x::ZTerm) = ZTerm(x.nsites, t->-x.Δs(t))
+# Base.:(-)(x::NTerm{<:ConstParamType}) = NTerm(x.nsites, map(-, x.Δs))
+# Base.:(-)(x::NTerm) = NTerm(x.nsites, t->-x.Δs(t))
 
 
 function Base.:(==)(x::RydInteract, y::RydInteract)
@@ -436,6 +487,8 @@ Get the value of k-th local term in `terms`
 given the site configuration as `k_site`.
 """
 function getterm end
+
+getterm(t::Negative, k, k_site) = -getterm(t.term, k, k_site)
 
 function getterm(t::XTerm, k, k_site)
     if k_site == 0
@@ -468,7 +521,7 @@ end
 space_size(term::AbstractTerm, s::FullSpace) = 1 << nsites(term)
 space_size(::AbstractTerm, s::Subspace) = length(s)
 
-function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm, s::AbstractSpace=FullSpace()) where {Tv, Ti}
+function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm, s::AbstractSpace=fullspace) where {Tv, Ti}
     N = space_size(term, s)
     H = SparseMatrixCOO{Tv, Ti}(undef, N, N)
     to_matrix!(H, term, s)
@@ -478,8 +531,8 @@ end
 # NOTE: we use BlasInt as Ti, since MKLSparse uses BlasInt as Ti
 # on some devices BlasInt != Int, thus this is necessary to trigger
 # dispatch to MKLSparse
-SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::AbstractSpace=FullSpace()) where Tv = SparseMatrixCSC{Tv, BlasInt}(term, s)
-SparseArrays.SparseMatrixCSC(term::AbstractTerm, s::AbstractSpace=FullSpace()) = SparseMatrixCSC{ComplexF64}(term, s)
+SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::AbstractSpace=fullspace) where Tv = SparseMatrixCSC{Tv, BlasInt}(term, s)
+SparseArrays.SparseMatrixCSC(term::AbstractTerm, s::AbstractSpace=fullspace) = SparseMatrixCSC{ComplexF64}(term, s)
 
 # full space
 # C/|r_i - r_j|^6 n_i n_j
@@ -500,8 +553,12 @@ entries by the user.
 """
 function to_matrix! end
 
-to_matrix!(dst::AbstractMatrix, t::AbstractTerm) = to_matrix!(dst, t, FullSpace())
+to_matrix!(dst::AbstractMatrix, t::AbstractTerm) = to_matrix!(dst, t, fullspace)
 
+# TODO: generalize to_matrix
+const OrNegative{T} = Union{T, Negative{T}}
+
+# TODO: support negative here?
 function to_matrix!(dst::SparseMatrixCOO, t::RydInteract, ::FullSpace)
     n = nsites(t)
     check_size(dst, 1 << n)
@@ -517,7 +574,7 @@ function to_matrix!(dst::SparseMatrixCOO, t::RydInteract, ::FullSpace)
 end
 
 # Ω ⋅ (e^{iϕ}|0)⟨1| + e^{-iϕ} |1⟩⟨0|)
-function to_matrix!(dst::AbstractMatrix{T}, t::XTerm, ::FullSpace) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::OrNegative{<:XTerm}, ::FullSpace) where T
     check_size(dst, 1<<nsites(t))
     @inbounds for lhs in hilbert_space(t)
         for k in 1:nsites(t)
@@ -529,7 +586,7 @@ function to_matrix!(dst::AbstractMatrix{T}, t::XTerm, ::FullSpace) where T
     return dst
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::Union{ZTerm, NTerm}, ::FullSpace) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::OrNegative{<:Union{ZTerm, NTerm}}, ::FullSpace) where T
     check_size(dst, 1<<nsites(t))
     @inbounds for lhs in hilbert_space(t)
         sigma_z = zero(T)
@@ -541,7 +598,7 @@ function to_matrix!(dst::AbstractMatrix{T}, t::Union{ZTerm, NTerm}, ::FullSpace)
     return dst
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::Hamiltonian, s::AbstractSpace) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::OrNegative{<:Hamiltonian}, s::AbstractSpace) where T
     for term in t.terms
         to_matrix!(dst, term, s)
     end
@@ -549,7 +606,7 @@ function to_matrix!(dst::AbstractMatrix{T}, t::Hamiltonian, s::AbstractSpace) wh
 end
 
 # subspace
-function to_matrix!(dst::AbstractMatrix, t::XTerm, s::Subspace)
+function to_matrix!(dst::AbstractMatrix, t::OrNegative{<:XTerm}, s::Subspace)
     check_size(dst, length(s))
     @inbounds for (lhs, i) in s
         for k in 1:nsites(t)
@@ -563,7 +620,7 @@ function to_matrix!(dst::AbstractMatrix, t::XTerm, s::Subspace)
     return dst
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::Union{ZTerm, NTerm}, s::Subspace) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::OrNegative{<:Union{ZTerm, NTerm}}, s::Subspace) where T
     check_size(dst, length(s))
     @inbounds for (lhs, i) in s
         entry = zero(T)
@@ -577,7 +634,7 @@ end
 
 # NOTE: we need to specialize on COO to get rid of the race condition
 # caused by COO setindex!
-function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::XTerm, s::Subspace) where {Tv, Ti}
+function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::OrNegative{<:XTerm}, s::Subspace) where {Tv, Ti}
     check_size(dst, length(s))
     vals = zeros(Tv, nsites(t), length(s))
     subspace_rhs = zeros(Ti, nsites(t), length(s))
@@ -608,7 +665,7 @@ function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::XTerm, s::Subspace) where {
     return dst
 end
 
-function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::Union{NTerm, ZTerm}, s::Subspace) where {Tv, Ti}
+function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::OrNegative{<:Union{ZTerm, NTerm}}, s::Subspace) where {Tv, Ti}
     check_size(dst, length(s))
     vals = zeros(Tv, length(s))
 
@@ -669,7 +726,7 @@ sparse structure is unknown.
 function update_term! end
 
 # forward to to_matrix! as fallback for other kind of matrices
-update_term!(H::AbstractMatrix, t::AbstractTerm, s::AbstractSpace=FullSpace()) = to_matrix!(H, t, s)
+update_term!(H::AbstractMatrix, t::AbstractTerm, s::AbstractSpace=fullspace) = to_matrix!(H, t, s)
 
 Base.Base.@propagate_inbounds function foreach_nnz(f, H::SparseMatrixCSC)
     for lhs in 1:size(H, 1)
@@ -724,7 +781,7 @@ function term_value end
     return ex
 end
 
-Base.@propagate_inbounds function term_value(t::XTerm, lhs, rhs, col, row)
+Base.@propagate_inbounds function term_value(t::OrNegative{<:XTerm}, lhs, rhs, col, row)
     col == row && return zero(eltype(t))
     mask = lhs ⊻ rhs
     l = unsafe_log2i(mask) + 1
@@ -732,7 +789,7 @@ Base.@propagate_inbounds function term_value(t::XTerm, lhs, rhs, col, row)
     return getterm(t, l, l_site)
 end
 
-Base.@propagate_inbounds function term_value(t::ZTerm, lhs, rhs, col, row)
+Base.@propagate_inbounds function term_value(t::OrNegative{<:Union{ZTerm, NTerm}}, lhs, rhs, col, row)
     col != row && return zero(eltype(t))
     sigma_z = zero(eltype(t))
     for i in 1:nsites(t)
@@ -740,16 +797,6 @@ Base.@propagate_inbounds function term_value(t::ZTerm, lhs, rhs, col, row)
     end
     return sigma_z
 end
-
-Base.@propagate_inbounds function term_value(t::NTerm, lhs, rhs, col, row)
-    col != row && return zero(eltype(t))
-    n_ij = zero(eltype(t))
-    for i in 1:nsites(t)
-        n_ij += getterm(t, i, readbit(lhs, i))
-    end
-    return n_ij
-end
-
 
 Base.@propagate_inbounds function term_value(t::RydInteract, lhs, rhs, col, row)
     col != row && return zero(eltype(t))
@@ -780,17 +827,38 @@ Create a simple rydberg hamiltonian that has only [`XTerm`](@ref).
 simple_rydberg(n::Int, ϕ::Number) = XTerm(n, one(ϕ), ϕ)
 
 """
-    rydberg_h(C, atoms, Ω, ϕ, Δ)
+    rydberg_h(atoms, [C=2π * 109.133 * MHz*µm^6], Ω, ϕ, Δ)
 
 Create a rydberg hamiltonian, shorthand for
 `RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)`
 
 ```math
-∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + Ω σ_x + Δ σ_z
+∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + Ω σ_x - Δ σ_n
 ```
 """
 function rydberg_h(atoms, C, Ω, ϕ, Δ)
-    return RydInteract(atoms, C) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)
+    return RydInteract(atoms, C) + XTerm(length(atoms), Ω, ϕ) - NTerm(length(atoms), Δ)
+end
+
+function rydberg_h(atoms, Ω, ϕ, Δ)
+    return RydInteract(atoms) + XTerm(length(atoms), Ω, ϕ) - NTerm(length(atoms), Δ)
+end
+
+function is_time_dependent(h::XTerm)
+    return !(h.Ωs isa ConstParamType || isnothing(h.Ωs)) ||
+        !(h.ϕs isa ConstParamType || isnothing(h.ϕs))
+end
+
+function is_time_dependent(h::Union{ZTerm, NTerm})
+    return !(h.Δs isa ConstParamType)
+end
+
+# NOTE: we currently assume atom positions are constant
+# might change in the future
+is_time_dependent(h::RydInteract) = false
+is_time_dependent(t::Negative) = is_time_dependent(t.term)
+function is_time_dependent(h::Hamiltonian)
+    any(is_time_dependent, h.terms)
 end
 
 # Time dependent Term
@@ -810,6 +878,8 @@ end
 function (tm::NTerm)(t::Real)
     return NTerm(tm.nsites, attime(tm.Δs, t))
 end
+
+(tm::Negative)(t::Real) = Negative(tm.term(t))
 
 function (tm::Hamiltonian)(t::Real)
     return Hamiltonian(map(x->x(t), tm.terms))

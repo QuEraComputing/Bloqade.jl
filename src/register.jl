@@ -9,6 +9,10 @@ struct RydbergReg{N,B,ST,SST} <: Yao.AbstractRegister{B}
     end
 end
 
+function Adapt.adapt_structure(to, x::RydbergReg{N}) where N
+    return RydbergReg{N}(adapt(to, x.state), x.subspace)
+end
+
 """
     RydbergReg{N}(state::AbstractVector, subspace::Subspace)
 
@@ -34,7 +38,7 @@ Yao.state(reg::RydbergReg) = reg.state
 Yao.statevec(reg::RydbergReg) = Yao.YaoArrayRegister.matvec(reg.state)
 Yao.relaxedvec(reg::RydbergReg{N, 1}) where N = vec(reg.state)
 Yao.relaxedvec(reg::RydbergReg) = reg.state
-
+Yao.datatype(reg::RydbergReg) = eltype(reg.state)
 Base.copy(reg::RydbergReg{N, B, ST, SST}) where {N, B, ST, SST} =
     RydbergReg{N, B, ST, SST}(copy(reg.state), copy(reg.subspace))
 
@@ -66,6 +70,11 @@ function Yao.product_state(::Type{T}, n::Int, c::BitStr, s::Subspace; nbatch::In
 end
 
 # TODO: make upstream implementation more generic
+function LinearAlgebra.normalize!(r::RydbergReg)
+    Yao.batch_normalize!(r.state)
+    return r
+end
+
 Yao.isnormalized(r::RydbergReg) = all(sum(abs2, r.state, dims = 1) .≈ 1)
 
 Base.isapprox(x::RydbergReg, y::RydbergReg; kwargs...) = isapprox(x.state, y.state; kwargs...) && (x.subspace == y.subspace)

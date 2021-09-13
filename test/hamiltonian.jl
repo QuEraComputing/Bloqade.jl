@@ -10,6 +10,7 @@ using Unitful
 using Yao
 using Unitful: μm, mm, μs, ns, MHz, GHz
 using Yao.ConstGate: P0, P1
+using RydbergEmulator: Negative
 
 function rydinteract(atoms, C)
     n = length(atoms)
@@ -188,7 +189,7 @@ end
     @test SparseMatrixCSC(h6) == SparseMatrixCSC(h7)
 
     h8 = RydInteract(atoms, 2.0) - XTerm(5, sin) - ZTerm(5,  cos)
-    h9 = RydInteract(atoms, 2.0) + XTerm(5, x->-sin(x)) + ZTerm(5, x->-cos(x))
+    h9 = RydInteract(atoms, 2.0) + Negative(XTerm(5, sin)) + Negative(ZTerm(5,  cos))
     @test h8(1.0) == h9(1.0)
 
     h = XTerm(5, sin) + NTerm(5, cos) - (XTerm(5, sin) + NTerm(5, cos))
@@ -245,7 +246,7 @@ end
     @test RydbergEmulator.getscalarmaybe(nothing, 5) == 0
     atoms = rand_atoms(5, 0.3)
     h1 = rydberg_h(atoms, 1.0, 2.21, 3.32, 2.22)
-    h2 = RydInteract(atoms, 1.0) + XTerm(5, 2.21, 3.32) + ZTerm(5, 2.22)
+    h2 = RydInteract(atoms, 1.0) + XTerm(5, 2.21, 3.32) - NTerm(5, 2.22)
     @test h1 == h2
 end
 

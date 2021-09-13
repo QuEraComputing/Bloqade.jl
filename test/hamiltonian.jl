@@ -53,7 +53,7 @@ end
     @test h(0.1) == h
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
-    @test update_term!(SparseMatrixCSC(h), h, nothing) ≈ H
+    @test update_term!(SparseMatrixCSC(h), h, FullSpace()) ≈ H
     display(h)
 
     Ωs = rand(5)
@@ -61,7 +61,7 @@ end
     H = mat(sum([Ω/2 * kron(5, k=>Yao.X) for (k, Ω) in enumerate(Ωs)]))
     @test SparseMatrixCSC(h) ≈ H
     @test update_term!(SparseMatrixCSC(h), h) ≈ H
-    @test update_term!(SparseMatrixCSC(h), h, nothing) ≈ H
+    @test update_term!(SparseMatrixCSC(h), h, FullSpace()) ≈ H
     @test eltype(h) == Float64
     display(h)
 
@@ -247,12 +247,6 @@ end
     h1 = rydberg_h(atoms, 1.0, 2.21, 3.32, 2.22)
     h2 = RydInteract(atoms, 1.0) + XTerm(5, 2.21, 3.32) + ZTerm(5, 2.22)
     @test h1 == h2
-end
-
-@testset "Yao.mat" begin
-    t = simple_rydberg(5, 0.8)
-    @test mat(t) ≈ SparseMatrixCSC(t)
-    @test mat(t, test_subspace) ≈ SparseMatrixCSC(t, test_subspace)
 end
 
 @testset "units" begin

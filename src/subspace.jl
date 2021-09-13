@@ -1,8 +1,19 @@
+"""
+    AbstractSpace
+
+Abstract type for spaces.
+"""
 abstract type AbstractSpace end
+
+"""
+    FullSpace <: AbstractSpace
+
+A trait for the full space.
+"""
 struct FullSpace <: AbstractSpace end
 
 """
-    Subspace
+    Subspace{S <: AbstractVector{Int}} <: AbstractSpace
 
 A `Dict`-like object stores the mapping between subspace and full space.
 """
@@ -11,7 +22,12 @@ struct Subspace{S <: AbstractVector{Int}} <: AbstractSpace
     subspace_v::S
 end
 
-function Subspace(subspace_v::Vector{Int})
+"""
+    Subspace(subspace_v::AbstractVector{Int})
+
+Create a Subspace from given list of subspace indices in the corresponding full space.
+"""
+function Subspace(subspace_v::AbstractVector{Int})
     subspace_v = sort(subspace_v)
     map = OrderedDict{Int, Int}()
     for (subspace_index, fullspace_index) in enumerate(subspace_v)

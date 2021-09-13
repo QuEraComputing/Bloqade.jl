@@ -465,24 +465,11 @@ function getterm(t::Hamiltonian, k, k_site)
     error("composite Hamiltonian term cannot be indexed")
 end
 
-"""
-    to_matrix!(dst, term[, subspace])
+space_size(term::AbstractTerm, s::FullSpace) = 1 << nsites(term)
+space_size(::AbstractTerm, s::Subspace) = length(s)
 
-Create given term to a matrix and assign it to `dst`. An optional argument `subspace`
-can be taken to construct the matrix in subspace. `dst` should be initialized to zero
-entries by the user.
-"""
-function to_matrix! end
-
-function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm) where {Tv, Ti}
-    N = 1 << nsites(term)
-    H = SparseMatrixCOO{Tv, Ti}(undef, N, N)
-    to_matrix!(H, term)
-    return SparseMatrixCSC(H)
-end
-
-function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm, s::Subspace) where {Tv, Ti}
-    N = length(s)
+function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm, s::AbstractSpace=FullSpace()) where {Tv, Ti}
+    N = space_size(term, s)
     H = SparseMatrixCOO{Tv, Ti}(undef, N, N)
     to_matrix!(H, term, s)
     return SparseMatrixCSC(H)
@@ -491,15 +478,8 @@ end
 # NOTE: we use BlasInt as Ti, since MKLSparse uses BlasInt as Ti
 # on some devices BlasInt != Int, thus this is necessary to trigger
 # dispatch to MKLSparse
-SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm) where Tv = SparseMatrixCSC{Tv, BlasInt}(term)
-SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::Subspace) where Tv = SparseMatrixCSC{Tv, BlasInt}(term, s)
-SparseArrays.SparseMatrixCSC(term::AbstractTerm) = SparseMatrixCSC{ComplexF64}(term)
-SparseArrays.SparseMatrixCSC(term::AbstractTerm, s::Subspace) = SparseMatrixCSC{ComplexF64}(term, s)
-
-Yao.mat(::Type{T}, t::AbstractTerm) where T = SparseMatrixCSC{T}(t)
-Yao.mat(::Type{T}, t::AbstractTerm, s::Subspace) where T = SparseMatrixCSC{T}(t, s)
-Yao.mat(t::AbstractTerm) = SparseMatrixCSC(t)
-Yao.mat(t::AbstractTerm, s::Subspace) = SparseMatrixCSC(t, s)
+SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::AbstractSpace=FullSpace()) where Tv = SparseMatrixCSC{Tv, BlasInt}(term, s)
+SparseArrays.SparseMatrixCSC(term::AbstractTerm, s::AbstractSpace=FullSpace()) = SparseMatrixCSC{ComplexF64}(term, s)
 
 # full space
 # C/|r_i - r_j|^6 n_i n_j
@@ -511,7 +491,18 @@ function check_size(dst, space_sz::Int)
     ))
 end
 
-function to_matrix!(dst::SparseMatrixCOO, t::RydInteract)
+"""
+    to_matrix!(dst, term[, subspace])
+
+Create given term to a matrix and assign it to `dst`. An optional argument `subspace`
+can be taken to construct the matrix in subspace. `dst` should be initialized to zero
+entries by the user.
+"""
+function to_matrix! end
+
+to_matrix!(dst::AbstractMatrix, t::AbstractTerm) = to_matrix!(dst, t, FullSpace())
+
+function to_matrix!(dst::SparseMatrixCOO, t::RydInteract, ::FullSpace)
     n = nsites(t)
     check_size(dst, 1 << n)
     @inbounds for i in 1:n, j in 1:i-1
@@ -526,7 +517,7 @@ function to_matrix!(dst::SparseMatrixCOO, t::RydInteract)
 end
 
 # Ω ⋅ (e^{iϕ}|0)⟨1| + e^{-iϕ} |1⟩⟨0|)
-function to_matrix!(dst::AbstractMatrix{T}, t::XTerm) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::XTerm, ::FullSpace) where T
     check_size(dst, 1<<nsites(t))
     @inbounds for lhs in hilbert_space(t)
         for k in 1:nsites(t)
@@ -538,7 +529,7 @@ function to_matrix!(dst::AbstractMatrix{T}, t::XTerm) where T
     return dst
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::Union{ZTerm, NTerm}) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::Union{ZTerm, NTerm}, ::FullSpace) where T
     check_size(dst, 1<<nsites(t))
     @inbounds for lhs in hilbert_space(t)
         sigma_z = zero(T)
@@ -550,9 +541,9 @@ function to_matrix!(dst::AbstractMatrix{T}, t::Union{ZTerm, NTerm}) where T
     return dst
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::Hamiltonian, xs...) where T
+function to_matrix!(dst::AbstractMatrix{T}, t::Hamiltonian, s::AbstractSpace) where T
     for term in t.terms
-        to_matrix!(dst, term, xs...)
+        to_matrix!(dst, term, s)
     end
     return dst
 end
@@ -677,16 +668,10 @@ sparse structure is unknown.
 """
 function update_term! end
 
-# forward to to_matrix! as fallback
-update_term!(H::AbstractMatrix, t::AbstractTerm, s::Nothing) = update_term!(H, t)
-update_term!(H::SparseMatrixCSC, t::AbstractTerm, s::Nothing) = update_term!(H, t) # disambiguity
-update_term!(H::AbstractMatrix, t::AbstractTerm) = to_matrix!(H, t)
-update_term!(H::AbstractMatrix, t::AbstractTerm, s::Subspace) = to_matrix!(H, t, s)
+# forward to to_matrix! as fallback for other kind of matrices
+update_term!(H::AbstractMatrix, t::AbstractTerm, s::AbstractSpace=FullSpace()) = to_matrix!(H, t, s)
 
-# specialize on sparse matrix
-update_term!(H::AbstractSparseMatrix, t::AbstractTerm, s::Subspace) = update_term!(H, t, s.subspace_v)
-
-function foreach_nnz(f, H::SparseMatrixCSC)
+Base.Base.@propagate_inbounds function foreach_nnz(f, H::SparseMatrixCSC)
     for lhs in 1:size(H, 1)
         @inbounds start = H.colptr[lhs]
         @inbounds stop = H.colptr[lhs+1]-1
@@ -698,7 +683,7 @@ function foreach_nnz(f, H::SparseMatrixCSC)
     end
 end
 
-function update_term!(H::AbstractSparseMatrix, t::AbstractTerm)
+function update_term!(H::AbstractSparseMatrix, t::AbstractTerm, ::FullSpace)
     nzval = nonzeros(H)
     foreach_nnz(H) do k, col, row
         @inbounds nzval[k] = term_value(t, col-1, row-1, col, row)
@@ -706,11 +691,11 @@ function update_term!(H::AbstractSparseMatrix, t::AbstractTerm)
     return H
 end
 
-function update_term!(H::AbstractSparseMatrix, t::AbstractTerm, subspace_v::AbstractVector)
+function update_term!(H::AbstractSparseMatrix, t::AbstractTerm, s::Subspace)
     nzval = nonzeros(H)
     @inbounds foreach_nnz(H) do k, col, row
-        lhs = subspace_v[col]
-        rhs = subspace_v[row]
+        lhs = s.subspace_v[col]
+        rhs = s.subspace_v[row]
 
         nzval[k] = term_value(t, lhs, rhs, col, row)
     end

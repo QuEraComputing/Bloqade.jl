@@ -38,28 +38,28 @@ Create a `DiscreteEmulationCache`.
 
 # Arguments
 
-- `T`: precision type of the storage.
+- `T`: element type of the storage.
 - `h_or_hs`: a Hamiltonian expression term or a list of Hamiltonians.
 - `s`: space type, default is [`fullspace`](@ref).
 """
-function DiscreteEmulationCache(::Type{T}, h::AbstractTerm, s::AbstractSpace=fullspace) where {T <: Real}
+function DiscreteEmulationCache(::Type{T}, h::AbstractTerm, s::AbstractSpace=fullspace) where {T}
     is_time_dependent(h) && throw(ArgumentError("expect a time independent hamiltonian"))
-    return DiscreteEmulationCache(SparseMatrixCSC{isreal(h) ? T : Complex{T}}(h, s))
+    return DiscreteEmulationCache(SparseMatrixCSC{T}(h, s))
 end
 
-function DiscreteEmulationCache(::Type{T}, ts::AbstractVector, hs::Vector{<:AbstractTerm}, s::AbstractSpace=fullspace) where {T <: Real}
+function DiscreteEmulationCache(::Type{T}, ts::AbstractVector, hs::Vector{<:AbstractTerm}, s::AbstractSpace=fullspace) where {T}
     # use the one that has less zero term values
     _, idx = findmin(map(num_zero_term, hs))
     DiscreteEmulationCache(T, hs[idx], s)
 end
 
-function DiscreteEmulationCache(::Type{T}, ts::AbstractVector, h::AbstractTerm, s::AbstractSpace=fullspace) where {T <: Real}
+function DiscreteEmulationCache(::Type{T}, ts::AbstractVector, h::AbstractTerm, s::AbstractSpace=fullspace) where {T}
     # use the one that has less zero term values
     _, idx = findmin(map(t->num_zero_term(h(t)), ts))
     DiscreteEmulationCache(T, h(ts[idx]), s)
 end
 
-function DiscreteEmulationCache(::Type{T}, t::Number, h::AbstractTerm, s::AbstractSpace=fullspace) where {T <: Real}
+function DiscreteEmulationCache(::Type{T}, t::Number, h::AbstractTerm, s::AbstractSpace=fullspace) where {T}
     DiscreteEmulationCache(T, h, s)
 end
 
@@ -141,7 +141,7 @@ Adapt.adapt_storage(::PrecisionAdaptor{P}, x::Array{<:Complex}) where P = conver
 abstract type EmulationOptions end
 
 @option struct DiscreteOptions <: EmulationOptions
-    progress::Bool = true
+    progress::Bool = false
     progress_step::Int = 1
     progress_name::String = "emulating"
     normalize_step::Int = 5
@@ -213,7 +213,13 @@ function DiscreteProblem{P}(
     t_or_ts = map(P, t_or_ts)
 
     if isnothing(cache)
-        cache = DiscreteEmulationCache(P, t_or_ts, h_or_hs, get_space(r))
+        all_real = if h_or_hs isa AbstractTerm
+            isreal(h_or_hs)
+        else
+            all(isreal, h_or_hs)
+        end
+        T = all_real ? P : Complex{P}
+        cache = DiscreteEmulationCache(T, t_or_ts, h_or_hs, get_space(r))
     end
 
     S, T, H, C = typeof(state), typeof(t_or_ts), typeof(h_or_hs), typeof(cache.H)

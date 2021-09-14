@@ -1,7 +1,7 @@
 name = "ContinuousEmulator"
 uuid = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
 authors = ["QuEra Computing Inc."]
-version = "0.2.4"
+version = "0.3.0"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
@@ -19,7 +19,7 @@ Adapt = "3"
 DiffEqCallbacks = "2"
 OrdinaryDiffEq = "5"
 Reexport = "1"
-RydbergEmulator = "0.12"
+RydbergEmulator = "0.13"
 Yao = "0.6"
 julia = "1"
 

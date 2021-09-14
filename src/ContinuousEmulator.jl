@@ -130,7 +130,7 @@ end
 
 @option struct ContinuousOptions{Algo <: OrdinaryDiffEq.OrdinaryDiffEqAlgorithm} <: EmulationOptions
     algo::Algo = Vern8()
-    progress::Bool = true
+    progress::Bool = false
     progress_steps::Int = 5
     reltol::Float64 = 1e-8
     abstol::Float64 = 1e-8
@@ -193,8 +193,11 @@ to evolve from `start` to `stop` using an ODE solver.
 """
 function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P <: AbstractFloat}
     options = ContinuousOptions(;kw...)
-    start = P(RydbergEmulator.default_unit(μs, start))
-    stop = P(RydbergEmulator.default_unit(μs, stop))
+    # we do not convert the tspan to P since
+    # the parameter function can relay on higher precision
+    # and the performance of that usually doesn't matter
+    start = RydbergEmulator.default_unit(μs, start)
+    stop = RydbergEmulator.default_unit(μs, stop)
     time = (start, stop)
     state = adapt(RydbergEmulator.PrecisionAdaptor(P), r)
     space = RydbergEmulator.get_space(r)

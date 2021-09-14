@@ -149,7 +149,7 @@ abstract type EmulationOptions end
 end
 
 struct DiscreteEvolution{P, S, T, H, C}
-    state::S
+    reg::S
     t_or_ts::T
     h_or_hs::H
     cache::DiscreteEmulationCache{C}
@@ -237,11 +237,11 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::DiscreteEvolution{P}) w
     println(io, tab(indent), "DiscreteEvolution{", P, "}:")
     
     # state info
-    print(io, tab(indent), "  state: ")
-    printstyled(io, typeof(prob.state); color=:green)
+    print(io, tab(indent), "  reg: ")
+    printstyled(io, typeof(prob.reg); color=:green)
     println(io)
-    print(io, tab(indent), "  state storage: ")
-    printstyled(io, Base.format_bytes(sizeof(Yao.state(prob.state))); color=:yellow)
+    print(io, tab(indent), "  reg storage: ")
+    printstyled(io, Base.format_bytes(sizeof(Yao.state(prob.reg))); color=:yellow)
     println(io)
     println(io)
 
@@ -300,17 +300,20 @@ function storage_size(H::SparseMatrixCSC)
     return sizeof(H.colptr) + sizeof(H.rowval) + sizeof(H.nzval)
 end
 
+storage_size(r::RydbergReg) = sizeof(r.state) + sizeof(r.subspace.subspace_v) + sizeof(r.subspace.map)
+storage_size(r::Yao.ArrayReg) = sizeof(r.state)
 storage_size(H::Array) = sizeof(H)
+storage_size(x) = sizeof(x) # fallback to sizeof
 
 Base.@propagate_inbounds function emulate_step!(
     prob::DiscreteEvolution,
     t_or_ts::Vector{<:Number}, h_or_hs::Vector{<:AbstractTerm},
     i::Int)
 
-    emulate_routine!(prob.state, t_or_ts[i], h_or_hs[i], prob.cache.H)
+    emulate_routine!(prob.reg, t_or_ts[i], h_or_hs[i], prob.cache.H)
 
     if mod(i, prob.options.normalize_step) == 0
-        normalize!(prob.state)
+        normalize!(prob.reg)
     end
     return prob
 end
@@ -319,7 +322,7 @@ end
 function emulate_step!(
     prob::DiscreteEvolution, t::Number, h::AbstractTerm, ::Int)
     # i is a constant 1
-    emulate_routine!(prob.state, t, h, prob.cache.H)    
+    emulate_routine!(prob.reg, t, h, prob.cache.H)    
     return prob
 end
 
@@ -329,9 +332,9 @@ Base.@propagate_inbounds function emulate_step!(
     t::AbstractVector{<:Number}, h::AbstractTerm,
     i::Int)
 
-    emulate_routine!(prob.state, step(t), h(t[i]), prob.cache.H)
+    emulate_routine!(prob.reg, step(t), h(t[i]), prob.cache.H)
     if mod(i, prob.options.normalize_step) == 0
-        normalize!(prob.state)
+        normalize!(prob.reg)
     end
     return prob
 end
@@ -354,7 +357,7 @@ function emulate!(prob::DiscreteEvolution)
     end
 
     if prob.options.normalize_finally
-        normalize!(prob.state)
+        normalize!(prob.reg)
     end
     return prob
 end
@@ -362,7 +365,7 @@ end
 function emulate!(r::Yao.AbstractRegister, ts::Vector{<:Number}, hs::Vector{<:AbstractTerm}; kw...)
     prob = DiscreteEvolution(r, ts, hs; kw...)
     emulate!(prob)
-    return prob.state
+    return prob.reg
 end
 
 """

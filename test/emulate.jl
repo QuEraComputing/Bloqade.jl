@@ -70,7 +70,7 @@ end
     ts = [1e-3 for _ in 0:1e-3:0.5]
     hs = [h(t) for t in 0:1e-3:0.5]
     target = simple_evolve!(zero_state(length(atoms), space), ts, hs, space)
-    @test prob.state ≈ target
+    @test prob.reg ≈ target
 
     prob = DiscreteEvolution(zero_state(length(atoms), space), 0.5, h; progress=true)
     emulate!(prob)

@@ -1,6 +1,6 @@
 name = "RydbergEmulator"
 uuid = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
-version = "0.13.0"
+version = "0.13.1"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"

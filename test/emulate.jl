@@ -62,7 +62,7 @@ end
     atoms = square_lattice(10, 0.8)
     space = blockade_subspace(atoms, 1.5)
     h = rydberg_h(atoms, 1.0, 2.0, sin)
-    prob = DiscreteProblem(zero_state(length(atoms), space), 0.5, h)
+    prob = DiscreteEvolution(zero_state(length(atoms), space), 0.5, h)
     display(prob)
 
     @test prob.t_or_ts ≈ 0:1e-3:0.5
@@ -72,7 +72,7 @@ end
     target = simple_evolve!(zero_state(length(atoms), space), ts, hs, space)
     @test prob.state ≈ target
 
-    prob = DiscreteProblem(zero_state(length(atoms), space), 0.5, h; progress=true)
+    prob = DiscreteEvolution(zero_state(length(atoms), space), 0.5, h; progress=true)
     emulate!(prob)
     @test prob.options.progress == true
 end

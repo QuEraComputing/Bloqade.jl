@@ -148,7 +148,7 @@ abstract type EmulationOptions end
     normalize_finally::Bool = true
 end
 
-struct DiscreteProblem{P, S, T, H, C}
+struct DiscreteEvolution{P, S, T, H, C}
     state::S
     t_or_ts::T
     h_or_hs::H
@@ -156,15 +156,15 @@ struct DiscreteProblem{P, S, T, H, C}
     options::DiscreteOptions
 end
 
-Adapt.@adapt_structure DiscreteProblem
+Adapt.@adapt_structure DiscreteEvolution
 
 get_space(r::Yao.ArrayReg) = fullspace
 get_space(r::RydbergReg) = r.subspace
 
 """
-    DiscreteProblem{P}(register, t_or_ts, h_or_hs; kw...)
+    DiscreteEvolution{P}(register, t_or_ts, h_or_hs; kw...)
 
-Create a `DiscreteProblem` object that emulates a list of hamiltonians at discrete time steps
+Create a `DiscreteEvolution` object that emulates a list of hamiltonians at discrete time steps
 using Krylov subspace method, or trotterize a continuous function with `dt` then run the
 trotterize integrator on it.
 
@@ -189,7 +189,7 @@ trotterize integrator on it.
 - `dt::Real`: the time step of trotterization if `t_or_ts` is specified as
     a `Real` number and `h_or_hs` is a time dependent hamiltonian.
 """
-function DiscreteProblem{P}(
+function DiscreteEvolution{P}(
     r::Yao.AbstractRegister, t_or_ts, h_or_hs;
     cache=nothing, dt::Real=1e-3, kw...) where P
 
@@ -223,18 +223,18 @@ function DiscreteProblem{P}(
     end
 
     S, T, H, C = typeof(state), typeof(t_or_ts), typeof(h_or_hs), typeof(cache.H)
-    return DiscreteProblem{P, S, T, H, C}(state, t_or_ts, h_or_hs, cache, options)
+    return DiscreteEvolution{P, S, T, H, C}(state, t_or_ts, h_or_hs, cache, options)
 end
 
-function DiscreteProblem(r::Yao.AbstractRegister, t_or_ts, h_or_hs; kw...)
-    return DiscreteProblem{real(Yao.datatype(r))}(r, t_or_ts, h_or_hs; kw...)
+function DiscreteEvolution(r::Yao.AbstractRegister, t_or_ts, h_or_hs; kw...)
+    return DiscreteEvolution{real(Yao.datatype(r))}(r, t_or_ts, h_or_hs; kw...)
 end
 
 # TODO: use GarishPrint after it gets smarter
-function Base.show(io::IO, mime::MIME"text/plain", prob::DiscreteProblem{P}) where P
+function Base.show(io::IO, mime::MIME"text/plain", prob::DiscreteEvolution{P}) where P
     indent = get(io, :indent, 0)
     tab(indent) = " "^indent
-    println(io, tab(indent), "DiscreteProblem{", P, "}:")
+    println(io, tab(indent), "DiscreteEvolution{", P, "}:")
     
     # state info
     print(io, tab(indent), "  state: ")
@@ -303,7 +303,7 @@ end
 storage_size(H::Array) = sizeof(H)
 
 Base.@propagate_inbounds function emulate_step!(
-    prob::DiscreteProblem,
+    prob::DiscreteEvolution,
     t_or_ts::Vector{<:Number}, h_or_hs::Vector{<:AbstractTerm},
     i::Int)
 
@@ -317,7 +317,7 @@ end
 
 # constant params
 function emulate_step!(
-    prob::DiscreteProblem, t::Number, h::AbstractTerm, ::Int)
+    prob::DiscreteEvolution, t::Number, h::AbstractTerm, ::Int)
     # i is a constant 1
     emulate_routine!(prob.state, t, h, prob.cache.H)    
     return prob
@@ -325,7 +325,7 @@ end
 
 # continuous function
 Base.@propagate_inbounds function emulate_step!(
-    prob::DiscreteProblem,
+    prob::DiscreteEvolution,
     t::AbstractVector{<:Number}, h::AbstractTerm,
     i::Int)
 
@@ -336,7 +336,7 @@ Base.@propagate_inbounds function emulate_step!(
     return prob
 end
 
-function emulate!(prob::DiscreteProblem)
+function emulate!(prob::DiscreteEvolution)
     niterations = length(prob.t_or_ts)
     @inbounds if prob.options.progress
         ProgressLogging.progress() do id
@@ -360,7 +360,7 @@ function emulate!(prob::DiscreteProblem)
 end
 
 function emulate!(r::Yao.AbstractRegister, ts::Vector{<:Number}, hs::Vector{<:AbstractTerm}; kw...)
-    prob = DiscreteProblem(r, ts, hs; kw...)
+    prob = DiscreteEvolution(r, ts, hs; kw...)
     emulate!(prob)
     return prob.state
 end

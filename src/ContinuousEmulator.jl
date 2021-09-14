@@ -191,7 +191,7 @@ to evolve from `start` to `stop` using an ODE solver.
 - `abstol`: absolute tolerance, default is 1e-8.
 - `normalize_steps`: steps to run normalization on the state, default is `5`.
 """
-function ContinuousEvolution{P}(r::AbstractRegister, (start, stop), h::AbstractTerm; kw...) where {P <: AbstractFloat}
+function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P <: AbstractFloat}
     options = ContinuousOptions(;kw...)
     start = P(RydbergEmulator.default_unit(μs, start))
     stop = P(RydbergEmulator.default_unit(μs, stop))

@@ -9,7 +9,7 @@ using SparseArrays
 using LinearAlgebra
 using Configurations
 using DiffEqCallbacks
-using RydbergEmulator: AbstractTerm, AbstractSpace, EmulationOptions
+using RydbergEmulator: AbstractTerm, AbstractSpace, EmulationOptions, storage_size
 using OrdinaryDiffEq: OrdinaryDiffEq, Vern8, ODEProblem
 
 @reexport using RydbergEmulator
@@ -83,15 +83,13 @@ function cpu_equation_cache(::Type{T}, h::AbstractTerm, s::RydbergEmulator.Abstr
     EquationCache(SparseMatrixCSC{T}(h(1e-2), s))
 end
 
-estimate_size(S::SparseMatrixCSC) = sizeof(S.colptr) + sizeof(S.rowval) + sizeof(S.nzval)
-estimate_size(S) = sizeof(S)
-estimate_size(S::EquationCache) = estimate_size(S.hamiltonian) + estimate_size(S.state)
+RydbergEmulator.storage_size(S::EquationCache) = storage_size(S.hamiltonian) + storage_size(S.state)
 
 function Base.show(io::IO, m::MIME"text/plain", eq::ShordingerEquation)
     indent = get(io, :indent, 0)
     println(io, " "^indent, "Shordinger Equation:")
     print(io, " "^indent, "  Storage Size: ")
-    printstyled(io, Base.format_bytes(estimate_size(eq.cache)); color=:green)
+    printstyled(io, Base.format_bytes(storage_size(eq.cache)); color=:green)
     println(io)
     print(io, " "^indent, "  State Storage: ")
     printstyled(io, typeof(eq.cache.state); color=:green)
@@ -144,7 +142,7 @@ end
 Problem type for hamiltonian with time dependent parameters.
 """
 struct ContinuousEvolution{P <: AbstractFloat}
-    state::AbstractRegister
+    reg::AbstractRegister
     time::NTuple{2, P}
     eq::ShordingerEquation
     ode_prob::ODEProblem
@@ -199,17 +197,17 @@ function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real
     start = RydbergEmulator.default_unit(μs, start)
     stop = RydbergEmulator.default_unit(μs, stop)
     time = (start, stop)
-    state = adapt(RydbergEmulator.PrecisionAdaptor(P), r)
+    reg = adapt(RydbergEmulator.PrecisionAdaptor(P), r)
     space = RydbergEmulator.get_space(r)
     eq = ShordingerEquation(isreal(h) ? P : Complex{P}, h, space)
 
     ode_prob = ODEProblem(
-        eq, vec(Yao.state(r)), time;
+        eq, vec(Yao.state(reg)), time;
         save_everystep=false, save_start=false, alias_u0=true,
         progress=options.progress,
         progress_steps=options.progress_steps,
     )
-    return ContinuousEvolution{P}(state, time, eq, ode_prob, options)
+    return ContinuousEvolution{P}(reg, time, eq, ode_prob, options)
 end
 
 function Base.show(io::IO, mime::MIME"text/plain", prob::ContinuousEvolution{P}) where P
@@ -217,14 +215,16 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::ContinuousEvolution{P})
     tab(indent) = " "^indent
     println(io, tab(indent), "ContinuousEvolution{", P, "}:")
     # state info
-    print(io, tab(indent), "  state: ")
-    printstyled(io, typeof(prob.state); color=:green)
+    print(io, tab(indent), "  reg: ")
+    printstyled(io, typeof(prob.reg); color=:green)
     println(io)
-    print(io, tab(indent), "  state storage: ")
-    printstyled(io, Base.format_bytes(sizeof(Yao.state(prob.state))); color=:yellow)
+    print(io, tab(indent), "  reg storage: ")
+    printstyled(io, Base.format_bytes(RydbergEmulator.storage_size(prob.reg)); color=:yellow)
     println(io)
     println(io)
-    
+
+    # time span
+    println(io, tab(indent), "  timespan: ", prob.ode_prob.tspan)
     # equation
     println(io, tab(indent), "  equation: ")
     show(IOContext(io, :indent=>indent+4), mime, prob.eq)
@@ -252,7 +252,7 @@ function RydbergEmulator.emulate!(prob::ContinuousEvolution)
     end
 
     if prob.options.normalize_finally
-        normalize!(prob.state)
+        normalize!(prob.reg)
     end
     return prob
 end
@@ -304,7 +304,7 @@ callback function is implemented as `norm_preserve`.
 function RydbergEmulator.emulate!(r::Yao.AbstractRegister, t::Real, h::AbstractTerm; kw...)
     prob = ContinuousEvolution(r, t, h; kw...)
     emulate!(prob)
-    return prob.state
+    return prob.reg
 end
 
 end

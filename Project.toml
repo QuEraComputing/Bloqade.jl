@@ -5,6 +5,7 @@ version = "0.2.4"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+Configurations = "5218b696-f38b-4ac9-8b61-a12ec717816d"
 DiffEqCallbacks = "459566f4-90b8-5000-8ac3-15dfb0a30def"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 OrdinaryDiffEq = "1dea7af3-3e70-54e6-95c3-0bf5283fa5ed"
@@ -15,8 +16,8 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
 [compat]
 Adapt = "3"
-OrdinaryDiffEq = "5"
 DiffEqCallbacks = "2"
+OrdinaryDiffEq = "5"
 Reexport = "1"
 RydbergEmulator = "0.12"
 Yao = "0.6"

@@ -3,16 +3,17 @@
 module ContinuousEmulator
 
 using Reexport
-@reexport using RydbergEmulator
-using OrdinaryDiffEq
 using Yao
 using Adapt
 using SparseArrays
 using LinearAlgebra
+using Configurations
 using DiffEqCallbacks
-using RydbergEmulator: AbstractTerm
+using RydbergEmulator: AbstractTerm, AbstractSpace, EmulationOptions
+using OrdinaryDiffEq: OrdinaryDiffEq, Vern8, ODEProblem
 
-export ShordingerEquation
+@reexport using RydbergEmulator
+export ShordingerEquation, ContinuousEvolution
 
 struct EquationCache{H, S}
     hamiltonian::H
@@ -26,7 +27,7 @@ function EquationCache(H::SparseMatrixCSC{Tv}) where Tv
 end
 
 struct ShordingerEquation{S, HTerm, HMatrix, State}
-    subspace::S
+    space::S
     hamiltonian::HTerm
     cache::EquationCache{HMatrix, State}
 end
@@ -37,7 +38,7 @@ Adapt.@adapt_structure EquationCache
 # default is always CPU, we use cu(x) interface for CUDA via Adapt
 
 """
-    ShordingerEquation([T=Float64, s::Subspace], h::AbstractTerm[, cache=cpu_equation_cache(T, h)])
+    ShordingerEquation([T=Float64, s::AbstractSpace], h::AbstractTerm[, cache=cpu_equation_cache(T, h)])
 
 Create a Shordinger equation for given hamiltonian expression `h`.
 
@@ -46,7 +47,7 @@ Create a Shordinger equation for given hamiltonian expression `h`.
 - `T <: Real`: eltype of the hamiltonian matrix, default is `Float64`
     when the hamiltonian is a real hermitian, or `ComplexF64` when the hamiltonian
     is a complex hermitian to acheive best performance.
-- `s::Subspace`: subspace, can be used to specify an
+- `s::AbstractSpace`: space specification, can be used to specify an
     independent-set subspace for the simulation, optional.
 - `h::AbstractTerm`: required, the hamiltonian.
 - `cache::EquationCache`: the equation evaluation cache, default is `cpu_equation_cache(T, h)`.
@@ -62,29 +63,24 @@ The form `(dstate, state, p, t)` is the inplace definition
 of the equation, see also
 [DiffEq:Solving-Systems-of-Equations](https://diffeq.sciml.ai/latest/tutorials/ode_example/#Example-2:-Solving-Systems-of-Equations)
 """
-ShordingerEquation(h::AbstractTerm) = ShordingerEquation(decide_eltype(h), h)
-ShordingerEquation(h::AbstractTerm, cache::EquationCache) = ShordingerEquation(decide_eltype(h), h, cache)
-ShordingerEquation(s::Subspace, h::AbstractTerm) = ShordingerEquation(decide_eltype(h), s, h)
+function ShordingerEquation(h::AbstractTerm,
+        s::AbstractSpace = fullspace,
+        cache::EquationCache=cpu_equation_cache(decide_eltype(h), h, s))
+
+    return ShordingerEquation(decide_eltype(h), h, s, cache)
+end
 
 decide_eltype(h::AbstractTerm) = isreal(h) ? Float64 : ComplexF64
 
-function ShordingerEquation(::Type{T}, h::AbstractTerm, cache::EquationCache=cpu_equation_cache(T, h)) where T
-    ShordingerEquation(nothing, h, cache)
-end
-
-function ShordingerEquation(::Type{T}, s::Subspace, h::AbstractTerm, cache::EquationCache=cpu_equation_cache(T, h, s)) where T
+function ShordingerEquation(::Type{T}, h::AbstractTerm, s::RydbergEmulator.AbstractSpace=fullspace, cache::EquationCache=cpu_equation_cache(T, h, s)) where T
     ShordingerEquation(s, h, cache)
 end
 
 # NOTE: we choose the matrix eltype automatically when it can be real
 # since SparseMatrix{<:Real} * Vector{<:Complex} is always faster than
 # SparseMatrix{<:Complex} * Vector{<:Complex}
-function cpu_equation_cache(::Type{T}, h::AbstractTerm, s::Subspace) where T
+function cpu_equation_cache(::Type{T}, h::AbstractTerm, s::RydbergEmulator.AbstractSpace = fullspace) where T
     EquationCache(SparseMatrixCSC{T}(h(1e-2), s))
-end
-
-function cpu_equation_cache(::Type{T}, h::AbstractTerm) where T
-    EquationCache(SparseMatrixCSC{T}(h(1e-2)))
 end
 
 estimate_size(S::SparseMatrixCSC) = sizeof(S.colptr) + sizeof(S.rowval) + sizeof(S.nzval)
@@ -108,13 +104,13 @@ function Base.show(io::IO, m::MIME"text/plain", eq::ShordingerEquation)
 end
 
 function (eq::ShordingerEquation{<:Subspace})(dstate, state, p, t::Number)
-    update_term!(eq.cache.hamiltonian, eq.hamiltonian(t), eq.subspace)
+    update_term!(eq.cache.hamiltonian, eq.hamiltonian(t), eq.space)
     mul!(eq.cache.state, eq.cache.hamiltonian, state)
     @. dstate = -im * eq.cache.state
     return
 end
 
-function (eq::ShordingerEquation{Nothing})(dstate, state, p, t::Number)
+function (eq::ShordingerEquation{<:FullSpace})(dstate, state, p, t::Number)
     update_term!(eq.cache.hamiltonian, eq.hamiltonian(t))
     mul!(eq.cache.state, eq.cache.hamiltonian, state)
     @. dstate = -im * eq.cache.state
@@ -125,6 +121,137 @@ function norm_preserve(resid, state, p, t)
     fill!(resid, 0)
     resid[1] = norm(state) - 1
     return
+end
+
+struct PieceWiseLinear{T}
+    xs::Vector{T}
+    ys::Vector{T}
+end
+
+@option struct ContinuousOptions{Algo <: OrdinaryDiffEq.OrdinaryDiffEqAlgorithm} <: EmulationOptions
+    algo::Algo = Vern8()
+    progress::Bool = true
+    progress_steps::Int = 5
+    reltol::Float64 = 1e-8
+    abstol::Float64 = 1e-8
+    normalize_steps::Int = 5
+    normalize_finally::Bool = true
+end
+
+"""
+    ContinuousEvolution{P <: AbstractFloat}
+
+Problem type for hamiltonian with time dependent parameters.
+"""
+struct ContinuousEvolution{P <: AbstractFloat}
+    state::AbstractRegister
+    time::NTuple{2, P}
+    eq::ShordingerEquation
+    ode_prob::ODEProblem
+    options::ContinuousOptions
+end
+
+ContinuousEvolution(r::AbstractRegister, t, h::AbstractTerm; kw...) =
+    ContinuousEvolution{real(Yao.datatype(r))}(r, t, h; kw...)
+
+"""
+    ContinuousEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...)
+
+Run the evolution for `t` μs, start from clock 0 μs, shorthand for
+
+```julia
+ContinuousEvolution{P}(r, (0, t), h; kw...)
+```
+"""
+function ContinuousEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...) where {P <: AbstractFloat}
+    return ContinuousEvolution{P}(r, (zero(t), t), h; kw...)
+end
+
+"""
+    ContinuousEvolution{P}(r::AbstractRegister, (start, stop), h::AbstractTerm; kw...) where {P <: AbstractFloat}
+
+Create a `ContinuousEvolution` that defines the evolution of a hamiltonian `h` with time dependent parameters
+to evolve from `start` to `stop` using an ODE solver.
+
+# Arguments
+
+- `P`: optional, a type parameter that sets the problem precision type, default is
+    the same as the `Yao.datatype` of given `register`.
+- `register`: required, the evolution problem register, can be a [`RydbergReg`](@ref) or an `ArrayReg`
+    from `Yao`.
+- `(start, stop)`: required, the evolution interval.
+- `h`: required, the evolution hamiltonian.
+
+# Keyword Arguments
+
+- `algo`: algorithm to use, default is `Vern8`, check DiffEq documentation for more details.
+- `progress`: print progress bar or not, this may effect the performance when problem scale is small, default is `true`.
+- `progress_steps`: steps to update the progress bar, default is `5`.
+- `reltol`: relative tolerance, default is 1e-8.
+- `abstol`: absolute tolerance, default is 1e-8.
+- `normalize_steps`: steps to run normalization on the state, default is `5`.
+"""
+function ContinuousEvolution{P}(r::AbstractRegister, (start, stop), h::AbstractTerm; kw...) where {P <: AbstractFloat}
+    options = ContinuousOptions(;kw...)
+    start = P(RydbergEmulator.default_unit(μs, start))
+    stop = P(RydbergEmulator.default_unit(μs, stop))
+    time = (start, stop)
+    state = adapt(RydbergEmulator.PrecisionAdaptor(P), r)
+    space = RydbergEmulator.get_space(r)
+    eq = ShordingerEquation(isreal(h) ? P : Complex{P}, h, space)
+
+    ode_prob = ODEProblem(
+        eq, vec(Yao.state(r)), time;
+        save_everystep=false, save_start=false, alias_u0=true,
+        progress=options.progress,
+        progress_steps=options.progress_steps,
+    )
+    return ContinuousEvolution{P}(state, time, eq, ode_prob, options)
+end
+
+function Base.show(io::IO, mime::MIME"text/plain", prob::ContinuousEvolution{P}) where P
+    indent = get(io, :indent, 0)
+    tab(indent) = " "^indent
+    println(io, tab(indent), "ContinuousEvolution{", P, "}:")
+    # state info
+    print(io, tab(indent), "  state: ")
+    printstyled(io, typeof(prob.state); color=:green)
+    println(io)
+    print(io, tab(indent), "  state storage: ")
+    printstyled(io, Base.format_bytes(sizeof(Yao.state(prob.state))); color=:yellow)
+    println(io)
+    println(io)
+    
+    # equation
+    println(io, tab(indent), "  equation: ")
+    show(IOContext(io, :indent=>indent+4), mime, prob.eq)
+
+    println(io)
+    println(io)
+    println(io, tab(indent), "  options: ")
+
+    nfs = nfields(prob.options)
+    for idx in 1:nfs
+        name = fieldname(ContinuousOptions, idx)
+        print(io, tab(indent), "    $name: ", repr(getfield(prob.options, idx)))
+        if idx != nfs
+            println(io)
+        end
+    end
+end
+
+function RydbergEmulator.emulate!(prob::ContinuousEvolution)
+    integrator = OrdinaryDiffEq.init(prob.ode_prob, prob.options.algo; reltol=prob.options.reltol, abstol=prob.options.abstol)
+    for (idx, (u, t)) in enumerate(OrdinaryDiffEq.tuples(integrator))
+        if iszero(mod(idx, prob.options.normalize_steps))
+            normalize!(u)
+        end
+    end
+
+    if prob.options.normalize_finally
+        normalize!(prob.state)
+    end
+    return prob
 end
 
 """
@@ -171,41 +298,10 @@ a good candidate.
 One can enable norm-preservation via `ManifoldProjection`, the corresponding
 callback function is implemented as `norm_preserve`.
 """
-function RydbergEmulator.emulate!(r::Yao.ArrayReg, t::Real, h::AbstractTerm;
-        algo=Vern8(), force_normalize=true, reltol=1e-8, abstol=1e-8,
-        kwargs...
-    )
-    prob = ODEProblem(
-        ShordingerEquation(h),
-        vec(r.state), (zero(t), t);
-        save_everystep=false, save_start=false, alias_u0=true, kwargs...
-    )
-    result = solve(prob, algo; reltol, abstol)
-
-    # force normalize
-    if force_normalize
-        r.state ./= norm(vec(r.state))
-    end
-    return r
-end
-
-function RydbergEmulator.emulate!(r::RydbergReg, t::Real, h::AbstractTerm;
-        algo=Vern8(), force_normalize=true, reltol=1e-8, abstol=1e-8,
-        kwargs...
-    )
-
-    prob = ODEProblem(
-        ShordingerEquation(r.subspace, h),
-        vec(r.state), (zero(t), t);
-        save_everystep=false, save_start=false, alias_u0=true, kwargs...
-    )
-    result = solve(prob, algo; reltol, abstol)
-
-    # force normalize
-    if force_normalize
-        r.state ./= norm(vec(r.state))
-    end
-    return r
+function RydbergEmulator.emulate!(r::Yao.AbstractRegister, t::Real, h::AbstractTerm; kw...)
+    prob = ContinuousEvolution(r, t, h; kw...)
+    emulate!(prob)
+    return prob.state
 end
 
 end

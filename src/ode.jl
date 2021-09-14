@@ -17,7 +17,7 @@ function ContinuousEmulator.ContinuousEvolution{P}(
     start = P(RydbergEmulator.default_unit(μs, start))
     stop = P(RydbergEmulator.default_unit(μs, stop))
     time = (start, stop)
-    state = adapt(RydbergEmulator.PrecisionAdaptor(P), r)
+    reg = adapt(RydbergEmulator.PrecisionAdaptor(P), r)
     space = RydbergEmulator.get_space(r)
 
     H = SparseMatrixCSC{Complex{P}}(h(start+1e-5), space)
@@ -36,10 +36,10 @@ function ContinuousEmulator.ContinuousEvolution{P}(
     eq = ShordingerEquation(cu(space), h, dcache)
 
     ode_prob = ODEProblem(
-        eq, vec(Yao.state(r)), time;
+        eq, vec(Yao.state(reg)), time;
         save_everystep=false, save_start=false, alias_u0=true,
         progress=options.progress,
         progress_steps=options.progress_steps,
     )
-    return ContinuousEvolution{P}(state, time, eq, ode_prob, options)
+    return ContinuousEvolution{P}(reg, time, eq, ode_prob, options)
 end

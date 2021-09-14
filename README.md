@@ -6,7 +6,7 @@
 <p>
 CuRydbergEmulator is a &nbsp;
     <a href="https://julialang.org">
-        <img src="https://julialang.org/favicon.ico" width="16em">
+        <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
         Julia Language
     </a>
     &nbsp; package. To install CuRydbergEmulator,

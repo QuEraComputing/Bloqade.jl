@@ -1,7 +1,7 @@
 name = "CuRydbergEmulator"
 uuid = "6b142359-0b0c-4dfb-9c9b-84981bce612e"
 authors = ["QuEra Computing Inc."]
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
@@ -20,9 +20,9 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 [compat]
 Adapt = "3"
 CUDA = "3"
-ContinuousEmulator = "0.2"
+ContinuousEmulator = "0.3"
 Reexport = "1"
-RydbergEmulator = "0.12"
+RydbergEmulator = "0.13"
 julia = "1.6"
 
 [extras]

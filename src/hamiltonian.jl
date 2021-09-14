@@ -41,15 +41,15 @@ function update_term_kernel(H, t)
     return
 end
 
-function RydbergEmulator.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm)
+function RydbergEmulator.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm, ::FullSpace)
     threads, nblocks = thread_layout(H)
     @cuda threads=threads blocks=nblocks update_term_kernel(H, t)
     return H
 end
 
-function RydbergEmulator.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm, subspace_v::CuVector)
-    LinearAlgebra.checksquare(H) == length(subspace_v) || error("given matrix size does not match subspace size")
+function RydbergEmulator.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm, s::Subspace{<:CuArray})
+    LinearAlgebra.checksquare(H) == length(s) || error("given matrix size does not match subspace size")
     threads, nblocks = thread_layout(H)
-    @cuda threads=threads blocks=nblocks update_term_kernel(H, t, subspace_v)
+    @cuda threads=threads blocks=nblocks update_term_kernel(H, t, s.subspace_v)
     return H
 end

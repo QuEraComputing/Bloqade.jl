@@ -19,7 +19,7 @@ h = RydInteract(atoms) + XTerm(length(atoms), 1.0) - NTerm(length(atoms), 1.2)
 @testset "update_term" begin
     H = SparseMatrixCSC{ComplexF32}(h, space)
     cuH = CuSparseMatrixCSR{ComplexF32}(H)
-    update_term!(cuH, h, cu(space.subspace_v))
+    update_term!(cuH, h, cu(space))
     @test SparseMatrixCSC(cuH) ≈ H
 
     H = SparseMatrixCSC{ComplexF32}(h)
@@ -29,7 +29,7 @@ h = RydInteract(atoms) + XTerm(length(atoms), 1.0) - NTerm(length(atoms), 1.2)
 end
 
 @testset "cu(ShordingerEquation)" begin
-    eq = ShordingerEquation(Float32, space, h)
+    eq = ShordingerEquation(Float32, h, space)
     @test eltype(eq.cache.state) == ComplexF32
     @test eltype(eq.cache.hamiltonian) == Float32
 
@@ -41,7 +41,7 @@ end
 
     # we don't convert to Float32 automatically like cu(x)
     # we still want explicit control of numerical precision
-    eq = ShordingerEquation(space, h)
+    eq = ShordingerEquation(h, space)
     deq = cu(eq)
     @test eltype(deq.cache.state) == ComplexF64
     @test eltype(deq.cache.hamiltonian) == ComplexF64
@@ -94,3 +94,21 @@ end
 
 # @benchmark emulate!($r, 1e-3, h)
 # @benchmark CUDA.@sync emulate!($dr, 1e-3, h)
+
+# using ContinuousEmulator
+# ContinuousEvolution
+
+# using CuRydbergEmulator
+# using RydbergEmulator: PrecisionAdaptor
+# using Adapt
+# using CUDA
+# x = CUDA.rand(10)
+# adapt(PrecisionAdaptor(Float64), x)
+
+# atoms = square_lattice(10, 0.8)
+# space = blockade_subspace(atoms, 1.5)
+# r = zero_state(10, space)
+# dr = cu(r)
+# h = rydberg_h(atoms, sin, nothing, 2.0)
+# prob = ContinuousEvolution(dr, 2.0, h)
+# emulate!(prob)

@@ -135,28 +135,6 @@ function Base.show(io::IO, ::MIME"text/plain", A::CuSparseDeviceMatrixCSR)
     print(io, "  nzVal $(pointer(A.nzVal))")
 end
 
-function Adapt.adapt_structure(to, t::XTerm)
-    XTerm(t.nsites, adapt(to, t.Ωs), adapt(to, t.ϕs))
-end
-
-function Adapt.adapt_structure(to, t::ZTerm)
-    ZTerm(t.nsites, adapt(to, t.Δs))
-end
-
-function Adapt.adapt_structure(to, t::RydInteract)
-    RydInteract(adapt(to, t.atoms), t.C)
-end
-
-function Adapt.adapt_structure(to, t::Hamiltonian)
-    Hamiltonian(map(x->Adapt.adapt(to, x), t.terms))
-end
-
-function Adapt.adapt_structure(to, r::RydbergReg{N}) where {N}
-    return RydbergReg{N}(adapt(to, r.state), adapt(to, r.subspace))
-end
-
-Adapt.adapt_structure(to, s::Subspace) = Subspace(s.map, adapt(to, s.subspace_v))
-
-function Adapt.adapt_structure(to, cache::EmulatorCache)
-    return EmulatorCache(CuSparseMatrixCSR(cache.H))
+function Adapt.adapt_structure(to::CUDA.CuArrayAdaptor, cache::DiscreteEmulationCache)
+    return DiscreteEmulationCache(CuSparseMatrixCSR(cache.H))
 end

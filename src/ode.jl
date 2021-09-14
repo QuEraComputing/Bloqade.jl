@@ -8,55 +8,38 @@ function Adapt.adapt_structure(to::CUDA.CuArrayAdaptor, cache::EquationCache{<:S
     )
 end
 
-function RydbergEmulator.emulate!(r::Yao.ArrayReg{B, ST}, t::Real, h::AbstractTerm;
-        algo=Vern8(), force_normalize=true, reltol=1e-8, abstol=1e-8, kwargs...
-    ) where {B, ST <: CuArray}
+const CuRegister = Union{Yao.ArrayReg{B, ST}, RydbergReg{N, B, ST}} where {N, B, ST <: CuArray}
 
-    # NOTE: we force the hamiltonian matrix to be Complex on GPU
-    # since cuSPARSE does not support complex-real mv routine
-    precision_t = real(eltype(r.state))
-    T = Complex{precision_t}
-    t = precision_t(t)
+function ContinuousEmulator.ContinuousEvolution{P}(
+    r::CuRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P <: AbstractFloat}
 
-    prob = ODEProblem(
-        cu(ShordingerEquation(T, h)),
-        vec(r.state), (zero(t), t);
-        save_everystep=false, save_start=false, alias_u0=true, kwargs...
+    options = ContinuousOptions(;kw...)
+    start = P(RydbergEmulator.default_unit(μs, start))
+    stop = P(RydbergEmulator.default_unit(μs, stop))
+    time = (start, stop)
+    state = adapt(RydbergEmulator.PrecisionAdaptor(P), r)
+    space = RydbergEmulator.get_space(r)
+
+    H = SparseMatrixCSC{Complex{P}}(h(start+1e-5), space)
+    # NOTE: hamiltonian is Hermitian, so the nonzero position
+    # is the same as transpose and we don't care about the value
+    # of each entries for pre-allocate cache, they will be updated
+    # to the right value later.
+    dH = CuSparseMatrixCSR(
+        CuVector{Cint}(H.colptr),
+        CuVector{Cint}(rowvals(H)),
+        CuVector{ComplexF32}(nonzeros(H)),
+        size(H)
     )
+    dstate = CuVector{Complex{P}}(undef, size(H, 1))
+    dcache = ContinuousEmulator.EquationCache(dH, dstate)
+    eq = ShordingerEquation(cu(space), h, dcache)
 
-    result = solve(prob, algo; reltol, abstol)
-
-    # force normalize
-    if force_normalize
-        r.state ./= norm(vec(r.state))
-    end
-    return r
-end
-
-function RydbergEmulator.emulate!(r::RydbergReg{N, B, ST}, t::Real, h::AbstractTerm;
-        algo=Vern8(), force_normalize=true, reltol=1e-8, abstol=1e-8, kwargs...
-    ) where {N, B, ST <: CuArray}
-
-    # NOTE: we force the hamiltonian matrix to be Complex on GPU
-    # since cuSPARSE does not support complex-real mv routine
-    precision_t = real(eltype(r.state))
-    T = Complex{precision_t}
-    t = precision_t(t)
-
-    # convert subspace back to CPU, since we don't have a CUDA kernel for to_matrix!
-    # and the performance of this function doesn't matter
-    subspace = cpu(r.subspace)
-
-    prob = ODEProblem(
-        cu(ShordingerEquation(T, subspace, h)),
-        vec(r.state), (zero(t), t);
-        save_everystep=false, save_start=false, alias_u0=true, kwargs...
+    ode_prob = ODEProblem(
+        eq, vec(Yao.state(r)), time;
+        save_everystep=false, save_start=false, alias_u0=true,
+        progress=options.progress,
+        progress_steps=options.progress_steps,
     )
-    result = solve(prob, algo; reltol, abstol)
-
-    # force normalize
-    if force_normalize
-        r.state ./= norm(vec(r.state))
-    end
-    return r
+    return ContinuousEvolution{P}(state, time, eq, ode_prob, options)
 end

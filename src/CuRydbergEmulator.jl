@@ -11,19 +11,25 @@ using Reexport
 using OrdinaryDiffEq
 using SparseArrays
 using ContinuousEmulator
+using LinearAlgebra
 
 using CUDA: CUBLAS
 using CUDA: GPUArrays
 using CUDA.GPUArrays: AbstractGPUVecOrMat, AbstractGPUArray, AbstractGPUVector
-using RydbergEmulator: AbstractTerm
-using ContinuousEmulator: EquationCache
+using RydbergEmulator: AbstractTerm, DiscreteEmulationCache, PrecisionAdaptor
+using ContinuousEmulator: EquationCache, ContinuousOptions
 
 @reexport using RydbergEmulator
 
 export cpu
 cpu(x) = adapt(Array, x)
 
-include("patch.jl")
+LinearAlgebra.normalize!(r::RydbergReg{N, 1, <:CuArray}) where N = normalize!(vec(r.state))
+
+Adapt.adapt_storage(::PrecisionAdaptor{P}, x::CuArray{<:Real}) where P = convert(CuArray{P}, x)
+Adapt.adapt_storage(::PrecisionAdaptor{P}, x::CuArray{<:Complex}) where P = convert(CuArray{Complex{P}}, x)
+
+# include("patch.jl")
 include("hamiltonian.jl")
 include("ode.jl")
 

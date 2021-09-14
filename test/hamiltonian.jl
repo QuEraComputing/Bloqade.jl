@@ -1,4 +1,5 @@
 using Test
+using Adapt
 using RydbergEmulator
 using LightGraphs: SimpleGraph, add_edge!
 using SparseArrays
@@ -10,7 +11,7 @@ using Unitful
 using Yao
 using Unitful: μm, mm, μs, ns, MHz, GHz
 using Yao.ConstGate: P0, P1
-using RydbergEmulator: Negative
+using RydbergEmulator: Negative, PrecisionAdaptor
 
 function rydinteract(atoms, C)
     n = length(atoms)
@@ -314,4 +315,15 @@ end
     ])
 
     @test check_print(NTerm(10, sin), ["NTerm", " ∑(n=1:10) sin(t) n"])
+end
+
+@testset "adapt" begin
+    atoms = square_lattice(10, 0.8)
+    h = rydberg_h(atoms, 1.2, 1.3, 2.1)
+
+    new_h = adapt(PrecisionAdaptor(Float32), h)
+    @test new_h[1].C isa Float32
+    @test new_h[2].Ωs isa Float32
+    @test new_h[2].ϕs isa Float32
+    @test new_h[3].term.Δs isa Float32
 end

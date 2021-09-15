@@ -209,8 +209,14 @@ function DiscreteEvolution{P}(
 
     # convert units
     t_or_ts = default_unit(μs, t_or_ts)
-    # convert to given precision
-    t_or_ts = map(P, t_or_ts)
+
+    # NOTE: we don't convert t_or_ts to P automatically
+    # since functional parameters may using Float64
+    # and Float32 precision t would cause problem when
+    # checking the bounds
+
+    # # convert to given precision
+    # t_or_ts = map(P, t_or_ts)
 
     if isnothing(cache)
         all_real = if h_or_hs isa AbstractTerm

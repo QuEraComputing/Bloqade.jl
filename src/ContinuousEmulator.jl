@@ -80,7 +80,7 @@ end
 # since SparseMatrix{<:Real} * Vector{<:Complex} is always faster than
 # SparseMatrix{<:Complex} * Vector{<:Complex}
 function cpu_equation_cache(::Type{T}, h::AbstractTerm, s::RydbergEmulator.AbstractSpace = fullspace) where T
-    EquationCache(SparseMatrixCSC{T}(h(1e-2), s))
+    EquationCache(SparseMatrixCSC{T, Cint}(h(1e-2), s))
 end
 
 RydbergEmulator.storage_size(S::EquationCache) = storage_size(S.hamiltonian) + storage_size(S.state)

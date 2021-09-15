@@ -44,7 +44,7 @@ Create a `DiscreteEmulationCache`.
 """
 function DiscreteEmulationCache(::Type{T}, h::AbstractTerm, s::AbstractSpace=fullspace) where {T}
     is_time_dependent(h) && throw(ArgumentError("expect a time independent hamiltonian"))
-    return DiscreteEmulationCache(SparseMatrixCSC{T}(h, s))
+    return DiscreteEmulationCache(SparseMatrixCSC{T, Cint}(h, s))
 end
 
 function DiscreteEmulationCache(::Type{T}, ts::AbstractVector, hs::Vector{<:AbstractTerm}, s::AbstractSpace=fullspace) where {T}

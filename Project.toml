@@ -16,6 +16,7 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
 [compat]
 Adapt = "3"
+Configurations = "0.16"
 DiffEqCallbacks = "2"
 OrdinaryDiffEq = "5"
 Reexport = "1"

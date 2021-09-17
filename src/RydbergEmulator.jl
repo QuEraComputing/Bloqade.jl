@@ -27,7 +27,9 @@ using Transducers: OnInit
 using LinearAlgebra: BlasInt, BlasReal, BlasComplex
 
 export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
-    Hamiltonian, DiscreteEmulationCache, RydbergReg, FullSpace, fullspace, Subspace,
+    Hamiltonian, DiscreteEmulationCache,
+    RydbergReg, RealLayout, ComplexLayout, MemoryLayout,
+    FullSpace, fullspace, Subspace,
     PulseJob, Pulse, HyperfinePulse, RydbergPulse, is_time_dependent,
     to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms,
     rand_atoms, read_atoms, write_atoms, read_subspace,

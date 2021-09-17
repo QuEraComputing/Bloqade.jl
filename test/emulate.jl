@@ -72,7 +72,7 @@ end
     target = simple_evolve!(zero_state(length(atoms), space), ts, hs, space)
     @test prob.reg ≈ target
 
-    prob = DiscreteEvolution(zero_state(length(atoms), space), 0.5, h; progress=true)
-    emulate!(prob)
+    prob = DiscreteEvolution(zero_state(length(atoms), space), 0.001, h; progress=true)
+    @test_logs (:info, "emulating") (:info, "emulating") emulate!(prob)
     @test prob.options.progress == true
 end

@@ -1,82 +1,147 @@
-struct RydbergReg{N,B,ST,SST} <: Yao.AbstractRegister{B}
-    state::ST
-    subspace::SST
-    function RydbergReg{N,B,ST,SST}(state::ST, subspace::SST) where {N, B, ST, SST}
+abstract type MemoryLayout end
+struct RealLayout <: MemoryLayout end
+struct ComplexLayout <: MemoryLayout end
+
+struct RydbergReg{Layout <: MemoryLayout, State, Space <: Subspace} <: Yao.AbstractRegister{1}
+    natoms::Int
+    layout::Layout
+    state::State
+    subspace::Space
+
+    function RydbergReg{Layout, State, Space}(natoms, layout, state, subspace) where {Layout, State, Space}
+        new{Layout, State, Space}(natoms, layout, state, subspace)
+    end
+
+    function RydbergReg(natoms::Int, layout::MemoryLayout, state::State, subspace::Subspace) where {State <: AbstractArray}
         if size(state, 1) != length(subspace)
             throw(DimensionMismatch("size of state $(size(state, 1)) does not match size of subspace $(length(subspace))"))
         end
-        new{N, B,ST,SST}(state, subspace)
+        new{typeof(layout), State, typeof(subspace)}(natoms, layout, state, subspace)
     end
 end
 
-function Adapt.adapt_structure(to, x::RydbergReg{N}) where N
-    return RydbergReg{N}(adapt(to, x.state), x.subspace)
+function Adapt.adapt_structure(to, x::RydbergReg)
+    return RydbergReg(x.natoms, x.layout, adapt(to, x.state), x.subspace)
+end
+
+Base.copy(reg::RydbergReg{L, State, Space}) where {L, State, Space} =
+    RydbergReg{L, State, Space}(reg.natoms, reg.layout, copy(reg.state), copy(reg.subspace))
+
+function RydbergReg{RealLayout}(reg::RydbergReg{ComplexLayout})
+    T = real(eltype(reg.state))
+    dst = similar(reg.state, T, (length(reg.state), 2))
+    copyto!(dst, reinterpret(reshape, T, reg.state))
+    return RydbergReg(reg.natoms, reg.layout, dst, reg.subspace)
+end
+
+function RydbergReg{ComplexLayout}(reg::RydbergReg{RealLayout})
+    @views state = reg.state[:, 1] + reg.state[:, 2] * im
+    return RydbergReg(reg.natoms, reg.layout, state, reg.subspace)
 end
 
 """
-    RydbergReg{N}(state::AbstractVector, subspace::Subspace)
+    RydbergReg(natoms::Int, state::AbstractVector, subspace::Subspace)
 
-Create a `RydbergReg` from state vector and its corresponding subspace of `N` atoms.
+Create a `RydbergReg` from state vector and its corresponding subspace of `natoms`.
 """
-function RydbergReg{N}(state::AbstractVector, subspace::Subspace) where {N}
-    state = reshape(state,:,1)
-    return RydbergReg{N, 1, typeof(state), typeof(subspace)}(state, subspace)
+function RydbergReg(natoms::Int, state::AbstractVector, subspace::Subspace) where {N}
+    return RydbergReg(natoms, ComplexLayout(), reshape(state, size(state, 1)), subspace)
 end
 
 """
-    RydbergReg{N}(state::VT, subspace::Subspace) where {N, VT<:AbstractMatrix}
+    RydbergReg(natoms::Int, state::AbstractMatrix, subspace::Subspace)
 
-Create a `RydbergReg` from a batch of state vectors and their corresponding subspace of `N` atoms.
+Create a `RydbergReg` from real value storage.
 """
-function RydbergReg{N}(state::VT, subspace::Subspace) where {N, VT<:AbstractMatrix}
-    return RydbergReg{N, size(state,2),VT,typeof(subspace)}(state, subspace)
+function RydbergReg(natoms::Int, state::AbstractMatrix{<:Real}, subspace::Subspace)
+    return RydbergReg(natoms, RealLayout(), state, subspace)
 end
 
-Yao.nqubits(::RydbergReg{N}) where N = N
-Yao.nactive(::RydbergReg{N}) where N = N
+function RydbergReg(natoms::Int, state::AbstractMatrix{<:Complex}, subspace::Subspace)
+    error("support of batched register is dropped, please open an issue for your use case")
+end
+
+Yao.nqubits(reg::RydbergReg) = reg.natoms
+Yao.nactive(reg::RydbergReg) = reg.natoms
 Yao.state(reg::RydbergReg) = reg.state
-Yao.statevec(reg::RydbergReg) = Yao.YaoArrayRegister.matvec(reg.state)
-Yao.relaxedvec(reg::RydbergReg{N, 1}) where N = vec(reg.state)
+Yao.statevec(reg::RydbergReg) = reg.state
 Yao.relaxedvec(reg::RydbergReg) = reg.state
-Yao.datatype(reg::RydbergReg) = eltype(reg.state)
-Base.copy(reg::RydbergReg{N, B, ST, SST}) where {N, B, ST, SST} =
-    RydbergReg{N, B, ST, SST}(copy(reg.state), copy(reg.subspace))
+Yao.datatype(reg::RydbergReg{ComplexLayout}) = eltype(reg.state)
+Yao.datatype(reg::RydbergReg{RealLayout}) = Complex{eltype(reg.state)}
 
 """
-    zero_state([T=ComplexF64], n::Int, subspace; nbatch=1)
+    zero_state([T=ComplexF64], n::Int, subspace[, layout=ComplexLayout()])
 
 Create a `RydbergReg` in zero state in given subspace.
+
+# Arguments
+
+- `T`: optional, element type, default is `ComplexF64`.
+- `n`: required, number of atoms (qubits).
+- `subspace`: required, the subspace of rydberg state.
+- `layout`: optional, memory layout, default is `ComplexLayout`.
+
+# Memory Layout
+
+When the hamiltonian is a real hermitian, it can be more efficient
+to use the `RealLayout` over `ComplexLayout` which stores the complex
+-value state vector as as `length(state)×2` matrix, the first column
+is the real component and the second column is the imaginary component.
 """
-Yao.zero_state(n::Int, subspace::Subspace; nbatch=1) = zero_state(ComplexF64, n, subspace; nbatch=nbatch)
+Yao.zero_state(n::Int, subspace::Subspace, layout=ComplexLayout()) = zero_state(ComplexF64, n, subspace, layout)
+Yao.zero_state(::Type{T}, natoms::Int, s::Subspace) where T = zero_state(T, natoms, s, ComplexLayout())
 
-function Yao.zero_state(::Type{T}, n::Int, s::Subspace; nbatch=1) where {T <: Complex}
-    st = zeros(T, length(s), nbatch)
-    st[1, :] .= 1
-    return RydbergReg{n}(st, s)
+function Yao.zero_state(::Type{T}, natoms::Int, s::Subspace, layout::ComplexLayout) where {T <: Complex}
+    state = zeros(T, length(s))
+    state[1] = 1
+    return RydbergReg(natoms, layout, state, s)
 end
 
-Yao.rand_state(n::Int, s::Subspace; nbatch::Int=1) = Yao.rand_state(ComplexF64, n, s; nbatch=nbatch)
-function Yao.rand_state(::Type{T}, n::Int, s::Subspace; nbatch::Int=1) where T
-    st = Yao.batch_normalize!(rand(T, length(s), nbatch))
-    return RydbergReg{n}(st, s)
+function Yao.zero_state(::Type{T}, natoms::Int, s::Subspace, layout::RealLayout) where {T <: Complex}
+    state = zeros(real(T), length(s), 2)
+    state[1, 1] = 1
+    return RydbergReg(natoms, layout, state, s)
 end
 
-Yao.product_state(n::Int, c::BitStr, s::Subspace; nbatch::Int=1) = Yao.product_state(ComplexF64, n, c, s; nbatch=nbatch)
-function Yao.product_state(::Type{T}, n::Int, c::BitStr, s::Subspace; nbatch::Int=1) where T
+function Yao.rand_state(natoms::Int, s::Subspace, layout::MemoryLayout = ComplexLayout())
+    Yao.rand_state(ComplexF64, natoms, s, layout)
+end
+
+function Yao.rand_state(::Type{T}, natoms::Int, s::Subspace, layout::ComplexLayout) where {T <: Complex}
+    state = normalize!(rand(T, length(s)))
+    return RydbergReg(natoms, layout, state, s)
+end
+
+function Yao.rand_state(::Type{T}, natoms::Int, s::Subspace, layout::RealLayout) where {T <: Complex}
+    state = normalize!(rand(real(T), length(s), 2))
+    return RydbergReg(natoms, layout, state, s)
+end
+
+function Yao.product_state(natoms::Int, config::BitStr, s::Subspace, layout::MemoryLayout=ComplexLayout())
+    Yao.product_state(ComplexF64, natoms, config, s, layout)
+end
+
+function Yao.product_state(::Type{T}, natoms::Int, c::BitStr, s::Subspace, layout::ComplexLayout) where T
     c in s.subspace_v || error("$c is not in given subspace")
-    st = zeros(T, length(s), nbatch)
-    st[s[c], :] .= 1
-    return RydbergReg{n}(st, s)
+    state = zeros(T, length(s))
+    state[s[c]] = 1
+    return RydbergReg(natoms, layout, state, s)
+end
+
+function Yao.product_state(::Type{T}, natoms::Int, c::BitStr, s::Subspace, layout::RealLayout) where T
+    c in s.subspace_v || error("$c is not in given subspace")
+    state = zeros(T, length(s), 2)
+    state[s[c], 1] = 1
+    return RydbergReg(natoms, layout, state, s)
 end
 
 # TODO: make upstream implementation more generic
 function LinearAlgebra.normalize!(r::RydbergReg)
-    Yao.batch_normalize!(r.state)
+    normalize!(r.state)
     return r
 end
 
-Yao.isnormalized(r::RydbergReg) = all(sum(abs2, r.state, dims = 1) .≈ 1)
-
+Yao.isnormalized(r::RydbergReg) = norm(r.state) ≈ 1
 Base.isapprox(x::RydbergReg, y::RydbergReg; kwargs...) = isapprox(x.state, y.state; kwargs...) && (x.subspace == y.subspace)
 
 """
@@ -86,11 +151,14 @@ Set the given register to |00...00⟩.
 """
 function set_zero_state! end
 
-set_zero_state!(r::RydbergReg) = (_set_zero_state!(r.state); r)
-set_zero_state!(r::Yao.ArrayReg) = (_set_zero_state!(r.state); r)
+function set_zero_state!(r::RydbergReg)
+    fill!(r.state, 0)
+    r.state[1] = 1
+    return r
+end
 
-function _set_zero_state!(st::AbstractMatrix{T}) where T
-    fill!(st, zero(T))
-    st[1, :] .= 1
-    return st
+function set_zero_state!(r::Yao.ArrayReg)
+    fill!(r.state, 0)
+    r.state[1, :] .= 1
+    return r
 end

@@ -3,6 +3,10 @@ using Random
 using LightGraphs, LinearAlgebra
 using BitBasis
 
+if !isdefined(@__MODULE__, :test_graph)
+    include("utils.jl")
+end
+
 @testset "test measurement" begin
     Random.seed!(8)
     params = randn(10)

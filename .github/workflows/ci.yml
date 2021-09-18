@@ -24,10 +24,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1.0.0
-      - name: "Set up Julia"
-        uses: julia-actions/setup-julia@latest
+      - uses: julia-actions/setup-julia@v1
         with:
-          version: ${{ matrix.julia-version }}
+          version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
       - name: "Add Registry"
         run: julia -e 'using Pkg; pkg"registry add https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"'
       - name: "Add Private Deps"

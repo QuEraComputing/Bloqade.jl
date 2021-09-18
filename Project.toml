@@ -1,7 +1,7 @@
 name = "ContinuousEmulator"
 uuid = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
 authors = ["QuEra Computing Inc."]
-version = "0.3.4"
+version = "0.4.0"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"

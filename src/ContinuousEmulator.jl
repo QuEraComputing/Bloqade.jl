@@ -9,79 +9,43 @@ using SparseArrays
 using LinearAlgebra
 using Configurations
 using DiffEqCallbacks
-using RydbergEmulator: AbstractTerm, AbstractSpace, EmulationOptions, storage_size
+using RydbergEmulator: AbstractTerm, AbstractSpace, EmulationOptions, storage_size, MemoryLayout, RealLayout, ComplexLayout
 using OrdinaryDiffEq: OrdinaryDiffEq, Vern8, ODEProblem
 
 @reexport using RydbergEmulator
 export ShordingerEquation, ContinuousEvolution
 
-struct EquationCache{H, S}
+struct EquationCache{H, Layout, S}
     hamiltonian::H
+    layout::Layout
     state::S
 end
 
-# CPU
-function EquationCache(H::SparseMatrixCSC{Tv}) where Tv
+function EquationCache(H::SparseMatrixCSC{Tv}, layout::ComplexLayout) where {Tv}
     state = Vector{Complex{real(Tv)}}(undef, size(H, 1))
-    return EquationCache(H, state)
+    return EquationCache(H, layout, state)
 end
 
-struct ShordingerEquation{S, HTerm, HMatrix, State}
-    space::S
+function EquationCache(H::SparseMatrixCSC{Tv}, layout::RealLayout) where {Tv}
+    state = Matrix{real(Tv)}(undef, size(H, 1), 2)
+    return EquationCache(H, layout, state)
+end
+
+EquationCache(H::SparseMatrixCSC) = EquationCache(H, ComplexLayout())
+
+struct ShordingerEquation{L, HTerm, Space, Cache <: EquationCache{<:Any, L}}
+    layout::L
     hamiltonian::HTerm
-    cache::EquationCache{HMatrix, State}
+    space::Space
+    cache::Cache
+end
+
+function ShordingerEquation(h::AbstractTerm, space::AbstractSpace, cache::EquationCache)
+    ShordingerEquation(cache.layout, h, space, cache)
 end
 
 Adapt.@adapt_structure ShordingerEquation
 Adapt.@adapt_structure EquationCache
-
-# default is always CPU, we use cu(x) interface for CUDA via Adapt
-
-"""
-    ShordingerEquation([T=Float64, s::AbstractSpace], h::AbstractTerm[, cache=cpu_equation_cache(T, h)])
-
-Create a Shordinger equation for given hamiltonian expression `h`.
-
-# Arguments
-
-- `T <: Real`: eltype of the hamiltonian matrix, default is `Float64`
-    when the hamiltonian is a real hermitian, or `ComplexF64` when the hamiltonian
-    is a complex hermitian to acheive best performance.
-- `s::AbstractSpace`: space specification, can be used to specify an
-    independent-set subspace for the simulation, optional.
-- `h::AbstractTerm`: required, the hamiltonian.
-- `cache::EquationCache`: the equation evaluation cache, default is `cpu_equation_cache(T, h)`.
-
-# The Callable Method
-
-A `ShordingerEquation` object has a callable method
-
-    (eq::ShordingerEquation)(dstate, state, p, t)
-
-Can be further used in an ODE solver such as `OrdinaryDiffEq`.
-The form `(dstate, state, p, t)` is the inplace definition
-of the equation, see also
-[DiffEq:Solving-Systems-of-Equations](https://diffeq.sciml.ai/latest/tutorials/ode_example/#Example-2:-Solving-Systems-of-Equations)
-"""
-function ShordingerEquation(h::AbstractTerm,
-        s::AbstractSpace = fullspace,
-        cache::EquationCache=cpu_equation_cache(decide_eltype(h), h, s))
-
-    return ShordingerEquation(decide_eltype(h), h, s, cache)
-end
-
-decide_eltype(h::AbstractTerm) = isreal(h) ? Float64 : ComplexF64
-
-function ShordingerEquation(::Type{T}, h::AbstractTerm, s::RydbergEmulator.AbstractSpace=fullspace, cache::EquationCache=cpu_equation_cache(T, h, s)) where T
-    ShordingerEquation(s, h, cache)
-end
-
-# NOTE: we choose the matrix eltype automatically when it can be real
-# since SparseMatrix{<:Real} * Vector{<:Complex} is always faster than
-# SparseMatrix{<:Complex} * Vector{<:Complex}
-function cpu_equation_cache(::Type{T}, h::AbstractTerm, s::RydbergEmulator.AbstractSpace = fullspace) where T
-    EquationCache(SparseMatrixCSC{T, Cint}(h(1e-2), s))
-end
 
 RydbergEmulator.storage_size(S::EquationCache) = storage_size(S.hamiltonian) + storage_size(S.state)
 
@@ -101,18 +65,34 @@ function Base.show(io::IO, m::MIME"text/plain", eq::ShordingerEquation)
     show(IOContext(io, :indent=>indent+2), m, eq.hamiltonian)
 end
 
-function (eq::ShordingerEquation{<:Subspace})(dstate, state, p, t::Number)
+function (eq::ShordingerEquation)(dstate, state, p, t::Number) where L
     update_term!(eq.cache.hamiltonian, eq.hamiltonian(t), eq.space)
     mul!(eq.cache.state, eq.cache.hamiltonian, state)
-    @. dstate = -im * eq.cache.state
+    # @. dstate = -im * eq.cache.state
+    update_dstate!(dstate, eq.cache.state, eq.layout)
     return
 end
 
-function (eq::ShordingerEquation{<:FullSpace})(dstate, state, p, t::Number)
-    update_term!(eq.cache.hamiltonian, eq.hamiltonian(t))
-    mul!(eq.cache.state, eq.cache.hamiltonian, state)
-    @. dstate = -im * eq.cache.state
-    return
+function update_dstate!(dstate::AbstractVector, state::AbstractVector, ::ComplexLayout)
+    broadcast!(x->-im*x, dstate, state)
+    return dstate
+end
+
+# real storage
+# -im * (x + im*y)
+# -im * x + y
+# (y - x * im)
+function update_dstate!(dstate::Matrix{<:Real}, state::Matrix{<:Real}, ::RealLayout)
+    # real
+    @inbounds for i in axes(state, 1)
+        dstate[i, 1] = state[i, 2]
+    end
+
+    # imag
+    @inbounds for i in axes(state, 1)
+        dstate[i, 2] = -state[i, 1]
+    end
+    return dstate
 end
 
 function norm_preserve(resid, state, p, t)
@@ -141,12 +121,18 @@ end
 
 Problem type for hamiltonian with time dependent parameters.
 """
-struct ContinuousEvolution{P <: AbstractFloat}
-    reg::AbstractRegister
+struct ContinuousEvolution{P <: AbstractFloat, Reg <: AbstractRegister, Eq <: ShordingerEquation, Prob <: ODEProblem, Options <: ContinuousOptions}
+    reg::Reg
     time::NTuple{2, P}
-    eq::ShordingerEquation
-    ode_prob::ODEProblem
-    options::ContinuousOptions
+    eq::Eq
+    ode_prob::Prob
+    options::Options
+
+    function ContinuousEvolution{P}(reg, time, eq, ode_prob, options) where P
+        new{P, typeof(reg), typeof(eq), typeof(ode_prob), typeof(options)}(
+            reg, time, eq, ode_prob, options
+        )
+    end
 end
 
 ContinuousEvolution(r::AbstractRegister, t, h::AbstractTerm; kw...) =
@@ -190,6 +176,10 @@ to evolve from `start` to `stop` using an ODE solver.
 - `normalize_steps`: steps to run normalization on the state, default is `5`.
 """
 function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P <: AbstractFloat}
+    layout = RydbergEmulator.MemoryLayout(r)
+    if layout isa RealLayout
+        isreal(h) || error("cannot use RealLayout for non-real hamiltonian")
+    end
     options = ContinuousOptions(;kw...)
     # we do not convert the tspan to P since
     # the parameter function can relay on higher precision
@@ -199,10 +189,17 @@ function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real
     time = (start, stop)
     reg = adapt(RydbergEmulator.PrecisionAdaptor(P), r)
     space = RydbergEmulator.get_space(r)
-    eq = ShordingerEquation(isreal(h) ? P : Complex{P}, h, space)
+
+    # allocate cache
+    # NOTE: on CPU we can do mixed type spmv
+    # thus we use the smallest type we can get
+    T = isreal(h) ? P : Complex{P}
+    H = SparseMatrixCSC{T, Cint}(h(start+sqrt(eps(P))), space)
+    cache = EquationCache(H, layout)
+    eq = ShordingerEquation(h, space, cache)
 
     ode_prob = ODEProblem(
-        eq, vec(Yao.state(reg)), time;
+        eq, Yao.statevec(reg), time;
         save_everystep=false, save_start=false, alias_u0=true,
         progress=options.progress,
         progress_steps=options.progress_steps,

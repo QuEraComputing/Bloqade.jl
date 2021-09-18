@@ -1,8 +1,12 @@
-function emulate_routine!(r::RydbergReg, t::Number, h::AbstractTerm, cache::AbstractMatrix)
+function emulate_routine!(r::RydbergReg{ComplexLayout}, t::Number, h::AbstractTerm, cache::AbstractMatrix)
     st = vec(r.state)
     update_term!(cache, h, r.subspace)
     expmv!(-im * t, cache, st)
     return r
+end
+
+function emulate_routine!(r::RydbergReg{RealLayout}, t::Number, h::AbstractTerm, cache::AbstractMatrix)
+    error("discrete emulator does not support RealLayout yet")
 end
 
 function emulate_routine!(r::Yao.ArrayReg, t::Number, h::AbstractTerm, cache::AbstractMatrix)

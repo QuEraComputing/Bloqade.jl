@@ -24,6 +24,9 @@ function Adapt.adapt_structure(to, x::RydbergReg)
     return RydbergReg(x.natoms, x.layout, adapt(to, x.state), x.subspace)
 end
 
+MemoryLayout(::Yao.ArrayReg) = ComplexLayout()
+MemoryLayout(::RydbergReg{Layout}) where Layout = Layout()
+
 Base.copy(reg::RydbergReg{L, State, Space}) where {L, State, Space} =
     RydbergReg{L, State, Space}(reg.natoms, reg.layout, copy(reg.state), copy(reg.subspace))
 
@@ -144,7 +147,15 @@ function LinearAlgebra.normalize!(r::RydbergReg)
 end
 
 Yao.isnormalized(r::RydbergReg) = norm(r.state) ≈ 1
-Base.isapprox(x::RydbergReg, y::RydbergReg; kwargs...) = isapprox(x.state, y.state; kwargs...) && (x.subspace == y.subspace)
+function Base.isapprox(x::RydbergReg{L}, y::RydbergReg{L}; kwargs...) where L
+    return isapprox(x.state, y.state; kwargs...) && (x.subspace == y.subspace)
+end
+function Base.isapprox(x::RydbergReg{RealLayout}, y::RydbergReg{ComplexLayout}; kw...)
+    return isapprox(x.state[:, 1] + im * x.state[:, 2], y.state; kw...)
+end
+function Base.isapprox(x::RydbergReg{ComplexLayout}, y::RydbergReg{RealLayout}; kw...)
+    return isapprox(y, x; kw...)
+end
 
 """
     set_zero_state!(register)

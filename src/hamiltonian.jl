@@ -528,11 +528,11 @@ function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm, s::AbstractSpa
     colptr, rowval = sparse_skeleton_csc(Ti, term, s)
     H = SparseMatrixCSC{Tv, Ti}(N, N, colptr, rowval, Vector{Tv}(undef, length(rowval)))
     update_term!(H, term, s)
-    return dropzeros!(H)
+    return H
 end
 
 function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::Hamiltonian, s::AbstractSpace=fullspace) where {Tv, Ti}
-    return dropzeros!(sum(SparseMatrixCSC{Tv, Ti}(t, s) for t in term.terms))
+    return sum(SparseMatrixCSC{Tv, Ti}(t, s) for t in term.terms)
 end
 
 function SparseArrays.SparseMatrixCSC{Tv, Ti}(t::Negative, s::AbstractSpace=fullspace) where {Tv, Ti}

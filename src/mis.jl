@@ -51,15 +51,42 @@ function mean_rydberg end
 
 mean_rydberg(x) = mean_rydberg(identity, x)
 
-_config_amplitude(r::RydbergReg) = zip(vec(r.subspace), vec(r.state))
+struct ConfigAmplitude{Reg <: Yao.AbstractRegister}
+    reg::Reg
+    range::UnitRange{Int}
+end
 
-function _config_amplitude(r::Yao.ArrayReg)
-    state = Yao.relaxedvec(r)
-    return zip(0:length(state)-1, state)
+ConfigAmplitude(reg::Yao.AbstractRegister{1}) = ConfigAmplitude(reg, 1:size(reg.state, 1))
+
+Base.eltype(it::ConfigAmplitude) = Tuple{Int, Yao.datatype(it.reg)}
+Base.length(it::ConfigAmplitude) = length(it.range)
+
+function Transducers.halve(it::ConfigAmplitude)
+    left, right = Transducers.halve(it.range)
+    return ConfigAmplitude(it.reg, left), ConfigAmplitude(it.reg, right)
+end
+
+function Base.iterate(it::ConfigAmplitude{<:RydbergReg{ComplexLayout}}, idx::Int = first(it.range))
+    idx > last(it.range) && return
+    cfg = it.reg.subspace.subspace_v[idx]
+    @inbounds amp = it.reg.state[idx]
+    return (cfg, amp), idx + 1
+end
+
+function Base.iterate(it::ConfigAmplitude{<:RydbergReg{RealLayout}}, idx::Int = first(it.range))
+    idx > last(it.range) && return
+    cfg = it.reg.subspace.subspace_v[idx]
+    @inbounds amp = it.reg.state[idx, 1] + im * it.reg.state[idx, 2]
+    return (cfg, amp), idx + 1
+end
+
+function Base.iterate(it::ConfigAmplitude{<:Yao.ArrayReg}, idx::Int = first(it.range))
+    idx > last(it.range) && return
+    return (idx-1, it.reg.state[idx]), idx + 1
 end
 
 function mean_rydberg(f, reg::Yao.AbstractRegister)
-    return ThreadsX.sum(_config_amplitude(reg)) do (c, amp)
+    return ThreadsX.sum(ConfigAmplitude(reg)) do (c, amp)
         nvertices = count_vertices(f(c))
         return abs2(amp) * nvertices
     end
@@ -93,7 +120,7 @@ where `n` is the vertex set size.
 gibbs_loss(reg_or_samples, α::Real) = gibbs_loss(identity, reg_or_samples, α)
 
 function gibbs_loss(f, reg::Yao.AbstractRegister, α::Real)
-    expected = ThreadsX.sum(_config_amplitude(reg)) do (config, amp)
+    expected = ThreadsX.sum(ConfigAmplitude(reg)) do (config, amp)
         abs2(amp) * exp(α * count_vertices(config))
     end
     return -log(expected) / α 
@@ -285,7 +312,7 @@ function independent_set_probabilities(f, reg::Yao.AbstractRegister, graph::Abst
 end
 
 function independent_set_probabilities(f, reg::Yao.AbstractRegister, mis::Int)
-    v2amp = ThreadsX.map(_config_amplitude(reg)) do (c, amp)
+    v2amp = ThreadsX.map(ConfigAmplitude(reg)) do (c, amp)
         return count_vertices(f(c)), amp
     end
 

@@ -51,3 +51,13 @@ end
     r = product_state(5, bit"1000", s)
     @test isone(r.state[end])
 end
+
+@testset "constructors" begin
+    r = rand_state(10, Subspace([0, 1, 4, 8]), ComplexLayout())
+    @test RydbergReg{RealLayout}(r) isa RydbergReg{RealLayout}
+    @test RydbergReg{ComplexLayout}(r) isa RydbergReg{ComplexLayout}
+
+    r = rand_state(10, Subspace([0, 1, 4, 8]), RealLayout())
+    @test RydbergReg{RealLayout}(r) isa RydbergReg{RealLayout}
+    @test RydbergReg{ComplexLayout}(r) isa RydbergReg{ComplexLayout}
+end

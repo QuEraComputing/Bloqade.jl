@@ -27,16 +27,18 @@ end
 Base.copy(reg::RydbergReg{L, State, Space}) where {L, State, Space} =
     RydbergReg{L, State, Space}(reg.natoms, reg.layout, copy(reg.state), copy(reg.subspace))
 
+RydbergReg{Layout}(reg::RydbergReg{Layout}) where {Layout <: MemoryLayout} = copy(reg)
+
 function RydbergReg{RealLayout}(reg::RydbergReg{ComplexLayout})
     T = real(eltype(reg.state))
     dst = similar(reg.state, T, (length(reg.state), 2))
-    copyto!(dst, reinterpret(reshape, T, reg.state))
-    return RydbergReg(reg.natoms, reg.layout, dst, reg.subspace)
+    copyto!(dst, reinterpret(reshape, T, reg.state)')
+    return RydbergReg(reg.natoms, RealLayout(), dst, reg.subspace)
 end
 
 function RydbergReg{ComplexLayout}(reg::RydbergReg{RealLayout})
     @views state = reg.state[:, 1] + reg.state[:, 2] * im
-    return RydbergReg(reg.natoms, reg.layout, state, reg.subspace)
+    return RydbergReg(reg.natoms, ComplexLayout(), state, reg.subspace)
 end
 
 """

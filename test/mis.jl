@@ -1,6 +1,7 @@
 using Test
 using RydbergEmulator
 using LinearAlgebra
+using Random
 using BitBasis
 using Yao
 using LightGraphs
@@ -56,4 +57,11 @@ r = RydbergReg(length(atoms), raw_state, space)
     r = RydbergReg(length(atoms), raw_state, space)
     @test sum(independent_set_probabilities(r, graph)) ≈ 1
     @test sum(independent_set_probabilities(mis_postprocessing(graph), r, graph)) ≈ 1
+end
+
+@testset "RealLayout MIS functions" begin
+    space = Subspace(sort!(randperm(1<<10)[1:30]))
+    cr = rand_state(10, space)
+    rr = RydbergReg{RealLayout}(cr)
+    @test mean_rydberg(cr) ≈ mean_rydberg(rr)        
 end

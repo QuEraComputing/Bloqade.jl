@@ -19,6 +19,7 @@ using ProgressLogging
 using Polyester
 using StatsBase
 using ThreadsX
+using Transducers
 using StaticArrays
 
 import Yao

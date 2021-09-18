@@ -20,9 +20,9 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 [compat]
 Adapt = "3"
 CUDA = "3"
-ContinuousEmulator = "0.3"
+ContinuousEmulator = "0.4"
 Reexport = "1"
-RydbergEmulator = "0.13"
+RydbergEmulator = "0.14"
 julia = "1.6"
 
 [extras]

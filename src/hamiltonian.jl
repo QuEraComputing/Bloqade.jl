@@ -182,6 +182,8 @@ struct Negative{Term} <: AbstractTerm
     term::Term
 end
 
+const OrNegative{T} = Union{Negative{T}, T}
+
 Base.:(-)(t::AbstractTerm) = Negative(t)
 Base.:(-)(t::Negative) = t.term
 
@@ -523,9 +525,20 @@ space_size(::AbstractTerm, s::Subspace) = length(s)
 
 function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm, s::AbstractSpace=fullspace) where {Tv, Ti}
     N = space_size(term, s)
-    H = SparseMatrixCOO{Tv, Ti}(undef, N, N)
-    to_matrix!(H, term, s)
-    return SparseMatrixCSC(H)
+    colptr, rowval = sparse_skeleton_csc(Ti, term, s)
+    H = SparseMatrixCSC{Tv, Ti}(N, N, colptr, rowval, Vector{Tv}(undef, length(rowval)))
+    update_term!(H, term, s)
+    return dropzeros!(H)
+end
+
+function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::Hamiltonian, s::AbstractSpace=fullspace) where {Tv, Ti}
+    return dropzeros!(sum(SparseMatrixCSC{Tv, Ti}(t, s) for t in term.terms))
+end
+
+function SparseArrays.SparseMatrixCSC{Tv, Ti}(t::Negative, s::AbstractSpace=fullspace) where {Tv, Ti}
+    H = SparseMatrixCSC{Tv, Ti}(t.term, s)
+    lmul!(-one(Tv), H.nzval)
+    return H
 end
 
 # NOTE: we use BlasInt as Ti, since MKLSparse uses BlasInt as Ti
@@ -534,202 +547,71 @@ end
 SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::AbstractSpace=fullspace) where Tv = SparseMatrixCSC{Tv, BlasInt}(term, s)
 SparseArrays.SparseMatrixCSC(term::AbstractTerm, s::AbstractSpace=fullspace) = SparseMatrixCSC{ComplexF64}(term, s)
 
-# full space
-# C/|r_i - r_j|^6 n_i n_j
-# specialize on COO
-function check_size(dst, space_sz::Int)
-    M = LinearAlgebra.checksquare(dst)
-    M == space_sz || throw(DimensionMismatch(
-        "destination has size $M, the hilbert space expect $space_sz entries"
-    ))
-end
+sparse_skeleton_csc(t::AbstractTerm, s::AbstractSpace=fullspace) = sparse_skeleton_csc(Int, t, s)
 
-"""
-    to_matrix!(dst, term[, subspace])
-
-Create given term to a matrix and assign it to `dst`. An optional argument `subspace`
-can be taken to construct the matrix in subspace. `dst` should be initialized to zero
-entries by the user.
-"""
-function to_matrix! end
-
-to_matrix!(dst::AbstractMatrix, t::AbstractTerm) = to_matrix!(dst, t, fullspace)
-
-# TODO: generalize to_matrix
-const OrNegative{T} = Union{T, Negative{T}}
-
-# TODO: support negative here?
-function to_matrix!(dst::SparseMatrixCOO, t::RydInteract, ::FullSpace)
-    n = nsites(t)
-    check_size(dst, 1 << n)
-    @inbounds for i in 1:n, j in 1:i-1
-        r_i, r_j = t.atoms[i], t.atoms[j]
-        alpha = t.C / distance(r_i, r_j)^6
-        # |11⟩⟨11|
-        for lhs in itercontrol(nsites(t), [i, j], [1, 1])
-            dst[lhs+1, lhs+1] = alpha # this will be accumulated by COO format converter
+function sparse_skeleton_csc(::Type{Ti}, t::XTerm, s::FullSpace) where Ti
+    natoms = nsites(t)
+    sz = hilbert_space(natoms)
+    colptr = Ti[natoms*i+1 for i in 0:length(sz)]
+    rowval = Vector{Ti}(undef, natoms * length(sz))
+    @inbounds @batch for col in sz
+        colrowval = map(1:natoms) do k
+            rhs = flip(col, 1 << (k - 1))
+            return rhs + 1
         end
+        rowval[natoms*col+1:natoms*col+natoms] = sort!(colrowval)
     end
-    return dst
+    return colptr, rowval
 end
 
-# Ω ⋅ (e^{iϕ}|0)⟨1| + e^{-iϕ} |1⟩⟨0|)
-function to_matrix!(dst::AbstractMatrix{T}, t::OrNegative{<:XTerm}, ::FullSpace) where T
-    check_size(dst, 1<<nsites(t))
-    @inbounds for lhs in hilbert_space(t)
+function sparse_skeleton_csc(::Type{Ti}, t::XTerm, s::Subspace) where Ti
+    colptr = Vector{Ti}(undef, length(s)+1)
+    rowval_list = Vector{Vector{Ti}}(undef, length(s))
+    colptr[1] = 1
+
+    @inbounds @batch for i in 1:length(s)
+        lhs = s.subspace_v[i]
+        colrowval = Ti[]
         for k in 1:nsites(t)
-            k_site = readbit(lhs, k)
-            rhs = flip(lhs, 1 << (k - 1))
-            dst[lhs+1, rhs+1] = getterm(t, k, k_site)
-        end
-    end
-    return dst
-end
-
-function to_matrix!(dst::AbstractMatrix{T}, t::OrNegative{<:Union{ZTerm, NTerm}}, ::FullSpace) where T
-    check_size(dst, 1<<nsites(t))
-    @inbounds for lhs in hilbert_space(t)
-        sigma_z = zero(T)
-        for k in 1:nsites(t)
-            sigma_z += getterm(t, k, readbit(lhs, k))
-        end
-        dst[lhs+1, lhs+1] = sigma_z
-    end
-    return dst
-end
-
-function to_matrix!(dst::AbstractMatrix{T}, t::OrNegative{<:Hamiltonian}, s::AbstractSpace) where T
-    for term in t.terms
-        to_matrix!(dst, term, s)
-    end
-    return dst
-end
-
-# subspace
-function to_matrix!(dst::AbstractMatrix, t::OrNegative{<:XTerm}, s::Subspace)
-    check_size(dst, length(s))
-    @inbounds for (lhs, i) in s
-        for k in 1:nsites(t)
-            k_site = readbit(lhs, k)
             rhs = flip(lhs, 1 << (k - 1))
             if haskey(s, rhs)
-                dst[i, s[rhs]] = getterm(t, k, k_site)
+                push!(colrowval, s[rhs])
             end
         end
+        sort!(colrowval)
+        rowval_list[i] = colrowval
     end
-    return dst
+
+    rowval = Vector{Ti}(undef, sum(length, rowval_list))
+    ptr = 1
+    for col in 1:length(rowval_list) # O(length(s))
+        rowval_col = rowval_list[col]
+        rowval_nnz = length(rowval_col)
+        rowval[ptr:ptr+rowval_nnz-1] = rowval_col
+        colptr[col+1] = colptr[col] + rowval_nnz
+        ptr += rowval_nnz
+    end
+    return colptr, rowval
 end
 
-function to_matrix!(dst::AbstractMatrix{T}, t::OrNegative{<:Union{ZTerm, NTerm}}, s::Subspace) where T
-    check_size(dst, length(s))
-    @inbounds for (lhs, i) in s
-        entry = zero(T)
-        for k in 1:nsites(t)
-            entry += getterm(t, k, readbit(lhs, k))
-        end
-        dst[i, i] = entry
-    end
-    return dst
+# Diagonal
+function sparse_skeleton_csc(::Type{Ti}, t::Union{RydInteract, ZTerm, NTerm}, s::AbstractSpace) where Ti
+    m = space_size(t, s)
+    colptr = Vector{Ti}(1:(m+1))
+    rowval = Vector{Ti}(1:m)
+    return colptr, rowval
 end
-
-# NOTE: we need to specialize on COO to get rid of the race condition
-# caused by COO setindex!
-function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::OrNegative{<:XTerm}, s::Subspace) where {Tv, Ti}
-    check_size(dst, length(s))
-    vals = zeros(Tv, nsites(t), length(s))
-    subspace_rhs = zeros(Ti, nsites(t), length(s))
-
-    ThreadsX.foreach(enumerate(s.subspace_v)) do (i, lhs)
-        for k in 1:nsites(t)
-            k_site = readbit(lhs, k)
-            rhs = flip(lhs, 1 << (k - 1))
-            if haskey(s, rhs)
-                # dst[i, s[rhs]] = getterm(t, k, k_site)
-                vals[k, i] = getterm(t, k, k_site)
-                subspace_rhs[k, i] = s.map[rhs]
-            end
-        end
-    end
-
-    for i in axes(vals, 2), k in axes(vals, 1)
-        v = vals[k, i]
-        j = subspace_rhs[k, i]
-        # !iszero(v) && iszero(j) && println("v=", v, "k=", k, "i=", i)
-
-        if !iszero(j)
-            push!(dst.is, i)
-            push!(dst.js, j)
-            push!(dst.vs, v)
-        end
-    end
-    return dst
-end
-
-function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::OrNegative{<:Union{ZTerm, NTerm}}, s::Subspace) where {Tv, Ti}
-    check_size(dst, length(s))
-    vals = zeros(Tv, length(s))
-
-    ThreadsX.foreach(enumerate(s.subspace_v)) do (i, lhs)
-        n_ij = zero(Tv)
-        for k in 1:nsites(t)
-            n_ij += getterm(t, k, readbit(lhs, k))
-        end
-        @inbounds vals[i] += n_ij
-    end
-
-    _assign_diag!(dst, vals)
-    return dst
-end
-
-function to_matrix!(dst::SparseMatrixCOO{Tv, Ti}, t::RydInteract, s::Subspace) where {Tv, Ti}
-    check_size(dst, length(s))
-
-    n = nsites(t)
-    vals = zeros(Tv, length(s))
-
-    ThreadsX.foreach(enumerate(s.subspace_v)) do (k, lhs)
-        @inbounds for i in 1:n, j in 1:i-1
-            if (readbit(lhs, i) == 1) && (readbit(lhs, j) == 1)
-                r_i, r_j = t.atoms[i], t.atoms[j]
-                alpha = t.C / distance(r_i, r_j)^6
-                vals[k] += alpha
-            end
-        end
-    end
-
-    _assign_diag!(dst, vals)
-    return dst
-end
-
-function _assign_diag!(dst::SparseMatrixCOO, vals)
-    sizehint!(dst.is, length(dst.is) + length(vals))
-    sizehint!(dst.js, length(dst.js) + length(vals))
-
-    for (k, v) in enumerate(vals)
-        if !iszero(v)
-            push!(dst.is, k)
-            push!(dst.js, k)
-            push!(dst.vs, v)
-        end
-    end
-    return dst
-end
-
 
 """
-    update_term!(H, term[, subspace])
+    update_term!(H, term[, space=fullspace])
 
 Update matrix `H` based on the given Hamiltonian term. This can be faster when the sparse structure of
-`H` is known (e.g `H` is a `SparseMatrixCSC`). It fallbacks to `to_matrix!(H, term[, subspace])` if the
-sparse structure is unknown.
+`H` is known (e.g `H` is a `SparseMatrixCSC`).
 """
 function update_term! end
 
-# forward to to_matrix! as fallback for other kind of matrices
-update_term!(H::AbstractMatrix, t::AbstractTerm, s::AbstractSpace=fullspace) = to_matrix!(H, t, s)
-
-Base.Base.@propagate_inbounds function foreach_nnz(f, H::SparseMatrixCSC)
-    for lhs in 1:size(H, 1)
+Base.@propagate_inbounds function foreach_nnz(f, H::SparseMatrixCSC)
+    @batch for lhs in 1:size(H, 1)
         @inbounds start = H.colptr[lhs]
         @inbounds stop = H.colptr[lhs+1]-1
 
@@ -740,7 +622,7 @@ Base.Base.@propagate_inbounds function foreach_nnz(f, H::SparseMatrixCSC)
     end
 end
 
-function update_term!(H::AbstractSparseMatrix, t::AbstractTerm, ::FullSpace)
+function update_term!(H::AbstractSparseMatrix, t::AbstractTerm, ::FullSpace=fullspace)
     nzval = nonzeros(H)
     foreach_nnz(H) do k, col, row
         @inbounds nzval[k] = term_value(t, col-1, row-1, col, row)

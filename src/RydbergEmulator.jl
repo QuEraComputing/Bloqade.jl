@@ -16,6 +16,7 @@ using Configurations
 using DelimitedFiles
 using EliminateGraphs
 using ProgressLogging
+using Polyester
 using StatsBase
 using ThreadsX
 using StaticArrays
@@ -31,7 +32,7 @@ export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
     RydbergReg, RealLayout, ComplexLayout, MemoryLayout,
     FullSpace, fullspace, Subspace,
     PulseJob, Pulse, HyperfinePulse, RydbergPulse, is_time_dependent,
-    to_matrix!, update_term!, simple_rydberg, rydberg_h, rydatoms,
+    update_term!, simple_rydberg, rydberg_h, rydatoms,
     rand_atoms, read_atoms, write_atoms, read_subspace,
     write_subspace, unit_disk_graph, rand_unit_disk_graph,
     DiscreteEvolution, emulate!, emulate,

@@ -1,5 +1,6 @@
 using Test
 using Adapt
+using Random
 using RydbergEmulator
 using LightGraphs: SimpleGraph, add_edge!
 using SparseArrays
@@ -11,7 +12,9 @@ using Unitful
 using Yao
 using Unitful: μm, mm, μs, ns, MHz, GHz
 using Yao.ConstGate: P0, P1
-using RydbergEmulator: Negative, PrecisionAdaptor
+using RydbergEmulator: Negative, PrecisionAdaptor, sparse_skeleton_csc
+
+Random.seed!(1234)
 
 function rydinteract(atoms, C)
     n = length(atoms)
@@ -47,6 +50,97 @@ end
 
     H = SparseMatrixCSC(h, subspace)
     @test H ≈ update_term!(copy(H), h, subspace)
+end
+
+@testset "sparse_skeleton_csc($term)" for (op, term) in [Yao.X=>XTerm, P1=>NTerm, Yao.Z=>ZTerm]
+    @testset "natoms=$natoms" for natoms in 3:5
+        H = mat(sum([1.0 * kron(natoms, k=>op) for k in 1:natoms]))
+        if term === NTerm
+            # NOTE: we force NTerm matrix to be fully diagonal
+            # since only the first entry is zero
+            H[1, 1] = 1.0
+        end
+        H = SparseMatrixCSC(H)
+        h = term(natoms, 1.0)
+
+        @testset "fullspace" begin
+            colptr, rowval = sparse_skeleton_csc(h)
+            @test H.colptr == colptr
+            @test H.rowval == rowval
+        end
+
+        @testset "subspace trial=$trial" for trial in 1:3
+            space = Subspace(randperm(1<<natoms)[1:1<<(natoms-2)].-1)
+            colptr, rowval = sparse_skeleton_csc(h, space)
+
+            M = H[vec(space).+1, vec(space).+1]
+            @test M.colptr == colptr
+            @test M.rowval == rowval
+        end
+    end
+end
+
+@testset "SparseMatrixCSC($term)" for ((a, term), (b, op)) in [
+        (4.0=>XTerm, 2.0=>Yao.X),
+        (2.0=>ZTerm, 2.0=>Yao.Z),
+        (2.0=>NTerm, 2.0=>P1),
+    ]
+
+    @testset "natoms=$natoms" for natoms in 3:5
+        H = mat(sum([b * kron(natoms, k=>op) for k in 1:natoms]))
+        h = term(natoms, a)
+        @testset "fullspace" begin
+            @test SparseMatrixCSC(h) ≈ H
+            @testset "Tv=$Tv" for Tv in [Float32, Float64, ComplexF32, ComplexF64]
+                @test SparseMatrixCSC{Tv}(h) ≈ H
+
+                @testset "Ti=$Ti" for Ti in [Cint, Int]
+                    @test SparseMatrixCSC{Tv, Ti}(h) ≈ H
+                end
+            end
+        end # fullspace
+
+        @testset "subspace trial=$trial" for trial in 1:3
+            space = Subspace(randperm(1<<natoms)[1:1<<(natoms-2)].-1)
+            M = H[vec(space).+1, vec(space).+1]
+            @test SparseMatrixCSC(h, space) ≈ M
+            @testset "Tv=$Tv" for Tv in [Float32, Float64, ComplexF32, ComplexF64]
+                @test SparseMatrixCSC{Tv}(h, space) ≈ M
+
+                @testset "Ti=$Ti" for Ti in [Cint, Int]
+                    @test SparseMatrixCSC{Tv, Ti}(h, space) ≈ M
+                end
+            end
+        end # subspace trial
+    end
+end
+
+@testset "SparseMatrixCSC(RydInteract) natoms=$natoms" for natoms in 3:5
+    atoms = square_lattice(natoms, 0.8)
+    H = mat(rydinteract(atoms, 1.0))
+    h = RydInteract(atoms, 1.0)
+    @testset "fullspace" begin
+        @test SparseMatrixCSC(h) ≈ H
+        @testset "Tv=$Tv" for Tv in [Float32, Float64, ComplexF32, ComplexF64]
+            @test SparseMatrixCSC{Tv}(h) ≈ H
+            @testset "Ti=$Ti" for Ti in [Cint, Int]
+                @test SparseMatrixCSC{Tv, Ti}(h) ≈ H
+            end
+        end
+    end # fullspace
+    
+    @testset "subspace trial=$trial" for trial in 1:3
+        space = Subspace(randperm(1<<natoms)[1:1<<(natoms-2)].-1)
+        M = H[vec(space).+1, vec(space).+1]
+        @test SparseMatrixCSC(h, space) ≈ M
+        @testset "Tv=$Tv" for Tv in [Float32, Float64, ComplexF32, ComplexF64]
+            @test SparseMatrixCSC{Tv}(h, space) ≈ M
+
+            @testset "Ti=$Ti" for Ti in [Cint, Int]
+                @test SparseMatrixCSC{Tv, Ti}(h, space) ≈ M
+            end
+        end
+    end # subspace trial
 end
 
 @testset "X term" begin
@@ -208,12 +302,6 @@ end
     subspace = blockade_subspace(test_graph)
     M = SparseMatrixCSC(h, subspace)
     @test update_term!(copy(M), h, subspace) ≈ M
-
-    N = length(subspace)
-    @test to_matrix!(zeros(ComplexF64, N, N), h, subspace) ≈ M
-
-    @test_throws DimensionMismatch to_matrix!(zeros(ComplexF64, N, N), h)
-    @test_throws DimensionMismatch to_matrix!(zeros(ComplexF64, N-1, N-1), h, subspace)
 end
 
 @testset "$term subspace" for (term, op) in [(ZTerm, Z), (NTerm, P1)]
@@ -223,10 +311,8 @@ end
     h = term(5, 1.0)
     H = Matrix(sum(kron(5, k=>op) for k in 1:5))
     target_H = H[space.subspace_v .+ 1, space.subspace_v .+ 1]
-    test_H = to_matrix!(zeros(ComplexF64, N, N), h, space)
+    test_H = SparseMatrixCSC(h, space)
     @test test_H ≈ target_H
-
-    @test_throws DimensionMismatch to_matrix!(zeros(ComplexF64, N-1, N-1), h, space)
 end
 
 @testset "redberg interact term subspace" begin

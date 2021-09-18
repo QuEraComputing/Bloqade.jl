@@ -10,11 +10,17 @@ on:
 
 jobs:
   test:
-    runs-on: [self-hosted, linux, x64]
+    name: Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
+    runs-on: ${{ matrix.os }}
     strategy:
-      matrix: # https://github.com/julia-actions/setup-julia/issues/32
-        julia-version: ['1']
-        julia-arch: [x64]
+      fail-fast: false
+      matrix:
+        version:
+          - '1'
+        os:
+          - ubuntu-latest
+        arch:
+          - x64
 
     steps:
       - uses: actions/checkout@v1.0.0

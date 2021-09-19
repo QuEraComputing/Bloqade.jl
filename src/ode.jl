@@ -8,8 +8,8 @@ function ContinuousEmulator.ContinuousEvolution{P}(
         isreal(h) || error("cannot use RealLayout for non-real hamiltonian")
     end
     options = ContinuousOptions(; kw...)
-    start = P(RydbergEmulator.default_unit(μs, start))
-    stop = P(RydbergEmulator.default_unit(μs, stop))
+    start = RydbergEmulator.default_unit(μs, start)
+    stop = RydbergEmulator.default_unit(μs, stop)
     time = (start, stop)
     reg = adapt(RydbergEmulator.PrecisionAdaptor(P), r)
     space = RydbergEmulator.get_space(r)

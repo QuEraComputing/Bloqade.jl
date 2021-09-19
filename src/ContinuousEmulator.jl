@@ -110,6 +110,7 @@ end
     algo::Algo = Vern8()
     progress::Bool = false
     progress_steps::Int = 5
+    progress_name::String = "ODE"
     reltol::Float64 = 1e-8
     abstol::Float64 = 1e-8
     normalize_steps::Int = 5
@@ -202,6 +203,7 @@ function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real
         eq, Yao.statevec(reg), time;
         save_everystep=false, save_start=false, alias_u0=true,
         progress=options.progress,
+        progress_name=options.progress_name,
         progress_steps=options.progress_steps,
     )
     return ContinuousEvolution{P}(reg, time, eq, ode_prob, options)

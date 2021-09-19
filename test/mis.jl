@@ -35,13 +35,13 @@ config = [1, 1, 1, 0, 1, 1]
 @test RydbergEmulator.num_mis_violation(config, graph, 5) == 2
 @test RydbergEmulator.num_mis_violation(config, graph, 6) == 1
 
-@test !is_independent_set(graph, config)
-to_independent_set!(graph, config)
-@test is_independent_set(graph, config)
+@test !is_independent_set(config, graph)
+to_independent_set!(config, graph)
+@test is_independent_set(config, graph)
 
 
 config = bitarray(36, length(atoms))
-RydbergEmulator.to_independent_set!(graph, config)
+RydbergEmulator.to_independent_set!(config, graph)
 
 space = blockade_subspace(graph)
 raw_state = zeros(ComplexF64, length(space))

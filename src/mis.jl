@@ -31,7 +31,7 @@ using [`add_random_vertices`](@ref).
 
 ```julia
 mean_rydberg(r) do config
-    config = to_independent_set(graph, config)
+    config = to_independent_set(config, graph)
     add_random_vertices(config, graph, 10)
     return config
 end
@@ -41,7 +41,7 @@ Or one can also just add vertice by atom order
 
 ```julia
 mean_rydberg(r) do config
-    config = to_independent_set(graph, config)
+    config = to_independent_set(config, graph)
     add_vertices!(config, graph)
     return config
 end
@@ -143,12 +143,12 @@ end
 gibbs_loss(α::Real) = reg -> gibbs_loss(reg, α)
 
 """
-    is_independent_set(graph::AbstractGraph, config)
+    is_independent_set(config, graph::AbstractGraph)
 
 Return `true` if `config` is an independent set of graph.
 `config` can be a `BitStr`, a vector, or any iterable.
 """
-function is_independent_set(graph::AbstractGraph, config)
+function is_independent_set(config, graph::AbstractGraph)
     for i in 1:nv(graph)
         for j in i+1:nv(graph)
             config[i] == 1 && config[j] == 1 && has_edge(graph, i, j) && return false
@@ -158,7 +158,7 @@ function is_independent_set(graph::AbstractGraph, config)
 end
 
 """
-    to_independent_set!(graph::AbstractGraph, config::AbstractVector)
+    to_independent_set!(config::AbstractVector, graph::AbstractGraph)
 
 Eliminate vertices in `config` so that remaining vertices do not have connected edges.
 This algorithm is a naive vertex elimination that does not nesesarily give the maximum possible vertex set.
@@ -172,11 +172,11 @@ graph = unit_disk_graph(atoms, 1.5)
 config = [1, 1, 1, 0, 1, 1]
 viz_config(atoms, graph, config)
 
-to_independent_set!(graph, config)
+to_independent_set!(config, graph)
 viz_config(atoms, graph, config)
 ```
 """
-function to_independent_set!(graph::AbstractGraph, config::AbstractVector)
+function to_independent_set!(config::AbstractVector, graph::AbstractGraph)
     N = length(config)
     n = typemax(Int)
     while true
@@ -190,8 +190,8 @@ function to_independent_set!(graph::AbstractGraph, config::AbstractVector)
     return config
 end
 
-function to_independent_set(graph::AbstractGraph, config::Integer)
-    return to_independent_set!(graph, bitarray(config, nv(graph)))
+function to_independent_set(config::Integer, graph::AbstractGraph)
+    return to_independent_set!(bitarray(config, nv(graph)), graph)
 end
 
 """
@@ -275,7 +275,7 @@ function add_vertices!(config::AbstractVector, graph::AbstractGraph, perm=eachin
     for (k, c) in zip(perm, config)
         if iszero(c)
             config[k] = 1
-            if is_independent_set(graph, config)
+            if is_independent_set(config, graph)
                 continue
             else
                 config[k] = 0
@@ -303,7 +303,7 @@ function independent_set_probabilities end
 
 function independent_set_probabilities(reg::Yao.AbstractRegister, graph::AbstractGraph)
     independent_set_probabilities(reg, graph) do config
-        to_independent_set(graph, config)
+        to_independent_set(config, graph)
     end
 end
 
@@ -342,7 +342,7 @@ The postprocessing protocal used in Harvard.
 - `ntrials`: number of trials to use.
 """
 function mis_postprocessing(config, graph::AbstractGraph; ntrials::Int=10)
-    config = to_independent_set(graph, config)
+    config = to_independent_set(config, graph)
     add_random_vertices(config, graph, ntrials)
     return config
 end

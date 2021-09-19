@@ -7,7 +7,7 @@ using SparseArrays
 
 using CUDA.CUSPARSE: CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseMatrix
 using RydbergEmulator: AbstractTerm
-using ContinuousEmulator: ShordingerEquation
+using ContinuousEmulator: ShordingerEquation, update_dstate!
 
 
 CUDA.allowscalar(false)
@@ -28,87 +28,33 @@ h = RydInteract(atoms) + XTerm(length(atoms), 1.0) - NTerm(length(atoms), 1.2)
     @test SparseMatrixCSC(cuH) ≈ H
 end
 
-@testset "cu(ShordingerEquation)" begin
-    eq = ShordingerEquation(Float32, h, space)
-    @test eltype(eq.cache.state) == ComplexF32
-    @test eltype(eq.cache.hamiltonian) == Float32
+@testset "update_dstate" begin
+    state = CUDA.rand(10, 2)
+    dstate = CUDA.zeros(10, 2)
 
-    # hamiltonian should be complex since cuSPARSE
-    # doesn't support complex-real mv routine
-    deq = cu(eq)
-    @test eltype(deq.cache.state) == ComplexF32
-    @test eltype(deq.cache.hamiltonian) == ComplexF32
-
-    # we don't convert to Float32 automatically like cu(x)
-    # we still want explicit control of numerical precision
-    eq = ShordingerEquation(h, space)
-    deq = cu(eq)
-    @test eltype(deq.cache.state) == ComplexF64
-    @test eltype(deq.cache.hamiltonian) == ComplexF64
+    update_dstate!(dstate, state, RealLayout())
+    host_state = Array(state)
+    host_dstate = Array(dstate)
+    ref_state = -im * (host_state[:, 1] + im * host_state[:, 2])
+    @test host_dstate[:, 1] ≈ real(ref_state)
+    @test host_dstate[:, 2] ≈ imag(ref_state)
 end
 
-@testset "ode solver" begin
-    r = zero_state(ComplexF32, length(atoms), space)
-    dr = cu(r)
 
-    emulate!(r, 1e-3, h)
-    emulate!(dr, 1e-3, h)
+@testset "emulate h=$name" for (name, h) in [
+    "x+z" => XTerm(5, 1.0) + ZTerm(5, sin),
+    "rydberg" => rydberg_h(atoms, sin, nothing, cos),
+]
 
-    @test cpu(dr) ≈ r
+    @testset "T=$T" for T in [ComplexF32, ComplexF64]
+        ref_state = zero_state(T, length(atoms), space)
+        dcomplex_r = cu(ref_state)
+        dreal_r = cu(zero_state(T, length(atoms), space, RealLayout()))
 
-    r = zero_state(ComplexF64, length(atoms), space)
-    dr = cu(r)
-
-    emulate!(r, 1e-3, h)
-    emulate!(dr, 1e-3, h)
-
-    @test cpu(dr) ≈ r
+        emulate!(ref_state, 1e-3, h)
+        emulate!(dcomplex_r, 1e-3, h)
+        emulate!(dreal_r, 1e-3, h)
+        @test cpu(dreal_r) ≈ ref_state
+        @test cpu(dcomplex_r) ≈ ref_state
+    end
 end
-
-# # st = rand(ComplexF32, size(H, 1))
-# # @benchmark $H * $st
-# # using BenchmarkTools
-# # st = CUDA.rand(ComplexF32, size(cuH, 1))
-
-# # cuH = CuSparseMatrixCSR{ComplexF32}(H)
-# # @benchmark CUDA.@sync $cuH * $st
-
-# # cuH = CuSparseMatrixCSC{ComplexF32}(H)
-# # @benchmark CUDA.@sync $cuH * $st
-
-# using BenchmarkTools
-# 7 * 7 * 0.8
-# atoms = square_lattice(40, 0.8)
-# graph = unit_disk_graph(atoms, 1.5)
-# space = blockade_subspace(graph)
-# r = zero_state(ComplexF32, 40, space)
-
-# h = RydInteract(atoms) + XTerm(length(atoms), 1.0) - NTerm(length(atoms), 1.2)
-# r = zero_state(ComplexF32, length(atoms), space)
-# dr = cu(r)
-
-# SparseMatrixCSC(h, space)
-
-# emulate!(r, 1e-3, h)
-# @time emulate!(dr, 1e-3, h; progress=true, progress_steps=1)
-
-# @benchmark emulate!($r, 1e-3, h)
-# @benchmark CUDA.@sync emulate!($dr, 1e-3, h)
-
-# using ContinuousEmulator
-# ContinuousEvolution
-
-# using CuRydbergEmulator
-# using RydbergEmulator: PrecisionAdaptor
-# using Adapt
-# using CUDA
-# x = CUDA.rand(10)
-# adapt(PrecisionAdaptor(Float64), x)
-
-# atoms = square_lattice(10, 0.8)
-# space = blockade_subspace(atoms, 1.5)
-# r = zero_state(10, space)
-# dr = cu(r)
-# h = rydberg_h(atoms, sin, nothing, 2.0)
-# prob = ContinuousEvolution(dr, 2.0, h)
-# emulate!(prob)

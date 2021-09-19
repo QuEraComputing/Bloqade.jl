@@ -1,14 +1,22 @@
-function RydbergEmulator.update_term!(dst::CuSparseMatrixCSR, t::AbstractTerm, subspace_v::Vector)
-    update_term!(dst, t, CuVector(subspace_v)) # copy to device, if subspace is given on CPU
+function RydbergEmulator.storage_size(S::CuSparseMatrixCSR)
+    sizeof(S.rowPtr) + sizeof(S.colVal) + sizeof(S.nzVal)
 end
 
-function thread_layout(H)
-    if size(H, 2) < 256
-        threads = size(H, 2)
+function RydbergEmulator.update_term!(dst::CuSparseMatrixCSR, t::AbstractTerm, s::Subspace)
+    update_term!(dst, t, cu(s)) # copy to device, if subspace is given on CPU
+end
+
+function thread_layout(H::AbstractCuSparseMatrix)
+    return thread_layout(size(H, 2))
+end
+
+function thread_layout(len::Int)
+    if len < 256
+        threads = len
         nblocks = 1
     else
         threads = 256
-        nblocks = ceil(Int, size(H, 2) / 256)
+        nblocks = ceil(Int, len / 256)
     end
     return threads, nblocks
 end
@@ -52,4 +60,23 @@ function RydbergEmulator.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm, s::
     threads, nblocks = thread_layout(H)
     @cuda threads=threads blocks=nblocks update_term_kernel(H, t, s.subspace_v)
     return H
+end
+
+function update_dstate_kernel(dstate, state)
+    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    if idx > length(dstate)
+        return
+    end
+
+    @inbounds begin
+        dstate[idx, 1] = state[idx, 2]
+        dstate[idx, 2] = -state[idx, 1]
+    end
+    return
+end
+
+function ContinuousEmulator.update_dstate!(dstate::CuMatrix{<:Real}, state::CuMatrix{<:Real}, ::RealLayout)
+    threads, nblocks = thread_layout(size(dstate, 1))
+    @cuda threads=threads blocks=nblocks update_dstate_kernel(dstate, state)
+    return 
 end

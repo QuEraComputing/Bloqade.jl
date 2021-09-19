@@ -29,7 +29,6 @@ LinearAlgebra.normalize!(r::RydbergReg{N, 1, <:CuArray}) where N = normalize!(ve
 Adapt.adapt_storage(::PrecisionAdaptor{P}, x::CuArray{<:Real}) where P = convert(CuArray{P}, x)
 Adapt.adapt_storage(::PrecisionAdaptor{P}, x::CuArray{<:Complex}) where P = convert(CuArray{Complex{P}}, x)
 
-# include("patch.jl")
 include("hamiltonian.jl")
 include("ode.jl")
 

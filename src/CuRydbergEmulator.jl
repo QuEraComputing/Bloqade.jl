@@ -20,6 +20,7 @@ using RydbergEmulator: AbstractTerm, DiscreteEmulationCache, PrecisionAdaptor
 using ContinuousEmulator: EquationCache, ContinuousOptions
 
 @reexport using RydbergEmulator
+@reexport using ContinuousEmulator
 
 export cpu
 cpu(x) = adapt(Array, x)

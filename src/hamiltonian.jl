@@ -64,7 +64,7 @@ end
 
 function update_dstate_kernel(dstate, state)
     idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    if idx > length(dstate)
+    if idx > size(dstate, 1)
         return
     end
 

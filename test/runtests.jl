@@ -9,7 +9,6 @@ using CUDA.CUSPARSE: CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseMatri
 using RydbergEmulator: AbstractTerm
 using ContinuousEmulator: ShordingerEquation, update_dstate!
 
-
 CUDA.allowscalar(false)
 
 atoms = square_lattice(5, 0.8)
@@ -28,9 +27,9 @@ h = RydInteract(atoms) + XTerm(length(atoms), 1.0) - NTerm(length(atoms), 1.2)
     @test SparseMatrixCSC(cuH) ≈ H
 end
 
-@testset "update_dstate" begin
-    state = CUDA.rand(10, 2)
-    dstate = CUDA.zeros(10, 2)
+@testset "update_dstate L=$L" for L in [10, 300]
+    state = CUDA.rand(L, 2)
+    dstate = CUDA.zeros(L, 2)
 
     update_dstate!(dstate, state, RealLayout())
     host_state = Array(state)

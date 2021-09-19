@@ -48,6 +48,7 @@ function ContinuousEmulator.ContinuousEvolution{P}(
         save_start=false,
         alias_u0=true,
         progress=options.progress,
+        progress_name=options.progress_name,
         progress_steps=options.progress_steps,
     )
     return ContinuousEvolution{P}(reg, time, eq, ode_prob, options)

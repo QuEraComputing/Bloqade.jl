@@ -86,7 +86,7 @@ function Base.iterate(it::ConfigAmplitude{<:Yao.ArrayReg}, idx::Int = first(it.r
 end
 
 function mean_rydberg(f, reg::Yao.AbstractRegister)
-    return ThreadsX.sum(ConfigAmplitude(reg)) do (c, amp)
+    return sum(ConfigAmplitude(reg)) do (c, amp)
         nvertices = count_vertices(f(c))
         return abs2(amp) * nvertices
     end
@@ -343,7 +343,7 @@ The postprocessing protocal used in Harvard.
 """
 function mis_postprocessing(config, graph::AbstractGraph; ntrials::Int=10)
     config = to_independent_set(config, graph)
-    add_random_vertices(config, graph, ntrials)
+    config = add_random_vertices(config, graph, ntrials)
     return config
 end
 

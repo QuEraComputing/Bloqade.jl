@@ -86,7 +86,7 @@ function Base.iterate(it::ConfigAmplitude{<:Yao.ArrayReg}, idx::Int = first(it.r
 end
 
 function mean_rydberg(f, reg::Yao.AbstractRegister)
-    return sum(ConfigAmplitude(reg)) do (c, amp)
+    return ThreadsX.sum(ConfigAmplitude(reg)) do (c, amp)
         nvertices = count_vertices(f(c))
         return abs2(amp) * nvertices
     end

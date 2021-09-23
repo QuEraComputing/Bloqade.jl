@@ -19,7 +19,7 @@ end
         @test loss_fn(fullspace_r) == 0.0
         @test loss_fn(measure(fullspace_r; nshots=10)) == 0.0
         @test loss_fn(measure(constraint_r; nshots=10)) == 0.0
-    end    
+    end
 end
 
 # generate random atom positions
@@ -63,5 +63,5 @@ end
     space = Subspace(sort!(randperm(1<<10)[1:30]))
     cr = rand_state(10, space)
     rr = RydbergReg{RealLayout}(cr)
-    @test mean_rydberg(cr) ≈ mean_rydberg(rr)        
+    @test mean_rydberg(cr) ≈ mean_rydberg(rr)
 end

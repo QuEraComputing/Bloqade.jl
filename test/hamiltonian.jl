@@ -128,7 +128,7 @@ end
             end
         end
     end # fullspace
-    
+
     @testset "subspace trial=$trial" for trial in 1:3
         space = Subspace(randperm(1<<natoms)[1:1<<(natoms-2)].-1)
         M = H[vec(space).+1, vec(space).+1]

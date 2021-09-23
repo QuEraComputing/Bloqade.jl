@@ -51,6 +51,31 @@ function mean_rydberg end
 
 mean_rydberg(x) = mean_rydberg(identity, x)
 
+struct SubspaceMap
+    d::Dict{Int, Int}
+end
+
+function SubspaceMap(f, subspace::Subspace)
+    d = Dict{Int, Int}()
+    sizehint!(d, length(subspace))
+    origin = vec(subspace)
+    Threads.@threads for cfg in origin
+        d[cfg] = to_int64(f(cfg))
+    end
+    return SubspaceMap(d)
+end
+
+Base.length(map::SubspaceMap) = length(map.d)
+Base.getindex(map::SubspaceMap, cfg::Int) = map.d[cfg]
+(map::SubspaceMap)(cfg::Int) = map[cfg]
+
+function to_int64(b::BitVector) # workaround type piracy
+    length(b) <= 64 || throw(ArgumentError("length is larger than 64"))
+    # NOTE: since we only use this to calculate number of ones
+    # thus we don't need to check top bit
+    return reinterpret(Int, b.chunks[1])
+end
+
 struct ConfigAmplitude{Reg <: Yao.AbstractRegister}
     reg::Reg
     range::UnitRange{Int}
@@ -121,7 +146,7 @@ gibbs_loss(reg_or_samples, α::Real) = gibbs_loss(identity, reg_or_samples, α)
 
 function gibbs_loss(f, reg::Yao.AbstractRegister, α::Real)
     expected = ThreadsX.sum(ConfigAmplitude(reg)) do (config, amp)
-        abs2(amp) * exp(α * count_vertices(config))
+        abs2(amp) * exp(α * count_vertices(f(config)))
     end
     return -log(expected) / α 
 end

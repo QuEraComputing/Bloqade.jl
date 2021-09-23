@@ -71,3 +71,15 @@ end
     @test add_random_vertices(config, test_graph) == [1,0,1,0,1]
     @test count_vertices(mis_postprocessing(0, test_graph)) > 0        
 end
+
+@testset "SubspaceMap" begin
+    atoms = square_lattice(10, 0.8)
+    graph = unit_disk_graph(atoms, 1.5)
+    space = blockade_subspace(graph)
+    reg = rand_state(length(atoms), space)
+    Random.seed!(1234)
+    l1 = mean_rydberg(mis_postprocessing(graph), reg)
+    Random.seed!(1234)
+    l2 = mean_rydberg(SubspaceMap(mis_postprocessing(graph), space), reg)
+    @test l1 ≈ l2
+end

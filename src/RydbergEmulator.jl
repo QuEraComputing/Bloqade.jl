@@ -31,7 +31,7 @@ using LinearAlgebra: BlasInt, BlasReal, BlasComplex
 export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
     Hamiltonian, DiscreteEmulationCache,
     RydbergReg, RealLayout, ComplexLayout, MemoryLayout,
-    FullSpace, fullspace, Subspace,
+    FullSpace, fullspace, Subspace, SubspaceMap,
     PulseJob, Pulse, HyperfinePulse, RydbergPulse, is_time_dependent,
     update_term!, simple_rydberg, rydberg_h, rydatoms,
     rand_atoms, read_atoms, write_atoms, read_subspace,

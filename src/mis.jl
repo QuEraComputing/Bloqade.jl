@@ -56,13 +56,15 @@ struct SubspaceMap
 end
 
 function SubspaceMap(f, subspace::Subspace)
-    d = Dict{Int, Int}()
-    sizehint!(d, length(subspace))
+    key = Vector{Int}(undef, length(subspace))
+    val = Vector{Int}(undef, length(subspace))    
     origin = vec(subspace)
-    Threads.@threads for cfg in origin
-        d[cfg] = to_int64(f(cfg))
+    @inbounds Threads.@threads for idx in 1:length(origin)
+        cfg = origin[idx]
+        key[idx] = cfg
+        val[idx] = to_int64(f(cfg))
     end
-    return SubspaceMap(d)
+    return SubspaceMap(Dict{Int, Int}(zip(key, val)))
 end
 
 Base.length(map::SubspaceMap) = length(map.d)

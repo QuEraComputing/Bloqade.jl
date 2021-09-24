@@ -21,7 +21,7 @@ end
     for each in square_lattice(10, 0.8)
         @test each[1] >= prev
         prev = each[1]
-    end    
+    end
 end
 
 @test_logs (:warn, "graph has empty edges, creating a subspace contains the entire fullspace, consider using a full space register.") begin

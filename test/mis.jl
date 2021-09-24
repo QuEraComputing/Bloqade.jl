@@ -62,7 +62,7 @@ end
     space = Subspace(sort!(randperm(1<<10)[1:30]))
     cr = rand_state(10, space)
     rr = RydbergReg{RealLayout}(cr)
-    @test mean_rydberg(cr) ≈ mean_rydberg(rr)        
+    @test mean_rydberg(cr) ≈ mean_rydberg(rr)
 end
 
 @testset "mis_postprocessing" begin

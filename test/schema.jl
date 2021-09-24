@@ -22,7 +22,7 @@ Random.seed!(1234)
 atoms = square_lattice(10, 0.8)
 h = RydInteract(atoms) + XTerm(10, 2π * 4) + NTerm(10, 0.2)
 space = blockade_subspace(atoms, 1.0)
-@test emulate(space, [8e-4], [h]) ≈ emulate(job) 
+@test emulate(space, [8e-4], [h]) ≈ emulate(job)
 
 @test_throws AssertionError PulseJob(;
     lattice_constant_a = 0.1,

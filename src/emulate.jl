@@ -71,7 +71,7 @@ num_zero_term(t::Hamiltonian) = count(iszero, t.terms)
 num_zero_term(t::AbstractTerm) = iszero(t) ? 1 : 0
 
 """
-    emulate!(r, ts, hs[; cache=DiscreteEmulationCache(ts, hs)])
+    emulate!(r, ts, hs)
 
 Emulate the time evolution of a sequence of Hamiltonians `hs` of time length `ts` for each Hamiltonian.
 An optional argument can be feeded to preallocate the memory.
@@ -88,49 +88,6 @@ Emulation of time evolution requires allocating intermediate variables that can 
 these intermediate variables and share this memory between iterations can speed up the simulation when `emulate!`
 is called for multiple times for similar Hamiltonian. By similar Hamiltonian, we mean Hamiltonians that contains
 the same term but can have different parameters.
-
-## Time Independent Cache
-
-The cache for time independent simulation contains two part: a) a `SparseMatrixCSC` matrix to store the intermediate
-Hamiltonian matrices. b) a `KrylovSubspace` object to store the Krylov subspace.
-
-## continuous Time Cache
-
-For continuous time emulation, one only needs to create a `SparseMatrixCSC` matrix to store the intermediate
-Hamiltonian matrices.
-
-## Examples
-
-The simplest way to use cache inside a large loop is via closure. The following example
-returns a closure that takes time `ts` as parameters during simulation.
-
-```jl
-function your_emulation_task(n, subspace, hs)
-    r = zero_state(n, subspace)
-    cache = DiscreteEmulationCache(first(hs), subspace)
-    return function task(ts)
-        set_zero_state!(r)
-        emulate!(r, ts, hs; cache=cache)
-    end
-end
-```
-
-or if you just want to use `ts` and `ϕs` as your parameters
-
-```jl
-function your_emulation_task(n, subspace)
-    r = zero_state(n, subspace)
-    cache = DiscreteEmulationCache(simple_rydberg(n, 1.0), subspace)
-
-    return function task(xs)
-        set_zero_state!(r)
-        ts = xs[1:length(xs)÷2]
-        ϕs = xs[length(xs)÷2+1:end]
-        hs = simple_rydberg.(n, ϕs)
-        emulate!(r, ts, hs; cache=cache)
-    end
-end
-```
 """
 function emulate! end
 

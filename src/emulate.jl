@@ -29,14 +29,14 @@ we can re-use the sparse matrix generated for the first hamiltonian again via
 [`update_term!`](@ref) in the following calculation to reduce the memory usage
 and speed up the emulation.
 """
-struct DiscreteEmulationCache{C}
-    H::C
+struct DiscreteEmulationCache{Tv, Ti, S <: AbstractSparseMatrix{Tv, Ti}}
+    H::S
 end
 
 
 # TODO: calculate the nnz colptr and rowval directly
 """
-    DiscreteEmulationCache(::Type{T}, h_or_hs[, s::AbstractSpace=fullspace])
+    DiscreteEmulationCache{Tv, Ti}(h_or_hs[, s::AbstractSpace=fullspace])
 
 Create a `DiscreteEmulationCache`.
 
@@ -46,32 +46,42 @@ Create a `DiscreteEmulationCache`.
 - `h_or_hs`: a Hamiltonian expression term or a list of Hamiltonians.
 - `s`: space type, default is [`fullspace`](@ref).
 """
-function DiscreteEmulationCache(::Type{T}, h::AbstractTerm, s::AbstractSpace=fullspace) where {T}
+function DiscreteEmulationCache{Tv, Ti}(h::AbstractTerm, s::AbstractSpace) where {Tv, Ti}
     is_time_dependent(h) && throw(ArgumentError("expect a time independent hamiltonian"))
-    return DiscreteEmulationCache(SparseMatrixCSC{T, Cint}(h, s))
+    return DiscreteEmulationCache(SparseMatrixCSC{Tv, Ti}(h, s))
 end
 
-function DiscreteEmulationCache(::Type{T}, ts::AbstractVector, hs::Vector{<:AbstractTerm}, s::AbstractSpace=fullspace) where {T}
+function DiscreteEmulationCache{Tv, Ti}(ts::AbstractVector, hs::Vector{<:AbstractTerm}, s::AbstractSpace) where {Tv, Ti}
     # use the one that has less zero term values
     _, idx = findmin(map(num_zero_term, hs))
-    DiscreteEmulationCache(T, hs[idx], s)
+    DiscreteEmulationCache{Tv, Ti}(hs[idx], s)
 end
 
-function DiscreteEmulationCache(::Type{T}, ts::AbstractVector, h::AbstractTerm, s::AbstractSpace=fullspace) where {T}
+function DiscreteEmulationCache{Tv, Ti}(ts::AbstractVector, h::AbstractTerm, s::AbstractSpace) where {Tv, Ti}
     # use the one that has less zero term values
     _, idx = findmin(map(t->num_zero_term(h(t)), ts))
-    DiscreteEmulationCache(T, h(ts[idx]), s)
+    DiscreteEmulationCache{Tv, Ti}(h(ts[idx]), s)
 end
 
-function DiscreteEmulationCache(::Type{T}, t::Number, h::AbstractTerm, s::AbstractSpace=fullspace) where {T}
-    DiscreteEmulationCache(T, h, s)
+function DiscreteEmulationCache{Tv, Ti}(t::Number, h::AbstractTerm, s::AbstractSpace) where {Tv, Ti}
+    DiscreteEmulationCache{Tv, Ti}(h, s)
+end
+
+DiscreteEmulationCache{Tv, Ti}(t, h) where {Tv, Ti} = DiscreteEmulationCache{Tv, Ti}(t, h, fullspace)
+
+function DiscreteEmulationCache{Tv}(t, h, s::AbstractSpace=fullspace) where {Tv}
+    return DiscreteEmulationCache{Tv, Cint}(t, h, s)
+end
+
+function DiscreteEmulationCache(t::Union{Number, AbstractVector}, h, s::AbstractSpace=fullspace)
+    return DiscreteEmulationCache{Complex{real(eltype(t))}}(t, h, s)
 end
 
 num_zero_term(t::Hamiltonian) = count(iszero, t.terms)
 num_zero_term(t::AbstractTerm) = iszero(t) ? 1 : 0
 
 """
-    emulate!(r, ts, hs[; cache=DiscreteEmulationCache(ts, hs)])
+    emulate!(r, ts, hs)
 
 Emulate the time evolution of a sequence of Hamiltonians `hs` of time length `ts` for each Hamiltonian.
 An optional argument can be feeded to preallocate the memory.
@@ -88,49 +98,6 @@ Emulation of time evolution requires allocating intermediate variables that can 
 these intermediate variables and share this memory between iterations can speed up the simulation when `emulate!`
 is called for multiple times for similar Hamiltonian. By similar Hamiltonian, we mean Hamiltonians that contains
 the same term but can have different parameters.
-
-## Time Independent Cache
-
-The cache for time independent simulation contains two part: a) a `SparseMatrixCSC` matrix to store the intermediate
-Hamiltonian matrices. b) a `KrylovSubspace` object to store the Krylov subspace.
-
-## continuous Time Cache
-
-For continuous time emulation, one only needs to create a `SparseMatrixCSC` matrix to store the intermediate
-Hamiltonian matrices.
-
-## Examples
-
-The simplest way to use cache inside a large loop is via closure. The following example
-returns a closure that takes time `ts` as parameters during simulation.
-
-```jl
-function your_emulation_task(n, subspace, hs)
-    r = zero_state(n, subspace)
-    cache = DiscreteEmulationCache(first(hs), subspace)
-    return function task(ts)
-        set_zero_state!(r)
-        emulate!(r, ts, hs; cache=cache)
-    end
-end
-```
-
-or if you just want to use `ts` and `ϕs` as your parameters
-
-```jl
-function your_emulation_task(n, subspace)
-    r = zero_state(n, subspace)
-    cache = DiscreteEmulationCache(simple_rydberg(n, 1.0), subspace)
-
-    return function task(xs)
-        set_zero_state!(r)
-        ts = xs[1:length(xs)÷2]
-        ϕs = xs[length(xs)÷2+1:end]
-        hs = simple_rydberg.(n, ϕs)
-        emulate!(r, ts, hs; cache=cache)
-    end
-end
-```
 """
 function emulate! end
 
@@ -152,11 +119,11 @@ abstract type EmulationOptions end
     normalize_finally::Bool = true
 end
 
-struct DiscreteEvolution{P, S, T, H, C}
+struct DiscreteEvolution{P, S, T, H, Cache <: DiscreteEmulationCache}
     reg::S
     t_or_ts::T
     h_or_hs::H
-    cache::DiscreteEmulationCache{C}
+    cache::Cache
     options::DiscreteOptions
 end
 
@@ -187,7 +154,7 @@ trotterize integrator on it.
 - `cache`: discrete solver cache, see also [`DiscreteEmulationCache`](@ref).
 - `normalize_step::Int`: run normalization per `normalize_step`, default is `5`.
 - `normalize_finally::Bool`: normalize the state after the entire emulation ends, default is `true`.
-- `progress::Bool`: show progress bar, default is `true`.
+- `progress::Bool`: show progress bar, default is `false`.
 - `progress_step::Int`: update the progress bar per `progress_step`, default is `1`.
 - `progress_name::String`: the printed name on progress bar, default is `"emulating"`.
 - `dt::Real`: the time step of trotterization if `t_or_ts` is specified as
@@ -195,7 +162,7 @@ trotterize integrator on it.
 """
 function DiscreteEvolution{P}(
     r::Yao.AbstractRegister, t_or_ts, h_or_hs;
-    cache=nothing, dt::Real=1e-3, kw...) where P
+    cache=nothing, dt::Real=1e-3, index_type=Cint, kw...) where P
 
     if !(h_or_hs isa AbstractTerm)
         length(t_or_ts) == length(h_or_hs) || throw(ArgumentError("length of time does not match hamiltonian"))
@@ -229,11 +196,11 @@ function DiscreteEvolution{P}(
             all(isreal, h_or_hs)
         end
         T = all_real ? P : Complex{P}
-        cache = DiscreteEmulationCache(T, t_or_ts, h_or_hs, get_space(r))
+        cache = DiscreteEmulationCache{T, index_type}(t_or_ts, h_or_hs, get_space(r))
     end
 
     S, T, H, C = typeof(state), typeof(t_or_ts), typeof(h_or_hs), typeof(cache.H)
-    return DiscreteEvolution{P, S, T, H, C}(state, t_or_ts, h_or_hs, cache, options)
+    return DiscreteEvolution{P, S, T, H, typeof(cache)}(state, t_or_ts, h_or_hs, cache, options)
 end
 
 function DiscreteEvolution(r::Yao.AbstractRegister, t_or_ts, h_or_hs; kw...)

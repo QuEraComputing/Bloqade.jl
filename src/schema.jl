@@ -97,7 +97,7 @@ function emulate(job::PulseJob)
     r = zero_state(natoms, space)
     hs = map(p->pulse_hamiltonian(p, atoms), job.pulses)
     ts = map(p->p.duration, job.pulses)
-    cache = DiscreteEmulationCache(real(Yao.datatype(r)), ts, hs, space)
+    cache = DiscreteEmulationCache(ts, hs, space)
     emulate!(r, ts, hs; cache)
     return r
 end

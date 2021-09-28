@@ -34,7 +34,7 @@ end
     s = Subspace(test_subspace_v)
     r = RydbergEmulator.zero_state(5, s)
 
-    cache = DiscreteEmulationCache(Complex{eltype(ts)}, first(hs), s)
+    cache = DiscreteEmulationCache(ts, first(hs), s)
     r1 = emulate!(copy(r), ts, hs; cache=cache)
     r2 = simple_evolve!(copy(r), ts, hs, s)
 
@@ -45,7 +45,7 @@ end
     hs = simple_rydberg.(4, rand(4))
     ts = rand(4)
     r = Yao.zero_state(4)
-    cache = DiscreteEmulationCache(Complex{eltype(ts)}, first(hs))
+    cache = DiscreteEmulationCache(ts, first(hs))
     r1 = emulate!(copy(r), ts, hs; cache=cache)
     r2 = simple_evolve!(copy(r), ts, hs)
     @test r1 ≈ r2

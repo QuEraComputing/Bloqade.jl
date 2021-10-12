@@ -60,6 +60,7 @@ include("hamiltonian.jl")
 
 include("register.jl")
 include("measure.jl")
+include("instructs.jl")
 
 include("unit_disk.jl")
 include("emulate.jl")

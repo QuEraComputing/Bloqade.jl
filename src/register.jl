@@ -175,3 +175,7 @@ function set_zero_state!(r::Yao.ArrayReg)
     r.state[1, :] .= 1
     return r
 end
+
+function Base.:*(bra::Yao.YaoArrayRegister.AdjointRegister{1, <:RydbergReg}, ket::RydbergReg)
+    return dot(statevec(parent(bra)), statevec(ket))
+end

@@ -24,6 +24,7 @@ end
 @testset "Yao interfaces" begin
     include("register.jl")
     include("measure.jl")
+    include("instructs.jl")
 end
 
 @testset "unit disk" begin

@@ -155,3 +155,4 @@ Base.haskey(s::Subspace, key) = haskey(s.map, key)
 Base.copy(s::Subspace) = Subspace(copy(s.map), copy(s.subspace_v))
 Base.vec(s::Subspace) = s.subspace_v
 Base.:(==)(x::Subspace, y::Subspace) = (x.map == y.map) && (x.subspace_v == y.subspace_v)
+Base.to_index(ss::Subspace) = ss.subspace_v .+ 1

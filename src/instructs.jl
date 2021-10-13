@@ -92,7 +92,7 @@ function _instruct!(res, state, subspace_v, map, m, locs, mask, onemask)
                 I = setlocbits(I0, locs, iindex)
                 i = get(map, I, -1)
                 if i > 0
-                    res[i] += m[iindex+1,jindex+1] * state[j]
+                    res[i] += mij * state[j]
                 end
             end
         else

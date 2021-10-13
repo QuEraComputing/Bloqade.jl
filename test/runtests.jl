@@ -25,6 +25,7 @@ end
     include("register.jl")
     include("measure.jl")
     include("instructs.jl")
+    include("mat.jl")
 end
 
 @testset "unit disk" begin

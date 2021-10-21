@@ -1,5 +1,8 @@
-using RydbergEmulator, Test, Random, Yao
-using LightGraphs, SparseArrays
+using Test
+using Random, Yao
+using RydbergEmulator
+using Graphs
+using SparseArrays
 
 @testset "mat" begin
     ss = blockade_subspace(smallgraph(:petersen))

@@ -2,7 +2,7 @@ using Test
 using Adapt
 using Random
 using RydbergEmulator
-using LightGraphs: SimpleGraph, add_edge!
+using Graphs: SimpleGraph, add_edge!
 using SparseArrays
 using OrderedCollections
 using LuxurySparse

@@ -1,4 +1,4 @@
-using LightGraphs
+using Graphs
 using RydbergEmulator
 
 const test_graph = SimpleGraph(5)

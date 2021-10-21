@@ -1,5 +1,5 @@
 using Test, Random, RydbergEmulator
-using LightGraphs, Yao, SparseArrays
+using Graphs, Yao, SparseArrays
 using LinearAlgebra
 
 @testset "apply" begin

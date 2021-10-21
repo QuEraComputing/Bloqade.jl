@@ -9,7 +9,7 @@ using UUIDs
 using Adapt
 using SparseArrays
 using LuxurySparse
-using LightGraphs
+using Graphs
 using LinearAlgebra
 using OrderedCollections
 using Configurations

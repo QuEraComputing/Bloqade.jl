@@ -4,7 +4,7 @@ using LinearAlgebra
 using Random
 using BitBasis
 using Yao
-using LightGraphs
+using Graphs
 using RydbergEmulator: add_vertices!, add_random_vertices
 
 if !isdefined(@__MODULE__, :test_graph)

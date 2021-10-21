@@ -2,7 +2,7 @@ using Test
 using Yao
 using SparseArrays
 using RydbergEmulator
-using LightGraphs
+using Graphs
 using LinearAlgebra
 
 if !isdefined(@__MODULE__, :test_graph)

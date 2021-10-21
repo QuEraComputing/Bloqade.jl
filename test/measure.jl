@@ -1,6 +1,7 @@
 using Test, RydbergEmulator
 using Random
-using LightGraphs, LinearAlgebra
+using Graphs
+using LinearAlgebra
 using BitBasis
 
 if !isdefined(@__MODULE__, :test_graph)

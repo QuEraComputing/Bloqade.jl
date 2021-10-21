@@ -1,7 +1,7 @@
 using Test
 using Random
 using RydbergEmulator
-using LightGraphs
+using Graphs
 
 @testset "unit_disk" begin
     g = SimpleGraph(4)

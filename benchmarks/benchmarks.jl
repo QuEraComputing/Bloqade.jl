@@ -2,7 +2,7 @@ using BenchmarkTools
 using CUDA
 using CUDA.CUSPARSE
 using RydbergEmulator
-using LightGraphs
+using Graphs
 using SparseArrays
 using Random
 

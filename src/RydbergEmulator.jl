@@ -21,12 +21,13 @@ using StatsBase
 using ThreadsX
 using Transducers
 using StaticArrays
+using Reexport
 
-import Yao
-using Yao: measure, zero_state
-using Unitful: Quantity, uconvert, MHz, µm, μs, ns
 using Transducers: OnInit
 using LinearAlgebra: BlasInt, BlasReal, BlasComplex
+
+@reexport using Unitful: Quantity, uconvert, MHz, µm, μs, ns
+@reexport using Yao
 
 export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
     Hamiltonian, DiscreteEmulationCache,
@@ -40,12 +41,8 @@ export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
     mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp,
     square_lattice, set_zero_state!, blockade_subspace, is_independent_set,
     to_independent_set!, to_independent_set, add_vertices, add_vertices!,
-    add_random_vertices,
-    # reexport from Yao
-    measure, zero_state, independent_set_probabilities,
-    mis_postprocessing,
-    # units
-    MHz, μs, ns
+    add_random_vertices, independent_set_probabilities,
+    mis_postprocessing
 
 # NOTE: remove this after expv get fixed
 include("expmv.jl")

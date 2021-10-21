@@ -70,7 +70,7 @@ end
         end
 
         @testset "subspace trial=$trial" for trial in 1:3
-            space = Subspace(randperm(1<<natoms)[1:1<<(natoms-2)].-1)
+            space = Subspace(natoms, randperm(1<<natoms)[1:1<<(natoms-2)].-1)
             colptr, rowval = sparse_skeleton_csc(h, space)
 
             M = H[vec(space).+1, vec(space).+1]
@@ -101,7 +101,7 @@ end
         end # fullspace
 
         @testset "subspace trial=$trial" for trial in 1:3
-            space = Subspace(randperm(1<<natoms)[1:1<<(natoms-2)].-1)
+            space = Subspace(natoms, randperm(1<<natoms)[1:1<<(natoms-2)].-1)
             M = H[vec(space).+1, vec(space).+1]
             @test SparseMatrixCSC(h, space) ≈ M
             @testset "Tv=$Tv" for Tv in [Float32, Float64, ComplexF32, ComplexF64]
@@ -130,7 +130,7 @@ end
     end # fullspace
 
     @testset "subspace trial=$trial" for trial in 1:3
-        space = Subspace(randperm(1<<natoms)[1:1<<(natoms-2)].-1)
+        space = Subspace(natoms, randperm(1<<natoms)[1:1<<(natoms-2)].-1)
         M = H[vec(space).+1, vec(space).+1]
         @test SparseMatrixCSC(h, space) ≈ M
         @testset "Tv=$Tv" for Tv in [Float32, Float64, ComplexF32, ComplexF64]
@@ -186,6 +186,8 @@ end
     display(h)
 
     @test_throws AssertionError XTerm(5, [1, 2, 3, 4])
+
+    @test_throws ArgumentError XTerm(5, 4.0, [0.1, 0.3, 0.5])
 end
 
 @testset "Z term" begin
@@ -292,6 +294,8 @@ end
 
     h = NTerm(5, cos) - (XTerm(5, sin) + NTerm(5, cos))
     @test SparseMatrixCSC(h(1.0)) ≈ SparseMatrixCSC(-XTerm(5, sin(1.0)))
+
+    @test_throws ArgumentError XTerm(5, 4.0, 0.1) + ZTerm(2, 4.0)
 end
 
 @testset "XTerm subspace" begin

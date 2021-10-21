@@ -45,24 +45,24 @@ function RydbergReg{ComplexLayout}(reg::RydbergReg{RealLayout})
 end
 
 """
-    RydbergReg(natoms::Int, state::AbstractVector, subspace::Subspace)
+    RydbergReg(state::AbstractVector, subspace::Subspace)
 
 Create a `RydbergReg` from state vector and its corresponding subspace of `natoms`.
 """
-function RydbergReg(natoms::Int, state::AbstractVector, subspace::Subspace) where {N}
-    return RydbergReg(natoms, ComplexLayout(), reshape(state, size(state, 1)), subspace)
+function RydbergReg(state::AbstractVector, subspace::Subspace) where {N}
+    return RydbergReg(subspace.nqubits, ComplexLayout(), reshape(state, size(state, 1)), subspace)
 end
 
 """
-    RydbergReg(natoms::Int, state::AbstractMatrix, subspace::Subspace)
+    RydbergReg(state::AbstractMatrix, subspace::Subspace)
 
 Create a `RydbergReg` from real value storage.
 """
-function RydbergReg(natoms::Int, state::AbstractMatrix{<:Real}, subspace::Subspace)
-    return RydbergReg(natoms, RealLayout(), state, subspace)
+function RydbergReg(state::AbstractMatrix{<:Real}, subspace::Subspace)
+    return RydbergReg(subspace.nqubits, RealLayout(), state, subspace)
 end
 
-function RydbergReg(natoms::Int, state::AbstractMatrix{<:Complex}, subspace::Subspace)
+function RydbergReg(state::AbstractMatrix{<:Complex}, subspace::Subspace)
     error("support of batched register is dropped, please open an issue for your use case")
 end
 
@@ -93,51 +93,51 @@ to use the `RealLayout` over `ComplexLayout` which stores the complex
 -value state vector as as `length(state)×2` matrix, the first column
 is the real component and the second column is the imaginary component.
 """
-Yao.zero_state(n::Int, subspace::Subspace, layout=ComplexLayout()) = zero_state(ComplexF64, n, subspace, layout)
-Yao.zero_state(::Type{T}, natoms::Int, s::Subspace) where T = zero_state(T, natoms, s, ComplexLayout())
+Yao.zero_state(subspace::Subspace, layout=ComplexLayout()) = zero_state(ComplexF64, subspace, layout)
+Yao.zero_state(::Type{T}, s::Subspace) where T = zero_state(T, s, ComplexLayout())
 
-function Yao.zero_state(::Type{T}, natoms::Int, s::Subspace, layout::ComplexLayout) where {T <: Complex}
+function Yao.zero_state(::Type{T}, s::Subspace, layout::ComplexLayout) where {T <: Complex}
     state = zeros(T, length(s))
     state[1] = 1
-    return RydbergReg(natoms, layout, state, s)
+    return RydbergReg(s.nqubits, layout, state, s)
 end
 
-function Yao.zero_state(::Type{T}, natoms::Int, s::Subspace, layout::RealLayout) where {T <: Complex}
+function Yao.zero_state(::Type{T}, s::Subspace, layout::RealLayout) where {T <: Complex}
     state = zeros(real(T), length(s), 2)
     state[1, 1] = 1
-    return RydbergReg(natoms, layout, state, s)
+    return RydbergReg(s.nqubits, layout, state, s)
 end
 
-function Yao.rand_state(natoms::Int, s::Subspace, layout::MemoryLayout = ComplexLayout())
-    Yao.rand_state(ComplexF64, natoms, s, layout)
+function Yao.rand_state(s::Subspace, layout::MemoryLayout = ComplexLayout())
+    Yao.rand_state(ComplexF64, s, layout)
 end
 
-function Yao.rand_state(::Type{T}, natoms::Int, s::Subspace, layout::ComplexLayout) where {T <: Complex}
+function Yao.rand_state(::Type{T}, s::Subspace, layout::ComplexLayout) where {T <: Complex}
     state = normalize!(rand(T, length(s)))
-    return RydbergReg(natoms, layout, state, s)
+    return RydbergReg(s.nqubits, layout, state, s)
 end
 
-function Yao.rand_state(::Type{T}, natoms::Int, s::Subspace, layout::RealLayout) where {T <: Complex}
+function Yao.rand_state(::Type{T}, s::Subspace, layout::RealLayout) where {T <: Complex}
     state = normalize!(rand(real(T), length(s), 2))
-    return RydbergReg(natoms, layout, state, s)
+    return RydbergReg(s.nqubits, layout, state, s)
 end
 
-function Yao.product_state(natoms::Int, config::BitStr, s::Subspace, layout::MemoryLayout=ComplexLayout())
-    Yao.product_state(ComplexF64, natoms, config, s, layout)
+function Yao.product_state(config::BitStr, s::Subspace, layout::MemoryLayout=ComplexLayout())
+    Yao.product_state(ComplexF64, config, s, layout)
 end
 
-function Yao.product_state(::Type{T}, natoms::Int, c::BitStr, s::Subspace, layout::ComplexLayout) where T
+function Yao.product_state(::Type{T}, c::BitStr, s::Subspace, layout::ComplexLayout) where T
     c in s.subspace_v || error("$c is not in given subspace")
     state = zeros(T, length(s))
     state[s[c]] = 1
-    return RydbergReg(natoms, layout, state, s)
+    return RydbergReg(s.nqubits, layout, state, s)
 end
 
-function Yao.product_state(::Type{T}, natoms::Int, c::BitStr, s::Subspace, layout::RealLayout) where T
+function Yao.product_state(::Type{T}, c::BitStr, s::Subspace, layout::RealLayout) where T
     c in s.subspace_v || error("$c is not in given subspace")
     state = zeros(T, length(s), 2)
     state[s[c], 1] = 1
-    return RydbergReg(natoms, layout, state, s)
+    return RydbergReg(s.nqubits, layout, state, s)
 end
 
 # TODO: make upstream implementation more generic

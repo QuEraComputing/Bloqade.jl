@@ -82,7 +82,7 @@ function _instruct!(res, state, subspace_v, map, m, locs, mask, onemask)
     locs_zeroclear_mask = ~bmask(locs...)
     @inbounds for j=1:length(subspace_v)
         J = subspace_v[j]
-        if testval(J, mask, onemask)
+        if ismatch(J, mask, onemask)
             jindex = readbit(J, locs...)
             # zero clear bits at locs
             I0 = J & locs_zeroclear_mask

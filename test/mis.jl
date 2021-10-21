@@ -12,7 +12,7 @@ if !isdefined(@__MODULE__, :test_graph)
 end
 
 @testset "loss functions" begin
-    constraint_r = RydbergEmulator.zero_state(nv(test_graph), test_subspace)
+    constraint_r = RydbergEmulator.zero_state(test_subspace)
     fullspace_r = Yao.zero_state(5)
 
     for loss_fn in [mean_rydberg, x->gibbs_loss(x, 0.3)]
@@ -53,14 +53,14 @@ to_independent_set!(config, graph)
 
 @testset "mis probabilities" begin
     raw_state = normalize!(rand(ComplexF64, length(space)))
-    r = RydbergReg(length(atoms), raw_state, space)
+    r = RydbergReg(raw_state, space)
     @test sum(independent_set_probabilities(r, graph)) ≈ 1
     @test sum(independent_set_probabilities(mis_postprocessing(graph), r, graph)) ≈ 1
 end
 
 @testset "RealLayout MIS functions" begin
-    space = Subspace(sort!(randperm(1<<10)[1:30]))
-    cr = rand_state(10, space)
+    space = Subspace(10, sort!(randperm(1<<10)[1:30]))
+    cr = rand_state(space)
     rr = RydbergReg{RealLayout}(cr)
     @test mean_rydberg(cr) ≈ mean_rydberg(rr)
 end
@@ -76,7 +76,7 @@ end
     atoms = square_lattice(10, 0.8)
     graph = unit_disk_graph(atoms, 1.5)
     space = blockade_subspace(graph)
-    reg = rand_state(length(atoms), space)
+    reg = rand_state(space)
     Random.seed!(1234)
     l1 = mean_rydberg(mis_postprocessing(graph), reg)
     Random.seed!(1234)

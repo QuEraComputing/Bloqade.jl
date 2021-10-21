@@ -46,6 +46,16 @@ function assert_has_time_method(f, name)
     hasmethod(f, Tuple{Real}) || throw(ArgumentError("invalid input for $name: method $f(::Real) is not defined"))
 end
 
+function assert_nsites(nsites::Int, p, name)
+    p isa AbstractVector || p isa Tuple || return
+    nsites == length(p) ||
+        throw(ArgumentError(
+            "nsites does not match size of $name " *
+            "expect $nsites, got $(length(p))"
+    ))
+    return
+end
+
 """
     RydInteract{T<:Number, AtomList <: AbstractVector{<:RydAtom}} <: AbstractTerm
     RydInteract(atoms::AbstractVector{<:RydAtom}, C::Number)
@@ -101,18 +111,20 @@ struct XTerm{Omega, Phi} <: AbstractTerm
     Ωs::Omega
     ϕs::Phi
 
-    function XTerm{Omega, Phi}(nsites::Int, Ωs::Omega, ϕs::Phi) where {Omega, Phi}
-        new{Omega, Phi}(nsites, Ωs, ϕs)
-    end
+    function XTerm{Omega, Phi}(nsites::Int, Ωs, ϕs) where {Omega, Phi}
+        assert_nsites(nsites, Ωs, :Ωs)
+        assert_nsites(nsites, ϕs, :ϕs)
 
-    function XTerm(nsites::Int, Ωs, ϕs)
         assert_has_time_method(Ωs, "Ωs")
         assert_has_time_method(ϕs, "ϕs")
-
-        Ωs = default_unit(MHz, Ωs)
-        ϕs = default_unit(NoUnits, ϕs)
-        new{typeof(Ωs), typeof(ϕs)}(nsites, Ωs, ϕs)
+        new{Omega, Phi}(nsites, Ωs, ϕs)
     end
+end
+
+function XTerm(nsites::Int, Ωs, ϕs)
+    Ωs = default_unit(MHz, Ωs)
+    ϕs = default_unit(NoUnits, ϕs)
+    XTerm{typeof(Ωs), typeof(ϕs)}(nsites, Ωs, ϕs)
 end
 
 """
@@ -135,16 +147,16 @@ struct ZTerm{Delta} <: AbstractTerm
     nsites::Int
     Δs::Delta
 
-    function ZTerm{Delta}(nsites::Int, Δs::Delta) where {Delta}
+    function ZTerm{Delta}(nsites::Int, Δs) where {Delta}
+        assert_nsites(nsites, Δs, :Δs)
         new{Delta}(nsites, Δs)
     end
+end
 
-    function ZTerm(nsites::Int, Δs)
-        assert_has_time_method(Δs, "Δs")
-
-        Δs = default_unit(MHz, Δs)
-        new{typeof(Δs)}(nsites, Δs)
-    end
+function ZTerm(nsites::Int, Δs)
+    assert_has_time_method(Δs, "Δs")
+    Δs = default_unit(MHz, Δs)
+    ZTerm{typeof(Δs)}(nsites, Δs)
 end
 
 """
@@ -167,15 +179,16 @@ struct NTerm{Delta} <: AbstractTerm
     nsites::Int
     Δs::Delta
 
-    function NTerm{Delta}(nsites::Int, Δs::Delta) where {Delta}
+    function NTerm{Delta}(nsites::Int, Δs) where {Delta}
+        assert_nsites(nsites, Δs, :Δs)
         new{Delta}(nsites, Δs)
     end
+end
 
-    function NTerm(nsites::Int, Δs)
-        assert_has_time_method(Δs, "Δs")
-        Δs = default_unit(MHz, Δs)
-        new{typeof(Δs)}(nsites, Δs)
-    end
+function NTerm(nsites::Int, Δs)
+    assert_has_time_method(Δs, "Δs")
+    Δs = default_unit(MHz, Δs)
+    NTerm{typeof(Δs)}(nsites, Δs)
 end
 
 struct Negative{Term} <: AbstractTerm
@@ -189,6 +202,18 @@ Base.:(-)(t::Negative) = t.term
 
 struct Hamiltonian{Terms <: Tuple} <: AbstractTerm
     terms::Terms
+
+    function Hamiltonian(terms::Terms) where {Terms}
+        first_nsites = nsites(first(terms))
+        for idx in 2:length(terms)
+            first_nsites == nsites(terms[idx]) ||
+                throw(ArgumentError(
+                    "nsites mismatch, " *
+                    "expect $first_nsites, got $(nsites(terms[idx]))"
+                ))
+        end
+        new{Terms}(terms)
+    end
 end
 
 # try to infer number of sites from the input

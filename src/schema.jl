@@ -94,7 +94,7 @@ function emulate(job::PulseJob)
     end
 
     space = blockade_subspace(atoms, job.radius)
-    r = zero_state(natoms, space)
+    r = zero_state(space)
     hs = map(p->pulse_hamiltonian(p, atoms), job.pulses)
     ts = map(p->p.duration, job.pulses)
     cache = DiscreteEmulationCache(ts, hs, space)

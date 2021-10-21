@@ -16,7 +16,7 @@ end
     hs = simple_rydberg.(nv(test_graph), ϕs)
 
     # prepare a zero state
-    r = RydbergEmulator.zero_state(5, test_subspace)
+    r = RydbergEmulator.zero_state(test_subspace)
     sample1 = measure!(r)
     @test sample1 == zero(BitStr64{5})
     emulate!(r, ts, hs)

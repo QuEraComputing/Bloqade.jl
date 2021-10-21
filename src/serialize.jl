@@ -227,7 +227,7 @@ end
 Write `Subspace` object `s` to `IO` as human readable format.
 """
 function write_subspace(io::IO, s::Subspace)
-    writedlm(io, s.subspace_v)
+    writedlm(io, vcat(s.nqubits, s.subspace_v))
 end
 
 """
@@ -236,8 +236,8 @@ end
 Read `Subspace` from given `io`.
 """
 function read_subspace(io::IO)
-    subspace_v = readdlm(io, Int)
-    return Subspace(vec(subspace_v))
+    subspace_v = vec(readdlm(io, Int))
+    return Subspace(subspace_v[1], subspace_v[2:end])
 end
 
 """

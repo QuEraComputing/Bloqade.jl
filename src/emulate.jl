@@ -362,7 +362,8 @@ end
 Non in-place version of [`emulate!`](@ref). See [`emulate!`](@ref) for valid kwargs.
 """
 function emulate(s::Subspace, t_or_ts, h_or_hs; kwargs...)
+    @assert s.nqubits == nsites(h_or_hs) "qubit mismatch"
     precision_t = real(eltype(t_or_ts))
-    r = zero_state(Complex{precision_t}, nsites(h_or_hs), s)
+    r = zero_state(Complex{precision_t}, s)
     return emulate!(r, t_or_ts, h_or_hs; kwargs...)
 end

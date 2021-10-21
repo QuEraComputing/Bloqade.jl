@@ -25,28 +25,29 @@ const fullspace = FullSpace()
 A `Dict`-like object stores the mapping between subspace and full space.
 """
 struct Subspace{S <: AbstractVector{Int}} <: AbstractSpace
+    nqubits::Int
     map::OrderedDict{Int, Int} # fullspace_index => subspace_index
     subspace_v::S
 end
 
-Adapt.adapt_structure(to, x::Subspace) = Subspace(x.map, adapt(to, x.subspace_v))
+Adapt.adapt_structure(to, x::Subspace) = Subspace(x.nqubits, x.map, adapt(to, x.subspace_v))
 
 """
-    Subspace(subspace_v::AbstractVector{Int})
+    Subspace(nqubits::Int, subspace_v::AbstractVector{Int})
 
 Create a Subspace from given list of subspace indices in the corresponding full space.
 """
-function Subspace(subspace_v::AbstractVector{Int})
+function Subspace(nqubits::Int, subspace_v::AbstractVector{Int})
     subspace_v = sort(subspace_v)
     map = OrderedDict{Int, Int}()
     for (subspace_index, fullspace_index) in enumerate(subspace_v)
         map[fullspace_index] = subspace_index
     end
-    return Subspace(map, subspace_v)
+    return Subspace(nqubits, map, subspace_v)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", s::Subspace{S}) where S
-    print(io, length(s.subspace_v), "-elements ")
+    print(io, s.nqubits, "-qubits ", length(s.subspace_v), "-elements ")
     summary(io, s)
     println(io, ":")
 
@@ -132,7 +133,7 @@ function create_subspace_from_mis(n::Int, mis::AbstractVector)
     # need the following PR merged
     # https://github.com/JuliaFolds/InitialValues.jl/pull/60
     subspace_v = ThreadsX.reduce(union, iterators; init=OnInit(Vector{Int}))
-    return Subspace(subspace_v)
+    return Subspace(n, subspace_v)
 end
 
 """
@@ -152,7 +153,11 @@ Base.length(s::Subspace) = length(s.subspace_v)
 Base.iterate(s::Subspace) = iterate(s.map)
 Base.iterate(s::Subspace, st) = iterate(s.map, st)
 Base.haskey(s::Subspace, key) = haskey(s.map, key)
-Base.copy(s::Subspace) = Subspace(copy(s.map), copy(s.subspace_v))
+Base.copy(s::Subspace) = Subspace(s.nqubits, copy(s.map), copy(s.subspace_v))
 Base.vec(s::Subspace) = s.subspace_v
-Base.:(==)(x::Subspace, y::Subspace) = (x.map == y.map) && (x.subspace_v == y.subspace_v)
 Base.to_index(ss::Subspace) = ss.subspace_v .+ 1
+
+function Base.:(==)(x::Subspace, y::Subspace)
+    return (x.nqubits == y.nqubits) && (x.map == y.map) &&
+        (x.subspace_v == y.subspace_v)
+end

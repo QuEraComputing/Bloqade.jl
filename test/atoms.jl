@@ -1,4 +1,5 @@
 using Test
+using LightGraphs
 using RydbergEmulator
 using Random
 
@@ -26,5 +27,5 @@ end
 
 @test_logs (:warn, "graph has empty edges, creating a subspace contains the entire fullspace, consider using a full space register.") begin
     Random.seed!(123)
-    blockade_subspace(rand_atoms(4, 0.2))
+    blockade_subspace(SimpleGraph(5))
 end

@@ -4,7 +4,7 @@ using LinearAlgebra
 
 @testset "apply" begin
     ss = blockade_subspace(smallgraph(:petersen))
-    r = RydbergReg(10, randn(ComplexF64, 76), ss)
+    r = RydbergReg(randn(ComplexF64, 76), ss)
     for g in [put(10, 2=>X), put(10, 3=>Rx(0.4)), put(10, 2:6=>matblock(rand_unitary(32))), control(10, (3,-5), (2,7)=>matblock(rand_unitary(4)))]
         M = SparseMatrixCSC(mat(g))
         r2 = apply(r, g)
@@ -14,7 +14,7 @@ end
 
 @testset "expect" begin
     ss = blockade_subspace(smallgraph(:petersen))
-    r = RydbergReg(10, randn(ComplexF64, 76), ss)
+    r = RydbergReg(randn(ComplexF64, 76), ss)
     @test r' * r ≈ norm(r.state)^2
     for g in [put(10, 2=>X), control(10, (3,-5), (2,7)=>matblock(rand_unitary(4)))]
         M = SparseMatrixCSC(mat(g))

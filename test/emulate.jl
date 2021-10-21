@@ -31,8 +31,8 @@ end
 @testset "subspace qaoa" begin
     hs = simple_rydberg.(5, rand(5))
     ts = rand(5)
-    s = Subspace(test_subspace_v)
-    r = RydbergEmulator.zero_state(5, s)
+    s = Subspace(5, test_subspace_v)
+    r = RydbergEmulator.zero_state(s)
 
     cache = DiscreteEmulationCache(ts, first(hs), s)
     r1 = emulate!(copy(r), ts, hs; cache=cache)
@@ -55,24 +55,24 @@ end
     hs = simple_rydberg.(5, rand(3))
     ts = rand(3)
     @test emulate(ts, hs) ≈ emulate!(Yao.zero_state(5), ts, hs)
-    @test emulate(test_subspace, ts, hs) ≈ emulate!(RydbergEmulator.zero_state(5, test_subspace), ts, hs)
+    @test emulate(test_subspace, ts, hs) ≈ emulate!(RydbergEmulator.zero_state(test_subspace), ts, hs)
 end
 
 @testset "trotterize" begin
     atoms = square_lattice(10, 0.8)
     space = blockade_subspace(atoms, 1.5)
     h = rydberg_h(atoms, 1.0, 2.0, sin)
-    prob = DiscreteEvolution(zero_state(length(atoms), space), 0.5, h)
+    prob = DiscreteEvolution(zero_state(space), 0.5, h)
     display(prob)
 
     @test prob.t_or_ts ≈ 0:1e-3:0.5
     emulate!(prob)
     ts = [1e-3 for _ in 0:1e-3:0.5]
     hs = [h(t) for t in 0:1e-3:0.5]
-    target = simple_evolve!(zero_state(length(atoms), space), ts, hs, space)
+    target = simple_evolve!(zero_state(space), ts, hs, space)
     @test prob.reg ≈ target
 
-    prob = DiscreteEvolution(zero_state(length(atoms), space), 0.001, h; progress=true)
+    prob = DiscreteEvolution(zero_state(space), 0.001, h; progress=true)
     @test_logs (:info, "emulating") (:info, "emulating") emulate!(prob)
     @test prob.options.progress == true
 end

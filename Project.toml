@@ -1,0 +1,13 @@
+name = "EaRyd"
+uuid = "919886a7-1033-42c4-9b63-e090dad94c32"
+authors = ["Roger-Luo <rogerluo.rl18@gmail.com> and contributors"]
+version = "0.1.0"
+
+[compat]
+julia = "1.6.3"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

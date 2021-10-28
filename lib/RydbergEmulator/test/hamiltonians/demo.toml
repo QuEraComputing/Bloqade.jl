@@ -1,0 +1,31 @@
+[xterm]
+nsites=5
+omega=0.1
+phi=0.2
+
+# [xterm]
+# omega=[0.1, 0.2, 0.3, 0.4, 0.5]
+# phi=[0.2, 0.3, 0.4, 0.5, 0.6]
+
+# [xterm]
+# omega=[0.1, 0.2, 0.3, 0.4, 0.5]
+# phi=0.1
+
+[zterm]
+nsites=5
+delta=0.1
+
+# [zterm]
+# delta=[0.1, 0.2, 0.3, 0.4, 0.5]
+
+[rydberg]
+atoms="path/to/file.atoms"
+
+# [rydberg]
+# atoms=[
+#     [1, 2],
+#     [1, 2],
+#     [1, 2],
+#     [1, 2],
+#     [1, 2],
+# ]

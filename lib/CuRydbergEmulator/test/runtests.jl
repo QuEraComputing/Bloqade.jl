@@ -46,9 +46,9 @@ end
 ]
 
     @testset "T=$T" for T in [ComplexF32, ComplexF64]
-        ref_state = zero_state(T, length(atoms), space)
+        ref_state = zero_state(T, space)
         dcomplex_r = cu(ref_state)
-        dreal_r = cu(zero_state(T, length(atoms), space, RealLayout()))
+        dreal_r = cu(zero_state(T, space, RealLayout()))
 
         emulate!(ref_state, 1e-3, h)
         emulate!(dcomplex_r, 1e-3, h)

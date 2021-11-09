@@ -7,6 +7,7 @@ version = "0.1.0"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 ContinuousEmulator = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
 CuRydbergEmulator = "6b142359-0b0c-4dfb-9c9b-84981bce612e"
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 RydbergEmulator = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
 

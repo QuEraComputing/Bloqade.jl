@@ -34,8 +34,10 @@ jobs:
       - name: "Setup Private Registry"
         shell: julia --color=yes {0}
         run: |
-          using Pkg; pkg"registry add General"
-          pkg"registry add https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"
+          import Pkg
+          ENV["JULIA_PKG_SERVER"] = ""
+          Pkg.Registry.add("General")
+          Pkg.Registry.add("https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git")
       - name: "develop lib packages"
         run: julia --project .ci/run.jl dev
       - uses: julia-actions/julia-buildpkg@v1

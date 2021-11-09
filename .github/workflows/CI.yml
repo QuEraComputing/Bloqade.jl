@@ -31,6 +31,10 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      - name: "Setup Private Registry"
+        shell: bash
+        run: julia -e 'using Pkg; pkg"registry add General";
+          pkg"registry add https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"'
       - run: julia --project .ci/run.jl dev
       - uses: julia-actions/julia-buildpkg@v1
       - run: julia --project .ci/run.jl test

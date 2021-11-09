@@ -1,5 +1,5 @@
 using Test
-using LightGraphs
+using Graphs
 using RydbergEmulator
 using Random
 

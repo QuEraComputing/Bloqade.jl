@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - 'nightly'
+          - '1'
         os:
           - ubuntu-latest
         arch:
@@ -31,32 +31,12 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
+      - run: julia --project .ci/run.jl dev
       - uses: julia-actions/julia-buildpkg@v1
-      - uses: julia-actions/julia-runtest@v1
+      - run: julia --project .ci/run.jl test
       - uses: julia-actions/julia-processcoverage@v1
+        with:
+          directories: src,lib/RydbergEmulator/src,lib/CuRydbergEmulator/src,lib/ContinuousEmulator/src
       - uses: codecov/codecov-action@v1
         with:
           file: lcov.info
-  docs:
-    name: Documentation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: julia-actions/setup-julia@v1
-        with:
-          version: '1'
-      - run: |
-          julia --project=docs -e '
-            using Pkg
-            Pkg.develop(PackageSpec(path=pwd()))
-            Pkg.instantiate()'
-      - run: |
-          julia --project=docs -e '
-            using Documenter: DocMeta, doctest
-            using EaRyd
-            DocMeta.setdocmeta!(EaRyd, :DocTestSetup, :(using EaRyd); recursive=true)
-            doctest(EaRyd)'
-      - run: julia --project=docs docs/make.jl
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }}

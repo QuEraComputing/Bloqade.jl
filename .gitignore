@@ -5,3 +5,4 @@
 .vscode
 Manifest.toml
 /docs/Manifest.toml
+/docs/src/assets/indigo.css

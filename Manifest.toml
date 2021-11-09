@@ -142,7 +142,7 @@ version = "1.3.0"
 
 [[ContinuousEmulator]]
 deps = ["Adapt", "Configurations", "DiffEqCallbacks", "LinearAlgebra", "OrdinaryDiffEq", "Reexport", "RydbergEmulator", "SparseArrays", "Yao"]
-path = "lib/ContinuousEmulator"
+path = "/home/roger/code/julia/EaRyd/lib/ContinuousEmulator"
 uuid = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
 version = "0.4.1"
 
@@ -694,7 +694,7 @@ version = "0.3.0+0"
 
 [[RydbergEmulator]]
 deps = ["Adapt", "BitBasis", "Configurations", "DelimitedFiles", "EliminateGraphs", "Graphs", "LinearAlgebra", "LuxurySparse", "MLStyle", "OrderedCollections", "Polyester", "Printf", "ProgressLogging", "Random", "Reexport", "SparseArrays", "StaticArrays", "StatsBase", "ThreadsX", "Transducers", "UUIDs", "Unitful", "Yao"]
-path = "lib/RydbergEmulator"
+path = "/home/roger/code/julia/EaRyd/lib/RydbergEmulator"
 uuid = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
 version = "0.14.4"
 

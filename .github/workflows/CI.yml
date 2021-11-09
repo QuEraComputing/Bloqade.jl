@@ -37,7 +37,7 @@ jobs:
           pkg"registry add https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"'
       - run: julia --project .ci/run.jl dev
       - uses: julia-actions/julia-buildpkg@v1
-      - run: julia --project .ci/run.jl test
+      - run: julia --project .ci/run.jl test cpu
       - uses: julia-actions/julia-processcoverage@v1
         with:
           directories: src,lib/RydbergEmulator/src,lib/CuRydbergEmulator/src,lib/ContinuousEmulator/src

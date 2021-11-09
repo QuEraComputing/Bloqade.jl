@@ -13,14 +13,14 @@ space = blockade_subspace(atoms, 1.5)
 
     dt = 1e-5
     @testset "subspace" begin
-        ref = zero_state(5, space)
+        ref = zero_state(space)
         emulate!(ref, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
 
-        reg = zero_state(5, space, ComplexLayout())
+        reg = zero_state(space, ComplexLayout())
         emulate!(reg, 0.2, h)
         @test reg ≈ ref atol=1e-4
 
-        reg = zero_state(5, space, RealLayout())
+        reg = zero_state(space, RealLayout())
         emulate!(reg, 0.2, h)
         @test reg ≈ ref atol=1e-4
     end

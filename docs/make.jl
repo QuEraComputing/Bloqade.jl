@@ -15,6 +15,10 @@ makedocs(;
     ),
     pages=[
         "Home" => "index.md",
+        "Quick Start" => "quick-start.md",
+        "Tutorials" => [
+            "Solving Maximum-Independent Set Using Rydberg QAOA" => "tutorials/mis.md"
+        ],
     ],
 )
 

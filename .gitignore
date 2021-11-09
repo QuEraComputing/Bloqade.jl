@@ -4,3 +4,4 @@
 /docs/build/
 .vscode
 Manifest.toml
+/docs/Manifest.toml

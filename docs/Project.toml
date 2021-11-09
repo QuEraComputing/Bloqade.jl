@@ -1,3 +1,7 @@
 [deps]
+ContinuousEmulator = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
+CuRydbergEmulator = "6b142359-0b0c-4dfb-9c9b-84981bce612e"
+DocThemeIndigo = "8bac0ac5-51bf-41f9-885e-2bf1ac2bec5f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 EaRyd = "919886a7-1033-42c4-9b63-e090dad94c32"
+RydbergEmulator = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"

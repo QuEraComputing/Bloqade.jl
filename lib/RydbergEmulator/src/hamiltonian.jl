@@ -525,6 +525,10 @@ function getterm(t::XTerm, k, k_site)
     end
 end
 
+function getterm(t::XTerm{<:Any, Nothing}, k, k_site)
+    return getscalarmaybe(t.Ωs, k)/2
+end
+
 function getterm(t::ZTerm, k, k_site)
     if k_site == 0
         return getscalarmaybe(t.Δs, k)
@@ -660,7 +664,6 @@ function update_term!(H::AbstractSparseMatrix, t::AbstractTerm, s::Subspace)
     @inbounds foreach_nnz(H) do k, col, row
         lhs = s.subspace_v[col]
         rhs = s.subspace_v[row]
-
         nzval[k] = term_value(t, lhs, rhs, col, row)
     end
     return H
@@ -751,6 +754,22 @@ function rydberg_h(atoms, Ω, ϕ, Δ)
     return RydInteract(atoms) + XTerm(length(atoms), Ω, ϕ) - NTerm(length(atoms), Δ)
 end
 
+function rydberg_h(atoms; Ω, Δ, C=nothing, ϕ=nothing)
+    term = - NTerm(length(atoms), Δ)
+    if C === nothing
+        term += RydInteract(atoms)
+    else
+        term += RydInteract(atoms, C)
+    end
+
+    if ϕ === nothing
+        term += XTerm(length(atoms), Ω)
+    else
+        term += XTerm(length(atoms), Ω, ϕ)
+    end
+    return term
+end
+
 function is_time_dependent(h::XTerm)
     return !(h.Ωs isa ConstParamType || isnothing(h.Ωs)) ||
         !(h.ϕs isa ConstParamType || isnothing(h.ϕs))
@@ -773,6 +792,7 @@ attime(x::Nothing, t::Real) = nothing
 attime(x::Number, t::Real) = x
 attime(x, t::Real) = x(t)
 attime(x::AbstractArray, t::Real) = attime.(x, t)
+attime(x::NTuple{N, <:Number}, t::Real) where N = attime.(x, t)
 
 function (tm::XTerm)(t::Real)
     return XTerm(tm.nsites, attime(tm.Ωs, t), attime(tm.ϕs, t))

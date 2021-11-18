@@ -101,7 +101,7 @@ the same term but can have different parameters.
 """
 function emulate! end
 
-struct PrecisionAdaptor{P <: AbstractFloat} end
+struct PrecisionAdaptor{P} end
 
 PrecisionAdaptor(P::Type) = PrecisionAdaptor{P}()
 Adapt.adapt_storage(::PrecisionAdaptor{P}, x::Real) where P = P(x)

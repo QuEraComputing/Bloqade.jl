@@ -118,11 +118,11 @@ end
 end
 
 """
-    ContinuousEvolution{P <: AbstractFloat}
+    ContinuousEvolution{P}
 
 Problem type for hamiltonian with time dependent parameters.
 """
-struct ContinuousEvolution{P <: AbstractFloat, Reg <: AbstractRegister, Eq <: ShordingerEquation, Prob <: ODEProblem, Options <: ContinuousOptions}
+struct ContinuousEvolution{P, Reg <: AbstractRegister, Eq <: ShordingerEquation, Prob <: ODEProblem, Options <: ContinuousOptions}
     reg::Reg
     time::NTuple{2, P}
     eq::Eq
@@ -148,7 +148,7 @@ Run the evolution for `t` μs, start from clock 0 μs, shorthand for
 ContinuousEvolution{P}(r, (0, t), h; kw...)
 ```
 """
-function ContinuousEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...) where {P <: AbstractFloat}
+function ContinuousEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...) where {P}
     return ContinuousEvolution{P}(r, (zero(t), t), h; kw...)
 end
 
@@ -176,7 +176,7 @@ to evolve from `start` to `stop` using an ODE solver.
 - `abstol`: absolute tolerance, default is 1e-8.
 - `normalize_steps`: steps to run normalization on the state, default is `5`.
 """
-function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P <: AbstractFloat}
+function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P}
     layout = RydbergEmulator.MemoryLayout(r)
     if layout isa RealLayout
         isreal(h) || error("cannot use RealLayout for non-real hamiltonian")

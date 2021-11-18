@@ -4,6 +4,7 @@ using Reexport
 
 @reexport using RydbergEmulator
 @reexport using ContinuousEmulator
+@reexport using Measurements: ±, Measurement
 
 using CUDA
 @static if CUDA.functional()

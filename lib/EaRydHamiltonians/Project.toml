@@ -1,0 +1,7 @@
+name = "EaRydHamiltonians"
+uuid = "81622cc5-9a80-4167-8505-9be82757c954"
+authors = ["Roger-luo <me@rogerluo.dev>"]
+version = "0.1.0"
+
+[deps]
+Configurations = "5218b696-f38b-4ac9-8b61-a12ec717816d"

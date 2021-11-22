@@ -31,7 +31,7 @@ right_lattice = [
         ys = [1, 5],
         y_unit_cell_distance = 12,
         nrepetitions = 3,
-        x_shifts = [-1, 0],
+        x_shifts = [-1, 0, 0],
     ),
 
     FangliLattice(
@@ -42,7 +42,7 @@ right_lattice = [
         ys = [1, 5],
         y_unit_cell_distance = 12,
         nrepetitions = 3,
-        x_shifts = [-1, 4],
+        x_shifts = [-1, 4, 0],
     ),
 ]
 
@@ -95,3 +95,4 @@ end
 
 site_positions(right_lattice[2])
 site_positions(right_lattice[3])
+site_positions(right_lattice[4])

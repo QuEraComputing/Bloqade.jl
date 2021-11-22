@@ -36,14 +36,14 @@ end
 
 # TODO: calculate the nnz colptr and rowval directly
 """
-    DiscreteEmulationCache{Tv, Ti}(h_or_hs[, s::AbstractSpace=fullspace])
+    DiscreteEmulationCache{Tv, Ti}(hs[, s::AbstractSpace=fullspace])
 
 Create a `DiscreteEmulationCache`.
 
 # Arguments
 
 - `T`: element type of the storage.
-- `h_or_hs`: a Hamiltonian expression term or a list of Hamiltonians.
+- `hs`: a Hamiltonian expression term or a list of Hamiltonians.
 - `s`: space type, default is [`fullspace`](@ref).
 """
 function DiscreteEmulationCache{Tv, Ti}(h::AbstractTerm, s::AbstractSpace) where {Tv, Ti}
@@ -55,26 +55,6 @@ function DiscreteEmulationCache{Tv, Ti}(ts::AbstractVector, hs::Vector{<:Abstrac
     # use the one that has less zero term values
     _, idx = findmin(map(num_zero_term, hs))
     DiscreteEmulationCache{Tv, Ti}(hs[idx], s)
-end
-
-function DiscreteEmulationCache{Tv, Ti}(ts::AbstractVector, h::AbstractTerm, s::AbstractSpace) where {Tv, Ti}
-    # use the one that has less zero term values
-    _, idx = findmin(map(t->num_zero_term(h(t)), ts))
-    DiscreteEmulationCache{Tv, Ti}(h(ts[idx]), s)
-end
-
-function DiscreteEmulationCache{Tv, Ti}(t::Number, h::AbstractTerm, s::AbstractSpace) where {Tv, Ti}
-    DiscreteEmulationCache{Tv, Ti}(h, s)
-end
-
-DiscreteEmulationCache{Tv, Ti}(t, h) where {Tv, Ti} = DiscreteEmulationCache{Tv, Ti}(t, h, fullspace)
-
-function DiscreteEmulationCache{Tv}(t, h, s::AbstractSpace=fullspace) where {Tv}
-    return DiscreteEmulationCache{Tv, Cint}(t, h, s)
-end
-
-function DiscreteEmulationCache(t::Union{Number, AbstractVector}, h, s::AbstractSpace=fullspace)
-    return DiscreteEmulationCache{Complex{real(eltype(t))}}(t, h, s)
 end
 
 num_zero_term(t::Hamiltonian) = count(iszero, t.terms)
@@ -119,10 +99,10 @@ abstract type EmulationOptions end
     normalize_finally::Bool = true
 end
 
-struct DiscreteEvolution{P, S, T, H, Cache <: DiscreteEmulationCache}
+struct DiscreteEvolution{P, S, T <: Real, H <: AbstractTerm, Cache <: DiscreteEmulationCache}
     reg::S
-    t_or_ts::T
-    h_or_hs::H
+    ts::Vector{T}
+    hs::Vector{H}
     cache::Cache
     options::DiscreteOptions
 end
@@ -133,7 +113,7 @@ get_space(r::Yao.ArrayReg) = fullspace
 get_space(r::RydbergReg) = r.subspace
 
 """
-    DiscreteEvolution{P}(register, t_or_ts, h_or_hs; kw...)
+    DiscreteEvolution{P}(register, ts, hs; kw...)
 
 Create a `DiscreteEvolution` object that emulates a list of hamiltonians at discrete time steps
 using Krylov subspace method, or trotterize a continuous function with `dt` then run the
@@ -145,8 +125,8 @@ trotterize integrator on it.
     the same as the `Yao.datatype` of given `register`.
 - `register`: required, the evolution problem register, can be a [`RydbergReg`](@ref) or an `ArrayReg`
     from `Yao`.
-- `t_or_ts`: required, the evolution time, can be a real number of a list of real numbers.
-- `h_or_hs`: required, the evolution hamiltonian, can be one hamiltonian with time dependent parameters
+- `ts`: required, the evolution time, can be a real number of a list of real numbers.
+- `hs`: required, the evolution hamiltonian, can be one hamiltonian with time dependent parameters
     to trotterize or with constant parameters to evolve, or a list of hamiltonians with constant parameters.
 
 # Keyword Arguments
@@ -157,54 +137,40 @@ trotterize integrator on it.
 - `progress::Bool`: show progress bar, default is `false`.
 - `progress_step::Int`: update the progress bar per `progress_step`, default is `1`.
 - `progress_name::String`: the printed name on progress bar, default is `"emulating"`.
-- `dt::Real`: the time step of trotterization if `t_or_ts` is specified as
-    a `Real` number and `h_or_hs` is a time dependent hamiltonian.
+- `dt::Real`: the time step of trotterization if `ts` is specified as
+    a `Real` number and `hs` is a time dependent hamiltonian.
 """
 function DiscreteEvolution{P}(
-    r::Yao.AbstractRegister, t_or_ts, h_or_hs;
-    cache=nothing, dt::Real=1e-3, index_type=Cint, kw...) where P
+    r::Yao.AbstractRegister, ts::Vector{<:Real}, hs::Vector{<:AbstractTerm};
+    index_type::Type=Cint,
+    cache::DiscreteEmulationCache=default_discrete_evolution_cache(P, index_type, r, ts, hs),
+    kw...) where P
 
-    if !(h_or_hs isa AbstractTerm)
-        length(t_or_ts) == length(h_or_hs) || throw(ArgumentError("length of time does not match hamiltonian"))
-    end
+    length(ts) == length(hs) || throw(ArgumentError("length of time does not match hamiltonian"))
 
-    eltype(t_or_ts) <: Real || throw(ArgumentError("time should be a real number, got $(eltype(t_or_ts))"))
-
+    # convert to user specified precision type
     state = adapt(PrecisionAdaptor(P), r)
     options = DiscreteOptions(;kw...)
-
-    # always convert it to a range if h_or_hs is time dependent
-    if t_or_ts isa Real && is_time_dependent(h_or_hs)
-        t_or_ts = zero(t_or_ts):dt:t_or_ts
-    end
-
     # convert units
-    t_or_ts = default_unit(μs, t_or_ts)
+    ts = default_unit(μs, ts)
+    ts = map(P, ts)
 
-    # NOTE: we don't convert t_or_ts to P automatically
-    # since functional parameters may using Float64
-    # and Float32 precision t would cause problem when
-    # checking the bounds
-
-    # # convert to given precision
-    # t_or_ts = map(P, t_or_ts)
-
-    if isnothing(cache)
-        all_real = if h_or_hs isa AbstractTerm
-            isreal(h_or_hs)
-        else
-            all(isreal, h_or_hs)
-        end
-        T = all_real ? P : Complex{P}
-        cache = DiscreteEmulationCache{T, index_type}(t_or_ts, h_or_hs, get_space(r))
-    end
-
-    S, T, H, C = typeof(state), typeof(t_or_ts), typeof(h_or_hs), typeof(cache.H)
-    return DiscreteEvolution{P, S, T, H, typeof(cache)}(state, t_or_ts, h_or_hs, cache, options)
+    S, T, H, C = typeof(state), eltype(ts), eltype(hs), typeof(cache)
+    return DiscreteEvolution{P, S, T, H, C}(state, ts, hs, cache, options)
 end
 
-function DiscreteEvolution(r::Yao.AbstractRegister, t_or_ts, h_or_hs; kw...)
-    return DiscreteEvolution{real(Yao.datatype(r))}(r, t_or_ts, h_or_hs; kw...)
+function default_discrete_evolution_cache(::Type{P}, ::Type{index_type}, r, ts, hs) where {P, index_type}
+    all_real = if hs isa AbstractTerm
+        isreal(hs)
+    else
+        all(isreal, hs)
+    end
+    T = all_real ? P : Complex{P}
+    return DiscreteEmulationCache{T, index_type}(ts, hs, get_space(r))
+end
+
+function DiscreteEvolution(r::Yao.AbstractRegister, ts, hs; kw...)
+    return DiscreteEvolution{real(Yao.datatype(r))}(r, ts, hs; kw...)
 end
 
 # TODO: use GarishPrint after it gets smarter
@@ -223,32 +189,22 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::DiscreteEvolution{P}) w
     println(io)
 
     print(io, tab(indent), "  time: ")
-    if prob.t_or_ts isa AbstractRange
-        printstyled(io, typeof(prob.t_or_ts); color=:green)
-        println(io)
-        println(io, tab(indent), "    start: ", first(prob.t_or_ts), " μs")
-        println(io, tab(indent), "     step: ", step(prob.t_or_ts), " μs")
-        println(io, tab(indent), "     stop: ", last(prob.t_or_ts), " μs")
-    else
-        println(io, prob.t_or_ts, " μs")
-    end
+    println(io, prob.ts, " μs")
 
     println(io)
     println(io, tab(indent), "  hamiltonian: ")
-    if prob.h_or_hs isa AbstractTerm
-        show(IOContext(io, :indent=>indent+4), mime, prob.h_or_hs)
-    elseif length(prob.h_or_hs) < 6
-        for h in prob.h_or_hs
+    if length(prob.hs) < 6
+        for h in prob.hs
             show(IOContext(io, :indent=>indent+4), mime, h)
             println(io)
         end
     else
-        show(IOContext(io, :indent=>indent+4), mime, first(prob.h_or_hs))
+        show(IOContext(io, :indent=>indent+4), mime, first(prob.hs))
         println(io)
         println(io)
         println(io, tab(indent), "       ⋮")
         println(io)
-        show(IOContext(io, :indent=>indent+4), mime, last(prob.h_or_hs))
+        show(IOContext(io, :indent=>indent+4), mime, last(prob.hs))
     end
     println(io)
     println(io)
@@ -284,10 +240,10 @@ storage_size(x) = sizeof(x) # fallback to sizeof
 
 Base.@propagate_inbounds function emulate_step!(
     prob::DiscreteEvolution,
-    t_or_ts::Vector{<:Number}, h_or_hs::Vector{<:AbstractTerm},
+    ts::Vector{<:Number}, hs::Vector{<:AbstractTerm},
     i::Int)
 
-    emulate_routine!(prob.reg, t_or_ts[i], h_or_hs[i], prob.cache.H)
+    emulate_routine!(prob.reg, ts[i], hs[i], prob.cache.H)
 
     if mod(i, prob.options.normalize_step) == 0
         normalize!(prob.reg)
@@ -317,11 +273,11 @@ Base.@propagate_inbounds function emulate_step!(
 end
 
 function emulate!(prob::DiscreteEvolution)
-    niterations = length(prob.t_or_ts)
+    niterations = length(prob.ts)
     @inbounds if prob.options.progress
         ProgressLogging.progress() do id
             for idx in 1:niterations
-                emulate_step!(prob, prob.t_or_ts, prob.h_or_hs, idx)
+                emulate_step!(prob, prob.ts, prob.hs, idx)
                 if prob.options.progress && mod(idx, prob.options.progress_step) == 0
                     @info prob.options.progress_name progress=idx/niterations _id=id
                 end
@@ -329,7 +285,7 @@ function emulate!(prob::DiscreteEvolution)
         end
     else
         for idx in 1:niterations
-            emulate_step!(prob, prob.t_or_ts, prob.h_or_hs, idx)
+            emulate_step!(prob, prob.ts, prob.hs, idx)
         end
     end
 
@@ -346,24 +302,24 @@ function emulate!(r::Yao.AbstractRegister, ts::Vector{<:Number}, hs::Vector{<:Ab
 end
 
 """
-    emulate(t_or_ts, h_or_hs; kwargs...)
+    emulate(ts, hs; kwargs...)
 
 Non in-place version of [`emulate!`](@ref). See [`emulate!`](@ref) for valid kwargs.
 """
-function emulate(t_or_ts, h_or_hs; kwargs...)
-    precision_t = real(eltype(t_or_ts))
-    r = Yao.zero_state(Complex{precision_t}, nsites(h_or_hs))
-    return emulate!(r, t_or_ts, h_or_hs; kwargs...)
+function emulate(ts, hs; kwargs...)
+    precision_t = real(eltype(ts))
+    r = Yao.zero_state(Complex{precision_t}, nsites(hs))
+    return emulate!(r, ts, hs; kwargs...)
 end
 
 """
-    emulate(s::Subspace, t_or_ts, h_or_hs; kwargs...)
+    emulate(s::Subspace, ts, hs; kwargs...)
 
 Non in-place version of [`emulate!`](@ref). See [`emulate!`](@ref) for valid kwargs.
 """
-function emulate(s::Subspace, t_or_ts, h_or_hs; kwargs...)
-    @assert s.nqubits == nsites(h_or_hs) "qubit mismatch"
-    precision_t = real(eltype(t_or_ts))
+function emulate(s::Subspace, ts, hs; kwargs...)
+    @assert s.nqubits == nsites(hs) "qubit mismatch"
+    precision_t = real(eltype(ts))
     r = zero_state(Complex{precision_t}, s)
-    return emulate!(r, t_or_ts, h_or_hs; kwargs...)
+    return emulate!(r, ts, hs; kwargs...)
 end

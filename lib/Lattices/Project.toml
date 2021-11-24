@@ -1,0 +1,16 @@
+name = "Lattices"
+uuid = "0b2dfc99-25e4-4105-a7e4-4454e50c76c3"
+authors = ["QuEra Computing Inc."]
+version = "0.1.0"
+
+[deps]
+Viznet = "52a3aca4-6234-47fd-b74a-806bdf78ede9"
+
+[compat]
+julia = "1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

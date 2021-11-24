@@ -2,8 +2,10 @@ using Lattices
 using Test
 
 @testset "Lattices.jl" begin
-    for LT in [HoneycombLattice, SquareLattice, TriangularLattice, LiebLattice, KagomeLattice]
-        @test generate_sites(LT(), 5, 5) |> length == length(latticesites(LT())) * 25
+    for LT in [HoneycombLattice(),
+            SquareLattice(), TriangularLattice(),
+            LiebLattice(), KagomeLattice(), GeneralLattice(((1.0, 0.0), (0.0, 1.0)), [(0.0, 0.0)])]
+        @test generate_sites(LT, 5, 5) |> length == length(latticesites(LT)) * 25
     end
     @test generate_sites(ChainLattice(), 5) |> length == length(latticesites(ChainLattice())) * 5
     l1 = generate_sites(HoneycombLattice(), 5, 5)

@@ -1,4 +1,4 @@
-export AbstractLattice, BravaisLattice, HoneycombLattice, SquareLattice, TriangularLattice, ChainLattice, LiebLattice, KagomeLattice
+export AbstractLattice, BravaisLattice, HoneycombLattice, SquareLattice, TriangularLattice, ChainLattice, LiebLattice, KagomeLattice, GeneralLattice
 export bravais, generate_sites, offsetaxes, clipaxes, latticesites, latticevectors
 export MaskedGrid, makegrid, locations
 
@@ -25,6 +25,14 @@ function generate_sites(bl::BravaisLattice{D,K,T}, repeats...) where {D,K,T}
     end
     return locations
 end
+
+struct GeneralLattice{D,K,T} <: AbstractLattice{D}
+    vectors::NTuple{D,NTuple{D,T}}
+    sites::NTuple{K,NTuple{D,T}}
+end
+GeneralLattice(vectors, sites) = GeneralLattice((vectors...,), (sites...,))
+latticevectors(gl::GeneralLattice) = gl.vectors
+latticesites(gl::GeneralLattice) = gl.sites
 
 struct HoneycombLattice <: AbstractLattice{2} end
 latticevectors(::HoneycombLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
@@ -67,6 +75,8 @@ function clipaxes(sites::AbstractVector{NTuple{D, T}}, bounds...) where {D, T}
     @assert all(x->length(x) == 2, bounds)
     return filter(x->all(i->bounds[i][1] <= x[i] <= bounds[i][2], 1:D), sites)
 end
+clipaxes(args...) = ls -> clipaxes(ls, args...)
+offsetaxes(args...) = ls -> offsetaxes(ls, args...)
 
 ############ manipulate grid ###############
 struct MaskedGrid{T}
@@ -117,3 +127,4 @@ end
 # pseudo-lattices,
 # image/svg output,
 # use KDTree.
+# fix plot

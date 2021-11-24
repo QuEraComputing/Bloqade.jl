@@ -1,5 +1,5 @@
 export AbstractLattice, BravaisLattice, HoneycombLattice, SquareLattice, TriangularLattice, ChainLattice, LiebLattice, KagomeLattice
-export bravais, generate_sites, offset, clip
+export bravais, generate_sites, offsetaxes, clipaxes, latticesites, latticevectors
 export MaskedGrid, makegrid, locations
 
 # D is the dimensionality
@@ -56,13 +56,13 @@ generate_sites(lt::AbstractLattice, nrepeats...) = generate_sites(bravais(lt), n
 
 ############ manipulate sites ###############
 # offset sites
-function offset(sites::AbstractVector{NTuple{D, T}}, offsets...) where {D, T}
+function offsetaxes(sites::AbstractVector{NTuple{D, T}}, offsets...) where {D, T}
     @assert length(offsets) == D
     return map(x->ntuple(i->x[i]+offsets[i], D), sites)
 end
 
 # filter out sites out of bounds
-function clip(sites::AbstractVector{NTuple{D, T}}, bounds...) where {D, T}
+function clipaxes(sites::AbstractVector{NTuple{D, T}}, bounds...) where {D, T}
     @assert length(bounds) == D
     @assert all(x->length(x) == 2, bounds)
     return filter(x->all(i->bounds[i][1] <= x[i] <= bounds[i][2], 1:D), sites)

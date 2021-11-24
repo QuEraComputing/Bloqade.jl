@@ -38,6 +38,10 @@ default_node_style(scale) = compose(context(), Viznet.nodestyle(:default, r=0.15
 default_text_style(scale) = Viznet.textstyle(:default, fontsize(4pt*scale))
 default_line_style_grid(scale) = Viznet.bondstyle(:default, stroke("#AAAAAA"), linewidth(0.3mm*scale); dashed=true)
 function viz_atoms(atoms::Vector{<:Tuple}; scale=1.0)
+    img, dx, dy = img_atoms(atoms; scale=scale)
+    Compose.draw(SVG(dx, dy), img)
+end
+function img_atoms(atoms::Vector{<:Tuple}; scale=1.0)
     rescaler = get_rescaler(atoms)
     xspan = rescaler.xmax - rescaler.xmin
     yspan = rescaler.ymax - rescaler.ymin
@@ -45,9 +49,8 @@ function viz_atoms(atoms::Vector{<:Tuple}; scale=1.0)
     Y = (yspan+1)
     node_style = default_node_style(scale)
     text_style = default_text_style(scale)
-    Compose.set_default_graphic_size(X*scale*cm, Y*scale*cm)
     img = _viz_atoms(rescaler.(atoms), node_style, text_style)
-    return Compose.compose(context(0, 0, 1.0, X/Y), img)
+    return Compose.compose(context(0, 0, 1.0, X/Y), img), X*scale*cm, Y*scale*cm
 end
 function _viz_atoms(locs, node_style, text_style)
     Viznet.canvas() do
@@ -59,6 +62,10 @@ function _viz_atoms(locs, node_style, text_style)
 end
 
 function viz_maskedgrid(mg::MaskedGrid; scale=1.0)
+    img, dx, dy = img_maskedgrid(mg; scale=scale)
+    Compose.draw(SVG(dx, dy), img)
+end
+function img_maskedgrid(mg::MaskedGrid; scale=1.0)
     atoms = locations(mg)
     rescaler = get_rescaler(atoms)
     xspan = rescaler.xmax - rescaler.xmin
@@ -68,10 +75,10 @@ function viz_maskedgrid(mg::MaskedGrid; scale=1.0)
     node_style = default_node_style(scale)
     text_style = default_text_style(scale)
     line_style_grid = default_line_style_grid(scale)
-    Compose.set_default_graphic_size(X*scale*cm, Y*scale*cm)
     img1 = _viz_atoms(rescaler.(atoms), node_style, text_style)
     img2 = _viz_grid(rescaler.(mg.xs; dims=1), rescaler.(mg.ys; dims=2), line_style_grid)
-    compose(context(0, 0, 1.0, X/Y), (context(), img1), (context(), img2))
+    img = compose(context(0, 0, 1.0, X/Y), (context(), img1), (context(), img2))
+    return img, X*scale*cm, Y*scale*cm
 end
 function _viz_grid(xs, ys, line_style)
     Viznet.canvas() do
@@ -84,3 +91,13 @@ function _viz_grid(xs, ys, line_style)
     end
 end
 
+# for Pluto and vscode
+for mime in [:(MIME"text/html"), :(MIME"image/png")]
+    @eval function Base.show(io::IO, ::$mime, lt::AbstractLattice{2})
+        Base.show(io, $mime(), viz_atoms(generate_sites(lt, 5, 5); scale=2.0))
+    end
+    @eval function Base.show(io::IO, ::$mime, lt::AbstractLattice{1})
+        Base.show(io, $mime(), viz_atoms(padydim.(generate_sites(lt, 5)); scale=2.0))
+    end
+end
+padydim(x::Tuple{T}) where T = (x[1], zero(T))

@@ -99,5 +99,8 @@ for mime in [:(MIME"text/html"), :(MIME"image/png")]
     @eval function Base.show(io::IO, ::$mime, lt::AbstractLattice{1})
         Base.show(io, $mime(), viz_atoms(padydim.(generate_sites(lt, 5)); scale=2.0))
     end
+    @eval function Base.show(io::IO, ::$mime, mg::MaskedGrid)
+        Base.show(io, $mime(), viz_maskedgrid(mg; scale=2.0))
+    end
 end
 padydim(x::Tuple{T}) where T = (x[1], zero(T))

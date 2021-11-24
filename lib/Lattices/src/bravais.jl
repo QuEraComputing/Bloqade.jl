@@ -114,4 +114,6 @@ function locations(mg::MaskedGrid)
 end
 
 # TODO
-# pseudo-lattices.
+# pseudo-lattices,
+# image/svg output,
+# use KDTree.

@@ -135,5 +135,5 @@ end
 
 # TODO
 # pseudo-lattices,
-# image/svg output,
+# image/svg output (maybe),
 # use KDTree.

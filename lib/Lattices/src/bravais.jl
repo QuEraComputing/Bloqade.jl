@@ -1,6 +1,6 @@
 export AbstractLattice, BravaisLattice, HoneycombLattice, SquareLattice, TriangularLattice, ChainLattice, LiebLattice, KagomeLattice, GeneralLattice
 export bravais, generate_sites, offsetaxes, clipaxes, latticesites, latticevectors
-export MaskedGrid, makegrid, locations
+export MaskedGrid, makegrid, locations, randomdropout
 
 # D is the dimensionality
 abstract type AbstractLattice{D} end
@@ -69,6 +69,11 @@ function offsetaxes(sites::AbstractVector{NTuple{D, T}}, offsets...) where {D, T
     return map(x->ntuple(i->x[i]+offsets[i], D), sites)
 end
 
+# dropout sites
+function randomdropout(sites::AbstractVector{NTuple{D, T}}, prob::Real) where {D, T}
+    return sites[rand(length(sites)) .> prob]
+end
+
 # filter out sites out of bounds
 function clipaxes(sites::AbstractVector{NTuple{D, T}}, bounds...) where {D, T}
     @assert length(bounds) == D
@@ -77,6 +82,7 @@ function clipaxes(sites::AbstractVector{NTuple{D, T}}, bounds...) where {D, T}
 end
 clipaxes(args...) = ls -> clipaxes(ls, args...)
 offsetaxes(args...) = ls -> offsetaxes(ls, args...)
+randomdropout(prob::Real) = ls -> randomdropout(ls, prob)
 
 ############ manipulate grid ###############
 struct MaskedGrid{T}
@@ -86,6 +92,10 @@ struct MaskedGrid{T}
 end
 
 # create `MaskedGrid` from the locations.
+function makegrid(sites::AbstractVector{NTuple{1, T}}; atol=10*eps(T)) where {T}
+    makegrid(padydim.(sites); atol=atol)
+end
+padydim(x::Tuple{T}) where T = (x[1], zero(T))
 function makegrid(sites::AbstractVector{NTuple{2, T}}; atol=10*eps(T)) where {T}
     xs, ixs = approximate_unique(getindex.(sites, 1), atol)
     ys, iys = approximate_unique(getindex.(sites, 2), atol)
@@ -128,3 +138,5 @@ end
 # image/svg output,
 # use KDTree.
 # fix plot
+# fix the numbering of locations
+# random dropout function

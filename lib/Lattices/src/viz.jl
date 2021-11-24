@@ -10,7 +10,8 @@ struct Rescaler{T}
     ymax::T
 end
 
-getscale(r::Rescaler) = 1/(max(r.xmax-r.xmin+1, r.ymax-r.ymin+1))
+#getscale(r::Rescaler) = 1/(max(r.xmax-r.xmin+1, r.ymax-r.ymin+1))
+getscale(r::Rescaler) = 1/(r.xmax-r.xmin+1)
 
 function (r::Rescaler{T})(x; dims=(1,2)) where T
     xmin, ymin = r.xmin, r.ymin
@@ -76,14 +77,14 @@ function img_maskedgrid(mg::MaskedGrid; scale=1.0)
     text_style = default_text_style(scale)
     line_style_grid = default_line_style_grid(scale)
     img1 = _viz_atoms(rescaler.(atoms), node_style, text_style)
-    img2 = _viz_grid(rescaler.(mg.xs; dims=1), rescaler.(mg.ys; dims=2), line_style_grid)
+    img2 = _viz_grid(rescaler.(mg.xs; dims=1), rescaler.(mg.ys; dims=2), line_style_grid, Y/X)
     img = compose(context(0, 0, 1.0, X/Y), (context(), img1), (context(), img2))
     return img, X*scale*cm, Y*scale*cm
 end
-function _viz_grid(xs, ys, line_style)
+function _viz_grid(xs, ys, line_style, ymax)
     Viznet.canvas() do
         for i=1:length(xs)
-            line_style >> ((xs[i], 0.0), (xs[i], 1.0))
+            line_style >> ((xs[i], 0.0), (xs[i], ymax))
         end
         for i=1:length(ys)
             line_style >> ((0.0, ys[i]), (1.0, ys[i]))
@@ -103,4 +104,3 @@ for mime in [:(MIME"text/html"), :(MIME"image/png")]
         Base.show(io, $mime(), viz_maskedgrid(mg; scale=2.0))
     end
 end
-padydim(x::Tuple{T}) where T = (x[1], zero(T))

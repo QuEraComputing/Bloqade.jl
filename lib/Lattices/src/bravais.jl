@@ -137,6 +137,3 @@ end
 # pseudo-lattices,
 # image/svg output,
 # use KDTree.
-# fix plot
-# fix the numbering of locations
-# random dropout function

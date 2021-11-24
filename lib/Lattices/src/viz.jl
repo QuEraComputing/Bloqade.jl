@@ -14,14 +14,17 @@ end
 getscale(r::Rescaler) = 1/(r.xmax-r.xmin+1)
 
 function (r::Rescaler{T})(x; dims=(1,2)) where T
-    xmin, ymin = r.xmin, r.ymin
+    xmin, ymin, xmax, ymax = r.xmin, r.ymin, r.xmax, r.ymax
     scale = getscale(r)
     if dims == (1,2)
-        return (x .- (xmin-0.5, ymin-0.5)) .* scale
+        #return (x .- (xmin-0.5, ymin-0.5)) .* scale
+        return (x[1]-xmin+0.5, ymax+0.5-x[2]) .* scale
     elseif dims == 1
         return (x - xmin + 0.5) * scale
+        #return (xmax + 0.5 - x) * scale
     elseif dims == 2
-        return (x - ymin + 0.5) * scale
+        #return (x - ymin + 0.5) * scale
+        return (ymax + 0.5 - x) * scale
     else
         throw(ArgumentError("dims should be (1,2), 1 or 2."))
     end

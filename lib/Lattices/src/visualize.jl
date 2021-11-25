@@ -10,7 +10,6 @@ struct Rescaler{T}
     ymax::T
 end
 
-#getscale(r::Rescaler) = 1/(max(r.xmax-r.xmin+1, r.ymax-r.ymin+1))
 getscale(r::Rescaler) = 1/(r.xmax-r.xmin+1)
 
 function (r::Rescaler{T})(x; dims=(1,2)) where T

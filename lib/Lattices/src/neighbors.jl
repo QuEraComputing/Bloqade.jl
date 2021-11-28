@@ -1,6 +1,6 @@
 using NearestNeighbors
 
-export make_kdtree, kneighbors
+export make_kdtree, grouped_nearest
 
 function make_kdtree(locations::AbstractVector{NTuple{D,T}}) where {T, D}
     data = zeros(T, D, length(locations))
@@ -10,25 +10,38 @@ function make_kdtree(locations::AbstractVector{NTuple{D,T}}) where {T, D}
     return KDTree(data)
 end
 
-function kneighbors(tree::KDTree{VT,ST,T}, k::Int, siteindex::Int; maxn=length(tree.data), atol=eps(T)*10) where {T,ST,VT}
-    # get nearest K distances
-    K = min(maxn, 6*k+1, length(tree.data))
-    locations, distances = knn(tree, tree.data[findfirst(==(siteindex), tree.indices)], K)
+struct DistanceGroup
+    nodes::Vector{Int}
+    ptr::Vector{Int}
+end
+function Base.getindex(dg::DistanceGroup, k::Int)
+    if length(dg.ptr) < k+2
+        return Int[]
+    else
+        return dg.nodes[dg.ptr[k+1]:dg.ptr[k+2]-1]
+    end
+end
+
+function nearest(tree::KDTree, siteindex::Int, K::Int)
+    nodes, distances = knn(tree, tree.data[findfirst(==(siteindex), tree.indices)], K)
     perm = sortperm(distances)
-    locations, distances = locations[perm], distances[perm]
-    dpre = zero(T)
+    return nodes[perm], distances[perm]
+end
+
+function group_by_distances(nodes, distances::AbstractVector{T}, atol) where T
+    dpre = distances[1]
     ptr = Int[1]
-    for i=2:K
+    for i=2:length(nodes)
         di = distances[i]
         if !isapprox(di, dpre; atol=atol)
             push!(ptr, i)  # endpoint
             dpre = di
         end
     end
-    push!(ptr, K+1)  # endpoint
-    if length(ptr) <= k
-        return Int[]
-    else
-        return locations[ptr[k+1]:ptr[k+2]-1]
-    end
+    push!(ptr, length(nodes)+1)  # endpoint
+    return DistanceGroup(nodes, ptr)
+end
+
+function grouped_nearest(tree::KDTree, siteindex::Int, K::Int; atol=1e-8)
+    group_by_distances(nearest(tree, siteindex, K)..., atol)
 end

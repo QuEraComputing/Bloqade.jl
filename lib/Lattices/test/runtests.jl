@@ -31,7 +31,10 @@ end
         locations = generate_sites(lt, 5, 5)
         tree = make_kdtree(locations)
         @show lt
-        @test length(kneighbors(tree, 1, i)) == s1
-        @test length(kneighbors(tree, 2, i)) == s2
+        gn = grouped_nearest(tree, i, 20)
+        @test gn[0] == [i]
+        @test length(gn[1]) == s1
+        @test length(gn[2]) == s2
+        @test length(gn[10]) == 0
     end
 end

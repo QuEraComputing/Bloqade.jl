@@ -1,6 +1,6 @@
 export AbstractLattice, BravaisLattice, HoneycombLattice, SquareLattice, TriangularLattice, ChainLattice, LiebLattice, KagomeLattice, GeneralLattice
-export bravais, generate_sites, offsetaxes, clipaxes, latticesites, latticevectors
-export MaskedGrid, makegrid, locations, randomdropout
+export bravais, generate_sites, offset_axes, clip_axes, lattice_sites, lattice_vectors
+export MaskedGrid, make_grid, locations, random_dropout
 
 # D is the dimensionality
 abstract type AbstractLattice{D} end
@@ -31,58 +31,58 @@ struct GeneralLattice{D,K,T} <: AbstractLattice{D}
     sites::NTuple{K,NTuple{D,T}}
 end
 GeneralLattice(vectors, sites) = GeneralLattice((vectors...,), (sites...,))
-latticevectors(gl::GeneralLattice) = gl.vectors
-latticesites(gl::GeneralLattice) = gl.sites
+lattice_vectors(gl::GeneralLattice) = gl.vectors
+lattice_sites(gl::GeneralLattice) = gl.sites
 
 struct HoneycombLattice <: AbstractLattice{2} end
-latticevectors(::HoneycombLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
-latticesites(::HoneycombLattice) = ((0.0, 0.0), (0.5, 0.5/sqrt(3)))
+lattice_vectors(::HoneycombLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
+lattice_sites(::HoneycombLattice) = ((0.0, 0.0), (0.5, 0.5/sqrt(3)))
 
 struct SquareLattice <: AbstractLattice{2} end
-latticevectors(::SquareLattice) = ((1.0, 0.0), (0.0, 1.0))
-latticesites(::SquareLattice) = ((0.0, 0.0),)
+lattice_vectors(::SquareLattice) = ((1.0, 0.0), (0.0, 1.0))
+lattice_sites(::SquareLattice) = ((0.0, 0.0),)
 
 struct TriangularLattice <: AbstractLattice{2} end
-latticevectors(::TriangularLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
-latticesites(::TriangularLattice) = ((0.0, 0.0),)
+lattice_vectors(::TriangularLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
+lattice_sites(::TriangularLattice) = ((0.0, 0.0),)
 
 struct ChainLattice <: AbstractLattice{1} end
-latticevectors(::ChainLattice) = ((1.0,),)
-latticesites(::ChainLattice) = ((0.0,),)
+lattice_vectors(::ChainLattice) = ((1.0,),)
+lattice_sites(::ChainLattice) = ((0.0,),)
 
 struct LiebLattice <: AbstractLattice{2} end
-latticevectors(::LiebLattice) = ((1.0, 0.0), (0.0, 1.0))
-latticesites(::LiebLattice) = ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5))
+lattice_vectors(::LiebLattice) = ((1.0, 0.0), (0.0, 1.0))
+lattice_sites(::LiebLattice) = ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5))
 
 struct KagomeLattice <: AbstractLattice{2} end
-latticevectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
-latticesites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25*sqrt(3)), (0.75, 0.25*sqrt(3)))
+lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
+lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25*sqrt(3)), (0.75, 0.25*sqrt(3)))
 
 # lattice -> bravais lattice
-bravais(lt::AbstractLattice) = BravaisLattice((latticevectors(lt)...,), (latticesites(lt)...,))
+bravais(lt::AbstractLattice) = BravaisLattice((lattice_vectors(lt)...,), (lattice_sites(lt)...,))
 generate_sites(lt::AbstractLattice, nrepeats...) = generate_sites(bravais(lt), nrepeats...)
 
 ############ manipulate sites ###############
 # offset sites
-function offsetaxes(sites::AbstractVector{NTuple{D, T}}, offsets...) where {D, T}
+function offset_axes(sites::AbstractVector{NTuple{D, T}}, offsets...) where {D, T}
     @assert length(offsets) == D
     return map(x->ntuple(i->x[i]+offsets[i], D), sites)
 end
 
 # dropout sites
-function randomdropout(sites::AbstractVector{NTuple{D, T}}, prob::Real) where {D, T}
+function random_dropout(sites::AbstractVector{NTuple{D, T}}, prob::Real) where {D, T}
     return sites[rand(length(sites)) .> prob]
 end
 
 # filter out sites out of bounds
-function clipaxes(sites::AbstractVector{NTuple{D, T}}, bounds...) where {D, T}
+function clip_axes(sites::AbstractVector{NTuple{D, T}}, bounds...) where {D, T}
     @assert length(bounds) == D
     @assert all(x->length(x) == 2, bounds)
     return filter(x->all(i->bounds[i][1] <= x[i] <= bounds[i][2], 1:D), sites)
 end
-clipaxes(args...) = ls -> clipaxes(ls, args...)
-offsetaxes(args...) = ls -> offsetaxes(ls, args...)
-randomdropout(prob::Real) = ls -> randomdropout(ls, prob)
+clip_axes(args...) = ls -> clip_axes(ls, args...)
+offset_axes(args...) = ls -> offset_axes(ls, args...)
+random_dropout(prob::Real) = ls -> random_dropout(ls, prob)
 
 ############ manipulate grid ###############
 struct MaskedGrid{T}
@@ -92,11 +92,11 @@ struct MaskedGrid{T}
 end
 
 # create `MaskedGrid` from the locations.
-function makegrid(sites::AbstractVector{NTuple{1, T}}; atol=10*eps(T)) where {T}
-    makegrid(padydim.(sites); atol=atol)
+function make_grid(sites::AbstractVector{NTuple{1, T}}; atol=10*eps(T)) where {T}
+    make_grid(padydim.(sites); atol=atol)
 end
 padydim(x::Tuple{T}) where T = (x[1], zero(T))
-function makegrid(sites::AbstractVector{NTuple{2, T}}; atol=10*eps(T)) where {T}
+function make_grid(sites::AbstractVector{NTuple{2, T}}; atol=10*eps(T)) where {T}
     xs, ixs = approximate_unique(getindex.(sites, 1), atol)
     ys, iys = approximate_unique(getindex.(sites, 2), atol)
     m, n = length(xs), length(ys)

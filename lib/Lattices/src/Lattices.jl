@@ -2,7 +2,8 @@
 
 module Lattices
 
-include("bravais.jl")
-include("viz.jl")
+include("lattice.jl")
+include("neighbors.jl")
+include("visualize.jl")
 
 end

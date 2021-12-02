@@ -4,6 +4,7 @@ Base.@kwdef struct RampWaveform{T <: Real} <: AbstractWaveform
     stop::T # stop value
 end
 
+Base.eltype(::RampWaveform{T}) where {T} = T
 duration(waveform::RampWaveform) = waveform.duration
 
 function (waveform::RampWaveform)(t::Real, offset::Real=zero(t))

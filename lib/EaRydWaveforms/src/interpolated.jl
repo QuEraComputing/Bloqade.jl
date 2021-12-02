@@ -22,9 +22,10 @@ Create a linear interpolated waveform from `clocks` and `values`.
 function InterpolatedWaveform(clocks::Vector{T}, values::Vector{T}) where {T <: Real}
     assert_interpolted_clocks(clocks)
     interpolation = LinearInterpolation(clocks, values)
-    return InterpolatedWaveform{T}(interpolation, maximum(clocks))
+    return InterpolatedWaveform(interpolation, maximum(clocks))
 end
 
+Base.eltype(waveform::InterpolatedWaveform{T}) where T = T
 duration(waveform::InterpolatedWaveform) = waveform.duration
 
 function (waveform::InterpolatedWaveform)(t::Real, offset::Real=zero(t))
@@ -36,6 +37,10 @@ function assert_interpolted_clocks(clocks::Vector)
     iszero(first(clocks)) ||
         throw(ArgumentError("clock must start from zero, got clocks[1] = $(clocks[1])"))
     return
+end
+
+function Base.show(io::IO, waveform::InterpolatedWaveform)
+    print(io, "InterpolatedWaveform{$(eltype(waveform))}(...)")
 end
 
 # TODO: implement smoothening

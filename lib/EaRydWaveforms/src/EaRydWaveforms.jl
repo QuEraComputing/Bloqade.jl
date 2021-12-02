@@ -1,8 +1,9 @@
 module EaRydWaveforms
 
 using Interpolations
+using UnicodePlots
 
-export PiecewiseLinearWaveform,
+export InterpolatedWaveform,
     RampWaveform,
     SinusoidalWaveform,
     CompositeWaveform

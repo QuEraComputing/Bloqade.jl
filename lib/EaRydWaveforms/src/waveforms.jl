@@ -17,3 +17,17 @@ function assert_clock(t::Real, duration::Real, offset::Real)
     min ≤ t ≤ max || throw(BoundsError(msg))
     return
 end
+
+function Base.show(io::IO, mime::MIME"text/plain", waveform::AbstractWaveform)
+    name = nameof(typeof(waveform))
+    xs = range(0, duration(waveform), 100)
+    plt = lineplot(
+        xs, waveform.(xs);
+        title=string(name, "{", eltype(waveform), "}"),
+        # TODO: decide the unit?
+        xlabel="clock (μs)",
+        ylabel="value (rad/µs)",
+        compact=true,
+    )
+    return show(io, mime, plt)
+end

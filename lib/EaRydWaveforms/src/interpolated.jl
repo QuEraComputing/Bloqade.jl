@@ -39,10 +39,6 @@ function assert_interpolted_clocks(clocks::Vector)
     return
 end
 
-function Base.show(io::IO, waveform::InterpolatedWaveform)
-    print(io, "InterpolatedWaveform{$(eltype(waveform))}(...)")
-end
-
 # TODO: implement smoothening
 
 # struct GaussianFilter

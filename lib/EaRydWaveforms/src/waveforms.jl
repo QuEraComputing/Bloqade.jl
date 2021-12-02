@@ -18,6 +18,11 @@ function assert_clock(t::Real, duration::Real, offset::Real)
     return
 end
 
+function Base.show(io::IO, waveform::AbstractWaveform)
+    name = nameof(typeof(waveform))
+    print(io, name, "{", eltype(waveform), "}(...)")
+end
+
 function Base.show(io::IO, mime::MIME"text/plain", waveform::AbstractWaveform)
     name = nameof(typeof(waveform))
     xs = range(0, duration(waveform), 100)

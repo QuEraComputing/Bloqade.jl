@@ -1,8 +1,3 @@
-import Viznet
-using Viznet.Compose
-
-export viz_atoms, viz_maskedgrid
-
 struct Rescaler{T}
     xmin::T
     xmax::T

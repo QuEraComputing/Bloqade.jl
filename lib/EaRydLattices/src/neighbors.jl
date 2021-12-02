@@ -1,7 +1,3 @@
-using NearestNeighbors
-
-export make_kdtree, grouped_nearest
-
 function make_kdtree(locations::AbstractVector{NTuple{D,T}}) where {T, D}
     data = zeros(T, D, length(locations))
     for i=1:length(locations)

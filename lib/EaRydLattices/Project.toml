@@ -9,6 +9,8 @@ Viznet = "52a3aca4-6234-47fd-b74a-806bdf78ede9"
 
 [compat]
 julia = "1"
+Viznet = "0.3"
+NearestNeighbors = "0.4"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

@@ -1,4 +1,4 @@
-name = "Lattices"
+name = "EaRydLattices"
 uuid = "0b2dfc99-25e4-4105-a7e4-4454e50c76c3"
 authors = ["QuEra Computing Inc."]
 version = "0.1.0"

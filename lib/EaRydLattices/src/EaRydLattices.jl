@@ -1,6 +1,6 @@
 # Copyright 2021 QuEra Computing Inc. All rights reserved.
 
-module Lattices
+module EaRydLattices
 
 include("lattice.jl")
 include("neighbors.jl")

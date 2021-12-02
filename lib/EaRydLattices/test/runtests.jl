@@ -1,4 +1,4 @@
-using Lattices
+using EaRydLattices
 using Test
 
 @testset "lattice" begin

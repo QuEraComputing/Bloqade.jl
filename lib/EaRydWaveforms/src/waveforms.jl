@@ -14,8 +14,13 @@ function duration end
 function assert_clock(t::Real, duration::Real, offset::Real)
     min, max = offset, duration + offset
     msg = "clock out of range $min ≤ t ≤ $max, got clock $t"
-    min ≤ t ≤ max || throw(BoundsError(msg))
+    min ≤ t ≤ max || throw(ArgumentError(msg))
     return
+end
+
+function sample_values(waveform::AbstractWaveform, dt::Real=1e-3)
+    clocks = range(zero(dt), duration(waveform); step=dt)
+    return map(waveform, clocks)
 end
 
 function Base.show(io::IO, waveform::AbstractWaveform)

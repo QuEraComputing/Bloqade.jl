@@ -1,6 +1,7 @@
 using Test
 using Intervals
 using EaRydWaveforms
+using EaRydWaveforms: SumWaveform, NegWaveform, SlicedWaveform
 
 @testset "FunctionWaveform" begin
     waveform = FunctionWaveform(t->2.2sin(t), duration=4π)

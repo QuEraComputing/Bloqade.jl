@@ -24,7 +24,6 @@ EaRydLattices = "0.1"
 EaRydWaveforms = "0.1"
 Reexport = "1"
 RydbergEmulator = "0.14"
-EaRydLattices = "0.1"
 julia = "1.6.3"
 
 [extras]

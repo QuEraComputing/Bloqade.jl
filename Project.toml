@@ -15,7 +15,6 @@ Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
 Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
 Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 RydbergEmulator = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
-EaRydLattices = "0b2dfc99-25e4-4105-a7e4-4454e50c76c3"
 
 [compat]
 CUDA = "3"

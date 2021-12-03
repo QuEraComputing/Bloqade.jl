@@ -44,7 +44,7 @@ to_independent_set!(config, graph)
 # config = bitarray(36, length(atoms))
 # RydbergEmulator.to_independent_set!(config, graph)
 
-# space = maximal_independent_set_subspace(graph)
+# space = independent_set_subspace(graph)
 # raw_state = zeros(ComplexF64, length(space))
 # raw_state[space.map[packbits(config)]] = 1.0
 # r = RydbergReg(length(atoms), raw_state, space)
@@ -75,7 +75,7 @@ end
 @testset "SubspaceMap" begin
     atoms = square_lattice(10, 0.8)
     graph = unit_disk_graph(atoms, 1.5)
-    space = maximal_independent_set_subspace(graph)
+    space = independent_set_subspace(graph)
     reg = rand_state(space)
     Random.seed!(1234)
     l1 = mean_rydberg(mis_postprocessing(graph), reg)

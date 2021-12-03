@@ -27,5 +27,5 @@ end
 
 @test_logs (:warn, "graph has empty edges, creating a subspace contains the entire fullspace, consider using a full space register.") begin
     Random.seed!(123)
-    maximal_independent_set_subspace(SimpleGraph(5))
+    independent_set_subspace(SimpleGraph(5))
 end

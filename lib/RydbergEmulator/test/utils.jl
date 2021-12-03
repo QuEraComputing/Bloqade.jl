@@ -10,7 +10,7 @@ add_edge!(test_graph, 3, 4)
 add_edge!(test_graph, 4, 5)
 
 const test_subspace_v = [0, 1, 2, 4, 5, 8, 9, 16, 17, 20, 21]
-const test_subspace = maximal_independent_set_subspace(test_graph)
+const test_subspace = independent_set_subspace(test_graph)
 
 create_test_hamiltonian(Δ, Ω, ϕ) = create_test_hamiltonian!(zeros(ComplexF64, 11, 11), Δ, Ω, ϕ)
 

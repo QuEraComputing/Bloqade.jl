@@ -32,7 +32,7 @@ if !isdefined(@__MODULE__, :test_graph)
 end
 
 @testset "simple graph hamiltonian subspace" begin
-    subspace = maximal_independent_set_subspace(test_graph)
+    subspace = independent_set_subspace(test_graph)
     show(stdout, MIME"text/plain"(), subspace)
     show(IOContext(stdout, :limit=>true), MIME"text/plain"(), subspace)
 
@@ -303,7 +303,7 @@ end
     ϕ = Float64[0.5, 0.4, -0.2, -1.2, 10.2]
     h = XTerm(Ω, ϕ)
 
-    subspace = maximal_independent_set_subspace(test_graph)
+    subspace = independent_set_subspace(test_graph)
     M = SparseMatrixCSC(h, subspace)
     @test update_term!(copy(M), h, subspace) ≈ M
 end

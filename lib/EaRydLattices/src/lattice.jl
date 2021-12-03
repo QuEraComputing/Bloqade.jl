@@ -93,8 +93,10 @@ function make_grid(sites::AbstractVector{NTuple{1, T}}; atol=10*eps(T)) where {T
 end
 padydim(x::Tuple{T}) where T = (x[1], zero(T))
 function make_grid(sites::AbstractVector{NTuple{2, T}}; atol=10*eps(T)) where {T}
-    xs, ixs = approximate_unique(getindex.(sites, 1), atol)
-    ys, iys = approximate_unique(getindex.(sites, 2), atol)
+    xs = sort!(approximate_unique(getindex.(sites, 1), atol))
+    ys = sort!(approximate_unique(getindex.(sites, 2), atol))
+    ixs = map(s->findfirst(==(s[1]), xs), sites)
+    iys = map(s->findfirst(==(s[2]), ys), sites)
     m, n = length(xs), length(ys)
     mask = zeros(Bool, m, n)
     for (ix, iy) in zip(ixs, iys)
@@ -106,22 +108,19 @@ end
 # return `(uxs, ixs)``, where `uxs` is the unique x-coordinates, `ixs` the mapping from the index in `xs` to the index in `uxs`.
 function approximate_unique(xs::AbstractVector{T}, atol) where T
     uxs = T[]
-    ixs = Vector{Int}(undef, length(xs))
-    for (i, x) in enumerate(xs)
+    for x in xs
         found = false
-        for (k, ux) in enumerate(uxs)
+        for ux in uxs
             if isapprox(x, ux; atol=atol)
-                ixs[i] = k
                 found = true
                 break
             end
         end
         if !found
             push!(uxs, x)
-            ixs[i] = length(uxs)
         end
     end
-    return uxs, ixs
+    return uxs
 end
 
 # get locations in order
@@ -132,4 +131,3 @@ end
 # TODO
 # pseudo-lattices,
 # image/svg output (maybe),
-# use KDTree.

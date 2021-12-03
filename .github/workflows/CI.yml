@@ -49,9 +49,8 @@ jobs:
       - uses: julia-actions/julia-buildpkg@v1
       - name: "run tests"
         run: julia --project .ci/run.jl test ${{ matrix.package }}
-      - uses: julia-actions/julia-processcoverage@v1
-        with:
-          directories: src, lib/${{ matrix.package }}/src
+      - name: "process code coverage"
+        run: julia --project .ci/codecov.jl ${{ matrix.package }}
       - uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

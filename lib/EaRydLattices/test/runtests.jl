@@ -38,3 +38,12 @@ end
         @test length(gn[10]) == 0
     end
 end
+
+@testset "fix site ordering" begin
+    lt = generate_sites(KagomeLattice(), 5, 5)
+    grd = make_grid(lt[2:end-1])
+    x, y = locations(grd)[1]
+    @test issorted(grd.xs)
+    @test issorted(grd.ys)
+    @test x ≈ 1.0 && y ≈ 0.0
+end

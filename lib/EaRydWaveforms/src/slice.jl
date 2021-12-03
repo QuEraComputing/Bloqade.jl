@@ -1,3 +1,9 @@
+"""
+    SlicedWaveform{T, Waveform, IntervalType <: Interval{<:Real, Closed, Closed}} <: AbstractWaveform
+
+Sliced waveform. This is the type created by slicing a waveform using `<start>..<stop>` syntax.
+This shouldn't be used by a user as an interface.
+"""
 struct SlicedWaveform{T, Waveform, IntervalType <: Interval{<:Real, Closed, Closed}} <: AbstractWaveform
     waveform::Waveform
     interval::IntervalType

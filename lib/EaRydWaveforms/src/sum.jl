@@ -1,3 +1,10 @@
+"""
+    SumWaveform{Waveforms <: Tuple} <: AbstractWaveform
+    SumWaveform(waveforms::AbstractWaveform...)
+
+Summation of waveforms. This is the type that `+(waveform, waveform)`
+returns, shouldn't be used directly as interface.
+"""
 struct SumWaveform{Waveforms <: Tuple} <: AbstractWaveform
     waveforms::Waveforms
     function SumWaveform(waveforms::Tuple)

@@ -15,6 +15,11 @@ Waveforms support the following interface:
 """
 abstract type AbstractWaveform end
 
+"""
+    duration(waveform::AbstractWaveform)
+
+The duration of a given `waveform`
+"""
 function duration end
 
 function assert_clock(t::Real, duration::Real, offset::Real)
@@ -24,6 +29,12 @@ function assert_clock(t::Real, duration::Real, offset::Real)
     return
 end
 
+"""
+    sample_values(waveform::AbstractWaveform, dt::Real=1e-3)
+
+Sample the values from given `dt` and return the samples in
+a list.
+"""
 function sample_values(waveform::AbstractWaveform, dt::Real=1e-3)
     clocks = range(zero(dt), duration(waveform); step=dt)
     return map(waveform, clocks)

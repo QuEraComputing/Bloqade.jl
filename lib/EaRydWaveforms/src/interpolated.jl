@@ -12,6 +12,17 @@ struct InterpolatedWaveform{T <: Real, Interp <: Interpolations.AbstractExtrapol
     duration::T
 end
 
+"""
+    InterpolatedWaveform(interpolation::Interpolations.AbstractExtrapolation)
+
+Create an `InterpolatedWaveform` from the interpolation object created by
+the package [Interpolations](https://github.com/JuliaMath/Interpolations.jl).
+
+!!! note
+
+    to match the definition of waveform, the first time point of interpolation
+    **must be zero**.
+"""
 function InterpolatedWaveform(interpolation::Interpolations.AbstractExtrapolation)
     clocks = Interpolations.knots(interpolation)
     assert_interpolated_clocks(clocks)

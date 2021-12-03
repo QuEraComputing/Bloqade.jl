@@ -14,9 +14,12 @@ export
     SinusoidalWaveform,
     ConstantWaveform,
     CompositeWaveform,
-    SlicedWaveform,
-    SumWaveform,
-    NegWaveform,
+    # the following types
+    # are not intended to use
+    # directly, so shouldn't export them
+    # SlicedWaveform,
+    # SumWaveform,
+    # NegWaveform,
     duration,
     sample_values,
     ..

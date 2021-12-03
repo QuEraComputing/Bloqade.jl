@@ -1,9 +1,8 @@
 using Test
-using Intervals
 using EaRydWaveforms
 
-@testset "SinusoidalWaveform" begin
-    waveform = SinusoidalWaveform(duration=4π, amplitude=2.2)
+@testset "FunctionWaveform" begin
+    waveform = FunctionWaveform(t->2.2sin(t), duration=4π)
     @test waveform(0.1) ≈ 2.2 * sin(0.1)
     @test_throws ArgumentError waveform(0.1+4π)
 end
@@ -45,7 +44,7 @@ end
 
 @testset "SumWaveform" begin
     wf1 = RampWaveform(;duration=2.2, start=0.0, stop=1.0)
-    wf2 = SinusoidalWaveform(duration=2.2)
+    wf2 = FunctionWaveform(sin, duration=2.2)
     wf3 = wf1 + wf2
     @test wf3(0.1) ≈ wf1(0.1) + wf2(0.1)
 
@@ -57,8 +56,8 @@ end
     @test wf5 isa SumWaveform
     @test length(wf4.waveforms) == 3
     @test length(wf5.waveforms) == 3
-    @test wf4.waveforms isa Tuple{RampWaveform, SinusoidalWaveform, PiecewiseConsant}
-    @test wf5.waveforms isa Tuple{PiecewiseConsant, RampWaveform, SinusoidalWaveform}
+    @test wf4.waveforms isa Tuple{RampWaveform, FunctionWaveform, PiecewiseConsant}
+    @test wf5.waveforms isa Tuple{PiecewiseConsant, RampWaveform, FunctionWaveform}
 
     # sum + sum
     wf5 = wf3 + wf3
@@ -66,13 +65,13 @@ end
     @test length(wf5.waveforms) == 4
 
     wf1 = RampWaveform(;duration=2.2, start=0.0, stop=1.0)
-    wf2 = SinusoidalWaveform(duration=2.1)
+    wf2 = FunctionWaveform(sin, duration=2.1)
     @test_throws ArgumentError wf1 + wf2
 end
 
 @testset "NegWaveform" begin
     wf1 = RampWaveform(;duration=2.2, start=0.0, stop=1.0)
-    wf2 = SinusoidalWaveform(duration=2.2)
+    wf2 = FunctionWaveform(sin, duration=2.2)
     wf3 = -wf1
     @test wf3 isa NegWaveform
     @test wf3(0.1) ≈ -wf1(0.1)
@@ -94,7 +93,7 @@ end
 
 @testset "CompositeWaveform" begin
     waveform = CompositeWaveform(
-        SinusoidalWaveform(duration=2.2),
+        FunctionWaveform(sin, duration=2.2),
         RampWaveform(;duration=0.5, start=0.0, stop=1.0)
     )
 
@@ -116,7 +115,7 @@ end
 end
 
 @testset "SlicedWaveform" begin
-    wf = SinusoidalWaveform(duration=4π)
+    wf = FunctionWaveform(sin, duration=4π)
     wfs = wf[0.5..2π]
     @test duration(wfs) ≈ span(0.5..2π)
     @test wfs(0.0) ≈ wf(0.5)

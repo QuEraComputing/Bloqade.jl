@@ -36,9 +36,9 @@ end
 
 function Base.show(io::IO, mime::MIME"text/plain", waveform::AbstractWaveform)
     name = nameof(typeof(waveform))
-    xs = range(0, duration(waveform), 100)
+    xs = 0:1e-3:duration(waveform)
     plt = lineplot(
-        xs, waveform.(xs);
+        xs, sample_values(waveform);
         title=string(name, "{", eltype(waveform), "}"),
         # TODO: decide the unit?
         xlabel="clock (μs)",

@@ -10,7 +10,7 @@ export
     PiecewiseConsant,
     PiecewiseLinear,
     RampWaveform,
-    SinusoidalWaveform,
+    FunctionWaveform,
     CompositeWaveform,
     SlicedWaveform,
     SumWaveform,
@@ -22,7 +22,7 @@ export
 include("waveforms.jl")
 include("interpolated.jl")
 include("ramp.jl")
-include("sinusoidal.jl")
+include("function.jl")
 include("composite.jl")
 include("piecewise.jl")
 include("sum.jl")

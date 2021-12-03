@@ -39,8 +39,8 @@ export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
     write_subspace, unit_disk_graph, rand_unit_disk_graph,
     DiscreteEvolution, emulate!, emulate,
     mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp,
-    square_lattice, set_zero_state!, blockade_subspace, is_independent_set,
-    to_independent_set!, to_independent_set, add_vertices, add_vertices!,
+    square_lattice, set_zero_state!, blockade_subspace, maximal_independent_set_subspace,
+    is_independent_set, to_independent_set!, to_independent_set, add_vertices, add_vertices!,
     add_random_vertices, independent_set_probabilities,
     mis_postprocessing
 

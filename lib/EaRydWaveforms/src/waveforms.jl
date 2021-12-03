@@ -1,11 +1,17 @@
 """
 abstract type AbstractWaveform end
 
-Waveforms are callable structs that has a [`duration`](@ref)
-and a callable method `(::WaveForm)(t::Real, offset::Real=zero(t))`.
+Abstract type for waveforms.
 
-Where the argument `t` is the clock and `offset` is an offset to
-the clock for composition.
+# Interfaces
+
+Waveforms support the following interface:
+
+- [`duration`](@ref): the duration of waveform.
+- a callable method `(::WaveForm)(t::Real, offset::Real=zero(t))` returns
+    the value of the waveform at time `t` with an given `offset` of the time.
+- `Base.eltype`: returns the type of each value.
+- [`sample_values`](@ref): sample the values of waveform.
 """
 abstract type AbstractWaveform end
 

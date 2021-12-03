@@ -34,14 +34,10 @@ end
 # in the future
 function (waveform::CompositeWaveform)(t::Real, offset::Real=zero(t))
     clock = t - offset
-    local idx
-    for waveform_idx in 1:length(waveform.checkpoints)
-        if clock ≤ waveform.checkpoints[waveform_idx]
-            idx = waveform_idx
-            break
-        end
+    idx = 1
+    while idx < length(waveform) && clock > waveform.checkpoints[idx]
+        idx += 1
     end
-
     offset = isone(idx) ? offset : offset + waveform.checkpoints[idx-1]
     return waveform.waveforms[idx](t, offset)
 end

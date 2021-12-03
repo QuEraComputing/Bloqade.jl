@@ -6,7 +6,7 @@ end
 Base.eltype(::SinusoidalWaveform{T}) where T = T
 duration(waveform::SinusoidalWaveform) = waveform.duration
 
-function (waveform::SinusoidalWaveform)(t::Real, offset::Real=zero(t))
+function (waveform::SinusoidalWaveform{T})(t::Real, offset::Real=zero(t)) where T
     assert_clock(t, duration(waveform), offset)
-    return waveform.amplitude * sin(t - offset)
+    return waveform.amplitude * sin(T(t - offset))
 end

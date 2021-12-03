@@ -5,10 +5,14 @@ version = "0.1.0"
 
 [deps]
 Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+Intervals = "d8418881-c3e1-53bb-8760-2df7ec849ed5"
 UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [compat]
 julia = "1.6"
+Interpolations = "0.13"
+Intervals = "1"
+UnicodePlots = "2"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

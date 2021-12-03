@@ -1,3 +1,7 @@
+# NOTE: the type in Interpolations is quite complicated to support all kinds of interpolation
+# so instead of using FunctionWaveform directly let's just wrap a custom struct to simplify
+# type parameters we are interested in (basically only `T` is useful)
+
 """
     InterpolatedWaveform{Interp <: Interpolations.AbstractExtrapolation} <: AbstractWaveform
 

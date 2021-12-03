@@ -29,7 +29,8 @@ end
 duration(wf::PiecewiseConsant) = wf.duration
 Base.eltype(::PiecewiseConsant{T}) where T = T
 
-
+# the return type of LinearInterpolation is too complicated
+# let's just wrap on top of it to be simple
 struct PiecewiseLinear{T <: Real, Interp} <: AbstractWaveform
     interp_waveform::InterpolatedWaveform{T, Interp}
 

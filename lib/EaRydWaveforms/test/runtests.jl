@@ -1,10 +1,28 @@
 using Test
+using Intervals
 using EaRydWaveforms
 
 @testset "FunctionWaveform" begin
     waveform = FunctionWaveform(t->2.2sin(t), duration=4π)
     @test waveform(0.1) ≈ 2.2 * sin(0.1)
     @test_throws ArgumentError waveform(0.1+4π)
+
+    # constant bindings
+    wf = SinusoidalWaveform(;duration=4π, amplitude=2.2)
+    @test wf(0.1) ≈ 2.2 * sin(0.1)
+
+    show(stdout, wf)
+    println(stdout)
+    show(stdout, MIME"text/plain"(), wf)
+    println(stdout)
+
+    wf = ConstantWaveform(;duration=4π, amplitude=2.2)
+    @test wf(0.1) ≈ 2.2
+
+    show(stdout, wf)
+    println(stdout)
+    show(stdout, MIME"text/plain"(), wf)
+    println(stdout)
 end
 
 @testset "RampWaveform" begin

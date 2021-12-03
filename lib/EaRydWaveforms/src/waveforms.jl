@@ -30,8 +30,8 @@ function sample_values(waveform::AbstractWaveform, dt::Real=1e-3)
 end
 
 function Base.show(io::IO, waveform::AbstractWaveform)
-    name = nameof(typeof(waveform))
-    print(io, name, "{", eltype(waveform), "}(...)")
+    summary(io, waveform)
+    print(io, "(...)")
 end
 
 function Base.show(io::IO, mime::MIME"text/plain", waveform::AbstractWaveform)
@@ -39,7 +39,7 @@ function Base.show(io::IO, mime::MIME"text/plain", waveform::AbstractWaveform)
     xs = 0:1e-3:duration(waveform)
     plt = lineplot(
         xs, sample_values(waveform);
-        title=string(name, "{", eltype(waveform), "}"),
+        title=summary(waveform),
         # TODO: decide the unit?
         xlabel="clock (μs)",
         ylabel="value (rad/µs)",

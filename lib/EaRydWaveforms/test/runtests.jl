@@ -3,7 +3,7 @@ using Intervals
 using EaRydWaveforms
 
 @testset "Waveform" begin
-    waveform = Waveform(t->2.2sin(t), duration=4π)
+    waveform = Waveform(t->2.2sin(t), stop=4π)
     @test waveform(0.1) ≈ 2.2 * sin(0.1)
     @test_throws ArgumentError waveform(0.1+4π)
 
@@ -62,7 +62,7 @@ end
 
 @testset "waveform + waveform" begin
     wf1 = linear_ramp(;stop=2.2, start_value=0.0, stop_value=1.0)
-    wf2 = Waveform(sin, duration=2.2)
+    wf2 = Waveform(sin, stop=2.2)
     wf3 = wf1 + wf2
     @test wf3(0.1) ≈ wf1(0.1) + wf2(0.1)
 

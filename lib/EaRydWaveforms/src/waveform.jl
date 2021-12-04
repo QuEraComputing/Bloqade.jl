@@ -94,10 +94,25 @@ function assert_clocks(clocks)
     return
 end
 
+# this is for accessing the clocks and values
+# in pulse smoothen, we may remove this if a more
+# general version of the smoothen is implemented
+struct PiecewiseLinear{T <: Real, Interp}
+    clocks::Vector{T}
+    values::Vector{T}
+    interp::Interp
+
+    function PiecewiseLinear(clocks::Vector{<:Real}, values::Vector{<:Real})
+        assert_clocks(clocks)
+        interp = LinearInterpolation(clocks, values)
+        new{eltype(values), typeof(interp)}(clocks, values, interp)
+    end
+end
+
+(f::PiecewiseLinear)(t::Real) = f.interp(t)
+
 function piecewise_linear(;clocks::Vector{<:Real}, values::Vector{<:Real})
-    assert_clocks(clocks)
-    interp = LinearInterpolation(clocks, values)
-    return Waveform(interp, first(clocks)..last(clocks))
+    return Waveform(PiecewiseLinear(clocks, values), first(clocks)..last(clocks))
 end
 
 function piecewise_constant(;

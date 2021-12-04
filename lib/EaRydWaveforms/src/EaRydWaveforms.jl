@@ -5,32 +5,17 @@ using UnicodePlots
 using Interpolations
 
 export 
-    ConstantWaveform,
-    InterpolatedWaveform,
-    PiecewiseConsant,
-    PiecewiseLinear,
-    RampWaveform,
-    FunctionWaveform,
-    SinusoidalWaveform,
-    ConstantWaveform,
-    CompositeWaveform,
-    # the following types
-    # are not intended to use
-    # directly, so shouldn't export them
-    # SlicedWaveform,
-    # SumWaveform,
-    # NegWaveform,
-    duration,
+    Waveform,
     sample_values,
+    sample_clock,
+    piecewise_constant,
+    piecewise_linear,
+    linear_ramp,
+    constant,
+    sinusoidal,
+    append,
     ..
 
-include("waveforms.jl")
-include("interpolated.jl")
-include("ramp.jl")
-include("function.jl")
-include("composite.jl")
-include("piecewise.jl")
-include("sum.jl")
-include("slice.jl")
+include("waveform.jl")
 
 end

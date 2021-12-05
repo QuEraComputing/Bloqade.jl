@@ -40,20 +40,39 @@ function edge_pad(vec::AbstractVector{T}, n::Int) where T
     return res
 end
 
-# with gaussian filter
-function smooth(filter, wf::Waveform{<:PiecewiseLinear})
-    Waveform(smooth(Kernels.gaussian, wf.f), wf.interval)
+"""
+    smooth([kernel=Kernel.gaussian], f; edge_pad_size::Int=length(f.clocks))
+
+Kernel smoother function for piece-wise linear function/waveform via weighted moving average method.
+
+# Arguments
+
+- `kernel`: the kernel function, default is [`Kernels.gaussian`](@ref).
+- `f`: a [`PiecewiseLinear`](@ref) function or a [`Waveform{<:PiecewiseLinear}`](@ref).
+
+# Keyword Arguments
+
+- `edge_pad_size`: the size of edge padding.
+"""
+function smooth end
+
+# forward waveform objects
+function smooth(kernel, wf::Waveform{<:PiecewiseLinear}; edge_pad_size::Int=length(wf.f.clocks))
+    return smooth(kernel, wf.f; edge_pad_size)
 end
 
-"""
-    smooth(filter, f::PiecewiseLinear)
-
-Smooth a piecewise linear function.
-"""
-function smooth(filter, f::PiecewiseLinear)
-    clocks, values = f.clocks, f.values
-    return smooth(filter, clocks, values, radius)
+function smooth(wf::Waveform{<:PiecewiseLinear}; edge_pad_size::Int=length(wf.f.clocks))
+    return smooth(wf; edge_pad_size)
 end
+
+function smooth(kernel, f::PiecewiseLinear; edge_pad_size::Int=length(f.clocks))
+    clocks = edge_pad(f.clocks, edge_pad_size)
+    values = edge_pad(f.values, edge_pad_size)
+    return smooth(kernel, clocks, values, radius)
+end
+
+smooth(f::PiecewiseLinear; edge_pad_size::Int=length(f.clocks)) =
+    smooth(Kernels.gaussian, f; edge_pad_size)
 
 """
     smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)

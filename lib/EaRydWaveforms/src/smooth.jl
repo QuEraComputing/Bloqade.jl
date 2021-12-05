@@ -52,16 +52,7 @@ end
 """
     smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
 
-Kernel smoother function.
-
-!!! tip
-
-    This method is slower when the number of data points
-    become large because this calculates only a single
-    point at each time. This is only useful when one does
-    not know the input point `x`, consider to use
-    [`fast_smooth`](@ref) when the desired input `X`
-    sequence is known.
+Kernel smoother function via weighted moving average method.
 
 # Theory
 
@@ -117,8 +108,3 @@ function smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
         return Ŷ / A
     end
 end
-
-# # this is an optimized version of above using FFT
-# function fast_smooth(kernel, X::Vector, Xi::Vector, Yi::Vector, kernel_radius::Real)
-#     x_conv = [kernel(norm(x - x_i, 2)/kernel_radius) for (x, x_i) in zip(Xi, Yi)]
-# end

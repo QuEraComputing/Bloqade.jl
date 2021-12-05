@@ -1,6 +1,5 @@
 module EaRydWaveforms
 
-using DSP
 using Intervals
 using UnicodePlots
 using LinearAlgebra
@@ -18,7 +17,8 @@ export
     append,
     ..,
     # smooth
-    smooth
+    smooth,
+    Kernels
 
 include("waveform.jl")
 include("smooth.jl")

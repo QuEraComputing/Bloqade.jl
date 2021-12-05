@@ -42,17 +42,24 @@ end
 
 # with gaussian filter
 function smooth(filter, wf::Waveform{<:PiecewiseLinear})
-    clocks, values = wf.f.clocks, wf.f.values
-    return Waveform(
-        smooth(filter, clocks, values, radius),
-        wf.interval
-    )
+    Waveform(smooth(Kernels.gaussian, wf.f), wf.interval)
+end
+
+"""
+    smooth(filter, f::PiecewiseLinear)
+
+Smooth a piecewise linear function.
+"""
+function smooth(filter, f::PiecewiseLinear)
+    clocks, values = f.clocks, f.values
+    return smooth(filter, clocks, values, radius)
 end
 
 """
     smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
 
 Kernel smoother function via weighted moving average method.
+See also [Kernel Smoother](https://en.wikipedia.org/wiki/Kernel_smoother).
 
 # Theory
 

@@ -3,6 +3,16 @@ Built-in kernel functions.
 """
 module Kernels
 
+export gaussian,
+    triangle,
+    uniform,
+    parabolic,
+    biweight,
+    tricube,
+    cosine,
+    logistic,
+    sigmoid
+
 # kernels
 # https://en.wikipedia.org/wiki/Kernel_(statistics)#Kernel_functions_in_common_use
 _in_radius(t, value) = abs(t) ≤ 1 ? value : zero(t)
@@ -15,14 +25,14 @@ function uniform(t::T) where T
     return T(abs(t) ≤ 1)
 end
 
-parabolic(t) = _in_radius(3/4 * (1 - abs2(t)))
-biweight(t) = _in_radius(15/16 * (1 - abs2(t))^2)
-triweight(t) = _in_radius(35/32 * (1 - abs2(t))^3)
-tricube(t) = _in_radius(70/81 * (1 - abs(t)^3)^3)
-cosine(t) = _in_radius(π/4 * cos(π/2 * t))
+parabolic(t) = _in_radius(t, 3/4 * (1 - abs2(t)))
+biweight(t) = _in_radius(t, 15/16 * (1 - abs2(t))^2)
+triweight(t) = _in_radius(t, 35/32 * (1 - abs2(t))^3)
+tricube(t) = _in_radius(t, 70/81 * (1 - abs(t)^3)^3)
+cosine(t) = _in_radius(t, π/4 * cos(π/2 * t))
 # TODO: check numerical stability
 logistic(t) = 1 / (exp(t) + 2 + exp(-t))
-sigmoid(t) = 2/(π * (exp(u) + exp(-u)))
+sigmoid(t) = 2/(π * (exp(t) + exp(-t)))
 
 end
 
@@ -52,27 +62,28 @@ Kernel smoother function for piece-wise linear function/waveform via weighted mo
 
 # Keyword Arguments
 
+- `kernel_radius`: radius of the kernel.
 - `edge_pad_size`: the size of edge padding.
 """
 function smooth end
 
 # forward waveform objects
-function smooth(kernel, wf::Waveform{<:PiecewiseLinear}; edge_pad_size::Int=length(wf.f.clocks))
-    return smooth(kernel, wf.f; edge_pad_size)
+function smooth(kernel, wf::Waveform{<:PiecewiseLinear}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))
+    return Waveform(smooth(kernel, wf.f; edge_pad_size, kernel_radius), wf.interval)
 end
 
-function smooth(wf::Waveform{<:PiecewiseLinear}; edge_pad_size::Int=length(wf.f.clocks))
-    return smooth(wf; edge_pad_size)
+function smooth(wf::Waveform{<:PiecewiseLinear}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))
+    return smooth(Kernels.gaussian, wf; edge_pad_size, kernel_radius)
 end
 
-function smooth(kernel, f::PiecewiseLinear; edge_pad_size::Int=length(f.clocks))
+function smooth(kernel, f::PiecewiseLinear; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks))
     clocks = edge_pad(f.clocks, edge_pad_size)
     values = edge_pad(f.values, edge_pad_size)
-    return smooth(kernel, clocks, values, radius)
+    return smooth(kernel, clocks, values, kernel_radius)
 end
 
-smooth(f::PiecewiseLinear; edge_pad_size::Int=length(f.clocks)) =
-    smooth(Kernels.gaussian, f; edge_pad_size)
+smooth(f::PiecewiseLinear; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks)) =
+    smooth(Kernels.gaussian, f; edge_pad_size, kernel_radius)
 
 """
     smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)

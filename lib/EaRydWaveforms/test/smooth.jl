@@ -1,48 +1,26 @@
 using Test
 using EaRydWaveforms
+using EaRydWaveforms.Kernels
 using EaRydWaveforms: edge_pad
 
-wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 3.0, 1.1, 2.2])
+@testset "kernels" begin
+    @test Kernels._in_radius(0.1, true)
+    @test Kernels._in_radius(1.1, true) ≈ 0.0
 
-using LinearAlgebra
-clocks, values = [0.0, 1.0, 4.0, 5.0], [0.0, 3.0, 3.0, 0.0]
-pad_clocks, pad_values = edge_pad(clocks, 8), edge_pad(values, 8)
-f(x, b) = smooth(x, clocks, values, b) do t
-    exp(-t^2/2)
+    @test biweight(0.1) ≈ 0.91884375
+    @test biweight(1.1) ≈ 0.0
+    @test cosine(0.1) ≈ π/4 * cos(π/2 * 0.1)
+    @test gaussian(0.1) ≈ 0.3969525474770118
+    @test logistic(0.1) ≈ 0.24937604019289197
+    @test parabolic(0.1) ≈ 0.7424999999999999
+    @test sigmoid(0.1) ≈ 0.3167249413498117
+    @test triangle(0.1) ≈ 0.9
+    @test tricube(0.1) ≈ 0.8616075299999999
+    @test uniform(0.1) ≈ 1.0
 end
 
-function moving_f(x, b, n::Int)
-    
-    smooth(x, clocks, values)
+@testset "kernel smoother" begin
+    wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 3.0, 1.1, 2.2])
+    swf = smooth(wf; kernel_radius=0.5)
+    @test abs(swf(0.1) - swf(0.1+1e-3)) ≤ 1e-5        
 end
-
-xs = 0:1e-2:5
-ys = [f(x, 0.3) for x in xs]
-
-using GR
-plot(xs, ys, backgroundcolor=255)
-
-f(5.0, 0.1)
-f(0.0, 0.1)
-
-
-
-edge_pad([1, 2, 3, 4, 5], 2)
-
-xs = rand(5)
-ys = rand(5)
-DSP.conv(xs, ys)
-
-xs .* ys
-
-simple_conv(xs, ys) = xs .* reverse(ys)
-simple_conv(xs, ys)
-
-a = [1, 2, 1, 2]
-b = [1, 2, 3]
-expectation = [1, 4, 8, 10, 7, 6]
-DSP.conv(a, b)
-
-xs = [0, 0, 1, 2, 1, 2, 0, 0]
-ys = [3, 2, 1]
-[sum(xs[idx:idx+2] .* ys) for idx in 1:6]

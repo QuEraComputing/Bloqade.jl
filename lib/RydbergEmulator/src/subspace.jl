@@ -94,11 +94,11 @@ function Base.show(io::IO, ::MIME"text/plain", s::Subspace{S}) where S
 end
 
 """
-    blockade_subspace(graph)
+    independent_set_subspace(graph)
 
 Create a subspace from given graph's maximal independent set.
 """
-function blockade_subspace(graph::SimpleGraph)
+function independent_set_subspace(graph::SimpleGraph)
     if isempty(edges(graph))
         @warn "graph has empty edges, creating a subspace contains the entire fullspace, consider using a full space register."
     end
@@ -142,7 +142,7 @@ end
 Create a blockade approximation subspace from given atom positions and radius.
 """
 function blockade_subspace(atoms::AbstractVector{<:RydAtom}, radius::AbstractFloat=1.0)
-    return blockade_subspace(unit_disk_graph(atoms, radius))
+    return independent_set_subspace(unit_disk_graph(atoms, radius))
 end
 
 Base.getindex(s::Subspace, key::Int) = s.map[key]

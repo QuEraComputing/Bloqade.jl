@@ -32,7 +32,7 @@ function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
     xs = sample_clock(wf, 1e-3)
     plt = lineplot(
         xs, sample_values(wf);
-        title=summary(wf),
+        title="Waveform{_, $(eltype(wf))",
         # TODO: decide the unit?
         xlabel="clock (μs)",
         ylabel="value (rad/µs)",

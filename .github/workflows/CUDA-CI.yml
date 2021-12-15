@@ -1,11 +1,11 @@
-name: CI
+name: CUDA-CI
 on:
   - push
   - pull_request
 jobs:
   test:
     name: ${{ matrix.package }} - Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }} - ${{ github.event_name }}
-    runs-on: ${{ matrix.os }}
+    runs-on: [self-hosted, CUDA]
     strategy:
       fail-fast: false
       matrix:
@@ -16,10 +16,7 @@ jobs:
         arch:
           - x64
         package:
-          - ContinuousEmulator
-          - EaRydLattices
-          - EaRydWaveforms
-          - RydbergEmulator
+          - CuRydbergEmulator
           - EaRyd
     steps:
       - uses: actions/checkout@v2

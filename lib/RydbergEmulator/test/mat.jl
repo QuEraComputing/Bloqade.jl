@@ -5,7 +5,7 @@ using Graphs
 using SparseArrays
 
 @testset "mat" begin
-    ss = blockade_subspace(smallgraph(:petersen))
+    ss = independent_set_subspace(smallgraph(:petersen))
     U = zeros(ComplexF64, 1024, 1024)
     U[ss, ss] = rand_unitary(length(ss))
     H = U * U'

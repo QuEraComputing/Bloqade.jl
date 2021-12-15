@@ -1,0 +1,22 @@
+name = "EaRydWaveforms"
+uuid = "0b2dfc99-25e4-4105-a7e4-4454e50c76c1"
+authors = ["QuEra Computing Inc."]
+version = "0.1.0"
+
+[deps]
+Interpolations = "a98d9a8b-a2ab-59e6-89dd-64a1c18fca59"
+Intervals = "d8418881-c3e1-53bb-8760-2df7ec849ed5"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
+
+[compat]
+Interpolations = "0.13"
+Intervals = "1"
+UnicodePlots = "2"
+julia = "1.6"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

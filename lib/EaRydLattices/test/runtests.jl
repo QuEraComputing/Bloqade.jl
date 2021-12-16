@@ -1,4 +1,5 @@
 using EaRydLattices
+using Viznet.Compose
 using Test
 
 @testset "lattice" begin
@@ -46,4 +47,14 @@ end
     @test issorted(grd.xs)
     @test issorted(grd.ys)
     @test x ≈ 1.0 && y ≈ 0.0
+end
+
+@testset "visualize" begin
+    lt = generate_sites(KagomeLattice(), 5, 5)
+    grd = make_grid(lt[2:end-1])
+    @test viz_atoms(IOBuffer(), lt) === nothing
+    @test viz_maskedgrid(IOBuffer(), grd) === nothing
+    @test show(IOBuffer(), MIME"text/html"(), KagomeLattice()) === nothing
+    @test show(IOBuffer(), MIME"text/html"(), ChainLattice()) === nothing
+    @test show(IOBuffer(), MIME"text/html"(), grd) === nothing
 end

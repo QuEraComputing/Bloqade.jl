@@ -7,16 +7,16 @@ using Viznet: Viznet
 using Viznet.Compose
 
 export # types
-    AbstractLattice, BravaisLattice, HoneycombLattice,
+    AbstractLattice, HoneycombLattice,
     SquareLattice, TriangularLattice, ChainLattice,
     LiebLattice, KagomeLattice, GeneralLattice,
     # interfaces
-    bravais, generate_sites, offset_axes,
+    generate_sites, offset_axes, random_dropout,
     clip_axes, lattice_sites, lattice_vectors,
     # grid
-    MaskedGrid, make_grid, locations, random_dropout,
+    MaskedGrid, make_grid, locations,
     # nearest neighbors
-    make_kdtree, grouped_nearest,
+    make_kdtree, grouped_nearest, DistanceGroup,
     # visualize
     viz_atoms, viz_maskedgrid
 

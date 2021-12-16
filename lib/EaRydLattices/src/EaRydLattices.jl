@@ -11,7 +11,7 @@ export # types
     SquareLattice, TriangularLattice, ChainLattice,
     LiebLattice, KagomeLattice, GeneralLattice,
     # interfaces
-    generate_sites, offset_axes, random_dropout,
+    generate_sites, offset_axes, random_dropout, rescale_axes,
     clip_axes, lattice_sites, lattice_vectors,
     # grid
     MaskedGrid, make_grid, locations,

@@ -84,6 +84,7 @@ generate_sites(lattice::AbstractLattice, nrepeats::Int...) = _generate_sites((la
 ############ manipulate sites ###############
 """
     offset_axes(sites::AbstractVector{NTuple{D, T}}, offsets::Vararg{T,D}) where {D, T}
+    offset_axes(offsets...)
 
 Offset the `sites` by distance specified by `offsets`.
 
@@ -109,7 +110,34 @@ function offset_axes(sites::AbstractVector{NTuple{D, T}}, offsets::Vararg{T,D}) 
 end
 
 """
+    rescale_axes(sites::AbstractVector{NTuple{D, T}}, scale::Real) where {D, T}
+    rescale_axes(scale)
+
+Rescale the `sites` by a constant `scale`.
+
+```jldoctest; setup=:(using EaRydLattices)
+julia> sites = [(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)]
+4-element Vector{Tuple{Float64, Float64}}:
+ (1.0, 2.0)
+ (10.0, 3.0)
+ (1.0, 12.0)
+ (3.0, 5.0)
+
+julia> rescale_axes(sites, 2.0)
+4-element Vector{Tuple{Float64, Float64}}:
+ (2.0, 4.0)
+ (20.0, 6.0)
+ (2.0, 24.0)
+ (6.0, 10.0)
+```
+"""
+function rescale_axes(sites::AbstractVector{NTuple{D, T}}, scale::Real) where {D, T}
+    return map(x->ntuple(i->x[i]*scale, D), sites)
+end
+
+"""
     random_dropout(sites::AbstractVector{NTuple{D, T}}, probability::Real) where {D, T}
+    random_dropout(probability)
 
 Randomly drop out `sites` with probability `probability`, i.e. removing items from the vector.
 """
@@ -119,6 +147,7 @@ end
 
 """
     clip_axes(sites::AbstractVector{NTuple{D, T}}, bounds::Vararg{Tuple{T,T},D}) where {D, T}
+    clip_axes(bounds...)
 
 Remove sites out of `bounds`, where `bounds` is specified by D D-tuples.
 
@@ -144,6 +173,7 @@ end
 clip_axes(args::Vararg{T,D}) where {T,D} = ls -> clip_axes(ls, args...)
 offset_axes(args::Vararg{T,D}) where {T,D} = ls -> offset_axes(ls, args...)
 random_dropout(probability::Real) = ls -> random_dropout(ls, probability)
+rescale_axes(scale::Real) = ls -> rescale_axes(ls, scale)
 
 ############ manipulate grid ###############
 """

@@ -12,17 +12,21 @@ using Test
     @test lt1 |> length == length(lattice_sites(ChainLattice())) * 5
     @test make_grid(lt1) isa MaskedGrid
     l1 = generate_sites(HoneycombLattice(), 5, 5)
-    l2 = offset_axes(l1, -1.0, -2.0)
-    l3 = clip_axes(l2, (0.0, 3.0), (0.0, 4.0))
+    l2 = l1 |> offset_axes(-1.0, -2.0)
+    l3 = l2 |> clip_axes((0.0, 3.0), (0.0, 4.0))
     @test all(loc -> 0 <= loc[1] <= 3 && 0 <= loc[2] <= 4, l3)
     mg = make_grid(l3)
     @test sum(mg.mask) == length(l3) == 14
     @test length(mg.xs) == 6 && length(mg.ys) == 5
     @test length(locations(mg)) == 14
-    l4 = random_dropout(l3, 1.0)
+    l4 = l3 |> random_dropout(1.0)
     @test length(l4) == 0
     l4 = random_dropout(l3, 0.0)
     @test length(l4) == length(l3)
+    
+    # rescale axes
+    sites = [(0.2, 0.3), (0.4, 0.8)]
+    @test (sites |> rescale_axes(2.0)) == [(0.4, 0.6), (0.8, 1.6)]
 end
 
 @testset "neighbors" begin

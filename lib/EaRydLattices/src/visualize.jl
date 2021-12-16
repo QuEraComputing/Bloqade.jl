@@ -73,14 +73,14 @@ Draw a `maskedgrid` with scaling factor `scale`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 If you want to write this image to the disk without using a frontend, please check [`img_atoms`](@ref).
 """
-function viz_maskedgrid(io, mg::MaskedGrid; scale=1.0)
-    img, (dx, dy) = img_maskedgrid(mg; scale=scale)
+function viz_maskedgrid(io, maskedgrid::MaskedGrid; scale=1.0)
+    img, (dx, dy) = img_maskedgrid(maskedgrid; scale=scale)
     Compose.draw(SVG(io, dx, dy), img)
 end
 
 # Returns a 2-tuple of (image::Context, size)
-function img_maskedgrid(mg::MaskedGrid; scale=1.0)
-    atoms = locations(mg)
+function img_maskedgrid(maskedgrid::MaskedGrid; scale=1.0)
+    atoms = locations(maskedgrid)
     rescaler = get_rescaler(atoms)
     xspan = rescaler.xmax - rescaler.xmin
     yspan = rescaler.ymax - rescaler.ymin
@@ -90,7 +90,7 @@ function img_maskedgrid(mg::MaskedGrid; scale=1.0)
     text_style = default_text_style(scale)
     line_style_grid = default_line_style_grid(scale)
     img1 = _viz_atoms(rescaler.(atoms), node_style, text_style)
-    img2 = _viz_grid(rescaler.(mg.xs; dims=1), rescaler.(mg.ys; dims=2), line_style_grid, Y/X)
+    img2 = _viz_grid(rescaler.(maskedgrid.xs; dims=1), rescaler.(maskedgrid.ys; dims=2), line_style_grid, Y/X)
     img = compose(context(0, 0, 1.0, X/Y), (context(), img1), (context(), img2))
     return img, (X*scale*cm, Y*scale*cm)
 end
@@ -113,7 +113,7 @@ for mime in [:(MIME"text/html"), :(MIME"image/png")]
     @eval function Base.show(io::IO, ::$mime, lt::AbstractLattice{1})
         viz_atoms(io, padydim.(generate_sites(lt, 5)); scale=2.0)
     end
-    @eval function Base.show(io::IO, ::$mime, mg::MaskedGrid)
-        viz_maskedgrid(io, mg; scale=2.0)
+    @eval function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
+        viz_maskedgrid(io, maskedgrid; scale=2.0)
     end
 end

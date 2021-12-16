@@ -1,13 +1,13 @@
 # `D` is the dimensionality
 abstract type AbstractLattice{D} end
 
-function _generate_sites(lattice_vectors, lattice_sites, repeats::Int...)
-    D = length(lattice_vectors)
-    K = length(lattice_sites)
-    T = eltype(first(lattice_vectors))
-    @assert D > 0 && K > 0
+function _generate_sites(lattice_vectors, lattice_sites, repeats::Vararg{Int,D}) where D
+    @assert length(lattice_vectors) == D
+    @assert D > 0 && length(lattice_sites) > 0
     @assert all(>=(0), repeats)
-    @assert length(repeats) == D
+    @assert all(x->length(x)==(D), lattice_vectors)
+    @assert all(x->length(x)==(D), lattice_sites)
+    T = eltype(first(lattice_vectors))
     locations = NTuple{D,T}[]  # we might want to avoid using `push!` later.
     for ci in CartesianIndices(repeats)
         baseloc = mapreduce(i->(ci.I[i]-1) .* lattice_vectors[i], (x, y) -> x .+ y, 1:D)
@@ -35,17 +35,18 @@ end
 GeneralLattice(vectors, sites) = GeneralLattice((vectors...,), (sites...,))
 
 """
-    lattice_vectors(gl::GeneralLattice)
+    lattice_vectors(lattice::AbstractLattice)
 
-Returns Bravais lattice vectors, which is a D-Tuple of D-Tuple, where D is the space dimension.
+Returns Bravais lattice vectors as a D-Tuple of D-Tuple, where D is the space dimension.
 """
-lattice_vectors(gl::GeneralLattice) = gl.vectors
-"""
-    lattice_sites(gl::GeneralLattice)
+lattice_vectors(general_lattice::GeneralLattice) = general_lattice.vectors
 
-Returns sites in a Bravais lattice unit cell, which is a Tuple of D-Tuple, where D is the space dimension.
 """
-lattice_sites(gl::GeneralLattice) = gl.sites
+    lattice_sites(lattice::AbstractLattice)
+
+Returns sites in a Bravais lattice unit cell as a Tuple of D-Tuple, where D is the space dimension.
+"""
+lattice_sites(general_lattice::GeneralLattice) = general_lattice.sites
 
 struct HoneycombLattice <: AbstractLattice{2} end
 lattice_vectors(::HoneycombLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
@@ -78,7 +79,7 @@ Returns a vector of locations (2-tuple) by tiling the specified `lattice`.
 The tiling repeat the `sites` of the lattice `m` times along the first dimension,
 `n` times along the second dimension, and so on.
 """
-generate_sites(lt::AbstractLattice, nrepeats::Int...) = _generate_sites((lattice_vectors(lt)...,), (lattice_sites(lt)...,), nrepeats...)
+generate_sites(lattice::AbstractLattice, nrepeats::Int...) = _generate_sites((lattice_vectors(lattice)...,), (lattice_sites(lattice)...,), nrepeats...)
 
 ############ manipulate sites ###############
 """
@@ -108,12 +109,12 @@ function offset_axes(sites::AbstractVector{NTuple{D, T}}, offsets::Vararg{T,D}) 
 end
 
 """
-    random_dropout(sites::AbstractVector{NTuple{D, T}}, prob::Real) where {D, T}
+    random_dropout(sites::AbstractVector{NTuple{D, T}}, probability::Real) where {D, T}
 
-Randomly drop out `sites` with probability `prob`, i.e. removing items from the vector.
+Randomly drop out `sites` with probability `probability`, i.e. removing items from the vector.
 """
-function random_dropout(sites::AbstractVector{NTuple{D, T}}, prob::Real) where {D, T}
-    return sites[rand(length(sites)) .> prob]
+function random_dropout(sites::AbstractVector{NTuple{D, T}}, probability::Real) where {D, T}
+    return sites[rand(length(sites)) .> probability]
 end
 
 """
@@ -142,7 +143,7 @@ function clip_axes(sites::AbstractVector{NTuple{D, T}}, bounds::Vararg{Tuple{T,T
 end
 clip_axes(args::Vararg{T,D}) where {T,D} = ls -> clip_axes(ls, args...)
 offset_axes(args::Vararg{T,D}) where {T,D} = ls -> offset_axes(ls, args...)
-random_dropout(prob::Real) = ls -> random_dropout(ls, prob)
+random_dropout(probability::Real) = ls -> random_dropout(ls, probability)
 
 ############ manipulate grid ###############
 """

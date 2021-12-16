@@ -28,10 +28,10 @@ function Base.getindex(dg::DistanceGroup, k::Int)
     end
 end
 
-# Obtain `K` vertices closest to the site specified by `siteindex` from the KDTree `tree`.
+# Obtain `nsites` vertices closest to the site specified by `siteindex` from the KDTree `tree`.
 # It returns a 2-tuple of vertex indices and distances.
-function nearest(tree::KDTree, siteindex::Int, K::Int)
-    siteindices, distances = knn(tree, tree.data[findfirst(==(siteindex), tree.indices)], K)
+function nearest(tree::KDTree, siteindex::Int, nsites::Int)
+    siteindices, distances = knn(tree, tree.data[findfirst(==(siteindex), tree.indices)], nsites)
     perm = sortperm(distances)
     return siteindices[perm], distances[perm]
 end
@@ -52,9 +52,9 @@ function group_by_distances(siteindices, distances::AbstractVector{T}, atol) whe
 end
 
 """
-    grouped_nearest(tree::KDTree, siteindex::Int, K::Int; atol=1e-8)
+    grouped_nearest(tree::KDTree, siteindex::Int, nsites::Int; atol=1e-8)
 
-Find the `K` closest vertices to `siteindex`, and group them by distance (distances different by a number smaller than 1e-8 are treated as the same).
+Find the `nsites` closest vertices to `siteindex`, and group them by distance (distances different by a number smaller than 1e-8 are treated as the same).
 Returns a [`DistanceGroup`](@ref) instance.
 
 ```jldoctest; setup=:(using EaRydLattices)
@@ -90,6 +90,6 @@ julia> gn[2]  # second nearest neighbors
  31
 ```
 """
-function grouped_nearest(tree::KDTree, siteindex::Int, K::Int; atol=1e-8)
-    group_by_distances(nearest(tree, siteindex, K)..., atol)
+function grouped_nearest(tree::KDTree, siteindex::Int, nsites::Int; atol=1e-8)
+    group_by_distances(nearest(tree, siteindex, nsites)..., atol)
 end

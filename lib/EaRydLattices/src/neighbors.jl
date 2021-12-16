@@ -54,7 +54,7 @@ end
 """
     grouped_nearest(tree::KDTree, siteindex::Int, nsites::Int; atol=1e-8)
 
-Find the `nsites` closest vertices to `siteindex`, and group them by distance (distances different by a number smaller than 1e-8 are treated as the same).
+Find the `nsites` closest vertices to `siteindex`, and group them by distance. Difference of the distances smaller than the `atol` (default is `1e-8`) are treated as the same
 Returns a [`DistanceGroup`](@ref) instance.
 
 ```jldoctest; setup=:(using EaRydLattices)

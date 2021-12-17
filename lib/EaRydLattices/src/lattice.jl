@@ -8,7 +8,7 @@ e.g. [`ChainLattice`](@ref) is a 1D lattice, hence returns 1.
 """
 dimension(::AbstractLattice{D}) where D = D
 
-function _generate_sites(lattice_vectors, lattice_sites, repeats::Vararg{Int,D}) where D
+function _generate_sites(lattice_vectors, lattice_sites, repeats::Vararg{Int,D}; scale=1.0) where D
     @assert length(lattice_vectors) == D
     @assert D > 0 && length(lattice_sites) > 0
     @assert all(>=(0), repeats)
@@ -19,7 +19,7 @@ function _generate_sites(lattice_vectors, lattice_sites, repeats::Vararg{Int,D})
     for ci in CartesianIndices(repeats)
         baseloc = mapreduce(i->(ci.I[i]-1) .* lattice_vectors[i], (x, y) -> x .+ y, 1:D)
         for siteloc in lattice_sites
-            push!(locations, baseloc .+ siteloc)
+            push!(locations, (baseloc .+ siteloc) .* scale)
         end
     end
     return locations
@@ -80,13 +80,13 @@ lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
 lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25*sqrt(3)), (0.75, 0.25*sqrt(3)))
 
 """
-    generate_sites(lattice, m[, n...])
+    generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0)
 
 Returns a vector of locations (2-tuple) by tiling the specified `lattice`.
 The tiling repeat the `sites` of the lattice `m` times along the first dimension,
-`n` times along the second dimension, and so on.
+`n` times along the second dimension, and so on. `scale` is a real number that re-scales the lattice constant and site locations.
 """
-generate_sites(lattice::AbstractLattice, nrepeats::Int...) = _generate_sites((lattice_vectors(lattice)...,), (lattice_sites(lattice)...,), nrepeats...)
+generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0) where D = _generate_sites((lattice_vectors(lattice)...,), (lattice_sites(lattice)...,), repeats...; scale=scale)
 
 ############ manipulate sites ###############
 """

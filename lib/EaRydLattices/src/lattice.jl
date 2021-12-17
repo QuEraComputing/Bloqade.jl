@@ -1,5 +1,12 @@
 # `D` is the dimensionality
 abstract type AbstractLattice{D} end
+"""
+    dimension(lattice)
+
+Returns the space dimension of target lattice.
+e.g. [`ChainLattice`](@ref) is a 1D lattice, hence returns 1.
+"""
+dimension(::AbstractLattice{D}) where D = D
 
 function _generate_sites(lattice_vectors, lattice_sites, repeats::Vararg{Int,D}) where D
     @assert length(lattice_vectors) == D
@@ -245,6 +252,19 @@ Returns locations of sites of the `maskedgrid` in order.
 """
 function locations(mg::MaskedGrid)
     map(ci->(mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask))
+end
+
+# generating docstrings
+for LT in (SquareLattice, HoneycombLattice, KagomeLattice, ChainLattice, LiebLattice, TriangularLattice)
+    DOCSTRING = """    $LT <: AbstractLattice{$(dimension(LT()))}
+    $LT()
+
+$LT is a $(dimension(LT())) dimensional lattice with:
+
+* Lattice vectors = $(lattice_vectors(LT()))
+* Lattice sites   = $(lattice_sites(LT()))
+"""
+    @eval @doc $DOCSTRING $(Symbol(LT))
 end
 
 # TODO

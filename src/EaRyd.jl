@@ -6,7 +6,7 @@ using Reexport
 @reexport using ContinuousEmulator
 @reexport using Measurements: ±, Measurement
 @reexport using EaRydLattices: EaRydLattices,
-    AbstractLattice, BravaisLattice, HoneycombLattice,
+    AbstractLattice, GeneralLattice, HoneycombLattice,
     SquareLattice, TriangularLattice, ChainLattice,
     LiebLattice, KagomeLattice, GeneralLattice,
     # interfaces

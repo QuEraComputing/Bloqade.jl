@@ -242,68 +242,44 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::ContinuousEvolution{P})
     end
 end
 
-function RydbergEmulator.emulate!(prob::ContinuousEvolution)
-    integrator = OrdinaryDiffEq.init(prob.ode_prob, prob.options.algo; reltol=prob.options.reltol, abstol=prob.options.abstol)
-    for (idx, (u, t)) in enumerate(OrdinaryDiffEq.tuples(integrator))
-        if iszero(mod(idx, prob.options.normalize_steps))
-            normalize!(u)
-        end
-    end
-
-    if prob.options.normalize_finally
-        normalize!(prob.reg)
-    end
-    return prob
+function get_integrator(prob::ContinuousEvolution)
+    return OrdinaryDiffEq.init(
+        prob.ode_prob, prob.options.algo;
+        reltol=prob.options.reltol, abstol=prob.options.abstol
+    )
 end
 
-"""
-    emulate!(r, t::Real, h::AbstractTerm; kw...)
+function emulate_step!(prob::ContinuousEvolution, ret)
+    if prob.options.normalize_finally && ret === nothing
+        normalize!(prob.reg)
+    end
 
-Emulate the hamiltonian `h` for time duration `t`
-on register `r` using ODE solvers. This is usually
-the best way to emulate continuous hamiltonian
-parameters.
+    ret === nothing && return
+    step, reg =ret[1][1], prob.reg
 
-# Arguments
+    if iszero(mod(step, prob.options.normalize_steps))
+        normalize!(reg)
+    end
+    return (;step, reg, clock=ret[1][2])
+end
 
-- `r`: the register that contains the information about our quantum state of the system.
-- `t`: the time duration to emulate.
-- `h`: the hamiltonian terms.
+function Base.iterate(prob::ContinuousEvolution)
+    integrator = enumerate(get_integrator(prob))
+    ret = iterate(integrator)
+    info = emulate_step!(prob, ret)
+    return info, (integrator, ret[2])
+end
 
-# Selected Keyword Arguments
+function Base.iterate(prob::ContinuousEvolution, (integrator, st))
+    ret = iterate(integrator, st)
+    info = emulate_step!(prob, ret)
+    ret === nothing && return
+    return info, (integrator, ret[2])
+end
 
-The keyword arguments are the same as DiffEq's ODEProblem interface,
-we here only describe several commonly used keywords.
-
-- `algo`: algorithm to use, see [Algorithm](#Algorithm) section for more discussion.
-- `force_normalize`: whether to force the return statevector to be normalized, this
-    is because for long-time emulation non-geometric methods will result in norm not
-    equal to `1`, sometimes this error is not large enough to use a geometric method
-    (which is usually slower), thus with some error we can normalize the state in the end
-    using this option.
-- `reltol`: relative tolerance, default is `1e-8`.
-- `abstol`: absolute tolerance, default is `1e-8`.
-- `progress`: whether showing progress bar, default is `false`.
-- `progress_steps`: how much iteration steps should the progress estimate on,
-    must be specified when `progress=true`.
-
-# Algorithm
-
-The default algorithm we usually use is the `Vern8` method, which provides
-relative precise emulation for our Rydberg system. However, one may find lower
-order approximation such as `Vern6` or `Vern7` can also be good for short time
-emulation or smaller system. Or more general RK method such as `Tsit5` is also
-a good candidate.
-
-# Norm-Preservation via `ManifoldProjection`
-
-One can enable norm-preservation via `ManifoldProjection`, the corresponding
-callback function is implemented as `norm_preserve`.
-"""
-function RydbergEmulator.emulate!(r::Yao.AbstractRegister, t::Real, h::AbstractTerm; kw...)
-    prob = ContinuousEvolution(r, t, h; kw...)
-    emulate!(prob)
-    return prob.reg
+function RydbergEmulator.emulate!(prob::ContinuousEvolution)
+    for _ in prob; end
+    return prob
 end
 
 end

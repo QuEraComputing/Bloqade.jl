@@ -43,7 +43,3 @@ end
 @testset "mis" begin
     include("mis.jl")
 end
-
-@testset "schema" begin
-    include("schema.jl")
-end

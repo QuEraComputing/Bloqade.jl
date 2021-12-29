@@ -33,11 +33,11 @@ export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
     Hamiltonian, DiscreteEmulationCache,
     RydbergReg, RealLayout, ComplexLayout, MemoryLayout,
     FullSpace, fullspace, Subspace, SubspaceMap,
-    PulseJob, Pulse, HyperfinePulse, RydbergPulse, is_time_dependent,
+    is_time_dependent,
     update_term!, simple_rydberg, rydberg_h, rydatoms,
     rand_atoms, read_atoms, write_atoms, read_subspace,
     write_subspace, unit_disk_graph, rand_unit_disk_graph,
-    DiscreteEvolution, emulate!, emulate, trotterize,
+    DiscreteEvolution, emulate!, trotterize,
     mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp,
     square_lattice, set_zero_state!, blockade_subspace, independent_set_subspace,
     is_independent_set, to_independent_set!, to_independent_set, add_vertices, add_vertices!,
@@ -65,7 +65,6 @@ include("emulate/emulate.jl")
 
 include("serialize.jl")
 include("mis.jl")
-include("schema.jl")
 include("deprecations.jl")
 
 end # module

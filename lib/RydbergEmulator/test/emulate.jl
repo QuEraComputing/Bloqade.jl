@@ -1,78 +1,109 @@
 using Test
-using Yao
-using SparseArrays
 using RydbergEmulator
-using Graphs
+using RydbergEmulator: emulate_routine!, nsites, get_space, PrecisionAdaptor, adapt
+using SparseArrays
 using LinearAlgebra
 
-if !isdefined(@__MODULE__, :test_graph)
-    include("utils.jl")
-end
-
-function simple_evolve!(r::AbstractRegister, ts, hs, s::Subspace)
-    st = vec(r.state)
-    for (h, t) in zip(hs, ts)
-        st = exp(-im * t * Matrix(SparseMatrixCSC(h, s))) * st
-        normalize!(st)
-    end
-    r.state .= st
-    return r
-end
-
-function simple_evolve!(r::AbstractRegister, ts, hs)
-    st = vec(r.state)
-    for (h, t) in zip(hs, ts)
-        st = exp(-im * t * Matrix(SparseMatrixCSC(h))) * st
-    end
-    r.state .= st
-    return r
-end
-
-@testset "subspace qaoa" begin
-    hs = simple_rydberg.(5, rand(5))
-    ts = rand(5)
-    s = Subspace(5, test_subspace_v)
-    r = RydbergEmulator.zero_state(s)
-
-    cache = DiscreteEmulationCache(ts, first(hs), s)
-    r1 = emulate!(copy(r), ts, hs; cache=cache)
-    r2 = simple_evolve!(copy(r), ts, hs, s)
-
-    @test r1 ≈ r2
-end
-
-@testset "fullspace" begin
-    hs = simple_rydberg.(4, rand(4))
-    ts = rand(4)
-    r = Yao.zero_state(4)
-    cache = DiscreteEmulationCache(ts, first(hs))
-    r1 = emulate!(copy(r), ts, hs; cache=cache)
-    r2 = simple_evolve!(copy(r), ts, hs)
-    @test r1 ≈ r2
-end
-
-@testset "emulate" begin
-    hs = simple_rydberg.(5, rand(3))
-    ts = rand(3)
-    @test emulate(ts, hs) ≈ emulate!(Yao.zero_state(5), ts, hs)
-    @test emulate(test_subspace, ts, hs) ≈ emulate!(RydbergEmulator.zero_state(test_subspace), ts, hs)
-end
-
-@testset "trotterize" begin
+@testset "emulate_routine" begin
     atoms = square_lattice(10, 0.8)
-    space = blockade_subspace(atoms, 1.5)
-    h = rydberg_h(atoms, 1.0, 2.0, sin)
-    prob = DiscreteEvolution(zero_state(space), 0.5, h)
-    display(prob)
+    t = 0.1
+    h = rydberg_h(atoms; Ω=0.1, Δ=0.2)
 
-    @test prob.t_or_ts ≈ 0:1e-3:0.5
-    emulate!(prob)
-    ts = [1e-3 for _ in 0:1e-3:0.5]
-    hs = [h(t) for t in 0:1e-3:0.5]
-    target = simple_evolve!(zero_state(space), ts, hs, space)
-    @test prob.reg ≈ target
+    @testset "fullspace" begin
+        cache = SparseMatrixCSC(h)
+        result = statevec(emulate_routine!(zero_state(10), t, h, cache))
+        answer = exp(-im * t * Matrix(cache)) * statevec(zero_state(10))
+        @test result ≈ answer
+    end
 
-    prob = DiscreteEvolution(zero_state(space), 0.001, h; progress=true)
-    @test_logs (:info, "emulating") (:info, "emulating") emulate!(prob)
-    @test prob.options.progress == true
+    @testset "subspace" begin
+        space = blockade_subspace(atoms)
+        cache = SparseMatrixCSC(h, space)
+        result = statevec(emulate_routine!(zero_state(space), t, h, cache))
+        answer = exp(-im * t * Matrix(cache)) * statevec(zero_state(space))
+        @test result ≈ answer
+    end
+
+    @testset "real layout" begin
+        space = blockade_subspace(atoms)
+        cache = SparseMatrixCSC(h, space)
+        @test_throws ErrorException emulate_routine!(zero_state(space, RealLayout()), t, h, cache)
+        # result = statevec(emulate_routine!(zero_state(space, RealLayout()), t, h, cache))
+        # answer = exp(-im * t * Matrix(cache)) * statevec(zero_state(space, RealLayout()))
+        # @test result ≈ answer
+    end
+
+    for space in [FullSpace(), blockade_subspace(atoms)]
+        cache = DiscreteEmulationCache{Float64, Cint}(h, FullSpace())
+        @test nnz(cache.H) == nnz(SparseMatrixCSC(h))
+        @test typeof(cache.H) === SparseMatrixCSC{Float64, Cint}
+    end
+end
+
+function naive_discrete_evolve(P, reg, ts, hs)
+    st = statevec(adapt(PrecisionAdaptor(P), reg))
+    for (t, h) in zip(ts, hs)
+        H = Matrix(SparseMatrixCSC(h, get_space(reg)))
+        st = exp(-im * t * H) * st
+    end
+    return st
+end
+
+@testset "DiscreteEvolution" begin
+    atoms = square_lattice(10, 0.8)
+    space = blockade_subspace(atoms)
+
+    @testset "QAOA P=$P reg=$(nameof(typeof(reg)))" for reg in [zero_state(10), zero_state(space)],
+            P in [Float32, Float64]
+
+        durations = rand(5)
+        hs = [rydberg_h(atoms; Ω, Δ) for (Ω, Δ) in zip(rand(5), rand(5))]
+
+        evolve = DiscreteEvolution{P}(copy(reg), durations, hs)
+        @test eltype(evolve.durations) === P
+        @test eltype(evolve.cache.H) === P
+        @test eltype(evolve.reg.state) === Complex{P}
+
+        emulate!(evolve)
+        @test statevec(evolve.reg) ≈ naive_discrete_evolve(P, reg, durations, hs) rtol=sqrt(eps(P))
+    end
+
+    @testset "discretize continuous" for total_time in [0.1, 0.1f0]
+        P = typeof(total_time)
+        h = rydberg_h(atoms; Ω=sin, Δ=cos)
+        durations, hs = trotterize(total_time, h, nsteps=10)
+        evolve = DiscreteEvolution(durations, hs)
+
+        @test eltype(durations) == P
+        @test evolve.reg isa ArrayReg
+        @test evolve.durations == durations
+        @test eltype(evolve.reg.state) === Complex{eltype(durations)}
+
+        emulate!(evolve)
+        reg = zero_state(nsites(first(hs)))
+        target = naive_discrete_evolve(P, reg, durations, hs)
+        @test statevec(evolve.reg) ≈ target rtol=sqrt(eps(P))
+    end
+
+    @testset "measure observables" for total_time in [0.1, 0.1f0]
+        total_time = 0.1
+        P = typeof(total_time)
+        h = rydberg_h(atoms; Ω=sin, Δ=cos)
+        durations, hs = trotterize(total_time, h, nsteps=10)
+        evolve = DiscreteEvolution(durations, hs)
+        observables = Float64[]
+        for (_, reg, _, _) in evolve
+            push!(observables, expect(put(10, 1=>X), reg))
+        end
+
+        st = statevec(zero_state(nsites(h)))
+        target = Float64[]
+        for (t, h) in zip(durations, hs)
+            H = Matrix(SparseMatrixCSC(h))
+            st = exp(-im * t * H) * st
+            push!(target, expect(put(10, 1=>X), ArrayReg(st)))
+        end
+
+        @test observables ≈ target
+    end
 end

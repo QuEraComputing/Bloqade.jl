@@ -37,7 +37,7 @@ export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
     update_term!, simple_rydberg, rydberg_h, rydatoms,
     rand_atoms, read_atoms, write_atoms, read_subspace,
     write_subspace, unit_disk_graph, rand_unit_disk_graph,
-    DiscreteEvolution, emulate!, emulate,
+    DiscreteEvolution, emulate!, emulate, trotterize,
     mean_rydberg, count_vertices, mean, gibbs_loss, logsumexp,
     square_lattice, set_zero_state!, blockade_subspace, independent_set_subspace,
     is_independent_set, to_independent_set!, to_independent_set, add_vertices, add_vertices!,
@@ -61,7 +61,7 @@ include("instructs.jl")
 include("mat.jl")
 
 include("unit_disk.jl")
-include("emulate.jl")
+include("emulate/emulate.jl")
 
 include("serialize.jl")
 include("mis.jl")

@@ -96,6 +96,7 @@ function KrylovEvolution{P}(
         nsites(h) == nsites(first(hs))
     end || throw(ArgumentError("number of sites does not match"))
     length(durations) == length(hs) || throw(ArgumentError("length of time does not match hamiltonian"))
+    all(≥(0), durations) || throw(ArgumentError("durations should be ≥ 0"))
 
     # convert to user specified precision type
     state = adapt(PrecisionAdaptor(P), r)

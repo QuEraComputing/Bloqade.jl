@@ -19,7 +19,7 @@ end
     r = RydbergEmulator.zero_state(test_subspace)
     sample1 = measure!(r)
     @test sample1 == zero(BitStr64{5})
-    prob = DiscreteEvolution(r, ts, hs)
+    prob = KrylovEvolution(r, ts, hs)
     emulate!(prob)
     Random.seed!(5)
     # 1. sampling

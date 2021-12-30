@@ -13,7 +13,7 @@ using RydbergEmulator: AbstractTerm, AbstractSpace, EmulationOptions, storage_si
 using OrdinaryDiffEq: OrdinaryDiffEq, Vern8, ODEProblem
 
 @reexport using RydbergEmulator
-export ShordingerEquation, ContinuousEvolution
+export ShordingerEquation, ODEEvolution
 
 struct EquationCache{H, Layout, S}
     hamiltonian::H
@@ -106,7 +106,7 @@ struct PieceWiseLinear{T}
     ys::Vector{T}
 end
 
-@option struct ContinuousOptions{Algo <: OrdinaryDiffEq.OrdinaryDiffEqAlgorithm} <: EmulationOptions
+@option struct ODEOptions{Algo <: OrdinaryDiffEq.OrdinaryDiffEqAlgorithm} <: EmulationOptions
     algo::Algo = Vern8()
     progress::Bool = false
     progress_steps::Int = 5
@@ -118,44 +118,44 @@ end
 end
 
 """
-    ContinuousEvolution{P}
+    ODEEvolution{P}
 
 Problem type for hamiltonian with time dependent parameters.
 """
-struct ContinuousEvolution{P, Reg <: AbstractRegister, Eq <: ShordingerEquation, Prob <: ODEProblem, Options <: ContinuousOptions}
+struct ODEEvolution{P, Reg <: AbstractRegister, Eq <: ShordingerEquation, Prob <: ODEProblem, Options <: ODEOptions}
     reg::Reg
     time::NTuple{2, P}
     eq::Eq
     ode_prob::Prob
     options::Options
 
-    function ContinuousEvolution{P}(reg, time, eq, ode_prob, options) where P
+    function ODEEvolution{P}(reg, time, eq, ode_prob, options) where P
         new{P, typeof(reg), typeof(eq), typeof(ode_prob), typeof(options)}(
             reg, time, eq, ode_prob, options
         )
     end
 end
 
-ContinuousEvolution(r::AbstractRegister, t, h::AbstractTerm; kw...) =
-    ContinuousEvolution{real(Yao.datatype(r))}(r, t, h; kw...)
+ODEEvolution(r::AbstractRegister, t, h::AbstractTerm; kw...) =
+    ODEEvolution{real(Yao.datatype(r))}(r, t, h; kw...)
 
 """
-    ContinuousEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...)
+    ODEEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...)
 
 Run the evolution for `t` μs, start from clock 0 μs, shorthand for
 
 ```julia
-ContinuousEvolution{P}(r, (0, t), h; kw...)
+ODEEvolution{P}(r, (0, t), h; kw...)
 ```
 """
-function ContinuousEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...) where {P}
-    return ContinuousEvolution{P}(r, (zero(t), t), h; kw...)
+function ODEEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...) where {P}
+    return ODEEvolution{P}(r, (zero(t), t), h; kw...)
 end
 
 """
-    ContinuousEvolution{P}(r::AbstractRegister, (start, stop), h::AbstractTerm; kw...) where {P <: AbstractFloat}
+    ODEEvolution{P}(r::AbstractRegister, (start, stop), h::AbstractTerm; kw...) where {P <: AbstractFloat}
 
-Create a `ContinuousEvolution` that defines the evolution of a hamiltonian `h` with time dependent parameters
+Create a `ODEEvolution` that defines the evolution of a hamiltonian `h` with time dependent parameters
 to evolve from `start` to `stop` using an ODE solver.
 
 # Arguments
@@ -176,12 +176,12 @@ to evolve from `start` to `stop` using an ODE solver.
 - `abstol`: absolute tolerance, default is 1e-8.
 - `normalize_steps`: steps to run normalization on the state, default is `5`.
 """
-function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P}
+function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P}
     layout = RydbergEmulator.MemoryLayout(r)
     if layout isa RealLayout
         isreal(h) || error("cannot use RealLayout for non-real hamiltonian")
     end
-    options = ContinuousOptions(;kw...)
+    options = ODEOptions(;kw...)
     # we do not convert the tspan to P since
     # the parameter function can relay on higher precision
     # and the performance of that usually doesn't matter
@@ -206,13 +206,13 @@ function ContinuousEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real
         progress_name=options.progress_name,
         progress_steps=options.progress_steps,
     )
-    return ContinuousEvolution{P}(reg, time, eq, ode_prob, options)
+    return ODEEvolution{P}(reg, time, eq, ode_prob, options)
 end
 
-function Base.show(io::IO, mime::MIME"text/plain", prob::ContinuousEvolution{P}) where P
+function Base.show(io::IO, mime::MIME"text/plain", prob::ODEEvolution{P}) where P
     indent = get(io, :indent, 0)
     tab(indent) = " "^indent
-    println(io, tab(indent), "ContinuousEvolution{", P, "}:")
+    println(io, tab(indent), "ODEEvolution{", P, "}:")
     # state info
     print(io, tab(indent), "  reg: ")
     printstyled(io, typeof(prob.reg); color=:green)
@@ -234,7 +234,7 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::ContinuousEvolution{P})
 
     nfs = nfields(prob.options)
     for idx in 1:nfs
-        name = fieldname(ContinuousOptions, idx)
+        name = fieldname(ODEOptions, idx)
         print(io, tab(indent), "    $name: ", repr(getfield(prob.options, idx)))
         if idx != nfs
             println(io)
@@ -242,14 +242,14 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::ContinuousEvolution{P})
     end
 end
 
-function get_integrator(prob::ContinuousEvolution)
+function get_integrator(prob::ODEEvolution)
     return OrdinaryDiffEq.init(
         prob.ode_prob, prob.options.algo;
         reltol=prob.options.reltol, abstol=prob.options.abstol
     )
 end
 
-function emulate_step!(prob::ContinuousEvolution, ret)
+function emulate_step!(prob::ODEEvolution, ret)
     if prob.options.normalize_finally && ret === nothing
         normalize!(prob.reg)
     end
@@ -263,21 +263,21 @@ function emulate_step!(prob::ContinuousEvolution, ret)
     return (;step, reg, clock=ret[1][2])
 end
 
-function Base.iterate(prob::ContinuousEvolution)
+function Base.iterate(prob::ODEEvolution)
     integrator = enumerate(get_integrator(prob))
     ret = iterate(integrator)
     info = emulate_step!(prob, ret)
     return info, (integrator, ret[2])
 end
 
-function Base.iterate(prob::ContinuousEvolution, (integrator, st))
+function Base.iterate(prob::ODEEvolution, (integrator, st))
     ret = iterate(integrator, st)
     info = emulate_step!(prob, ret)
     ret === nothing && return
     return info, (integrator, ret[2])
 end
 
-function RydbergEmulator.emulate!(prob::ContinuousEvolution)
+function RydbergEmulator.emulate!(prob::ODEEvolution)
     for _ in prob; end
     return prob
 end

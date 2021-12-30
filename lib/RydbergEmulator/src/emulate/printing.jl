@@ -1,8 +1,8 @@
 # TODO: use GarishPrint after it gets smarter
-function Base.show(io::IO, mime::MIME"text/plain", prob::DiscreteEvolution{P}) where P
+function Base.show(io::IO, mime::MIME"text/plain", prob::KrylovEvolution{P}) where P
     indent = get(io, :indent, 0)
     tab(indent) = " "^indent
-    println(io, tab(indent), "DiscreteEvolution{", P, "}:")
+    println(io, tab(indent), "KrylovEvolution{", P, "}:")
     
     # state info
     print(io, tab(indent), "  reg: ")

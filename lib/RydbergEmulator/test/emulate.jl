@@ -49,7 +49,7 @@ function naive_discrete_evolve(P, reg, ts, hs)
     return st
 end
 
-@testset "DiscreteEvolution" begin
+@testset "KrylovEvolution" begin
     atoms = square_lattice(10, 0.8)
     space = blockade_subspace(atoms)
 
@@ -59,7 +59,7 @@ end
         durations = rand(5)
         hs = [rydberg_h(atoms; Ω, Δ) for (Ω, Δ) in zip(rand(5), rand(5))]
 
-        evolve = DiscreteEvolution{P}(copy(reg), durations, hs)
+        evolve = KrylovEvolution{P}(copy(reg), durations, hs)
         @test eltype(evolve.durations) === P
         @test eltype(evolve.cache.H) === P
         @test eltype(evolve.reg.state) === Complex{P}
@@ -72,7 +72,7 @@ end
         P = typeof(total_time)
         h = rydberg_h(atoms; Ω=sin, Δ=cos)
         durations, hs = trotterize(total_time, h, nsteps=10)
-        evolve = DiscreteEvolution(durations, hs)
+        evolve = KrylovEvolution(durations, hs)
 
         @test eltype(durations) == P
         @test evolve.reg isa ArrayReg
@@ -90,7 +90,7 @@ end
         P = typeof(total_time)
         h = rydberg_h(atoms; Ω=sin, Δ=cos)
         durations, hs = trotterize(total_time, h, nsteps=10)
-        evolve = DiscreteEvolution(durations, hs)
+        evolve = KrylovEvolution(durations, hs)
         observables = Float64[]
         for (_, reg, _, _) in evolve
             push!(observables, expect(put(10, 1=>X), reg))

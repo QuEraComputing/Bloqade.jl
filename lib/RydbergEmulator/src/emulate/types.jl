@@ -1,5 +1,5 @@
 """
-    DiscreteEmulationCache{C}
+    KrylovEmulationCache{C}
 
 Cache type for the discrete emulation, type variable `C` is the actual
 matrix type for the hamiltonian storage.
@@ -11,16 +11,16 @@ we can re-use the sparse matrix generated for the first hamiltonian again via
 [`update_term!`](@ref) in the following calculation to reduce the memory usage
 and speed up the emulation.
 """
-struct DiscreteEmulationCache{Tv, Ti, S <: AbstractSparseMatrix{Tv, Ti}}
+struct KrylovEmulationCache{Tv, Ti, S <: AbstractSparseMatrix{Tv, Ti}}
     H::S
 end
 
 
 # TODO: calculate the nnz colptr and rowval directly
 """
-    DiscreteEmulationCache{Tv, Ti}(hs[, s::AbstractSpace=fullspace])
+    KrylovEmulationCache{Tv, Ti}(hs[, s::AbstractSpace=fullspace])
 
-Create a `DiscreteEmulationCache`.
+Create a `KrylovEmulationCache`.
 
 # Arguments
 
@@ -28,15 +28,15 @@ Create a `DiscreteEmulationCache`.
 - `hs`: a Hamiltonian expression term or a list of Hamiltonians.
 - `s`: space type, default is [`fullspace`](@ref).
 """
-function DiscreteEmulationCache{Tv, Ti}(h::AbstractTerm, s::AbstractSpace) where {Tv, Ti}
+function KrylovEmulationCache{Tv, Ti}(h::AbstractTerm, s::AbstractSpace) where {Tv, Ti}
     is_time_dependent(h) && throw(ArgumentError("expect a time independent hamiltonian"))
-    return DiscreteEmulationCache(SparseMatrixCSC{Tv, Ti}(h, s))
+    return KrylovEmulationCache(SparseMatrixCSC{Tv, Ti}(h, s))
 end
 
-function DiscreteEmulationCache{Tv, Ti}(hs::Vector{<:AbstractTerm}, s::AbstractSpace) where {Tv, Ti}
+function KrylovEmulationCache{Tv, Ti}(hs::Vector{<:AbstractTerm}, s::AbstractSpace) where {Tv, Ti}
     # use the one that has less zero term values
     _, idx = findmin(map(num_zero_term, hs))
-    DiscreteEmulationCache{Tv, Ti}(hs[idx], s)
+    KrylovEmulationCache{Tv, Ti}(hs[idx], s)
 end
 
 abstract type EmulationOptions end
@@ -49,7 +49,7 @@ abstract type EmulationOptions end
     normalize_finally::Bool = true
 end
 
-struct DiscreteEvolution{P, S, T <: Real, H <: AbstractTerm, Cache <: DiscreteEmulationCache}
+struct KrylovEvolution{P, S, T <: Real, H <: AbstractTerm, Cache <: KrylovEmulationCache}
     reg::S
     durations::Vector{T}
     hs::Vector{H}
@@ -57,12 +57,12 @@ struct DiscreteEvolution{P, S, T <: Real, H <: AbstractTerm, Cache <: DiscreteEm
     options::DiscreteOptions
 end
 
-Adapt.@adapt_structure DiscreteEvolution
+Adapt.@adapt_structure KrylovEvolution
 
 """
-    DiscreteEvolution{P}(register, durations, hs; kw...)
+    KrylovEvolution{P}(register, durations, hs; kw...)
 
-Create a `DiscreteEvolution` object that emulates a list of hamiltonians at discrete time steps
+Create a `KrylovEvolution` object that emulates a list of hamiltonians at discrete time steps
 using Krylov subspace method, or trotterize a continuous function with `dt` then run the
 trotterize integrator on it.
 
@@ -77,7 +77,7 @@ trotterize integrator on it.
 
 # Keyword Arguments
 
-- `cache`: discrete solver cache, see also [`DiscreteEmulationCache`](@ref).
+- `cache`: discrete solver cache, see also [`KrylovEmulationCache`](@ref).
 - `normalize_step::Int`: run normalization per `normalize_step`, default is `5`.
 - `normalize_finally::Bool`: normalize the state after the entire emulation ends, default is `true`.
 - `progress::Bool`: show progress bar, default is `false`.
@@ -86,10 +86,10 @@ trotterize integrator on it.
 - `dt::Real`: the time step of trotterization if `ts` is specified as
     a `Real` number and `hs` is a time dependent hamiltonian.
 """
-function DiscreteEvolution{P}(
+function KrylovEvolution{P}(
     r::Yao.AbstractRegister, durations::Vector{<:Real}, hs::Vector{<:AbstractTerm};
     index_type::Type=Cint,
-    cache::DiscreteEmulationCache=default_discrete_evolution_cache(P, index_type, r, durations, hs),
+    cache::KrylovEmulationCache=default_discrete_evolution_cache(P, index_type, r, durations, hs),
     kw...) where P
 
     all(hs) do h
@@ -105,15 +105,15 @@ function DiscreteEvolution{P}(
     durations = map(P, durations)
 
     S, T, H, C = typeof(state), eltype(durations), eltype(hs), typeof(cache)
-    return DiscreteEvolution{P, S, T, H, C}(state, durations, hs, cache, options)
+    return KrylovEvolution{P, S, T, H, C}(state, durations, hs, cache, options)
 end
 
-function DiscreteEvolution(durations::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kw...)
-    return DiscreteEvolution(zero_state(Complex{eltype(durations)}, nsites(first(hs))), durations, hs; kw...)
+function KrylovEvolution(durations::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kw...)
+    return KrylovEvolution(zero_state(Complex{eltype(durations)}, nsites(first(hs))), durations, hs; kw...)
 end
 
-function DiscreteEvolution(r::Yao.AbstractRegister, durations::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kw...)
-    return DiscreteEvolution{real(Yao.datatype(r))}(r, durations, hs; kw...)
+function KrylovEvolution(r::Yao.AbstractRegister, durations::Vector{<:Real}, hs::Vector{<:AbstractTerm}; kw...)
+    return KrylovEvolution{real(Yao.datatype(r))}(r, durations, hs; kw...)
 end
 
 function default_discrete_evolution_cache(::Type{P}, ::Type{index_type}, r, durations, hs) where {P, index_type}
@@ -123,5 +123,5 @@ function default_discrete_evolution_cache(::Type{P}, ::Type{index_type}, r, dura
         all(isreal, hs)
     end
     T = all_real ? P : Complex{P}
-    return DiscreteEmulationCache{T, index_type}(hs, get_space(r))
+    return KrylovEmulationCache{T, index_type}(hs, get_space(r))
 end

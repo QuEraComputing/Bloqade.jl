@@ -1,4 +1,4 @@
-Base.@propagate_inbounds function Base.iterate(prob::DiscreteEvolution, step::Int=1)
+Base.@propagate_inbounds function Base.iterate(prob::KrylovEvolution, step::Int=1)
     step > length(prob.durations) && return
     emulate_step!(prob, step)
     info = (step, prob.reg, duration=prob.durations[step], hamiltonian=prob.hs[step])
@@ -6,12 +6,12 @@ Base.@propagate_inbounds function Base.iterate(prob::DiscreteEvolution, step::In
 end
 
 """
-    emulate_step!(prob::DiscreteEvolution, step::Int=1)
+    emulate_step!(prob::KrylovEvolution, step::Int=1)
 
 Run single step evolution at given `step` index for a discrete evolution
 (Krylov-based).
 """
-Base.@propagate_inbounds function emulate_step!(prob::DiscreteEvolution, step::Int=1)
+Base.@propagate_inbounds function emulate_step!(prob::KrylovEvolution, step::Int=1)
     reg = prob.reg
     duration = prob.durations[step]
     h = prob.hs[step]
@@ -31,7 +31,7 @@ end
     emulate!(evolution)
 
 Run emulation on given evolution object.
-See also [`DiscreteEvolution`](@ref), or [`ContinousEvolution`](@ref).
+See also [`KrylovEvolution`](@ref), or [`ContinousEvolution`](@ref).
 
 # Arguments
 
@@ -39,7 +39,7 @@ See also [`DiscreteEvolution`](@ref), or [`ContinousEvolution`](@ref).
 """
 function emulate! end
 
-function emulate!(prob::DiscreteEvolution)
+function emulate!(prob::KrylovEvolution)
     niterations = length(prob.durations)
     @inbounds if prob.options.progress
         ProgressLogging.progress() do id

@@ -10,7 +10,7 @@ end
 
 @testset "test measurement" begin
     Random.seed!(8)
-    params = randn(10)
+    params = rand(10)
     ts = params[1:2:end]
     ϕs = params[2:2:end]
     hs = simple_rydberg.(nv(test_graph), ϕs)

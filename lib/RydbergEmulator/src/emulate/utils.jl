@@ -6,7 +6,7 @@ Adapt.adapt_storage(::PrecisionAdaptor{P}, x::Complex) where P = Complex{P}(x)
 Adapt.adapt_storage(::PrecisionAdaptor{P}, x::Array) where P = convert(Array{P}, x)
 Adapt.adapt_storage(::PrecisionAdaptor{P}, x::Array{<:Complex}) where P = convert(Array{Complex{P}}, x)
 
-function storage_size(cache::DiscreteEmulationCache)
+function storage_size(cache::KrylovEmulationCache)
     return storage_size(cache.H)
 end
 

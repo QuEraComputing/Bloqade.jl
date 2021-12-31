@@ -34,7 +34,7 @@ using LinearAlgebra
     end
 
     for space in [FullSpace(), blockade_subspace(atoms)]
-        cache = DiscreteEmulationCache{Float64, Cint}(h, FullSpace())
+        cache = KrylovEmulationCache{Float64, Cint}(h, FullSpace())
         @test nnz(cache.H) == nnz(SparseMatrixCSC(h))
         @test typeof(cache.H) === SparseMatrixCSC{Float64, Cint}
     end

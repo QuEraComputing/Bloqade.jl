@@ -16,7 +16,7 @@ using LinearAlgebra
 using CUDA: CUBLAS
 using CUDA: GPUArrays
 using CUDA.GPUArrays: AbstractGPUVecOrMat, AbstractGPUArray, AbstractGPUVector
-using RydbergEmulator: AbstractTerm, DiscreteEmulationCache, PrecisionAdaptor
+using RydbergEmulator: AbstractTerm, KrylovEmulationCache, PrecisionAdaptor
 using ContinuousEmulator: EquationCache, ContinuousOptions
 
 @reexport using RydbergEmulator

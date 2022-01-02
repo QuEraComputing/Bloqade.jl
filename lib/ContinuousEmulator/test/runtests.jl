@@ -14,23 +14,25 @@ space = blockade_subspace(atoms, 1.5)
     dt = 1e-5
     @testset "subspace" begin
         ref = zero_state(space)
-        emulate!(ref, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
+        discrete = KrylovEvolution(ref, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
+        emulate!(discrete)
 
         reg = zero_state(space, ComplexLayout())
-        emulate!(reg, 0.2, h)
+        continuous = ODEEvolution(reg, 0.2, h)
+        emulate!(continuous)
         @test reg ≈ ref atol=1e-4
 
         reg = zero_state(space, RealLayout())
-        emulate!(reg, 0.2, h)
+        emulate!(ODEEvolution(reg, 0.2, h))
         @test reg ≈ ref atol=1e-4
     end
 
     @testset "fullspace" begin
         ref = zero_state(5)
-        emulate!(ref, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
+        emulate!(KrylovEvolution(ref, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2)))
 
         reg = zero_state(5)
-        emulate!(reg, 0.2, h)
+        emulate!(ODEEvolution(reg, 0.2, h))
         @test ref ≈ reg atol=1e-4
     end
 end

@@ -1,0 +1,7 @@
+name = "EaRydPlots"
+uuid = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2f8"
+version = "0.14.6"
+
+[deps]
+Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
+RydbergEmulator = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"

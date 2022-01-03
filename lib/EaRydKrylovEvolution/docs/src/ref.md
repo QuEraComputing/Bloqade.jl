@@ -1,5 +1,5 @@
 # References
 
 ```@autodocs
-Modules = [EaRydKrylovEvolution]
+Modules = [EaRydCore]
 ```

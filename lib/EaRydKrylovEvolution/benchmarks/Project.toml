@@ -2,7 +2,7 @@
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 ProgressLogging = "33c8b6b6-d38a-422a-b730-caa89a2f386c"
-EaRydKrylovEvolution = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
+EaRydCore = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 TerminalLoggers = "5d786b92-1e48-4d6f-9151-6b4477ca9bed"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"

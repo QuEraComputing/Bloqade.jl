@@ -7,7 +7,7 @@ The QuEra Rydberg System Emulator.
 If you have already added the private QuEra registry [Miskatonic](https://github.com/happy-Diode/Miskatonic), just type the following in your REPL pkg mode
 
 ```julia
-(pkg)> add EaRydKrylovEvolution
+(pkg)> add EaRydCore
 ```
 
 To install the emulator, you need to add QuEra registry [Miskatonic](https://github.com/happy-Diode/Miskatonic) first, due to the absent of our internal network and authentication infrastructure, to protect QuEra packages, the current process of setting up the registry and internal packages is bit more complicated than the open source

@@ -1,14 +1,14 @@
 # Quick Start
 
 ```@setup example
-using EaRydKrylovEvolution
+using EaRydCore
 ```
 
 Here are some quick example of doing some common tasks. First you need to
 import some functions from this package via
 
 ```julia
-using EaRydKrylovEvolution
+using EaRydCore
 ```
 
 ## Create List of Atom Positions

@@ -1,5 +1,5 @@
 using Test
-using EaRydKrylovEvolution: expmv!
+using EaRydCore: expmv!
 
 @testset "expmv" begin
     N = 400

@@ -5,7 +5,7 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 895e5adc-e161-11ea-0dbf-cd1b5aeb5956
-using EaRydKrylovEvolution, MISExperimentUtils, Yao
+using EaRydCore, MISExperimentUtils, Yao
 
 # ╔═╡ a23a135e-e3d9-11ea-3452-a3cbd8793251
 md"""
@@ -72,10 +72,10 @@ md"# Define register and subspace"
 s = Subspace(graph)
 
 # ╔═╡ 89858392-e167-11ea-08ae-054857d5c56a
-@doc EaRydKrylovEvolution.zero_state
+@doc EaRydCore.zero_state
 
 # ╔═╡ b0878b66-e167-11ea-2f2a-f3fc1cc63e4c
-r = EaRydKrylovEvolution.zero_state(length(atoms), s)
+r = EaRydCore.zero_state(length(atoms), s)
 
 # ╔═╡ 2dbafc84-e169-11ea-263c-9966c6898d64
 -mean_nv(r)
@@ -153,7 +153,7 @@ XTerm(rand(5), rand(5))
 interact_hs = [RydInteract(1.0, atoms) + XTerm(length(atoms), 1.0, rand()) for _ in 1:5]
 
 # ╔═╡ d390cf70-e16a-11ea-1925-53d8432d731e
-rr = EaRydKrylovEvolution.zero_state(length(atoms), s)
+rr = EaRydCore.zero_state(length(atoms), s)
 
 # ╔═╡ f0317df0-e16a-11ea-0599-7d2ff48a6d60
 emulate!(rr, rand(5), interact_hs)

@@ -1,5 +1,5 @@
 using Test
-using EaRydKrylovEvolution
+using EaRydCore
 using Yao
 
 @testset "zero_state" begin

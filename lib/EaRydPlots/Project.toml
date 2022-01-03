@@ -4,4 +4,4 @@ version = "0.14.6"
 
 [deps]
 Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
-EaRydKrylovEvolution = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
+EaRydCore = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"

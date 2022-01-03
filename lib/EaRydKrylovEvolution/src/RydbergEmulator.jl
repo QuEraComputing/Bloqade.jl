@@ -1,4 +1,4 @@
-module EaRydKrylovEvolution
+module EaRydCore
 
 using Random
 using Printf

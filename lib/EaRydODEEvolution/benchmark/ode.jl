@@ -1,7 +1,7 @@
 using CSV
 using DataFrames
 using DelimitedFiles
-using EaRydKrylovEvolution
+using EaRydCore
 using EaRydODEEvolution
 using LinearAlgebra
 using OrdinaryDiffEq
@@ -68,7 +68,7 @@ function run_pulse(L, R, T_index, graph_index, algo)
     graph = unit_disk_graph(atoms, 1.5)
     added_rmr = reduced_mean_rydberg(r, graph; add_vertices=true)
     rmr = reduced_mean_rydberg(r, graph; add_vertices=false)
-    mis = EaRydKrylovEvolution.exact_solve_mis(graph)
+    mis = EaRydCore.exact_solve_mis(graph)
     added_ratio = 1 - added_rmr/mis
     ratio = 1 - rmr/mis
     # save_state(r, L, graph_index, T_index, R)

@@ -1,6 +1,6 @@
 using Plots
 using StatsPlots
-using EaRydKrylovEvolution
+using EaRydCore
 using Yao
 using BenchmarkTools
 using DelimitedFiles

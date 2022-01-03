@@ -1,5 +1,5 @@
 using Graphs
-using EaRydKrylovEvolution
+using EaRydCore
 
 const test_graph = SimpleGraph(5)
 add_edge!(test_graph, 1, 2)

@@ -1,4 +1,4 @@
-using Test, Random, EaRydKrylovEvolution
+using Test, Random, EaRydCore
 using Graphs, Yao, SparseArrays
 using LinearAlgebra
 

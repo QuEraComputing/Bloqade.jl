@@ -1,7 +1,7 @@
 using BenchmarkTools
 using CUDA
 using CUDA.CUSPARSE
-using EaRydKrylovEvolution
+using EaRydCore
 using Graphs
 using SparseArrays
 using Random
@@ -12,7 +12,7 @@ emulate_suite = SUITE["emulate!"] = BenchmarkGroup()
 
 Random.seed!(42)
 n = 20
-atoms = EaRydKrylovEvolution.square_lattice(n, 0.8)
+atoms = EaRydCore.square_lattice(n, 0.8)
 g = unit_disk_graph(atoms)
 s = Subspace(g)
 h = simple_rydberg(n, 2.0)
@@ -29,10 +29,10 @@ Random.seed!(42)
 ts = rand(5)
 hs = simple_rydberg.(n, rand(5))
 cache = EmulatorCache(ts, hs, s);
-emulate_suite["simple_rydberg cpu"] = @benchmarkable emulate!(r, $ts, $hs, $cache) setup=(r = EaRydKrylovEvolution.zero_state($n, $s))
+emulate_suite["simple_rydberg cpu"] = @benchmarkable emulate!(r, $ts, $hs, $cache) setup=(r = EaRydCore.zero_state($n, $s))
 
 if CUDA.functional()
     dhs = cu.(hs)
     dcache = cu(cache)
-    emulate_suite["simple_rydberg cuda"] = @benchmarkable CUDA.@sync(emulate!(r, $ts, $dhs, $dcache)) setup=(r = cu(EaRydKrylovEvolution.zero_state($n, $s)))
+    emulate_suite["simple_rydberg cuda"] = @benchmarkable CUDA.@sync(emulate!(r, $ts, $dhs, $dcache)) setup=(r = cu(EaRydCore.zero_state($n, $s)))
 end

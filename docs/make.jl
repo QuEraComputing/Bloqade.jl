@@ -1,5 +1,5 @@
 using EaRyd
-using EaRydKrylovEvolution
+using EaRydCore
 using EaRydODEEvolution
 using Documenter
 using DocThemeIndigo
@@ -8,7 +8,7 @@ indigo = DocThemeIndigo.install(EaRyd)
 DocMeta.setdocmeta!(EaRyd, :DocTestSetup, :(using EaRyd); recursive=true)
 
 makedocs(;
-    modules=[EaRyd, EaRydKrylovEvolution, EaRydODEEvolution],
+    modules=[EaRyd, EaRydCore, EaRydODEEvolution],
     authors="QuEra Computing Inc.",
     repo="https://github.com/Happy-Diode/EaRyd.jl/blob/{commit}{path}#{line}",
     sitename="EaRyd.jl",

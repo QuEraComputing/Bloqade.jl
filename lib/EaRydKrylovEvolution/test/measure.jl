@@ -1,4 +1,4 @@
-using Test, EaRydKrylovEvolution
+using Test, EaRydCore
 using Random
 using Graphs
 using LinearAlgebra
@@ -16,7 +16,7 @@ end
     hs = simple_rydberg.(nv(test_graph), ϕs)
 
     # prepare a zero state
-    r = EaRydKrylovEvolution.zero_state(test_subspace)
+    r = EaRydCore.zero_state(test_subspace)
     sample1 = measure!(r)
     @test sample1 == zero(BitStr64{5})
     prob = KrylovEvolution(r, ts, hs)

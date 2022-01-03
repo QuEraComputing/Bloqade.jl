@@ -1,6 +1,6 @@
 using Test
 using Random
-using EaRydKrylovEvolution
+using EaRydCore
 using Graphs
 
 @testset "unit_disk" begin

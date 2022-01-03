@@ -1,5 +1,5 @@
 module EaRydPlots
 
-using EaRydKrylovEvolution
+using EaRydCore
 
 end # EaRydPlots

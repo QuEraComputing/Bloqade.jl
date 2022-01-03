@@ -1,5 +1,5 @@
 using SparseArrays
-using EaRydKrylovEvolution
+using EaRydCore
 using BenchmarkTools
 
 atoms = square_lattice(20, 0.8)

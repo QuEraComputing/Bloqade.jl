@@ -2,7 +2,7 @@
 
 module EaRydCUDA
 
-using EaRydKrylovEvolution
+using EaRydCore
 using Yao
 using CUDA
 using CUDA.CUSPARSE
@@ -16,7 +16,7 @@ using LinearAlgebra
 using CUDA: CUBLAS
 using CUDA: GPUArrays
 using CUDA.GPUArrays: AbstractGPUVecOrMat, AbstractGPUArray, AbstractGPUVector
-using EaRydKrylovEvolution: AbstractTerm, KrylovEmulationCache, PrecisionAdaptor
+using EaRydCore: AbstractTerm, KrylovEmulationCache, PrecisionAdaptor
 using EaRydODEEvolution: EquationCache, ContinuousOptions
 
 export cpu

@@ -1,7 +1,7 @@
 using Test
 using Configurations
 using OrderedCollections
-using EaRydKrylovEvolution
+using EaRydCore
 
 atoms = square_lattice(5, 0.3)
 write_atoms("test.atoms", atoms)

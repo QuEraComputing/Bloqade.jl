@@ -1,6 +1,6 @@
 using Test
 using Random, Yao
-using EaRydKrylovEvolution
+using EaRydCore
 using Graphs
 using SparseArrays
 

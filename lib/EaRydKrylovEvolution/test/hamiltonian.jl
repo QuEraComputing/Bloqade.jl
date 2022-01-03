@@ -1,7 +1,7 @@
 using Test
 using Adapt
 using Random
-using EaRydKrylovEvolution
+using EaRydCore
 using Graphs: SimpleGraph, add_edge!
 using SparseArrays
 using OrderedCollections
@@ -12,7 +12,7 @@ using Unitful
 using Yao
 using Unitful: μm, mm, μs, ns, MHz, GHz
 using Yao.ConstGate: P0, P1
-using EaRydKrylovEvolution: Negative, PrecisionAdaptor, sparse_skeleton_csc
+using EaRydCore: Negative, PrecisionAdaptor, sparse_skeleton_csc
 
 Random.seed!(1234)
 
@@ -21,7 +21,7 @@ function rydinteract(atoms, C)
     terms = []
     for i in 1:n, j in 1:n
         if i != j
-            push!(terms, C/(2 * EaRydKrylovEvolution.distance(atoms[i], atoms[j])^6) * kron(n, i=>P1, j=>P1))
+            push!(terms, C/(2 * EaRydCore.distance(atoms[i], atoms[j])^6) * kron(n, i=>P1, j=>P1))
         end
     end
     return sum(terms)
@@ -244,7 +244,7 @@ end
 
 
 @testset "rydberg interact term" begin
-    atoms = EaRydKrylovEvolution.square_lattice(4, 0.8)
+    atoms = EaRydCore.square_lattice(4, 0.8)
     H = mat(rydinteract(atoms, 2.0))
     h = RydInteract(atoms, 2.0)
     @test SparseMatrixCSC(h) ≈ H
@@ -255,7 +255,7 @@ end
 end
 
 @testset "composite term" begin
-    atoms = EaRydKrylovEvolution.square_lattice(5, 0.8)
+    atoms = EaRydCore.square_lattice(5, 0.8)
     h = XTerm(5, 4.0) + RydInteract(atoms, 2.0) + ZTerm(5, 1.0)
     H = rydinteract(atoms, 2.0) +
         sum([1.0 * kron(5, k=>Yao.Z) for k in 1:5]) +
@@ -320,7 +320,7 @@ end
 end
 
 @testset "redberg interact term subspace" begin
-    atoms = EaRydKrylovEvolution.square_lattice(4, 0.8)
+    atoms = EaRydCore.square_lattice(4, 0.8)
     s = blockade_subspace(atoms, 1.5)
     H = mat(rydinteract(atoms, 2.0));
     h = RydInteract(atoms, 2.0)
@@ -330,11 +330,11 @@ end
 end
 
 @testset "utils" begin
-    @test EaRydKrylovEvolution.to_tuple((1, 2, 3)) == (1, 2, 3)
-    @test EaRydKrylovEvolution.to_tuple([1, 2, 3]) == (1, 2, 3)
-    @test EaRydKrylovEvolution.getscalarmaybe([1, 2, 3], 2) == 2
-    @test EaRydKrylovEvolution.getscalarmaybe(3.21, 5) == 3.21
-    @test EaRydKrylovEvolution.getscalarmaybe(nothing, 5) == 0
+    @test EaRydCore.to_tuple((1, 2, 3)) == (1, 2, 3)
+    @test EaRydCore.to_tuple([1, 2, 3]) == (1, 2, 3)
+    @test EaRydCore.getscalarmaybe([1, 2, 3], 2) == 2
+    @test EaRydCore.getscalarmaybe(3.21, 5) == 3.21
+    @test EaRydCore.getscalarmaybe(nothing, 5) == 0
     atoms = rand_atoms(5, 0.3)
     h1 = rydberg_h(atoms, 1.0, 2.21, 3.32, 2.22)
     h2 = RydInteract(atoms, 1.0) + XTerm(5, 2.21, 3.32) - NTerm(5, 2.22)

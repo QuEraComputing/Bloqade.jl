@@ -2,7 +2,7 @@ module EaRyd
 
 using Reexport
 
-@reexport using EaRydKrylovEvolution
+@reexport using EaRydCore
 @reexport using EaRydODEEvolution
 @reexport using Measurements: ±, Measurement
 @reexport using EaRydLattices: EaRydLattices,

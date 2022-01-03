@@ -9,10 +9,10 @@ using SparseArrays
 using LinearAlgebra
 using Configurations
 using DiffEqCallbacks
-using EaRydKrylovEvolution: AbstractTerm, AbstractSpace, EmulationOptions, storage_size, MemoryLayout, RealLayout, ComplexLayout
+using EaRydCore: AbstractTerm, AbstractSpace, EmulationOptions, storage_size, MemoryLayout, RealLayout, ComplexLayout
 using OrdinaryDiffEq: OrdinaryDiffEq, Vern8, ODEProblem
 
-@reexport using EaRydKrylovEvolution
+@reexport using EaRydCore
 export ShordingerEquation, ODEEvolution
 
 struct EquationCache{H, Layout, S}
@@ -47,7 +47,7 @@ end
 Adapt.@adapt_structure ShordingerEquation
 Adapt.@adapt_structure EquationCache
 
-EaRydKrylovEvolution.storage_size(S::EquationCache) = storage_size(S.hamiltonian) + storage_size(S.state)
+EaRydCore.storage_size(S::EquationCache) = storage_size(S.hamiltonian) + storage_size(S.state)
 
 function Base.show(io::IO, m::MIME"text/plain", eq::ShordingerEquation)
     indent = get(io, :indent, 0)
@@ -177,7 +177,7 @@ to evolve from `start` to `stop` using an ODE solver.
 - `normalize_steps`: steps to run normalization on the state, default is `5`.
 """
 function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P}
-    layout = EaRydKrylovEvolution.MemoryLayout(r)
+    layout = EaRydCore.MemoryLayout(r)
     if layout isa RealLayout
         isreal(h) || error("cannot use RealLayout for non-real hamiltonian")
     end
@@ -185,11 +185,11 @@ function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Rea
     # we do not convert the tspan to P since
     # the parameter function can relay on higher precision
     # and the performance of that usually doesn't matter
-    start = EaRydKrylovEvolution.default_unit(μs, start)
-    stop = EaRydKrylovEvolution.default_unit(μs, stop)
+    start = EaRydCore.default_unit(μs, start)
+    stop = EaRydCore.default_unit(μs, stop)
     time = (start, stop)
-    reg = adapt(EaRydKrylovEvolution.PrecisionAdaptor(P), r)
-    space = EaRydKrylovEvolution.get_space(r)
+    reg = adapt(EaRydCore.PrecisionAdaptor(P), r)
+    space = EaRydCore.get_space(r)
 
     # allocate cache
     # NOTE: on CPU we can do mixed type spmv
@@ -218,7 +218,7 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::ODEEvolution{P}) where 
     printstyled(io, typeof(prob.reg); color=:green)
     println(io)
     print(io, tab(indent), "  reg storage: ")
-    printstyled(io, Base.format_bytes(EaRydKrylovEvolution.storage_size(prob.reg)); color=:yellow)
+    printstyled(io, Base.format_bytes(EaRydCore.storage_size(prob.reg)); color=:yellow)
     println(io)
     println(io)
 
@@ -277,7 +277,7 @@ function Base.iterate(prob::ODEEvolution, (integrator, st))
     return info, (integrator, ret[2])
 end
 
-function EaRydKrylovEvolution.emulate!(prob::ODEEvolution)
+function EaRydCore.emulate!(prob::ODEEvolution)
     for _ in prob; end
     return prob
 end

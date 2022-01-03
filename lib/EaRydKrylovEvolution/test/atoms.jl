@@ -1,6 +1,6 @@
 using Test
 using Graphs
-using EaRydKrylovEvolution
+using EaRydCore
 using Random
 
 @testset "interfaces" begin

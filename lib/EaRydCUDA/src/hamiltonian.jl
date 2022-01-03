@@ -1,8 +1,8 @@
-function EaRydKrylovEvolution.storage_size(S::CuSparseMatrixCSR)
+function EaRydCore.storage_size(S::CuSparseMatrixCSR)
     sizeof(S.rowPtr) + sizeof(S.colVal) + sizeof(S.nzVal)
 end
 
-function EaRydKrylovEvolution.update_term!(dst::CuSparseMatrixCSR, t::AbstractTerm, s::Subspace)
+function EaRydCore.update_term!(dst::CuSparseMatrixCSR, t::AbstractTerm, s::Subspace)
     update_term!(dst, t, cu(s)) # copy to device, if subspace is given on CPU
 end
 
@@ -33,7 +33,7 @@ function update_term_kernel(H, t, subspace_v)
         lhs = subspace_v[col]
         rhs = subspace_v[row]
 
-        H.nzVal[k] = EaRydKrylovEvolution.term_value(t, lhs, rhs, col, row)
+        H.nzVal[k] = EaRydCore.term_value(t, lhs, rhs, col, row)
     end
     return
 end
@@ -44,18 +44,18 @@ function update_term_kernel(H, t)
     @inbounds for k in H.rowPtr[row]:H.rowPtr[row+1]-1
         col = H.colVal[k]
 
-        H.nzVal[k] = EaRydKrylovEvolution.term_value(t, col-1, row-1, col, row)
+        H.nzVal[k] = EaRydCore.term_value(t, col-1, row-1, col, row)
     end
     return
 end
 
-function EaRydKrylovEvolution.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm, ::FullSpace)
+function EaRydCore.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm, ::FullSpace)
     threads, nblocks = thread_layout(H)
     @cuda threads=threads blocks=nblocks update_term_kernel(H, t)
     return H
 end
 
-function EaRydKrylovEvolution.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm, s::Subspace{<:CuArray})
+function EaRydCore.update_term!(H::CuSparseMatrixCSR, t::AbstractTerm, s::Subspace{<:CuArray})
     LinearAlgebra.checksquare(H) == length(s) || error("given matrix size does not match subspace size")
     threads, nblocks = thread_layout(H)
     @cuda threads=threads blocks=nblocks update_term_kernel(H, t, s.subspace_v)

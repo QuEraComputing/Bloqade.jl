@@ -3,16 +3,16 @@ const CuRegister = Union{Yao.ArrayReg{1,State},RydbergReg{Layout,State}} where {
 function EaRydODEEvolution.ContinuousEvolution{P}(
     r::CuRegister, (start, stop)::Tuple{<:Real,<:Real}, h::AbstractTerm; kw...
 ) where {P<:AbstractFloat}
-    layout = EaRydKrylovEvolution.MemoryLayout(r)
+    layout = EaRydCore.MemoryLayout(r)
     if layout isa RealLayout
         isreal(h) || error("cannot use RealLayout for non-real hamiltonian")
     end
     options = ContinuousOptions(; kw...)
-    start = EaRydKrylovEvolution.default_unit(μs, start)
-    stop = EaRydKrylovEvolution.default_unit(μs, stop)
+    start = EaRydCore.default_unit(μs, start)
+    stop = EaRydCore.default_unit(μs, stop)
     time = (start, stop)
-    reg = adapt(EaRydKrylovEvolution.PrecisionAdaptor(P), r)
-    space = EaRydKrylovEvolution.get_space(r)
+    reg = adapt(EaRydCore.PrecisionAdaptor(P), r)
+    space = EaRydCore.get_space(r)
 
     if layout isa RealLayout && isreal(h)
         T = P

@@ -1,6 +1,6 @@
 using Test
-using EaRydKrylovEvolution
-using EaRydKrylovEvolution: emulate_routine!, nsites, get_space, PrecisionAdaptor, adapt
+using EaRydCore
+using EaRydCore: emulate_routine!, nsites, get_space, PrecisionAdaptor, adapt
 using SparseArrays
 using LinearAlgebra
 

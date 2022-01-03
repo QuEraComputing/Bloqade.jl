@@ -1,5 +1,5 @@
 using BenchmarkTools
-using EaRydKrylovEvolution
+using EaRydCore
 using SparseArrays
 using Graphs
 using Random
@@ -8,7 +8,7 @@ using CUDA.CUSPARSE
 using UnicodePlots
 
 N = 20
-atoms = EaRydKrylovEvolution.square_lattice(N, 0.8)
+atoms = EaRydCore.square_lattice(N, 0.8)
 h = XTerm(N, 0.4) + ZTerm(N, 0.3)
 H = SparseMatrixCSC{ComplexF32}(h)
 dH = CuSparseMatrixCSR(H)

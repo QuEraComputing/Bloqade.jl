@@ -1,4 +1,4 @@
-using EaRydKrylovEvolution
+using EaRydCore
 using Test
 using Random
 Random.seed!(42)
@@ -33,7 +33,7 @@ end
 end
 
 @testset "utils" begin
-    @test_throws ErrorException EaRydKrylovEvolution.unsafe_log2i(2.2)
+    @test_throws ErrorException EaRydCore.unsafe_log2i(2.2)
 end
 
 @testset "serialize" begin

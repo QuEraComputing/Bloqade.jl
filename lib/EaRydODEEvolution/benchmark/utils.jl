@@ -1,7 +1,7 @@
 using CSV
 using DataFrames
 using DelimitedFiles
-using EaRydKrylovEvolution
+using EaRydCore
 using EaRydODEEvolution
 
 function save_state(r::RydbergReg, L, graph_index, T_index, R)

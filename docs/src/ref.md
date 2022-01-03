@@ -6,10 +6,10 @@
 Modules = [EaRyd]
 ```
 
-## EaRydKrylovEvolution
+## EaRydCore
 
 ```@autodocs
-Modules = [EaRydKrylovEvolution]
+Modules = [EaRydCore]
 ```
 
 ## EaRydODEEvolution

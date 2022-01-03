@@ -1,18 +1,18 @@
 using Test
-using EaRydKrylovEvolution
+using EaRydCore
 using LinearAlgebra
 using Random
 using BitBasis
 using Yao
 using Graphs
-using EaRydKrylovEvolution: add_vertices!, add_random_vertices
+using EaRydCore: add_vertices!, add_random_vertices
 
 if !isdefined(@__MODULE__, :test_graph)
     include("utils.jl")
 end
 
 @testset "loss functions" begin
-    constraint_r = EaRydKrylovEvolution.zero_state(test_subspace)
+    constraint_r = EaRydCore.zero_state(test_subspace)
     fullspace_r = Yao.zero_state(5)
 
     for loss_fn in [mean_rydberg, x->gibbs_loss(x, 0.3)]
@@ -29,12 +29,12 @@ atoms = RydAtom.([(0.0, 1.0), (1.0, 0.), (2.0, 0.0),
 graph = unit_disk_graph(atoms, 1.5)
 config = [1, 1, 1, 0, 1, 1]
 
-@test EaRydKrylovEvolution.num_mis_violation(config, graph, 1) == 2
-@test EaRydKrylovEvolution.num_mis_violation(config, graph, 2) == 2
-@test EaRydKrylovEvolution.num_mis_violation(config, graph, 3) == 1
-@test EaRydKrylovEvolution.num_mis_violation(config, graph, 4) == 0
-@test EaRydKrylovEvolution.num_mis_violation(config, graph, 5) == 2
-@test EaRydKrylovEvolution.num_mis_violation(config, graph, 6) == 1
+@test EaRydCore.num_mis_violation(config, graph, 1) == 2
+@test EaRydCore.num_mis_violation(config, graph, 2) == 2
+@test EaRydCore.num_mis_violation(config, graph, 3) == 1
+@test EaRydCore.num_mis_violation(config, graph, 4) == 0
+@test EaRydCore.num_mis_violation(config, graph, 5) == 2
+@test EaRydCore.num_mis_violation(config, graph, 6) == 1
 
 @test !is_independent_set(config, graph)
 to_independent_set!(config, graph)
@@ -42,7 +42,7 @@ to_independent_set!(config, graph)
 
 
 # config = bitarray(36, length(atoms))
-# EaRydKrylovEvolution.to_independent_set!(config, graph)
+# EaRydCore.to_independent_set!(config, graph)
 
 # space = independent_set_subspace(graph)
 # raw_state = zeros(ComplexF64, length(space))

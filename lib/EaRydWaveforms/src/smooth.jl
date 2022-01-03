@@ -69,7 +69,7 @@ function smooth end
 
 # forward waveform objects
 function smooth(kernel, wf::Waveform{<:PiecewiseLinear}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))
-    return Waveform(smooth(kernel, wf.f; edge_pad_size, kernel_radius), wf.interval)
+    return Waveform(smooth(kernel, wf.f; edge_pad_size, kernel_radius), wf.duration)
 end
 
 function smooth(wf::Waveform{<:PiecewiseLinear}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))

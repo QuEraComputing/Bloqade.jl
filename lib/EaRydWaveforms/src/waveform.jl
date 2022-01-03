@@ -1,38 +1,46 @@
 using Intervals
 
-struct Waveform{F, T <: Interval{<:Real, Closed, Closed}}
+struct Waveform{F, T <: Real}
     f::F
-    interval::T
+    duration::T
 end
 
-Waveform(f; start::Real=0, stop::Real) = Waveform(f, start..stop)
-Base.eltype(wf::Waveform) = eltype(wf.interval)
+Waveform(f; duration::Real) = Waveform(f, duration)
+Base.eltype(wf::Waveform) = typeof(wf.duration)
 
 function Base.getindex(wf::Waveform, slice::Interval{<:Real, Closed, Closed})
-    issubset(slice, wf.interval) || throw(ArgumentError("slice is not in $(wf.interval) range, got $slice"))
-    return Waveform(wf.f, slice)
+    issubset(slice, 0..wf.duration) || throw(ArgumentError("slice is not in $(wf.duration) range, got $slice"))
+    return Waveform(slice.last - slice.first) do t
+        wf(t + slice.first)
+    end
 end
 
-function (wf::Waveform)(t::Real)
-    t in wf.interval || throw(ArgumentError("t is not in $(wf.interval) range, got $t"))
-    return wf.f(t)
+function (wf::Waveform)(t::Real, offset::Real=zero(t))
+    t - offset ≤ wf.duration || throw(ArgumentError(
+        "t is not in range, expect $(offset) ≤ t ≤ $(wf.duration + offset), got $t")
+    )
+    return wf.f(t - offset)
 end
 
-function sample_clock(wf::Waveform, dt::Real=1e-3)
-    return wf.interval.first:dt:wf.interval.last
+function sample_clock(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-3)
+    return offset:dt:wf.duration+offset
 end
 
-function sample_values(wf::Waveform, dt::Real=1e-3)
-    return [wf(t) for t in sample_clock(wf, dt)]
+function sample_values(wf::Waveform, clocks; offset::Real=zero(eltype(wf)))
+    return [wf(t, offset) for t in clocks]
 end
 
-Base.show(io::IO, wf::Waveform) = print(io, "Waveform(", wf.f, ", ", wf.interval, ")")
+function sample_values(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-3)
+    return sample_values(wf, sample_clock(wf; offset, dt))
+end
+
+Base.show(io::IO, wf::Waveform) = print(io, "Waveform(", wf.f, ", ", wf.duration, ")")
 
 function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
-    xs = sample_clock(wf, 1e-3)
+    clocks = sample_clock(wf)
     plt = lineplot(
-        xs, sample_values(wf);
-        title="Waveform{_, $(eltype(wf))",
+        clocks, sample_values(wf, clocks);
+        title="Waveform{_, $(eltype(wf))}",
         # TODO: decide the unit?
         xlabel="clock (μs)",
         ylabel="value (rad/µs)",
@@ -41,51 +49,54 @@ function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
     return show(io, mime, plt)
 end
 
-function assert_interval_equal(lhs::Waveform, rhs::Waveform)
-    lhs.interval == rhs.interval ||
-        throw(ArgumentError("waveforms intervals are different cannot add them"))
+function assert_duration_equal(lhs::Waveform, rhs::Waveform)
+    lhs.duration == rhs.duration ||
+        throw(ArgumentError("waveforms durations are different cannot add them"))
 end
 
 function Base.:+(lhs::Waveform, rhs::Waveform)
-    assert_interval_equal(lhs, rhs)
-    return Waveform(lhs.interval) do t
+    assert_duration_equal(lhs, rhs)
+    return Waveform(lhs.duration) do t
         lhs.f(t) + rhs.f(t)
     end
 end
 
 function Base.:-(lhs::Waveform, rhs::Waveform)
-    assert_interval_equal(lhs, rhs)
-    return Waveform(lhs.interval) do t
+    assert_duration_equal(lhs, rhs)
+    return Waveform(lhs.duration) do t
         lhs.f(t) - rhs.f(t)
     end
 end
 
 function Base.:-(wf::Waveform)
-    return Waveform(wf.interval) do t
+    return Waveform(wf.duration) do t
         -wf.f(t)
     end
 end
 
-function append(wfs::Waveform...)
-    last = wfs[1].interval.last
-    checkpoints = Vector{typeof(last)}(undef, length(wfs))
-    offsets = Vector{typeof(last)}(undef, length(wfs))
+"""
+    append(wf::Waveform, wfs::Waveform...)
 
-    checkpoints[1] = wfs[1].interval.last
-    offsets[1] = 0
-    @inbounds for idx in 2:length(wfs)
-        last += span(wfs[idx].interval)
-        checkpoints[idx] = last
-        offsets[idx] = wfs[idx-1].interval.last - wfs[idx].interval.first
+Append other waveforms to `wf` on time axis.
+"""
+function append(wf::Waveform, wfs::Waveform...)
+    duration = wf.duration + sum(x->x.duration, wfs)
+    offsets = Vector{typeof(duration)}(undef, length(wfs))
+
+    clock = wf.duration
+    @inbounds for (idx, wf) in enumerate(wfs)
+        offsets[idx] = clock
+        clock += wf.duration
     end
-    interval = Interval{Closed, Closed}(wfs[1].interval.first, last)
 
-    return Waveform(interval) do t
+    return Waveform(duration) do t
+        zero(wf.duration) ≤ t ≤ wf.duration && return wf(t)
+
         idx = 1
-        while idx ≤ length(wfs) && t > checkpoints[idx]
+        while idx < length(wfs) && t > offsets[idx]
             idx += 1
         end
-        return wfs[idx].f(t - offsets[idx])
+        return wfs[idx](t, offsets[idx])
     end
 end
 
@@ -112,37 +123,36 @@ end
 (f::PiecewiseLinear)(t::Real) = f.interp(t)
 
 function piecewise_linear(;clocks::Vector{<:Real}, values::Vector{<:Real})
-    return Waveform(PiecewiseLinear(clocks, values), first(clocks)..last(clocks))
+    iszero(first(clocks)) || throw(ArgumentError("the first clock time should be zero"))
+    return Waveform(PiecewiseLinear(clocks, values), last(clocks))
 end
 
 function piecewise_constant(;
         clocks::Vector{<:Real}, values::Vector{<:Real},
-        start::Real=first(clocks),
-        stop::Real=last(clocks),
+        duration::Real=last(clocks),
     )
     assert_clocks(clocks)
-    return Waveform(start..stop) do t
+    return Waveform(duration) do t
         idx = findfirst(>(t), clocks) # we checked range
         isnothing(idx) && return values[end]
         return values[idx-1]
     end
 end
 
-function linear_ramp(;start::Real=0.0, stop::Real, start_value::Real, stop_value::Real)
-    start ≤ stop || throw(ArgumentError("expect start ≤ stop, got start=$start, stop=$stop"))
-    return Waveform(start..stop) do t
-        (stop_value - start_value) / (stop - start) * (t - start) + start_value
+function linear_ramp(;duration::Real, start_value::Real, stop_value::Real)
+    return Waveform(duration) do t
+        (stop_value - start_value) / duration * t + start_value
     end
 end
 
-function constant(;start::Real=0.0, stop::Real, value::Real)
-    return Waveform(start..stop) do t
+function constant(;duration::Real, value::Real)
+    return Waveform(duration) do t
         value
     end
 end
 
-function sinusoidal(;start::Real=0.0, stop::Real, amplitude::Real=zero(start))
-    return Waveform(start..stop) do t
+function sinusoidal(;duration::Real, amplitude::Real=zero(start))
+    return Waveform(duration) do t
         amplitude * sin(t)
     end
 end

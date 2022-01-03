@@ -50,9 +50,9 @@ end
         dcomplex_r = cu(ref_state)
         dreal_r = cu(zero_state(T, space, RealLayout()))
 
-        emulate!(ref_state, 1e-3, h)
-        emulate!(dcomplex_r, 1e-3, h)
-        emulate!(dreal_r, 1e-3, h)
+        emulate!(ODEEvolution(ref_state, 1e-3, h))
+        emulate!(ODEEvolution(dcomplex_r, 1e-3, h))
+        emulate!(ODEEvolution(dreal_r, 1e-3, h))
         @test cpu(dreal_r) ≈ ref_state
         @test cpu(dcomplex_r) ≈ ref_state
     end

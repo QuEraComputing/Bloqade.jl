@@ -17,7 +17,7 @@ using CUDA: CUBLAS
 using CUDA: GPUArrays
 using CUDA.GPUArrays: AbstractGPUVecOrMat, AbstractGPUArray, AbstractGPUVector
 using EaRydCore: AbstractTerm, KrylovEmulationCache, PrecisionAdaptor
-using EaRydODE: EquationCache, ContinuousOptions
+using EaRydODE: EquationCache, ODEOptions
 
 export cpu
 cpu(x) = adapt(Array, x)

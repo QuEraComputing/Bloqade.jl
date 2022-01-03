@@ -16,10 +16,10 @@ jobs:
         arch:
           - x64
         package:
-          - EaRydODEEvolution
+          - EaRydODE
           - EaRydLattices
           - EaRydWaveforms
-          - EaRydKrylovEvolution
+          - EaRydCore
           - EaRyd
     steps:
       - uses: actions/checkout@v2

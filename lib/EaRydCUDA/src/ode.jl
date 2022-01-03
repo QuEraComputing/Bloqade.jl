@@ -1,13 +1,13 @@
 const CuRegister = Union{Yao.ArrayReg{1,State},RydbergReg{Layout,State}} where {Layout,State<:CuArray}
 
-function EaRydODE.ContinuousEvolution{P}(
+function EaRydODE.ODEEvolution{P}(
     r::CuRegister, (start, stop)::Tuple{<:Real,<:Real}, h::AbstractTerm; kw...
 ) where {P<:AbstractFloat}
     layout = EaRydCore.MemoryLayout(r)
     if layout isa RealLayout
         isreal(h) || error("cannot use RealLayout for non-real hamiltonian")
     end
-    options = ContinuousOptions(; kw...)
+    options = ODEOptions(; kw...)
     start = EaRydCore.default_unit(μs, start)
     stop = EaRydCore.default_unit(μs, stop)
     time = (start, stop)
@@ -51,5 +51,5 @@ function EaRydODE.ContinuousEvolution{P}(
         progress_name=options.progress_name,
         progress_steps=options.progress_steps,
     )
-    return ContinuousEvolution{P}(reg, time, eq, ode_prob, options)
+    return ODEEvolution{P}(reg, time, eq, ode_prob, options)
 end

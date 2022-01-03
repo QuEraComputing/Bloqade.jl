@@ -1,6 +1,6 @@
 using EaRyd
-using RydbergEmulator
-using ContinuousEmulator
+using EaRydKrylovEvolution
+using EaRydODEEvolution
 using Documenter
 using DocThemeIndigo
 
@@ -8,7 +8,7 @@ indigo = DocThemeIndigo.install(EaRyd)
 DocMeta.setdocmeta!(EaRyd, :DocTestSetup, :(using EaRyd); recursive=true)
 
 makedocs(;
-    modules=[EaRyd, RydbergEmulator, ContinuousEmulator],
+    modules=[EaRyd, EaRydKrylovEvolution, EaRydODEEvolution],
     authors="QuEra Computing Inc.",
     repo="https://github.com/Happy-Diode/EaRyd.jl/blob/{commit}{path}#{line}",
     sitename="EaRyd.jl",

@@ -1,5 +1,5 @@
 module EaRydPlots
 
-using RydbergEmulator
+using EaRydKrylovEvolution
 
 end # EaRydPlots

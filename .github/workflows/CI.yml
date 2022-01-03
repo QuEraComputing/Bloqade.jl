@@ -16,10 +16,10 @@ jobs:
         arch:
           - x64
         package:
-          - ContinuousEmulator
+          - EaRydODEEvolution
           - EaRydLattices
           - EaRydWaveforms
-          - RydbergEmulator
+          - EaRydKrylovEvolution
           - EaRyd
     steps:
       - uses: actions/checkout@v2

@@ -2,8 +2,8 @@ module EaRyd
 
 using Reexport
 
-@reexport using RydbergEmulator
-@reexport using ContinuousEmulator
+@reexport using EaRydCore
+@reexport using EaRydODE
 @reexport using Measurements: ±, Measurement
 @reexport using EaRydLattices: EaRydLattices,
     AbstractLattice, GeneralLattice, HoneycombLattice,
@@ -18,7 +18,7 @@ using Reexport
 
 using CUDA
 @static if CUDA.functional()
-    @reexport using CuRydbergEmulator
+    @reexport using EaRydCUDA
 end
 
 end

@@ -16,7 +16,7 @@ jobs:
         arch:
           - x64
         package:
-          - CuRydbergEmulator
+          - EaRydCUDA
           - EaRyd
     steps:
       - uses: actions/checkout@v2

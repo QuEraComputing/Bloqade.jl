@@ -1,5 +1,5 @@
 module EaRydPlots
 
-using RydbergEmulator
+using EaRydCore
 
 end # EaRydPlots

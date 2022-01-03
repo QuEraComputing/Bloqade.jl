@@ -6,14 +6,14 @@
 Modules = [EaRyd]
 ```
 
-## RydbergEmulator
+## EaRydCore
 
 ```@autodocs
-Modules = [RydbergEmulator]
+Modules = [EaRydCore]
 ```
 
-## ContinuousEmulator
+## EaRydODE
 
 ```@autodocs
-Modules = [ContinuousEmulator]
+Modules = [EaRydODE]
 ```

@@ -5,7 +5,7 @@ version = "0.1.0"
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-EaRydODEEvolution = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
+EaRydODE = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
 EaRydCUDA = "6b142359-0b0c-4dfb-9c9b-84981bce612e"
 EaRydLattices = "0b2dfc99-25e4-4105-a7e4-4454e50c76c3"
 EaRydWaveforms = "0b2dfc99-25e4-4105-a7e4-4454e50c76c1"
@@ -18,7 +18,7 @@ EaRydCore = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
 
 [compat]
 CUDA = "3"
-EaRydODEEvolution = "0.4"
+EaRydODE = "0.4"
 EaRydCUDA = "0.2"
 EaRydLattices = "0.1"
 EaRydWaveforms = "0.1"

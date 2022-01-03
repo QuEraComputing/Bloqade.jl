@@ -3,7 +3,7 @@ module EaRyd
 using Reexport
 
 @reexport using EaRydCore
-@reexport using EaRydODEEvolution
+@reexport using EaRydODE
 @reexport using Measurements: ±, Measurement
 @reexport using EaRydLattices: EaRydLattices,
     AbstractLattice, GeneralLattice, HoneycombLattice,

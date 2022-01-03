@@ -75,7 +75,7 @@ function update_dstate_kernel(dstate, state)
     return
 end
 
-function EaRydODEEvolution.update_dstate!(dstate::CuMatrix{<:Real}, state::CuMatrix{<:Real}, ::RealLayout)
+function EaRydODE.update_dstate!(dstate::CuMatrix{<:Real}, state::CuMatrix{<:Real}, ::RealLayout)
     threads, nblocks = thread_layout(size(dstate, 1))
     @cuda threads=threads blocks=nblocks update_dstate_kernel(dstate, state)
     return 

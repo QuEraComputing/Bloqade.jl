@@ -1,6 +1,6 @@
 const CuRegister = Union{Yao.ArrayReg{1,State},RydbergReg{Layout,State}} where {Layout,State<:CuArray}
 
-function EaRydODEEvolution.ContinuousEvolution{P}(
+function EaRydODE.ContinuousEvolution{P}(
     r::CuRegister, (start, stop)::Tuple{<:Real,<:Real}, h::AbstractTerm; kw...
 ) where {P<:AbstractFloat}
     layout = EaRydCore.MemoryLayout(r)
@@ -37,7 +37,7 @@ function EaRydODEEvolution.ContinuousEvolution{P}(
         error("$layout is not supported")
     end
 
-    dcache = EaRydODEEvolution.EquationCache(dH, layout, dstate)
+    dcache = EaRydODE.EquationCache(dH, layout, dstate)
     eq = ShordingerEquation(h, cu(space), dcache)
 
     ode_prob = ODEProblem(

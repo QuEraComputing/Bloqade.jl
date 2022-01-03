@@ -2,7 +2,7 @@ using CSV
 using DataFrames
 using DelimitedFiles
 using EaRydCore
-using EaRydODEEvolution
+using EaRydODE
 using LinearAlgebra
 using OrdinaryDiffEq
 using Logging: global_logger
@@ -102,7 +102,7 @@ using SparseArrays
 H = SparseMatrixCSC{ComplexF64}(h(1e-3), space)
 r = zero_state(length(atoms), space)
 
-eq = EaRydODEEvolution.shordinger(h, space)
+eq = EaRydODE.shordinger(h, space)
 state = vec(r.state)
 dstate = similar(state)
 

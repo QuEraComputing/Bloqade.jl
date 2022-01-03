@@ -1,5 +1,5 @@
 [deps]
-EaRydODEEvolution = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
+EaRydODE = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
 EaRydCUDA = "6b142359-0b0c-4dfb-9c9b-84981bce612e"
 DocThemeIndigo = "8bac0ac5-51bf-41f9-885e-2bf1ac2bec5f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"

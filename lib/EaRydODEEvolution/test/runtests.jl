@@ -1,5 +1,5 @@
 using Yao
-using EaRydODEEvolution
+using EaRydODE
 using OrdinaryDiffEq
 using Test
 

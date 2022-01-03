@@ -1,6 +1,6 @@
 # Copyright 2020 QuEra Computing Inc. All rights reserved.
 
-module EaRydODEEvolution
+module EaRydODE
 
 using Reexport
 using Yao

@@ -2,7 +2,7 @@ using CSV
 using DataFrames
 using DelimitedFiles
 using EaRydCore
-using EaRydODEEvolution
+using EaRydODE
 
 function save_state(r::RydbergReg, L, graph_index, T_index, R)
     df = DataFrame(:state=>vec(r.state), :subspace=>r.subspace.subspace_v)

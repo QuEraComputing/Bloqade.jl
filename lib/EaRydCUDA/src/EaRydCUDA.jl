@@ -10,14 +10,14 @@ using Adapt
 using Reexport
 using OrdinaryDiffEq
 using SparseArrays
-using EaRydODEEvolution
+using EaRydODE
 using LinearAlgebra
 
 using CUDA: CUBLAS
 using CUDA: GPUArrays
 using CUDA.GPUArrays: AbstractGPUVecOrMat, AbstractGPUArray, AbstractGPUVector
 using EaRydCore: AbstractTerm, KrylovEmulationCache, PrecisionAdaptor
-using EaRydODEEvolution: EquationCache, ContinuousOptions
+using EaRydODE: EquationCache, ContinuousOptions
 
 export cpu
 cpu(x) = adapt(Array, x)

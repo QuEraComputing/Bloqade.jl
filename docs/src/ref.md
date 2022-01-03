@@ -12,8 +12,8 @@ Modules = [EaRyd]
 Modules = [EaRydCore]
 ```
 
-## EaRydODEEvolution
+## EaRydODE
 
 ```@autodocs
-Modules = [EaRydODEEvolution]
+Modules = [EaRydODE]
 ```

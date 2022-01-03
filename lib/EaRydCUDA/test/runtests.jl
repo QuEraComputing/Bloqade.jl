@@ -1,13 +1,13 @@
 using Test
 using CUDA
 using Adapt
-using EaRydODEEvolution
+using EaRydODE
 using EaRydCUDA
 using SparseArrays
 
 using CUDA.CUSPARSE: CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseMatrix
 using EaRydCore: AbstractTerm
-using EaRydODEEvolution: ShordingerEquation, update_dstate!
+using EaRydODE: ShordingerEquation, update_dstate!
 
 CUDA.allowscalar(false)
 

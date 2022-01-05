@@ -4,7 +4,6 @@ using Random
 using Printf
 using Unitful
 using BitBasis
-using MLStyle
 using UUIDs
 using Adapt
 using SparseArrays
@@ -42,7 +41,9 @@ export RydInteract, RydAtom, XTerm, ZTerm, NTerm,
     square_lattice, set_zero_state!, blockade_subspace, independent_set_subspace,
     is_independent_set, to_independent_set!, to_independent_set, add_vertices, add_vertices!,
     add_random_vertices, independent_set_probabilities,
-    mis_postprocessing
+    mis_postprocessing, Op,
+    # observables
+    rydberg_density
 
 # NOTE: remove this after expv get fixed
 include("expmv.jl")
@@ -66,5 +67,8 @@ include("emulate/emulate.jl")
 include("serialize.jl")
 include("mis.jl")
 include("deprecations.jl")
+
+include("observables.jl")
+
 
 end # module

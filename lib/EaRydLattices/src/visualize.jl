@@ -42,7 +42,7 @@ If you want to write this image to the disk without using a frontend, please che
 """
 function viz_atoms(io, atoms::Vector{<:Tuple}; scale=1.0)
     img, (dx, dy) = img_atoms(atoms; scale=scale)
-    Compose.draw(SVG(io, dx, dy), img)
+    Compose.draw(PNG(io, dx, dy), img)
 end
 
 # Returns a 2-tuple of (image::Context, size)
@@ -75,7 +75,7 @@ If you want to write this image to the disk without using a frontend, please che
 """
 function viz_maskedgrid(io, maskedgrid::MaskedGrid; scale=1.0)
     img, (dx, dy) = img_maskedgrid(maskedgrid; scale=scale)
-    Compose.draw(SVG(io, dx, dy), img)
+    Compose.draw(PNG(io, dx, dy), img)
 end
 
 # Returns a 2-tuple of (image::Context, size)

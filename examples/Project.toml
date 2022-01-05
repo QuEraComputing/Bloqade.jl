@@ -1,0 +1,8 @@
+[deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+EaRyd = "919886a7-1033-42c4-9b63-e090dad94c32"
+QuantumInformation = "3c0b384b-479c-5684-b2ef-9d7a46dd931e"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
+Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
+YaoArrayRegister = "e600142f-9330-5003-8abb-0ebd767abc51"
+YaoBase = "a8f54c17-34bc-5a9d-b050-f522fe3f755f"

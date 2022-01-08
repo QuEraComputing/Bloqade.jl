@@ -24,6 +24,7 @@ EaRydCore = "0.14"
 EaRydLattices = "0.1"
 EaRydODE = "0.4"
 EaRydWaveforms = "0.1"
+Makie = "0.16"
 Reexport = "1"
 julia = "1.6.3"
 

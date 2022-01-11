@@ -8,8 +8,7 @@ h = rydberg_h(atoms;C = 2π * 858386, Ω=4π)
 config = rand(0:1, 10)
 init = product_state(config)
 
-# construct time evolution
-
+# # construct time evolution
 iteration = 1:120
 ts = [0.01 for _ in iteration];
 hs = [h for _ in iteration];
@@ -32,7 +31,6 @@ for info in prob
         domain_mat[i, info.step] = obs
     end
 
-    # TODO: wrap this
     rho = density_matrix(info.reg, (1,2,3,4,5))
     entropy[info.step] = von_neumann_entropy(rho)
 end
@@ -56,4 +54,5 @@ lines!(ax, clocks, entropy)
 fig
 
 
-# TODO: subspace 
+# TODO: subspace
+

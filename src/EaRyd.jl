@@ -5,6 +5,7 @@ using Reexport
 @reexport using EaRydCore
 @reexport using EaRydODE
 @reexport using Measurements: ±, Measurement
+@reexport using EaRydWaveforms
 @reexport using EaRydLattices: EaRydLattices,
     AbstractLattice, GeneralLattice, HoneycombLattice,
     SquareLattice, TriangularLattice, ChainLattice,

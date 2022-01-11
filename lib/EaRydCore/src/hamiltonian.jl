@@ -743,7 +743,7 @@ Create a rydberg hamiltonian, shorthand for
 `RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)`
 
 ```math
-∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + Ω σ_x - Δ σ_n
+∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + \\frac{Ω}{2} σ_x - Δ σ_n
 ```
 """
 function rydberg_h(atoms, C, Ω, ϕ, Δ)

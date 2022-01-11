@@ -17,8 +17,8 @@ function main()
 
     dev                         develop the packages in current environment
     test <device> [--cuda]      test the packages on cpu or cuda.
-    doc
-    example                     dev all example dependencies                 
+    doc                         dev all doc dependencies
+    example                     dev all example dependencies at current environment
     """
 
     length(ARGS) > 0 || return print(help)

@@ -3,12 +3,12 @@ using Intervals
 using EaRydWaveforms
 
 @testset "Waveform" begin
-    waveform = Waveform(t->2.2sin(t), stop=4π)
+    waveform = Waveform(t->2.2sin(t), duration=4π)
     @test waveform(0.1) ≈ 2.2 * sin(0.1)
     @test_throws ArgumentError waveform(0.1+4π)
 
     # constant bindings
-    wf = sinusoidal(;stop=4π, amplitude=2.2)
+    wf = sinusoidal(;duration=4π, amplitude=2.2)
     @test wf(0.1) ≈ 2.2 * sin(0.1)
 
     show(stdout, wf)
@@ -16,7 +16,7 @@ using EaRydWaveforms
     show(stdout, MIME"text/plain"(), wf)
     println(stdout)
 
-    wf = constant(;stop=4π, value=2.2)
+    wf = constant(;duration=4π, value=2.2)
     @test wf(0.1) ≈ 2.2
 
     show(stdout, wf)
@@ -26,13 +26,13 @@ using EaRydWaveforms
 end
 
 @testset "linear_ramp" begin
-    waveform = linear_ramp(stop=0.5, start_value=0.0, stop_value=1.0)
+    waveform = linear_ramp(duration=0.5, start_value=0.0, stop_value=1.0)
     @test waveform(0.1) ≈ 2 * 0.1
     @test_throws ArgumentError waveform(0.8)
 end
 
 @testset "constant" begin
-    waveform = constant(stop=0.5, value=2.1)
+    waveform = constant(duration=0.5, value=2.1)
     @test waveform(0.1) ≈ 2.1
     @test_throws ArgumentError waveform(0.6)
 end
@@ -47,7 +47,7 @@ end
         @test waveform(0.5) ≈ 3.1
         @test_throws ArgumentError waveform(0.6) ≈ 3.1
     
-        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1], stop=1.1)
+        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1], duration=1.1)
         @test waveform(0.6) ≈ 3.1
     end
     
@@ -61,13 +61,13 @@ end
 end
 
 @testset "waveform + waveform" begin
-    wf1 = linear_ramp(;stop=2.2, start_value=0.0, stop_value=1.0)
-    wf2 = Waveform(sin, stop=2.2)
+    wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
+    wf2 = Waveform(sin, duration=2.2)
     wf3 = wf1 + wf2
     @test wf3(0.1) ≈ wf1(0.1) + wf2(0.1)
 
     # sum + other
-    wfp = piecewise_constant(clocks=[0.0, 0.3, 0.5], values=[0.0, 1.1, 0.5], stop=2.2)
+    wfp = piecewise_constant(clocks=[0.0, 0.3, 0.5], values=[0.0, 1.1, 0.5], duration=2.2)
     wf4 = wf3 + wfp
     wf5 = wfp + wf3
     @test wf4 isa Waveform
@@ -77,14 +77,14 @@ end
     wf5 = wf3 + wf3
     @test wf5 isa Waveform
 
-    wf1 = linear_ramp(;stop=2.2, start_value=0.0, stop_value=1.0)
-    wf2 = Waveform(sin, stop=2.1)
+    wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
+    wf2 = Waveform(sin, duration=2.1)
     @test_throws ArgumentError wf1 + wf2
 end
 
 @testset "-waveform" begin
-    wf1 = linear_ramp(;stop=2.2, start_value=0.0, stop_value=1.0)
-    wf2 = Waveform(sin, stop=2.2)
+    wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
+    wf2 = Waveform(sin, duration=2.2)
     wf3 = -wf1
     @test wf3(0.1) ≈ -wf1(0.1)
 
@@ -102,8 +102,8 @@ end
 end
 
 @testset "append(waveforms...)" begin
-    wf1 = Waveform(sin, stop=2.2)
-    wf2 = linear_ramp(;start_value=0.0, stop_value=1.1, stop=0.5)
+    wf1 = Waveform(sin, duration=2.2)
+    wf2 = linear_ramp(;start_value=0.0, stop_value=1.1, duration=0.5)
     waveform = append(wf1, wf2)
 
     @testset "(::CompositeWaveform)(t::Real)" begin
@@ -113,10 +113,10 @@ end
     end
 
     @testset "sample_values(::CompositeWaveform, $dt)" for dt in [1e-3, 1e-3, 1e-4]
-        values = sample_values(waveform, dt)
-        @test length(values) == length(sample_clock(waveform, dt))
-        wf_value_1 = wf1.(sample_clock(wf1, dt))
-        wf_value_2 = wf2.(sample_clock(wf2, dt))
+        values = sample_values(waveform; dt)
+        @test length(values) == length(sample_clock(waveform; dt))
+        wf_value_1 = wf1.(sample_clock(wf1; dt))
+        wf_value_2 = wf2.(sample_clock(wf2; dt))
 
         @test values[1:length(wf_value_1)] ≈ wf_value_1[1:end]
         @test values[length(wf_value_1)+1:end] ≈ wf_value_2[2:end]
@@ -124,11 +124,11 @@ end
 end
 
 @testset "slicing" begin
-    wf = Waveform(sin, stop=4π)
+    wf = Waveform(sin, duration=4π)
     wfs = wf[0.5..2π]
-    @test wfs.interval == 0.5..2π
-    @test wfs(0.5) ≈ wf(0.5)
-    @test wfs(0.6) ≈ wf(0.6)
+    @test wfs.duration == 2π-0.5
+    @test wfs(0.0) ≈ wf(0.5)
+    @test wfs(0.1) ≈ wf(0.6)
 
     @test_throws ArgumentError wf[0.5..(4π+2)]
 end

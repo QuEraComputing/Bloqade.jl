@@ -1,6 +1,6 @@
 using EaRyd
 using Random
-Random.seed!
+Random.seed!(42)
 # build lattice
 nsites = 10
 atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
@@ -33,7 +33,8 @@ for info in prob
     end
 
     # TODO: wrap this
-    entropy[info.step] = von_neumann_entropy(info.reg, (1,2,3,4,5))
+    rho = density_matrix(info.reg, (1,2,3,4,5))
+    entropy[info.step] = von_neumann_entropy(rho)
 end
 
 using CairoMakie

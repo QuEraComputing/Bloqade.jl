@@ -1,4 +1,5 @@
 [deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 EaRyd = "919886a7-1033-42c4-9b63-e090dad94c32"
 EaRydCUDA = "6b142359-0b0c-4dfb-9c9b-84981bce612e"
 EaRydCore = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"

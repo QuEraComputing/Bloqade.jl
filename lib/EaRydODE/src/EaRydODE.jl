@@ -181,7 +181,17 @@ function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Rea
     if layout isa RealLayout
         isreal(h) || error("cannot use RealLayout for non-real hamiltonian")
     end
-    options = ODEOptions(;kw...)
+
+    main_options, ode_options = [], []
+    for (k, v) in kw
+        if k in fieldnames(ODEOptions)
+            push!(main_options, k=>v)
+        else
+            push!(ode_options, k=>v)
+        end
+    end
+
+    options = ODEOptions(;main_options...)
     # we do not convert the tspan to P since
     # the parameter function can relay on higher precision
     # and the performance of that usually doesn't matter
@@ -202,9 +212,10 @@ function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Rea
     ode_prob = ODEProblem(
         eq, Yao.statevec(reg), time;
         save_everystep=false, save_start=false, alias_u0=true,
-        progress=options.progress,
-        progress_name=options.progress_name,
-        progress_steps=options.progress_steps,
+        options.progress,
+        options.progress_name,
+        options.progress_steps,
+        ode_options...
     )
     return ODEEvolution{P}(reg, time, eq, ode_prob, options)
 end

@@ -21,7 +21,7 @@ function (r::Rescaler{T})(x; dims=(1,2)) where T
     end
 end
 
-function get_rescaler(atoms::Vector{<:Tuple})
+function get_rescaler(atoms::AbstractVector{<:Tuple})
     xmin = minimum(x->x[1], atoms)
     ymin = minimum(x->x[2], atoms)
     xmax = maximum(x->x[1], atoms)
@@ -40,13 +40,14 @@ Draw `atoms` with scaling factor `scale`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 If you want to write this image to the disk without using a frontend, please check [`img_atoms`](@ref).
 """
-function viz_atoms(io, atoms::Vector{<:Tuple}; scale=1.0, format=PNG)
+function viz_atoms(io, atoms::AbstractVector{<:Tuple}; scale=1.0, format=PNG)
     img, (dx, dy) = img_atoms(atoms; scale=scale)
     Compose.draw(format(io, dx, dy), img)
+    return
 end
 
 # Returns a 2-tuple of (image::Context, size)
-function img_atoms(atoms::Vector{<:Tuple}; scale=1.0)
+function img_atoms(atoms::AbstractVector{<:Tuple}; scale=1.0)
     rescaler = get_rescaler(atoms)
     xspan = rescaler.xmax - rescaler.xmin
     yspan = rescaler.ymax - rescaler.ymin
@@ -76,6 +77,7 @@ If you want to write this image to the disk without using a frontend, please che
 function viz_maskedgrid(io, maskedgrid::MaskedGrid; scale=1.0, format=PNG)
     img, (dx, dy) = img_maskedgrid(maskedgrid; scale=scale)
     Compose.draw(format(io, dx, dy), img)
+    return
 end
 
 # Returns a 2-tuple of (image::Context, size)

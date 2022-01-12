@@ -8,3 +8,6 @@ using EaRydPlots
     plt = bitstring_histgram(r)
     @test size(plt.layout) == (1, 1)
 end
+
+r = rand_state(12)
+plt = bitstring_histgram(r)

@@ -29,9 +29,9 @@ function get_rescaler(atoms::Vector{<:Tuple})
     return Rescaler(xmin, xmax, ymin, ymax)
 end
 
-default_node_style(scale) = compose(context(), Viznet.nodestyle(:default, r=0.15cm*scale), stroke("black"), fill("white"), linewidth(0.3mm*scale))
+default_node_style(scale) = compose(context(), Viznet.nodestyle(:default, r=0.15cm*scale), Compose.stroke("black"), fill("white"), linewidth(0.3mm*scale))
 default_text_style(scale) = Viznet.textstyle(:default, fontsize(4pt*scale))
-default_line_style_grid(scale) = Viznet.bondstyle(:default, stroke("#AAAAAA"), linewidth(0.3mm*scale); dashed=true)
+default_line_style_grid(scale) = Viznet.bondstyle(:default, Compose.stroke("#AAAAAA"), linewidth(0.3mm*scale); dashed=true)
 
 """
     viz_atoms(io::Union{IO,AbstractString}, atoms::Vector{<:Tuple}; scale=1.0)
@@ -106,7 +106,7 @@ function _viz_grid(xs, ys, line_style, ymax)
 end
 
 # for Pluto and vscode
-for mime in [:(MIME"text/html"), :(MIME"image/png")]
+for mime in [:(MIME"image/png")]
     @eval function Base.show(io::IO, ::$mime, lt::AbstractLattice{2})
         viz_atoms(io, generate_sites(lt, 5, 5); scale=2.0)
     end
@@ -115,5 +115,13 @@ for mime in [:(MIME"text/html"), :(MIME"image/png")]
     end
     @eval function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
         viz_maskedgrid(io, maskedgrid; scale=2.0)
+    end
+
+    @eval function Base.show(io::IO, ::$mime, list::AtomList{Tuple{<:Real}})
+        viz_atoms(io, padydim.(list.atoms); scale=2.0)
+    end
+
+    @eval function Base.show(io::IO, ::$mime, list::AtomList)
+        viz_atoms(io, list.atoms; scale=2.0)
     end
 end

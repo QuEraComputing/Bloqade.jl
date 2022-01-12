@@ -2,7 +2,9 @@ using Pkg
 
 function main()
     root_directory = dirname(@__DIR__)
+    @info root_directory
     package_names = readdir(joinpath(root_directory, "lib"))
+    @info "package names" package_names
 
     help = """
     EaRyd CI Test Manager
@@ -15,7 +17,8 @@ function main()
 
     dev                         develop the packages in current environment
     test <device> [--cuda]      test the packages on cpu or cuda.
-    doc                 
+    doc                         dev all doc dependencies
+    example                     dev all example dependencies at current environment
     """
 
     length(ARGS) > 0 || return print(help)
@@ -45,6 +48,12 @@ function main()
         push!(packages, Pkg.PackageSpec(path = root_directory))
         Pkg.develop(packages)
         Pkg.instantiate()
+    elseif "example" == ARGS[1]
+        packages = map(package_names) do pkg
+            Pkg.PackageSpec(path = joinpath(root_directory, "lib", pkg))
+        end
+        push!(packages, Pkg.PackageSpec(path = root_directory))
+        Pkg.develop(packages)
     end
 end
 

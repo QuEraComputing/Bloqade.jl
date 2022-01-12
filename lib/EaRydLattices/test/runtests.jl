@@ -61,4 +61,5 @@ end
     @test show(IOBuffer(), MIME"text/html"(), KagomeLattice()) === nothing
     @test show(IOBuffer(), MIME"text/html"(), ChainLattice()) === nothing
     @test show(IOBuffer(), MIME"text/html"(), grd) === nothing
+    @test show(IOBuffer(), MIME"text/html"(), lt) === nothing
 end

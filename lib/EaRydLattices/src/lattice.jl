@@ -79,6 +79,14 @@ struct KagomeLattice <: AbstractLattice{2} end
 lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
 lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25*sqrt(3)), (0.75, 0.25*sqrt(3)))
 
+struct AtomList{T <: Tuple} <: AbstractVector{T}
+    atoms::Vector{T}
+end
+
+Base.size(list::AtomList) = size(list.atoms)
+Base.length(list::AtomList) = length(list.atoms)
+Base.getindex(list::AtomList, idx) = list.atoms[idx]
+
 """
     generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0)
 
@@ -86,7 +94,14 @@ Returns a vector of locations (2-tuple) by tiling the specified `lattice`.
 The tiling repeat the `sites` of the lattice `m` times along the first dimension,
 `n` times along the second dimension, and so on. `scale` is a real number that re-scales the lattice constant and site locations.
 """
-generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0) where D = _generate_sites((lattice_vectors(lattice)...,), (lattice_sites(lattice)...,), repeats...; scale=scale)
+function generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0) where D
+    return AtomList(
+        _generate_sites(
+            (lattice_vectors(lattice)...,),
+            (lattice_sites(lattice)...,), repeats...; scale=scale
+        )
+    )
+end
 
 ############ manipulate sites ###############
 """

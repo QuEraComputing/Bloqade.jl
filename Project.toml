@@ -5,6 +5,8 @@ version = "0.1.0"
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+Compose = "a81c6b42-2e10-5240-aca2-a61377ecd94b"
 EaRydCUDA = "6b142359-0b0c-4dfb-9c9b-84981bce612e"
 EaRydCore = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
 EaRydLattices = "0b2dfc99-25e4-4105-a7e4-4454e50c76c3"

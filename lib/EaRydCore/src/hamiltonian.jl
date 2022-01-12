@@ -743,7 +743,7 @@ Create a rydberg hamiltonian, shorthand for
 `RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)`
 
 ```math
-∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + Ω σ_x - Δ σ_n
+∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + \\frac{Ω}{2} σ_x - Δ σ_n
 ```
 """
 function rydberg_h(atoms, C, Ω, ϕ, Δ)
@@ -754,18 +754,27 @@ function rydberg_h(atoms, Ω, ϕ, Δ)
     return RydInteract(atoms) + XTerm(length(atoms), Ω, ϕ) - NTerm(length(atoms), Δ)
 end
 
-function rydberg_h(atoms; Ω, Δ, C=nothing, ϕ=nothing)
-    term = - NTerm(length(atoms), Δ)
+function rydberg_h(atoms; Ω, Δ=nothing, C=nothing, ϕ=nothing) 
+    if eltype(atoms) <: Tuple
+        atoms = map(atoms) do each
+            RydAtom(each)
+        end
+    end
+
+    if ϕ === nothing
+        term = XTerm(length(atoms), Ω)
+    else
+        term = XTerm(length(atoms), Ω, ϕ)
+    end
+
+    if Δ !== nothing
+        term -= NTerm(length(atoms), Δ)
+    end
+
     if C === nothing
         term += RydInteract(atoms)
     else
         term += RydInteract(atoms, C)
-    end
-
-    if ϕ === nothing
-        term += XTerm(length(atoms), Ω)
-    else
-        term += XTerm(length(atoms), Ω, ϕ)
     end
     return term
 end

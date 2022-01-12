@@ -2,6 +2,7 @@
 
 module EaRydLattices
 
+using Cairo
 using NearestNeighbors
 using Viznet: Viznet
 using Viznet.Compose

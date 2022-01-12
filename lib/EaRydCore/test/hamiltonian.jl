@@ -339,6 +339,12 @@ end
     h1 = rydberg_h(atoms, 1.0, 2.21, 3.32, 2.22)
     h2 = RydInteract(atoms, 1.0) + XTerm(5, 2.21, 3.32) - NTerm(5, 2.22)
     @test h1 == h2
+
+    atoms = [(0.0,), (1.0,), (2.0,), (3.0,),
+        (4.0,), (5.0,), (6.0,), (7.0,), (8.0,), (9.0,)]
+    h1 = rydberg_h(atoms; Ω=0.1, C=1.0)
+    h2 = RydInteract(RydAtom.(atoms), 1.0) + XTerm(length(atoms), 0.1)
+    @test h1 == h2
 end
 
 @testset "units" begin

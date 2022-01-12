@@ -145,6 +145,10 @@ function blockade_subspace(atoms::AbstractVector{<:RydAtom}, radius::AbstractFlo
     return independent_set_subspace(unit_disk_graph(atoms, radius))
 end
 
+function blockade_subspace(atoms::AbstractVector{<:Tuple}, radius::AbstractFloat=1.0)
+    blockade_subspace(RydAtom.(atoms), radius)
+end
+
 Base.getindex(s::Subspace, key::Int) = s.map[key]
 Base.getindex(s::Subspace, key::BitStr) = s.map[buffer(key)]
 Base.keys(s::Subspace) = keys(s.map)

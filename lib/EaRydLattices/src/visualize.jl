@@ -21,7 +21,7 @@ function (r::Rescaler{T})(x; dims=(1,2)) where T
     end
 end
 
-function get_rescaler(atoms::Vector{<:Tuple})
+function get_rescaler(atoms::AbstractVector{<:Tuple})
     xmin = minimum(x->x[1], atoms)
     ymin = minimum(x->x[2], atoms)
     xmax = maximum(x->x[1], atoms)
@@ -43,6 +43,7 @@ If you want to write this image to the disk without using a frontend, please che
 function viz_atoms(io, atoms::AbstractVector{<:Tuple}; scale=1.0, format=PNG)
     img, (dx, dy) = img_atoms(atoms; scale=scale)
     Compose.draw(format(io, dx, dy), img)
+    return
 end
 
 # Returns a 2-tuple of (image::Context, size)
@@ -76,6 +77,7 @@ If you want to write this image to the disk without using a frontend, please che
 function viz_maskedgrid(io, maskedgrid::MaskedGrid; scale=1.0, format=PNG)
     img, (dx, dy) = img_maskedgrid(maskedgrid; scale=scale)
     Compose.draw(format(io, dx, dy), img)
+    return
 end
 
 # Returns a 2-tuple of (image::Context, size)

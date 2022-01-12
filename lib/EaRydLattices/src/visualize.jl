@@ -40,13 +40,13 @@ Draw `atoms` with scaling factor `scale`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 If you want to write this image to the disk without using a frontend, please check [`img_atoms`](@ref).
 """
-function viz_atoms(io, atoms::Vector{<:Tuple}; scale=1.0, format=PNG)
+function viz_atoms(io, atoms::AbstractVector{<:Tuple}; scale=1.0, format=PNG)
     img, (dx, dy) = img_atoms(atoms; scale=scale)
     Compose.draw(format(io, dx, dy), img)
 end
 
 # Returns a 2-tuple of (image::Context, size)
-function img_atoms(atoms::Vector{<:Tuple}; scale=1.0)
+function img_atoms(atoms::AbstractVector{<:Tuple}; scale=1.0)
     rescaler = get_rescaler(atoms)
     xspan = rescaler.xmax - rescaler.xmin
     yspan = rescaler.ymax - rescaler.ymin

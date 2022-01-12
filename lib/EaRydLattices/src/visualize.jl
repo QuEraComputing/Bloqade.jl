@@ -40,9 +40,9 @@ Draw `atoms` with scaling factor `scale`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 If you want to write this image to the disk without using a frontend, please check [`img_atoms`](@ref).
 """
-function viz_atoms(io, atoms::Vector{<:Tuple}; scale=1.0)
+function viz_atoms(io, atoms::Vector{<:Tuple}; scale=1.0, format=PNG)
     img, (dx, dy) = img_atoms(atoms; scale=scale)
-    Compose.draw(PNG(io, dx, dy), img)
+    Compose.draw(format(io, dx, dy), img)
 end
 
 # Returns a 2-tuple of (image::Context, size)
@@ -73,9 +73,9 @@ Draw a `maskedgrid` with scaling factor `scale`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 If you want to write this image to the disk without using a frontend, please check [`img_atoms`](@ref).
 """
-function viz_maskedgrid(io, maskedgrid::MaskedGrid; scale=1.0)
+function viz_maskedgrid(io, maskedgrid::MaskedGrid; scale=1.0, format=PNG)
     img, (dx, dy) = img_maskedgrid(maskedgrid; scale=scale)
-    Compose.draw(PNG(io, dx, dy), img)
+    Compose.draw(format(io, dx, dy), img)
 end
 
 # Returns a 2-tuple of (image::Context, size)
@@ -105,23 +105,25 @@ function _viz_grid(xs, ys, line_style, ymax)
     end
 end
 
-# for Pluto and vscode
-for mime in [:(MIME"image/png")]
-    @eval function Base.show(io::IO, ::$mime, lt::AbstractLattice{2})
-        viz_atoms(io, generate_sites(lt, 5, 5); scale=2.0)
-    end
-    @eval function Base.show(io::IO, ::$mime, lt::AbstractLattice{1})
-        viz_atoms(io, padydim.(generate_sites(lt, 5)); scale=2.0)
-    end
-    @eval function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
-        viz_maskedgrid(io, maskedgrid; scale=2.0)
-    end
-
-    @eval function Base.show(io::IO, ::$mime, list::AtomList{Tuple{<:Real}})
-        viz_atoms(io, padydim.(list.atoms); scale=2.0)
-    end
-
-    @eval function Base.show(io::IO, ::$mime, list::AtomList)
-        viz_atoms(io, list.atoms; scale=2.0)
+for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
+    @eval begin
+        function Base.show(io::IO, ::$mime, lt::AbstractLattice{2})
+            viz_atoms(io, generate_sites(lt, 5, 5); scale=2.0, format=$format)
+        end
+    
+        function Base.show(io::IO, ::$mime, lt::AbstractLattice{1})
+            viz_atoms(io, padydim.(generate_sites(lt, 5)); scale=2.0, format=$format)
+        end
+        function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
+            viz_maskedgrid(io, maskedgrid; scale=2.0, format=$format)
+        end
+    
+        function Base.show(io::IO, ::$mime, list::AtomList{Tuple{<:Real}})
+            viz_atoms(io, padydim.(list.atoms); scale=2.0, format=$format)
+        end
+    
+        function Base.show(io::IO, ::$mime, list::AtomList)
+            viz_atoms(io, list.atoms; scale=2.0, format=$format)
+        end
     end
 end

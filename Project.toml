@@ -17,10 +17,10 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [compat]
 CUDA = "3"
-EaRydCUDA = "0.2"
-EaRydCore = "0.14"
+EaRydCUDA = "0.1"
+EaRydCore = "0.1"
 EaRydLattices = "0.1"
-EaRydODE = "0.4"
+EaRydODE = "0.1"
 EaRydWaveforms = "0.1"
 ForwardDiff = "0.10"
 Measurements = "2"

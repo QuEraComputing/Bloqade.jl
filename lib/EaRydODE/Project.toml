@@ -1,7 +1,7 @@
 name = "EaRydODE"
 uuid = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
 authors = ["QuEra Computing Inc."]
-version = "0.4.2"
+version = "0.1.0"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
@@ -20,7 +20,7 @@ Configurations = "0.16"
 DiffEqCallbacks = "2"
 OrdinaryDiffEq = "5"
 Reexport = "1"
-EaRydCore = "0.14"
+EaRydCore = "0.1"
 Yao = "0.6"
 julia = "1"
 

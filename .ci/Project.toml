@@ -1,3 +1,10 @@
+name = "EaRydCI"
+uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bb10"
+authors = ["Roger-Luo <rogerluo.rl18@gmail.com> and contributors"]
+version = "0.1.0"
+
 [deps]
 Comonicon = "863f3e99-da2a-4334-8734-de3dacbe5542"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
+Pkg = "44cfe95a-1eb2-52ea-b672-e2afdf69b78f"
+TOML = "fa267f1f-6049-4f14-aa54-33bafae1ed76"

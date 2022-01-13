@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+#=
+JULIA_PROJECT=.ci exec julia \
+    --startup-file=no \
+    --color=yes \
+    --compile=min \
+    --optimize=2 \
+    -- "${BASH_SOURCE[0]}" "$@"
+=#
+
+using Pkg
+if !isfile(joinpath(@__DIR__, "Manifest.toml"))
+    Pkg.instantiate()
+end
+
+using EaRydCI
+exit(EaRydCI.command_main())

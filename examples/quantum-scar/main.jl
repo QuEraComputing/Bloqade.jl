@@ -1,24 +1,40 @@
 using EaRyd
 using Random
+
+# In this example, we use the Rydberg Emulator to simulate and evolve a fully coherent, 
+# strongly interacting system of 9 qubits to observe emergent oscillations in many-body 
+# dynamics afer a sudden quench to single-atom resonance. We demonstrate the many-body dynamics 
+# with measurements of the domain wall density, which signals the appearance and disappearance of crystalline states.
+
+
+# We start by building the 1D-Chain 10-atom arrangement, with each atom separated from its neighbor by 5.72 micrometers
+# We evaluate the quench dynamics of the Rydberg atom array initially prepared in a product state as the detuning changes to single atom resonance
+# After the quence, we observe oscillations of many-body states between the initial and inverted states.
+
 Random.seed!(42)
-# build lattice
+# build lattice structure
 nsites = 10
 atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
+
+# construct Rydberg Hamiltonian with specified Rabi frequency 
 h = rydberg_h(atoms;C = 2π * 858386, Ω=4π)
+
+# construct initial product state 
 config = rand(0:1, 10)
 init = product_state(config)
 
-# # construct time evolution
+# perform discrete time evolution given timestep ts = 0.01 for 120 iterations using Krylov
 iteration = 1:120
 ts = [0.01 for _ in iteration];
 hs = [h for _ in iteration];
 prob = KrylovEvolution(init, ts, hs)
 
-# measuring obervable
+# measure observable
 clocks = cumsum(ts)
-entropy = zeros(length(iteration))
-domain_mat = zeros(nsites-1, length(iteration))
-density_mat = zeros(nsites, length(iteration))
+# create empty lists of output expectation values
+entropy = zeros(length(iteration)) # entanglement entropy 
+domain_mat = zeros(nsites-1, length(iteration)) # domain wall number 
+density_mat = zeros(nsites, length(iteration)) # density matrix
 
 for info in prob
     for i in 1:nsites
@@ -35,6 +51,7 @@ for info in prob
     entropy[info.step] = von_neumann_entropy(rho)
 end
 
+# Plot results 
 using CairoMakie
 fig = Figure(size=(10, 5));
 ax = Axis(fig[1, 1])

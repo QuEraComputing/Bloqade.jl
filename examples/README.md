@@ -20,3 +20,15 @@ or from the REPL pkg mode
 ## Format
 
 The examples are written using [Literate](https://github.com/fredrikekre/Literate.jl).
+
+## Setup example for developers
+
+For developers, it is important to make sure examples are using the
+packages in current local directories that is under development. To
+do this, just run the following in your terminal
+
+```sh
+.ci/run dev <path/to/your/example>
+```
+
+this will add the local packages into your example environments.

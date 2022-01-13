@@ -83,21 +83,16 @@ develop the EaRyd components into environment.
 
     if path == "."
         Pkg.activate(root_dir())
-        Pkg.develop(collect_lib())
-    elseif startswith(path, "examples") || startswith(path, "docs")
+        Pkg.develop(collect_lib_deps(path))
+    elseif startswith(path, "examples")
         Pkg.activate(root_dir(path))
-        Pkg.develop(collect_lib(;include_main=true))
+        Pkg.develop(collect_lib_deps(path))
+    elseif startswith(path, "docs") # need all lib packages included
+        Pkg.activate(root_dir(path))
+        Pkg.develop(collect_lib_deps(path))
     elseif startswith(path, "lib")
-        d = TOML.parsefile(joinpath(path, "Project.toml"))
-        names = [name for name in keys(d["deps"]) if startswith(name, "EaRyd")]
-        isempty(names) && return
-        paths = map(names) do name
-            name == "EaRyd" && return "."
-            return root_dir("lib", name)
-        end
-        pkgs = map(paths) do path
-            Pkg.PackageSpec(;path)
-        end
+        pkgs = collect_lib_deps(path)
+        isempty(pkgs) && return
         Pkg.activate(root_dir(path))
         Pkg.develop(pkgs)
     else
@@ -106,22 +101,47 @@ develop the EaRyd components into environment.
     return
 end
 
+function collect_lib_deps(path::String)
+    d = TOML.parsefile(joinpath(path, "Project.toml"))
+    names = [name for name in keys(d["deps"]) if startswith(name, "EaRyd")]
+    paths = map(names) do name
+        name == "EaRyd" && return "."
+        return root_dir("lib", name)
+    end
+    pkgs = map(paths) do path
+        Pkg.PackageSpec(;path=root_dir(path))
+    end
+    return pkgs
+end
+
 """
 create an example.
 
 # Args
 
 - `name`: name of the example.
+
+# Flags
+
+- `-f,--force`: overwrite existing path.
+- `--cuda`: use `EaRydCUDA`.
+- `--plot`: use `EaRydPlots`.
 """
-@cast function create(name::String)
+@cast function create(name::String; force::Bool=false, cuda::Bool=false, plot::Bool=false)
     example_dir = root_dir("examples", name)
-    ispath(example_dir) || mkpath(example_dir)
+    if !force && ispath(example_dir)
+        error("$example_dir already exists")
+    end
+    rm(example_dir;force=true, recursive=true)
+    mkpath(example_dir)
     Pkg.activate(example_dir)
-    pkgs = collect_lib()
-    push!(pkgs, Pkg.PackageSpec(path = root_dir()))
+    excluded_libs = []
+    cuda || push!(excluded_libs, "EaRydCUDA")
+    plot || push!(excluded_libs, "EaRydPlots")
+    pkgs = collect_lib(;include_main=true, excluded_libs)
     Pkg.develop(pkgs)
     write(joinpath(example_dir, "main.jl"), """
-    # write EaRyd example with Literate.jl here
+    # write your EaRyd example with Literate.jl here
     """)
     return
 end

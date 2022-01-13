@@ -3,26 +3,71 @@ module EaRydCI
 using Pkg
 using TOML
 using Comonicon
+using CoverageTools
 
 root_dir(xs...) = joinpath(dirname(dirname(@__DIR__)), xs...)
-function collect_lib()
-    return map(readdir(root_dir("lib"))) do pkg
-        Pkg.PackageSpec(path = root_dir("lib", pkg))
+function collect_lib(;include_main::Bool=false, excluded_libs=["EaRydPlots"])
+    pkgs = Pkg.PackageSpec[]
+    for pkg in readdir(root_dir("lib"))
+        pkg in excluded_libs && continue
+        push!(pkgs, Pkg.PackageSpec(path = root_dir("lib", pkg)))
     end
+    include_main && push!(pkgs, Pkg.PackageSpec(path = root_dir("lib")))
+    return pkgs
 end
 
+"""
+run tests (in parallel process).
+
+# Args
+
+- `paths`: paths of the packages to run test.
+
+# Flags
+
+- `--coverage`: enable code coverage.
+"""
 @cast function test(paths::String...; coverage::Bool=false)
     isempty(paths) && error("expect paths to the package")
-    paths = collect(paths)
-    names = map(paths) do pkg
-        d = TOML.parsefile(joinpath(pkg, "Project.toml"))
-        d["name"]
+    try
+        @sync for path in paths
+            isfile(joinpath(path, "Manifest.toml")) || dev(path)
+            test_cmd = "using Pkg; Pkg.test(;coverage=$coverage)"
+            Threads.@spawn run(`$(Base.julia_exename()) --project=$path -e "$test_cmd"`)
+        end
+    catch e
+        if !(e isa InterruptException)
+            rethrow(e)
+        end
     end
 
-    isfile(root_dir("Manifest.toml")) || dev(".") # ensure all lib is developed
-    test_cmd = "using Pkg; Pkg.test([$(join(repr.(names), ", "))];coverage=$coverage)"
-    run(`$(Base.julia_exename()) --project=$(root_dir()) -e "$test_cmd"`)
+    coverage || return
+    
+    dirs = map(paths) do path
+        joinpath(path, "src")
+    end
+    pfs = mapreduce(process_folder, vcat, dirs)
+    LCOV.writefile(root_dir("lcov.info"), pfs)
     return
+end
+
+"""
+run all the tests (in parallel).
+
+# Flags
+
+- `--coverage`: enable code coverage.
+- `--cpu`: filter cpu tests.
+"""
+@cast function testall(;coverage::Bool=false, cpu::Bool=false)
+    paths = map(readdir(root_dir("lib"))) do pkg
+        joinpath("lib", pkg)
+    end
+    push!(paths, ".")
+    if cpu
+        paths = filter(x->x!=joinpath("lib", "EaRydCUDA"), paths)
+    end
+    return test(paths...; coverage)
 end
 
 """
@@ -34,15 +79,26 @@ develop the EaRyd components into environment.
     default is the main EaRyd environment.
 """
 @cast function dev(path::String=".")
-    pkgs = collect_lib()
     path = relpath(path, root_dir())
 
     if path == "."
         Pkg.activate(root_dir())
-        Pkg.develop(pkgs)
+        Pkg.develop(collect_lib())
     elseif startswith(path, "examples") || startswith(path, "docs")
         Pkg.activate(root_dir(path))
-        push!(pkgs, Pkg.PackageSpec(path = root_dir()))
+        Pkg.develop(collect_lib(;include_main=true))
+    elseif startswith(path, "lib")
+        d = TOML.parsefile(joinpath(path, "Project.toml"))
+        names = [name for name in keys(d["deps"]) if startswith(name, "EaRyd")]
+        isempty(names) && return
+        paths = map(names) do name
+            name == "EaRyd" && return "."
+            return root_dir("lib", name)
+        end
+        pkgs = map(paths) do path
+            Pkg.PackageSpec(;path)
+        end
+        Pkg.activate(root_dir(path))
         Pkg.develop(pkgs)
     else
         error("invalid path: $(root_dir(path))")

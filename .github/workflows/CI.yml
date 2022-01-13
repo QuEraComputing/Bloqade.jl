@@ -50,9 +50,7 @@ jobs:
         run: .ci/run dev
       - uses: julia-actions/julia-buildpkg@v1
       - name: "run tests"
-        run: .ci/run test ${{ matrix.package }}
-      - name: "process code coverage"
-        run: julia --project .ci/codecov.jl ${{ matrix.package }}
+        run: .ci/run testall --cpu --coverage
       - uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

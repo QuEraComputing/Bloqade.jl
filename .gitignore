@@ -1,3 +1,4 @@
+lcov.info
 *.jl.*.cov
 *.jl.cov
 *.jl.mem

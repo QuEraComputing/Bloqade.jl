@@ -12,7 +12,7 @@ function collect_lib(;include_main::Bool=false, excluded_libs=["EaRydPlots"])
         pkg in excluded_libs && continue
         push!(pkgs, Pkg.PackageSpec(path = root_dir("lib", pkg)))
     end
-    include_main && push!(pkgs, Pkg.PackageSpec(path = root_dir("lib")))
+    include_main && push!(pkgs, Pkg.PackageSpec(path = root_dir()))
     return pkgs
 end
 

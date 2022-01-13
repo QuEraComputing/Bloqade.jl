@@ -19,10 +19,8 @@ jobs:
         run: |
           using Pkg; pkg"registry add General"
           pkg"registry add https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"
-      - name: Install dependencies
-        run: .ci/run doc build
       - name: Build and deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token
           DOCUMENTER_KEY: ${{ secrets.DOCUMENTER_KEY }} # For authentication with SSH deploy key
-        run: julia --project=docs/ docs/make.jl
+        run: .ci/run doc build

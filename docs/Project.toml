@@ -1,7 +1,7 @@
 [deps]
-EaRydODE = "10fc086f-8aaa-4f44-9b62-28c43ef0af29"
-EaRydCUDA = "6b142359-0b0c-4dfb-9c9b-84981bce612e"
+EaRydODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
+EaRydCUDA = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe3"
 DocThemeIndigo = "8bac0ac5-51bf-41f9-885e-2bf1ac2bec5f"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-EaRyd = "919886a7-1033-42c4-9b63-e090dad94c32"
-EaRydCore = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
+EaRyd = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe1"
+EaRydCore = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe2"

@@ -153,7 +153,31 @@ documentation commands
 
 using Pkg
 using Comonicon
+using LiveServer
 using ..EaRydCI: root_dir, dev
+
+@cast function serve(;host::String="0.0.0.0", port::Int=8000)
+    docs_dir = root_dir(".ci")
+    serve_cmd = """
+    using LiveServer;
+    LiveServer.servedocs(;
+        doc_env=true,
+        skip_dir=joinpath("docs", "src", "assets"),
+        host=\"$host\",
+        port=$port,
+    )
+    """
+    try
+        run(`$(Base.julia_exename()) --project=$(root_dir(".ci")) -e $serve_cmd`)
+    catch e
+        if e isa InterruptException
+            return
+        else
+            rethrow(e)
+        end
+    end
+    return
+end
 
 """
 build the docs

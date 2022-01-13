@@ -17,3 +17,15 @@ Modules = [EaRydCore]
 ```@autodocs
 Modules = [EaRydODE]
 ```
+
+## EaRydLattices
+
+```@autodocs
+Modules = [EaRydLattices]
+```
+
+## EaRydPlots
+
+```@autodocs
+Modules = [EaRydPlots]
+```

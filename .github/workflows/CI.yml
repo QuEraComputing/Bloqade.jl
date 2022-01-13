@@ -15,13 +15,6 @@ jobs:
           - ubuntu-latest
         arch:
           - x64
-        package:
-          - lib/EaRydODE
-          - lib/EaRydLattices
-          - lib/EaRydWaveforms
-          - lib/EaRydCore
-          - lib/EaRydPlots
-          - EaRyd
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 #=
-JULIA_PROJECT=.ci exec julia \
+parent_path=$( cd "$(dirname "${BASH_SOURCE[0]}")" ; pwd -P )
+JULIA_PROJECT=${parent_path} exec julia \
     --startup-file=no \
     --color=yes \
     --compile=min \

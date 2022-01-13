@@ -124,10 +124,9 @@ create an example.
 # Flags
 
 - `-f,--force`: overwrite existing path.
-- `--cuda`: use `EaRydCUDA`.
 - `--plot`: use `EaRydPlots`.
 """
-@cast function create(name::String; force::Bool=false, cuda::Bool=false, plot::Bool=false)
+@cast function create(name::String; force::Bool=false, plot::Bool=false)
     example_dir = root_dir("examples", name)
     if !force && ispath(example_dir)
         error("$example_dir already exists")
@@ -136,7 +135,6 @@ create an example.
     mkpath(example_dir)
     Pkg.activate(example_dir)
     excluded_libs = []
-    cuda || push!(excluded_libs, "EaRydCUDA")
     plot || push!(excluded_libs, "EaRydPlots")
     pkgs = collect_lib(;include_main=true, excluded_libs)
     Pkg.develop(pkgs)

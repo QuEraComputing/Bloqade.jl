@@ -16,11 +16,11 @@ jobs:
         arch:
           - x64
         package:
-          - EaRydODE
-          - EaRydLattices
-          - EaRydWaveforms
-          - EaRydCore
-          - EaRydPlots
+          - lib/EaRydODE
+          - lib/EaRydLattices
+          - lib/EaRydWaveforms
+          - lib/EaRydCore
+          - lib/EaRydPlots
           - EaRyd
     steps:
       - uses: actions/checkout@v2
@@ -47,10 +47,10 @@ jobs:
           Pkg.Registry.add("General")
           Pkg.Registry.add(RegistrySpec(url="https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"))
       - name: "develop lib packages"
-        run: julia --project .ci/run.jl dev
+        run: .ci/run dev
       - uses: julia-actions/julia-buildpkg@v1
       - name: "run tests"
-        run: julia --project .ci/run.jl test ${{ matrix.package }}
+        run: .ci/run test ${{ matrix.package }}
       - name: "process code coverage"
         run: julia --project .ci/codecov.jl ${{ matrix.package }}
       - uses: coverallsapp/github-action@master

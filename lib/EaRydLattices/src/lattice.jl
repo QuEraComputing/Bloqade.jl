@@ -270,8 +270,8 @@ function locations(mg::MaskedGrid)
 end
 
 # generating docstrings
-for LT in (SquareLattice, HoneycombLattice, KagomeLattice, ChainLattice, LiebLattice, TriangularLattice)
-    DOCSTRING = """    $LT <: AbstractLattice{$(dimension(LT()))}
+function _gendoc(::Type{LT}) where LT
+    return """    $LT <: AbstractLattice{$(dimension(LT()))}
     $LT()
 
 $LT is a $(dimension(LT())) dimensional lattice with:
@@ -279,8 +279,13 @@ $LT is a $(dimension(LT())) dimensional lattice with:
 * Lattice vectors = $(lattice_vectors(LT()))
 * Lattice sites   = $(lattice_sites(LT()))
 """
-    @eval @doc $DOCSTRING $(Symbol(LT))
 end
+@doc _gendoc(SquareLattice) SquareLattice
+@doc _gendoc(TriangularLattice) TriangularLattice
+@doc _gendoc(ChainLattice) ChainLattice
+@doc _gendoc(LiebLattice) LiebLattice
+@doc _gendoc(KagomeLattice) KagomeLattice
+@doc _gendoc(HoneycombLattice) HoneycombLattice
 
 # TODO
 # pseudo-lattices,

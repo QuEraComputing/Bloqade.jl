@@ -102,7 +102,7 @@ develop the EaRyd components into environment.
 end
 
 function collect_lib_deps(path::String)
-    d = TOML.parsefile(joinpath(path, "Project.toml"))
+    d = TOML.parsefile(root_dir(path, "Project.toml"))
     names = [name for name in keys(d["deps"]) if startswith(name, "EaRyd")]
     paths = map(names) do name
         name == "EaRyd" && return "."

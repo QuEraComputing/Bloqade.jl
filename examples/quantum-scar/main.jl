@@ -12,7 +12,7 @@ using Random
 # After the quence, we observe oscillations of many-body states between the initial and inverted states.
 
 Random.seed!(42)
-# build lattice structure with 10 sites
+ # build lattice structure with 10 sites
 nsites = 10
 atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 

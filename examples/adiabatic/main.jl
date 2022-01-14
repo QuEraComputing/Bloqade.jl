@@ -34,5 +34,5 @@ emulate!(prob) # run the time evolution directly
 densities = map(1:nsites) do i
     real(expect(put(nsites, i=>Op.n), prob.reg))
 end
-
-bitstring_histgram(prob.reg; nlargest_possible=20)
+densities
+bitstring_histgram(prob.reg)

@@ -120,12 +120,12 @@ for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
             viz_maskedgrid(io, maskedgrid; scale=2.0, format=$format)
         end
     
-        function Base.show(io::IO, ::$mime, list::AtomList{Tuple{<:Real}})
-            viz_atoms(io, padydim.(list.atoms); scale=2.0, format=$format)
-        end
-    
         function Base.show(io::IO, ::$mime, list::AtomList)
-            viz_atoms(io, list.atoms; scale=2.0, format=$format)
-        end
+            if length(list.atoms[1]) == 1
+                viz_atoms(io, padydim.(list.atoms); scale=2.0, format=$format)
+            else
+                viz_atoms(io, list.atoms; scale=2.0, format=$format)
+            end
+        end    
     end
 end

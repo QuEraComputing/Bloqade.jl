@@ -18,6 +18,12 @@ Modules = [EaRydCore]
 Modules = [EaRydODE]
 ```
 
+## EaRydWaveforms
+
+```@autodocs
+Modules = [EaRydWaveforms]
+```
+
 ## EaRydLattices
 
 ```@autodocs

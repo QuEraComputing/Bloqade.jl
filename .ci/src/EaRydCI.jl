@@ -160,7 +160,10 @@ using ..EaRydCI: root_dir, dev
     using LiveServer;
     LiveServer.servedocs(;
         doc_env=true,
-        skip_dir=joinpath("docs", "src", "assets"),
+        skip_dirs=[
+            joinpath("docs", "src", "assets"),
+            joinpath("docs", "src", "tutorials"),
+        ],
         host=\"$host\",
         port=$port,
     )

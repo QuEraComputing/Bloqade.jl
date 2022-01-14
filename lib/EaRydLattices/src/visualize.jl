@@ -110,22 +110,22 @@ end
 for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
     @eval begin
         function Base.show(io::IO, ::$mime, lt::AbstractLattice{2})
-            viz_atoms(io, generate_sites(lt, 5, 5); scale=2.0, format=$format)
+            Base.show(io, $mime(), generate_sites(lt, 5, 5))
         end
     
         function Base.show(io::IO, ::$mime, lt::AbstractLattice{1})
-            viz_atoms(io, padydim.(generate_sites(lt, 5)); scale=2.0, format=$format)
+            Base.show(io, $mime(), generate_sites(lt, 5))
         end
         function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
             viz_maskedgrid(io, maskedgrid; scale=2.0, format=$format)
         end
     
-        function Base.show(io::IO, ::$mime, list::AtomList)
-            if length(list.atoms[1]) == 1
-                viz_atoms(io, padydim.(list.atoms); scale=2.0, format=$format)
-            else
-                viz_atoms(io, list.atoms; scale=2.0, format=$format)
-            end
-        end    
+        function Base.show(io::IO, ::$mime, list::AtomList{1})
+            viz_atoms(io, padydim.(list.atoms); scale=2.0, format=$format)
+        end
+    
+        function Base.show(io::IO, ::$mime, list::AtomList{2})
+            viz_atoms(io, list.atoms; scale=2.0, format=$format)
+        end
     end
 end

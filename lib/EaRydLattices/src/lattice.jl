@@ -79,8 +79,8 @@ struct KagomeLattice <: AbstractLattice{2} end
 lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
 lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25*sqrt(3)), (0.75, 0.25*sqrt(3)))
 
-struct AtomList{T <: Tuple} <: AbstractVector{T}
-    atoms::Vector{T}
+struct AtomList{D, T} <: AbstractVector{NTuple{D, T}}
+    atoms::Vector{NTuple{D,T}}
 end
 
 Base.size(list::AtomList) = size(list.atoms)

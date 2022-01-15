@@ -30,7 +30,7 @@ end
     GeneralLattice(vectors, sites)
 
 The general lattice type for tiling the space. Type parameter `D` is the dimension,
-`K` is the number of sites in a unit cell and `T` is the data type for locations, e.g. `Float64`. Input arguments are
+`K` is the number of sites in a unit cell and `T` is the data type for coordinates, e.g. `Float64`. Input arguments are
 
 * `vectors` is a vector/tuple of D-tuple. Its length is D, it specifies the Bravais lattice vectors.
 * `sites` is a vector/tuple of D-tuple. Its length is K, it specifies the sites inside a Bravais cell.
@@ -97,9 +97,9 @@ Base.getindex(list::AtomList, idx::Int) = list.atoms[idx]
 """
     generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0)
 
-Returns a vector of locations (2-tuple) by tiling the specified `lattice`.
+Returns an [`AtomList`](@ref) instance by tiling the specified `lattice`.
 The tiling repeat the `sites` of the lattice `m` times along the first dimension,
-`n` times along the second dimension, and so on. `scale` is a real number that re-scales the lattice constant and site locations.
+`n` times along the second dimension, and so on. `scale` is a real number that re-scales the lattice constant and atom locations.
 """
 function generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0) where D
     return AtomList(

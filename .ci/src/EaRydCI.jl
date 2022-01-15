@@ -188,6 +188,12 @@ build the docs
     docs_dir = root_dir("docs")
     docs_make_jl = root_dir("docs", "make.jl")
     julia_cmd = "using Pkg; Pkg.instantiate()"
+    
+    for each in readdir(root_dir("examples"))
+        example_dir = root_dir("examples", each)
+        isdir(example_dir) || continue
+        dev(example_dir)
+    end
     run(`$(Base.julia_exename()) --project=$docs_dir -e $julia_cmd`)
     run(`$(Base.julia_exename()) --project=$docs_dir $docs_make_jl`)
 end

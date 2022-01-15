@@ -12,6 +12,7 @@ using Literate
 for each in readdir(pkgdir(EaRyd, "examples"))
     project_dir = pkgdir(EaRyd, "examples", each)
     isdir(project_dir) || continue
+    @info "building" project_dir
     input_file = pkgdir(EaRyd, "examples", each, "main.jl")
     output_dir = pkgdir(EaRyd, "docs", "src", "tutorials")
     Pkg.activate(project_dir)

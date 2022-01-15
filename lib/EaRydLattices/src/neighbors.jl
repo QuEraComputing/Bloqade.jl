@@ -1,12 +1,12 @@
 """
-    make_kdtree(locations::AbstractVector{NTuple{D,T}}) where {T, D}
+    make_kdtree(atoms::AtomList{D,T}) where {T, D}
 
-Returns a [`KDTree`](@ref) instance from input `locations`.
+Returns a [`KDTree`](@ref) instance from input `atoms`.
 """
-function make_kdtree(locations::AbstractVector{NTuple{D,T}}) where {T, D}
-    data = zeros(T, D, length(locations))
-    for i=1:length(locations)
-        data[:,i] .= locations[i]
+function make_kdtree(atoms::AtomList{D,T}) where {T, D}
+    data = zeros(T, D, length(atoms))
+    for i=1:length(atoms)
+        data[:,i] .= atoms[i]
     end
     return KDTree(data)
 end
@@ -58,9 +58,9 @@ Find the `nsites` closest vertices to `siteindex`, and group them by distance. D
 Returns a [`DistanceGroup`](@ref) instance.
 
 ```jldoctest; setup=:(using EaRydLattices)
-julia> locations = generate_sites(HoneycombLattice(), 5, 5);
+julia> atoms = generate_sites(HoneycombLattice(), 5, 5);
 
-julia> tree = make_kdtree(locations)
+julia> tree = make_kdtree(atoms)
 NearestNeighbors.KDTree{StaticArrays.SVector{2, Float64}, Distances.Euclidean, Float64}
   Number of points: 50
   Dimensions: 2

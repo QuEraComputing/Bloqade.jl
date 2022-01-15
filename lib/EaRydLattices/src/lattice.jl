@@ -30,7 +30,7 @@ end
     GeneralLattice(vectors, sites)
 
 The general lattice type for tiling the space. Type parameter `D` is the dimension,
-`K` is the number of sites in a unit cell and `T` is the data type for locations, e.g. `Float64`. Input arguments are
+`K` is the number of sites in a unit cell and `T` is the data type for coordinates, e.g. `Float64`. Input arguments are
 
 * `vectors` is a vector/tuple of D-tuple. Its length is D, it specifies the Bravais lattice vectors.
 * `sites` is a vector/tuple of D-tuple. Its length is K, it specifies the sites inside a Bravais cell.
@@ -79,20 +79,28 @@ struct KagomeLattice <: AbstractLattice{2} end
 lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
 lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25*sqrt(3)), (0.75, 0.25*sqrt(3)))
 
-struct AtomList{T <: Tuple} <: AbstractVector{T}
-    atoms::Vector{T}
+"""
+    AtomList{D, T} <: AbstractVector{NTuple{D, T}}
+    AtomList(atoms::Vector{<:NTuple})
+
+A list of atoms in `D` dimensional space.
+"""
+struct AtomList{D, T} <: AbstractVector{NTuple{D, T}}
+    atoms::Vector{NTuple{D,T}}
 end
 
 Base.size(list::AtomList) = size(list.atoms)
 Base.length(list::AtomList) = length(list.atoms)
-Base.getindex(list::AtomList, idx) = list.atoms[idx]
+Base.getindex(list::AtomList, idx::AbstractRange) = AtomList(list.atoms[idx])
+Base.getindex(list::AtomList, idx::AbstractVector) = AtomList(list.atoms[idx])
+Base.getindex(list::AtomList, idx::Int) = list.atoms[idx]
 
 """
     generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0)
 
-Returns a vector of locations (2-tuple) by tiling the specified `lattice`.
+Returns an [`AtomList`](@ref) instance by tiling the specified `lattice`.
 The tiling repeat the `sites` of the lattice `m` times along the first dimension,
-`n` times along the second dimension, and so on. `scale` is a real number that re-scales the lattice constant and site locations.
+`n` times along the second dimension, and so on. `scale` is a real number that re-scales the lattice constant and atom locations.
 """
 function generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0) where D
     return AtomList(
@@ -105,7 +113,7 @@ end
 
 ############ manipulate sites ###############
 """
-    offset_axes(sites::AbstractVector{NTuple{D, T}}, offsets::Vararg{T,D}) where {D, T}
+    offset_axes(sites::AtomList{D, T}, offsets::Vararg{T,D}) where {D, T}
     offset_axes(offsets...)
 
 Offset the `sites` by distance specified by `offsets`.
@@ -126,13 +134,13 @@ julia> offset_axes(sites, 1.0, 3.0)
  (4.0, 8.0)
 ```
 """
-function offset_axes(sites::AbstractVector{NTuple{D, T}}, offsets::Vararg{T,D}) where {D, T}
+function offset_axes(sites::AtomList{D, T}, offsets::Vararg{T,D}) where {D, T}
     @assert length(offsets) == D
-    return map(x->ntuple(i->x[i]+offsets[i], D), sites)
+    return AtomList(map(x->ntuple(i->x[i]+offsets[i], D), sites.atoms))
 end
 
 """
-    rescale_axes(sites::AbstractVector{NTuple{D, T}}, scale::Real) where {D, T}
+    rescale_axes(sites::AtomList{D, T}, scale::Real) where {D, T}
     rescale_axes(scale)
 
 Rescale the `sites` by a constant `scale`.
@@ -153,22 +161,24 @@ julia> rescale_axes(sites, 2.0)
  (6.0, 10.0)
 ```
 """
-function rescale_axes(sites::AbstractVector{NTuple{D, T}}, scale::Real) where {D, T}
-    return map(x->ntuple(i->x[i]*scale, D), sites)
+function rescale_axes(sites::AtomList{D, T}, scale::Real) where {D, T}
+    return AtomList(map(x->ntuple(i->x[i]*scale, D), sites.atoms))
 end
 
 """
-    random_dropout(sites::AbstractVector{NTuple{D, T}}, probability::Real) where {D, T}
-    random_dropout(probability)
+    random_dropout(sites::AtomList{D, T}, ratio::Real) where {D, T}
+    random_dropout(ratio)
 
-Randomly drop out `sites` with probability `probability`, i.e. removing items from the vector.
+Randomly drop out `ratio * number of sites` atoms from `sites`, where `ratio` ∈ [0, 1].
 """
-function random_dropout(sites::AbstractVector{NTuple{D, T}}, probability::Real) where {D, T}
-    return sites[rand(length(sites)) .> probability]
+function random_dropout(sites::AtomList{D, T}, ratio::Real) where {D, T}
+    (ratio >= 0 && ratio <= 1) || throw(ArgumentError("dropout ratio be in range [0, 1], got `$ratio`."))
+    atoms = sample(1:length(sites), round(Int, length(sites)*(1-ratio)); replace=false)
+    return sites[sort!(atoms)]
 end
 
 """
-    clip_axes(sites::AbstractVector{NTuple{D, T}}, bounds::Vararg{Tuple{T,T},D}) where {D, T}
+    clip_axes(sites::AtomList{D, T}, bounds::Vararg{Tuple{T,T},D}) where {D, T}
     clip_axes(bounds...)
 
 Remove sites out of `bounds`, where `bounds` is specified by D D-tuples.
@@ -187,10 +197,10 @@ julia> clip_axes(sites, (-5.0, 5.0), (-5.0, 5.0))
  (3.0, 5.0)
 ```
 """
-function clip_axes(sites::AbstractVector{NTuple{D, T}}, bounds::Vararg{Tuple{T,T},D}) where {D, T}
+function clip_axes(sites::AtomList{D, T}, bounds::Vararg{Tuple{T,T},D}) where {D, T}
     @assert length(bounds) == D
     @assert all(x->length(x) == 2, bounds)
-    return filter(x->all(i->bounds[i][1] <= x[i] <= bounds[i][2], 1:D), sites)
+    return AtomList(filter(x->all(i->bounds[i][1] <= x[i] <= bounds[i][2], 1:D), sites.atoms))
 end
 clip_axes(args::Vararg{T,D}) where {T,D} = ls -> clip_axes(ls, args...)
 offset_axes(args::Vararg{T,D}) where {T,D} = ls -> offset_axes(ls, args...)
@@ -218,18 +228,18 @@ struct MaskedGrid{T}
     mask::Matrix{Bool}
 end
 
+padydim(al::AtomList{1,T}) where {T} = AtomList([(x[1], zero(T)) for x in al.atoms])
+padydim(al::AtomList{2,T}) where {T} = al
+
 """
-    make_grid(sites::AbstractVector; atol=...)
+    make_grid(sites::AtomList; atol=...)
 
 Create a [`MaskedGrid`](@ref) from the sites. It is required by lattice preparation of Rydberg array.
 Because the grid will sort the sites by rows, we need `atol` (default value is 10 time sit data precision)
 determines up to what level of round off error, two atoms belong to the same row.
 """
-function make_grid(sites::AbstractVector{NTuple{1, T}}; atol=10*eps(T)) where {T}
-    make_grid(padydim.(sites); atol=atol)
-end
-padydim(x::Tuple{T}) where T = (x[1], zero(T))
-function make_grid(sites::AbstractVector{NTuple{2, T}}; atol=10*eps(T)) where {T}
+function make_grid(sites::AtomList{D, T}; atol=10*eps(T)) where {D,T}
+    sites = padydim(sites)
     xs = sort!(approximate_unique(getindex.(sites, 1), atol))
     ys = sort!(approximate_unique(getindex.(sites, 2), atol))
     ixs = map(s->findfirst(==(s[1]), xs), sites)
@@ -261,12 +271,12 @@ function approximate_unique(xs::AbstractVector{T}, atol) where T
 end
 
 """
-    locations(maskedgrid::MaskedGrid)
+    collect_atoms(maskedgrid::MaskedGrid)
 
-Returns locations of sites of the `maskedgrid` in order.
+Returns an list of atoms in the `maskedgrid` in order.
 """
-function locations(mg::MaskedGrid)
-    map(ci->(mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask))
+function collect_atoms(mg::MaskedGrid)
+    AtomList(map(ci->(mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask)))
 end
 
 # generating docstrings

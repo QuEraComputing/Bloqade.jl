@@ -2,6 +2,15 @@ using EaRydLattices
 using Viznet.Compose
 using Test
 
+@testset "AtomList" begin
+    al = AtomList([(0.1, 0.2), (0.3, 0.4), (0.1, 0.8)])
+    @test al[2:3] == AtomList([(0.3, 0.4), (0.1, 0.8)])
+    @test al[[true, false, true]] == AtomList([(0.1, 0.2), (0.1, 0.8)])
+    @test length(al) == 3
+    @test size(al) == (3,)
+    @test al[3] == (0.1, 0.8)
+end
+
 @testset "lattice" begin
     for LT in [HoneycombLattice(),
             SquareLattice(), TriangularLattice(),
@@ -18,14 +27,17 @@ using Test
     mg = make_grid(l3)
     @test sum(mg.mask) == length(l3) == 14
     @test length(mg.xs) == 6 && length(mg.ys) == 5
-    @test length(locations(mg)) == 14
+    @test length(collect_atoms(mg)) == 14
     l4 = l3 |> random_dropout(1.0)
     @test length(l4) == 0
     l4 = random_dropout(l3, 0.0)
     @test length(l4) == length(l3)
+    l5 = random_dropout(l3, 0.5)
+    @test length(l5) == 7
+    @test_throws ArgumentError random_dropout(l3, -0.5)
     
     # rescale axes
-    sites = [(0.2, 0.3), (0.4, 0.8)]
+    sites = AtomList([(0.2, 0.3), (0.4, 0.8)])
     @test (sites |> rescale_axes(2.0)) == [(0.4, 0.6), (0.8, 1.6)]
 end
 
@@ -33,8 +45,8 @@ end
     for (lt, i, s1, s2) in [(HoneycombLattice(), 25, 3, 6),
             (SquareLattice(), 13, 4, 4), (TriangularLattice(), 13, 6, 6),
             (LiebLattice(), 37, 4, 4), (KagomeLattice(), 37, 4, 4), (GeneralLattice(((1.0, 0.0), (0.0, 1.0)), [(0.0, 0.0)]), 13, 4, 4)]
-        locations = generate_sites(lt, 5, 5)
-        tree = make_kdtree(locations)
+        atoms = generate_sites(lt, 5, 5)
+        tree = make_kdtree(atoms)
         @show lt
         gn = grouped_nearest(tree, i, 20)
         @test gn[0] == [i]
@@ -47,7 +59,7 @@ end
 @testset "fix site ordering" begin
     lt = generate_sites(KagomeLattice(), 5, 5)
     grd = make_grid(lt[2:end-1])
-    x, y = locations(grd)[1]
+    x, y = collect_atoms(grd)[1]
     @test issorted(grd.xs)
     @test issorted(grd.ys)
     @test x ≈ 1.0 && y ≈ 0.0
@@ -62,4 +74,8 @@ end
     @test show(IOBuffer(), MIME"text/html"(), ChainLattice()) === nothing
     @test show(IOBuffer(), MIME"text/html"(), grd) === nothing
     @test show(IOBuffer(), MIME"text/html"(), lt) === nothing
+    @test show(IOBuffer(), MIME"image/png"(), KagomeLattice()) === nothing
+    @test show(IOBuffer(), MIME"image/png"(), ChainLattice()) === nothing
+    @test show(IOBuffer(), MIME"image/png"(), grd) === nothing
+    @test show(IOBuffer(), MIME"image/png"(), lt) === nothing
 end

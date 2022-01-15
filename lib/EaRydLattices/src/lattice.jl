@@ -92,7 +92,7 @@ end
 Base.size(list::AtomList) = size(list.atoms)
 Base.length(list::AtomList) = length(list.atoms)
 Base.getindex(list::AtomList, idx::AbstractRange) = AtomList(list.atoms[idx])
-Base.getindex(list::AtomList, idx::AbstractVector{Bool}) = AtomList(list.atoms[idx])
+Base.getindex(list::AtomList, idx::AbstractVector) = AtomList(list.atoms[idx])
 Base.getindex(list::AtomList, idx::Int) = list.atoms[idx]
 
 """
@@ -173,8 +173,8 @@ Randomly drop out `ratio * number of sites` atoms from `sites`, where `ratio` âˆ
 """
 function random_dropout(sites::AtomList{D, T}, ratio::Real) where {D, T}
     (ratio >= 0 && ratio <= 1) || throw(ArgumentError("dropout ratio be in range [0, 1], got `$ratio`."))
-    atoms = sample(sites, round(Int, length(sites)*(1-ratio)); replace=false)
-    return AtomList(atoms)
+    atoms = sample(1:length(sites), round(Int, length(sites)*(1-ratio)); replace=false)
+    return sites[sort!(atoms)]
 end
 
 """
@@ -276,7 +276,7 @@ end
 Returns an list of atoms in the `maskedgrid` in order.
 """
 function collect_atoms(mg::MaskedGrid)
-    map(ci->(mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask))
+    AtomList(map(ci->(mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask)))
 end
 
 # generating docstrings

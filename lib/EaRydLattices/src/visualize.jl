@@ -43,7 +43,6 @@ If you want to write this image to the disk without using a frontend, please che
 """
 function viz_atoms(io, atoms::AtomList; scale=1.0, format=PNG, colors=fill("white", length(atoms)))
     img, (dx, dy) = img_atoms(atoms; scale=scale, colors=colors)
-    @show dx, dy
     Compose.draw(format(io, dx, dy), img)
     return
 end
@@ -114,30 +113,11 @@ for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
         end
     
         function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
-            viz_maskedgrid(io, maskedgrid; scale=scale_heuristic(collect_atoms(maskedgrid)), format=$format)
+            viz_maskedgrid(io, maskedgrid; scale=1.5, format=$format)
         end
     
         function Base.show(io::IO, ::$mime, list::AtomList)
-            viz_atoms(io, list; scale=scale_heuristic(list), format=$format)
+            viz_atoms(io, list; scale=1.5, format=$format)
         end
     end
-end
-
-# get the atom size in the plot
-function scale_heuristic(list::AtomList)
-    ds = average_distance(list)
-    return ds / sqrt(length(list)) * 0.8
-end
-
-# get the average distance between atoms
-function average_distance(list::AtomList)
-    n = length(list)
-    n <= 1 && return 1.0
-    ds = 0.0
-    @inbounds for i=1:n
-        for j=i+1:n
-            ds += sqrt(sum(abs2, list[i] .- list[j]))
-        end
-    end
-    return ds/(n*(n-1)/2)
 end

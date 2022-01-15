@@ -185,9 +185,10 @@ build the docs
 """
 @cast function build()
     dev("docs")
-    Pkg.instantiate()
     docs_dir = root_dir("docs")
     docs_make_jl = root_dir("docs", "make.jl")
+    julia_cmd = "using Pkg; Pkg.instantiate()"
+    run(`$(Base.julia_exename()) --project=$docs_dir -e $julia_cmd`)
     run(`$(Base.julia_exename()) --project=$docs_dir $docs_make_jl`)
 end
 

@@ -36,3 +36,7 @@ space = blockade_subspace(atoms, 1.5)
         @test ref ≈ reg atol=1e-4
     end
 end
+
+@testset "assertion" begin
+    @test_throws ErrorException ODEEvolution(zero_state(9), 0.1, XTerm(5, 1.0))
+end

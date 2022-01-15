@@ -93,7 +93,8 @@ function img_maskedgrid(maskedgrid::MaskedGrid; scale, colors)
     img1 = _viz_atoms(rescaler.(atoms), node_styles, text_style)
     img2 = _viz_grid(rescaler.(maskedgrid.xs; dims=1), rescaler.(maskedgrid.ys; dims=2), line_style_grid, Y/X)
     img = compose(context(0, 0, 1.0, X/Y), (context(), img1), (context(), img2))
-    return img, (X*scale*cm, Y*scale*cm)
+    img_rescale = 12cm/max(X, Y)
+    return img, (X*img_rescale, Y*img_rescale)
 end
 function _viz_grid(xs, ys, line_style, ymax)
     Viznet.canvas() do

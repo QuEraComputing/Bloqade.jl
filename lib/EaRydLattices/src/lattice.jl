@@ -92,6 +92,7 @@ end
 Base.size(list::AtomList) = size(list.atoms)
 Base.length(list::AtomList) = length(list.atoms)
 Base.getindex(list::AtomList, idx::AbstractRange) = AtomList(list.atoms[idx])
+Base.getindex(list::AtomList, idx::AbstractVector{Bool}) = AtomList(list.atoms[idx])
 Base.getindex(list::AtomList, idx::Int) = list.atoms[idx]
 
 """
@@ -165,13 +166,15 @@ function rescale_axes(sites::AtomList{D, T}, scale::Real) where {D, T}
 end
 
 """
-    random_dropout(sites::AtomList{D, T}, probability::Real) where {D, T}
-    random_dropout(probability)
+    random_dropout(sites::AtomList{D, T}, ratio::Real) where {D, T}
+    random_dropout(ratio)
 
-Randomly drop out `sites` with probability `probability`, i.e. removing items from the vector.
+Randomly drop out `ratio * number of sites` atoms from `sites`, where `ratio` ∈ [0, 1].
 """
-function random_dropout(sites::AtomList{D, T}, probability::Real) where {D, T}
-    return AtomList(sites.atoms[rand(length(sites)) .> probability])
+function random_dropout(sites::AtomList{D, T}, ratio::Real) where {D, T}
+    (ratio >= 0 && ratio <= 1) || throw(ArgumentError("dropout ratio be in range [0, 1], got `$ratio`."))
+    atoms = sample(sites, round(Int, length(sites)*(1-ratio)); replace=false)
+    return AtomList(atoms)
 end
 
 """
@@ -225,6 +228,9 @@ struct MaskedGrid{T}
     mask::Matrix{Bool}
 end
 
+padydim(al::AtomList{1,T}) where {T} = AtomList([(x[1], zero(T)) for x in al.atoms])
+padydim(al::AtomList{2,T}) where {T} = al
+
 """
     make_grid(sites::AtomList; atol=...)
 
@@ -232,11 +238,8 @@ Create a [`MaskedGrid`](@ref) from the sites. It is required by lattice preparat
 Because the grid will sort the sites by rows, we need `atol` (default value is 10 time sit data precision)
 determines up to what level of round off error, two atoms belong to the same row.
 """
-function make_grid(sites::AtomList{1, T}; atol=10*eps(T)) where {T}
-    make_grid(AtomList(padydim.(sites.atoms)); atol=atol)
-end
-padydim(x::Tuple{T}) where T = (x[1], zero(T))
-function make_grid(sites::AtomList{2, T}; atol=10*eps(T)) where {T}
+function make_grid(sites::AtomList{D, T}; atol=10*eps(T)) where {D,T}
+    sites = padydim(sites)
     xs = sort!(approximate_unique(getindex.(sites, 1), atol))
     ys = sort!(approximate_unique(getindex.(sites, 2), atol))
     ixs = map(s->findfirst(==(s[1]), xs), sites)

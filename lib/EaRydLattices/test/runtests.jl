@@ -2,6 +2,15 @@ using EaRydLattices
 using Viznet.Compose
 using Test
 
+@testset "AtomList" begin
+    al = AtomList([(0.1, 0.2), (0.3, 0.4), (0.1, 0.8)])
+    @test al[2:3] == AtomList([(0.3, 0.4), (0.1, 0.8)])
+    @test al[[true, false, true]] == AtomList([(0.1, 0.2), (0.1, 0.8)])
+    @test length(al) == 3
+    @test size(al) == (3,)
+    @test al[3] == (0.1, 0.8)
+end
+
 @testset "lattice" begin
     for LT in [HoneycombLattice(),
             SquareLattice(), TriangularLattice(),
@@ -23,6 +32,9 @@ using Test
     @test length(l4) == 0
     l4 = random_dropout(l3, 0.0)
     @test length(l4) == length(l3)
+    l5 = random_dropout(l3, 0.5)
+    @test length(l5) == 7
+    @test_throws ArgumentError random_dropout(l3, -0.5)
     
     # rescale axes
     sites = AtomList([(0.2, 0.3), (0.4, 0.8)])
@@ -62,4 +74,8 @@ end
     @test show(IOBuffer(), MIME"text/html"(), ChainLattice()) === nothing
     @test show(IOBuffer(), MIME"text/html"(), grd) === nothing
     @test show(IOBuffer(), MIME"text/html"(), lt) === nothing
+    @test show(IOBuffer(), MIME"image/png"(), KagomeLattice()) === nothing
+    @test show(IOBuffer(), MIME"image/png"(), ChainLattice()) === nothing
+    @test show(IOBuffer(), MIME"image/png"(), grd) === nothing
+    @test show(IOBuffer(), MIME"image/png"(), lt) === nothing
 end

@@ -6,6 +6,7 @@ using Cairo
 using NearestNeighbors
 using Viznet: Viznet
 using Viznet.Compose
+using StatsBase
 
 export # types
     AbstractLattice, HoneycombLattice,

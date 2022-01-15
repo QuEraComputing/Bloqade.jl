@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Quantum Scar · EaRyd.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/EaRyd.jl/tutorials/quantum-scar/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">EaRyd.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../quick-start/">Quick Start</a></li><li><a class="tocitem" href="../../julia/">The Julia Programming Language</a></li><li><a class="tocitem" href="../../registry/">Setting Up Company Registry</a></li><li><span class="tocitem">Tutorials</span><ul><li class="is-active"><a class="tocitem" href>Quantum Scar</a></li><li><a class="tocitem" href="../adiabatic/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../qaoa/">Quantum Approximate Optimization Algorithm</a></li></ul></li><li><a class="tocitem" href="../../ref/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Quantum Scar</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Quantum Scar</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/EaRyd.jl/blob/master/examples/quantum-scar/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><pre><code class="language-julia hljs">using EaRyd
+using Random</code></pre><p>In this example, we use the Rydberg Emulator to simulate and evolve a fully coherent, strongly interacting system of 9 qubits to observe emergent oscillations in many-body dynamics afer a sudden quench to single-atom resonance. We demonstrate the many-body dynamics with measurements of the domain wall density, which signals the appearance and disappearance of crystalline states.</p><p>We start by building the 1D-Chain 10-atom arrangement, with each atom separated from its neighbor by 5.72 micrometers We evaluate the quench dynamics of the Rydberg atom array initially prepared in a product state as the detuning changes to single atom resonance After the quence, we observe oscillations of many-body states between the initial and inverted states.</p><pre><code class="language-julia hljs">Random.seed!(42)</code></pre><pre><code class="nohighlight hljs">Random.TaskLocalRNG()</code></pre><p>build lattice structure</p><pre><code class="language-julia hljs">nsites = 10
+atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     version="1.2"
+     width="120mm" height="12.53mm" viewBox="0 0 120 12.53"
+     stroke="none"
+     fill="#000000"
+     stroke-width="0.3"
+     font-size="3.88"
+>
+<defs>
+  <marker id="arrow" markerWidth="15" markerHeight="7" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
+  </marker>
+</defs>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-1">
+  <g transform="translate(116.7,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-2">
+  <g transform="translate(104.1,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-3">
+  <g transform="translate(91.5,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-4">
+  <g transform="translate(78.9,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-5">
+  <g transform="translate(66.3,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-6">
+  <g transform="translate(53.7,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-7">
+  <g transform="translate(41.1,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-8">
+  <g transform="translate(28.5,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-9">
+  <g transform="translate(15.9,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-c1542518-10">
+  <g transform="translate(3.3,3.3)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g font-size="2.12" id="img-c1542518-11">
+  <g transform="translate(3.3,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">1</text>
+    </g>
+  </g>
+  <g transform="translate(15.9,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">2</text>
+    </g>
+  </g>
+  <g transform="translate(28.5,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">3</text>
+    </g>
+  </g>
+  <g transform="translate(41.1,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">4</text>
+    </g>
+  </g>
+  <g transform="translate(53.7,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">5</text>
+    </g>
+  </g>
+  <g transform="translate(66.3,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">6</text>
+    </g>
+  </g>
+  <g transform="translate(78.9,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">7</text>
+    </g>
+  </g>
+  <g transform="translate(91.5,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">8</text>
+    </g>
+  </g>
+  <g transform="translate(104.1,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">9</text>
+    </g>
+  </g>
+  <g transform="translate(116.7,3.3)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">10</text>
+    </g>
+  </g>
+</g>
+</svg>
+<p>construct Rydberg Hamiltonian with specified Rabi frequency</p><pre><code class="language-julia hljs">h = rydberg_h(atoms;C = 2π * 858386, Ω=4π)</code></pre><pre><code class="nohighlight hljs">Hamiltonian
+  Term 1
+   ∑(n=1:10) 12.6/2 σ^x
+
+  Term 2
+   ∑(n=1:10) 5.39e6/|r_i - r_j|^6 n_i n_j</code></pre><p>construct initial product state</p><pre><code class="language-julia hljs">config = rand(0:1, 10)
+init = product_state(config)</code></pre><pre><code class="nohighlight hljs">ArrayReg{1, ComplexF64, Array...}
+    active qubits: 10/10</code></pre><p>perform discrete time evolution given timestep ts = 0.01 for 120 iterations using Krylov</p><pre><code class="language-julia hljs">iteration = 1:120
+ts = [0.01 for _ in iteration];
+hs = [h for _ in iteration];
+prob = KrylovEvolution(init, ts, hs)</code></pre><pre><code class="nohighlight hljs">KrylovEvolution{Float64}:
+  reg: ArrayReg{1, ComplexF64, Matrix{ComplexF64}}
+  reg storage: 16.000 KiB
+
+  total duration: 1.2000000000000002 μs
+
+  hamiltonian: 
+    Hamiltonian
+      Term 1
+       ∑(n=1:10) 12.6/2 σ^x
+
+      Term 2
+       ∑(n=1:10) 5.39e6/|r_i - r_j|^6 n_i n_j
+
+       ⋮
+
+    Hamiltonian
+      Term 1
+       ∑(n=1:10) 12.6/2 σ^x
+
+      Term 2
+       ∑(n=1:10) 5.39e6/|r_i - r_j|^6 n_i n_j
+
+  hamiltonian storage: 135.875 KiB
+
+  options: 
+    progress: false
+    progress_step: 1
+    progress_name: &quot;emulating&quot;
+    normalize_step: 5
+    normalize_finally: true</code></pre><p>measure observable</p><pre><code class="language-julia hljs">clocks = cumsum(ts)</code></pre><pre><code class="nohighlight hljs">120-element Vector{Float64}:
+ 0.01
+ 0.02
+ 0.03
+ 0.04
+ 0.05
+ 0.060000000000000005
+ 0.07
+ 0.08
+ 0.09
+ 0.09999999999999999
+ 0.10999999999999999
+ 0.11999999999999998
+ 0.12999999999999998
+ 0.13999999999999999
+ 0.15
+ 0.16
+ 0.17
+ 0.18000000000000002
+ 0.19000000000000003
+ 0.20000000000000004
+ 0.21000000000000005
+ 0.22000000000000006
+ 0.23000000000000007
+ 0.24000000000000007
+ 0.25000000000000006
+ 0.26000000000000006
+ 0.2700000000000001
+ 0.2800000000000001
+ 0.2900000000000001
+ 0.3000000000000001
+ 0.3100000000000001
+ 0.3200000000000001
+ 0.3300000000000001
+ 0.34000000000000014
+ 0.35000000000000014
+ 0.36000000000000015
+ 0.37000000000000016
+ 0.38000000000000017
+ 0.3900000000000002
+ 0.4000000000000002
+ 0.4100000000000002
+ 0.4200000000000002
+ 0.4300000000000002
+ 0.4400000000000002
+ 0.45000000000000023
+ 0.46000000000000024
+ 0.47000000000000025
+ 0.48000000000000026
+ 0.49000000000000027
+ 0.5000000000000002
+ 0.5100000000000002
+ 0.5200000000000002
+ 0.5300000000000002
+ 0.5400000000000003
+ 0.5500000000000003
+ 0.5600000000000003
+ 0.5700000000000003
+ 0.5800000000000003
+ 0.5900000000000003
+ 0.6000000000000003
+ 0.6100000000000003
+ 0.6200000000000003
+ 0.6300000000000003
+ 0.6400000000000003
+ 0.6500000000000004
+ 0.6600000000000004
+ 0.6700000000000004
+ 0.6800000000000004
+ 0.6900000000000004
+ 0.7000000000000004
+ 0.7100000000000004
+ 0.7200000000000004
+ 0.7300000000000004
+ 0.7400000000000004
+ 0.7500000000000004
+ 0.7600000000000005
+ 0.7700000000000005
+ 0.7800000000000005
+ 0.7900000000000005
+ 0.8000000000000005
+ 0.8100000000000005
+ 0.8200000000000005
+ 0.8300000000000005
+ 0.8400000000000005
+ 0.8500000000000005
+ 0.8600000000000005
+ 0.8700000000000006
+ 0.8800000000000006
+ 0.8900000000000006
+ 0.9000000000000006
+ 0.9100000000000006
+ 0.9200000000000006
+ 0.9300000000000006
+ 0.9400000000000006
+ 0.9500000000000006
+ 0.9600000000000006
+ 0.9700000000000006
+ 0.9800000000000006
+ 0.9900000000000007
+ 1.0000000000000007
+ 1.0100000000000007
+ 1.0200000000000007
+ 1.0300000000000007
+ 1.0400000000000007
+ 1.0500000000000007
+ 1.0600000000000007
+ 1.0700000000000007
+ 1.0800000000000007
+ 1.0900000000000007
+ 1.1000000000000008
+ 1.1100000000000008
+ 1.1200000000000008
+ 1.1300000000000008
+ 1.1400000000000008
+ 1.1500000000000008
+ 1.1600000000000008
+ 1.1700000000000008
+ 1.1800000000000008
+ 1.1900000000000008
+ 1.2000000000000008</code></pre><p>create empty lists of output expectation values</p><pre><code class="language-julia hljs">entropy = zeros(length(iteration)) # entanglement entropy
+domain_mat = zeros(nsites-1, length(iteration)) # domain wall number
+density_mat = zeros(nsites, length(iteration)) # density matrix
+
+for info in prob
+    for i in 1:nsites
+        density_mat[i, info.step] = expect(put(nsites, i=&gt;Op.n), info.reg)
+    end
+
+    for i in 1:nsites-1
+        corr = real(expect(put(nsites, (i, i+1)=&gt;kron(Op.n, Op.n)), info.reg))
+        obs = density_mat[i, info.step] + density_mat[i+1, info.step] - 2corr
+        domain_mat[i, info.step] = obs
+    end
+
+    rho = density_matrix(info.reg, (1,2,3,4,5))
+    entropy[info.step] = von_neumann_entropy(rho)
+end</code></pre><p>Plot results</p><pre><code class="language-julia hljs">using CairoMakie
+fig = Figure(size=(10, 5));
+ax = Axis(fig[1, 1])
+
+for i in 1:nsites
+    lines!(clocks, density_mat[i, :])
+end
+fig
+
+heatmap(clocks, 1:nsites, density_mat&#39;)
+heatmap(clocks, 1:nsites, domain_mat&#39;)
+domain_avg = vec(sum(domain_mat, dims=1)/(nsites-1))
+fig = Figure()
+ax = Axis(fig[1, 1])
+lines!(ax, clocks, domain_avg)
+lines!(ax, clocks, entropy)
+fig</code></pre><p><img src="../4256064431.png" alt/></p><p>TODO: subspace</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../registry/">« Setting Up Company Registry</a><a class="docs-footer-nextpage" href="../adiabatic/">Adiabatic Evolution »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.10 on <span class="colophon-date" title="Saturday 15 January 2022 23:46">Saturday 15 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

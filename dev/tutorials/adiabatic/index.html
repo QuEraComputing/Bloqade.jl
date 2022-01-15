@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Adiabatic Evolution · EaRyd.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/EaRyd.jl/tutorials/adiabatic/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">EaRyd.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../quick-start/">Quick Start</a></li><li><a class="tocitem" href="../../julia/">The Julia Programming Language</a></li><li><a class="tocitem" href="../../registry/">Setting Up Company Registry</a></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../quantum-scar/">Quantum Scar</a></li><li class="is-active"><a class="tocitem" href>Adiabatic Evolution</a></li><li><a class="tocitem" href="../qaoa/">Quantum Approximate Optimization Algorithm</a></li></ul></li><li><a class="tocitem" href="../../ref/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Adiabatic Evolution</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Adiabatic Evolution</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/EaRyd.jl/blob/master/examples/adiabatic/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><pre><code class="language-julia hljs">using EaRyd
+using CairoMakie
+using EaRydPlots</code></pre><p>In this example, we examine the adiabatic preparation of a spin Hamiltonian.</p><p>We first prepare the adiabatic pulse sequence as two piecewise linear functions define the rabi waveform</p><pre><code class="language-julia hljs">Ω_max = 2.3 * 2 * pi
+Ω = piecewise_linear(clocks=[0.0, 0.252, 1.052, 1.6], values=[0.0, Ω_max , Ω_max , 0])</code></pre><pre><code class="nohighlight hljs">                  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+                  ┌────────────────────────────────────────┐ 
+               20 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⢰⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⡞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⢰⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+   value (rad/µs) │⠀⠀⠀⡜⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⢠⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⡼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⢠⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⣸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⢀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⣸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⢣⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                0 │⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢣⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  └────────────────────────────────────────┘ 
+                  ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀2⠀ </code></pre><p>define the detuning waveform</p><pre><code class="language-julia hljs">U = Ω_max / 2.3
+Δ = piecewise_linear(clocks=[0.0, 0.252, 1.052, 1.6], values=[-6*U, -6*U, 2*U , 2*U])</code></pre><pre><code class="nohighlight hljs">                  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+                  ┌────────────────────────────────────────┐ 
+               20 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⣀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⢉⡟⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+   value (rad/µs) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡼⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⡴⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⠀⢀⡜⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  │⠀⠀⠀⠀⠀⢠⠞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+              -40 │⠒⠒⠒⠒⠒⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+                  └────────────────────────────────────────┘ 
+                  ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀2⠀ </code></pre><p>We prepare a square lattice of 9 atoms create the atom positions</p><pre><code class="language-julia hljs">nx, ny = 3, 3
+nsites = nx*ny
+
+atoms = generate_sites(SquareLattice(), nx, ny, scale=9.629)</code></pre><?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     version="1.2"
+     width="120mm" height="120mm" viewBox="0 0 120 120"
+     stroke="none"
+     fill="#000000"
+     stroke-width="0.3"
+     font-size="3.88"
+>
+<defs>
+  <marker id="arrow" markerWidth="15" markerHeight="7" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
+    <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
+  </marker>
+</defs>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-67c8b391-1">
+  <g transform="translate(111.91,8.09)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-67c8b391-2">
+  <g transform="translate(60,8.09)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-67c8b391-3">
+  <g transform="translate(8.09,8.09)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-67c8b391-4">
+  <g transform="translate(111.91,60)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-67c8b391-5">
+  <g transform="translate(60,60)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-67c8b391-6">
+  <g transform="translate(8.09,60)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-67c8b391-7">
+  <g transform="translate(111.91,111.91)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-67c8b391-8">
+  <g transform="translate(60,111.91)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.45" fill="#FFFFFF" stroke="#000000" id="img-67c8b391-9">
+  <g transform="translate(8.09,111.91)">
+    <circle cx="0" cy="0" r="2.25" class="primitive"/>
+  </g>
+</g>
+<g font-size="2.12" id="img-67c8b391-10">
+  <g transform="translate(8.09,111.91)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">1</text>
+    </g>
+  </g>
+  <g transform="translate(60,111.91)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">2</text>
+    </g>
+  </g>
+  <g transform="translate(111.91,111.91)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">3</text>
+    </g>
+  </g>
+  <g transform="translate(8.09,60)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">4</text>
+    </g>
+  </g>
+  <g transform="translate(60,60)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">5</text>
+    </g>
+  </g>
+  <g transform="translate(111.91,60)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">6</text>
+    </g>
+  </g>
+  <g transform="translate(8.09,8.09)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">7</text>
+    </g>
+  </g>
+  <g transform="translate(60,8.09)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">8</text>
+    </g>
+  </g>
+  <g transform="translate(111.91,8.09)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">9</text>
+    </g>
+  </g>
+</g>
+</svg>
+<p>We construct the Rydberg Hamiltonian from the defined rabi and detuning waveforms</p><pre><code class="language-julia hljs">h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)</code></pre><pre><code class="nohighlight hljs">Hamiltonian
+  Term 1
+   ∑(n=1:9) Waveform(EaRydWaveforms.PiecewiseLinear{Float64, Interpolations.Extrapolation{Float64, 1, Interpolations.GriddedInterpolation{Float64, 1, Float64, Interpolations.Gridded{Interpolations.Linear{Interpolations.Throw{Interpolations.OnGrid}}}, Tuple{Vector{Float64}}}, Interpolations.Gridded{Interpolations.Linear{Interpolations.Throw{Interpolations.OnGrid}}}, Interpolations.Throw{Nothing}}}([0.0, 0.252, 1.052, 1.6], [0.0, 14.451326206513047, 14.451326206513047, 0.0], 4-element extrapolate(interpolate((::Vector{Float64},), ::Vector{Float64}, Gridded(Linear())), Throw()) with element type Float64:
+  0.0
+ 14.451326206513047
+ 14.451326206513047
+  0.0), 1.6)(t)/2 σ^x
+
+  Term 2
+   -∑(n=1:9) Waveform(EaRydWaveforms.PiecewiseLinear{Float64, Interpolations.Extrapolation{Float64, 1, Interpolations.GriddedInterpolation{Float64, 1, Float64, Interpolations.Gridded{Interpolations.Linear{Interpolations.Throw{Interpolations.OnGrid}}}, Tuple{Vector{Float64}}}, Interpolations.Gridded{Interpolations.Linear{Interpolations.Throw{Interpolations.OnGrid}}}, Interpolations.Throw{Nothing}}}([0.0, 0.252, 1.052, 1.6], [-37.69911184307752, -37.69911184307752, 12.566370614359172, 12.566370614359172], 4-element extrapolate(interpolate((::Vector{Float64},), ::Vector{Float64}, Gridded(Linear())), Throw()) with element type Float64:
+ -37.69911184307752
+ -37.69911184307752
+  12.566370614359172
+  12.566370614359172), 1.6)(t) n
+
+  Term 3
+   ∑(n=1:9) 5.39e6/|r_i - r_j|^6 n_i n_j</code></pre><p>We evolve the system from the zero state using the ODE solver to a final time t = 1.6 microseconds</p><pre><code class="language-julia hljs">prob = ODEEvolution(zero_state(9), 1.6, h)
+emulate!(prob) # run the time evolution directly</code></pre><pre><code class="nohighlight hljs">ODEEvolution{Float64}:
+  reg: ArrayReg{1, ComplexF64, Matrix{ComplexF64}}
+  reg storage: 8.000 KiB
+
+  timespan: (0.0, 1.6)
+  equation: 
+    Shordinger Equation:
+      Storage Size: 69.992 KiB
+      State Storage: Vector{ComplexF64}
+      Hamiltonian Storage: SparseArrays.SparseMatrixCSC{Float64, Int32}
+      Hamiltonian
+        Term 1
+         ∑(n=1:9) Waveform(EaRydWaveforms.PiecewiseLinear{Float64, Interpolations.Extrapolation{Float64, 1, Interpolations.GriddedInterpolation{Float64, 1, Float64, Interpolations.Gridded{Interpolations.Linear{Interpolations.Throw{Interpolations.OnGrid}}}, Tuple{Vector{Float64}}}, Interpolations.Gridded{Interpolations.Linear{Interpolations.Throw{Interpolations.OnGrid}}}, Interpolations.Throw{Nothing}}}([0.0, 0.252, 1.052, 1.6], [0.0, 14.451326206513047, 14.451326206513047, 0.0], 4-element extrapolate(interpolate((::Vector{Float64},), ::Vector{Float64}, Gridded(Linear())), Throw()) with element type Float64:
+  0.0
+ 14.451326206513047
+ 14.451326206513047
+  0.0), 1.6)(t)/2 σ^x
+
+        Term 2
+         -∑(n=1:9) Waveform(EaRydWaveforms.PiecewiseLinear{Float64, Interpolations.Extrapolation{Float64, 1, Interpolations.GriddedInterpolation{Float64, 1, Float64, Interpolations.Gridded{Interpolations.Linear{Interpolations.Throw{Interpolations.OnGrid}}}, Tuple{Vector{Float64}}}, Interpolations.Gridded{Interpolations.Linear{Interpolations.Throw{Interpolations.OnGrid}}}, Interpolations.Throw{Nothing}}}([0.0, 0.252, 1.052, 1.6], [-37.69911184307752, -37.69911184307752, 12.566370614359172, 12.566370614359172], 4-element extrapolate(interpolate((::Vector{Float64},), ::Vector{Float64}, Gridded(Linear())), Throw()) with element type Float64:
+ -37.69911184307752
+ -37.69911184307752
+  12.566370614359172
+  12.566370614359172), 1.6)(t) n
+
+        Term 3
+         ∑(n=1:9) 5.39e6/|r_i - r_j|^6 n_i n_j
+
+  options: 
+    algo: OrdinaryDiffEq.Vern8(true)
+    progress: false
+    progress_steps: 5
+    progress_name: &quot;ODE&quot;
+    reltol: 1.0e-8
+    abstol: 1.0e-8
+    normalize_steps: 5
+    normalize_finally: true</code></pre><p>We compute the Rydberg probability and plot the histogram of the most frequent results from sampling the final state</p><pre><code class="language-julia hljs">densities = map(1:nsites) do i
+    real(expect(put(nsites, i=&gt;Op.n), prob.reg))
+end
+
+bitstring_histgram(prob.reg; nlargest=20)</code></pre><p><img src="../3396718445.png" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../quantum-scar/">« Quantum Scar</a><a class="docs-footer-nextpage" href="../qaoa/">Quantum Approximate Optimization Algorithm »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.10 on <span class="colophon-date" title="Saturday 15 January 2022 23:46">Saturday 15 January 2022</span>. Using Julia version 1.7.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

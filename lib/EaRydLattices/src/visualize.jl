@@ -82,7 +82,7 @@ end
 
 # Returns a 2-tuple of (image::Context, size)
 function img_maskedgrid(maskedgrid::MaskedGrid; scale=1.0)
-    atoms = locations(maskedgrid)
+    atoms = collect_atoms(maskedgrid)
     rescaler = get_rescaler(atoms)
     xspan = rescaler.xmax - rescaler.xmin
     yspan = rescaler.ymax - rescaler.ymin
@@ -109,13 +109,10 @@ end
 
 for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
     @eval begin
-        function Base.show(io::IO, ::$mime, lt::AbstractLattice{2})
-            Base.show(io, $mime(), generate_sites(lt, 5, 5))
+        function Base.show(io::IO, ::$mime, lt::AbstractLattice{D}) where D
+            Base.show(io, $mime(), generate_sites(lt, ntuple(i->5, D)...))
         end
     
-        function Base.show(io::IO, ::$mime, lt::AbstractLattice{1})
-            Base.show(io, $mime(), generate_sites(lt, 5))
-        end
         function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
             viz_maskedgrid(io, maskedgrid; scale=2.0, format=$format)
         end

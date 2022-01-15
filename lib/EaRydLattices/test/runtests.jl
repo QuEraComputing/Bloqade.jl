@@ -18,14 +18,14 @@ using Test
     mg = make_grid(l3)
     @test sum(mg.mask) == length(l3) == 14
     @test length(mg.xs) == 6 && length(mg.ys) == 5
-    @test length(locations(mg)) == 14
+    @test length(collect_atoms(mg)) == 14
     l4 = l3 |> random_dropout(1.0)
     @test length(l4) == 0
     l4 = random_dropout(l3, 0.0)
     @test length(l4) == length(l3)
     
     # rescale axes
-    sites = [(0.2, 0.3), (0.4, 0.8)]
+    sites = AtomList([(0.2, 0.3), (0.4, 0.8)])
     @test (sites |> rescale_axes(2.0)) == [(0.4, 0.6), (0.8, 1.6)]
 end
 
@@ -47,7 +47,7 @@ end
 @testset "fix site ordering" begin
     lt = generate_sites(KagomeLattice(), 5, 5)
     grd = make_grid(lt[2:end-1])
-    x, y = locations(grd)[1]
+    x, y = collect_atoms(grd)[1]
     @test issorted(grd.xs)
     @test issorted(grd.ys)
     @test x ≈ 1.0 && y ≈ 0.0

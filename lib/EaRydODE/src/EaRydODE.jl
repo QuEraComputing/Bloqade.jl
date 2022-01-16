@@ -9,7 +9,8 @@ using SparseArrays
 using LinearAlgebra
 using Configurations
 using DiffEqCallbacks
-using EaRydCore: AbstractTerm, AbstractSpace, EmulationOptions, storage_size, MemoryLayout, RealLayout, ComplexLayout
+using EaRydCore: AbstractTerm, AbstractSpace, EmulationOptions,
+    storage_size, nsites, MemoryLayout, RealLayout, ComplexLayout
 using OrdinaryDiffEq: OrdinaryDiffEq, Vern8, ODEProblem
 
 @reexport using EaRydCore
@@ -177,6 +178,8 @@ to evolve from `start` to `stop` using an ODE solver.
 - `normalize_steps`: steps to run normalization on the state, default is `5`.
 """
 function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P}
+    nqubits(r) == nsites(h) || error("number of sites does not match")
+    
     layout = EaRydCore.MemoryLayout(r)
     if layout isa RealLayout
         isreal(h) || error("cannot use RealLayout for non-real hamiltonian")

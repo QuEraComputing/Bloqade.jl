@@ -137,8 +137,12 @@ struct ODEEvolution{P, Reg <: AbstractRegister, Eq <: ShordingerEquation, Prob <
     end
 end
 
-ODEEvolution(r::AbstractRegister, t, h::AbstractTerm; kw...) =
-    ODEEvolution{real(Yao.datatype(r))}(r, t, h; kw...)
+function ODEEvolution(r::AbstractRegister, t, h::AbstractTerm; kw...)
+    PR = real(Yao.datatype(r))
+    PH = real(eltype(h(zero(t))))
+    P = promote_type(PR, PH)
+    return ODEEvolution{P}(r, t, h; kw...)
+end
 
 """
     ODEEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...)

@@ -39,7 +39,7 @@ Base.show(io::IO, wf::Waveform) = print(io, "Waveform(", wf.f, ", ", wf.duration
 function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
     clocks = sample_clock(wf)
     plt = lineplot(
-        clocks, sample_values(wf, clocks);
+        clocks, _rm_err.(sample_values(wf, clocks));
         title="Waveform{_, $(eltype(wf))}",
         # TODO: decide the unit?
         xlabel="clock (μs)",
@@ -47,6 +47,12 @@ function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
         compact=true,
     )
     return show(io, mime, plt)
+end
+
+# NOTE: we don't plot error bar in terminal
+function _rm_err(x)
+    hasfield(typeof(x), :val) && return x.val
+    return x
 end
 
 function assert_duration_equal(lhs::Waveform, rhs::Waveform)

@@ -71,3 +71,8 @@ for (k, it) in enumerate(cmaes_optimizer)
 end
 
 minimizer(cmaes_optimizer.state)
+
+# TODO: 
+# * set correct parameters
+# * more visualization
+# * subspace

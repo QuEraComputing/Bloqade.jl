@@ -14,6 +14,7 @@ using EaRydCore: AbstractTerm, AbstractSpace, EmulationOptions,
 using OrdinaryDiffEq: OrdinaryDiffEq, Vern8, ODEProblem
 
 @reexport using EaRydCore
+@reexport using OrdinaryDiffEq: Vern6, Vern7, Vern8, VCABM
 export ShordingerEquation, ODEEvolution
 
 struct EquationCache{H, Layout, S}

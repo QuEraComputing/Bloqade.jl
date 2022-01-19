@@ -1,4 +1,4 @@
-const CuRegister = Union{Yao.ArrayReg{1,State},RydbergReg{Layout,State}} where {Layout,State<:CuArray}
+const CuRegister = Union{Yao.ArrayReg{1,T, State},RydbergReg{Layout,State}} where {T, Layout,State<:CuArray}
 
 function EaRydODE.ODEEvolution{P}(
     r::CuRegister, (start, stop)::Tuple{<:Real,<:Real}, h::AbstractTerm; kw...

@@ -57,3 +57,13 @@ end
         @test cpu(dcomplex_r) ≈ ref_state
     end
 end
+
+@testset "fullspace ODEEvolution cuda" begin
+    ref_state = zero_state(5)
+    dcomplex_r = cu(ref_state)
+
+    emulate!(ODEEvolution(ref_state, 1e-3, h))
+    prob = ODEEvolution(dcomplex_r, 1e-3, h)
+    emulate!(prob)
+    @test cpu(prob.reg) ≈ ref_state
+end

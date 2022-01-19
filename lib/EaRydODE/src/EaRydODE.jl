@@ -11,10 +11,10 @@ using Configurations
 using DiffEqCallbacks
 using EaRydCore: AbstractTerm, AbstractSpace, EmulationOptions,
     storage_size, nsites, MemoryLayout, RealLayout, ComplexLayout
-using OrdinaryDiffEq: OrdinaryDiffEq, Vern8, ODEProblem
+using OrdinaryDiffEq: OrdinaryDiffEq, ODEProblem
 
 @reexport using EaRydCore
-@reexport using OrdinaryDiffEq: Vern6, Vern7, Vern8, VCABM
+@reexport using OrdinaryDiffEq: Vern6, Vern7, Vern8, VCABM, AB3
 export ShordingerEquation, ODEEvolution
 
 struct EquationCache{H, Layout, S}

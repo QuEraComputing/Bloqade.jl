@@ -736,16 +736,7 @@ Create a simple rydberg hamiltonian that has only [`XTerm`](@ref).
 """
 simple_rydberg(n::Int, ϕ::Number) = XTerm(n, one(ϕ), ϕ)
 
-"""
-    rydberg_h(atoms, [C=2π * 109.133 * MHz*µm^6], Ω, ϕ, Δ)
 
-Create a rydberg hamiltonian, shorthand for
-`RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)`
-
-```math
-∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + \\frac{Ω}{2} σ_x - Δ σ_n
-```
-"""
 function rydberg_h(atoms, C, Ω, ϕ, Δ)
     return RydInteract(atoms, C) + XTerm(length(atoms), Ω, ϕ) - NTerm(length(atoms), Δ)
 end
@@ -754,6 +745,64 @@ function rydberg_h(atoms, Ω, ϕ, Δ)
     return RydInteract(atoms) + XTerm(length(atoms), Ω, ϕ) - NTerm(length(atoms), Δ)
 end
 
+"""
+    rydberg_h(atoms; [C=2π * 109.133 * MHz*µm^6], Ω[, ϕ, Δ])
+
+Create a rydberg hamiltonian
+
+```math
+∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + \\frac{Ω}{2} σ_x - Δ σ_n
+```
+
+shorthand for
+
+```julia
+RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)
+```
+
+# Arguments
+
+- `atoms`: a collection of atom positions
+
+# Keyword Arguments
+
+- `C`: optional, interation parameter, see [`RydInteract`](@ref).
+- `Ω`: required, Rabi frequencies, see [`XTerm`](@ref).
+- `Δ`: optional, detuning parameter, see [`NTerm`](@ref).
+- `ϕ`: optional, phase, see [`XTerm`](@ref).
+
+# Example
+
+```julia-repl
+julia> using EaRyd
+
+julia> atoms = generate_sites(SquareLattice(), 3, 3);
+
+julia> rydberg_h(atoms; Δ=1.2, Ω=1.1)
+Hamiltonian
+  Term 1
+   ∑(n=1:9) 1.1/2 σ^x
+
+  Term 2
+   -∑(n=1:9) 1.2 n
+
+  Term 3
+   ∑(n=1:9) 686.0/|r_i - r_j|^6 n_i n_j
+```
+
+```julia-repl
+julia> rydberg_h(atoms; Δ=1.2, Ω=1.1, ϕ=2.1)
+Hamiltonian
+  Term 1
+   ∑(n=1:9) 1.1/2 (e^{2.1i}|0)⟨1| + e^{-2.1i}|1⟩⟨0|)
+
+  Term 2
+   -∑(n=1:9) 1.2 n
+
+  Term 3
+   ∑(n=1:9) 686.0/|r_i - r_j|^6 n_i n_j
+```
+"""
 function rydberg_h(atoms; Ω, Δ=nothing, C=nothing, ϕ=nothing) 
     if eltype(atoms) <: Tuple
         atoms = map(atoms) do each
@@ -791,8 +840,15 @@ end
 
 # NOTE: we currently assume atom positions are constant
 # might change in the future
+
 is_time_dependent(h::RydInteract) = false
 is_time_dependent(t::Negative) = is_time_dependent(t.term)
+
+"""
+    is_time_dependent(h::Hamiltonian)
+
+Check if a hamiltonian is time-dependent.
+"""
 function is_time_dependent(h::Hamiltonian)
     any(is_time_dependent, h.terms)
 end

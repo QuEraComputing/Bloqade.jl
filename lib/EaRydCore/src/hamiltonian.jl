@@ -759,6 +759,7 @@ function rydberg_h(atoms; Ω, Δ=nothing, C=nothing, ϕ=nothing)
         atoms = map(atoms) do each
             RydAtom(each)
         end
+        atoms = SVector{length(atoms)}(atoms)
     end
 
     if ϕ === nothing

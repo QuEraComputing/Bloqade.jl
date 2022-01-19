@@ -34,7 +34,13 @@ function sample_values(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-
     return sample_values(wf, sample_clock(wf; offset, dt))
 end
 
-Base.show(io::IO, wf::Waveform) = print(io, "Waveform(", wf.f, ", ", wf.duration, ")")
+function Base.show(io::IO, wf::Waveform)
+    if get(io, :compact, false)
+        print(io, "Waveform(", wf.f, ", ", wf.duration, ")")
+    else
+        print(io, "Waveform(_, ", wf.duration, ")")
+    end
+end
 
 function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
     clocks = sample_clock(wf)

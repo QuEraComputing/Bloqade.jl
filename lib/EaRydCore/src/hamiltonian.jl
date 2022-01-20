@@ -12,9 +12,11 @@ default_unit(unit, x) = x
 
 default_unit(unit, x::Quantity) = uconvert(unit, x).val
 default_unit(unit::typeof(NoUnits), x::Quantity) = uconvert(unit, x)
-default_unit(unit, xs::Tuple{}) = ()
-default_unit(unit, xs::Tuple{T}) where T = default_unit(unit, first(xs))
-default_unit(unit, xs::Tuple) = (default_unit(unit, Base.heads(xs)), default_unit(unit, Base.tail(xs))...)
+function default_unit(unit, xs::Tuple)
+    return map(xs) do x
+        default_unit(unit, x)
+    end
+end
 
 function default_unit(unit, range::AbstractRange)
     a = default_unit(unit, first(range))
@@ -31,12 +33,18 @@ function default_unit(unit, x::AbstractArray{S}) where {T, S <: Quantity{T}}
     return y
 end
 
+# function default_unit(unit, f) # parameters are function
+#     return function waveform(t)
+#         default_unit(unit, f(t))
+#     end
+# end
+
 const ConstParamType = Union{Number, AbstractVector{<:Number}, NTuple{N, <:Number} where N}
 const ConstParamListType = Union{AbstractVector{<:Number}, NTuple{N, <:Number} where N}
 
 assert_has_time_method(::ConstParamType, name) = nothing
 assert_has_time_method(::Nothing, name) = nothing # skip symbolic zero (currently nothing)
-function assert_has_time_method(fs::AbstractVector, name)
+function assert_has_time_method(fs::Union{AbstractVector, Tuple}, name)
     for f in fs
         assert_has_time_method(f, name)
     end
@@ -431,25 +439,22 @@ function _print_sum(io::IO, nsites::Int)
 end
 
 function _print_xterm(io::IO, nsites::Int, Ω, ϕ)
-    _print_sum(io, nsites)
-    _print_single_xterm(io, Ω, ϕ)
-end
-
-function _print_xterm(io::IO, nsites::Int, Ω, ϕs::ConstParamListType)
-    _print_eachterm(io, nsites) do k
-        _print_single_xterm(io, Ω, getscalarmaybe(ϕs, k))
-    end
-end
-
-function _print_xterm(io::IO, nsites::Int, Ωs::ConstParamListType, ϕ)
-    _print_eachterm(io, nsites) do k
-        _print_single_xterm(io, getscalarmaybe(Ωs, k), ϕ)
-    end
-end
-
-function _print_xterm(io::IO, nsites::Int, Ωs::ConstParamListType, ϕs::ConstParamListType)
-    _print_eachterm(io, nsites) do k
-        _print_single_xterm(io, getscalarmaybe(Ωs, k), getscalarmaybe(ϕs, k))
+    @switch (Ω, ϕ) begin
+        @case (::Tuple, ::Tuple) || (::AbstractVector, ::AbstractVector)
+            _print_eachterm(io, nsites) do k
+                _print_single_xterm(io, Ω[k], ϕ[k])
+            end
+        @case (_, ::Tuple) || (_, ::AbstractVector)
+            _print_eachterm(io, nsites) do k
+                _print_single_xterm(io, Ω, ϕ[k])
+            end
+        @case (::Tuple, _) || (::AbstractVector, _)
+            _print_eachterm(io, nsites) do k
+                _print_single_xterm(io, Ω[k], ϕ)
+            end
+        @case _
+            _print_sum(io, nsites)
+            _print_single_xterm(io, Ω, ϕ)     
     end
 end
 
@@ -574,7 +579,7 @@ end
 # on some devices BlasInt != Int, thus this is necessary to trigger
 # dispatch to MKLSparse
 SparseArrays.SparseMatrixCSC{Tv}(term::AbstractTerm, s::AbstractSpace=fullspace) where Tv = SparseMatrixCSC{Tv, BlasInt}(term, s)
-SparseArrays.SparseMatrixCSC(term::AbstractTerm, s::AbstractSpace=fullspace) = SparseMatrixCSC{ComplexF64}(term, s)
+SparseArrays.SparseMatrixCSC(term::AbstractTerm, s::AbstractSpace=fullspace) = SparseMatrixCSC{Complex{eltype(term)}}(term, s)
 
 sparse_skeleton_csc(t::AbstractTerm, s::AbstractSpace=fullspace) = sparse_skeleton_csc(Int, t, s)
 
@@ -866,7 +871,7 @@ attime(x::Nothing, t::Real) = nothing
 attime(x::Number, t::Real) = x
 attime(x, t::Real) = x(t)
 attime(x::AbstractArray, t::Real) = attime.(x, t)
-attime(x::NTuple{N, <:Number}, t::Real) where N = attime.(x, t)
+attime(x::Tuple, t::Real) = attime.(x, t)
 
 function (tm::XTerm)(t::Real)
     return XTerm(tm.nsites, attime(tm.Ωs, t), attime(tm.ϕs, t))

@@ -23,6 +23,7 @@ using StaticArrays
 using Reexport
 
 using Transducers: OnInit
+using MLStyle: @match, @switch
 using LinearAlgebra: BlasInt, BlasReal, BlasComplex
 
 @reexport using Unitful: Quantity, uconvert, MHz, µm, μs, ns

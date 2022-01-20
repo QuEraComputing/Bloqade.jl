@@ -6,19 +6,17 @@ struct Rescaler{T}
     pad::T
 end
 
-#getscale(r::Rescaler) = 1/(r.xmax-r.xmin+r.pad)
-getscale(r::Rescaler) = min(1/(r.xmax-r.xmin+r.pad), 1/(r.ymax-r.ymin+r.pad))
-getnodescale(r::Rescaler) = min(1/(r.xmax-r.xmin+r.pad), 1/(r.ymax-r.ymin+r.pad))
+getscale(r::Rescaler) = min(1/(r.xmax-r.xmin+2*r.pad), 1/(r.ymax-r.ymin+2*r.pad))
 
 function (r::Rescaler{T})(x; dims=(1,2)) where T
     xmin, ymin, xmax, ymax, pad = r.xmin, r.ymin, r.xmax, r.ymax, r.pad
     scale = getscale(r)
     if dims == (1,2)
-        return (x[1]-xmin+0.5*pad, ymax+0.5*pad-x[2]) .* scale
+        return (x[1]-xmin+pad, ymax+pad-x[2]) .* scale
     elseif dims == 1
-        return (x - xmin + 0.5*pad) * scale
+        return (x - xmin + pad) * scale
     elseif dims == 2
-        return (ymax + 0.5*pad - x) * scale
+        return (ymax + pad - x) * scale
     else
         throw(ArgumentError("dims should be (1,2), 1 or 2."))
     end
@@ -87,8 +85,8 @@ function _edges(atoms, blockade_radius)
 end
 
 function fit_image(rescaler::Rescaler, image_size, imgs...)
-    X = rescaler.xmax - rescaler.xmin + rescaler.pad
-    Y = rescaler.ymax - rescaler.ymin + rescaler.pad
+    X = rescaler.xmax - rescaler.xmin + 2*rescaler.pad
+    Y = rescaler.ymax - rescaler.ymin + 2*rescaler.pad
     img_rescale = image_size/max(X, Y)*cm
     if Y < X
         return Compose.compose(context(0, 0, 1.0, X/Y), imgs...), (X*img_rescale, Y*img_rescale)
@@ -100,16 +98,35 @@ end
 # Returns a 2-tuple of (image::Context, size)
 function viz_atoms(al::AtomList; colors, blockade_radius, texts, config)
     atoms = padydim(al).atoms
-    rescaler = get_rescaler(atoms, 2.0)
-    img = _viz_atoms(rescaler.(atoms), _edges(atoms, blockade_radius), colors, texts, config, blockade_radius, getnodescale(rescaler))
-    return fit_image(rescaler, config.image_size, img)
+    rescaler = get_rescaler(atoms, config.pad)
+    img = _viz_atoms(rescaler.(atoms), _edges(atoms, blockade_radius), colors, texts, config, blockade_radius, getscale(rescaler))
+    img_axes = _viz_axes(rescaler, config)
+    return fit_image(rescaler, config.image_size, img, img_axes)
+end
+
+function _viz_axes(rescaler, config)
+    xs = LinRange(rescaler.xmin, rescaler.xmax, config.axes_num_of_xticks)
+    ys = LinRange(rescaler.ymin, rescaler.ymax, config.axes_num_of_yticks)
+    xlocs = rescaler.([(x, -config.axes_y_offset) for x in xs])
+    ylocs = rescaler.([(-config.axes_x_offset, y) for y in ys])
+    return _axes!([xs..., ys...], [xlocs..., ylocs...], config, getscale(rescaler))
 end
 
 Base.@kwdef struct LatticeDisplayConfig
     # line, node and text
     scale::Float64 = 1.0
-    text_color::String = "black"
+    pad::Float64 = 1.5
 
+    # axes
+    axes_text_color::String = "black"
+    axes_text_fontsize::Float64 = 6.0
+    axes_num_of_xticks = 5
+    axes_num_of_yticks = 5
+    axes_x_offset::Float64 = 0.75
+    axes_y_offset::Float64 = 0.5
+
+    # node
+    node_text_color::String = "black"
     node_stroke_color = "black"
     node_fill_color = "white"
     # bond
@@ -135,19 +152,29 @@ function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale
     end
     edge_style = default_bond_style(rescale, config.bond_color)
     blockade_radius_style = default_blockade_style(rescale, radi, config.blockade_stroke_color)
-    text_style = default_text_style(rescale, config.text_color)
+    text_style = default_text_style(rescale, config.node_text_color)
     Viznet.canvas() do
         for (i, node) in enumerate(locs)
             node_styles[i] >> node
             if config.blockade_style != "none"
                 blockade_radius_style >> node
             end
-            if config.text_color !== "transparent"
+            if config.node_text_color !== "transparent"
                 text_style >> (node, texts === nothing ? "$i" : texts[i])
             end
         end
         for (i, j) in edges
             edge_style >> (locs[i], locs[j])
+        end
+    end
+end
+
+function _axes!(xs, locs, config, rescale)
+    rescale = rescale * config.image_size * config.scale * 1.6
+    text_style = Viznet.textstyle(:default, fontsize((config.axes_text_fontsize)*pt), fill(config.axes_text_color))
+    Viznet.canvas() do
+        for (x, loc) in zip(xs, locs)
+            text_style >> (loc, "$(round(x; digits=2))μm")
         end
     end
 end
@@ -180,12 +207,13 @@ end
 # Returns a 2-tuple of (image::Context, size)
 function viz_maskedgrid(maskedgrid::MaskedGrid; colors, texts, config, blockade_radius)
     atoms = collect_atoms(maskedgrid)
-    rescaler = get_rescaler(atoms, 2.0)
+    rescaler = get_rescaler(atoms, config.pad)
     line_style_grid = default_line_style_grid(config.scale)
-    img1 = _viz_atoms(rescaler.(atoms), _edges(atoms, blockade_radius), colors, texts, config, blockade_radius, getnodescale(rescaler))
+    img1 = _viz_atoms(rescaler.(atoms), _edges(atoms, blockade_radius), colors, texts, config, blockade_radius, getscale(rescaler))
     ymax = (rescaler.ymax - rescaler.ymin + 2*rescaler.pad)/(rescaler.xmax - rescaler.xmin + 2*rescaler.pad)
     img2 = _viz_grid(rescaler.(maskedgrid.xs; dims=1), rescaler.(maskedgrid.ys; dims=2), line_style_grid, ymax)
-    fit_image(rescaler, config.image_size, img1, img2)
+    img_axes = _viz_axes(rescaler, config)
+    fit_image(rescaler, config.image_size, img1, img2, img_axes)
 end
 function _viz_grid(xs, ys, line_style, ymax)
     Viznet.canvas() do

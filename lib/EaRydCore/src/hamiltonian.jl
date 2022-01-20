@@ -766,10 +766,18 @@ RydInteract(C, atoms) + XTerm(length(atoms), Ω, ϕ) + ZTerm(length(atoms), Δ)
 
 # Keyword Arguments
 
-- `C`: optional, interation parameter, see [`RydInteract`](@ref).
-- `Ω`: required, Rabi frequencies, see [`XTerm`](@ref).
-- `Δ`: optional, detuning parameter, see [`NTerm`](@ref).
-- `ϕ`: optional, phase, see [`XTerm`](@ref).
+- `C`: optional, default unit is `MHz*µm^6`, interation parameter,
+    see also [`RydInteract`](@ref).
+- `Ω`: required, default unit is `MHz`, Rabi frequencies, see [`XTerm`](@ref).
+- `Δ`: optional, default unit is `MHz`, detuning parameter, see [`NTerm`](@ref).
+- `ϕ`: optional, does not have unit, the phase, see [`XTerm`](@ref).
+
+!!! tips
+
+    The parameters of Hamiltonian have their own default units to match hardware,
+    one can use [`Unitful.jl`](https://github.com/PainterQubits/Unitful.jl)
+    to specify their units explicitly. If the units are specified explicitly,
+    they will be converted to default units automatically.
 
 # Example
 

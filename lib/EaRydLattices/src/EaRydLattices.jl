@@ -20,7 +20,7 @@ export # types
     # nearest neighbors
     make_kdtree, grouped_nearest, DistanceGroup,
     # visualize
-    viz_atoms, viz_maskedgrid
+    img_atoms, img_maskedgrid
 
 include("lattice.jl")
 include("neighbors.jl")

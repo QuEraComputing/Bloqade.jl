@@ -66,10 +66,10 @@ end
 end
 
 @testset "visualize" begin
-    lt = generate_sites(KagomeLattice(), 5, 5)
+    lt = generate_sites(KagomeLattice(), 5, 5, scale=1.5)
     grd = make_grid(lt[2:end-1])
-    @test viz_atoms(IOBuffer(), lt) === nothing
-    @test viz_maskedgrid(IOBuffer(), grd) === nothing
+    @test img_atoms(lt) isa Compose.Context
+    @test img_maskedgrid(grd) isa Compose.Context
     @test show(IOBuffer(), MIME"text/html"(), KagomeLattice()) === nothing
     @test show(IOBuffer(), MIME"text/html"(), ChainLattice()) === nothing
     @test show(IOBuffer(), MIME"text/html"(), grd) === nothing

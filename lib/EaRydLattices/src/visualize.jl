@@ -113,7 +113,7 @@ Base.@kwdef struct LatticeDisplayConfig
     blockade_style::String = "none"
     blockade_stroke_color::String = "black"
     # image size in cm
-    image_size::Float64 = 18
+    image_size::Float64 = 15
 end
 
 function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale)

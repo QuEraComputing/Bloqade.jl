@@ -67,7 +67,12 @@ function img_atoms(atoms::AtomList;
         format=SVG, io=nothing,
         kwargs...)
     img, (dx, dy) = viz_atoms(atoms; colors=colors, blockade_radius=blockade_radius, texts=texts, config=LatticeDisplayConfig(; kwargs...))
-    return (io === nothing ? format(dx, dy) : format(io, dx, dy))(img)
+    if io === nothing
+        Compose.set_default_graphic_size(dx, dy)
+        return img
+    else
+        return format(io, dx, dy)(img)
+    end
 end
 
 function _edges(atoms, blockade_radius)
@@ -113,7 +118,7 @@ Base.@kwdef struct LatticeDisplayConfig
     blockade_style::String = "none"
     blockade_stroke_color::String = "black"
     # image size in cm
-    image_size::Float64 = 15
+    image_size::Float64 = 12
 end
 
 function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale)
@@ -164,7 +169,12 @@ function img_maskedgrid(maskedgrid::MaskedGrid;
         kwargs...
         )
     img, (dx, dy) = viz_maskedgrid(maskedgrid; colors=colors, texts=texts, blockade_radius=blockade_radius, config=LatticeDisplayConfig(; kwargs...))
-    return (io === nothing ? format(dx, dy) : format(io, dx, dy))(img)
+    if io === nothing
+        Compose.set_default_graphic_size(dx, dy)
+        return img
+    else
+        return format(io, dx, dy)(img)
+    end
 end
 
 # Returns a 2-tuple of (image::Context, size)
@@ -196,10 +206,12 @@ for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
     
         function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
             img_maskedgrid(maskedgrid; format=$format, io=io)
+            nothing
         end
     
         function Base.show(io::IO, ::$mime, list::AtomList)
             img_atoms(list; format=$format, io=io)
+            nothing
         end
     end
 end

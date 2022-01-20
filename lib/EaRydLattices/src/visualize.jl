@@ -35,20 +35,23 @@ default_text_style(scale) = Viznet.textstyle(:default, fontsize(4pt*scale))
 default_line_style_grid(scale) = Viznet.bondstyle(:default, Compose.stroke("#AAAAAA"), linewidth(0.3mm*scale); dashed=true)
 
 """
-    viz_atoms(io::Union{IO,AbstractString}, atoms::AtomList; scale=1.0, colors=fill("white", count(maskedgrid.mask)))
+    viz_atoms(io::Union{IO,AbstractString}, atoms::AtomList; scale=1.0,
+        colors=fill("white", count(maskedgrid.mask)), blockade_radius=0)
 
 Draw `atoms` with scaling factor `scale`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 If you want to write this image to the disk without using a frontend, please check [`img_atoms`](@ref).
 """
-function viz_atoms(io, atoms::AtomList; scale=1.0, format=PNG, colors=fill("white", length(atoms)))
-    img, (dx, dy) = img_atoms(atoms; scale=scale, colors=colors)
+function viz_atoms(io, atoms::AtomList; scale=1.0, format=PNG,
+        colors=fill("white", length(atoms)),
+        blockade_radius=0)
+    img, (dx, dy) = img_atoms(atoms; scale=scale, colors=colors, blockade_radius=blockade_radius)
     Compose.draw(format(io, dx, dy), img)
     return
 end
 
 # Returns a 2-tuple of (image::Context, size)
-function img_atoms(al::AtomList; scale, colors)
+function img_atoms(al::AtomList; scale, colors, blockade_radius)
     atoms = padydim(al).atoms
     rescaler = get_rescaler(atoms, 2*scale)
     X = rescaler.xmax - rescaler.xmin + 2*rescaler.pad

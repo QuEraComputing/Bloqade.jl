@@ -22,4 +22,6 @@ using CUDA
     @reexport using EaRydCUDA
 end
 
+include("visualize.jl")
+
 end

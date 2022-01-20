@@ -1,14 +1,8 @@
 using Graphs, EaRyd, EaRyd.EaRydLattices
 using Compose
 
-function vizconfig(atoms::AtomList; config)
-    colors=map(c->iszero(c) ? "blue" : "red", config)
-    img, (dx, dy) = EaRydLattices.img_atoms(atoms; scale=1.5, colors=colors)
-    img
-end
-
 # create a diagonal coupled square lattice with 0.7 filling.
-atoms = generate_sites(SquareLattice(), 4, 4; scale=9.629) |> random_dropout(0.3)
+atoms = generate_sites(SquareLattice(), 4, 4; scale=5.1) |> random_dropout(0.3)
 vizconfig(atoms, config=rand(Bool, length(atoms)))
 
 # We first prepare the adiabatic pulse sequence as two piecewise linear functions
@@ -28,51 +22,59 @@ prob = ODEEvolution(zero_state(length(atoms)), 1.6, h)
 emulate!(prob)
 results = measure(prob.reg; nshots=100)
 
-# negative mean loss
-using BitBasis
-function negative_mean_mis(spinconfigs::AbstractVector{<:BitStr})
-    -sum(count_ones, spinconfigs)/length(spinconfigs)
-end
+# add a new API for general Vector
+graph = unit_disk_graph(RydAtom.(atoms), 7.5)
+EaRyd.EaRydCore.exact_solve_mis(graph)
 
-negative_mean_mis(results)
-
-# note, here we normalize parameters
-function qaoa_loss(atoms::AtomList, x::AbstractVector; nshots::Int)
-    @assert (length(x)+2) % 4 == 0
-    npulses = (length(x)+2) ÷ 4
+function sample_piecewise_constant(atoms::AtomList, x::AbstractVector; nshots::Int, blockade_radius=5.2)
+    @assert length(x) % 3 == 0
+    npulses = length(x) ÷ 3
     # We first prepare the adiabatic pulse sequence as two piecewise linear functions
     # define the rabi waveform
-    Ω_max = 2.3 * 2 * pi
-    clock1 = [0.0,cumsum(abs.(x[1:npulses-1]))...]
-    Ω = piecewise_linear(clocks=clock1, values=x[npulses:2*npulses-1] .* Ω_max)
+    Ω = 4.0
 
-    # define the detuning waveform
-    U = Ω_max / 2.3
-    clock2 = [0.0,cumsum(abs.(x[2*npulses:3*npulses-2]))...]
-    Δ = piecewise_linear(clocks=clock2, values=x[3*npulses-1:end] .* U)
+    durations = abs.(x[1:npulses])
 
-    # We construct the Rydberg Hamiltonian from the defined rabi and detuning waveforms
-    h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)
+    # phases
+    ϕs = x[2*npulses+1:3*npulses] .* 2π
 
+    # hamiltonians at different time step
+    C = 2π * 858386
+
+    # the detuning
+    Δ = 4π
+
+    # NOTE: check Δ
+    hamiltonians = [rydberg_h(atoms; C=C, Ω=Ω, ϕ=ϕ, Δ=Δ) for ϕ in ϕs]
+
+    subspace = blockade_subspace(atoms, blockade_radius)
     # We evolve the system from the zero state using the ODE solver to a final time t = 1.6 microseconds
-    prob = ODEEvolution(zero_state(length(atoms)), min(clock1[end], clock2[end]), h)
+    prob = KrylovEvolution(zero_state(subspace), durations, hamiltonians)
     emulate!(prob)
-    results = measure(prob.reg; nshots=nshots)
-    negative_mean_mis(results)
+
+    # results are bit strings
+    return measure(prob.reg; nshots=nshots)
 end
 
-using StochasticOptimizers
-x0 = rand(14)
-
-cmaes_optimizer = cmaes(x->qaoa_loss(atoms, x; nshots=100), x0; npopulation=5, noffsprings=20, σ0=0.3);
-for (k, it) in enumerate(cmaes_optimizer)
-    k > 100 && break
-    @info "step $k, loss = $(minimum(it))"
+function qaoa_loss_piecewise_constant(atoms::AtomList, x::AbstractVector; nshots::Int)
+    bitstrings = sample_piecewise_constant(atoms, x; nshots=nshots)
+    # call the loss function
+    return -mean_rydberg(bitstrings)
 end
 
-minimizer(cmaes_optimizer.state)
+x0 = rand(9)
+qaoa_loss_piecewise_constant(atoms, x0; nshots=100)
 
-# TODO: 
-# * set correct parameters
-# * more visualization
-# * subspace
+using Optim
+optimize_result = Optim.optimize(x->qaoa_loss_piecewise_constant(atoms, x; nshots=100), x0, NelderMead(), Optim.Options(show_trace=true, iterations=100))
+println("The final loss is $(minimum(optimize_result))")
+
+# sample some configurations
+configs = sample_piecewise_constant(atoms, Optim.minimizer(optimize_result); nshots=100)
+masks = [EaRydCore.is_independent_set(config, graph) for config in configs]
+valid_configs = configs[masks]
+missize, best_index = findmax(count_ones, valid_configs)
+best_config = valid_configs[best_index]
+println("The best MIS is $(best_config), its MIS size is $missize")
+vizconfig(atoms, config=collect(best_config))
+

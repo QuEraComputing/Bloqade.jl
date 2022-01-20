@@ -34,7 +34,7 @@ default_node_style(scale, stroke_color, fill_color) = compose(context(), Viznet.
 default_text_style(scale, color) = Viznet.textstyle(:default, fontsize(4pt*scale), fill(color))
 default_bond_style(scale, color) = Viznet.bondstyle(:default, Compose.stroke(color), linewidth(0.3mm*scale))
 default_line_style_grid(scale) = Viznet.bondstyle(:default, Compose.stroke("#AAAAAA"), linewidth(0.3mm*scale); dashed=true)
-default_blockade_style(scale, blockade_radius, stroke_color) = Viznet.nodestyle(:circle, Compose.fill("transparent"), r=blockade_radius, Compose.stroke(stroke_color), strokedash([0.5mm*scale, 0.5mm*scale]), linewidth(0.3mm*scale))
+default_blockade_style(scale, blockade_radius, stroke_color) = Viznet.nodestyle(:circle, Compose.fill("transparent"), r=blockade_radius, Compose.stroke(stroke_color), strokedash([0.5mm*scale, 0.5mm*scale]), linewidth(0.2mm*scale))
 
 """
     img_atoms(atoms::AtomList;

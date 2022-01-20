@@ -1,7 +1,7 @@
 name = "EaRydLattices"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 authors = ["QuEra Computing Inc."]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 Cairo = "159f3aea-2a34-519c-b102-8c37f9878175"

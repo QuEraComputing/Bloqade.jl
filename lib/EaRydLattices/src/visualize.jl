@@ -27,7 +27,7 @@ function get_rescaler(atoms::AbstractVector{<:Tuple}, pad)
     ymin = minimum(x->x[2], atoms)
     xmax = maximum(x->x[1], atoms)
     ymax = maximum(x->x[2], atoms)
-    return Rescaler(xmin, xmax, ymin, ymax, pad)
+    return Rescaler(promote(xmin, xmax, ymin, ymax, pad)...)
 end
 
 default_node_style(scale, stroke_color, fill_color) = compose(context(), Viznet.nodestyle(:default, r=0.15cm*scale), Compose.stroke(stroke_color), fill(fill_color), linewidth(0.3mm*scale))
@@ -106,8 +106,8 @@ end
 function _viz_axes(rescaler, config)
     xs = LinRange(rescaler.xmin, rescaler.xmax, config.axes_num_of_xticks)
     ys = LinRange(rescaler.ymin, rescaler.ymax, config.axes_num_of_yticks)
-    xlocs = rescaler.([(x, -config.axes_y_offset) for x in xs])
-    ylocs = rescaler.([(-config.axes_x_offset, y) for y in ys])
+    xlocs = [rescaler((x, rescaler.ymin)) .+ (0.0, config.axes_y_offset) for x in xs]
+    ylocs = [rescaler((rescaler.xmin, y)) .- (config.axes_x_offset, 0.0) for y in ys]
     return _axes!([xs..., ys...], [xlocs..., ylocs...], config, getscale(rescaler))
 end
 
@@ -118,11 +118,11 @@ Base.@kwdef struct LatticeDisplayConfig
 
     # axes
     axes_text_color::String = "black"
-    axes_text_fontsize::Float64 = 6.0
+    axes_text_fontsize::Float64 = 8.0
     axes_num_of_xticks = 5
     axes_num_of_yticks = 5
-    axes_x_offset::Float64 = 0.75
-    axes_y_offset::Float64 = 0.5
+    axes_x_offset::Float64 = 0.1
+    axes_y_offset::Float64 = 0.06
     axes_unit::String = "μm"
 
     # node

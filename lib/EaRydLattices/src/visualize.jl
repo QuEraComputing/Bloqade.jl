@@ -34,7 +34,6 @@ default_node_style(scale, stroke_color, fill_color) = compose(context(), Viznet.
 default_text_style(scale, color) = Viznet.textstyle(:default, fontsize(4pt*scale), fill(color))
 default_bond_style(scale, color) = Viznet.bondstyle(:default, Compose.stroke(color), linewidth(0.3mm*scale))
 default_line_style_grid(scale) = Viznet.bondstyle(:default, Compose.stroke("#AAAAAA"), linewidth(0.3mm*scale); dashed=true)
-default_blockade_style(scale, blockade_radius, stroke_color) = Viznet.nodestyle(:circle, Compose.fill("transparent"), r=blockade_radius, Compose.stroke(stroke_color), strokedash([0.5mm*scale, 0.5mm*scale]), linewidth(0.2mm*scale))
 
 """
     img_atoms(atoms::AtomList;
@@ -124,6 +123,7 @@ Base.@kwdef struct LatticeDisplayConfig
     axes_num_of_yticks = 5
     axes_x_offset::Float64 = 0.75
     axes_y_offset::Float64 = 0.5
+    axes_unit::String = "μm"
 
     # node
     node_text_color::String = "black"
@@ -134,6 +134,8 @@ Base.@kwdef struct LatticeDisplayConfig
     # blockade
     blockade_style::String = "none"
     blockade_stroke_color::String = "black"
+    blockade_fill_color::String = "transparent"
+    blockade_fill_opacity::Float64 = 0.5
     # image size in cm
     image_size::Float64 = 12
 end
@@ -151,7 +153,13 @@ function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale
         @assert length(locs) == length(texts)
     end
     edge_style = default_bond_style(rescale, config.bond_color)
-    blockade_radius_style = default_blockade_style(rescale, radi, config.blockade_stroke_color)
+    blockade_radius_style = Viznet.nodestyle(:circle,
+        Compose.stroke(config.blockade_stroke_color),
+        Compose.strokedash([0.5mm*rescale, 0.5mm*rescale]),
+        Compose.linewidth(0.2mm*rescale),
+        Compose.fill(@show config.blockade_fill_color), 
+        Compose.fillopacity(config.blockade_fill_opacity);
+        r=radi)
     text_style = default_text_style(rescale, config.node_text_color)
     Viznet.canvas() do
         for (i, node) in enumerate(locs)
@@ -174,7 +182,7 @@ function _axes!(xs, locs, config, rescale)
     text_style = Viznet.textstyle(:default, fontsize((config.axes_text_fontsize)*pt), fill(config.axes_text_color))
     Viznet.canvas() do
         for (x, loc) in zip(xs, locs)
-            text_style >> (loc, "$(round(x; digits=2))μm")
+            text_style >> (loc, "$(round(x; digits=2))$(config.axes_unit)")
         end
     end
 end

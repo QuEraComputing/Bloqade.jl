@@ -5,10 +5,10 @@ using EaRyd
 using KrylovKit
 using SparseArrays
 
-
 n_sites= 10
 L = (n_sites - 1)* ax
 atomx= collect(0.0:ax:L)
+
 
 ay1=0
 ay2= 2
@@ -36,3 +36,5 @@ for i in 1:2*n_sites
     observe = real(expect(put(2*n_sites, i=>Op.n), state1))
     output_mat1[i] = observe
 end
+
+print(output_mat1)

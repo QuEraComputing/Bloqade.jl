@@ -157,16 +157,13 @@ function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale
         Compose.stroke(config.blockade_stroke_color),
         Compose.strokedash([0.5mm*rescale, 0.5mm*rescale]),
         Compose.linewidth(0.2mm*rescale),
-        Compose.fill(@show config.blockade_fill_color), 
+        Compose.fill(config.blockade_fill_color), 
         Compose.fillopacity(config.blockade_fill_opacity);
         r=radi)
     text_style = default_text_style(rescale, config.node_text_color)
-    Viznet.canvas() do
+    img1 = Viznet.canvas() do
         for (i, node) in enumerate(locs)
             node_styles[i] >> node
-            if config.blockade_style != "none"
-                blockade_radius_style >> node
-            end
             if config.node_text_color !== "transparent"
                 text_style >> (node, texts === nothing ? "$i" : texts[i])
             end
@@ -175,6 +172,14 @@ function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale
             edge_style >> (locs[i], locs[j])
         end
     end
+    img2 = Viznet.canvas() do
+        if config.blockade_style != "none"
+            for (i, node) in enumerate(locs)
+                blockade_radius_style >> node
+            end
+        end
+    end
+    Compose.compose(context(), img1, img2)
 end
 
 function _axes!(xs, locs, config, rescale)

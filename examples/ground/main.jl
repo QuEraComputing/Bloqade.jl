@@ -1,6 +1,8 @@
-# write your EaRyd example with Literate.jl here
 
 # write your EaRyd example with Literate.jl here
+
+
+# calculate the ground states of a ladder system
 using EaRyd
 using KrylovKit
 using SparseArrays

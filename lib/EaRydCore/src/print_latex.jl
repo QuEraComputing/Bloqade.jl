@@ -3,33 +3,35 @@ function latex_string(t::RydInteract)
     return "\\sum_{<ij>} \\frac{2π ⋅ $(C) MHz⋅μm}{|r_i - r_j|^6} n_i⋅n_j"
 end
 
+const ParamsList{T} = Union{AbstractVector{T}, NTuple{N, T} where N}
+
 function latex_string(t::XTerm)
     n = nsites(t)
     @switch (t.Ωs, t.ϕs) begin
-        @case (Ωs::AbstractVector{<:Number}, ϕs::AbstractVector{<:Number})
+        @case (Ωs::ConstParamListType, ϕs::ConstParamListType)
             tex = "\\sum_{k=1}^{$n} Ω_k (e^{ϕ_{k}i}|0⟩⟨1|_{k} + e^{-ϕ_{k}i}|1⟩⟨0|_{k})"
-        @case (Ωs::AbstractVector, ϕs::AbstractVector{<:Number})
+        @case (Ωs::AbstractVector, ϕs::ConstParamListType)
             tex = "\\sum_{k=1}^{$n} Ω_k(t) (e^{ϕ_{k}i}|0⟩⟨1|_{k} + e^{-ϕ_{k}i}|1⟩⟨0|_{k})"
-        @case (Ωs::AbstractVector{<:Number}, ϕs::AbstractVector)
+        @case (Ωs::ConstParamListType, ϕs::ParamsList)
             tex = "\\sum_{k=1}^{$n} Ω_k (e^{ϕ_{k}(t)i}|0⟩⟨1|_{k} + e^{-ϕ_{k}(t)i}|1⟩⟨0|_{k})"
-        @case (Ωs::AbstractVector, ϕs::AbstractVector)
+        @case (Ωs::ParamsList, ϕs::ParamsList)
             tex = "\\sum_{k=1}^{$n} Ω_k(t) (e^{ϕ_{k}(t)i}|0⟩⟨1|_{k} + e^{-ϕ_{k}(t)i}|1⟩⟨0|_{k})"
-        @case (Ωs::AbstractVector{<:Number}, ϕ::Number)
+        @case (Ωs::ConstParamListType, ϕ::Number)
             ϕ = round(ϕ;sigdigits=4)
             tex = "\\sum_{k=1}^{$n} Ω_k (e^{$(ϕ)i}|0⟩⟨1|_{k} + e^{-$(ϕ)i}|1⟩⟨0|_{k})"
-        @case (Ωs::AbstractVector{<:Number}, ::Nothing)
+        @case (Ωs::ConstParamListType, ::Nothing)
             tex = "\\sum_{k=1}^{$n} Ω_k σ^x_k"
-        @case (Ωs::AbstractVector{<:Number}, ϕ)
+        @case (Ωs::ConstParamListType, ϕ)
             tex = "\\sum_{k=1}^{$n} Ω_k (e^{ϕ(t)i}|0⟩⟨1|_{k} + e^{-ϕ(t)i}|1⟩⟨0|_{k})"
-        @case (Ωs::AbstractVector, ::Nothing)
+        @case (Ωs::ParamsList, ::Nothing)
             tex = "\\sum_{k=1}^{$n} Ω_k(t) σ^x_k"
         @case (Ω::Number, ϕ::Number)
             Ω, ϕ = round(Ω;sigdigits=6), round(ϕ;sigdigits=4)
             tex = "$(Ω)\\sum_{k=1}^{$n} (e^{$(ϕ)i}|0⟩⟨1|_{k} + e^{-$(ϕ)i}|1⟩⟨0|_{k})"
-        @case (Ω::Number, ::AbstractVector{<:Number})
+        @case (Ω::Number, ::ConstParamListType)
             Ω = round(Ω;sigdigits=6)
             tex = "$(Ω)\\sum_{k=1}^{$n} (e^{ϕ_{k}i}|0⟩⟨1|_{k} + e^{-ϕ_{k}i}|1⟩⟨0|_{k})"
-        @case (Ω::Number, ::AbstractVector)
+        @case (Ω::Number, ::ParamsList)
             Ω = round(Ω;sigdigits=6)
             tex = "$(Ω)\\sum_{k=1}^{$n} (e^{ϕ_{k}(t)i}|0⟩⟨1|_{k} + e^{-ϕ_{k}(t)i}|1⟩⟨0|_{k})"
         @case (Ω::Number, ::Nothing)
@@ -48,9 +50,9 @@ end
 
 function latex_string(t::NTerm)
     n = nsites(t)
-    return if t.Δs isa AbstractVector{<:Number}
+    return if t.Δs isa ConstParamListType
         "\\sum_{k=1}^{$n} Δ_k ⋅ n_k"
-    elseif t.Δs isa AbstractVector
+    elseif t.Δs isa ParamsList
         "\\sum_{k=1}^{$n} Δ(t)_k ⋅ n_k"
     elseif t.Δs isa Number
         "$(t.Δs)\\sum_{k=1}^{$n} n_k"

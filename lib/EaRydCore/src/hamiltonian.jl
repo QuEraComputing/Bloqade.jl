@@ -328,8 +328,8 @@ Base.isreal(t::RydInteract) = true
 Base.isreal(t::Negative) = isreal(t.term)
 Base.isreal(t::Hamiltonian) = all(isreal, t.terms)
 
-Base.iszero(t::XTerm) = iszero(t.Ωs)
-Base.iszero(t::Union{NTerm, ZTerm}) = iszero(t.Δs)
+Base.iszero(t::XTerm) = t.Ωs isa Tuple ? all(iszero, t.Ωs) : iszero(t.Ωs)
+Base.iszero(t::Union{NTerm, ZTerm}) = t.Δs isa Tuple ? all(iszero, t.Δs) : iszero(t.Δs)
 Base.iszero(t::RydInteract) = iszero(t.C)
 Base.iszero(t::Negative) = iszero(t.term)
 Base.iszero(t::Hamiltonian) = all(iszero, t.terms)

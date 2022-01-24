@@ -27,11 +27,17 @@ function latex_string(t::XTerm)
             Ω, ϕ = round(Ω;sigdigits=6), round(ϕ;sigdigits=4)
             tex = "$(Ω)\\sum_{k=1}^{$n} (e^{$(ϕ)i}|0⟩⟨1|_{k} + e^{-$(ϕ)i}|1⟩⟨0|_{k})"
         @case (Ω::Number, ::AbstractVector{<:Number})
+            Ω = round(Ω;sigdigits=6)
             tex = "$(Ω)\\sum_{k=1}^{$n} (e^{ϕ_{k}i}|0⟩⟨1|_{k} + e^{-ϕ_{k}i}|1⟩⟨0|_{k})"
         @case (Ω::Number, ::AbstractVector)
+            Ω = round(Ω;sigdigits=6)
             tex = "$(Ω)\\sum_{k=1}^{$n} (e^{ϕ_{k}(t)i}|0⟩⟨1|_{k} + e^{-ϕ_{k}(t)i}|1⟩⟨0|_{k})"
         @case (Ω::Number, ::Nothing)
+            Ω = round(Ω;sigdigits=6)
             tex = "$Ω\\sum_{k=1}^{$n} σ^x_k"
+        @case (Ω, ϕ::Number)
+            ϕ = round(ϕ;sigdigits=4)
+            tex = "Ω(t)\\sum_{k=1}^{$n} (e^{$(ϕ)i}|0⟩⟨1|_{k} + e^{-$(ϕ)i}|1⟩⟨0|_{k})"
         @case (Ω, ::Nothing)
             tex = "Ω(t)\\sum_{k=1}^{$n} σ^x_k"
         @case (Ω, ϕ)

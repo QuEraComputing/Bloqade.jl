@@ -42,7 +42,7 @@ end
 
 @testset "emulate h=$name" for (name, h) in [
     "x+z" => XTerm(5, 1.0) + ZTerm(5, sin),
-    "rydberg" => rydberg_h(atoms, sin, nothing, cos),
+    "rydberg" => rydberg_h(atoms;Δ=sin, Ω=cos, C=2π * 109),
 ]
 
     @testset "T=$T" for T in [ComplexF32, ComplexF64]

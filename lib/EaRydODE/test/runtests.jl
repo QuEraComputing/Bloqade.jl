@@ -8,7 +8,7 @@ space = blockade_subspace(atoms, 1.5)
 
 @testset "h=$name" for (name, h) in [
     "x+z" => XTerm(5, 1.0) + ZTerm(5, sin),
-    "rydberg" => rydberg_h(atoms, sin, nothing, cos),
+    "rydberg" => rydberg_h(atoms;Δ=sin, Ω=cos, C=2π * 109),
 ]
 
     dt = 1e-5

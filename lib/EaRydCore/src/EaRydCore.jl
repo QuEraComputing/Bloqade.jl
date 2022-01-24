@@ -19,6 +19,7 @@ using Polyester
 using StatsBase
 using ThreadsX
 using Transducers
+using LaTeXStrings
 using StaticArrays
 using Reexport
 
@@ -70,6 +71,8 @@ include("mis.jl")
 include("deprecations.jl")
 
 include("observables.jl")
+
+include("print_latex.jl")
 
 
 end # module

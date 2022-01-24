@@ -7,7 +7,7 @@ using SparseArrays
 
 using CUDA.CUSPARSE: CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseMatrix
 using EaRydCore: AbstractTerm
-using EaRydODE: ShordingerEquation, update_dstate!
+using EaRydODE: SchrodingerEquation, update_dstate!
 
 CUDA.allowscalar(false)
 

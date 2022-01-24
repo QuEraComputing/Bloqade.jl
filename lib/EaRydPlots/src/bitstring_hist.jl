@@ -14,7 +14,7 @@ function bitstring_histgram!(plt, r::ArrayReg; nlargest::Int=10, title="")
     indices = find_largest(probs, nlargest)
     ax = Axis(
         plt;
-        xticks = (1:length(indices), string.(indices.-1;base=2, pad=12)),
+        xticks = (1:length(indices), string.(indices.-1;base=2, pad=nqubits(r))),
         xticklabelrotation=π/3,
         title,
         xlabel="bitstring",

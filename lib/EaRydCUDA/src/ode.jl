@@ -48,7 +48,7 @@ function EaRydODE.ODEEvolution{P}(
     end
 
     dcache = EaRydODE.EquationCache(dH, layout, dstate)
-    eq = ShordingerEquation(h, cu(space), dcache)
+    eq = SchrodingerEquation(h, cu(space), dcache)
 
     ode_prob = ODEProblem(
         eq,

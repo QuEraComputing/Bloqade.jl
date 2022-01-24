@@ -15,7 +15,7 @@ using OrdinaryDiffEq: OrdinaryDiffEq, ODEProblem
 
 @reexport using EaRydCore
 @reexport using OrdinaryDiffEq: Vern6, Vern7, Vern8, VCABM, AB3
-export ShordingerEquation, ODEEvolution
+export SchrodingerEquation, ODEEvolution
 
 struct EquationCache{H, Layout, S}
     hamiltonian::H
@@ -35,25 +35,25 @@ end
 
 EquationCache(H::SparseMatrixCSC) = EquationCache(H, ComplexLayout())
 
-struct ShordingerEquation{L, HTerm, Space, Cache <: EquationCache{<:Any, L}}
+struct SchrodingerEquation{L, HTerm, Space, Cache <: EquationCache{<:Any, L}}
     layout::L
     hamiltonian::HTerm
     space::Space
     cache::Cache
 end
 
-function ShordingerEquation(h::AbstractTerm, space::AbstractSpace, cache::EquationCache)
-    ShordingerEquation(cache.layout, h, space, cache)
+function SchrodingerEquation(h::AbstractTerm, space::AbstractSpace, cache::EquationCache)
+    SchrodingerEquation(cache.layout, h, space, cache)
 end
 
-Adapt.@adapt_structure ShordingerEquation
+Adapt.@adapt_structure SchrodingerEquation
 Adapt.@adapt_structure EquationCache
 
 EaRydCore.storage_size(S::EquationCache) = storage_size(S.hamiltonian) + storage_size(S.state)
 
-function Base.show(io::IO, m::MIME"text/plain", eq::ShordingerEquation)
+function Base.show(io::IO, m::MIME"text/plain", eq::SchrodingerEquation)
     indent = get(io, :indent, 0)
-    println(io, " "^indent, "Shordinger Equation:")
+    println(io, " "^indent, "Schrödinger Equation:")
     print(io, " "^indent, "  Storage Size: ")
     printstyled(io, Base.format_bytes(storage_size(eq.cache)); color=:green)
     println(io)
@@ -67,7 +67,7 @@ function Base.show(io::IO, m::MIME"text/plain", eq::ShordingerEquation)
     show(IOContext(io, :indent=>indent+2), m, eq.hamiltonian)
 end
 
-function (eq::ShordingerEquation)(dstate, state, p, t::Number) where L
+function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where L
     update_term!(eq.cache.hamiltonian, eq.hamiltonian(t), eq.space)
     mul!(eq.cache.state, eq.cache.hamiltonian, state)
     # @. dstate = -im * eq.cache.state
@@ -124,7 +124,7 @@ end
 
 Problem type for hamiltonian with time dependent parameters.
 """
-struct ODEEvolution{P, Reg <: AbstractRegister, Eq <: ShordingerEquation, Prob <: ODEProblem, Options <: ODEOptions}
+struct ODEEvolution{P, Reg <: AbstractRegister, Eq <: SchrodingerEquation, Prob <: ODEProblem, Options <: ODEOptions}
     reg::Reg
     time::NTuple{2, P}
     eq::Eq
@@ -215,7 +215,7 @@ function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Rea
     T = isreal(h) ? P : Complex{P}
     H = SparseMatrixCSC{T, Cint}(h(start+sqrt(eps(P))), space)
     cache = EquationCache(H, layout)
-    eq = ShordingerEquation(h, space, cache)
+    eq = SchrodingerEquation(h, space, cache)
 
     ode_prob = ODEProblem(
         eq, Yao.statevec(reg), time;

@@ -824,21 +824,22 @@ function rydberg_h(atoms; Ω, Δ=nothing, C=nothing, ϕ=nothing)
         atoms = SVector{length(atoms)}(atoms)
     end
 
-    if ϕ === nothing
-        term = XTerm(length(atoms), Ω)
+    if C === nothing
+        term = RydInteract(atoms)
     else
-        term = XTerm(length(atoms), Ω, ϕ)
+        term = RydInteract(atoms, C)
+    end
+
+    if ϕ === nothing
+        term += XTerm(length(atoms), Ω)
+    else
+        term += XTerm(length(atoms), Ω, ϕ)
     end
 
     if Δ !== nothing
         term -= NTerm(length(atoms), Δ)
     end
 
-    if C === nothing
-        term += RydInteract(atoms)
-    else
-        term += RydInteract(atoms, C)
-    end
     return term
 end
 

@@ -282,7 +282,7 @@ function constant(;duration::Real, value::Real)
 end
 
 """
-    sinusoidal(;duration::Real, amplitude::Real=zero(start))
+    sinusoidal(;duration::Real, amplitude::Real=one(start))
 
 Create a sinusoidal waveform of the following expression.
 
@@ -295,7 +295,7 @@ amplitude * sin(t)
 - `duration`: duration of the waveform.
 - `amplitude`: amplitude of the sin waveform.
 """
-function sinusoidal(;duration::Real, amplitude::Real=zero(duration))
+function sinusoidal(;duration::Real, amplitude::Real=one(duration))
     return Waveform(duration) do t
         amplitude * sin(t)
     end

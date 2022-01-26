@@ -234,7 +234,8 @@ function img_maskedgrid(maskedgrid::MaskedGrid;
         blockade_radius = 0,
         kwargs...
         )
-    !any(maskedgrid.mask) && return
+    atoms = padydim(collect_atoms(maskedgrid))
+    isempty(atoms) && return
     img, (dx, dy) = viz_maskedgrid(maskedgrid; colors=colors, texts=texts, blockade_radius=blockade_radius, config=LatticeDisplayConfig(; config_plotting(atoms)..., kwargs...))
     if io === nothing
         Compose.set_default_graphic_size(dx, dy)
@@ -246,10 +247,10 @@ end
 
 # Returns a 2-tuple of (image::Context, size)
 function viz_maskedgrid(maskedgrid::MaskedGrid; colors, texts, config, blockade_radius)
-    atoms = collect_atoms(maskedgrid)
-    rescale = rescale * config.image_size * config.scale * 1.6
+    atoms = padydim(collect_atoms(maskedgrid))
     rescaler = get_rescaler(atoms, config.pad)
-    line_style_grid = Viznet.bondstyle(:default, Compose.stroke("#AAAAAA"), linewidth(0.3mm*config.scale); dashed=true)
+    rescale = getscale(rescaler) * config.image_size * config.scale * 1.6
+    line_style_grid = Viznet.bondstyle(:default, Compose.stroke("#AAAAAA"), linewidth(0.3mm*rescale); dashed=true)
     img1 = _viz_atoms(rescaler.(atoms), _edges(atoms, blockade_radius), colors, texts, config, blockade_radius, getscale(rescaler))
     ymax = (rescaler.ymax - rescaler.ymin + 2*rescaler.pad)/(rescaler.xmax - rescaler.xmin + 2*rescaler.pad)
     img2 = _viz_grid(rescaler.(maskedgrid.xs; dims=1), rescaler.(maskedgrid.ys; dims=2), line_style_grid, ymax)
@@ -280,7 +281,7 @@ for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
         end
     
         function Base.show(io::IO, ::$mime, list::AtomList)
-            img_atoms(list; format=$format, io=io)
+            img_atoms(padydim(list); format=$format, io=io)
             nothing
         end
     end

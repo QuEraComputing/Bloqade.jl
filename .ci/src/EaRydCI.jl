@@ -155,6 +155,13 @@ using LiveServer
 using ..EaRydCI: root_dir, dev
 
 @cast function serve(;host::String="0.0.0.0", port::Int=8000)
+    # setup environment
+    dev("docs")
+    docs_dir = root_dir("docs")
+    julia_cmd = "using Pkg; Pkg.instantiate()"
+    run(`$(Base.julia_exename()) --project=$docs_dir -e $julia_cmd`)
+
+
     docs_dir = root_dir(".ci")
     serve_cmd = """
     using LiveServer;

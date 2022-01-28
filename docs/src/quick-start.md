@@ -51,23 +51,44 @@ init= zero_state(10)
 
 ## Run emulation
 
-We first create the problem where we want to emulate the system 
-starting from the intial state and evolving under the defined Hamiltoninan. Here we choose the ODE solver.  
+We are interested in calculating the real-time dynamics of Rydberg density for each site under the evolution of the defined Hamiltonian. The  total time step of the problem is choosen to be 120, and each time step being `` 0.01 \mu s``. Note that the default unit of time is ``\mu s`` in EaRyd. 
 
 ```@repl quick-start
-prob = ODEEvolution(init, 1.6, h)
+iteration = 1:120
+ts = [0.01 for _ in iteration];
+hs = [h for _ in iteration];
+clocks = cumsum(ts)
+``` 
+
+We can set up the problem by specifying the intial state, evolving time (vector), and the time-independent Hamiltoninan (vector) defined above. The  Krylov solver can be used for this example.  
+
+```@repl quick-start
+prob1 = KrylovEvolution(init, ts, hs)
 ```
-Here 1.6 is the total evolution time and its default unit is ``\mu s``. Then we use the following code to emulate the problem. 
 
-```@repl quick-start
-emulate!(prob)
-```
+The following for loop is used to calculate the expectation value of the Rydberg density for individual site and for each time step.  
 
-After the time-evolution, we are able to measure the expectation value of Rydberg density operator for each site. 
-
-```@repl quick-start
-densities = map(1:nsites) do i
-    real(expect(put(nsites, i=>Op.n), prob.reg))
+```@repl quick-start 
+density_site = zeros(nsites, length(iteration)); 
+for info in prob1
+    for i in 1:nsites
+        density_site[i, info.step] = expect(put(nsites, i=>Op.n), info.reg)
+    end
 end
 ```
-Here the prob.reg is a register storing the final state after time-evolution, and put(nsites, i=>Op.n) specifies the observable to be Rydberg density operator on site i. 
+info.reg is a register storing the quantum state at each time step, and put(nsites, i=>Op.n) specifies the observable to be Rydberg density operator on site ``i``.
+
+
+On the other hand, if we are only interested in calculating the expectation value at the final time step, we can directly emulate the problem first and then the measurement for the final state. 
+
+```@repl quick-start
+prob2 = ODEEvolution(init, 1.6, h)
+emulate!(prob2)
+```
+Here we have choosen the ODE solver and the total evolution time is set to be 1.6 ``\mu s``
+```@repl quick-start
+densities = map(1:nsites) do i
+    real(expect(put(nsites, i=>Op.n), prob2.reg))
+end
+```
+prob.reg is the register storing the final state after the time-evolution. 

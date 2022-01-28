@@ -1,0 +1,19 @@
+name = "EaRydRules"
+uuid = "3aa3a38f-d120-452d-9e2e-474b1b7ddbda"
+authors = ["QuEra Computing Inc."]
+version = "0.1.0"
+
+[deps]
+ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+TreeverseAlgorithm = "e1c63c57-2fea-45bf-a8bf-df3ea6afb545"
+
+[compat]
+julia = "1"
+ChainRulesCore = "1.11"
+TreeverseAlgorithm = "0.1"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

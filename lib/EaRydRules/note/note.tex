@@ -1,0 +1,57 @@
+\documentclass{article}
+\usepackage[colorlinks=true,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref} 
+
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage[linesnumbered, ruled, vlined]{algorithm2e}
+\usepackage{graphicx}% Include figure files
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{listings}
+\usepackage{amsthm}
+\usepackage{cancel}
+\usepackage[mode=buildnew]{standalone}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[section]
+%\usepackage[linesnumbered, ruled, vlined, algo2e]{algorithm2e}
+\lstset{
+    basicstyle=\ttfamily\small,
+    numberstyle=\scriptsize,
+    % numbers=left,
+    backgroundcolor=\color{white},
+    %backgroundcolor=\color{white},
+    %frame=single,
+    xleftmargin=2em,
+    tabsize=2,
+    rulecolor=\color{black},
+    %title=\lstname,
+    escapeinside={(*}{*)},
+    breaklines=true,
+    %breakatwhitespace=true,
+    %framextopmargin=2pt,
+    %framexbottommargin=2pt,
+    frame=bt,
+    extendedchars=true,
+    inputencoding=utf8,
+    columns=fullflexible,
+    %escapeinside={(*@}{@*)},
+}
+
+% the color of power ragers
+\newcommand{\blue}[1]{[{\bf  \color{blue}{JG: #1}}]}
+\newcommand{\Eq}[1]{Eq.~(\ref{#1})}
+\newcommand{\Fig}[1]{Fig.~\ref{#1}}
+\newcommand{\ra}[1]{\renewcommand{\arraystretch}{#1}}
+\newcommand{\pdv}[2]{{\frac{\partial#1}{\partial#2}}}
+
+\title{Quantum simulation on a random tensor network}
+\begin{document}
+\maketitle
+
+\section{The backward rule for the \texttt{expmv} function}
+
+\bibliographystyle{plain}
+\bibliography{refs}
+\end{document}

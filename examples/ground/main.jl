@@ -3,6 +3,7 @@
 using EaRyd
 using KrylovKit
 using SparseArrays
+using Plots
 
 # we create a two ladder of atoms with 8 sites in each row
 n_sites= 8
@@ -51,3 +52,4 @@ println(output_mat1)
 # plot the difference of the magnetization in the two rows 
 n_diff= output_mat1[1:n_sites]- output_mat1[n_sites+1: 2*n_sites]
 plot(1: n_sites, n_diff)
+

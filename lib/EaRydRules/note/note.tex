@@ -50,7 +50,70 @@
 \begin{document}
 \maketitle
 
-\section{The backward rule for the \texttt{expmv} function}
+\section{Differentiating single step time evolution}
+The $m$ site Rydberg Hamiltonian is
+\begin{equation}
+    H_{\rm Rydberg} = \sum_{i,j=1, i>j}^{m} \frac{C}{|r_i-r_j|^6}n_i n_j + \Omega(t)\sum_{i=1}^{m} \frac{1}{2}\sigma_i^x + \Delta(t)\sum_{i=1}^{m} n_i
+\end{equation}
+
+For simplicity, we consider the following general representation of a time-space dependent Hamiltonian with $k$ terms
+\begin{equation}
+    H = \sum_{k=1}^{K} c_k O_k
+\end{equation}
+where $c_k$ can be dependent on a set of parameters like locations $r_1, r_2, \ldots, r_m$, and pulses $\Omega(t)$ and $\Delta(t)$.
+
+\subsection{The ODE version}
+In each step of the ODE solver, it performs the following update
+\begin{equation}
+    |\psi'\rangle = (1 - iH \Delta t) |\psi\rangle
+\end{equation}
+
+We derive the backward rules for the gradients by inspecting the following equations
+% \begin{align}
+%     &\overline{p} \mathrel{+}= \overline{c_k} \frac{\partial c_k}{\partial p}
+% \end{align}
+
+\begin{equation}\label{eq:ad0}
+    \begin{split}
+    \overline{\mathcal{L}}\delta \mathcal{L} &= \overline{|\psi'\rangle} \circ \delta |\psi'\rangle\\
+    &= \sum_k \overline{c_k} \delta c_k + \overline{|\psi\rangle}\circ\delta|\psi\rangle + \overline{\Delta t}\delta \Delta t
+    \end{split}
+\end{equation}
+
+where $\circ$ is the Hadamard product applied on real numbers,
+note a complex number in computer is composed of two real numbers.
+The above euqations has a more elegant linear algebra version as the following.
+
+\begin{equation}\label{eq:ad1}
+    \begin{split}
+    \overline{\mathcal{L}}\delta \mathcal{L} &= \overline{\langle\psi'|} \delta |\psi'\rangle\\
+    &= \sum_k \overline{c_k} \delta c_k + \overline{\langle\psi|}\delta|\psi\rangle + \overline{\Delta t}\delta \Delta t
+    \end{split}
+\end{equation}
+where we have used $\langle\psi|$ to represent the hermitian conjugate of $|\psi\rangle$.
+
+\begin{equation}\label{eq:ad2}
+    \delta|\psi'\rangle = -i\sum_k \delta c_k O_k \Delta t |\psi\rangle - i H \delta \Delta t |\psi\rangle + (1-iH\Delta t) \delta |\psi\rangle
+\end{equation}
+
+By observing \Eq{eq:ad1} and \Eq{eq:ad2}, one can see
+\begin{align}
+    \overline{\langle\psi|} &= \overline{\langle\psi'|}(1-iH\Delta t)\\
+    \overline{c_k} &= \Re\left[-i\Delta t\overline{\langle\psi'|} O_k|\psi\rangle\right]\\
+    \overline{\Delta t} &= \Re\left[-i\overline{\langle\psi'|} H|\psi\rangle\right]
+\end{align}
+
+After a step, a normalization procedure might be called on the wave functions,
+this is trivial so that we do not discuss it at this stage.
+
+\subsection{The \texttt{expmv} version}
+It is harder to differentiate the time evolution directly than differentiating an ODE step.
+
+\section{How to reverse the time evolution}
+\begin{enumerate}
+    \item Since the time evolution of a Hamiltonian is sympletic, one can reverse it by doing inverse time evolution.
+    \item For the cases reversibility is not guarented, one can use treeverse algorithm.
+\end{enumerate}
 
 \bibliographystyle{plain}
 \bibliography{refs}

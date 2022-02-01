@@ -107,7 +107,24 @@ After a step, a normalization procedure might be called on the wave functions,
 this is trivial so that we do not discuss it at this stage.
 
 \subsection{The \texttt{expmv} version}
-It is harder to differentiate the time evolution directly than differentiating an ODE step.
+To differentiate the time evolution directly, one can use the Taylor expansion
+\begin{equation}
+    \begin{split}
+    |\psi'\rangle &= e^{-iHt}|\psi\rangle\\
+    & = \sum_{n=0}^{\infty}\frac{(-it)^n H^n}{n!}|\psi\rangle
+    \end{split}
+\end{equation}
+
+Similarly, we have
+\begin{equation}
+    \delta|\psi'\rangle = e^{-iHt}\delta|\psi\rangle + \sum_{n=0}^{\infty}\frac{(-it)^n \delta (H^n)}{n!}|\psi\rangle + \left(e^{-iH(t+\delta t)}-e^{-iH t}\right)|\psi\rangle
+\end{equation}
+
+\begin{align}
+    \overline{\langle\psi|} &= \overline{\langle\psi|}e^{-iHt}\delta\\
+    \overline{t} &= \overline{\langle\psi'|}-iHe^{-iHt}|\psi\rangle\\
+    \overline{c_k} &= \sum_n \frac{(-it)^n}{n!}\sum_{p=0}^{n-1} \overline{\langle\psi'|}H^p O_k H^{n-p-1}|\psi\rangle
+\end{align}
 
 \section{How to reverse the time evolution}
 \begin{enumerate}

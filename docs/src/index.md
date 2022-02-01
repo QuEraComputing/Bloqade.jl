@@ -42,9 +42,9 @@ For current master
 pkg> add EaRyd#master
 ```
 
-## Don't know how to setup the registry?
+## Rydberg System
 
-Check [Setting Up Company Registry](@ref miskatonic).
+## Run a Simple Emulation of Rydberg System
 
 ## Looking for Help?
 

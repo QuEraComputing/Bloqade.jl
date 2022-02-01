@@ -171,6 +171,7 @@ using ..EaRydCI: root_dir, dev
             joinpath("docs", "src", "assets"),
             joinpath("docs", "src", "tutorials"),
         ],
+        literate="examples",
         host=\"$host\",
         port=$port,
     )

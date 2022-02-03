@@ -1,3 +1,4 @@
+% !TEX program = pdflatex
 \documentclass{article}
 \usepackage[colorlinks=true,urlcolor=blue,citecolor=blue,linkcolor=blue]{hyperref} 
 
@@ -153,7 +154,8 @@ Since the time evolution is reversible, one can reverse it by doing inverse time
 
 For the cases reversibility is not guarented, one can use treeverse algorithm~\cite{Griewank1992,TreeverseAlgorithm}.
 Peter is a road maintainer.
-He is assigned a job to paint a one-way road to blue in the reversed order (do not ask me why!).
+He is assigned a job by his male willed employer to paint a one-way road to blue in the reversed order (do not ask me why!).
+Lucky enough, Peter picked up some teleportation magics in Hogwarts.
 In the following illustration, we represent the road as $N$ grids arranged in one dimension.
 
 \centerline{\begin{tikzpicture}
@@ -167,13 +169,26 @@ In the following illustration, we represent the road as $N$ grids arranged in on
         \node[draw=black, fill=blue!50, minimum size=0.5cm, inner sep=0cm] at (0.5*\x, 0) () {\x};
 \end{tikzpicture}}
 
-He can paint one cell a time as limited the painting material he can carry at one time.
-Since the road is one-way, Peter soon find once he reaches the working spot, he can not drive back.
-Lucky enough, Peter picked up some teleportation magics in Hogwarts,
-he can setup a teleportation gate at where he locates and teleport his car to any existing teleportation gate (marked with red symbols).
-One limitation of this magic is he can at most create $\delta \leq N$ gates at the same time.
-When this upper limit is reached, he must distroy an existing teleportation gate to create a new one.
+Peter can take the following actions.
+\begin{enumerate}
+    \item paint one block $s_i$ if he is in $i$-th block and $s_{i+1}$ is painted,
+    \item move in one direction, i.e. $i\rightarrow i+1$,
+    \item setup a teleportation gate (marked with red symbols) at where he locates.
+    He can at most create $\delta \leq N$ gates at the same time.
+    When this upper limit is reached, he must distroy an existing teleportation gate to create a new one.
+    \item teleport himself to any existing teleportation gate.
+\end{enumerate}
+
 Given $N=10000$, $\delta=10$, can you please help Peter design a scheme so that he can drive the least?
+
+The optimal solution is described by the binomial function $\eta(d, t) \equiv \frac{(d+t)!}{d!t!}$.
+\begin{enumerate}
+    \item In the first forward sweep, Peter uses teleportation gates to devide the road into $\delta$ segments of size $\eta(d, \tau-1), d=\delta,\delta-1,\ldots,1$ plus one extra grid. 
+    Note $\sum_{d=0}^{\delta} \eta(d,\tau-1) = \eta(\delta,\tau)$.
+    \item Sweep over the last block, use up the remaining checkpoints and paint the last grid. If Peter has paint all grids in a block, destroy the last checkpoint.
+    \item In the $t$-th forward sweep of a block, Peter uses teleportation gates to devide the block into $d$ segments of size $\eta(k, \tau-t), k=d,d-1,\ldots,1$ plus one extra grid, where $d$ is equal to $\delta$ minus the number of checkpoints already used. 
+\end{enumerate}
+
 
 \begin{algorithm}
     %\setstretch{1.35}

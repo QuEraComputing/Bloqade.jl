@@ -129,12 +129,29 @@ Similarly, we have
 \end{align}
 
 \section{How to reverse the time evolution}
-\begin{enumerate}
-    \item Since the time evolution is reversible, one can reverse it by doing inverse time evolution (or the adjoint state method~\cite{Plessix2006,Chen2018}).
-    \item For the cases reversibility is not guarented, one can use treeverse algorithm~\cite{Griewank1992,TreeverseAlgorithm}.
-\end{enumerate}
+\subsection{The adjoint state method (or neural ODE)}
+Since the time evolution is reversible, one can reverse it by doing inverse time evolution (or the adjoint state method~\cite{Plessix2006,Chen2018}).
+
+\begin{algorithm}
+    %\setstretch{1.35}
+    \SetKwInOut{Input}{input}
+    \SetKwInOut{Output}{output}
+    \SetKwComment{Comment}{$\#$\ }{}
+    \SetAlgoLined
+    \DontPrintSemicolon
+    \SetKwProg{Fn}{function}{}{end}
+    \Input{parameters $\theta$, initial time $t_0$, ending time $t_n$, final state $s_n$ and its adjoint $\frac{\partial \mathcal{L}}{\partial s_n}$}
+    \Output{$\frac{\partial \mathcal{L}}{\partial s_0}$, $\frac{\partial \mathcal{L}}{\partial \theta}$}
+        \Fn{\rm aug\_dynamics(($s$, $a$, -), $t$, $\theta$)}{$q=f(s, t, \theta)$ \Comment*[r]{define the augmented dynamics} \textbf{return} ($q$, $-a^T\frac{\partial q}{\partial s}$, $-a^T\frac{\partial q}{\partial \theta}$)}
+        $S_0$ = ($s_n$, $\frac{\partial \mathcal{L}}{\partial s_n}$, $0$) \Comment*[r]{compute the initial state of the augmented dynamics}
+        ($s_0$, $\frac{\partial \mathcal{L}}{\partial s_0}$, $\frac{\partial \mathcal{L}}{\partial \theta}$) = ODESolve(aug\_dynamics, $S_0$, $\theta$, $t_n$, $t_0$) \Comment*[r]{integrate the augmented dynamics in the reversed time}
+    \caption{The continuous adjoint state method}\label{alg:adjointstate}
+\end{algorithm}
+
 
 \subsection{The treeverse algorithm (or optimal checkpointing)}
+
+For the cases reversibility is not guarented, one can use treeverse algorithm~\cite{Griewank1992,TreeverseAlgorithm}.
 Peter is a road maintainer.
 He is assigned a job to paint a one-way road to blue in the reversed order (do not ask me why!).
 In the following illustration, we represent the road as $N$ grids arranged in one dimension.
@@ -153,10 +170,53 @@ In the following illustration, we represent the road as $N$ grids arranged in on
 He can paint one cell a time as limited the painting material he can carry at one time.
 Since the road is one-way, Peter soon find once he reaches the working spot, he can not drive back.
 Lucky enough, Peter picked up some teleportation magics in Hogwarts,
-he can teleport his car to a teleportation gate (marked with red symbols).
+he can setup a teleportation gate at where he locates and teleport his car to any existing teleportation gate (marked with red symbols).
 One limitation of this magic is he can at most create $\delta \leq N$ gates at the same time.
-When this upper limit is reached, he can distroy a teleportation gate to create a new one.
+When this upper limit is reached, he must distroy an existing teleportation gate to create a new one.
 Given $N=10000$, $\delta=10$, can you please help Peter design a scheme so that he can drive the least?
+
+\begin{algorithm}
+    %\setstretch{1.35}
+    \SetAlgoLined
+    \DontPrintSemicolon
+    \SetKwProg{Fn}{function}{}{end}
+    \SetKwInOut{Input}{input}
+    \SetKwInOut{Output}{output}
+    \SetKwComment{Comment}{$\#$\ }{}
+    \Input{State cache $S=\{0:s_0\}$, the initial adjoint $\overline{s_n}\equiv \frac{\partial \mathcal{L}}{\partial s_n}$, the maximum number of checkpoints $\delta$, the number of scan $\tau$, the starting location of current block $\beta=0$, the end point of current block $\phi=n$, and the bisection point of current block $\sigma=0$}
+    \Output{Back-propagated adjoint $\overline{s_0} \equiv \frac{\partial \mathcal{L}}{\partial s_0}$}
+    \Fn{\rm treeverse($S$, $\overline{s_\phi}$, $\delta$, $\tau$, $\beta$, $\sigma$, $\phi$)}{
+        \If{\rm $\sigma > \beta$}{
+            $\delta = \delta - 1$\;
+            $s = S[\beta]$   \Comment*[r]{load initial state $s_\beta$}
+            \For{$j=\beta,\beta+1, ..., \sigma-1$}{
+                $s_{j+1} = f_j(s_j)$ \Comment*[r]{compute $s_\sigma$}
+            }
+            $S[\sigma] = s_\sigma$
+        }
+
+         \#~let $\kappa$ be the division point, call the treeverse algorithm recursively\;
+        \While{\rm $\tau>0$ {\bf and} $\kappa={\rm mid}(\delta, \tau, \sigma, \phi) < \phi$}{
+            $\overline{s_{\kappa}}$ = treeverse($S$, $\overline{s_\phi}$, $\delta$, $\tau$, $\sigma$, $\kappa$, $\phi$)\;
+            $\tau = \tau-1$\;
+            $\phi = \kappa$
+        }
+
+        $\overline{s_\sigma} = \overline{f_\sigma}(\overline{s_{\sigma+1}}, s_\sigma)$\Comment*[r]{back propagate the gradient}
+        \If{\rm $\sigma>\beta$}{
+            remove($S[\sigma]$) \Comment*[r]{remove state $s_\sigma$ from cache}
+        }
+        {\bf return} $\overline{s_\sigma}$
+    }
+    \Fn{\rm mid($\delta$, $\tau$, $\sigma$, $\phi$) \hspace{7cm}\# choose the bisection point}{
+        $\kappa = \lceil(\delta\sigma + \tau\phi)/(\tau+\delta)\rceil$\;
+        \If{$\kappa \geq \phi$ {\bf and} $\delta > 0$}{
+            $\kappa$ = max($\sigma+1$, $\phi-1$)
+        }
+    }
+    \caption{The Treeverse algorithm}\label{alg:treeverse}
+\end{algorithm}
+
 
 \bibliographystyle{plain}
 \bibliography{refs}

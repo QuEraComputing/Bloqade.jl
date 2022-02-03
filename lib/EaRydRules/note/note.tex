@@ -128,7 +128,7 @@ Similarly, we have
     \overline{c_k} &= \sum_n \frac{(-it)^n}{n!}\sum_{p=0}^{n-1} \overline{\langle\psi'|}H^p O_k H^{n-p-1}|\psi\rangle
 \end{align}
 
-\section{How to reverse the time evolution}
+\section{How to differentiate an ODE solver}
 \subsection{The adjoint state method (or neural ODE)}
 Since the time evolution is reversible, one can reverse it by doing inverse time evolution (or the adjoint state method~\cite{Plessix2006,Chen2018}).
 
@@ -140,11 +140,11 @@ Since the time evolution is reversible, one can reverse it by doing inverse time
     \SetAlgoLined
     \DontPrintSemicolon
     \SetKwProg{Fn}{function}{}{end}
-    \Input{parameters $\theta$, initial time $t_0$, ending time $t_n$, final state $s_n$ and its adjoint $\frac{\partial \mathcal{L}}{\partial s_n}$}
-    \Output{$\frac{\partial \mathcal{L}}{\partial s_0}$, $\frac{\partial \mathcal{L}}{\partial \theta}$}
-        \Fn{\rm aug\_dynamics(($s$, $a$, -), $t$, $\theta$)}{$q=f(s, t, \theta)$ \Comment*[r]{define the augmented dynamics} \textbf{return} ($q$, $-a^T\frac{\partial q}{\partial s}$, $-a^T\frac{\partial q}{\partial \theta}$)}
-        $S_0$ = ($s_n$, $\frac{\partial \mathcal{L}}{\partial s_n}$, $0$) \Comment*[r]{compute the initial state of the augmented dynamics}
-        ($s_0$, $\frac{\partial \mathcal{L}}{\partial s_0}$, $\frac{\partial \mathcal{L}}{\partial \theta}$) = ODESolve(aug\_dynamics, $S_0$, $\theta$, $t_n$, $t_0$) \Comment*[r]{integrate the augmented dynamics in the reversed time}
+    \Input{parameters $\theta$, initial time $t_0$, ending time $t_n$, final state $s_n$ and its adjoint $\overline{s_n}$}
+    \Output{$\overline{s_0}$, $\overline{\theta}$}
+        \Fn{\rm aug\_dynamics(($s$, $a$, -), $t$, $\theta$)}{$q=f(s, t, \theta)$ \Comment*[r]{the augmented dynamics} \textbf{return} ($q$, $-a^T\frac{\partial q}{\partial s}$, $-a^T\frac{\partial q}{\partial \theta}$)}
+        $S_0$ = ($s_n$, $\overline{s_n}$, $0$) \Comment*[r]{initial state of the augmented dynamics}
+        ($s_0$, $\overline{s_0}$, $\overline{\theta}$) = ODESolve(aug\_dynamics, $S_0$, $\theta$, $t_n$, $t_0$) \Comment*[r]{integrate the augmented dynamics in the reversed time}
     \caption{The continuous adjoint state method}\label{alg:adjointstate}
 \end{algorithm}
 

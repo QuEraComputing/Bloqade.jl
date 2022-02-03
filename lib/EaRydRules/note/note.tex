@@ -8,8 +8,10 @@
 \usepackage{subcaption}
 \usepackage{tabularx}
 \usepackage{listings}
+\usepackage{marvosym}
 \usepackage{amsthm}
 \usepackage{cancel}
+\usepackage{tikz}
 \usepackage[mode=buildnew]{standalone}
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[section]
@@ -128,9 +130,33 @@ Similarly, we have
 
 \section{How to reverse the time evolution}
 \begin{enumerate}
-    \item Since the time evolution of a Hamiltonian is sympletic, one can reverse it by doing inverse time evolution.
-    \item For the cases reversibility is not guarented, one can use treeverse algorithm.
+    \item Since the time evolution is reversible, one can reverse it by doing inverse time evolution (or the adjoint state method~\cite{Plessix2006,Chen2018}).
+    \item For the cases reversibility is not guarented, one can use treeverse algorithm~\cite{Griewank1992,TreeverseAlgorithm}.
 \end{enumerate}
+
+\subsection{The treeverse algorithm (or optimal checkpointing)}
+Peter is a road maintainer.
+He is assigned a job to paint a one-way road to blue in the reversed order (do not ask me why!).
+In the following illustration, we represent the road as $N$ grids arranged in one dimension.
+
+\centerline{\begin{tikzpicture}
+    \node at (-0.8, 0.6) () {{\Large \Gentsroom} $\rightarrow$};
+    \node at (-0, 0.5) () {{\large \color{red!70}{\Gemini}}};
+    \node at (4, 0.5) () {{\large \color{red!70}{\Gemini}}};
+    \node at (6, 0.5) () {{\large \color{red!70}{\Gemini}}};
+    \foreach \x in {0,...,20}
+        \node[draw=black, minimum size=0.5cm, inner sep=0cm] at (0.5*\x, 0) () {\x};
+    \foreach \x in {16,...,20}
+        \node[draw=black, fill=blue!50, minimum size=0.5cm, inner sep=0cm] at (0.5*\x, 0) () {\x};
+\end{tikzpicture}}
+
+He can paint one cell a time as limited the painting material he can carry at one time.
+Since the road is one-way, Peter soon find once he reaches the working spot, he can not drive back.
+Lucky enough, Peter picked up some teleportation magics in Hogwarts,
+he can teleport his car to a teleportation gate (marked with red symbols).
+One limitation of this magic is he can at most create $\delta \leq N$ gates at the same time.
+When this upper limit is reached, he can distroy a teleportation gate to create a new one.
+Given $N=10000$, $\delta=10$, can you please help Peter design a scheme so that he can drive the least?
 
 \bibliographystyle{plain}
 \bibliography{refs}

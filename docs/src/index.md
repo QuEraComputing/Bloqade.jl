@@ -54,7 +54,7 @@ Here ``\Delta_i`` are the detunings of the driving lasers from the Rydberg state
 
 ## Run a Simple Emulation of Rydberg System
 
-We will show how to use our Emulator to simulate quantum many-body dynamics governed by such a Hamiltonian. 
+Here we will show a simple example about simulating quantum many-body dynamics governed by such a Hamiltonian. 
 
 We start by loading the Emulator Module
 
@@ -73,15 +73,13 @@ We have set the distance between nearest neighbor atoms to be 5.72 ``\mu m``. No
 We will set both ``\Omega`` and ``\Delta`` to be a constant. The default energy unit (also for ``\Omega`` and ``\Delta``) is MHz in EaRyd. Since all the parameters specified, we can create a interacting Rydberg Hamiltonian by using [`rydberg_h`](@ref), 
 
 ```@repl quick-start
-Ω0=4π;
-Δ0=0;
-h = rydberg_h(atoms;C = 2π * 858386, Ω=Ω0, Δ=Δ0)
+h = rydberg_h(atoms;C = 2π * 858386, Ω=4π, Δ=0)
 ```
 
-We use the following code to create an initial state with all the atoms in the ground state 
+We use the following code to create an initial state with all the atoms in the ground state by using [`zero_state`](@ref)
 
 ```@repl quick-start
-init= zero_state(10)
+init = zero_state(10)
 ```
 
 We are interested in calculating the quench dynamics of Rydberg system starting with the above initial state and under the evolution of the defined Hamiltonian. Suppose we only want to get observable expectation values at the final time step, we can first create the problem and then directly emulate the problem.
@@ -99,7 +97,7 @@ densities = map(1:nsites) do i
     real(expect(put(nsites, i=>Op.n), prob.reg))
 end
 ```
-prob.reg is the register storing the final state after the time-evolution. 
+`prob.reg` is the register storing the final state after the time-evolution. 
 
 
 ## Looking for Help?

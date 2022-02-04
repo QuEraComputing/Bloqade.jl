@@ -29,7 +29,7 @@ we support the following built-in lattice: [`SquareLattice`](@ref), [`KagomeLatt
 
 EaRyd gives users the flexibility to specify general waveform by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
 
-```julia
+```@repl quick-start
 waveform = Waveform(t->2.2sin(t), duration=4π)
 ```
 

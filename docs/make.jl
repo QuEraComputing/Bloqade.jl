@@ -39,13 +39,24 @@ makedocs(;
         "Home" => "index.md",
         "Quick Start" => "quick-start.md",
         "The Julia Programming Language" => "julia.md",
-        "Setting Up Company Registry" => "registry.md",
         "Tutorials" => [
             "Quantum Scar" => "tutorials/quantum-scar.md",
             "Adiabatic Evolution" => "tutorials/adiabatic.md",
             "Quantum Approximate Optimization Algorithm" => "tutorials/qaoa.md",
             # "Solving Maximum-Independent Set Using Rydberg QAOA" => "tutorials/mis.md",
         ],
+        "Manual" => [
+            "Waveforms" => "waveform.md",
+            "Lattices" => "lattices.md",
+            "Emulation" => "emulation.md",
+            "CUDA Acceleration" => "cuda.md",    
+        ],
+        "Advanced Topics" => [
+            "Rydberg Blockade" => "topics/blockade.md",
+            "Bravais Lattice" => "topics/bravais.md",
+            "Automatic Differentiation" => "topics/ad.md",
+        ],
+        "Contributing EaRyd" => "contrib.md",
         "References" => "ref.md",
     ],
 )

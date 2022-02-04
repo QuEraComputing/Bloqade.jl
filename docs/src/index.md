@@ -4,7 +4,6 @@ CurrentModule = EaRyd
 
 # EaRyd
 
-[![Build Status](https://github.com/Happy-Diode/EaRyd.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/EaRyd.jl/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/EaRyd.jl/badge.svg?branch=master&t=p1FNvJ)](https://coveralls.io/github/Happy-Diode/EaRyd.jl?branch=master)
 
 Welcome to the QuEra **E**mul**a**tor for **Ryd**berg System documentation page!
@@ -42,9 +41,9 @@ For current master
 pkg> add EaRyd#master
 ```
 
-## Don't know how to setup the registry?
+## Rydberg System
 
-Check [Setting Up Company Registry](@ref miskatonic).
+## Run a Simple Emulation of Rydberg System
 
 ## Looking for Help?
 

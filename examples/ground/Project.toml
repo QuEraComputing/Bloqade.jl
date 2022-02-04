@@ -1,0 +1,9 @@
+[deps]
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
+EaRyd = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe1"
+EaRydCUDA = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe3"
+EaRydCore = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe2"
+EaRydLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
+EaRydODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
+EaRydWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
+KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"

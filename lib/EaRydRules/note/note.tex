@@ -53,6 +53,8 @@
 \begin{document}
 \maketitle
 
+\section{Forward and Reverse mode automatic differentiation}
+See ~\cite{Griewank2008,Hascoet2013}.
 \section{Differentiating single step time evolution}
 The $m$ site Rydberg Hamiltonian is
 \begin{equation}
@@ -71,7 +73,8 @@ In each step of the ODE solver, it performs the following update
     |\psi'\rangle = (1 - iH \Delta t) |\psi\rangle
 \end{equation}
 
-We derive the backward rules for the gradients by inspecting the following equations
+We derive the backward rules for the gradients by inspecting the following
+differential form.
 % \begin{align}
 %     &\overline{p} \mathrel{+}= \overline{c_k} \frac{\partial c_k}{\partial p}
 % \end{align}
@@ -82,10 +85,9 @@ We derive the backward rules for the gradients by inspecting the following equat
     &= \sum_k \overline{c_k} \delta c_k + \overline{|\psi\rangle}\circ\delta|\psi\rangle + \overline{\Delta t}\delta \Delta t
     \end{split}
 \end{equation}
-
-where $\circ$ is the Hadamard product applied on real numbers,
-note a complex number in computer is composed of two real numbers.
-The above euqations has a more elegant linear algebra version as the following.
+where $\overline{c_k} \equiv \frac{\partial L} {\partial c_k}$ is the adjoint of variable $c_k$, $\overline{\mathcal{L}} = 1$, $\circ$ is the Hadamard product applied on real numbers.
+In the definition of adjoint and Hadamard product, we treat a complex number as two real numbers for simplicity, one alternative way to understand the complex adjoints is the \href{https://en.wikipedia.org/wiki/Wirtinger_derivatives}{Wirtinger derivatives}.
+We rewrite the above equations in a more standard linear algebra style as the following.
 
 \begin{equation}\label{eq:ad1}
     \begin{split}
@@ -130,6 +132,7 @@ Similarly, we have
 \end{align}
 
 \section{How to differentiate an ODE solver}
+We need a time-space trade-off scheme to trace back intermediate states.
 \subsection{The adjoint state method (or neural ODE)}
 Since the time evolution is reversible, one can reverse it by doing inverse time evolution (or the adjoint state method~\cite{Plessix2006,Chen2018}).
 
@@ -149,14 +152,17 @@ Since the time evolution is reversible, one can reverse it by doing inverse time
     \caption{The continuous adjoint state method}\label{alg:adjointstate}
 \end{algorithm}
 
+One can easily check the second and third field in the return value of the augmented dynamics is nothing more than taking the ${\rm d}t\rightarrow 0^+$ in the backward rules of $\overline{s}$ and $\overline{\theta}$.
 
 \subsection{The treeverse algorithm (or optimal checkpointing)}
 
-For the cases reversibility is not guarented, one can use treeverse algorithm~\cite{Griewank1992,TreeverseAlgorithm}.
-Peter is a road maintainer.
-He is assigned a job by his male willed employer to paint a one-way road to blue in the reversed order (do not ask me why!).
-Lucky enough, Peter picked up some teleportation magics in Hogwarts.
-In the following illustration, we represent the road as $N$ grids arranged in one dimension.
+For the cases reversibility is not guarented, one can use treeverse algorithm~\cite{Griewank1992,TreeverseAlgorithm} to trace back the states in a reversed order.
+We map the problem of checkpointing into a real world problem.
+Peter is a street maintainer.
+He is assigned a job by his employer to tile a one-way street to blue mosaic in the reversed order (do not ask me why!).
+This is a job can not be completed for normal people, because once he tiled the last untiled block, he can not move back.
+Lucky enough, Peter picked up some teleportation magics in Hogwarts, he can setup a teleportation gate at where he locates and teleport to this gate later.
+In the following illustration, we represent the street as $N$ grids arranged in one dimension.
 
 \centerline{\begin{tikzpicture}
     \node at (-0.8, 0.6) () {{\Large \Gentsroom} $\rightarrow$};
@@ -169,23 +175,26 @@ In the following illustration, we represent the road as $N$ grids arranged in on
         \node[draw=black, fill=blue!50, minimum size=0.5cm, inner sep=0cm] at (0.5*\x, 0) () {\x};
 \end{tikzpicture}}
 
-Peter can take the following actions.
+Peter is allowed take the following actions.
 \begin{enumerate}
-    \item paint one block $s_i$ if he is in $i$-th block and $s_{i+1}$ is painted,
+    \item tile one block $s_i$ only if he is in $i$-th block and $s_{i+1}$ is tile,
     \item move in one direction, i.e. $i\rightarrow i+1$,
     \item setup a teleportation gate (marked with red symbols) at where he locates.
-    He can at most create $\delta \leq N$ gates at the same time.
+    He can at most create $\delta$ gates at the same time.
     When this upper limit is reached, he must distroy an existing teleportation gate to create a new one.
     \item teleport himself to any existing teleportation gate.
 \end{enumerate}
 
-Given $N=10000$, $\delta=10$, can you please help Peter design a scheme so that he can drive the least?
+Given $N=10000$, $\delta=10$, can you please help Peter design a scheme so that he can move (take action 2) the least?
 
+Here, we map a state to a grid, the program counter to Peter's location, the cached states to the teleportation gate and computing gradients as tiling street.
+Only if we have the state $i$ and the adjoint of the succeeding state $\overline{s_{i+1}}$, one can back-propagate for one step to obtain $\overline{s_i}$.
+The total memory limits the number of cached states, which corresponds to the upper limit of the number teleportation gates that can be created at the same time.
 The optimal solution is described by the binomial function $\eta(d, t) \equiv \frac{(d+t)!}{d!t!}$.
 \begin{enumerate}
-    \item In the first forward sweep, Peter uses teleportation gates to devide the road into $\delta$ segments of size $\eta(d, \tau-1), d=\delta,\delta-1,\ldots,1$ plus one extra grid. 
-    Note $\sum_{d=0}^{\delta} \eta(d,\tau-1) = \eta(\delta,\tau)$.
-    \item Sweep over the last block, use up the remaining checkpoints and paint the last grid. If Peter has paint all grids in a block, destroy the last checkpoint.
+    \item In the first forward sweep, Peter uses teleportation gates to devide the street into $\delta$ segments of size $\eta(d, \tau-1), d=\delta,\delta-1,\ldots,1$ plus one extra grid. 
+    Note $\sum_{d=1}^{\delta} \eta(d,\tau-1)+1 = \eta(\delta,\tau)$.
+    \item Sweep over the last block, use up the remaining checkpoints and tile the last grid. If Peter has tiled all grids in a block, destroy the last checkpoint.
     \item In the $t$-th forward sweep of a block, Peter uses teleportation gates to devide the block into $d$ segments of size $\eta(k, \tau-t), k=d,d-1,\ldots,1$ plus one extra grid, where $d$ is equal to $\delta$ minus the number of checkpoints already used. 
 \end{enumerate}
 

@@ -190,14 +190,19 @@ Given $N=10000$, $\delta=10$, can you please help Peter design a scheme so that 
 Here, we map a state to a grid, the program counter to Peter's location, the cached states to the teleportation gate and computing gradients as tiling street.
 Only if we have the state $i$ and the adjoint of the succeeding state $\overline{s_{i+1}}$, one can back-propagate for one step to obtain $\overline{s_i}$.
 The total memory limits the number of cached states, which corresponds to the upper limit of the number teleportation gates that can be created at the same time.
-The optimal solution is described by the binomial function $\eta(d, t) \equiv \frac{(d+t)!}{d!t!}$.
-\begin{enumerate}
-    \item In the first forward sweep, Peter uses teleportation gates to devide the street into $\delta$ segments of size $\eta(d, \tau-1), d=\delta,\delta-1,\ldots,1$ plus one extra grid. 
-    Note $\sum_{d=1}^{\delta} \eta(d,\tau-1)+1 = \eta(\delta,\tau)$.
-    \item Sweep over the last block, use up the remaining checkpoints and tile the last grid. If Peter has tiled all grids in a block, destroy the last checkpoint.
-    \item In the $t$-th forward sweep of a block, Peter uses teleportation gates to devide the block into $d$ segments of size $\eta(k, \tau-t), k=d,d-1,\ldots,1$ plus one extra grid, where $d$ is equal to $\delta$ minus the number of checkpoints already used. 
-\end{enumerate}
+% The optimal solution is described by the binomial function $\eta(d, t) \equiv \frac{(d+t)!}{d!t!}$.
+% \begin{enumerate}
+%     \item In the first forward sweep, Peter uses teleportation gates to devide the street into $\delta$ segments of size $\eta(d, \tau-1), d=\delta,\delta-1,\ldots,1$ plus one extra grid. 
+%     Note $\sum_{d=1}^{\delta} \eta(d,\tau-1)+1 = \eta(\delta,\tau)$.
+%     \item Sweep over the last block, use up the remaining checkpoints and tile the last grid. If Peter has tiled all grids in a block, destroy the last checkpoint.
+%     \item In the $t$-th forward sweep of a block, Peter uses teleportation gates to devide the block into $d$ segments of size $\eta(k, \tau-t), k=d,d-1,\ldots,1$ plus one extra grid, where $d$ is equal to $\delta$ minus the number of checkpoints already used. 
+% \end{enumerate}
 
+The optimal solution is described in ~\cite{Griewank1992},
+where we recursively sweep and devide a block into different size specified by function $\eta(d, \tau-t)$.
+Here $\eta(d, t) \equiv \frac{(d+t)!}{d!t!}$ is the binomial function,
+$d$ is the number of available checkpoints in current sweep and $t$ is the number of sweeps in this block.
+We summarize the algorithm that can be directly implemented in programming languages in Table~\ref{alg:treeverse}.
 
 \begin{algorithm}
     %\setstretch{1.35}

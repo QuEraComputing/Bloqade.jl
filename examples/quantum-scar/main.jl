@@ -71,7 +71,7 @@ for info in prob
     entropy_vec[info.step] = von_neumann_entropy(rho)
 end
 
-# # Plot results 
+# Plot results 
 
 fig = Figure(size=(10, 5));
 ax = Axis(fig[1, 1])

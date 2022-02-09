@@ -5,7 +5,7 @@
 # Later theoretical studies (e.g. [C. J. Turner, et al.](https://www.nature.com/articles/s41567-018-0137-5)) reveal that this behavior is due to very 
 # specific eigenstates embeded in the quantum many-body spectuum, called quantum many-body scars. 
 
-# Quantum many-body scars are in anology with clasicall scars in single-particle quantum chaos, where scars represent a concentration of some eigenfunctions 
+# Quantum many-body scars are in anology with clasical scars in single-particle quantum chaos, where scars represent a concentration of some eigenfunctions 
 # along the trajectory of classical periodic orbits. Similarly, in the quantum many-body case, the initial Neel state has a large component of these specific scar states. 
 # Under the time evolution of the Rydberg Hamiltonian, the initial state undergoes the trajectory of periodic quantum orbits. The non-thermal behavior is mainly caused by such non-ergodicity 
 # in Hilbert space. 
@@ -71,9 +71,10 @@ for info in prob
     entropy_vec[info.step] = von_neumann_entropy(rho)
 end
 
-# Plot results 
+# # Plot the results 
+# Now we first plot the Rydberg density for each site as a function of time
 
-fig = Figure(size=(10, 5));
+fig = Figure(size=(5, 3));
 ax = Axis(fig[1, 1])
 
 for i in 1:nsites
@@ -81,12 +82,17 @@ for i in 1:nsites
 end
 fig
 
-heatmap(clocks, 1:nsites, density_mat')
-heatmap(clocks, 1:nsites, domain_mat')
-domain_avg = vec(sum(domain_mat, dims=1)/(nsites-1))
-fig = Figure()
-ax = Axis(fig[1, 1])
-lines!(ax, clocks, domain_avg)
-lines!(ax, clocks, entropy)
-fig
+# To better illustrate the revivals, we plot the results in the colormap 
 
+heatmap(clocks, 1:nsites, density_mat')
+
+# We can see that there is a clear oscillations between the two partterns of the Rydberg density.
+
+# Finally we plot the  average domain wall number and entanglement entropy as a function of time 
+
+fig = Figure(size=(5, 3));
+ax = Axis(fig[1, 1])
+domain_avg = ones(length(iteration))-vec(sum(domain_mat, dims=1)/(nsites-1))
+lines!(ax, clocks, domain_avg)
+lines!(clocks, entropy_vec)
+fig

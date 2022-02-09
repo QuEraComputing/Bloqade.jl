@@ -96,3 +96,22 @@ domain_avg = ones(length(iteration))-vec(sum(domain_mat, dims=1)/(nsites-1))
 lines!(ax, clocks, domain_avg)
 lines!(clocks, entropy_vec)
 fig
+
+# # A different initial state 
+
+# In order to show that the revivals depends strongly on the initial state, 
+# we now choose a different initial state 
+
+init1 = product_state(bit"100000101")
+prob1 = KrylovEvolution(init1, ts, hs)
+density_mat1 = zeros(nsites, length(iteration)) 
+
+for info in prob1
+    for i in 1:nsites
+        density_mat1[i, info.step] = expect(put(nsites, i=>Op.n), info.reg)
+    end
+end
+
+heatmap(clocks, 1:nsites, density_mat1')
+
+# From the above figure, we see that the density does not show long-lived oscillations. 

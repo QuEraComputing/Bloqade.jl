@@ -41,6 +41,7 @@ makedocs(;
         "Manual" => [
             "Waveforms" => "waveform.md",
             "Lattices" => "lattices.md",
+            "Hamiltonians" => "hamiltonians.md",
             "Emulation" => "emulation.md",
             "CUDA Acceleration" => "cuda.md",    
         ],

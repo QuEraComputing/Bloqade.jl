@@ -155,6 +155,7 @@ using LiveServer
 using ..EaRydCI: root_dir, dev
 
 function dev_examples()
+    @info "setting up example Manifest.toml to use local packages"
     for each in readdir()
         project_dir = root_dir("examples", each)
         isdir(project_dir) || continue

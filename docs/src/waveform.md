@@ -7,20 +7,19 @@ CurrentModule = EaRydWaveforms
 Waveforms are signals used in pulse programming or as hamiltonian parameters. The waveforms are defined as [`Waveform`](@ref) object,
 which is a composition of a callable object and a real number `duration`.
 
-```@docs
-EaRydWaveforms.Waveform
-```
-
 ## Creating Waveforms
 
-The following builtin waveforms are provided:
+EaRyd gives users the flexibility to specify general waveform by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
 
-```@docs
-piecewise_linear
-piecewise_constant
-linear_ramp
-constant
-sinusoidal
+```@repl creating-waveform
+using EaRydWaveforms # hide
+waveform = Waveform(t->2.2sin(t), duration=4π)
+```
+
+We also support several built-in time-dependent waveforms, including [`piecewise_linear`](@ref), [`piecewise_constant`](@ref), [`linear_ramp`](@ref), [`constant`](@ref), [`sinusoidal`](@ref). For example, we can create a piecewise linear waveform simply by one line below 
+
+```@repl creating-waveform
+waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0])
 ```
 
 ## Slicing Waveforms
@@ -45,10 +44,6 @@ EaRydWaveforms.append
 
 Sharp waveforms may result in bad performance in practice,
 it is sometimes preferred to smoothen the waveform using
-the moving average methods, we provide `smooth` function
-to create a smooth-ed wavefrom from a piecewise linear
+the moving average methods, one can use the [`smooth`](@ref)
+function to create a smooth-ed wavefrom from a piecewise linear
 waveform.
-
-```@docs
-EaRydWaveforms.smooth
-```

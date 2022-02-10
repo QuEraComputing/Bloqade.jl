@@ -11,7 +11,7 @@
 # in Hilbert space. 
 
 # In this example, we use the Rydberg Emulator to simulate the evolution of a fully coherent, 
-# strongly interacting Rydberg system of 10 qubits.  We demonstrate the persistent revivals of many-body dynamics with measurements of the Rydberg density, 
+# strongly interacting Rydberg system of 9 qubits.  We demonstrate the persistent revivals of many-body dynamics with measurements of the Rydberg density, 
 # and entanglement entropy. For a comprehensive review of quantum many-body scars, we refer readers to this very nice paper [M. Serbyn et al.](https://www.nature.com/articles/s41567-021-01230-2)
 
 
@@ -24,7 +24,7 @@ using Random
 using CairoMakie
 
 
-# # Building Haimltonian
+# # Build Haimltonian
 
 # We build a 1D-Chain with 9-atom arrangement, with each atom separated from its neighbor by 5.72 ``\mu m``. This results in a nearest-neighbor 
 # interaction strength of ``2 \pi * 24`` MHz. This is much larger than the Rabi oscillations ``\Omega = 4\pi `` we will specify below. So the nerest-neighbor

@@ -154,9 +154,19 @@ using Comonicon
 using LiveServer
 using ..EaRydCI: root_dir, dev
 
+function dev_examples()
+    @info "setting up example Manifest.toml to use local packages"
+    for each in readdir()
+        project_dir = root_dir("examples", each)
+        isdir(project_dir) || continue
+        dev(project_dir)
+    end
+end
+
 @cast function serve(;host::String="0.0.0.0", port::Int=8000)
     # setup environment
     dev("docs")
+    dev_examples()
     docs_dir = root_dir("docs")
     julia_cmd = "using Pkg; Pkg.instantiate()"
     run(`$(Base.julia_exename()) --project=$docs_dir -e $julia_cmd`)
@@ -193,6 +203,7 @@ build the docs
 """
 @cast function build()
     dev("docs")
+    dev_examples()
     docs_dir = root_dir("docs")
     docs_make_jl = root_dir("docs", "make.jl")
     julia_cmd = "using Pkg; Pkg.instantiate()"

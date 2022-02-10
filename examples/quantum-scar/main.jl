@@ -1,40 +1,62 @@
+# # Background
+
+# This example is based on part of the experimental study: [H. Bernien, et al.](https://www.nature.com/articles/nature24622). This paper 
+# finds that if one starts with particular initial states (e.g. the Neel state), the Rydberg blockade constraint results into persistent revivals of quantum dynamics.
+# Later theoretical studies (e.g. [C. J. Turner, et al.](https://www.nature.com/articles/s41567-018-0137-5)) reveal that this behavior is due to very 
+# specific eigenstates embeded in the quantum many-body spectuum, called quantum many-body scars. 
+
+# Quantum many-body scars are in anology with clasical scars in single-particle quantum chaos, where scars represent a concentration of some eigenfunctions 
+# along the trajectory of classical periodic orbits. Similarly, in the quantum many-body case, the initial Neel state has a large component of these specific scar states. 
+# Under the time evolution of the Rydberg Hamiltonian, the initial state undergoes the trajectory of periodic quantum orbits. The non-thermal behavior is mainly caused by such non-ergodicity 
+# in Hilbert space. 
+
+# In this example, we use the Rydberg Emulator to simulate the evolution of a fully coherent, 
+# strongly interacting Rydberg system of 9 qubits.  We demonstrate the persistent revivals of many-body dynamics with measurements of the Rydberg density, 
+# and entanglement entropy. For a comprehensive review of quantum many-body scars, we refer readers to this very nice paper [M. Serbyn et al.](https://www.nature.com/articles/s41567-021-01230-2)
+
+
+# We start by importing required libraries
+
+
+
 using EaRyd
 using Random
-
-# In this example, we use the Rydberg Emulator to simulate and evolve a fully coherent, 
-# strongly interacting system of 9 qubits to observe emergent oscillations in many-body 
-# dynamics afer a sudden quench to single-atom resonance. We demonstrate the many-body dynamics 
-# with measurements of the domain wall density, which signals the appearance and disappearance of crystalline states.
+using CairoMakie
 
 
-# We start by building the 1D-Chain 10-atom arrangement, with each atom separated from its neighbor by 5.72 micrometers
-# We evaluate the quench dynamics of the Rydberg atom array initially prepared in a product state as the detuning changes to single atom resonance
-# After the quence, we observe oscillations of many-body states between the initial and inverted states.
+# # Build Haimltonian
 
-Random.seed!(42)
-# build lattice structure
-nsites = 10
+# We build a 1D-Chain with 9-atom arrangement, with each atom separated from its neighbor by 5.72 ``\mu m``. This results in a nearest-neighbor 
+# interaction strength of ``2 \pi * 24`` MHz. This is much larger than the Rabi oscillations ``\Omega = 4\pi `` we will specify below. So the nerest-neighbor
+# Rydberg atoms are within the blockade radius, such that both of the atoms can not be excited simultaneously. 
+
+nsites = 9;
 atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 
-# construct Rydberg Hamiltonian with specified Rabi frequency 
+# We then build the Hamiltonian by importing the defined lattice structure and parameters 
+
 h = rydberg_h(atoms;C = 2π * 858386, Ω=4π)
 
-# construct initial product state 
-config = rand(0:1, 10)
-init = product_state(config)
 
-# perform discrete time evolution given timestep ts = 0.01 for 120 iterations using Krylov
+# # Emulate the problem
+
+# We evaluate the quench dynamics of the Rydberg atom array initially prepared in a Neel product state. Such an initial state can be created by
+
+init = product_state(bit"101010101")
+
+# We can now set up discrete time evolution problem with timestep ts = 0.01 for 120 iterations using Krylov solver
 iteration = 1:120
 ts = [0.01 for _ in iteration];
 hs = [h for _ in iteration];
+clocks = cumsum(ts);
 prob = KrylovEvolution(init, ts, hs)
 
-# measure observable
-clocks = cumsum(ts)
-# create empty lists of output expectation values
-entropy = zeros(length(iteration)) # entanglement entropy 
-domain_mat = zeros(nsites-1, length(iteration)) # domain wall number 
-density_mat = zeros(nsites, length(iteration)) # density matrix
+# Then we measure the real-time expectation value of Rydberg density, domain wall density, and entanglement entropy. 
+# These data are stored in the matrix or vector below. 
+
+density_mat = zeros(nsites, length(iteration)) 
+domain_mat = zeros(nsites-1, length(iteration)) 
+entropy_vec = zeros(length(iteration)) 
 
 for info in prob
     for i in 1:nsites
@@ -48,12 +70,13 @@ for info in prob
     end
 
     rho = density_matrix(info.reg, (1,2,3,4,5))
-    entropy[info.step] = von_neumann_entropy(rho)
+    entropy_vec[info.step] = von_neumann_entropy(rho)
 end
 
-# Plot results 
-using CairoMakie
-fig = Figure(size=(10, 5));
+# # Plot the results 
+# Now we first plot the Rydberg density for each site as a function of time
+
+fig = Figure(size=(5, 3));
 ax = Axis(fig[1, 1])
 
 for i in 1:nsites
@@ -61,15 +84,36 @@ for i in 1:nsites
 end
 fig
 
+# To better illustrate the revivals, we plot the results in the colormap 
+
 heatmap(clocks, 1:nsites, density_mat')
-heatmap(clocks, 1:nsites, domain_mat')
-domain_avg = vec(sum(domain_mat, dims=1)/(nsites-1))
-fig = Figure()
+
+# We can see that there is a clear oscillations between the two partterns of the Rydberg density.
+
+# Finally we plot the  average domain wall number and entanglement entropy as a function of time 
+
+fig = Figure(size=(5, 3));
 ax = Axis(fig[1, 1])
+domain_avg = ones(length(iteration))-vec(sum(domain_mat, dims=1)/(nsites-1))
 lines!(ax, clocks, domain_avg)
-lines!(ax, clocks, entropy)
+lines!(clocks, entropy_vec)
 fig
 
+# # A different initial state 
 
-# TODO: subspace
+# In order to show that the revivals depends strongly on the initial state, 
+# we now choose a different initial state 
 
+init1 = product_state(bit"100000101")
+prob1 = KrylovEvolution(init1, ts, hs)
+density_mat1 = zeros(nsites, length(iteration)) 
+
+for info in prob1
+    for i in 1:nsites
+        density_mat1[i, info.step] = expect(put(nsites, i=>Op.n), info.reg)
+    end
+end
+
+heatmap(clocks, 1:nsites, density_mat1')
+
+# From the above figure, we see that the density does not show long-lived oscillations. 

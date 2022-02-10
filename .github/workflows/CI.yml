@@ -17,7 +17,7 @@ jobs:
           concurrent_skipping: 'never'
           skip_after_successful_duplicate: 'true'
           paths_ignore: '["**/README.md", "**/docs/**", "**/examples/**"]'
-          do_not_skip: '["pull_request", "workflow_dispatch", "schedule"]'
+          do_not_skip: '["workflow_dispatch", "schedule"]'
 
   test:
     needs: pre_job

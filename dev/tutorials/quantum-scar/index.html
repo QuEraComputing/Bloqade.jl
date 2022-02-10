@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Quantum Scar · EaRyd.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/EaRyd.jl/tutorials/quantum-scar/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><script src="../../../copy.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">EaRyd.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../cuda/">CUDA Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li class="is-active"><a class="tocitem" href>Quantum Scar</a></li><li><a class="tocitem" href="../adiabatic/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../qaoa/">Quantum Approximate Optimization Algorithm</a></li></ul></li><li><span class="tocitem">Advanced Topics</span><ul><li><a class="tocitem" href="../../topics/blockade/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../topics/bravais/">Bravais Lattice</a></li><li><a class="tocitem" href="../../topics/ad/">Automatic Differentiation</a></li></ul></li><li><a class="tocitem" href="../../contrib/">Contributing EaRyd</a></li><li><a class="tocitem" href="../../ref/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Quantum Scar</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Quantum Scar</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/EaRyd.jl/blob/master/examples/quantum-scar/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><pre><code class="language-julia hljs">using EaRyd
-using Random</code></pre><p>In this example, we use the Rydberg Emulator to simulate and evolve a fully coherent, strongly interacting system of 9 qubits to observe emergent oscillations in many-body dynamics afer a sudden quench to single-atom resonance. We demonstrate the many-body dynamics with measurements of the domain wall density, which signals the appearance and disappearance of crystalline states.</p><p>We start by building the 1D-Chain 10-atom arrangement, with each atom separated from its neighbor by 5.72 micrometers We evaluate the quench dynamics of the Rydberg atom array initially prepared in a product state as the detuning changes to single atom resonance After the quence, we observe oscillations of many-body states between the initial and inverted states.</p><pre><code class="language-julia hljs">Random.seed!(42)</code></pre><pre><code class="nohighlight hljs">Random.TaskLocalRNG()</code></pre><p>build lattice structure</p><pre><code class="language-julia hljs">nsites = 10
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Quantum Scar · EaRyd.jl</title><script data-outdated-warner src="../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/EaRyd.jl/tutorials/quantum-scar/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><script src="../../../copy.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script><link href="../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">EaRyd.jl</a></span></div><form class="docs-search" action="../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><a class="tocitem" href="../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../cuda/">CUDA Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li class="is-active"><a class="tocitem" href>Quantum Scar</a><ul class="internal"><li class="toplevel"><a class="tocitem" href="#Build-Haimltonian"><span>Build Haimltonian</span></a></li><li class="toplevel"><a class="tocitem" href="#Emulate-the-problem"><span>Emulate the problem</span></a></li><li class="toplevel"><a class="tocitem" href="#Plot-the-results"><span>Plot the results</span></a></li><li class="toplevel"><a class="tocitem" href="#A-different-initial-state"><span>A different initial state</span></a></li></ul></li><li><a class="tocitem" href="../adiabatic/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../qaoa/">Quantum Approximate Optimization Algorithm</a></li></ul></li><li><span class="tocitem">Advanced Topics</span><ul><li><a class="tocitem" href="../../topics/blockade/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../topics/bravais/">Bravais Lattice</a></li><li><a class="tocitem" href="../../topics/ad/">Automatic Differentiation</a></li></ul></li><li><a class="tocitem" href="../../contrib/">Contributing EaRyd</a></li><li><a class="tocitem" href="../../ref/">References</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Quantum Scar</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Quantum Scar</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/EaRyd.jl/blob/master/examples/quantum-scar/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Background"><a class="docs-heading-anchor" href="#Background">Background</a><a id="Background-1"></a><a class="docs-heading-anchor-permalink" href="#Background" title="Permalink"></a></h1><p>This example is based on part of the experimental study: <a href="https://www.nature.com/articles/nature24622">H. Bernien, et al.</a>. This paper finds that if one starts with particular initial states (e.g. the Neel state), the Rydberg blockade constraint results into persistent revivals of quantum dynamics. Later theoretical studies (e.g. <a href="https://www.nature.com/articles/s41567-018-0137-5">C. J. Turner, et al.</a>) reveal that this behavior is due to very specific eigenstates embeded in the quantum many-body spectuum, called quantum many-body scars.</p><p>Quantum many-body scars are in anology with clasical scars in single-particle quantum chaos, where scars represent a concentration of some eigenfunctions along the trajectory of classical periodic orbits. Similarly, in the quantum many-body case, the initial Neel state has a large component of these specific scar states. Under the time evolution of the Rydberg Hamiltonian, the initial state undergoes the trajectory of periodic quantum orbits. The non-thermal behavior is mainly caused by such non-ergodicity in Hilbert space.</p><p>In this example, we use the Rydberg Emulator to simulate the evolution of a fully coherent, strongly interacting Rydberg system of 9 qubits.  We demonstrate the persistent revivals of many-body dynamics with measurements of the Rydberg density, and entanglement entropy. For a comprehensive review of quantum many-body scars, we refer readers to this very nice paper <a href="https://www.nature.com/articles/s41567-021-01230-2">M. Serbyn et al.</a></p><p>We start by importing required libraries</p><pre><code class="language-julia hljs">using EaRyd
+using Random
+using CairoMakie</code></pre><h1 id="Build-Haimltonian"><a class="docs-heading-anchor" href="#Build-Haimltonian">Build Haimltonian</a><a id="Build-Haimltonian-1"></a><a class="docs-heading-anchor-permalink" href="#Build-Haimltonian" title="Permalink"></a></h1><p>We build a 1D-Chain with 9-atom arrangement, with each atom separated from its neighbor by 5.72 <span>$\mu m$</span>. This results in a nearest-neighbor interaction strength of <span>$2 \pi * 24$</span> MHz. This is much larger than the Rabi oscillations <span>$\Omega = 4\pi$</span> we will specify below. So the nerest-neighbor Rydberg atoms are within the blockade radius, such that both of the atoms can not be excited simultaneously.</p><pre><code class="language-julia hljs">nsites = 9;
 atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
      version="1.2"
-     width="120mm" height="46.03mm" viewBox="0 0 120 46.03"
+     width="120mm" height="47.27mm" viewBox="0 0 120 47.27"
      stroke="none"
      fill="#000000"
      stroke-width="0.3"
@@ -16,306 +17,178 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml ver
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.53" id="img-a8e08e17-1">
-  <g transform="translate(23.01,32.22)">
+<g fill="#000000" font-size="3.53" id="img-364fa14e-1">
+  <g transform="translate(23.64,33.09)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
     </g>
   </g>
-  <g transform="translate(41.51,32.22)">
+  <g transform="translate(41.82,33.09)">
     <g class="primitive">
-      <text text-anchor="middle" dy="0.35em">12.87μm</text>
+      <text text-anchor="middle" dy="0.35em">11.44μm</text>
     </g>
   </g>
-  <g transform="translate(60,32.22)">
+  <g transform="translate(60,33.09)">
     <g class="primitive">
-      <text text-anchor="middle" dy="0.35em">25.74μm</text>
+      <text text-anchor="middle" dy="0.35em">22.88μm</text>
     </g>
   </g>
-  <g transform="translate(78.49,32.22)">
+  <g transform="translate(78.18,33.09)">
     <g class="primitive">
-      <text text-anchor="middle" dy="0.35em">38.61μm</text>
+      <text text-anchor="middle" dy="0.35em">34.32μm</text>
     </g>
   </g>
-  <g transform="translate(96.99,32.22)">
+  <g transform="translate(96.36,33.09)">
     <g class="primitive">
-      <text text-anchor="middle" dy="0.35em">51.48μm</text>
+      <text text-anchor="middle" dy="0.35em">45.76μm</text>
     </g>
   </g>
-  <g transform="translate(11.51,23.01)">
-    <g class="primitive">
-      <text text-anchor="middle" dy="0.35em">0.0μm</text>
-    </g>
-  </g>
-  <g transform="translate(11.51,23.01)">
+  <g transform="translate(11.82,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
     </g>
   </g>
-  <g transform="translate(11.51,23.01)">
+  <g transform="translate(11.82,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
     </g>
   </g>
-  <g transform="translate(11.51,23.01)">
+  <g transform="translate(11.82,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
     </g>
   </g>
-  <g transform="translate(11.51,23.01)">
+  <g transform="translate(11.82,23.64)">
+    <g class="primitive">
+      <text text-anchor="middle" dy="0.35em">0.0μm</text>
+    </g>
+  </g>
+  <g transform="translate(11.82,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
     </g>
   </g>
 </g>
-<g stroke-width="0.39" fill="#FFFFFF" stroke="#000000" id="img-a8e08e17-2">
-  <g transform="translate(23.01,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-364fa14e-2">
+  <g transform="translate(23.64,23.64)">
+    <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
-  <g transform="translate(31.23,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
+  <g transform="translate(32.73,23.64)">
+    <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
-  <g transform="translate(39.45,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
+  <g transform="translate(41.82,23.64)">
+    <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
-  <g transform="translate(47.67,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
+  <g transform="translate(50.91,23.64)">
+    <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
-  <g transform="translate(55.89,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
+  <g transform="translate(60,23.64)">
+    <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
-  <g transform="translate(64.11,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
+  <g transform="translate(69.09,23.64)">
+    <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
-  <g transform="translate(72.33,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
+  <g transform="translate(78.18,23.64)">
+    <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
-  <g transform="translate(80.55,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
+  <g transform="translate(87.27,23.64)">
+    <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
-  <g transform="translate(88.77,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
-  </g>
-  <g transform="translate(96.99,23.01)">
-    <circle cx="0" cy="0" r="1.97" class="primitive"/>
+  <g transform="translate(96.36,23.64)">
+    <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="1.86" id="img-a8e08e17-3">
-  <g transform="translate(23.01,23.01)">
+<g fill="#000000" font-size="2.05" id="img-364fa14e-3">
+  <g transform="translate(23.64,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
     </g>
   </g>
-  <g transform="translate(31.23,23.01)">
+  <g transform="translate(32.73,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">2</text>
     </g>
   </g>
-  <g transform="translate(39.45,23.01)">
+  <g transform="translate(41.82,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">3</text>
     </g>
   </g>
-  <g transform="translate(47.67,23.01)">
+  <g transform="translate(50.91,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">4</text>
     </g>
   </g>
-  <g transform="translate(55.89,23.01)">
+  <g transform="translate(60,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">5</text>
     </g>
   </g>
-  <g transform="translate(64.11,23.01)">
+  <g transform="translate(69.09,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">6</text>
     </g>
   </g>
-  <g transform="translate(72.33,23.01)">
+  <g transform="translate(78.18,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">7</text>
     </g>
   </g>
-  <g transform="translate(80.55,23.01)">
+  <g transform="translate(87.27,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">8</text>
     </g>
   </g>
-  <g transform="translate(88.77,23.01)">
+  <g transform="translate(96.36,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">9</text>
     </g>
   </g>
-  <g transform="translate(96.99,23.01)">
-    <g class="primitive">
-      <text text-anchor="middle" dy="0.35em">10</text>
-    </g>
-  </g>
 </g>
 </svg>
-<p>construct Rydberg Hamiltonian with specified Rabi frequency</p><pre><code class="language-julia hljs">h = rydberg_h(atoms;C = 2π * 858386, Ω=4π)</code></pre><pre><code class="nohighlight hljs">Hamiltonian
+<p>We then build the Hamiltonian by importing the defined lattice structure and parameters</p><pre><code class="language-julia hljs">h = rydberg_h(atoms;C = 2π * 858386, Ω=4π)</code></pre><pre><code class="nohighlight hljs">Hamiltonian
   Term 1
-   ∑(n=1:10) 5.39e6/|r_i - r_j|^6 n_i n_j
+   ∑(n=1:9) 5.39e6/|r_i - r_j|^6 n_i n_j
 
   Term 2
-   ∑(n=1:10) 12.6/2 σ^x</code></pre><p>construct initial product state</p><pre><code class="language-julia hljs">config = rand(0:1, 10)
-init = product_state(config)</code></pre><pre><code class="nohighlight hljs">ArrayReg{1, ComplexF64, Array...}
-    active qubits: 10/10</code></pre><p>perform discrete time evolution given timestep ts = 0.01 for 120 iterations using Krylov</p><pre><code class="language-julia hljs">iteration = 1:120
+   ∑(n=1:9) 12.6/2 σ^x</code></pre><h1 id="Emulate-the-problem"><a class="docs-heading-anchor" href="#Emulate-the-problem">Emulate the problem</a><a id="Emulate-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Emulate-the-problem" title="Permalink"></a></h1><p>We evaluate the quench dynamics of the Rydberg atom array initially prepared in a Neel product state. Such an initial state can be created by</p><pre><code class="language-julia hljs">init = product_state(bit&quot;101010101&quot;)</code></pre><pre><code class="nohighlight hljs">ArrayReg{1, ComplexF64, Array...}
+    active qubits: 9/9</code></pre><p>We can now set up discrete time evolution problem with timestep ts = 0.01 for 120 iterations using Krylov solver</p><pre><code class="language-julia hljs">iteration = 1:120
 ts = [0.01 for _ in iteration];
 hs = [h for _ in iteration];
+clocks = cumsum(ts);
 prob = KrylovEvolution(init, ts, hs)</code></pre><pre><code class="nohighlight hljs">KrylovEvolution{Float64}:
   reg: ArrayReg{1, ComplexF64, Matrix{ComplexF64}}
-  reg storage: 16.000 KiB
+  reg storage: 8.000 KiB
 
   total duration: 1.2000000000000002 μs
 
   hamiltonian: 
     Hamiltonian
       Term 1
-       ∑(n=1:10) 5.39e6/|r_i - r_j|^6 n_i n_j
+       ∑(n=1:9) 5.39e6/|r_i - r_j|^6 n_i n_j
 
       Term 2
-       ∑(n=1:10) 12.6/2 σ^x
+       ∑(n=1:9) 12.6/2 σ^x
 
        ⋮
 
     Hamiltonian
       Term 1
-       ∑(n=1:10) 5.39e6/|r_i - r_j|^6 n_i n_j
+       ∑(n=1:9) 5.39e6/|r_i - r_j|^6 n_i n_j
 
       Term 2
-       ∑(n=1:10) 12.6/2 σ^x
+       ∑(n=1:9) 12.6/2 σ^x
 
-  hamiltonian storage: 135.875 KiB
+  hamiltonian storage: 61.887 KiB
 
   options: 
     progress: false
     progress_step: 1
     progress_name: &quot;emulating&quot;
     normalize_step: 5
-    normalize_finally: true</code></pre><p>measure observable</p><pre><code class="language-julia hljs">clocks = cumsum(ts)</code></pre><pre><code class="nohighlight hljs">120-element Vector{Float64}:
- 0.01
- 0.02
- 0.03
- 0.04
- 0.05
- 0.060000000000000005
- 0.07
- 0.08
- 0.09
- 0.09999999999999999
- 0.10999999999999999
- 0.11999999999999998
- 0.12999999999999998
- 0.13999999999999999
- 0.15
- 0.16
- 0.17
- 0.18000000000000002
- 0.19000000000000003
- 0.20000000000000004
- 0.21000000000000005
- 0.22000000000000006
- 0.23000000000000007
- 0.24000000000000007
- 0.25000000000000006
- 0.26000000000000006
- 0.2700000000000001
- 0.2800000000000001
- 0.2900000000000001
- 0.3000000000000001
- 0.3100000000000001
- 0.3200000000000001
- 0.3300000000000001
- 0.34000000000000014
- 0.35000000000000014
- 0.36000000000000015
- 0.37000000000000016
- 0.38000000000000017
- 0.3900000000000002
- 0.4000000000000002
- 0.4100000000000002
- 0.4200000000000002
- 0.4300000000000002
- 0.4400000000000002
- 0.45000000000000023
- 0.46000000000000024
- 0.47000000000000025
- 0.48000000000000026
- 0.49000000000000027
- 0.5000000000000002
- 0.5100000000000002
- 0.5200000000000002
- 0.5300000000000002
- 0.5400000000000003
- 0.5500000000000003
- 0.5600000000000003
- 0.5700000000000003
- 0.5800000000000003
- 0.5900000000000003
- 0.6000000000000003
- 0.6100000000000003
- 0.6200000000000003
- 0.6300000000000003
- 0.6400000000000003
- 0.6500000000000004
- 0.6600000000000004
- 0.6700000000000004
- 0.6800000000000004
- 0.6900000000000004
- 0.7000000000000004
- 0.7100000000000004
- 0.7200000000000004
- 0.7300000000000004
- 0.7400000000000004
- 0.7500000000000004
- 0.7600000000000005
- 0.7700000000000005
- 0.7800000000000005
- 0.7900000000000005
- 0.8000000000000005
- 0.8100000000000005
- 0.8200000000000005
- 0.8300000000000005
- 0.8400000000000005
- 0.8500000000000005
- 0.8600000000000005
- 0.8700000000000006
- 0.8800000000000006
- 0.8900000000000006
- 0.9000000000000006
- 0.9100000000000006
- 0.9200000000000006
- 0.9300000000000006
- 0.9400000000000006
- 0.9500000000000006
- 0.9600000000000006
- 0.9700000000000006
- 0.9800000000000006
- 0.9900000000000007
- 1.0000000000000007
- 1.0100000000000007
- 1.0200000000000007
- 1.0300000000000007
- 1.0400000000000007
- 1.0500000000000007
- 1.0600000000000007
- 1.0700000000000007
- 1.0800000000000007
- 1.0900000000000007
- 1.1000000000000008
- 1.1100000000000008
- 1.1200000000000008
- 1.1300000000000008
- 1.1400000000000008
- 1.1500000000000008
- 1.1600000000000008
- 1.1700000000000008
- 1.1800000000000008
- 1.1900000000000008
- 1.2000000000000008</code></pre><p>create empty lists of output expectation values</p><pre><code class="language-julia hljs">entropy = zeros(length(iteration)) # entanglement entropy
-domain_mat = zeros(nsites-1, length(iteration)) # domain wall number
-density_mat = zeros(nsites, length(iteration)) # density matrix
+    normalize_finally: true</code></pre><p>Then we measure the real-time expectation value of Rydberg density, domain wall density, and entanglement entropy. These data are stored in the matrix or vector below.</p><pre><code class="language-julia hljs">density_mat = zeros(nsites, length(iteration))
+domain_mat = zeros(nsites-1, length(iteration))
+entropy_vec = zeros(length(iteration))
 
 for info in prob
     for i in 1:nsites
@@ -329,21 +202,26 @@ for info in prob
     end
 
     rho = density_matrix(info.reg, (1,2,3,4,5))
-    entropy[info.step] = von_neumann_entropy(rho)
-end</code></pre><p>Plot results</p><pre><code class="language-julia hljs">using CairoMakie
-fig = Figure(size=(10, 5));
+    entropy_vec[info.step] = von_neumann_entropy(rho)
+end</code></pre><h1 id="Plot-the-results"><a class="docs-heading-anchor" href="#Plot-the-results">Plot the results</a><a id="Plot-the-results-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-the-results" title="Permalink"></a></h1><p>Now we first plot the Rydberg density for each site as a function of time</p><pre><code class="language-julia hljs">fig = Figure(size=(5, 3));
 ax = Axis(fig[1, 1])
 
 for i in 1:nsites
     lines!(clocks, density_mat[i, :])
 end
-fig
-
-heatmap(clocks, 1:nsites, density_mat&#39;)
-heatmap(clocks, 1:nsites, domain_mat&#39;)
-domain_avg = vec(sum(domain_mat, dims=1)/(nsites-1))
-fig = Figure()
+fig</code></pre><p><img src="../1377534760.png" alt/></p><p>To better illustrate the revivals, we plot the results in the colormap</p><pre><code class="language-julia hljs">heatmap(clocks, 1:nsites, density_mat&#39;)</code></pre><p><img src="../1351907642.png" alt/></p><p>We can see that there is a clear oscillations between the two partterns of the Rydberg density.</p><p>Finally we plot the  average domain wall number and entanglement entropy as a function of time</p><pre><code class="language-julia hljs">fig = Figure(size=(5, 3));
 ax = Axis(fig[1, 1])
+domain_avg = ones(length(iteration))-vec(sum(domain_mat, dims=1)/(nsites-1))
 lines!(ax, clocks, domain_avg)
-lines!(ax, clocks, entropy)
-fig</code></pre><p><img src="../4256064431.png" alt/></p><p>TODO: subspace</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../cuda/">« CUDA Acceleration</a><a class="docs-footer-nextpage" href="../adiabatic/">Adiabatic Evolution »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Thursday 10 February 2022 23:52">Thursday 10 February 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+lines!(clocks, entropy_vec)
+fig</code></pre><p><img src="../3523819642.png" alt/></p><h1 id="A-different-initial-state"><a class="docs-heading-anchor" href="#A-different-initial-state">A different initial state</a><a id="A-different-initial-state-1"></a><a class="docs-heading-anchor-permalink" href="#A-different-initial-state" title="Permalink"></a></h1><p>In order to show that the revivals depends strongly on the initial state, we now choose a different initial state</p><pre><code class="language-julia hljs">init1 = product_state(bit&quot;100000101&quot;)
+prob1 = KrylovEvolution(init1, ts, hs)
+density_mat1 = zeros(nsites, length(iteration))
+
+for info in prob1
+    for i in 1:nsites
+        density_mat1[i, info.step] = expect(put(nsites, i=&gt;Op.n), info.reg)
+    end
+end
+
+heatmap(clocks, 1:nsites, density_mat1&#39;)</code></pre><p><img src="../1649866892.png" alt/></p><p>From the above figure, we see that the density does not show long-lived oscillations.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../cuda/">« CUDA Acceleration</a><a class="docs-footer-nextpage" href="../adiabatic/">Adiabatic Evolution »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.12 on <span class="colophon-date" title="Thursday 10 February 2022 23:57">Thursday 10 February 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

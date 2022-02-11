@@ -1,6 +1,12 @@
+# # Background
+
 using EaRyd
 using CairoMakie
 using EaRydPlots
+
+
+
+# # Two dimensional case 
 
 # In this example, we examine the adiabatic preparation of a spin Hamiltonian.  
 
@@ -51,5 +57,49 @@ clocks = [t for t in 0:1e-3:total_time]
 heatmap(clocks, 1:9, D'; axis=(xlabel="iterations", ylabel="rydberg density per site"))
 
 # plot the histogram of the most frequent results from sampling the final state
+
+bitstring_histgram(prob.reg; nlargest=20)
+
+
+
+
+
+
+
+
+# # One dimensional case, 
+# maybe this comes first before the 2D case
+
+# this is the Rabi pulse
+total_time = 5
+Ω_max = 2π * 2
+Ω = piecewise_linear(clocks=[0.0, 0.1, 3.1, 3.2, total_time], values=[0.0, Ω_max , Ω_max , 0, 0])
+draw(Ω)
+
+# this is the Detuning pulse 
+U1 = -2π * 4
+U2 = 2π * 9
+Δ = piecewise_linear(clocks=[0.0, 0.6, 3.2, total_time], values=[U1, U1, U2 , U2])
+draw(Δ)
+
+# We prepare a chain lattice of 11 atoms 
+# create the atom positions, scale = 5.72 for Z2, 3.57 for Z3, 2.87 for Z4
+nsites = 9
+atoms = generate_sites(ChainLattice(), nsites, scale=2.87)
+h = rydberg_h(atoms; Δ, Ω)
+reg = zero_state(9)
+prob = ODEEvolution(reg, total_time, h; dt=1e-3, adaptive=false)
+
+
+densities = []
+for info in prob
+    push!(densities, [expect(put(nsites, i=>Op.n), info.reg) for i in 1:nsites])
+end
+D = hcat(densities...)
+
+
+clocks = [t for t in 0:1e-3:total_time]
+heatmap(clocks, 1:9, D'; axis=(xlabel="iterations", ylabel="rydberg density per site"))
+
 
 bitstring_histgram(prob.reg; nlargest=20)

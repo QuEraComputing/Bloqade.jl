@@ -7,32 +7,49 @@ using EaRydPlots
 
 # We first prepare the adiabatic pulse sequence as two piecewise linear functions
 # define the rabi waveform
-Ω_max = 2.3 * 2 * pi
-Ω = piecewise_linear(clocks=[0.0, 0.252, 1.052, 1.6], values=[0.0, Ω_max , Ω_max , 0])
+total_time = 2.9
+Ω_max = 2π * 4.3
+Ω = piecewise_linear(clocks=[0.0, 0.3, 2.6, total_time], values=[0.0, Ω_max , Ω_max , 0])
+draw(Ω)
 
 # define the detuning waveform
-U = Ω_max / 2.3
-Δ = piecewise_linear(clocks=[0.0, 0.252, 1.052, 1.6], values=[-6*U, -6*U, 2*U , 2*U])
+U = 2π * 15.0
+Δ = piecewise_linear(clocks=[0.0, 0.3, 2.6, total_time], values=[-U, -U, U , U])
+draw(Δ)
 
 
 # We prepare a square lattice of 9 atoms 
 # create the atom positions
 nx, ny = 3, 3
 nsites = nx*ny
-
-atoms = generate_sites(SquareLattice(), nx, ny, scale=9.629)
+atoms = generate_sites(SquareLattice(), nx, ny, scale=6.7)
 
 
 # We construct the Rydberg Hamiltonian from the defined rabi and detuning waveforms
-h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)
+h = rydberg_h(atoms; Δ, Ω)
+
+# we now declare our register, a register is an object stores the information about the initial quantum state
+reg = zero_state(9)
+
 
 # We evolve the system from the zero state using the ODE solver to a final time t = 1.6 microseconds
-prob = ODEEvolution(zero_state(9), 1.6, h)
-emulate!(prob) # run the time evolution directly
+prob = ODEEvolution(reg, total_time, h; dt=1e-3, adaptive=false)
 
-# We compute the Rydberg probability and plot the histogram of the most frequent results from sampling the final state 
-densities = map(1:nsites) do i
-    real(expect(put(nsites, i=>Op.n), prob.reg))
+# now we can run the evolution, if you don't need to measure anything during the evolution, you can just run
+# `emulate!(prob)`
+#but here we will be plotting the total number of rydberg states at each time
+
+densities = []
+for info in prob
+    push!(densities, [expect(put(nsites, i=>Op.n), info.reg) for i in 1:nsites])
 end
+D = hcat(densities...)
+
+# now we can plot the Rydberg density as a function of time
+
+clocks = [t for t in 0:1e-3:total_time]
+heatmap(clocks, 1:9, D'; axis=(xlabel="iterations", ylabel="rydberg density per site"))
+
+# plot the histogram of the most frequent results from sampling the final state
 
 bitstring_histgram(prob.reg; nlargest=20)

@@ -5,11 +5,10 @@ using CairoMakie
 using EaRydPlots
 
 
-
 # # Two dimensional case 
 
-# In this example, we examine the adiabatic preparation of a spin Hamiltonian.  
 
+# In this example, we examine the adiabatic preparation of a spin Hamiltonian.  
 
 # We first prepare the adiabatic pulse sequence as two piecewise linear functions
 # define the rabi waveform
@@ -63,10 +62,6 @@ bitstring_histgram(prob.reg; nlargest=20)
 
 
 
-
-
-
-
 # # One dimensional case, 
 # maybe this comes first before the 2D case
 
@@ -85,7 +80,7 @@ draw(Δ)
 # We prepare a chain lattice of 11 atoms 
 # create the atom positions, scale = 5.72 for Z2, 3.57 for Z3, 2.87 for Z4
 nsites = 9
-atoms = generate_sites(ChainLattice(), nsites, scale=2.87)
+atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 h = rydberg_h(atoms; Δ, Ω)
 reg = zero_state(9)
 prob = ODEEvolution(reg, total_time, h; dt=1e-3, adaptive=false)
@@ -102,4 +97,9 @@ clocks = [t for t in 0:1e-3:total_time]
 heatmap(clocks, 1:9, D'; axis=(xlabel="iterations", ylabel="rydberg density per site"))
 
 
+# we can also plot the bitstring
 bitstring_histgram(prob.reg; nlargest=20)
+
+
+
+

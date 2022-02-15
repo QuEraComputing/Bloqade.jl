@@ -52,18 +52,14 @@ function get_rescaler(atoms::AbstractVector{<:Tuple}, pad)
     return Rescaler(promote(xmin, xmax, ymin, ymax, pad)...)
 end
 
-default_node_style(scale, stroke_color, fill_color) = compose(context(), Viznet.nodestyle(:default, r=0.15cm*scale), Compose.stroke(stroke_color), fill(fill_color), linewidth(0.3mm*scale))
-default_text_style(scale, color) = Viznet.textstyle(:default, fontsize(4pt*scale), fill(color))
-default_bond_style(scale, color) = Viznet.bondstyle(:default, Compose.stroke(color), linewidth(0.3mm*scale))
-
 """
     img_atoms(atoms::AtomList;
-        colors=["black", "black", ...], blockade_radius=0,
+        colors=["black", "black", ...],
+        blockade_radius=0,
         texts=["1", "2", ...],
-        blockade_radius=0;
-        format=PNG,
-        blockade_style="none",
-        bond_color="black",
+        format=SVG,
+        io=nothing,
+        kwargs...
         )
 
 Plots `atoms` with colors specified by `colors` and texts specified by `texts`.
@@ -71,12 +67,50 @@ You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the ima
 If you want to write this image to the disk without displaying it in a frontend, please try
 
 ```julia
+julia> using Compose
+
 julia> open("test.png", "w") do f
-            viz_atoms(f, generate_sites(SquareLattice(), 5, 5))
+            img_atoms(generate_sites(SquareLattice(), 5, 5); io=f, format=Compose.PNG)
        end
 ```
 
 The `format` keyword argument can also be `Compose.SVG` or `Compose.PDF`.
+Atoms within `blockade_radius` will be connected by bonds.
+
+Other key word arguments
+------------------------------------
+    # overall scaling
+    scale::Float64 = 1.0
+
+    # padding space
+    pad::Float64 = 1.5 
+
+    # axes
+    axes_text_color::String = "black"
+    axes_text_fontsize::Float64 = 12.0
+    axes_num_of_xticks = 5
+    axes_num_of_yticks = 5
+    axes_x_offset::Float64 = 0.1
+    axes_y_offset::Float64 = 0.06
+    axes_unit::String = "μm"
+
+    # node
+    node_text_fontsize::Float64 = 6.0
+    node_text_color::String = "black"
+    node_stroke_color = "black"
+    node_stroke_linewidth = 0.03
+    node_fill_color = "white"
+    # bond
+    bond_color::String = "black"
+    bond_linewidth::Float64 = 0.03
+    # blockade
+    blockade_style::String = "none"
+    blockade_stroke_color::String = "black"
+    blockade_fill_color::String = "transparent"
+    blockade_fill_opacity::Float64 = 0.5
+    blockade_stroke_linewidth = 0.03
+    # image size in cm
+    image_size::Float64 = 12
 """
 function img_atoms(atoms::AtomList;
         colors=nothing,
@@ -144,7 +178,7 @@ Base.@kwdef struct LatticeDisplayConfig
 
     # axes
     axes_text_color::String = "black"
-    axes_text_fontsize::Float64 = 10.0
+    axes_text_fontsize::Float64 = 12.0
     axes_num_of_xticks = 5
     axes_num_of_yticks = 5
     axes_x_offset::Float64 = 0.1
@@ -152,16 +186,20 @@ Base.@kwdef struct LatticeDisplayConfig
     axes_unit::String = "μm"
 
     # node
+    node_text_fontsize::Float64 = 6.0
     node_text_color::String = "black"
     node_stroke_color = "black"
+    node_stroke_linewidth = 0.03
     node_fill_color = "white"
     # bond
     bond_color::String = "black"
+    bond_linewidth::Float64 = 0.03
     # blockade
     blockade_style::String = "none"
     blockade_stroke_color::String = "black"
     blockade_fill_color::String = "transparent"
     blockade_fill_opacity::Float64 = 0.5
+    blockade_stroke_linewidth = 0.03
     # image size in cm
     image_size::Float64 = 12
 end
@@ -169,24 +207,26 @@ end
 function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale)
     radi = (config.blockade_style=="half" ? blockade_radius/2 : blockade_radius)*rescale
     rescale = rescale * config.image_size * config.scale * 1.6
+    _node_style(fill_color) = compose(context(), Viznet.nodestyle(:default, r=0.15cm*rescale),
+        Compose.stroke(config.node_stroke_color), fill(fill_color), linewidth(config.node_stroke_linewidth*cm*rescale))
     if colors !== nothing
         @assert length(locs) == length(colors)
-        node_styles = [default_node_style(rescale, config.node_stroke_color, color) for color in colors]
+        node_styles = [_node_style(color) for color in colors]
     else
-        node_styles = fill(default_node_style(rescale, config.node_stroke_color, config.node_fill_color), length(locs))
+        node_styles = fill(_node_style(config.node_fill_color), length(locs))
     end
     if texts !== nothing
         @assert length(locs) == length(texts)
     end
-    edge_style = default_bond_style(rescale, config.bond_color)
+    edge_style = Viznet.bondstyle(:default, Compose.stroke(config.bond_color), linewidth(config.bond_linewidth*cm*rescale))
     blockade_radius_style = Viznet.nodestyle(:circle,
         Compose.stroke(config.blockade_stroke_color),
         Compose.strokedash([0.5mm*rescale, 0.5mm*rescale]),
-        Compose.linewidth(0.2mm*rescale),
+        Compose.linewidth(config.blockade_stroke_linewidth*cm*rescale),
         Compose.fill(config.blockade_fill_color), 
         Compose.fillopacity(config.blockade_fill_opacity);
         r=radi)
-    text_style = default_text_style(rescale, config.node_text_color)
+    text_style = Viznet.textstyle(:default, fontsize(config.node_text_fontsize*pt*rescale), fill(config.node_text_color))
     img1 = Viznet.canvas() do
         for (i, node) in enumerate(locs)
             node_styles[i] >> node
@@ -219,13 +259,19 @@ function _axes!(xs, locs, config, rescale)
 end
 
 """
-    img_maskedgrid([io::Union{IO,AbstractString}, ]maskedgrid::MaskedGrid;
-        format=PNG,
-        blockade_radius = blockade_radius,
-        colors=fill("white", count(maskedgrid.mask)))
+    img_maskedgrid(maskedgrid::MaskedGrid;
+        format=SVG,
+        io=nothing,
+        colors=nothing,
+        texts = nothing,
+        blockade_radius = 0,
+        kwargs...
+        )
 
 Draw a `maskedgrid` with colors specified by `colors` and texts specified by `texts`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
+
+Please check the docstring of [`img_atoms`](@ref) for explainations of other key word arguments.
 """
 function img_maskedgrid(maskedgrid::MaskedGrid;
         format=SVG, io=nothing,

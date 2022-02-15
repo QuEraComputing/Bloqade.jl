@@ -15,6 +15,23 @@ function collect_lib(;include_main::Bool=false, excluded_libs=["EaRydPlots"])
 end
 
 """
+create an example.
+
+# Args
+
+- `name`: name of the example.
+
+# Flags
+
+- `-f,--force`: overwrite existing path.
+- `--plot`: use `EaRydPlots`.
+"""
+@cast function create(name::String; force::Bool=false, plot::Bool=false)
+    @warn("`.ci/run create` is deprecated, use `.ci/run example create` instead")
+    Example.create(name; force, plot)
+end
+
+"""
 run tests (in parallel process).
 
 # Args

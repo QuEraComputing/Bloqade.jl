@@ -5,7 +5,7 @@ example commands
 
 using Pkg
 using Comonicon
-using ..EaRydCI: root_dir
+using ..EaRydCI: root_dir, collect_lib
 
 """
 create an example.

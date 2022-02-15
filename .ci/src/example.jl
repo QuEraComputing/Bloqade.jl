@@ -37,6 +37,23 @@ create an example.
     return
 end
 
+"""
+build the example.
+
+# Intro
+
+Build a single example to `build` directory, by default
+it generates the jupyter notebook of the corresponding
+Literate script and copy all other files to the build directory.
+
+# Args
+
+- `name`: name of the example project you would like to build.
+
+# Options
+
+- `--target=<notebook|markdown>`: build target, either `notebook` or `markdown`.
+"""
 @cast function build(name::String; target::String="notebook")
     ci_dir = root_dir(".ci")
     example_dir = root_dir("examples", name)

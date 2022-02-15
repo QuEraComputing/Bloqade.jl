@@ -80,7 +80,6 @@ The `format` keyword argument can also be `Compose.SVG` or `Compose.PDF`.
 Atoms within `blockade_radius` will be connected by bonds.
 
 # Other Keyword Arguments
-------------------------------------
     # overall scaling
     scale::Float64 = 1.0
 

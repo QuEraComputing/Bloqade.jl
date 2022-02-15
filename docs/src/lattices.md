@@ -46,7 +46,7 @@ honeycomb_manual = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))], [(0.0, 0.0),
 We provide a few shorthands for several useful lattices.
 One can use [`lattice_vectors`](@ref) and [`lattice_sites`](@ref) to access the lattice vectors and atom locations in a unit cell.
 
-##### ChainLattice
+##### [`ChainLattice`](@ref)
 ```@repl quick-start
 chain = ChainLattice()
 ```
@@ -59,33 +59,7 @@ lattice_vectors(chain)
 lattice_sites(chain)
 ```
 
-##### HoneycombLattice
-```@repl quick-start
-honeycomb = HoneycombLattice()
-```
-
-```@repl quick-start
-lattice_vectors(honeycomb)
-```
-
-```@repl quick-start
-lattice_sites(honeycomb)
-```
-
-##### TriangularLattice
-```@repl quick-start
-triangular = TriangularLattice()
-```
-
-```@repl quick-start
-lattice_vectors(triangular)
-```
-
-```@repl quick-start
-lattice_sites(triangular)
-```
-
-##### SquareLattice
+##### [`SquareLattice`](@ref)
 ```@repl quick-start
 square = SquareLattice()
 ```
@@ -98,20 +72,7 @@ lattice_vectors(square)
 lattice_sites(square)
 ```
 
-##### LiebLattice
-```@repl quick-start
-lieb = LiebLattice()
-```
-
-```@repl quick-start
-lattice_vectors(lieb)
-```
-
-```@repl quick-start
-lattice_sites(lieb)
-```
-
-##### RectangularLattice
+##### [`RectangularLattice`](@ref)
 ```@repl quick-start
 rectangle = RectangularLattice(0.5)
 ```
@@ -124,7 +85,47 @@ lattice_vectors(rectangle)
 lattice_sites(rectangle)
 ```
 
-##### KagomeLattice
+##### [`HoneycombLattice`](@ref)
+```@repl quick-start
+honeycomb = HoneycombLattice()
+```
+
+```@repl quick-start
+lattice_vectors(honeycomb)
+```
+
+```@repl quick-start
+lattice_sites(honeycomb)
+```
+
+##### [`TriangularLattice`](@ref)
+```@repl quick-start
+triangular = TriangularLattice()
+```
+
+```@repl quick-start
+lattice_vectors(triangular)
+```
+
+```@repl quick-start
+lattice_sites(triangular)
+```
+
+
+##### [`LiebLattice`](@ref)
+```@repl quick-start
+lieb = LiebLattice()
+```
+
+```@repl quick-start
+lattice_vectors(lieb)
+```
+
+```@repl quick-start
+lattice_sites(lieb)
+```
+
+##### [`KagomeLattice`](ref)
 ```@repl quick-start
 kagome = KagomeLattice()
 ```

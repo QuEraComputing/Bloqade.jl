@@ -9,7 +9,7 @@ using Reexport
 @reexport using EaRydLattices: EaRydLattices,
     AbstractLattice, GeneralLattice, HoneycombLattice,
     SquareLattice, TriangularLattice, ChainLattice,
-    LiebLattice, KagomeLattice, GeneralLattice,
+    LiebLattice, KagomeLattice, GeneralLattice, RectangularLattice,
     # interfaces
     generate_sites, offset_axes,
     MaskedGrid, make_grid, random_dropout,

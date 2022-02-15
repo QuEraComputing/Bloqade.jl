@@ -11,7 +11,7 @@ using StatsBase
 export # types
     AbstractLattice, HoneycombLattice,
     SquareLattice, TriangularLattice, ChainLattice,
-    LiebLattice, KagomeLattice, GeneralLattice,
+    LiebLattice, KagomeLattice, GeneralLattice, RectangularLattice,
     # interfaces
     generate_sites, offset_axes, random_dropout, rescale_axes,
     clip_axes, lattice_sites, lattice_vectors,

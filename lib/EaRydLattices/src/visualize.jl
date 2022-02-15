@@ -275,7 +275,7 @@ end
 Draw a `maskedgrid` with colors specified by `colors` and texts specified by `texts`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 
-Please check the docstring of [`img_atoms`](@ref) for explainations of other key word arguments.
+See also the docstring of [`img_atoms`](@ref) for explanations of other keyword arguments.
 """
 function img_maskedgrid(maskedgrid::MaskedGrid;
         format=SVG, io=nothing,

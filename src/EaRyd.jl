@@ -15,7 +15,7 @@ using Reexport
     MaskedGrid, make_grid, random_dropout,
     clip_axes, lattice_sites, lattice_vectors,
     make_kdtree, grouped_nearest, collect_atoms,
-    viz_atoms, viz_maskedgrid
+    img_atoms, img_maskedgrid
 
 using CUDA
 @static if CUDA.functional()

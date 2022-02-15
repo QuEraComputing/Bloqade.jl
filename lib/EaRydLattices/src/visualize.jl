@@ -27,7 +27,9 @@ function config_plotting(sites)
     axes_x_offset = 0.5*pad
     axes_y_offset = 0.4*pad
     scale = shortest_distance
-    return (pad=pad, axes_x_offset=axes_x_offset, axes_y_offset=axes_y_offset, scale=scale)
+    axes_num_of_yticks = ceil(Int, min((rescaler.ymax-rescaler.ymin + 1e-5) / shortest_distance, 5))
+    axes_num_of_xticks = ceil(Int, min((rescaler.xmax-rescaler.xmin + 1e-5) / shortest_distance, 5))
+    return (pad=pad, axes_x_offset=axes_x_offset, axes_y_offset=axes_y_offset, scale=scale, axes_num_of_xticks=axes_num_of_xticks, axes_num_of_yticks=axes_num_of_yticks)
 end
 
 function (r::Rescaler{T})(x; dims=(1,2)) where T
@@ -112,7 +114,7 @@ Other key word arguments
     # image size in cm
     image_size::Float64 = 12
 """
-function img_atoms(atoms::AtomList;
+function img_atoms(atoms::AtomList{2};
         colors=nothing,
         blockade_radius=0,
         texts = nothing,
@@ -131,6 +133,7 @@ function img_atoms(atoms::AtomList;
         return format(io, dx, dy)(img)
     end
 end
+img_atoms(atoms::AtomList{1}; kwargs...) = img_atoms(padydim(atoms); kwargs...)
 
 function _edges(atoms, blockade_radius)
     n = length(atoms)
@@ -163,9 +166,10 @@ function viz_atoms(al::AtomList; colors, blockade_radius, texts, config)
     return fit_image(rescaler, config.image_size, img, img_axes)
 end
 
+_LinRange(x, y, n) = n > 1 ? LinRange(x, y, n) : (x+y)/2
 function _viz_axes(rescaler, config)
-    xs = LinRange(rescaler.xmin, rescaler.xmax, config.axes_num_of_xticks)
-    ys = LinRange(rescaler.ymin, rescaler.ymax, config.axes_num_of_yticks)
+    xs = _LinRange(rescaler.xmin, rescaler.xmax, config.axes_num_of_xticks)
+    ys = _LinRange(rescaler.ymin, rescaler.ymax, config.axes_num_of_yticks)
     xlocs = [rescaler((x, rescaler.ymin) .- (0.0, config.axes_y_offset)) for x in xs]
     ylocs = [rescaler((rescaler.xmin, y) .- (config.axes_x_offset, 0.0)) for y in ys]
     return _axes!([xs..., ys...], [xlocs..., ylocs...], config, getscale(rescaler))
@@ -327,7 +331,7 @@ for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
         end
     
         function Base.show(io::IO, ::$mime, list::AtomList)
-            img_atoms(padydim(list); format=$format, io=io)
+            img_atoms(list; format=$format, io=io)
             nothing
         end
     end

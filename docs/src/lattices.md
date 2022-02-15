@@ -22,8 +22,8 @@ A [Bravais lattice](https://en.wikipedia.org/wiki/Bravais_lattice) is an infinit
 ```
 where ``d`` is the dimension of space, ``n_1, \ldots, n_d \in Z`` are integers.
 
-Hence the lattice vectors ``(a_1, a_2, \ldots, a_n)`` defines a Bravais lattice.
-To create a simple lattice, we just place an atom at location `(0.0, 0.0)`. The following code defines a triangular lattice.
+Hence the lattice vectors ``(\mathbf{a}_1, \mathbf{a}_2, \ldots, \mathbf{a}_n)`` defines a Bravais lattice.
+To create a simple lattice, we just place one atom at location `(0.0, 0.0)` in a unit cell. The following code defines a triangular lattice.
 
 ```@repl quick-start
 triangular_manual = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))], [(0.0, 0.0)])
@@ -162,16 +162,16 @@ To sort the atoms by the x-axis, one can convert these locations to a [`MaskedGr
 atoms_in_grid = make_grid(atoms)
 ```
 
-Then one can get the sorted atoms with
+Then one can get the sorted atoms by typing
 ```@repl quick-start
-collect_atoms(atoms_in_grid)
+sorted_atoms = collect_atoms(atoms_in_grid)
 ```
 
 ## Query neighbors
 
 One can use [`make_kdtree`](@ref) to generate a [k-d tree](https://en.wikipedia.org/wiki/K-d_tree) data type for efficient querying neighborhoods in low dimensional space.
 ```@repl quick-start
-tree = make_kdtree(atoms)
+tree = make_kdtree(sorted_atoms)
 ```
 
 The return value is a [`KDTree`](@ref) instance, which is defined in package [`NearestNeigbors`](https://github.com/KristofferC/NearestNeighbors.jl). One can use it to query the neighbors of an atom, e.g. one can find the 20 nearest neighbors of the 5-th site by typing
@@ -184,7 +184,9 @@ The return value is a [`DistanceGroup`](@ref) instance, and the indices of secon
 neighbors[2]
 ```
 
-One can select these atoms out by typing
+One can select and display these atoms out by typing
 ```@repl quick-start
-atoms[neighbors[2]]
+img_atoms(sorted_atoms[neighbors[2]]; texts=string.(neighbors[2]))
 ```
+
+It show the correct second nearest neigbors of site 5.

@@ -44,7 +44,7 @@ honeycomb_manual = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))], [(0.0, 0.0),
 ```
 
 We provide a few shorthands for several useful lattices.
-One can use [`lattice_vectors`](@ref) and [`lattice_sites`](@ref) to access the lattice vectors and atom locations in a unit cell.
+One can use [`lattice_vectors`](@ref) and [`lattice_sites`](@ref) to access the lattice vectors and atom locations in a unit cell as described in the above section.
 
 ##### [`ChainLattice`](@ref)
 ```@repl quick-start

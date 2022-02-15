@@ -53,23 +53,30 @@ Literate script and copy all other files to the build directory.
 # Options
 
 - `--target=<notebook|markdown>`: build target, either `notebook` or `markdown`.
+
+# Flags
+
+- `-e,--eval`: evaluate the Julia code.
 """
-@cast function build(name::String; target::String="notebook")
+@cast function build(name::String; target::String="notebook", eval::Bool=false)
     ci_dir = root_dir(".ci")
     example_dir = root_dir("examples", name)
 
+    ispath(root_dir("build")) || mkpath(root_dir("build"))
     input_file = root_dir("examples", name, "main.jl")
     output_dir = root_dir("build", name)
     if target == "notebook"
         julia_cmd = """
         using Pkg, Literate;
-        Literate.notebook(\"$input_file\", \"$output_dir\"; execute=false)
+        Pkg.activate(\"$example_dir\")
+        Literate.notebook(\"$input_file\", \"$output_dir\"; execute=$eval)
         """
         cp(example_dir, output_dir; force=true, follow_symlinks=true)
     elseif target == "markdown"
         julia_cmd = """
         using Pkg, Literate;
-        Literate.markdown(\"$input_file\", \"$output_dir\"; execute=false)
+        Pkg.activate(\"$example_dir\")
+        Literate.markdown(\"$input_file\", \"$output_dir\"; execute=$eval)
         """
     else
         cmd_error("target $target is not supported")

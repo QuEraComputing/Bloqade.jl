@@ -80,6 +80,21 @@ lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
 lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25*sqrt(3)), (0.75, 0.25*sqrt(3)))
 
 """
+    RectangularLattice <: AbstractLattice{2}
+    RectangularLattice(aspect_ratio::Real)
+
+`RectangularLattice` is a 2 dimensional lattice with:
+
+* Lattice vectors = ((1.0, 0.0), (0.0, `aspect_ratio`)
+* Lattice sites   = ((0.0, 0.0),)
+"""
+struct RectangularLattice <: AbstractLattice{2}
+    aspect_ratio::Float64
+end
+lattice_vectors(r::RectangularLattice) = ((1.0, 0.0), (0.0, r.aspect_ratio))
+lattice_sites(::RectangularLattice) = ((0.0, 0.0),)
+
+"""
     AtomList{D, T} <: AbstractVector{NTuple{D, T}}
     AtomList(atoms::Vector{<:NTuple})
 
@@ -284,7 +299,7 @@ function _gendoc(::Type{LT}) where LT
     return """    $LT <: AbstractLattice{$(dimension(LT()))}
     $LT()
 
-$LT is a $(dimension(LT())) dimensional lattice with:
+`$LT` is a $(dimension(LT())) dimensional lattice with:
 
 * Lattice vectors = $(lattice_vectors(LT()))
 * Lattice sites   = $(lattice_sites(LT()))

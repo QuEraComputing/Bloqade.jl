@@ -22,10 +22,10 @@ import GraphTensorNetworks.visualize
 
 # The original graph is a non-UDG. 
 g_0 = SimpleGraph(6)
-for (i,j) in [(1,2), (2, 3),  (3, 6), (3, 5), (4, 5), (1, 5), (2, 4)]
+for (i,j) in [(5, 1), (5,2), (5,3), (5,4), (6, 1), (6, 2), (6, 3), (6, 4)]
     add_edge!(g_0, i, j)
 end
-pos_0 = [(0, 1), (1,1), (2,1), (0,0), (1,0), (2,0)]
+pos_0 =  [(0,0), (1,0), (2,0), (3,0), (1, 1), (2,1)]
 show_graph(g_0; locs = pos_0)
 
 # We can use a series of gadgets to map the graph into a UDG 
@@ -38,8 +38,10 @@ g_udg = M.grid_graph
 # by an edge.  The nodes corresponding to the nodes in the original graph, where the MIS 
 # of the mapped graph can be directly mapped back to that of the original graph, are 
 # shown in blue. The white nodes represent ancilla vertices. 
-simplified_locs = [(3,-3), (2,-2), (0,0), (3,-1), (2,2), (1,1), (1,-1), (3,3), 
-(3,1), (3,0), (4,2), (4,-3), (5,1), (5,-3), (6,0), (6, -2), (7,-1)] 
+simplified_locs = [ (6,1), (4,0), (2,0), (0,0), (1,1), (1,-1), 
+ (2,2), (2,-2), (6, -1), (7,0), (3,1), (3,-2), (4,2), (4,-2), (5,1), (5,-1)]
+
+
 
 g_m = GraphTensorNetworks.unit_disk_graph(simplified_locs, 1.5)
 show_graph(g_m; locs=simplified_locs, vertex_colors=

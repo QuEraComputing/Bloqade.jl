@@ -3,7 +3,7 @@
 
 Abstract term for hamiltonian terms.
 """
-abstract type AbstractTerm end
+abstract type AbstractTerm <: PrimitiveBlock{2} end
 
 const ConstParamType = Union{Number, AbstractVector{<:Number}, NTuple{N, <:Number} where N}
 const ConstParamListType = Union{AbstractVector{<:Number}, NTuple{N, <:Number} where N}
@@ -242,6 +242,8 @@ nsites(t::NTerm) = t.nsites
 nsites(t::Hamiltonian) = nsites(t.terms[1])
 nsites(t::Negative) = nsites(t.term)
 nsites(t::RydInteract) = length(t.atoms)
+
+Yao.nqudits(t::AbstractTerm) = nsites(t)
 
 function nsites(terms::Vector{<:AbstractTerm})
     term_nsites = nsites(first(terms))

@@ -136,7 +136,7 @@ function compute_MIS_probability(reg, graph, MIS_original, MIS_mapped)
 
         (b[1:length(MIS_original)] == MIS_original) && amp_original = amp
 
-        return b, amp, amp_contains_original
+        return b, amp, amp_original
     end
     
     return ThreadsX.map(1:2) do k

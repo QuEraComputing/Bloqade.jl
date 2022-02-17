@@ -59,6 +59,10 @@ lattice_vectors(chain)
 lattice_sites(chain)
 ```
 
+```@repl quick-start
+img_atoms(chain)
+```
+
 ##### [`SquareLattice`](@ref)
 ```@repl quick-start
 square = SquareLattice()
@@ -70,6 +74,10 @@ lattice_vectors(square)
 
 ```@repl quick-start
 lattice_sites(square)
+```
+
+```@repl quick-start
+img_atoms(square)
 ```
 
 ##### [`RectangularLattice`](@ref)
@@ -85,6 +93,10 @@ lattice_vectors(rectangle)
 lattice_sites(rectangle)
 ```
 
+```@repl quick-start
+img_atoms(rectangle)
+```
+
 ##### [`HoneycombLattice`](@ref)
 ```@repl quick-start
 honeycomb = HoneycombLattice()
@@ -96,6 +108,10 @@ lattice_vectors(honeycomb)
 
 ```@repl quick-start
 lattice_sites(honeycomb)
+```
+
+```@repl quick-start
+img_atoms(honeycomb)
 ```
 
 ##### [`TriangularLattice`](@ref)
@@ -111,6 +127,9 @@ lattice_vectors(triangular)
 lattice_sites(triangular)
 ```
 
+```@repl quick-start
+img_atoms(triangular)
+```
 
 ##### [`LiebLattice`](@ref)
 ```@repl quick-start
@@ -125,6 +144,10 @@ lattice_vectors(lieb)
 lattice_sites(lieb)
 ```
 
+```@repl quick-start
+img_atoms(lieb)
+```
+
 ##### [`KagomeLattice`](ref)
 ```@repl quick-start
 kagome = KagomeLattice()
@@ -136,6 +159,10 @@ lattice_vectors(kagome)
 
 ```@repl quick-start
 lattice_sites(kagome)
+```
+
+```@repl quick-start
+img_atoms(kagome)
 ```
 
 ## Generate sites and sorting

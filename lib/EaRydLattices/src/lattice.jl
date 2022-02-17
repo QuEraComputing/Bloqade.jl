@@ -134,15 +134,15 @@ end
 Offset the `sites` by distance specified by `offsets`.
 
 ```jldoctest; setup=:(using EaRydLattices)
-julia> sites = [(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)]
-4-element Vector{Tuple{Float64, Float64}}:
+julia> sites = AtomList([(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)])
+4-element AtomList{2, Float64}:
  (1.0, 2.0)
  (10.0, 3.0)
  (1.0, 12.0)
  (3.0, 5.0)
 
 julia> offset_axes(sites, 1.0, 3.0)
-4-element Vector{Tuple{Float64, Float64}}:
+4-element AtomList{2, Float64}:
  (2.0, 5.0)
  (11.0, 6.0)
  (2.0, 15.0)
@@ -161,15 +161,15 @@ end
 Rescale the `sites` by a constant `scale`.
 
 ```jldoctest; setup=:(using EaRydLattices)
-julia> sites = [(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)]
-4-element Vector{Tuple{Float64, Float64}}:
+julia> sites = AtomList([(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)])
+4-element AtomList{2, Float64}:
  (1.0, 2.0)
  (10.0, 3.0)
  (1.0, 12.0)
  (3.0, 5.0)
 
 julia> rescale_axes(sites, 2.0)
-4-element Vector{Tuple{Float64, Float64}}:
+4-element AtomList{2, Float64}:
  (2.0, 4.0)
  (20.0, 6.0)
  (2.0, 24.0)
@@ -199,15 +199,15 @@ end
 Remove sites out of `bounds`, where `bounds` is specified by D D-tuples.
 
 ```jldoctest; setup=:(using EaRydLattices)
-julia> sites = [(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)]
-4-element Vector{Tuple{Float64, Float64}}:
+julia> sites = AtomList([(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)])
+4-element AtomList{2, Float64}:
  (1.0, 2.0)
  (10.0, 3.0)
  (1.0, 12.0)
  (3.0, 5.0)
 
 julia> clip_axes(sites, (-5.0, 5.0), (-5.0, 5.0))
-2-element Vector{Tuple{Float64, Float64}}:
+2-element AtomList{2, Float64}:
  (1.0, 2.0)
  (3.0, 5.0)
 ```

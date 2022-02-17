@@ -1,6 +1,6 @@
 using EaRydLattices
 using Viznet.Compose
-using Test
+using Test, Documenter
 
 @testset "AtomList" begin
     al = AtomList([(0.1, 0.2), (0.3, 0.4), (0.1, 0.8)])
@@ -79,3 +79,5 @@ end
     @test show(IOBuffer(), MIME"image/png"(), grd) === nothing
     @test show(IOBuffer(), MIME"image/png"(), lt) === nothing
 end
+
+doctest(EaRydLattices)

@@ -29,7 +29,7 @@ pos_0 =  [(0,0), (1,0), (2,0), (3,0), (1, 1), (2,1)]
 show_graph(g_0; locs = pos_0)
 
 # We can use a series of gadgets to map the graph into a UDG 
-M = map_graph(Weighted(), original_graph, vertex_order=[6,5,4,3,2,1]);
+M = map_graph(Weighted(), g_0, vertex_order=[6,5,4,3,2,1]);
 g_udg = M.grid_graph
 
 # We can apply simplification rules (will automate into UnitDiskMapping soon) to 

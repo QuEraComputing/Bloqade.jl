@@ -164,7 +164,7 @@ end;
 Δ_max = 2.5 * Ω_max
 
 # Because the input graph is not a UDG, we must work in the independent set subspace
-subspace = independent_set_subspace(g_0)
+subspace = ndependent_set_subspace(g_0)
 t_list_o = []
 P_MIS_list_o = []
 
@@ -229,8 +229,8 @@ T = 0
 while (t < T * 2.5) || (T == 0.0)
     h = build_adiabatic_sweep(g_m, Ω_max, Δ_max, t, weight_Δ_M)[1]
     
-    energies, GS = eigsolve(SparseMatrixCSC(h(0.0), subspace), 1, :SR);
-    r = RydbergReg(GS[1], subspace);
+    energies, GS = eigsolve(SparseMatrixCSC(h(0.0), subspace_m), 1, :SR);
+    r = RydbergReg(GS[1], subspace_m);
 
     prob = ODEEvolution(r, t, h; dt=1e-3, adaptive=false)
     emulate!(prob)

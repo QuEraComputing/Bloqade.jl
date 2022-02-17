@@ -19,6 +19,7 @@ using Graphs, GraphTensorNetworks, UnitDiskMapping
 using Plots, Plots.PlotMeasures, LaTeXStrings, Statistics
 using SparseArrays, ThreadsX, BitBasis
 import GraphTensorNetworks.visualize
+using EaRyd
 
 # The original graph is a non-UDG. 
 g_0 = SimpleGraph(6)

@@ -164,7 +164,7 @@ end;
 Δ_max = 2.5 * Ω_max
 
 # Because the input graph is not a UDG, we must work in the independent set subspace
-subspace = ndependent_set_subspace(g_0)
+subspace = independent_set_subspace(g_0)
 t_list_o = []
 P_MIS_list_o = []
 

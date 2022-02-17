@@ -119,7 +119,7 @@ show_graph(g_0; locs = pos_0, vertex_colors=
 # MIS of mapped graph
 configs_mapped_m = solve(IndependentSet(g_m; weights= weight_Δ_M), ConfigsMax())[]
 MIS_m = configs_mapped_m.c[1]
-show_graph(g_m; locs = new_locs, vertex_colors=
+show_graph(g_m; locs = simplified_locs, vertex_colors=
           [iszero(MIS_m[i]) ? "white" : "red" for i=1:nv(g_m)])
 
 # In addition to computing the MIS probability, we are also interested in computing 

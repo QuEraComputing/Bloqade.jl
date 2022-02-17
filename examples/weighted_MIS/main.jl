@@ -134,7 +134,7 @@ function compute_MIS_probability(reg, graph, MIS_original, MIS_mapped)
         b = bitarray(c, nv(graph))
         amp_original = 0
 
-        (b[1:length(MIS_original)] == MIS_original) && amp_original = amp
+        (b[1:length(MIS_original)] == MIS_original) && (amp_original = amp)
 
         return b, amp, amp_original
     end

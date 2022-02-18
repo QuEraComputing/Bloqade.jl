@@ -1,7 +1,7 @@
 """
     make_kdtree(atoms::AtomList{D,T}) where {T, D}
 
-Returns a [`KDTree`](@ref) instance from input `atoms`.
+Returns a `KDTree` instance defined in package [NearestNeighbors](https://github.com/KristofferC/NearestNeighbors.jl) from input `atoms`.
 """
 function make_kdtree(atoms::AtomList{D,T}) where {T, D}
     data = zeros(T, D, length(atoms))

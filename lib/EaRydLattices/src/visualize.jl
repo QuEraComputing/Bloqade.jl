@@ -88,7 +88,7 @@ Atoms within `blockade_radius` will be connected by bonds.
 
     # axes
     axes_text_color::String = "black"
-    axes_text_fontsize::Float64 = 12.0
+    axes_text_fontsize::Float64 = 11.0
     axes_num_of_xticks = 5
     axes_num_of_yticks = 5
     axes_x_offset::Float64 = 0.1
@@ -96,7 +96,7 @@ Atoms within `blockade_radius` will be connected by bonds.
     axes_unit::String = "μm"
 
     # node
-    node_text_fontsize::Float64 = 6.0
+    node_text_fontsize::Float64 = 5.0
     node_text_color::String = "black"
     node_stroke_color = "black"
     node_stroke_linewidth = 0.03
@@ -181,7 +181,7 @@ Base.@kwdef struct LatticeDisplayConfig
 
     # axes
     axes_text_color::String = "black"
-    axes_text_fontsize::Float64 = 12.0
+    axes_text_fontsize::Float64 = 11.0
     axes_num_of_xticks = 5
     axes_num_of_yticks = 5
     axes_x_offset::Float64 = 0.1
@@ -189,20 +189,23 @@ Base.@kwdef struct LatticeDisplayConfig
     axes_unit::String = "μm"
 
     # node
-    node_text_fontsize::Float64 = 6.0
+    node_text_fontsize::Float64 = 5.0
     node_text_color::String = "black"
     node_stroke_color = "black"
     node_stroke_linewidth = 0.03
     node_fill_color = "white"
+
     # bond
     bond_color::String = "black"
     bond_linewidth::Float64 = 0.03
+
     # blockade
     blockade_style::String = "none"
     blockade_stroke_color::String = "black"
     blockade_fill_color::String = "transparent"
     blockade_fill_opacity::Float64 = 0.5
     blockade_stroke_linewidth = 0.03
+
     # image size in cm
     image_size::Float64 = 12
 end

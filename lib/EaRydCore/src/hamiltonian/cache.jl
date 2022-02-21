@@ -30,6 +30,9 @@ function split_const_term(::Type{Tv}, h::Hamiltonian, space::AbstractSpace) wher
         # the intermediate state for dstate.
         if h isa AbstractBlock
             push!(hs, get_matrix(Tv, h, space))
+        elseif h isa SparseMatrixCSC
+            # always use CSR since it's faster in gemv
+            push!(hs, transpose(h))
         else
             push!(hs, h)
         end

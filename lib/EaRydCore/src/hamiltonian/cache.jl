@@ -55,7 +55,7 @@ function _split_term(::Type{Tv}, h::XTerm, space::AbstractSpace) where {Tv}
     @switch (h.Ωs, h.ϕs) begin
         @case (Ωs::ConstParamListType, ϕ::Number) || (Ωs::ConstParamListType, ::Nothing) || (Ω::Number, ϕ::Number) ||
         (Ω::Number, ::ConstParamListType) || (Ω::Number, ::Nothing)
-            ((_const_param_, SparseMatrixCSC{Tv}(h, space)), )
+            ((_const_param_, SparseMatrixCSC{Tv, Cint}(h, space)), )
         @case (Ωs::AbstractVector, ϕs::ConstParamListType) # directly apply is faster
             map(enumerate(zip(Ωs, ϕs))) do (i, (Ω, ϕ))
                 x_phase = PermMatrix([2, 1], Tv[exp(ϕ * im), exp(-ϕ * im)])
@@ -106,7 +106,7 @@ function _split_term(::Type{Tv}, h::XTerm, space::AbstractSpace) where {Tv}
             B = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 0;1 0]))), space)
             return (t->Ω(t)/2 * exp(ϕ * im), A), (t->Ω(t)/2 * exp(-ϕ * im), B)
         @case (Ω, ::Nothing) # no 1/2 in prefactor, it's in the matrix already
-            return ((t->Ω(t), SparseMatrixCSC{Tv}(XTerm(n, 1.0), space)), )
+            return ((t->Ω(t), SparseMatrixCSC{Tv, Cint}(XTerm(n, 1.0), space)), )
         @case (Ω, ϕ)
             A = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 1;0 0]))), space)
             B = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 0;1 0]))), space)
@@ -117,12 +117,14 @@ end
 function _split_term(::Type{Tv}, h::NTerm, space::AbstractSpace) where {Tv}
     n = nsites(h)
     return if h.Δs isa ConstParamType
-        ((_const_param_, SparseMatrixCSC{Tv}(h, space)), )
+        M = Diagonal(Vector(diag(SparseMatrixCSC{Tv}(h, space))))
+        ((_const_param_, M), )
     elseif h.Δs isa ParamsList
         return map(enumerate(h.Δs)) do (i, Δ)
             Δ, put(n, i=>Yao.ConstGate.P1)
         end
     else
-        return ((h.Δs, SparseMatrixCSC{Tv}(NTerm(n, one(Tv)), space)), )
+        M = Diagonal(Vector(diag(SparseMatrixCSC{Tv}(NTerm(n, one(Tv)), space))))
+        return ((h.Δs, M), )
     end
 end

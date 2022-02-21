@@ -68,4 +68,4 @@ eq(dstate1, state, nothing, t)
 equation(tc, dstate2, state, 0.1)
 dstate1 ≈ dstate2
 
-put(5, 1 => X)
+put(5, 1 => X)|>typeof

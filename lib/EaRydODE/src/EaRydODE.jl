@@ -11,7 +11,7 @@ using Configurations
 using DiffEqCallbacks
 using EaRydCore: AbstractTerm, AbstractSpace, EmulationOptions,
     storage_size, nsites, MemoryLayout, RealLayout, ComplexLayout,
-    split_term
+    split_const_term
 using OrdinaryDiffEq: OrdinaryDiffEq, ODEProblem
 
 @reexport using EaRydCore
@@ -25,14 +25,14 @@ struct EquationCache{H, Layout, S}
 end
 
 function EquationCache(::Type{Tv}, h::AbstractTerm, space::AbstractSpace, layout::ComplexLayout) where {Tv}
-    state = Vector{Complex{real(Tv)}}(undef, size(H, 1))
-    tc = split_term(Tv, h, space)
+    tc = split_const_term(Tv, h, space)
+    state = Vector{Complex{real(Tv)}}(undef, size(tc.hs[1], 1))
     return EquationCache(tc, layout, state)
 end
 
 function EquationCache(::Type{Tv}, h::AbstractTerm, space::AbstractSpace, layout::RealLayout) where {Tv}
-    state = Matrix{real(Tv)}(undef, size(H, 1), 2)
-    tc = split_term(Tv, h, space)
+    tc = split_const_term(Tv, h, space)
+    state = Matrix{real(Tv)}(undef, size(tc.hs[1], 1), 2)
     return EquationCache(tc, layout, state)
 end
 
@@ -189,8 +189,7 @@ function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Rea
     # NOTE: on CPU we can do mixed type spmv
     # thus we use the smallest type we can get
     T = isreal(h) ? P : Complex{P}
-    H = SparseMatrixCSC{T, Cint}(h(start+sqrt(eps(P))), space)
-    cache = EquationCache(H, layout)
+    cache = EquationCache(T, h, space, layout)
     eq = SchrodingerEquation(h, space, cache)
 
     ode_prob = ODEProblem(

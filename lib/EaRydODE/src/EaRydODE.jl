@@ -71,6 +71,7 @@ function Base.show(io::IO, m::MIME"text/plain", eq::SchrodingerEquation)
 end
 
 function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where L
+    fill!(dstate, zero(eltype(dstate)))
     fs, hs = eq.cache.hamiltonian.fs, eq.cache.hamiltonian.hs
     for (f, h) in zip(fs, hs)
         # NOTE: currently we can expect all h
@@ -81,7 +82,7 @@ function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where L
     # we will make it work automatically
     # later by using StructArrays
     lmul!(-im, dstate)
-    return dstate
+    return
 end
 
 @option struct ODEOptions{Algo <: OrdinaryDiffEq.OrdinaryDiffEqAlgorithm} <: EmulationOptions

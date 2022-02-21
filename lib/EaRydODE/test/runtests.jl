@@ -6,23 +6,6 @@ using Test
 atoms = square_lattice(5, 0.8)
 space = blockade_subspace(atoms, 1.5)
 
-dt=1e-3
-ref = zero_state(space)
-discrete = KrylovEvolution(ref, map(_->dt, 0.0:dt:0.2), map(h, 0.0:dt:0.2))
-emulate!(discrete)
-
-reg = zero_state(space, ComplexLayout())
-h = rydberg_h(atoms;Δ=sin, Ω=cos, C=2π * 109)
-continuous = ODEEvolution(reg, 0.2, h)
-emulate!(continuous)
-continuous.reg.state
-ref.state
-
-dstate = zeros(ComplexF64, length(space))
-state = rand(ComplexF64, length(space))
-
-continuous.eq(dstate, state, nothing, 0.1)
-
 @testset "h=$name" for (name, h) in [
     "x+z" => XTerm(5, 1.0) + NTerm(5, sin),
     "rydberg" => rydberg_h(atoms;Δ=sin, Ω=cos, C=2π * 109),

@@ -76,12 +76,11 @@ function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where L
     for (f, h) in zip(fs, hs)
         # NOTE: currently we can expect all h
         # are preallocated constant matrices
-        mul!(dstate, h, state, f(t), one(t))
+        mul!(dstate, h, state, -im * f(t), one(t))
     end
     # NOTE: RealLayout is not supported
     # we will make it work automatically
     # later by using StructArrays
-    lmul!(-im, dstate)
     return
 end
 

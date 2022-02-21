@@ -3,7 +3,7 @@
 
 Abstract term for hamiltonian terms.
 """
-abstract type AbstractTerm <: PrimitiveBlock{2} end
+abstract type AbstractTerm end
 
 const ConstParamType = Union{Number, AbstractVector{<:Number}, NTuple{N, <:Number} where N}
 const ConstParamListType = Union{AbstractVector{<:Number}, NTuple{N, <:Number} where N}

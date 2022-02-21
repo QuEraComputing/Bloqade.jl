@@ -55,19 +55,6 @@ function print_term(io::IO, t::RydInteract)
     printstyled(io, "n_i n_j", color=:light_blue)
 end
 
-function print_term(io::IO, t::Hamiltonian)
-    indent = get(io, :indent, 2)
-    for (i, each) in enumerate(t.terms)
-        println(io, " "^indent, " Term ", i)
-        print_term(IOContext(io, :indent=>indent+2), each)
-        
-        if i != lastindex(t.terms)
-            println(io)
-            println(io)
-        end
-    end
-end
-
 function print_term(io::IO, t::Negative)
     print_term(IOContext(io, :negative=>true), t.term)
 end

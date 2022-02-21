@@ -6,9 +6,9 @@ function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::AbstractTerm, s::AbstractSpa
     return H
 end
 
-function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::Hamiltonian, s::AbstractSpace=fullspace) where {Tv, Ti}
-    return sum(SparseMatrixCSC{Tv, Ti}(t, s) for t in term.terms)
-end
+# function SparseArrays.SparseMatrixCSC{Tv, Ti}(term::Hamiltonian, s::AbstractSpace=fullspace) where {Tv, Ti}
+#     return sum(SparseMatrixCSC{Tv, Ti}(t, s) for t in term.terms)
+# end
 
 function SparseArrays.SparseMatrixCSC{Tv, Ti}(t::Negative, s::AbstractSpace=fullspace) where {Tv, Ti}
     H = SparseMatrixCSC{Tv, Ti}(t.term, s)

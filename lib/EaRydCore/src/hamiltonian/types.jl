@@ -3,7 +3,7 @@
 
 Abstract term for hamiltonian terms.
 """
-abstract type AbstractTerm end
+abstract type AbstractTerm <: PrimitiveBlock{2} end
 
 const ConstParamType = Union{Number, AbstractVector{<:Number}, NTuple{N, <:Number} where N}
 const ConstParamListType = Union{AbstractVector{<:Number}, NTuple{N, <:Number} where N}
@@ -143,31 +143,6 @@ function NTerm(nsites::Int, Δs)
     NTerm{typeof(Δs)}(nsites, Δs)
 end
 
-struct Negative{Term} <: AbstractTerm
-    term::Term
-end
-
-const OrNegative{T} = Union{Negative{T}, T}
-
-Base.:(-)(t::AbstractTerm) = Negative(t)
-Base.:(-)(t::Negative) = t.term
-
-struct Hamiltonian{Terms <: Tuple} <: AbstractTerm
-    terms::Terms
-
-    function Hamiltonian(terms::Terms) where {Terms}
-        first_nsites = nsites(first(terms))
-        for idx in 2:length(terms)
-            first_nsites == nsites(terms[idx]) ||
-                throw(ArgumentError(
-                    "nsites mismatch, " *
-                    "expect $first_nsites, got $(nsites(terms[idx]))"
-                ))
-        end
-        new{Terms}(terms)
-    end
-end
-
 # try to infer number of sites from the input
 # this is only necessary for CUDA
 to_tuple(xs) = (xs..., ) # make it type stable
@@ -239,8 +214,6 @@ function nsites end
 nsites(t::XTerm) = t.nsites
 nsites(t::ZTerm) = t.nsites
 nsites(t::NTerm) = t.nsites
-nsites(t::Hamiltonian) = nsites(t.terms[1])
-nsites(t::Negative) = nsites(t.term)
 nsites(t::RydInteract) = length(t.atoms)
 
 Yao.nqudits(t::AbstractTerm) = nsites(t)
@@ -261,7 +234,6 @@ Base.eltype(t::ZTerm) = eltype(t.Δs)
 Base.eltype(t::NTerm) = eltype(t.Δs)
 Base.eltype(t::Negative) = eltype(t.term)
 Base.eltype(t::RydInteract) = typeof(t.C)
-Base.eltype(t::Hamiltonian) = promote_type(eltype.(t.terms)...)
 
 function Base.isreal(t::XTerm)
     isnothing(t.ϕs) ? true :
@@ -272,12 +244,8 @@ Base.isreal(t::ZTerm) = true
 Base.isreal(t::NTerm) = true
 Base.isreal(t::RydInteract) = true
 Base.isreal(t::Negative) = isreal(t.term)
-Base.isreal(t::Hamiltonian) = all(isreal, t.terms)
 
 Base.iszero(t::XTerm) = iszero(t.Ωs)
 Base.iszero(t::Union{NTerm, ZTerm}) = iszero(t.Δs)
 Base.iszero(t::RydInteract) = iszero(t.C)
 Base.iszero(t::Negative) = iszero(t.term)
-Base.iszero(t::Hamiltonian) = all(iszero, t.terms)
-
-Base.getindex(t::Hamiltonian, i::Int) = t.terms[i]

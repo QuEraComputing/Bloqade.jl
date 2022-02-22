@@ -2,7 +2,7 @@ abstract type MemoryLayout end
 struct RealLayout <: MemoryLayout end
 struct ComplexLayout <: MemoryLayout end
 
-struct RydbergReg{Layout <: MemoryLayout, State, Space <: Subspace} <: Yao.AbstractRegister{1}
+struct RydbergReg{Layout <: MemoryLayout, State, Space <: Subspace} <: Yao.AbstractRegister{2}
     natoms::Int
     layout::Layout
     state::State
@@ -176,6 +176,6 @@ function set_zero_state!(r::Yao.ArrayReg)
     return r
 end
 
-function Base.:*(bra::Yao.YaoArrayRegister.AdjointRegister{1, <:RydbergReg}, ket::RydbergReg)
+function Base.:*(bra::Yao.YaoArrayRegister.AdjointRegister{2, <:RydbergReg}, ket::RydbergReg)
     return dot(statevec(parent(bra)), statevec(ket))
 end

@@ -179,6 +179,22 @@ end
 
 (f::PiecewiseLinear)(t::Real) = f.interp(t)
 
+struct PiecewiseConstant{T <: Real}
+    clocks::Vector{T}
+    values::Vector{T}
+
+    function PiecewiseConstant(clocks::Vector{<:Real}, values::Vector{<:Real})
+        assert_clocks(clocks)
+        new{eltype(values)}(clocks, values)
+    end
+end
+
+function (f::PiecewiseConstant)(t::Real)
+    idx = findfirst(>(t), f.clocks) # we checked range
+    isnothing(idx) && return f.values[end]
+    return f.values[idx-1]
+end
+
 """
     piecewise_linear(;clocks, values)
 
@@ -261,11 +277,7 @@ function piecewise_constant(;
         duration::Real=last(clocks),
     )
     assert_clocks(clocks)
-    return Waveform(duration) do t
-        idx = findfirst(>(t), clocks) # we checked range
-        isnothing(idx) && return values[end]
-        return values[idx-1]
-    end
+    return Waveform(PiecewiseConstant(clocks, values), duration)
 end
 
 """

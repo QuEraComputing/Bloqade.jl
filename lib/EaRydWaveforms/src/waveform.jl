@@ -131,6 +131,19 @@ function Base.:-(wf::Waveform)
     end
 end
 
+function Base.:*(alpha::Number, wf::Waveform)
+    return Waveform(wf.duration) do t
+        alpha * wf.f(t)
+    end
+end
+
+# let's assume they are communitive
+function Base.:*(wf::Waveform, alpha::Number)
+    return alpha * wf
+end
+
+Base.broadcastable(x::Waveform) = Ref(x)
+
 """
     append(wf::Waveform, wfs::Waveform...)
 

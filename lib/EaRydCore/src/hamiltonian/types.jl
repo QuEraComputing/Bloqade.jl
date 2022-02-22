@@ -243,6 +243,8 @@ nsites(t::Hamiltonian) = nsites(t.terms[1])
 nsites(t::Negative) = nsites(t.term)
 nsites(t::RydInteract) = length(t.atoms)
 
+Yao.nqudits(t::AbstractTerm) = nsites(t)
+
 function nsites(terms::Vector{<:AbstractTerm})
     term_nsites = nsites(first(terms))
     for i in 2:length(terms)

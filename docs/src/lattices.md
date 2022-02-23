@@ -31,15 +31,6 @@ To create a simple lattice, we just place one atom at location `(0.0, 0.0)` in a
 triangular = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))], [(0.0, 0.0)])
 ```
 
-!!! note
-    You can see the above visulization in one of the following editors
-    * a [VSCode](https://github.com/julia-vscode/julia-vscode) editor,
-    * a [Jupyter](https://github.com/JunoLab/Juno.jl) notebook,
-    * or a [Pluto](https://github.com/fonsp/Pluto.jl) notebook,
-    
-    But not in a Julia REPL that does not have a graphical display.
-    
-
 For composite lattices, one should provide multiple atoms as the second argument to specify atom locations in a unitcell. For example, the honeycomb lattice can be defined by typing
 ```@repl quick-start
 honeycomb = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))],
@@ -55,6 +46,15 @@ using EaRyd
 
 chain = ChainLattice()
 ```
+
+!!! note
+    You can see the above visulization in one of the following editors
+    * a [VSCode](https://github.com/julia-vscode/julia-vscode) editor,
+    * a [Jupyter](https://github.com/JunoLab/Juno.jl) notebook,
+    * or a [Pluto](https://github.com/fonsp/Pluto.jl) notebook,
+    
+    But not in a Julia REPL that does not have a graphical display.
+    
 
 ```@example quick-start
 lattice_vectors(chain)
@@ -77,10 +77,6 @@ lattice_vectors(square)
 lattice_sites(square)
 ```
 
-```@example quick-start
-generate_sites(square, 5, 5)
-```
-
 ##### [`RectangularLattice`](@ref)
 ```@example quick-start
 rectangle = RectangularLattice(0.5)
@@ -92,10 +88,6 @@ lattice_vectors(rectangle)
 
 ```@example quick-start
 lattice_sites(rectangle)
-```
-
-```@example quick-start
-generate_sites(rectangle, 5, 5)
 ```
 
 ##### [`HoneycombLattice`](@ref)

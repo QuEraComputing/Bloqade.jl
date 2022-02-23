@@ -15,11 +15,11 @@
 # the MIS solution of the original graph.
 
 # We import the required packages for mapping the original graph and visualization tools
+
 using Graphs, GraphTensorNetworks, UnitDiskMapping
-using Plots, Plots.PlotMeasures, LaTeXStrings, Statistics
+using Plots, Plots.PlotMeasures, LaTeXStrings, LinearAlgebra, Statistics, CurveFit
 using SparseArrays, ThreadsX, BitBasis
 import GraphTensorNetworks.visualize
-using EaRyd
 
 # The original graph is a non-UDG. 
 g_0 = SimpleGraph(6)
@@ -39,9 +39,7 @@ g_udg = M.grid_graph
 # by an edge.  The nodes corresponding to the nodes in the original graph, where the MIS 
 # of the mapped graph can be directly mapped back to that of the original graph, are 
 # shown in blue. The white nodes represent ancilla vertices. 
-simplified_locs = [ (6,1), (4,0), (2,0), (0,0), (1,1), (1,-1), 
- (2,2), (2,-2), (6, -1), (7,0), (3,1), (3,-2), (4,2), (4,-2), (5,1), (5,-1)]
-
+simplified_locs = [(6, 0), (4, 0), (2, 0), (0, 0), (1, 1), (1, -1), (2, 2), (2, -2), (3, 1), (3, -2), (4, 2), (4, -2), (5, 1), (5, -1)]
 
 
 g_m = GraphTensorNetworks.unit_disk_graph(simplified_locs, 1.5)
@@ -85,12 +83,14 @@ end
 
 # We choose $\Delta_{max} / \Omega_{max} = 2.5$, with $\Omega_{max} = 4 \times 2 \pi$ MHz
 
+
 # ## Build Pulse Sequence
 # We build a discrete adiabatic sweep to analyze the adiabadicity of the two systems by 
 # considering and visualizing the minimum gap through their time-dependent energy 
 # spectrums.  Because we are considering the weighted MIS problem, we implement individual
 # atom detuning with $\Delta(t)_i = w_i \times \Delta(t)$.  We can simulate individual 
 # pulse shapes on the emulator.
+using EaRyd, KrylovKit, Yao
 
 # return Hamiltonian of system given initial parameters
 # return waveforms (for visualization)
@@ -169,10 +169,12 @@ subspace = independent_set_subspace(g_0)
 t_list_o = []
 P_MIS_list_o = []
 
-t = 0.1 # length of evolution 
-T = 0
+global t = 0.1 # length of evolution 
+global T_ = 0
 
-while (t < T * 2.5) || (T == 0.0)
+while (t < T_  * 2.5) || (T_ == 0.0)
+    global t 
+    global T_
     h = build_adiabatic_sweep(g_0, Ω_max, Δ_max, t, weight_Δ_0)[1]
     
     # start evolution at diagonalized state 
@@ -187,14 +189,14 @@ while (t < T * 2.5) || (T == 0.0)
     p = compute_MIS_probability(prob.reg, g_0, MIS_0,MIS_0)[1]
 
     # find first occurrence p > 0.9
-    ((p > 0.9) && (T == 0)) && (T = t)
+    ((p > 0.9) && (T_  == 0)) && (global T_  = t)
     
     if (p > 0.9)
         push!(t_list_o, t)
         push!(P_MIS_list_o, p)
     end
 
-    t += 0.01
+    global t += 0.01
 end
 
 # We can compute the adiabatic timescale by fitting a Landau Zener curve to the 
@@ -224,10 +226,13 @@ t_list_m = []
 P_MIS_list_m = []
 P_MIS_list_m_o = []
 
-t = 0.1
-T = 0
+global t = 0.1
+global T_  = 0.0
 
-while (t < T * 2.5) || (T == 0.0)
+while (t < T_  * 2.5) || (T_  == 0.0)
+    global t 
+    global T_
+
     h = build_adiabatic_sweep(g_m, Ω_max, Δ_max, t, weight_Δ_M)[1]
     
     energies, GS = eigsolve(SparseMatrixCSC(h(0.0), subspace_m), 1, :SR);
@@ -236,9 +241,9 @@ while (t < T * 2.5) || (T == 0.0)
     prob = ODEEvolution(r, t, h; dt=1e-3, adaptive=false)
     emulate!(prob)
 
-    p1, p2 = compute_MIS_probability(prob.reg, g_m, MIS_0,MIS_M)
+    p1, p2 = compute_MIS_probability(prob.reg, g_m, MIS_0,MIS_m)
 
-    ((p > 0.9) && (T == 0)) && (T = t)
+    ((p > 0.9) && (T_ == 0)) && (global T_ = t)
     
     if (p > 0.9)
         push!(t_list_m, t)
@@ -246,7 +251,10 @@ while (t < T * 2.5) || (T == 0.0)
         push!(P_MIS_list_m_o, p2)
     end
 
-    t += 0.01
+    global t += 0.1
+
+    print("hello2")
+    print(t < 0.0)
 end
 
 y = broadcast(log, 1 .- P_MIS_list_m)
@@ -265,9 +273,6 @@ xlabel!("\$ T \\ \\ (\\mu s) \$")
 ylabel!("log \$ (1 - P_{MIS}) \$")
 
 plot(plot1, plot2, layout=(2,1), size = (700, 600), fmt = :png)
-
-
-
 
 
 

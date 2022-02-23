@@ -185,11 +185,10 @@ sorted_atoms = collect_atoms(atoms_in_grid)
 
 ## User-determined arbitrary lattices
 
-One can also generate atoms located by arbitray positions by directly inputing the atoms' coordinates  
+One can also generate atoms located at arbitray positions by directly inputing the atoms' coordinates  
 ```@repl quick-start
-atom_coordinate = [(0.0, 0.0), (0, 5), (0, 8), (5, 2), (6, 7), (9, 6)]
-'''
-
+atom_coordinate = AtomList([(0.0, 0.0), (0, 5), (0, 8), (5, 2), (6, 7), (9, 6)])
+```
 
 ## Query neighbors
 

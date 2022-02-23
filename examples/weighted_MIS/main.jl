@@ -243,18 +243,15 @@ while (t < T_  * 2.5) || (T_  == 0.0)
 
     p1, p2 = compute_MIS_probability(prob.reg, g_m, MIS_0,MIS_m)
 
-    ((p > 0.9) && (T_ == 0)) && (global T_ = t)
+    ((p1 > 0.9) && (T_ == 0)) && (global T_ = t)
     
-    if (p > 0.9)
+    if (p1 > 0.9)
         push!(t_list_m, t)
         push!(P_MIS_list_m, p1)
         push!(P_MIS_list_m_o, p2)
     end
 
     global t += 0.1
-
-    print("hello2")
-    print(t < 0.0)
 end
 
 y = broadcast(log, 1 .- P_MIS_list_m)

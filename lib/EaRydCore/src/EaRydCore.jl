@@ -56,7 +56,7 @@ include("bsubspace.jl")
 include("utils.jl")
 include("atoms.jl")
 include("subspace.jl")
-include("hamiltonian.jl")
+include("hamiltonian/hamiltonian.jl")
 
 include("register.jl")
 include("measure.jl")

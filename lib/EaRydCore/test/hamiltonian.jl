@@ -357,8 +357,8 @@ end
     @test h.atoms[1][1] == 1000
     @test h.atoms[2][1] == 1100
 
-    h = RydInteract([RydAtom(1.0mm, 2.0μm), RydAtom(1.1mm, 2.2μm)], 2π * 109.133)
-    @test h.C == 2π * 109.133
+    h = RydInteract([RydAtom(1.0mm, 2.0μm), RydAtom(1.1mm, 2.2μm)], 2π * 862690)
+    @test h.C == 2π * 862690
 
     h = XTerm(5, 1.0GHz)
     @test h.Ωs == 1000

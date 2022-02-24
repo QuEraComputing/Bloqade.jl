@@ -15,7 +15,7 @@ function rydberg_h(atoms, Ω, ϕ, Δ)
 end
 
 """
-    rydberg_h(atoms; [C=2π * 109.133 * MHz*µm^6], Ω[, ϕ, Δ])
+    rydberg_h(atoms; [C=2π * 862690 * MHz*µm^6], Ω[, ϕ, Δ])
 
 Create a rydberg hamiltonian
 

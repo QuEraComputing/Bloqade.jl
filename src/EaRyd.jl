@@ -10,6 +10,7 @@ using Reexport
     AbstractLattice, GeneralLattice, HoneycombLattice,
     SquareLattice, TriangularLattice, ChainLattice,
     LiebLattice, KagomeLattice, GeneralLattice, RectangularLattice,
+    AtomList,
     # interfaces
     generate_sites, offset_axes, rescale_axes,
     MaskedGrid, make_grid, random_dropout,

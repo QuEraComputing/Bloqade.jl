@@ -2,6 +2,9 @@
 
 ## Create a lattice
 
+With EaRyd, we are going to be simulating the quantum evolution of information stored in neutral atoms. While present-day experimental platforms allow distribution of atoms in arbitrary shapes, most often those come in the shape of an organized lattice structure. This is also the natural setup for quantum simulation of statistical models and quantum matter. To get started with EaRyd, you have to decide on the very architecture you want your quantum processor to have!
+
+
 Creating a lattice is very simple in EaRyd, e.g we can create a square lattice as following
 
 ```@repl quick-start
@@ -28,15 +31,6 @@ To create a simple lattice, we just place one atom at location `(0.0, 0.0)` in a
 triangular = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))], [(0.0, 0.0)])
 ```
 
-!!! note
-    You can see the above visulization in one of the following editors
-    * a [VSCode](https://github.com/julia-vscode/julia-vscode) editor,
-    * a [Jupyter](https://github.com/JunoLab/Juno.jl) notebook,
-    * or a [Pluto](https://github.com/fonsp/Pluto.jl) notebook,
-    
-    But not in a Julia REPL that does not have a graphical display.
-    
-
 For composite lattices, one should provide multiple atoms as the second argument to specify atom locations in a unitcell. For example, the honeycomb lattice can be defined by typing
 ```@repl quick-start
 honeycomb = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))],
@@ -52,6 +46,15 @@ using EaRyd
 
 chain = ChainLattice()
 ```
+
+!!! note
+    You can see the above visulization in one of the following editors
+    * a [VSCode](https://github.com/julia-vscode/julia-vscode) editor,
+    * a [Jupyter](https://github.com/JunoLab/Juno.jl) notebook,
+    * or a [Pluto](https://github.com/fonsp/Pluto.jl) notebook,
+    
+    But not in a Julia REPL that does not have a graphical display.
+    
 
 ```@example quick-start
 lattice_vectors(chain)
@@ -74,10 +77,6 @@ lattice_vectors(square)
 lattice_sites(square)
 ```
 
-```@example quick-start
-generate_sites(square, 5, 5)
-```
-
 ##### [`RectangularLattice`](@ref)
 ```@example quick-start
 rectangle = RectangularLattice(0.5)
@@ -89,10 +88,6 @@ lattice_vectors(rectangle)
 
 ```@example quick-start
 lattice_sites(rectangle)
-```
-
-```@example quick-start
-generate_sites(rectangle, 5, 5)
 ```
 
 ##### [`HoneycombLattice`](@ref)
@@ -177,6 +172,14 @@ atoms_in_grid = make_grid(atoms)
 Then one can get the sorted atoms by typing
 ```@example quick-start
 sorted_atoms = collect_atoms(atoms_in_grid)
+```
+
+
+## User-determined arbitrary lattices
+
+One can also generate atoms located at arbitray positions by directly inputing the atoms' coordinates  
+```@repl quick-start
+atom_coordinate = AtomList([(0.0, 0.0), (0, 5), (0, 8), (5, 2), (6, 7), (9, 6)])
 ```
 
 ## Query neighbors

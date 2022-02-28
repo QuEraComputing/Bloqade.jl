@@ -2,8 +2,9 @@ using Graphs, EaRyd, EaRyd.EaRydLattices
 using Compose
 
 # create a diagonal coupled square lattice with 0.7 filling.
-atoms = generate_sites(SquareLattice(), 4, 4; scale=5.1) |> random_dropout(0.3)
-vizconfig(atoms, config=rand(Bool, length(atoms)))
+# In the experiment [arxiv:2202.09372](https://arxiv.org/abs/2202.09372),
+# The lattice constant is 4.5μm, and blockade radius is 7.5μm.
+atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |> random_dropout(0.2)
 
 # We first prepare the adiabatic pulse sequence as two piecewise linear functions
 # define the rabi waveform

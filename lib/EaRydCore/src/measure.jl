@@ -33,3 +33,8 @@ end
 function Yao.measure(; nshots=1)
     reg -> Yao.measure(reg; nshots=nshots)
 end
+
+# TODO: remove this after https://github.com/QuantumBFS/Yao.jl/issues/338
+function Yao.expect(op::AbstractBlock, reg::RydbergReg)
+    return reg' * apply!(copy(reg), op)
+end

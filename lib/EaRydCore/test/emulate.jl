@@ -7,7 +7,7 @@ using LinearAlgebra
 @testset "emulate_routine" begin
     atoms = square_lattice(10, 0.8)
     t = 0.1
-    h = rydberg_h(atoms; Ω=0.1, Δ=0.2)
+    h = rydberg_h(atoms; Ω=0.1, Δ=0.2, C=2π * 109)
 
     @testset "fullspace" begin
         cache = SparseMatrixCSC(h)
@@ -57,7 +57,7 @@ end
             P in [Float32, Float64]
 
         durations = rand(5)
-        hs = [rydberg_h(atoms; Ω, Δ) for (Ω, Δ) in zip(rand(5), rand(5))]
+        hs = [rydberg_h(atoms; Ω, Δ, C=2π * 109) for (Ω, Δ) in zip(rand(5), rand(5))]
 
         evolve = KrylovEvolution{P}(copy(reg), durations, hs)
         @test eltype(evolve.durations) === P
@@ -70,7 +70,7 @@ end
 
     @testset "discretize continuous" for total_time in [0.1, 0.1f0]
         P = typeof(total_time)
-        h = rydberg_h(atoms; Ω=sin, Δ=cos)
+        h = rydberg_h(atoms; Ω=sin, Δ=cos, C=2π * 109)
         durations, hs = trotterize(total_time, h, nsteps=10)
         evolve = KrylovEvolution(durations, hs)
 
@@ -88,7 +88,7 @@ end
     @testset "measure observables" for total_time in [0.1, 0.1f0]
         total_time = 0.1
         P = typeof(total_time)
-        h = rydberg_h(atoms; Ω=sin, Δ=cos)
+        h = rydberg_h(atoms; Ω=sin, Δ=cos, C=2π * 109)
         durations, hs = trotterize(total_time, h, nsteps=10)
         evolve = KrylovEvolution(durations, hs)
         observables = Float64[]

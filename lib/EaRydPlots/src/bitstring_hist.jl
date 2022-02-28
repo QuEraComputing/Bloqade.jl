@@ -14,7 +14,24 @@ function bitstring_histgram!(plt, r::ArrayReg; nlargest::Int=10, title="")
     indices = find_largest(probs, nlargest)
     ax = Axis(
         plt;
-        xticks = (1:length(indices), string.(indices.-1;base=2, pad=12)),
+        xticks = (1:length(indices), string.(indices.-1;base=2, pad=nqubits(r))),
+        xticklabelrotation=π/3,
+        title,
+        xlabel="bitstring",
+        ylabel="probability"
+    )
+    barplot!(ax, 1:length(indices), probs[indices])
+    return plt
+end
+
+function bitstring_histgram!(plt, r::RydbergReg; nlargest::Int=10, title="")
+    state = statevec(r)
+    probs = abs2.(state)
+    indices = find_largest(probs, nlargest)
+
+    ax = Axis(
+        plt;
+        xticks = (1:length(indices), string.(r.subspace.subspace_v[indices];base=2, pad=nqubits(r))),
         xticklabelrotation=π/3,
         title,
         xlabel="bitstring",
@@ -26,7 +43,7 @@ end
 
 """
 """
-function bitstring_histgram(r::ArrayReg; nlargest::Int=10, title="")
+function bitstring_histgram(r; nlargest::Int=10, title="")
     fig = Figure()
     bitstring_histgram!(fig[1, 1], r; nlargest, title)
     return fig

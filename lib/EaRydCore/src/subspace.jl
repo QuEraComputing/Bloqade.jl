@@ -76,7 +76,7 @@ function Base.show(io::IO, ::MIME"text/plain", s::Subspace{S}) where S
         print_line(3, s.subspace_v[3])
         println(io)
         print(io, tab(ndigits(N)÷2+1))
-        printstyled(io, '⋮'; color=:light_black)
+        printstyled(io, tab(1), '⋮'; color=:light_black)
         println(io, '│', tab(1), '⋮')
         print_line(N-2, s.subspace_v[end-2])
         println(io)

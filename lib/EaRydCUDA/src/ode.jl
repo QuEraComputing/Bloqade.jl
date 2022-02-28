@@ -7,7 +7,17 @@ function EaRydODE.ODEEvolution{P}(
     if layout isa RealLayout
         isreal(h) || error("cannot use RealLayout for non-real hamiltonian")
     end
-    options = ODEOptions(; kw...)
+
+    main_options, ode_options = [], []
+    for (k, v) in kw
+        if k in fieldnames(ODEOptions)
+            push!(main_options, k=>v)
+        else
+            push!(ode_options, k=>v)
+        end
+    end
+
+    options = ODEOptions(;main_options...)
     start = EaRydCore.default_unit(μs, start)
     stop = EaRydCore.default_unit(μs, stop)
     time = (start, stop)
@@ -38,7 +48,7 @@ function EaRydODE.ODEEvolution{P}(
     end
 
     dcache = EaRydODE.EquationCache(dH, layout, dstate)
-    eq = ShordingerEquation(h, cu(space), dcache)
+    eq = SchrodingerEquation(h, cu(space), dcache)
 
     ode_prob = ODEProblem(
         eq,
@@ -50,6 +60,7 @@ function EaRydODE.ODEEvolution{P}(
         progress=options.progress,
         progress_name=options.progress_name,
         progress_steps=options.progress_steps,
+        ode_options...
     )
     return ODEEvolution{P}(reg, time, eq, ode_prob, options)
 end

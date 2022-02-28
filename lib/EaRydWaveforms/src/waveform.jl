@@ -1,10 +1,55 @@
 using Intervals
 
+"""
+    Waveform{F, T <: Real}
+
+Type for waveforms. `Waveform`s are defined
+as a function combiend with a real number
+duration.
+
+# Fields
+
+- `f`: a callable object.
+- `duration`: a real number defines the duration of this waveform.
+"""
 struct Waveform{F, T <: Real}
     f::F
     duration::T
 end
 
+"""
+    Waveform(f; duration::Real)
+
+Create a `Waveform` object from callable `f`,
+the unit of `duration` is `μs`.
+
+# Example
+
+```julia-repl
+julia> Waveform(duration=1.5) do t
+    2t+1
+end
+           ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
+           ┌────────────────────────────────────────┐ 
+         4 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+value (rad/µs) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           │⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+         1 │⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+           └────────────────────────────────────────┘ 
+           ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀2⠀
+```
+"""
 Waveform(f; duration::Real) = Waveform(f, duration)
 Base.eltype(wf::Waveform) = typeof(wf.duration)
 
@@ -34,12 +79,18 @@ function sample_values(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-
     return sample_values(wf, sample_clock(wf; offset, dt))
 end
 
-Base.show(io::IO, wf::Waveform) = print(io, "Waveform(", wf.f, ", ", wf.duration, ")")
+function Base.show(io::IO, wf::Waveform)
+    if get(io, :compact, false)
+        print(io, "Waveform(", wf.f, ", ", wf.duration, ")")
+    else
+        print(io, "Waveform(_, ", wf.duration, ")")
+    end
+end
 
 function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
     clocks = sample_clock(wf)
     plt = lineplot(
-        clocks, sample_values(wf, clocks);
+        clocks, _rm_err.(sample_values(wf, clocks));
         title="Waveform{_, $(eltype(wf))}",
         # TODO: decide the unit?
         xlabel="clock (μs)",
@@ -47,6 +98,12 @@ function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
         compact=true,
     )
     return show(io, mime, plt)
+end
+
+# NOTE: we don't plot error bar in terminal
+function _rm_err(x)
+    hasfield(typeof(x), :val) && return x.val
+    return x
 end
 
 function assert_duration_equal(lhs::Waveform, rhs::Waveform)
@@ -73,6 +130,19 @@ function Base.:-(wf::Waveform)
         -wf.f(t)
     end
 end
+
+function Base.:*(alpha::Number, wf::Waveform)
+    return Waveform(wf.duration) do t
+        alpha * wf.f(t)
+    end
+end
+
+# let's assume they are communitive
+function Base.:*(wf::Waveform, alpha::Number)
+    return alpha * wf
+end
+
+Base.broadcastable(x::Waveform) = Ref(x)
 
 """
     append(wf::Waveform, wfs::Waveform...)
@@ -270,7 +340,7 @@ function constant(;duration::Real, value::Real)
 end
 
 """
-    sinusoidal(;duration::Real, amplitude::Real=zero(start))
+    sinusoidal(;duration::Real, amplitude::Real=one(start))
 
 Create a sinusoidal waveform of the following expression.
 
@@ -283,7 +353,7 @@ amplitude * sin(t)
 - `duration`: duration of the waveform.
 - `amplitude`: amplitude of the sin waveform.
 """
-function sinusoidal(;duration::Real, amplitude::Real=zero(duration))
+function sinusoidal(;duration::Real, amplitude::Real=one(duration))
     return Waveform(duration) do t
         amplitude * sin(t)
     end

@@ -37,6 +37,7 @@ for OP in YaoArrayRegister.SPECIALIZATION_LIST
     @eval _mat(::Type{T}, ::Val{$(QuoteNode(OP))}) where T = mat(T, Yao.ConstGate.$OP)
 end
 _mat(::Type{T}, m::AbstractMatrix{T}) where T = m
+_mat(::Type{T}, m::AbstractMatrix) where T = T.(m)
 
 function YaoBase.instruct!(r::RydbergReg, op, locs::Tuple)
     instruct!(r, op, locs, (), ())

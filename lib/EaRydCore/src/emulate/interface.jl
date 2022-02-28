@@ -44,7 +44,7 @@ function emulate!(prob::KrylovEvolution)
     @inbounds if prob.options.progress
         ProgressLogging.progress() do id
             for info in prob
-                if prob.options.progress && mod(idx, prob.options.progress_step) == 0
+                if prob.options.progress && mod(info.step, prob.options.progress_step) == 0
                     @info prob.options.progress_name progress=info.step/niterations _id=id
                 end
             end

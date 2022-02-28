@@ -10,12 +10,13 @@ using LinearAlgebra
 using Configurations
 using DiffEqCallbacks
 using EaRydCore: AbstractTerm, AbstractSpace, EmulationOptions,
-    storage_size, nsites, MemoryLayout, RealLayout, ComplexLayout
+    storage_size, nsites, MemoryLayout, RealLayout, ComplexLayout,
+    split_const_term
 using OrdinaryDiffEq: OrdinaryDiffEq, ODEProblem
 
 @reexport using EaRydCore
 @reexport using OrdinaryDiffEq: Vern6, Vern7, Vern8, VCABM, AB3
-export ShordingerEquation, ODEEvolution
+export SchrodingerEquation, ODEEvolution
 
 struct EquationCache{H, Layout, S}
     hamiltonian::H
@@ -23,37 +24,39 @@ struct EquationCache{H, Layout, S}
     state::S
 end
 
-function EquationCache(H::SparseMatrixCSC{Tv}, layout::ComplexLayout) where {Tv}
-    state = Vector{Complex{real(Tv)}}(undef, size(H, 1))
-    return EquationCache(H, layout, state)
+function EquationCache(::Type{Tv}, h::AbstractTerm, space::AbstractSpace, layout::ComplexLayout) where {Tv}
+    tc = split_const_term(Tv, h, space)
+    state = Vector{Complex{real(Tv)}}(undef, size(tc.hs[1], 1))
+    return EquationCache(tc, layout, state)
 end
 
-function EquationCache(H::SparseMatrixCSC{Tv}, layout::RealLayout) where {Tv}
-    state = Matrix{real(Tv)}(undef, size(H, 1), 2)
-    return EquationCache(H, layout, state)
+function EquationCache(::Type{Tv}, h::AbstractTerm, space::AbstractSpace, layout::RealLayout) where {Tv}
+    tc = split_const_term(Tv, h, space)
+    state = Matrix{real(Tv)}(undef, size(tc.hs[1], 1), 2)
+    return EquationCache(tc, layout, state)
 end
 
-EquationCache(H::SparseMatrixCSC) = EquationCache(H, ComplexLayout())
-
-struct ShordingerEquation{L, HTerm, Space, Cache <: EquationCache{<:Any, L}}
+struct SchrodingerEquation{L, HTerm, Space, Cache <: EquationCache{<:Any, L}}
     layout::L
     hamiltonian::HTerm
     space::Space
     cache::Cache
 end
 
-function ShordingerEquation(h::AbstractTerm, space::AbstractSpace, cache::EquationCache)
-    ShordingerEquation(cache.layout, h, space, cache)
+function SchrodingerEquation(h::AbstractTerm, space::AbstractSpace, cache::EquationCache)
+    SchrodingerEquation(cache.layout, h, space, cache)
 end
 
-Adapt.@adapt_structure ShordingerEquation
+Adapt.@adapt_structure SchrodingerEquation
 Adapt.@adapt_structure EquationCache
 
-EaRydCore.storage_size(S::EquationCache) = storage_size(S.hamiltonian) + storage_size(S.state)
+function EaRydCore.storage_size(S::EquationCache)
+    return storage_size(S.hamiltonian) + storage_size(S.state)
+end
 
-function Base.show(io::IO, m::MIME"text/plain", eq::ShordingerEquation)
+function Base.show(io::IO, m::MIME"text/plain", eq::SchrodingerEquation)
     indent = get(io, :indent, 0)
-    println(io, " "^indent, "Shordinger Equation:")
+    println(io, " "^indent, "Schrödinger Equation:")
     print(io, " "^indent, "  Storage Size: ")
     printstyled(io, Base.format_bytes(storage_size(eq.cache)); color=:green)
     println(io)
@@ -67,45 +70,18 @@ function Base.show(io::IO, m::MIME"text/plain", eq::ShordingerEquation)
     show(IOContext(io, :indent=>indent+2), m, eq.hamiltonian)
 end
 
-function (eq::ShordingerEquation)(dstate, state, p, t::Number) where L
-    update_term!(eq.cache.hamiltonian, eq.hamiltonian(t), eq.space)
-    mul!(eq.cache.state, eq.cache.hamiltonian, state)
-    # @. dstate = -im * eq.cache.state
-    update_dstate!(dstate, eq.cache.state, eq.layout)
-    return
-end
-
-function update_dstate!(dstate::AbstractVector, state::AbstractVector, ::ComplexLayout)
-    broadcast!(x->-im*x, dstate, state)
-    return dstate
-end
-
-# real storage
-# -im * (x + im*y)
-# -im * x + y
-# (y - x * im)
-function update_dstate!(dstate::Matrix{<:Real}, state::Matrix{<:Real}, ::RealLayout)
-    # real
-    @inbounds for i in axes(state, 1)
-        dstate[i, 1] = state[i, 2]
+function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where L
+    fill!(dstate, zero(eltype(dstate)))
+    fs, hs = eq.cache.hamiltonian.fs, eq.cache.hamiltonian.hs
+    for (f, h) in zip(fs, hs)
+        # NOTE: currently we can expect all h
+        # are preallocated constant matrices
+        mul!(dstate, h, state, -im * f(t), one(t))
     end
-
-    # imag
-    @inbounds for i in axes(state, 1)
-        dstate[i, 2] = -state[i, 1]
-    end
-    return dstate
-end
-
-function norm_preserve(resid, state, p, t)
-    fill!(resid, 0)
-    resid[1] = norm(state) - 1
+    # NOTE: RealLayout is not supported
+    # we will make it work automatically
+    # later by using StructArrays
     return
-end
-
-struct PieceWiseLinear{T}
-    xs::Vector{T}
-    ys::Vector{T}
 end
 
 @option struct ODEOptions{Algo <: OrdinaryDiffEq.OrdinaryDiffEqAlgorithm} <: EmulationOptions
@@ -124,7 +100,7 @@ end
 
 Problem type for hamiltonian with time dependent parameters.
 """
-struct ODEEvolution{P, Reg <: AbstractRegister, Eq <: ShordingerEquation, Prob <: ODEProblem, Options <: ODEOptions}
+struct ODEEvolution{P, Reg <: AbstractRegister, Eq <: SchrodingerEquation, Prob <: ODEProblem, Options <: ODEOptions}
     reg::Reg
     time::NTuple{2, P}
     eq::Eq
@@ -138,8 +114,12 @@ struct ODEEvolution{P, Reg <: AbstractRegister, Eq <: ShordingerEquation, Prob <
     end
 end
 
-ODEEvolution(r::AbstractRegister, t, h::AbstractTerm; kw...) =
-    ODEEvolution{real(Yao.datatype(r))}(r, t, h; kw...)
+function ODEEvolution(r::AbstractRegister, t, h::AbstractTerm; kw...)
+    PR = real(Yao.datatype(r))
+    PH = real(eltype(h(zero(t))))
+    P = promote_type(PR, PH)
+    return ODEEvolution{P}(r, t, h; kw...)
+end
 
 """
     ODEEvolution{P}(r::AbstractRegister, t::Real, h::AbstractTerm; kw...)
@@ -209,9 +189,8 @@ function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Rea
     # NOTE: on CPU we can do mixed type spmv
     # thus we use the smallest type we can get
     T = isreal(h) ? P : Complex{P}
-    H = SparseMatrixCSC{T, Cint}(h(start+sqrt(eps(P))), space)
-    cache = EquationCache(H, layout)
-    eq = ShordingerEquation(h, space, cache)
+    cache = EquationCache(T, h, space, layout)
+    eq = SchrodingerEquation(h, space, cache)
 
     ode_prob = ODEProblem(
         eq, Yao.statevec(reg), time;

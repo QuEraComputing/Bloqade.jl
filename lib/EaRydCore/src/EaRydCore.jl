@@ -19,10 +19,12 @@ using Polyester
 using StatsBase
 using ThreadsX
 using Transducers
+using LaTeXStrings
 using StaticArrays
 using Reexport
 
 using Transducers: OnInit
+using MLStyle: @match, @switch
 using LinearAlgebra: BlasInt, BlasReal, BlasComplex
 
 @reexport using Unitful: Quantity, uconvert, MHz, µm, μs, ns
@@ -54,7 +56,7 @@ include("bsubspace.jl")
 include("utils.jl")
 include("atoms.jl")
 include("subspace.jl")
-include("hamiltonian.jl")
+include("hamiltonian/hamiltonian.jl")
 
 include("register.jl")
 include("measure.jl")
@@ -69,6 +71,8 @@ include("mis.jl")
 include("deprecations.jl")
 
 include("observables.jl")
+
+include("print_latex.jl")
 
 
 end # module

@@ -1,6 +1,7 @@
 # Hamiltonians
 
-The simplest way of creating a Hamiltonian is via the `rydberg_h`
+
+In EaRyd, the simplest way of creating a Rydberg interacting Hamiltonian is via the `rydberg_h`
 function
 
 ```@docs
@@ -33,4 +34,22 @@ to a `SparseMatrixCSC`
 ```@repl hamiltonian
 using SparseArrays
 SparseMatrixCSC(h)
+```
+
+
+## Building Time-Dependent Hamiltonian
+
+One can directly use waveforms to build a time-dependent Hamiltonian, e.g. 
+
+```@repl hamiltonian
+atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
+Ω1 = piecewise_linear(clocks=[0.0, 0.1, 2.1, 2.2], values=[0.0, 6,6, 0])
+Δ1 = piecewise_linear(clocks=[0.0, 0.6, 2.1, 2.2], values=[-10, -10, 10, 10])
+h1 = rydberg_h(atoms; Δ=Δ1, Ω=Ω1)
+```
+
+By specifying the time of `h1`, we can  acess the Hamiltonian at a particular time, e.g. 
+
+```@repl hamiltonian
+ht= h1(0.5)
 ```

@@ -256,7 +256,7 @@ function emulate_step!(prob::ODEEvolution, ret)
     if iszero(mod(step, prob.options.normalize_steps))
         normalize!(reg)
     end
-    return (;step, reg, clock=ret[1][2])
+    return (;step, reg, clock=ret[1][2].t)
 end
 
 function Base.iterate(prob::ODEEvolution)

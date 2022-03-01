@@ -68,6 +68,7 @@ lattice_sites(chain)
 ```@example quick-start
 square = SquareLattice()
 ```
+Note that the numbering showing on atoms are consistent numbering of qubits for the Hamilonian. In other words, if we want to do measurment, or apply opearations on individual atoms (qubits), we can referring the numbers on atoms for convienience. 
 
 ```@example quick-start
 lattice_vectors(square)

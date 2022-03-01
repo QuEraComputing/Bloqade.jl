@@ -13,8 +13,11 @@ atoms = square_lattice(4, 0.8)
         rydberg_h(atoms; Δ=cos, Ω=sin),
         rydberg_h(atoms; Δ=cos, Ω=[sin, sin, sin, sin]),
         rydberg_h(atoms; Δ=[cos, cos, cos, cos], Ω=[sin, sin, sin, sin]),
+        rydberg_h(atoms; Ω=0.1, ϕ=0.1),
+        rydberg_h(atoms; Ω=0.1, ϕ=sin),
+        rydberg_h(atoms; Ω=cos, ϕ=sin),
+        rydberg_h(atoms; Ω=[cos, cos, cos, cos], ϕ=[sin, sin, sin, sin]),
     ]
-
         H = SparseMatrixCSC{ComplexF64}(h(0.1), space)
         tc = split_const_term(ComplexF64, h, space)
         M = sum(zip(tc.fs, tc.hs)) do (f, h)

@@ -29,11 +29,11 @@ function split_const_term(::Type{Tv}, h::Hamiltonian, space::AbstractSpace) wher
         # so that we don't need to special case blocks to preallocate
         # the intermediate state for dstate.
         if h isa AbstractBlock
-            push!(hs, get_matrix(Tv, h, space))
+            error("unexpected block object")
         elseif h isa SparseMatrixCSC
             # always use CSR since it's faster in gemv
-            push!(hs, transpose(h))
-        else
+            push!(hs, transpose(SparseMatrixCSC(transpose(h))))
+        else # other matrix type, e.g PermMatrix
             push!(hs, h)
         end
     end
@@ -62,57 +62,61 @@ function _split_term(::Type{Tv}, h::XTerm, space::AbstractSpace) where {Tv}
         @case (Ωs::AbstractVector, ϕs::ConstParamListType) # directly apply is faster
             map(enumerate(zip(Ωs, ϕs))) do (i, (Ω, ϕ))
                 x_phase = PermMatrix([2, 1], Tv[exp(ϕ * im), exp(-ϕ * im)])
-                t->Ω(t)/2, put(n, i => matblock(x_phase))
+                t->Ω(t)/2, get_matrix(Tv, put(n, i => matblock(x_phase)), space)
             end
         @case (Ωs::ConstParamListType, ϕs::ParamsList) # directly apply is faster
             op1 = map(enumerate(zip(Ωs, ϕs))) do (i, (Ω, ϕ))
-                t->(Ω/2 * exp(ϕ(t) * im)), put(n, i => matblock(Tv[0 1;0 0]))
+                t->(Ω/2 * exp(ϕ(t) * im)), get_matrix(Tv, put(n, i => matblock(Tv[0 1;0 0])), space)
             end
 
             op2 = map(enumerate(zip(Ωs, ϕs))) do (i, (Ω, ϕ))
-                t->(Ω/2 * exp(-ϕ(t) * im)), put(n, i => matblock(Tv[0 0;1 0]))
+                t->(Ω/2 * exp(-ϕ(t) * im)), get_matrix(Tv, put(n, i => matblock(Tv[0 0;1 0])), space)
             end
             return (op1..., op2...)
         @case (Ωs::ParamsList, ϕs::ParamsList)
             op1 = map(enumerate(zip(Ωs, ϕs))) do (i, (Ω, ϕ))
-                t->(Ω(t)/2 * exp(ϕ(t) * im)), put(n, i => matblock(Tv[0 1;0 0]))
+                t->(Ω(t)/2 * exp(ϕ(t) * im)), get_matrix(Tv, put(n, i => matblock(Tv[0 1;0 0])), space)
             end
 
             op2 = map(enumerate(zip(Ωs, ϕs))) do (i, (Ω, ϕ))
-                t->(Ω(t)/2 * exp(-ϕ(t) * im)), put(n, i => matblock(Tv[0 0;1 0]))
+                t->(Ω(t)/2 * exp(-ϕ(t) * im)), get_matrix(Tv, put(n, i => matblock(Tv[0 0;1 0])), space)
             end
             return (op1..., op2...)
         @case (Ωs::ConstParamListType, ϕ)
             op1 = map(enumerate(zip(Ωs, ϕs))) do (i, (Ω, ϕ))
-                t->(Ω/2 * exp(ϕ(t) * im)), put(n, i => matblock(Tv[0 1;0 0]))
+                t->(Ω/2 * exp(ϕ(t) * im)), get_matrix(Tv, put(n, i => matblock(Tv[0 1;0 0])), space)
             end
 
             op2 = map(enumerate(zip(Ωs, ϕs))) do (i, (Ω, ϕ))
-                t->(Ω/2 * exp(-ϕ(t) * im)), put(n, i => matblock(Tv[0 0;1 0]))
+                t->(Ω/2 * exp(-ϕ(t) * im)), get_matrix(Tv, put(n, i => matblock(Tv[0 0;1 0])), space)
             end
             return (op1..., op2...)
         @case (Ωs::ParamsList, ::Nothing)
             map(enumerate(Ωs)) do (i, Ω)
-                t->Ω(t)/2, put(n, i=>X)
+                t->Ω(t)/2, get_matrix(Tv, put(n, i=>X), space)
             end
         @case (Ω::Number, ::ParamsList)
             op1 = map(enumerate(ϕs)) do (i, ϕ)
-                t->(Ω/2 * exp(ϕ(t) * im)), put(n, i => matblock(Tv[0 1;0 0]))
+                t->(Ω/2 * exp(ϕ(t) * im)), get_matrix(Tv, put(n, i => matblock(Tv[0 1;0 0])), space)
             end
 
             op2 = map(enumerate(ϕs)) do (i, ϕ)
-                t->(Ω/2 * exp(-ϕ(t) * im)), put(n, i => matblock(Tv[0 0;1 0]))
+                t->(Ω/2 * exp(-ϕ(t) * im)), get_matrix(Tv, put(n, i => matblock(Tv[0 0;1 0])), space)
             end
             return (op1..., op2...)
         @case (Ω, ϕ::Number)
-            A = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 1;0 0]))), space)
-            B = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 0;1 0]))), space)
+            A = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 1;0 0])) for i in 1:n), space)
+            B = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 0;1 0])) for i in 1:n), space)
             return (t->Ω(t)/2 * exp(ϕ * im), A), (t->Ω(t)/2 * exp(-ϕ * im), B)
+        @case (Ω::Number, ϕ)
+            A = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 1;0 0])) for i in 1:n), space)
+            B = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 0;1 0])) for i in 1:n), space)
+            return (t->Ω/2 * exp(ϕ(t) * im), A), (t->Ω/2 * exp(-ϕ(t) * im), B)
         @case (Ω, ::Nothing) # no 1/2 in prefactor, it's in the matrix already
             return ((t->Ω(t), SparseMatrixCSC{Tv, Cint}(XTerm(n, 1.0), space)), )
         @case (Ω, ϕ)
-            A = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 1;0 0]))), space)
-            B = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 0;1 0]))), space)
+            A = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 1;0 0])) for i in 1:n), space)
+            B = get_matrix(Tv, sum(put(n, i=>matblock(Tv[0 0;1 0])) for i in 1:n), space)
             return (t->Ω(t)/2 * exp(ϕ(t) * im), A), (t->Ω(t)/2 * exp(-ϕ(t) * im), B)
     end
 end
@@ -124,7 +128,7 @@ function _split_term(::Type{Tv}, h::NTerm, space::AbstractSpace) where {Tv}
         ((_const_param_, M), )
     elseif h.Δs isa ParamsList
         return map(enumerate(h.Δs)) do (i, Δ)
-            Δ, put(n, i=>Yao.ConstGate.P1)
+            Δ, get_matrix(Tv, put(n, i=>Yao.ConstGate.P1), space)
         end
     else
         M = Diagonal(Vector(diag(SparseMatrixCSC{Tv}(NTerm(n, one(Tv)), space))))

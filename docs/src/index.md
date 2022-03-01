@@ -43,7 +43,7 @@ pkg> add EaRyd#master
 
 ## Rydberg System
 
-Our Rydberg Emulator simulate the following interacting Rydberg Hamiltonian, 
+Our Rydberg Emulator simulates the following interacting Rydberg Hamiltonian, 
 
 ```math
 \frac{\mathcal{H}}{\hbar} = \sum_i \frac{\Omega_i}{2} \sigma_x^i - \sum_i \Delta_i n_i + \sum_{i < j} V_{ij} n_i n_j.
@@ -69,7 +69,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 ```
 We have set the distance between nearest neighbor atoms to be 5.72 ``\mu m``. Note that the default unit of length in EaRyd is ``\mu m``. Correspondingly, the default value for interacting constant ``C`` is ``2π * 858386`` MHz ``\times \mu m^6`` for Rydberg atom ``^{87}Rb`` and ``70 s`` Rydberg state. 
 
-We will set both ``\Omega`` and ``\Delta`` to be a constant. The default energy unit (also for ``\Omega`` and ``\Delta``) is MHz in EaRyd. Since all the parameters specified, we can create a interacting Rydberg Hamiltonian by using [`rydberg_h`](@ref), 
+We will set both ``\Omega`` and ``\Delta`` to be constants. The default energy unit (also for ``\Omega`` and ``\Delta``) is MHz in EaRyd. Since all the parameters specified, we can create a interacting Rydberg Hamiltonian by using [`rydberg_h`](@ref), 
 
 ```@repl quick-start
 h = rydberg_h(atoms;C = 2π * 858386, Ω=4π, Δ=0)
@@ -84,8 +84,8 @@ init = zero_state(10)
 We are interested in calculating the quench dynamics of Rydberg system starting with the above initial state and under the evolution of the defined Hamiltonian. Suppose we only want to get observable expectation values at the final time step, we can first create the problem and then directly emulate the problem.
 
 ```@repl quick-start
-prob = ODEEvolution(init, 1.6, h)
-emulate!(prob)
+prob = ODEEvolution(init, 1.6, h);
+emulate!(prob);
 ```
 Here we have choosen the ODE solver [`ODEEvolution`](@ref) and set the total evolution time to be 1.6 ``\mu s`` (the default unit for time is ``\mu s`` in EaRyd). 
 

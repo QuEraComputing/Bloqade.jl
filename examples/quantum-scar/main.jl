@@ -66,7 +66,7 @@ prob = ODEEvolution(reg, 4.2, h; dt=1e-4, adaptive=false)
 
 # Then we measure the real-time expectation value of Rydberg density, and entanglement entropy. 
 
-entropy = zeros(Int(4.2/dt)+1)
+entropy = zeros(Int(4.2/1e-4)+1)
 densities = []
 for info in prob
     push!(densities, [expect(put(nsites, i=>Op.n), info.reg) for i in 1:nsites])

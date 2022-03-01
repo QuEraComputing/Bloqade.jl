@@ -158,7 +158,7 @@ to evolve from `start` to `stop` using an ODE solver.
 - `abstol`: absolute tolerance, default is 1e-8.
 - `normalize_steps`: steps to run normalization on the state, default is `5`.
 """
-function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P}
+function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; cache=nothing, kw...) where {P}
     nqubits(r) == nsites(h) || error("number of sites does not match")
     
     layout = EaRydCore.MemoryLayout(r)
@@ -188,8 +188,10 @@ function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Rea
     # allocate cache
     # NOTE: on CPU we can do mixed type spmv
     # thus we use the smallest type we can get
-    T = isreal(h) ? P : Complex{P}
-    cache = EquationCache(T, h, space, layout)
+    if isnothing(cache)
+        T = isreal(h) ? P : Complex{P}
+        cache = EquationCache(T, h, space, layout)
+    end
     eq = SchrodingerEquation(h, space, cache)
 
     ode_prob = ODEProblem(

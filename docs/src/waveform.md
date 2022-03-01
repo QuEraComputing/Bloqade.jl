@@ -48,6 +48,14 @@ waveform =  sinusoidal(duration=4π, amplitude=2.2);
 draw(waveform)
 ```
 
+In certain cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform based on the two vectors, we can directly use the function `piecewise_linear` or `piecewise_constant`, corresponding to different interpolations. 
+
+```@repl user_input
+a =  [i for i in 1:10]
+b = rand(10)
+wf1 = piecewise_linear(clocks=a; values=b)
+wf2 = piecewise_constant(clocks=a; values=b)
+```
 
 ## Operations of Waveforms
 

@@ -80,6 +80,21 @@ lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
 lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25*sqrt(3)), (0.75, 0.25*sqrt(3)))
 
 """
+    RectangularLattice <: AbstractLattice{2}
+    RectangularLattice(aspect_ratio::Real)
+
+`RectangularLattice` is a 2 dimensional lattice with:
+
+* Lattice vectors = ((1.0, 0.0), (0.0, `aspect_ratio`)
+* Lattice sites   = ((0.0, 0.0),)
+"""
+struct RectangularLattice <: AbstractLattice{2}
+    aspect_ratio::Float64
+end
+lattice_vectors(r::RectangularLattice) = ((1.0, 0.0), (0.0, r.aspect_ratio))
+lattice_sites(::RectangularLattice) = ((0.0, 0.0),)
+
+"""
     AtomList{D, T} <: AbstractVector{NTuple{D, T}}
     AtomList(atoms::Vector{<:NTuple})
 
@@ -119,15 +134,15 @@ end
 Offset the `sites` by distance specified by `offsets`.
 
 ```jldoctest; setup=:(using EaRydLattices)
-julia> sites = [(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)]
-4-element Vector{Tuple{Float64, Float64}}:
+julia> sites = AtomList([(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)])
+4-element AtomList{2, Float64}:
  (1.0, 2.0)
  (10.0, 3.0)
  (1.0, 12.0)
  (3.0, 5.0)
 
 julia> offset_axes(sites, 1.0, 3.0)
-4-element Vector{Tuple{Float64, Float64}}:
+4-element AtomList{2, Float64}:
  (2.0, 5.0)
  (11.0, 6.0)
  (2.0, 15.0)
@@ -146,15 +161,15 @@ end
 Rescale the `sites` by a constant `scale`.
 
 ```jldoctest; setup=:(using EaRydLattices)
-julia> sites = [(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)]
-4-element Vector{Tuple{Float64, Float64}}:
+julia> sites = AtomList([(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)])
+4-element AtomList{2, Float64}:
  (1.0, 2.0)
  (10.0, 3.0)
  (1.0, 12.0)
  (3.0, 5.0)
 
 julia> rescale_axes(sites, 2.0)
-4-element Vector{Tuple{Float64, Float64}}:
+4-element AtomList{2, Float64}:
  (2.0, 4.0)
  (20.0, 6.0)
  (2.0, 24.0)
@@ -184,15 +199,15 @@ end
 Remove sites out of `bounds`, where `bounds` is specified by D D-tuples.
 
 ```jldoctest; setup=:(using EaRydLattices)
-julia> sites = [(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)]
-4-element Vector{Tuple{Float64, Float64}}:
+julia> sites = AtomList([(1.0, 2.0), (10.0, 3.0), (1.0, 12.0), (3.0, 5.0)])
+4-element AtomList{2, Float64}:
  (1.0, 2.0)
  (10.0, 3.0)
  (1.0, 12.0)
  (3.0, 5.0)
 
 julia> clip_axes(sites, (-5.0, 5.0), (-5.0, 5.0))
-2-element Vector{Tuple{Float64, Float64}}:
+2-element AtomList{2, Float64}:
  (1.0, 2.0)
  (3.0, 5.0)
 ```
@@ -284,7 +299,7 @@ function _gendoc(::Type{LT}) where LT
     return """    $LT <: AbstractLattice{$(dimension(LT()))}
     $LT()
 
-$LT is a $(dimension(LT())) dimensional lattice with:
+`$LT` is a $(dimension(LT())) dimensional lattice with:
 
 * Lattice vectors = $(lattice_vectors(LT()))
 * Lattice sites   = $(lattice_sites(LT()))

@@ -56,11 +56,11 @@ end
 
 # define the Hamiltonian 
 
-h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)
-prob = ODEEvolution(zero_state(9), 1.6±0.0, h)
-emulate!(prob) # run the time evolution directly
+# h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)
+# prob = ODEEvolution(zero_state(9), 1.6±0.0, h)
+# emulate!(prob) # run the time evolution directly
 
-# measure the Rydberg density for each site
-densities = map(1:nsites) do i
-    real(expect(put(nsites, i=>Op.n), prob.reg))
-end
+# # measure the Rydberg density for each site
+# densities = map(1:nsites) do i
+#     real(expect(put(nsites, i=>Op.n), prob.reg))
+# end

@@ -12,8 +12,8 @@ YaoBlocks.mat(x::AbstractBlock, s::Subspace) =
 YaoBlocks.mat(::Type{T}, d::TrivialGate{N}, s::Subspace) where {T,N} = IMatrix{length(s),T}()
 YaoBlocks.mat(::Type{T}, pb::PutBlock{N,C}, s::Subspace) where {T,N,C} =
     _cunmat(s.subspace_v, s.map, (), (), mat(T, pb.content), pb.locs)
-YaoBlocks.mat(::Type{T}, c::Subroutine{N,<:AbstractBlock}, s::Subspace) where {N,T} =
-    mat(T, PutBlock{N}(c.content, c.locs), s)
+YaoBlocks.mat(::Type{T}, c::Subroutine{D, <:AbstractBlock}, s::Subspace) where {D,T} =
+    mat(T, PutBlock(c.n, c.content, c.locs), s)
 YaoBlocks.mat(::Type{T}, x::Scale, s::Subspace) where {T} = YaoBlocks.factor(x) * mat(T, content(x), s)
 YaoBlocks.mat(::Type{T}, blk::Daggered, s::Subspace) where {T} = adjoint(mat(T, content(blk), s))
 YaoBlocks.mat(::Type{T}, c::ControlBlock{N,BT,C}, s::Subspace) where {T,N,BT,C} =

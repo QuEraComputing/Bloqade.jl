@@ -10,7 +10,8 @@ using LinearAlgebra
 using Configurations
 using DiffEqCallbacks
 using EaRydCore: AbstractTerm, AbstractSpace, EmulationOptions,
-    storage_size, nsites, MemoryLayout, RealLayout, ComplexLayout
+    storage_size, nsites, MemoryLayout, RealLayout, ComplexLayout,
+    split_const_term
 using OrdinaryDiffEq: OrdinaryDiffEq, ODEProblem
 
 @reexport using EaRydCore
@@ -23,17 +24,17 @@ struct EquationCache{H, Layout, S}
     state::S
 end
 
-function EquationCache(H::SparseMatrixCSC{Tv}, layout::ComplexLayout) where {Tv}
-    state = Vector{Complex{real(Tv)}}(undef, size(H, 1))
-    return EquationCache(H, layout, state)
+function EquationCache(::Type{Tv}, h::AbstractTerm, space::AbstractSpace, layout::ComplexLayout) where {Tv}
+    tc = split_const_term(Tv, h, space)
+    state = Vector{Complex{real(Tv)}}(undef, size(tc.hs[1], 1))
+    return EquationCache(tc, layout, state)
 end
 
-function EquationCache(H::SparseMatrixCSC{Tv}, layout::RealLayout) where {Tv}
-    state = Matrix{real(Tv)}(undef, size(H, 1), 2)
-    return EquationCache(H, layout, state)
+function EquationCache(::Type{Tv}, h::AbstractTerm, space::AbstractSpace, layout::RealLayout) where {Tv}
+    tc = split_const_term(Tv, h, space)
+    state = Matrix{real(Tv)}(undef, size(tc.hs[1], 1), 2)
+    return EquationCache(tc, layout, state)
 end
-
-EquationCache(H::SparseMatrixCSC) = EquationCache(H, ComplexLayout())
 
 struct SchrodingerEquation{L, HTerm, Space, Cache <: EquationCache{<:Any, L}}
     layout::L
@@ -49,7 +50,9 @@ end
 Adapt.@adapt_structure SchrodingerEquation
 Adapt.@adapt_structure EquationCache
 
-EaRydCore.storage_size(S::EquationCache) = storage_size(S.hamiltonian) + storage_size(S.state)
+function EaRydCore.storage_size(S::EquationCache)
+    return storage_size(S.hamiltonian) + storage_size(S.state)
+end
 
 function Base.show(io::IO, m::MIME"text/plain", eq::SchrodingerEquation)
     indent = get(io, :indent, 0)
@@ -68,44 +71,17 @@ function Base.show(io::IO, m::MIME"text/plain", eq::SchrodingerEquation)
 end
 
 function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where L
-    update_term!(eq.cache.hamiltonian, eq.hamiltonian(t), eq.space)
-    mul!(eq.cache.state, eq.cache.hamiltonian, state)
-    # @. dstate = -im * eq.cache.state
-    update_dstate!(dstate, eq.cache.state, eq.layout)
-    return
-end
-
-function update_dstate!(dstate::AbstractVector, state::AbstractVector, ::ComplexLayout)
-    broadcast!(x->-im*x, dstate, state)
-    return dstate
-end
-
-# real storage
-# -im * (x + im*y)
-# -im * x + y
-# (y - x * im)
-function update_dstate!(dstate::Matrix{<:Real}, state::Matrix{<:Real}, ::RealLayout)
-    # real
-    @inbounds for i in axes(state, 1)
-        dstate[i, 1] = state[i, 2]
+    fill!(dstate, zero(eltype(dstate)))
+    fs, hs = eq.cache.hamiltonian.fs, eq.cache.hamiltonian.hs
+    for (f, h) in zip(fs, hs)
+        # NOTE: currently we can expect all h
+        # are preallocated constant matrices
+        mul!(dstate, h, state, -im * f(t), one(t))
     end
-
-    # imag
-    @inbounds for i in axes(state, 1)
-        dstate[i, 2] = -state[i, 1]
-    end
-    return dstate
-end
-
-function norm_preserve(resid, state, p, t)
-    fill!(resid, 0)
-    resid[1] = norm(state) - 1
+    # NOTE: RealLayout is not supported
+    # we will make it work automatically
+    # later by using StructArrays
     return
-end
-
-struct PieceWiseLinear{T}
-    xs::Vector{T}
-    ys::Vector{T}
 end
 
 @option struct ODEOptions{Algo <: OrdinaryDiffEq.OrdinaryDiffEqAlgorithm} <: EmulationOptions
@@ -182,7 +158,7 @@ to evolve from `start` to `stop` using an ODE solver.
 - `abstol`: absolute tolerance, default is 1e-8.
 - `normalize_steps`: steps to run normalization on the state, default is `5`.
 """
-function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; kw...) where {P}
+function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Real}, h::AbstractTerm; cache=nothing, kw...) where {P}
     nqubits(r) == nsites(h) || error("number of sites does not match")
     
     layout = EaRydCore.MemoryLayout(r)
@@ -212,9 +188,10 @@ function ODEEvolution{P}(r::AbstractRegister, (start, stop)::Tuple{<:Real, <:Rea
     # allocate cache
     # NOTE: on CPU we can do mixed type spmv
     # thus we use the smallest type we can get
-    T = isreal(h) ? P : Complex{P}
-    H = SparseMatrixCSC{T, Cint}(h(start+sqrt(eps(P))), space)
-    cache = EquationCache(H, layout)
+    if isnothing(cache)
+        T = isreal(h) ? P : Complex{P}
+        cache = EquationCache(T, h, space, layout)
+    end
     eq = SchrodingerEquation(h, space, cache)
 
     ode_prob = ODEProblem(
@@ -279,7 +256,7 @@ function emulate_step!(prob::ODEEvolution, ret)
     if iszero(mod(step, prob.options.normalize_steps))
         normalize!(reg)
     end
-    return (;step, reg, clock=ret[1][2])
+    return (;step, reg, clock=ret[1][2].t)
 end
 
 function Base.iterate(prob::ODEEvolution)

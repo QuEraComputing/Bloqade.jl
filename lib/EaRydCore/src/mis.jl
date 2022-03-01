@@ -83,7 +83,7 @@ struct ConfigAmplitude{Reg <: Yao.AbstractRegister}
     range::UnitRange{Int}
 end
 
-ConfigAmplitude(reg::Yao.AbstractRegister{1}) = ConfigAmplitude(reg, 1:size(reg.state, 1))
+ConfigAmplitude(reg::Yao.AbstractRegister{2}) = ConfigAmplitude(reg, 1:size(reg.state, 1))
 
 Base.eltype(it::ConfigAmplitude) = Tuple{Int, Yao.datatype(it.reg)}
 Base.length(it::ConfigAmplitude) = length(it.range)

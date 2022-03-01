@@ -101,6 +101,22 @@ end
     @test wf7(0.1) ≈ wf2(0.1) + wf1(0.1)
 end
 
+@testset "alpha*waveform" begin
+    wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
+    wf2 = 2.0 * wf1
+    @test wf2(0.1) ≈ 2 * wf1(0.1)
+
+    wf3 = wf1 * 2.0
+    @test wf3(0.1) ≈ wf1(0.1) * 2
+end
+
+@testset "broadcast" begin
+    wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
+    wf2, wf3 = [2.0, 3.0] .* wf1
+    @test wf2(0.1) ≈ 2.0 * wf1(0.1)
+    @test wf3(0.1) ≈ 3.0 * wf1(0.1)
+end
+
 @testset "append(waveforms...)" begin
     wf1 = Waveform(sin, duration=2.2)
     wf2 = linear_ramp(;start_value=0.0, stop_value=1.1, duration=0.5)

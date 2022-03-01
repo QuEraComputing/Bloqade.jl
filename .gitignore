@@ -9,3 +9,4 @@ Manifest.toml
 /docs/src/assets/indigo.css
 /docs/src/tutorials
 /examples/**/**.ipynb
+build

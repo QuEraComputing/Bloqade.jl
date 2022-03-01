@@ -15,6 +15,7 @@ end
 
 @testset "hamiltonian" begin
     include("hamiltonian.jl")
+    include("cache.jl")
 end
 
 @testset "QAOA emulator" begin

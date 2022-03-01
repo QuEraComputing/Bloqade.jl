@@ -2,7 +2,7 @@
 CurrentModule = EaRydWaveforms
 ```
 
-# Waveform
+# Waveforms
 
 Waveforms are signals used in pulse programming or as hamiltonian parameters. The waveforms are defined as [`Waveform`](@ref) object,
 which is a composition of a callable object and a real number `duration`.

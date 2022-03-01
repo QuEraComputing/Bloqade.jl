@@ -58,7 +58,7 @@ Kernel smoother function for piece-wise linear function/waveform via weighted mo
 # Arguments
 
 - `kernel`: the kernel function, default is [`Kernels.gaussian`](@ref).
-- `f`: a [`PiecewiseLinear`](@ref) function or a [`Waveform{<:PiecewiseLinear}`](@ref).
+- `f`: a [`Union{PiecewiseLinear, PiecewiseConstant}`](@ref) function or a [`Waveform{<:Union{PiecewiseLinear, PiecewiseConstant}}`](@ref).
 
 # Keyword Arguments
 
@@ -68,21 +68,21 @@ Kernel smoother function for piece-wise linear function/waveform via weighted mo
 function smooth end
 
 # forward waveform objects
-function smooth(kernel, wf::Waveform{<:PiecewiseLinear}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))
+function smooth(kernel, wf::Waveform{<:Union{PiecewiseLinear, PiecewiseConstant}}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))
     return Waveform(smooth(kernel, wf.f; edge_pad_size, kernel_radius), wf.duration)
 end
 
-function smooth(wf::Waveform{<:PiecewiseLinear}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))
+function smooth(wf::Waveform{<:Union{PiecewiseLinear, PiecewiseConstant}}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))
     return smooth(Kernels.gaussian, wf; edge_pad_size, kernel_radius)
 end
 
-function smooth(kernel, f::PiecewiseLinear; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks))
+function smooth(kernel, f::Union{PiecewiseLinear, PiecewiseConstant}; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks))
     clocks = edge_pad(f.clocks, edge_pad_size)
     values = edge_pad(f.values, edge_pad_size)
     return smooth(kernel, clocks, values, kernel_radius)
 end
 
-smooth(f::PiecewiseLinear; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks)) =
+smooth(f::Union{PiecewiseLinear, PiecewiseConstant}; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks)) =
     smooth(Kernels.gaussian, f; edge_pad_size, kernel_radius)
 
 """

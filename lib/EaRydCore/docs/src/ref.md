@@ -1,5 +1,0 @@
-# References
-
-```@autodocs
-Modules = [EaRydCore]
-```

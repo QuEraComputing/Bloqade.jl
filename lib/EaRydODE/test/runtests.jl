@@ -40,3 +40,35 @@ end
 @testset "assertion" begin
     @test_throws ErrorException ODEEvolution(zero_state(9), 0.1, XTerm(5, 1.0))
 end
+
+
+using Yao
+using EaRydODE
+using EaRydCore
+using OrdinaryDiffEq
+reg = zero_state(10)
+tspan = (0, 1e-4)
+atoms = square_lattice(10, 0.8)
+h = rydberg_h(atoms; C=2π * 109.16, Ω=sin, ϕ=cos)
+prob = SchrodingerProblem(reg, tspan, h; dt=1e-5, progress=true, save_start=false)
+
+
+integrator = init(prob, Vern8())
+for (u, t) in tuples(integrator)
+    @show t
+    # @test u === prob.state
+end
+
+solve(prob, Vern8())
+
+for (key, value) in prob.kwargs
+    @show key
+end
+
+prob.kwargs|>typeof
+Base.Pairs(prob.kwargs)
+
+prob.kwargs
+pairs((a=2, b=3))
+
+size(prob.u0)..., length(u)

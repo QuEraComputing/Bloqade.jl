@@ -38,3 +38,20 @@ build a single example at `build/my_example` to jupyter notebook.
 .ci/run example build my_example
 ```
 
+### Setup Documentation
+
+If you are editing the documentation, you can use the `serve` command
+
+```julia
+.ci/run doc serve
+```
+
+to serve the documentation locally, and it will automatically update
+the served webpage while you editing. 
+
+If you wish to just build the documentation, you can use `build` command,
+which will run the build
+
+```julia
+.ci/run doc build
+```

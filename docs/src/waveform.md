@@ -2,7 +2,7 @@
 CurrentModule = EaRydWaveforms
 ```
 
-# Waveform
+# Waveforms
 
 Waveforms are essential ingredients for Rydberg quantum simulators. By controlling the waveforms of ``\Omega``and ``\Delta``, one can prepare ground states of certain target Hamiltonian as well as study non-equalibrium dynamics of time-dependent Hamiltonians. With EaRyd, we support several built-in waveforms and allow the users to specify waveforms by inputing functions. We also support different operations of waveforms, such as smoothing, slicing, and composing, et al. 
 

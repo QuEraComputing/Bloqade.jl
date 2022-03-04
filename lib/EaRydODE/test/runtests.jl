@@ -21,6 +21,18 @@ using Test
     @test integrator.u ≈ statevec(zero_state(5))
 end
 
+@testset "select specific time" begin
+    reg = zero_state(5)
+    tspan = (0, 0.2)
+    atoms = square_lattice(5, 0.8)
+    h = rydberg_h(atoms; C=2π * 109.16, Ω=sin, ϕ=cos)
+    prob = SchrodingerProblem(reg, tspan, h; dt=1e-5, progress=true, save_start=false)
+    integrator = init(prob, Vern8())
+    for (u,t) in TimeChoiceIterator(integrator, [0.05, 0.1])
+        @test t in [0.05, 0.1]
+    end
+end
+
 @testset "ODE evolution results" begin
     atoms = square_lattice(5, 0.8)
     space = blockade_subspace(atoms, 1.5)
@@ -52,6 +64,8 @@ end
         end
     end
 end
+
+
 
 @testset "assertions" begin
     @test_throws ArgumentError SchrodingerProblem(zero_state(10), 0.2, rydberg_h(square_lattice(5, 0.8); Ω=1.0))

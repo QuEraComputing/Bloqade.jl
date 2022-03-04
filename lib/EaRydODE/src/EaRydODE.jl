@@ -2,9 +2,9 @@ module EaRydODE
 
 using YaoBase
 using Reexport
-using EaRydCore
 using SciMLBase
 using DiffEqBase
+@reexport using EaRydCore
 @reexport using OrdinaryDiffEq
 using LinearAlgebra
 

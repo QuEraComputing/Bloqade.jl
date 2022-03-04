@@ -65,8 +65,6 @@ end
     end
 end
 
-
-
 @testset "assertions" begin
     @test_throws ArgumentError SchrodingerProblem(zero_state(10), 0.2, rydberg_h(square_lattice(5, 0.8); Ω=1.0))
 end

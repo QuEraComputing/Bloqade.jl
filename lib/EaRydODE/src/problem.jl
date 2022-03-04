@@ -45,6 +45,7 @@ struct SchrodingerProblem{Reg, EquationType <: ODEFunction, uType, tType, Kwargs
         reg::AbstractRegister, tspan,
         hamiltonian::EaRydCore.AbstractTerm; kw...)
 
+        nqubits(reg) == EaRydCore.nsites(hamiltonian) || throw(ArgumentError("number of qubits/sites does not match!"))
         # remove this after ArrayReg start using AbstractVector
         state = statevec(reg)
         space = EaRydCore.get_space(reg)
@@ -125,3 +126,8 @@ function DiffEqBase.solve(prob::SchrodingerProblem, args...; sensealg=nothing, i
 end
 
 DiffEqBase.get_concrete_problem(prob::SchrodingerProblem, isadapt; kw...) = prob
+
+function EaRydCore.emulate!(prob::SchrodingerProblem)
+    solve(prob, get(prob.kwargs, :algo, Vern8()))
+    return prob
+end

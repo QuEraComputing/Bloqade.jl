@@ -1,10 +1,11 @@
 module EaRydODE
 
 using YaoBase
+using Reexport
 using EaRydCore
 using SciMLBase
 using DiffEqBase
-using OrdinaryDiffEq
+@reexport using OrdinaryDiffEq
 using LinearAlgebra
 
 using OrdinaryDiffEq: @logmsg, isadaptive, gamma_default, qmin_default,
@@ -21,7 +22,7 @@ using OrdinaryDiffEq: @logmsg, isadaptive, gamma_default, qmin_default,
     isdtchangeable, fsal_typeof, ODEIntegrator, initialize_callbacks!,
     handle_dt!
 
-export SchrodingerProblem
+export SchrodingerProblem, SchrodingerEquation
 
 include("problem.jl")
 include("integrator_init.jl")

@@ -121,7 +121,7 @@ function DiffEqBase.__init(prob::SchrodingerProblem,
 
   # Get the control variables
 
-  u = prob.state
+  u = copyto!(prob.state, prob.u0)
   du = nothing
   duprev = nothing
 

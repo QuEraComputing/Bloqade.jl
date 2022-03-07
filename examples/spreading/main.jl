@@ -15,7 +15,7 @@ using Random
 
 Random.seed!(42)
  # build lattice structure with 10 sites
-nsites = 15
+nsites = 13
 atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 
 # construct Rydberg Hamiltonian with specified Rabi frequency 
@@ -43,6 +43,7 @@ domain_mat = zeros(nsites-1, length(iteration)) # domain wall number
 density_mat = zeros(nsites, length(iteration)) # density matrix
 
 corr_mat = zeros(nsites, length(iteration)) # the correlation from the central sites
+corr_mat_Z=  zeros(nsites, length(iteration))
 kk = Int(floor(nsites/2))+1
 
 
@@ -67,6 +68,19 @@ for info in prob
         corr_mat[i, info.step]= abs(obs)
     end
 
+
+    for i in 1:nsites
+        if i !=kk
+        corr= real(expect(put(nsites, (kk, i)=>kron(Op.Z, Op.Z)), info.reg))
+        obs= corr- expect(put(nsites, i=>Op.Z), info.reg)* expect(put(nsites, kk=>Op.Z), info.reg)
+        else
+        obs= 1- expect(put(nsites, i=>Op.Z), info.reg)* expect(put(nsites, kk=>Op.Z), info.reg)
+        end
+        corr_mat_Z[i, info.step]= abs(obs)
+    end
+
+
+
     rho = density_matrix(info.reg, (1,2,3,4,5))
     entropy[info.step] = von_neumann_entropy(rho)
 end
@@ -83,7 +97,7 @@ using CairoMakie
 
 heatmap(clocks, 1:nsites, (density_mat'))
 heatmap(clocks, 1:nsites, corr_mat', c = :solar, size = (1000, 500), colorbar_title = "Rydberg Probability")
-
+heatmap(clocks, 1:nsites, corr_mat_Z', c = :solar, size = (1000, 500), colorbar_title = "Rydberg Probability")
 
 
 

@@ -18,7 +18,7 @@ EaRyd gives users the flexibility to specify general waveforms by inputing funct
 ```@repl creating-waveform
 using EaRyd
 using EaRydPlots
-waveform = Waveform(t->2.2sin(t), duration=4π),
+waveform = Waveform(t->2.2sin(t), duration=4π);
 draw(waveform)
 ```
 

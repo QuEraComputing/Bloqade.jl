@@ -4,19 +4,20 @@ CurrentModule = EaRydWaveforms
 
 # Waveforms
 
-Waveforms are essential ingredients for Rydberg quantum simulators. By controlling the waveforms of ``\Omega``and ``\Delta``, one can prepare ground states of certain target Hamiltonian as well as study non-equalibrium dynamics of time-dependent Hamiltonians. With EaRyd, we support several built-in waveforms and allow the users to specify waveforms by inputing functions. We also support different operations of waveforms, such as smoothing, slicing, and composing, et al. 
+Waveforms are essential ingredients for Rydberg quantum simulations. By controlling the waveforms of ``\Omega`` and ``\Delta``, one can prepare ground states of certain target Hamiltonian and study non-equalibrium dynamics of time-dependent Hamiltonians. With EaRyd, we support several built-in waveforms and allow the users to specify waveforms by inputing functions. We also support different operations of waveforms, such as smoothing, slicing, and composing, et al. 
 
-The generated waveforms can be directly used to build the time-dependent Hamiltonian, see [`Hamiltonian`](@ref). 
+The generated waveforms can be directly used to build time-dependent Hamiltonians, see [`Hamiltonian`](@ref). 
 
 ## Creating Waveforms
 
 In EaRyd, the waveforms are defined as [`Waveform`](@ref) object,
 which is a composition of a callable object and a real number `duration`.
 
-EaRyd gives users the flexibility to specify general waveform by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
+EaRyd gives users the flexibility to specify general waveforms by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
 
 ```@repl creating-waveform
-using EaRydWaveforms # hide
+using EaRyd
+using EaRydPlots
 waveform = Waveform(t->2.2sin(t), duration=4π),
 draw(waveform)
 ```
@@ -48,7 +49,7 @@ waveform =  sinusoidal(duration=4π, amplitude=2.2);
 draw(waveform)
 ```
 
-In certain cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform based on the two vectors, we can directly use the function `piecewise_linear` or `piecewise_constant`, corresponding to different interpolations. 
+In certain cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions `piecewise_linear` or `piecewise_constant`, corresponding to different interpolations. 
 
 ```@repl user_input
 a =  [i for i in 1:10]

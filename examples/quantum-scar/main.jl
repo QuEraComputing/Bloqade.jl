@@ -62,15 +62,15 @@ h = rydberg_h(atoms; C=2 * pi * 858386, Δ=Δ_tot, Ω=Ω_tot)
 reg = zero_state(9)
 
 # We can now set up discrete time evolution problem using the ODE solver. 
-prob = ODEEvolution(reg, 4.2, h; dt=1e-4, adaptive=false)
-
+prob = SchrodingerProblem(reg, 4.2, h)
+integrator = init(prob, Vern8())
 # Then we measure the real-time expectation value of Rydberg density, and entanglement entropy. 
 
 entropy = zeros(Int(4.2/1e-4)+1)
 densities = []
-for info in prob
-    push!(densities, [expect(put(nsites, i=>Op.n), info.reg) for i in 1:nsites])
-    rho = density_matrix(info.reg, (1,2,3,4,5))
+for _ in TimeChoiceIterator(integrator, 0.0:1e-3:4.2)
+    push!(densities, [expect(put(nsites, i=>Op.n), reg) for i in 1:nsites])
+    rho = density_matrix(reg, (1,2,3,4,5))
     entropy[info.step]= von_neumann_entropy(rho)
 end
 

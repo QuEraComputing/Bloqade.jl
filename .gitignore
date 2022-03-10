@@ -10,3 +10,4 @@ Manifest.toml
 /docs/src/tutorials
 /examples/**/**.ipynb
 build
+LocalPreferences.toml

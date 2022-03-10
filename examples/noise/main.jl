@@ -31,7 +31,7 @@ h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)
 
 using SparseArrays
 # We evolve the system from the zero state using the ODE solver to a final time t = 1.6 microseconds
-prob = ODEEvolution(zero_state(9), 1.6±0.0, h)
+prob = SchrodingerProblem(zero_state(9), 1.6±0.0, h)
 emulate!(prob) # run the time evolution directly
 
 # We compute the Rydberg probability for each site, where each of the results contains an error bar

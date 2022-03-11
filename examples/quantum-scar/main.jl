@@ -66,12 +66,12 @@ prob = SchrodingerProblem(reg, 4.2, h)
 integrator = init(prob, Vern8())
 # Then we measure the real-time expectation value of Rydberg density, and entanglement entropy. 
 
-entropy = zeros(Int(4.2/1e-4)+1)
+entropy = Float64[]
 densities = []
 for _ in TimeChoiceIterator(integrator, 0.0:1e-3:4.2)
     push!(densities, [expect(put(nsites, i=>Op.n), reg) for i in 1:nsites])
     rho = density_matrix(reg, (1,2,3,4,5))
-    entropy[info.step]= von_neumann_entropy(rho)
+    push!(entropy, von_neumann_entropy(rho))
 end
 
 

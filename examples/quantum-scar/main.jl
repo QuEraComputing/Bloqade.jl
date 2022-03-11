@@ -78,7 +78,7 @@ end
 # # Plot the results 
 # Now we first plot the Rydberg density for each site as a function of time
 
-clocks = [t for t in 0:1e-4:4.2]
+clocks = [t for t in 0:1e-3:4.2]
 D = hcat(densities...)
 heatmap(clocks, 1:9, D'; axis=(xlabel="iterations", ylabel="rydberg density per site"))
 

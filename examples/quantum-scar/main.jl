@@ -51,7 +51,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 # Note that the total evolution is 4.2 ``\mu s``.
 # We then build the Hamiltonian by importing the defined lattice structure and waveforms 
 
-h = rydberg_h(atoms; C=2 * pi * 858386, Δ=Δ_tot, Ω=Ω_tot)
+h = rydberg_h(atoms; Δ=Δ_tot, Ω=Ω_tot)
 
 
 # # Emulate the problem
@@ -99,7 +99,7 @@ fig
 # we now choose a different initial state, and use ['KrylovEvolution']@(ref) solver to emulate the problem  
 
 
-h1= rydberg_h(atoms;C = 2π * 858386, Ω=4π)
+h1= rydberg_h(atoms;Ω=4π)
 
 iteration = 1:120
 ts = [0.01 for _ in iteration];

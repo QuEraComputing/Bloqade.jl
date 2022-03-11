@@ -4,7 +4,7 @@ The Rydberg blockade mechanism is a crucial component of the operation of neutra
 
 The term is a van der Waals interaction where there is an energy shift if two adjacent atoms are in the Rydberg state. The Van der Waals interaction is
 
-```
+```math
 V_{ij} = \frac{C_6}{|\vec r_i - \vec r_j|^6}\hat n_i \hat n_j
 ```
 

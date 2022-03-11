@@ -15,20 +15,18 @@ Random.seed!(123)
 σ=0.1  # 0.1 is the atom position flutuation 
 # build the atom coordinates 
 
-local d1, d2 = rand(Normal(0, σ), 2)  
+d1, d2 = rand(Normal(0, σ), 2)  
 atom_coordinate = [(d1, d2)]
 
 
 for ii = 2: nx
-    local d1, d2 = rand(Normal(0, σ ), 2)
+    d1, d2 = rand(Normal(0, σ ), 2)
     push!(atom_coordinate, ((ii-1)*a+ d1, 0* a+ d2 ))
 end
 
-for jj =2: ny
-for ii = 1: nx
-    local d1, d2 = rand(Normal(0, σ), 2)
+for jj =2: ny, ii = 1: nx
+    d1, d2 = rand(Normal(0, σ), 2)
     push!(atom_coordinate, ((ii-1)*a +d1, a* (jj-1)+ d2))
-end
 end
 
 # build the waveform 
@@ -57,15 +55,21 @@ for ii=1: nsites
     push!(Δ, Δ_f + Δ_c)
 end
 
-h = rydberg_h(atoms; Δ, Ω)
+h = rydberg_h(atom_coordinate; Δ, Ω)
 
 
 reg = zero_state(9)
-prob = ODEEvolution(reg, total_time, h; dt=1e-3, adaptive=false)
+prob = SchrodingerProblem(reg, total_time, h; dt=1e-3, adaptive=false)
 
+
+dstate = zero(statevec(reg))
+state = statevec(reg)
+@time prob.f(dstate, state, nothing, 0.1)
+
+integrator = init(prob, Vern8())
 densities = []
-for info in prob
-    push!(densities, [expect(put(nsites, i=>Op.n), info.reg) for i in 1:nsites])
+for i in integrator
+    push!(densities, [expect(put(nsites, i=>Op.n), reg) for i in 1:nsites])
 end
 D = hcat(densities...)
 

@@ -10,3 +10,5 @@ EaRydPlots = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe6"
 EaRydWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 
+[extras]
+CPUSummary = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"

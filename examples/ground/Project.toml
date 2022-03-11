@@ -7,3 +7,6 @@ EaRydLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 EaRydODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
 EaRydWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
 KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
+
+[extras]
+CPUSummary = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"

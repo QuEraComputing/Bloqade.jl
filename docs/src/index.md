@@ -100,7 +100,8 @@ init = zero_state(10)
 We are interested in measuring observables of the final quantum state of the Rydberg system starting from the initial state and evolving under the Rydberg Hamiltonian over some time duration. We can first create the problem and then directly emulate the time evolution.
 
 ```@repl quick-start
-prob = ODEEvolution(init, 1.6, h);
+prob = SchrodingerProblem(reg, 1.6, h)
+integrator = init(prob, Vern8())
 emulate!(prob);
 ```
 Here we have chosen the ODE solver [`ODEEvolution`](@ref) and set the total evolution time to be 1.6 μs.

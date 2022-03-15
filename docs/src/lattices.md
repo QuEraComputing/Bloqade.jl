@@ -15,7 +15,7 @@ A [Bravais lattice](https://en.wikipedia.org/wiki/Bravais_lattice) is an infinit
 ```
 where ``d`` is the dimension of space, ``n_1, \ldots, n_d \in Z`` are integers.
 The unit cell of a Bravais lattice is defined by specifing its lattice vectors ``(\mathbf{a}_1, \mathbf{a}_2, \ldots, \mathbf{a}_d)``.
-To create a simple triangular lattice, we just place one site at location `(0.0, 0.0)` in a unit cell, and specify its lattice vector to be `(1.0, 0.0)` and `(0.5, 0.5*sqrt(3))`.
+To create a simple lattice, we just place one site at location `(0.0, 0.0)` in a unit cell. For example, to create a triangular lattice, we can specify its lattice vector to be `(1.0, 0.0)` and `(0.5, 0.5*sqrt(3))`.
 
 ```@repl quick-start
 using EaRyd

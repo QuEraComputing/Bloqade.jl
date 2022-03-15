@@ -19,5 +19,6 @@ include("mat.jl")
 include("linalg.jl")
 include("lower.jl")
 include("units.jl")
+include("interface.jl")
 
 end

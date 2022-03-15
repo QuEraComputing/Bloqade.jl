@@ -155,7 +155,7 @@ We also support different operations for the generated lattices. For instance,  
 ```@example quick-start
 rescale_axes(atoms, 0.8)
 ```
-where the above operation scales the shape of original `atoms` to be its `0.8` times. 
+where the above operation rescales the coordinates of original `sites` by a factor of `0.8`. 
 
 The code below restricts the atoms sitting in window `(0.0, 5.0), (0.0, 6.0)` and throw aways those outside this regime. 
 

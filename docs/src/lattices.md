@@ -150,7 +150,7 @@ atoms = generate_sites(HoneycombLattice(), 3, 5; scale=4.5)
 ```
 where `scale` defines the unit distance in experimental unit (``\mu m``) of the lattice, and `3, 5` specifies the repetitions of unit cells in each lattice vector directions.  
 
-We also support different operations for the generated lattices. For instance,  One can apply predefined filters, e.g. [`rescale_axes`](@ref), [`clip_axes`](@ref), [`offset_axes`](@ref), to manipulate atom locations.
+We also support different operations for the generated lattices. For instance,  one can apply predefined filters, e.g. [`rescale_axes`](@ref), [`clip_axes`](@ref), [`offset_axes`](@ref), to manipulate atom locations.
 
 ```@example quick-start
 rescale_axes(atoms, 0.8)

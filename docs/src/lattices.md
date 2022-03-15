@@ -63,7 +63,7 @@ square = SquareLattice()
 ```
 Note that the index showing on sites are consistent with the index of qubits for performing computation. 
 In other words, if we want to do measurment or apply opearations on individual sites (qubits), we can refer the numbering on atoms for convienience. 
-For more details on how to generate Hamiltonian by using lattice as an argument, please see the section [`Hamiltonian`](@ref).
+For more details about how to generate Hamiltonian by using lattice as an argument, please see the section [`Hamiltonian`](@ref).
 
 ```@example quick-start
 lattice_vectors(square)
@@ -148,7 +148,7 @@ This is done by using the function [`generate_sites`](@ref) , which will return 
 ```@example quick-start
 atoms = generate_sites(HoneycombLattice(), 3, 5; scale=4.5)
 ```
-where `scale` defines the unit distance in experimental unit (``\mu m``) of the lattice, and `3, 5` specifies the repetitions of unit cells in each lattice vector directions.  
+where `scale` defines the unit distance in experimental unit (``\mu m``) of the lattice, and `3, 5` specifies the repetitions of unit cells in each lattice vector direction.  
 
 We also support different operations for the generated lattices. For instance,  one can apply predefined filters, e.g. [`rescale_axes`](@ref), [`clip_axes`](@ref), [`offset_axes`](@ref), to manipulate atom locations.
 
@@ -180,9 +180,7 @@ Then one can get the sorted atoms by typing
 sorted_atoms = collect_atoms(atoms_in_grid)
 ```
 
-Note that the sorting has changed the index numbering of atoms. If we use `sorted-atom` to do computation, the index of qubits should 
-be consisent with the `sorted-atoms` instead of `atoms`. 
-
+Note that the sorting has changed the index numbering of atoms. 
 
 
 

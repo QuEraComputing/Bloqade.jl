@@ -1,9 +1,11 @@
 using Graphs, EaRyd, EaRyd.EaRydLattices
 using Compose
+using Random
 
 # create a diagonal coupled square lattice with 0.7 filling.
 # In the experiment [arxiv:2202.09372](https://arxiv.org/abs/2202.09372),
 # The lattice constant is 4.5μm, and blockade radius is 7.5μm.
+Random.seed!(2)
 atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |> random_dropout(0.2)
 
 # We first prepare the adiabatic pulse sequence as two piecewise linear functions
@@ -16,6 +18,8 @@ U = Ω_max / 2.3
 Δ = piecewise_linear(clocks=[0.0, 0.252, 1.052, 1.6], values=[-6*U, -6*U, 2*U , 2*U])
 
 # We construct the Rydberg Hamiltonian from the defined rabi and detuning waveforms
+# check C?
+# smoothen the curve?
 h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)
 
 # We evolve the system from the zero state using the ODE solver to a final time t = 1.6 microseconds

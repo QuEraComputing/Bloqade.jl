@@ -31,7 +31,7 @@ h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)
 
 using SparseArrays
 # We evolve the system from the zero state using the ODE solver to a final time t = 1.6 microseconds
-prob = ODEEvolution(zero_state(9), 1.6±0.0, h)
+prob = SchrodingerProblem(zero_state(Complex{Measurement{Float64}}, 9), 1.6±0.0, h)
 emulate!(prob) # run the time evolution directly
 
 # We compute the Rydberg probability for each site, where each of the results contains an error bar
@@ -56,11 +56,11 @@ end
 
 # define the Hamiltonian 
 
-h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)
-prob = ODEEvolution(zero_state(9), 1.6±0.0, h)
-emulate!(prob) # run the time evolution directly
+# h = rydberg_h(atoms; C=2 * pi * 858386, Δ, Ω)
+# prob = ODEEvolution(zero_state(9), 1.6±0.0, h)
+# emulate!(prob) # run the time evolution directly
 
-# measure the Rydberg density for each site
-densities = map(1:nsites) do i
-    real(expect(put(nsites, i=>Op.n), prob.reg))
-end
+# # measure the Rydberg density for each site
+# densities = map(1:nsites) do i
+#     real(expect(put(nsites, i=>Op.n), prob.reg))
+# end

@@ -18,11 +18,62 @@ This conditional energy shift is the basis of the **Rydberg Blockade**. Because 
 
 The allowed states are then **independent sets** of a **unit disk graph** defined by the positions of the atoms. A unit disk graph is a set of vertices and edges, where vertices represent every atom, and there are edges if the distance between vertices is less than some radius $|\vec r_i- \vec r_j|<R, given by the characteristic Rabi frequency and van der Walls detuning. The blockade constraint is incoded by independent sets, which are subsets  $S$ of vertices of the unit disk graph such that no two vertices in $S$ are adjacent. The number of independent sets in a graph is much smaller than the number of subsets of the graph, so correspondingly the Hilbert space of quantum evolution is much smaller. This subspace constraint can thus speed quantum simulation considerably, at very little cost.
 
+
+
+To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown below, for a ring of 12 atoms seperated by $7\mu m$. This set of atoms can be defined by
+
+```
+nsites = 12;    # 12 site chain
+distance = 7    # Distance between atoms, in microns
+
+R = distance/(2*sin(2*pi/(nsites)/2))                                       # Radius of the circle, using a little trigonometry
+pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
+atoms = EaRydLattices.AtomList(pos)                                         # Define the atom positions as an AtomList.
+```
+
+The system is driven by a constant $2\pi \times 0.5$MHz Rabi drive, which couples each atom's ground and Rydberg state. This can be defined using a Hamiltonian
+
+```
+h = rydberg_h(atoms;C = 2π * 858386, Ω=π)
+```
+
+
+The system is initialized into the ground state of all atoms. We have two choices of basis: the first choice is the full Hilbert space of $2^12$ elements, wheras the second basis is the blockade subspace, which excludes Rydberg excitations within the unit disk radius. The blockade subspace has $D=322$ elements, which means that computation is much faster.
+
+```
+init = zero_state(nsites)                       # Initial state in the full space
+space = blockade_subspace(atoms,distance*1.1)   # Compute the blockade subspace
+init2 = zero_state(space)                       # Define the initial state in the blockade subspace.
+```
+
+If the atoms were far apart and non-interacting, each atom would oscillate completely between its ground state and Rydberg state with a period of $0.5 \mu$s. However, because adjacent atoms shift to the Rydberg state concurrently, they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, corresponding to an antiferromagnetic $Z_2$ state. Note that because the ring has a translation symmetry, the Rydberg density is equal on all sites.
+
+```
+Tmax = 10                               # Total evolution time of 10usec
+nsteps = 1000                           # Total number of steps
+iteration = 1:nsteps
+ts = [Tmax/nsteps for _ in iteration];
+hs = [h for _ in iteration];
+clocks = cumsum(ts);
+
+prob = KrylovEvolution(init, ts, hs)    # Initialize Krylov evolution
+prob2 = KrylovEvolution(init2, ts, hs)
+
+data_out = zeros(3, length(iteration))  # Initialize data output
+data_out[1,:] = clocks
+
+for info in prob                        # Evolve in the full space
+    data_out[2, info.step] = expect(put(nsites, 1=>Op.n), info.reg)
+end
+
+for info in prob2                       # Evolve in the blockade subspace
+    data_out[3, info.step] = expect(put(nsites, 1=>Op.n), info.reg)
+end
+```
+
 ![RydbergBlockadeSubspace](https://user-images.githubusercontent.com/20091330/157916384-c2571b44-0ba6-4280-83e9-d26cea1a2f9a.png)
 
-To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown above, for a ring of 12 atoms seperated by $7\mu m$. The system is initialized into the ground state of all atoms, and driven by a $2\pi \times 0.5 MHz$ Rabi drive, which couples each atom's ground and Rydberg state. If the atoms were far apart and non-interacting, each atom would oscillate completely between its ground state and Rydberg state with a period of $1 \mu$s. However, because adjacent atoms shift to the Rydberg state concurrently, they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, corresponding to an antiferromagnetic $Z_2$ state.
-
-Because of the blockade, we may choose the independent subspace as the Hilbert space of the system-- a reduction from $D = 2^N=4092$ to $D=322$, as shown by red dashed. It is clear that even though the Hilbert space is $12\times$ smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2 atom conditional blockade example. However, at longer times this subspace approximation fails to reproduce the full space (shown by divergence between black and red dashed). Note that for this example, the distance between atoms was chosen to be in an intermediate regime (eg, at the edge of the unit disk), which reduces the blockade effect and amplifies the approximate nature of the blockade. If the atoms were chosen to be closer together (say, $5\mu m$) or the Rabi strength was reduced, the blockade approximation becomes much stronger.
+Data for this evolution is shown above, where exact evolution in the full space is shown in black, and the truncated evolution in the subspace is shown by red dashed. It is clear that even though the Hilbert space is $12\times$ smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2 atom conditional blockade example. However, at longer times this subspace approximation fails to reproduce the full space (shown by divergence between black and red dashed). Note that for this example, the distance between atoms was chosen to be in an intermediate regime (eg, at the edge of the unit disk), which reduces the blockade effect and amplifies the approximate nature of the blockade. If the atoms were chosen to be closer together (say, $5\mu m$) or the Rabi strength was reduced, the blockade approximation becomes much stronger.
 
 
 

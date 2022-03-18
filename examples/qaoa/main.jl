@@ -1,4 +1,6 @@
-using Graphs, EaRyd, EaRyd.EaRydLattices
+using Graphs
+using EaRyd
+using EaRyd.EaRydLattices
 using Compose
 using Random
 

@@ -2,7 +2,7 @@ using Graphs, EaRyd, EaRyd.EaRydLattices
 using Compose
 using Random
 
-# create a diagonal coupled square lattice with 0.7 filling.
+# create a diagonal coupled square lattice with 0.8 filling.
 # In the experiment [arxiv:2202.09372](https://arxiv.org/abs/2202.09372),
 # The lattice constant is 4.5μm, and blockade radius is 7.5μm.
 Random.seed!(2)

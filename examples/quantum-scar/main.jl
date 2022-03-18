@@ -12,7 +12,7 @@
 # in Hilbert space. 
 
 # In this example, we use the Rydberg Emulator to simulate the evolution of a fully coherent, 
-# strongly interacting Rydberg system of 9 qubits.  We demonstrate the persistent revivals of many-body dynamics with measurements of the Rydberg density, 
+# strongly interacting Rydberg system.  We demonstrate the persistent revivals of many-body dynamics with measurements of the Rydberg density, 
 # and entanglement entropy. For a comprehensive review of quantum many-body scars, we refer readers to this paper [M. Serbyn et al.](https://www.nature.com/articles/s41567-021-01230-2)
 
 
@@ -23,8 +23,88 @@ using EaRyd
 using Random
 using CairoMakie
 
+# # Rabi oscillations with Rydberg blockade
 
-# # Build Hamiltonian
+# We first demonstrate that the strong Rydberg interactions have important effects on the Rabi oscillations of Rydberg atoms. 
+# To do so, we consider a system with 1, 2 and 3 atoms. All the atoms are placed withint the blockade radius of any other atom (see [blockade](@ref) for more details). 
+
+atom1 = generate_sites(ChainLattice(), 1, scale=3.0)
+atom2 = generate_sites(ChainLattice(), 2, scale= 3.0)
+atom3 = generate_sites(ChainLattice(), 3, scale= 3.0)
+
+# Then we a resonant Rabi driving is applied to each of the system. The Hamiltonians can be simply constructed by 
+h1 = rydberg_h(atom1; Δ=0, Ω=2π*2)
+h2 = rydberg_h(atom2; Δ=0, Ω=2π*2)
+h3 = rydberg_h(atom3; Δ=0, Ω=2π*2)
+
+# The initial states are chosen such that all atoms start from the ground state
+reg1 = zero_state(1)
+reg2 = zero_state(2)
+reg3 = zero_state(3)
+
+# We first emulate the dynamics for the single atom's case, where the intial state is quenched under a Hamiltonain with constant Rabi frequency
+
+iteration = 1:150
+ts = [0.01 for _ in iteration];
+h1s = [h1 for _ in iteration];
+prob1 = KrylovEvolution(reg1, ts, h1s)
+
+density_mat1 = zeros(1, length(iteration)) 
+
+for info in prob1
+    for i in 1:1
+        density_mat1[i, info.step] = expect(put(1, i=>Op.n), info.reg)
+    end
+end
+
+# The Rydberg density of this atom exihibits Rabi oscillations as a function of time, shown by the plot 
+
+lines(ts.*iteration, density_mat1[1, :])
+
+# For the case of 2 and 3 atoms, if they are seperated far enough with negligible interactions, the total Rydberg excitation densities are simply the sum of each each atom. 
+# However, we will show that this is not the case for systems when atoms are close to each other (which results in strong Rydberg interactions). 
+# Similar to the 1 atom case, we can emulate the dynamics and get the time-dependent dynamics for each atom
+
+h2s = [h2 for _ in iteration];
+prob2 = KrylovEvolution(reg2, ts, h2s);
+density_mat2 = zeros(2, length(iteration)); 
+
+for info in prob2
+    for i in 1:2
+        density_mat2[i, info.step] = expect(put(2, i=>Op.n), info.reg)
+    end
+end
+
+h3s = [h3 for _ in iteration];
+prob3 = KrylovEvolution(reg3, ts, h3s);
+
+density_mat3 = zeros(3, length(iteration)); 
+
+for info in prob3
+    for i in 1:3
+        density_mat3[i, info.step] = expect(put(3, i=>Op.n), info.reg)
+    end
+end
+
+
+# The total Rydberg density for 2 system is plotted below
+density2 = sum(density_mat2, dims=1)
+lines(ts.*iteration, density2[1, :])
+
+# The total Rydberg density for 3 system is plotted below
+
+density3 = sum(density_mat3, dims=1)
+lines(ts.*iteration, density3[1, :])
+
+# From the above plot, we can see that the total Rydberg density for 2 (3) atom case does not exceed 1. This is because
+# it is energitically unfavorable to have more than 1 excitation due to the strong Rydberg interactions. Furthermore, the frequency of Rabi oscillation
+# for the whole system depends strongly on the number of atoms. This again validate the fact that intearcion effect plays an important role in the system's dynamics. 
+
+
+# Below, we show that for a system with 9 atoms where only nearest atoms are within each other's blockade radius, the system can also exhibit nontrivial dynamics for certain initial state.  
+
+
+# # Build 9-sites Hamiltonian
 
 # We build a 1D-Chain with 9-atom arrangement, with each atom separated from its neighbor by 5.72 ``\mu m``. This results in a nearest-neighbor 
 # interaction strength of ``2 \pi * 24`` MHz. This is much larger than the Rabi oscillations ``\Omega``, which we specify below. So the nerest-neighbor
@@ -37,7 +117,6 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 
 Δ1= piecewise_linear(clocks=[0.0, 0.3, 1.6, 2.2], values=[-10*2π, -10*2π, 10*2π, 10* 2π])
 Ω1= piecewise_linear(clocks=[0.0, 0.05, 1.6, 2.2], values=[0.0, 4*2π, 4*2π, 0])
-
 
 # The second part of the waveform has constant value of parameters, so we can use [`constant`](@ref) to construct
 Ω2 = constant(duration=2.0, value=2* 2π)
@@ -99,22 +178,22 @@ fig
 # we now choose a different initial state, and use ['KrylovEvolution']@(ref) solver to emulate the problem  
 
 
-h1= rydberg_h(atoms;Ω=4π)
+hd= rydberg_h(atoms;Ω=4π)
 
 iteration = 1:120
-ts = [0.01 for _ in iteration];
-hs = [h1 for _ in iteration];
-clocks = cumsum(ts);
-init1 = product_state(bit"100000101")
-prob1 = KrylovEvolution(init1, ts, hs)
-density_mat1 = zeros(nsites, length(iteration)) 
+t_d = [0.01 for _ in iteration];
+hs_d = [hd for _ in iteration];
+clocks = cumsum(t_d);
+init_d = product_state(bit"100000101")
+prob_d = KrylovEvolution(init_d, t_d, hs_d)
+density_mat_d = zeros(nsites, length(iteration)) 
 
-for info in prob1
+for info in prob_d
     for i in 1:nsites
-        density_mat1[i, info.step] = expect(put(nsites, i=>Op.n), info.reg)
+        density_mat_d[i, info.step] = expect(put(nsites, i=>Op.n), info.reg)
     end
 end
 
-heatmap(clocks, 1:nsites, density_mat1')
+heatmap(clocks, 1:nsites, density_mat_d')
 
 # From the above figure, we see that the density does not show long-lived oscillations. 

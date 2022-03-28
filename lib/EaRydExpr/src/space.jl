@@ -28,6 +28,11 @@ struct Subspace{S <: AbstractVector{Int}} <: AbstractSpace
     nqubits::Int
     map::Dict{Int, Int} # fullspace_index => subspace_index
     subspace_v::S
+
+    function Subspace(nqubits::Int, map::Dict{Int, Int}, subspace_v)
+        maximum(subspace_v) ≤ 1<<nqubits || throw(ArgumentError("subspace index is too large"))
+        new{typeof(subspace_v)}(nqubits, map, subspace_v)
+    end
 end
 
 """

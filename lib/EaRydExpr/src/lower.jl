@@ -130,6 +130,11 @@ function emit_dynamic_terms(ex::SumOfXPhase)
     end
 end
 
+"""
+    Hamiltonian(::Type{Tv}, expr[, space=fullspace])
+
+Create a `Hamiltonian` from hamiltonian expr that has matrix element of type `Tv`.
+"""
 function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace=fullspace) where {Tv}
     fs, ts = [], []
     const_term = nothing
@@ -145,6 +150,13 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace=fullspa
     push!(ts, mat(Tv, const_term, space))
     return Hamiltonian((fs..., ), (ts..., ))
 end
+
+"""
+    emit_lowered(expr)
+
+Emit the YaoBlocks expression that only contains single site operators.
+"""
+function emit_lowered end
 
 function emit_lowered(h::SumOfX)
     is_time_function(h.Ω) && error("cannot get matrix of a time-dependent operator")

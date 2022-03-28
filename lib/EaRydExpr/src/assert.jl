@@ -25,6 +25,13 @@ function assert_param(nsites::Int, p, name)
     assert_has_time_method(p, name)
 end
 
+"""
+    is_time_function(f)
+
+Check if a function has method whoes
+signature is of `Tuple{Real}`
+or `Tuple{T} where {T <: Real}`.
+"""
 function is_time_function(f)
     hasmethod(f, Tuple{Real}) && return true
     for T in concrete_subtypes(Real)

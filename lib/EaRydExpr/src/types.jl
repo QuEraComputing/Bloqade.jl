@@ -1,9 +1,24 @@
 # a linear map for low-level hamiltonian representation
+
+"""
+    struct Hamiltonian
+
+`Hamiltonian` stores the dynamic prefactors of each term.
+The actual hamiltonian is the sum of `f_i(t) * t_i` where
+`f_i` and `t_i` are entries of `fs` and `ts`.
+"""
 struct Hamiltonian{FS <: Tuple, TS <: Tuple}
     fs::FS # prefactor of each term
     ts::TS # const linear map of each term
 end
 
+"""
+    struct StepHamiltonian
+
+A low-level linear-map object that encodes time-dependent
+hamiltonian at time step `t`. This object supports the
+linear map interface `mul!(Y, H, X)`.
+"""
 struct StepHamiltonian{T, FS, TS}
     t::T # clock
     h::Hamiltonian{FS, TS}
@@ -17,12 +32,43 @@ end
 # the following operators are mainly used to interface
 # with Yao
 
+"""
+    XPhase{T} <: PrimitiveBlock{2}
+
+XPhase operator.
+
+```math
+e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|
+```
+"""
 struct XPhase{T} <: PrimitiveBlock{2}
     ϕ::T
 end
 
+"""
+    AbstractTerm <: PrimitiveBlock{2}
+
+Abstract term for local hamiltonian terms.
+"""
 abstract type AbstractTerm <: PrimitiveBlock{2} end
 
+"""
+    struct RydInteract <: AbstractTerm
+    RydInteract(;atoms, C=2π * 862690MHz⋅μm^6)
+
+Type for Rydberg interactive term.
+
+# Expression
+
+```math
+\\sum_{i, j} \\frac{C}{|r_i - r_j|^6} n_i n_j
+```
+
+# Keyword Arguments
+
+- `atoms`: a list of atom positions, must be type `RydAtom`, default unit is `μm`.
+- `C`: the interaction strength, default unit is `MHz⋅μm^6`. default value is `2π * 862690 * MHz*µm^6`.
+"""
 Base.@kwdef struct RydInteract <: AbstractTerm
     atoms::Vector
     C::Real = 2π * 862690
@@ -32,6 +78,18 @@ Base.@kwdef struct RydInteract <: AbstractTerm
     end
 end
 
+"""
+    struct SumOfX <: AbstractTerm
+    SumOfX(nsites, Ω)
+
+Term for sum of X operators.
+
+# Expression
+
+```math
+\\sum_i Ω σ^x_i
+```
+"""
 Base.@kwdef struct SumOfX <: AbstractTerm
     nsites::Int
     Ω = 1
@@ -43,6 +101,16 @@ Base.@kwdef struct SumOfX <: AbstractTerm
     end
 end
 
+"""
+    struct SumOfXPhase <: AbstractTerm
+    SumOfXPhase(;nsites, Ω=1, ϕ)
+
+# Expression
+
+```math
+\\sum_i Ω ⋅ (e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|)
+```
+"""
 Base.@kwdef struct SumOfXPhase <: AbstractTerm
     nsites::Int
     Ω = 1
@@ -58,6 +126,18 @@ Base.@kwdef struct SumOfXPhase <: AbstractTerm
     end
 end
 
+"""
+    struct SumOfN <: AbstractTerm
+    SumOfN(;nsites[, Δ=1])
+
+Sum of N operators.
+
+# Expression
+
+```math
+\\sum_i Δ ⋅ n_i
+```
+"""
 Base.@kwdef struct SumOfN <: AbstractTerm
     nsites::Int
     Δ = 1
@@ -68,6 +148,18 @@ Base.@kwdef struct SumOfN <: AbstractTerm
     end
 end
 
+"""
+    struct SumOfZ <: AbstractTerm
+    SumOfZ(;nsites, Δ=1)
+
+Sum of Pauli Z operators.
+
+# Expression
+
+```math
+\\sum_i Δ ⋅ σ^z_i
+```
+"""
 Base.@kwdef struct SumOfZ <: AbstractTerm
     nsites::Int
     Δ = 1

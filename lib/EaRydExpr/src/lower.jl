@@ -177,7 +177,7 @@ function emit_lowered(h::SumOfXPhase)
         @case (Ω, ϕ::Vector)
             sum(Ω * put(h.nsites, i=>XPhase(ϕ_i)) for (i, ϕ_i) in enumerate(ϕ))
         @case (Ω, ϕ)
-            sum(Ω, put(h.nsites, i=>XPhase(ϕ)) for i in 1:h.nsites)
+            sum(Ω * put(h.nsites, i=>XPhase(ϕ)) for i in 1:h.nsites)
     end
 end
 

@@ -75,3 +75,7 @@ YaoAPI.nqudits(h::RydInteract) = length(h.atoms)
 YaoAPI.nqudits(h::SumOfX) = h.nsites
 YaoAPI.nqudits(h::SumOfZ) = h.nsites
 YaoAPI.nqudits(h::SumOfN) = h.nsites
+
+function Base.:(==)(lhs::RydInteract, rhs::RydInteract)
+    lhs.C == rhs.C && lhs.atoms == rhs.atoms
+end

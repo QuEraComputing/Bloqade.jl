@@ -1,6 +1,6 @@
-function rydberg_h(atom_positions; C::Real, Ω, ϕ, Δ)
-    positions = map(atom_positions) do position
-        (position..., )
+function rydberg_h(atom_positions; C::Real=2π * 862690, Ω=nothing, ϕ=nothing, Δ=nothing)
+    positions = map(atom_positions) do pos
+        (pos..., )
     end
 
     nsites = length(positions)
@@ -34,4 +34,48 @@ function div_by_two(Ω)
     else
         t->Ω(t)/2
     end
+end
+
+attime(t::Real) = h->attime(h, t)
+
+function attime(h::AbstractBlock, t::Real)
+    blks = map(subblocks(h)) do blk
+        attime(blk, t)
+    end
+    return chsubblocks(h, blks)
+end
+
+# Yao Blocks cannot take time-dependent function
+attime(h::PrimitiveBlock, ::Real) = h
+function attime(h::SumOfX, t::Real)
+    if h.Ω isa Vector
+        SumOfX(h.nsites, map(x->x(t), h.Ω))
+    else
+        SumOfX(h.nsites, h.Ω)
+    end
+end
+
+function attime(h::SumOfXPhase, t::Real)
+    if h.Ω isa Vector
+        Ω = map(x->x(t), h.Ω)
+    else
+        Ω = h.Ω(t)
+    end
+
+    if h.ϕ isa Vector
+        ϕ = map(x->x(t), h.ϕ)
+    else
+        ϕ = h.ϕ(t)
+    end
+
+    return SumOfXPhase(h.nsites, Ω, ϕ)
+end
+
+function attime(h::Union{SumOfZ, SumOfN}, t::Real)
+    if h.Δ isa Vector
+        Δ = map(x->x(t), h.Δ)
+    else
+        Δ = h.Δ(t)
+    end
+    return typeof(h)(h.nsites, Δ)
 end

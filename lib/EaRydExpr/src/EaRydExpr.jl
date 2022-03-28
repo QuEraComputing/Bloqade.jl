@@ -7,9 +7,12 @@ using YaoBlocks
 using LuxurySparse
 using MLStyle
 using BitBasis
+using LaTeXStrings
+using InteractiveUtils: subtypes
 
-export FullSpace, Subspace, fullspace,
-    RydInteract, SumOfX, SumOfXPhase, SumOfZ, SumOfN, XPhase
+export rydberg_h, FullSpace, Subspace, fullspace,
+    RydInteract, SumOfX, SumOfXPhase, SumOfZ, SumOfN, XPhase,
+    attime
 
 include("assert.jl")
 include("space.jl")

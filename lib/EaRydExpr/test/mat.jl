@@ -7,7 +7,7 @@ using SparseArrays
 
 
 @testset "mat" begin
-    ss = Subspace(10, sort(randperm(1024)[1:100]))
+    ss = Subspace(10, sort(randperm(1023)[1:100]))
     U = zeros(ComplexF64, 1024, 1024)
     U[ss, ss] = rand_unitary(length(ss))
     H = U * U'

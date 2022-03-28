@@ -8,6 +8,7 @@ using LuxurySparse
 using MLStyle
 using BitBasis
 using LaTeXStrings
+using Unitful: Quantity, NoUnits, MHz, µm, uconvert
 using InteractiveUtils: subtypes
 using Base.Cartesian: @nexprs
 using YaoBlocks: ChainBlock, PutBlock, TrivialGate, Subroutine, Scale, Daggered, Add, ControlBlock, TimeEvolution

@@ -26,6 +26,10 @@ abstract type AbstractTerm <: PrimitiveBlock{2} end
 Base.@kwdef struct RydInteract <: AbstractTerm
     atoms::Vector
     C::Real = 2π * 862690
+
+    function RydInteract(atoms, C)
+        new(atoms, default_unit(MHz * µm^6, C))
+    end
 end
 
 Base.@kwdef struct SumOfX <: AbstractTerm
@@ -34,6 +38,7 @@ Base.@kwdef struct SumOfX <: AbstractTerm
 
     function SumOfX(nsites, Ω)
         assert_param(nsites, Ω, :Ω)
+        Ω = default_unit(MHz, Ω)
         new(nsites, Ω)
     end
 end
@@ -46,6 +51,9 @@ Base.@kwdef struct SumOfXPhase <: AbstractTerm
     function SumOfXPhase(nsites, Ω, ϕ)
         assert_param(nsites, Ω, :Ω)
         assert_param(nsites, ϕ, :ϕ)
+
+        Ω = default_unit(MHz, Ω)
+        ϕ = default_unit(NoUnits, ϕ)
         new(nsites, Ω, ϕ)
     end
 end
@@ -56,7 +64,7 @@ Base.@kwdef struct SumOfN <: AbstractTerm
 
     function SumOfN(nsites, Δ)
         assert_param(nsites, Δ, :Δ)
-        new(nsites, Δ)
+        new(nsites, default_unit(MHz, Δ))
     end
 end
 
@@ -66,7 +74,7 @@ Base.@kwdef struct SumOfZ <: AbstractTerm
 
     function SumOfZ(nsites, Δ)
         assert_param(nsites, Δ, :Δ)
-        new(nsites, Δ)
+        new(nsites, default_unit(MHz, Δ))
     end
 end
 

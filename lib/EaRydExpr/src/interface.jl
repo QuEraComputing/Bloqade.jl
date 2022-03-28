@@ -1,3 +1,10 @@
+module Op
+
+using YaoBlocks
+const n = YaoBlocks.ConstGate.P1
+
+end
+
 function rydberg_h(atom_positions; C::Real=2π * 862690, Ω=nothing, ϕ=nothing, Δ=nothing)
     positions = map(atom_positions) do pos
         (pos..., )

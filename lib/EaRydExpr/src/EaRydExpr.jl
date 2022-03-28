@@ -9,6 +9,8 @@ using MLStyle
 using BitBasis
 using LaTeXStrings
 using InteractiveUtils: subtypes
+using Base.Cartesian: @nexprs
+using YaoBlocks: ChainBlock, PutBlock, TrivialGate, Subroutine, Scale, Daggered, Add, ControlBlock, TimeEvolution
 
 export rydberg_h, FullSpace, Subspace, fullspace,
     RydInteract, SumOfX, SumOfXPhase, SumOfZ, SumOfN, XPhase,

@@ -1,0 +1,38 @@
+function YaoAPI.measure(
+    ::Yao.ComputationalBasis,
+    reg::RydbergReg{ComplexLayout},
+    ::Yao.AllLocs;
+    nshots::Int = 1,
+    rng::AbstractRNG = Random.GLOBAL_RNG,
+    )
+    BitStr64{reg.natoms}.(
+        sample(
+            rng,
+            vec(reg.subspace),
+            Weights(abs2.(Yao.relaxedvec(reg))),
+            nshots
+        )
+    )
+end
+
+function YaoAPI.measure!(
+    ::Yao.NoPostProcess,
+    ::Yao.ComputationalBasis,
+    reg::RydbergReg,
+    ::Yao.AllLocs;
+    rng::AbstractRNG = Random.GLOBAL_RNG,
+    )
+    ind = sample(rng, 1:length(reg.subspace), Weights(abs2.(Yao.relaxedvec(reg))))
+    fill!(reg.state, 0)
+    reg.state[ind] = 1
+    return BitStr64{reg.natoms}(vec(reg.subspace)[ind])
+end
+
+function YaoAPI.measure(; nshots=1)
+    reg -> Yao.measure(reg; nshots=nshots)
+end
+
+# TODO: remove this after https://github.com/QuantumBFS/Yao.jl/issues/338
+function YaoAPI.expect(op::AbstractBlock, reg::RydbergReg)
+    return reg' * apply!(copy(reg), op)
+end

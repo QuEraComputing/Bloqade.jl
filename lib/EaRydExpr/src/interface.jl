@@ -87,7 +87,7 @@ function rydberg_h(atom_positions; C::Real=2π * 862690, Ω=nothing, ϕ=nothing,
         term -= SumOfN(nsites, Δ)
     end
 
-    return term
+    return YaoBlocks.Optimise.simplify(term)
 end
 
 function div_by_two(Ω)

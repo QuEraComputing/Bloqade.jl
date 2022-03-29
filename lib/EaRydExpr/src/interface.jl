@@ -140,6 +140,7 @@ nqudits: 4
 """
 attime(h::PrimitiveBlock, ::Real) = h
 function attime(h::SumOfX, t::Real)
+    is_time_function(h.Ω) || return h
     if h.Ω isa Vector
         SumOfX(h.nsites, map(x->x(t), h.Ω))
     else
@@ -148,13 +149,17 @@ function attime(h::SumOfX, t::Real)
 end
 
 function attime(h::SumOfXPhase, t::Real)
-    if h.Ω isa Vector
+    if !is_time_function(h.Ω)
+        Ω = h.Ω
+    elseif h.Ω isa Vector
         Ω = map(x->x(t), h.Ω)
     else
         Ω = h.Ω(t)
     end
 
-    if h.ϕ isa Vector
+    if !is_time_function(h.Ω)
+        ϕ = h.ϕ
+    elseif h.ϕ isa Vector
         ϕ = map(x->x(t), h.ϕ)
     else
         ϕ = h.ϕ(t)
@@ -164,7 +169,9 @@ function attime(h::SumOfXPhase, t::Real)
 end
 
 function attime(h::Union{SumOfZ, SumOfN}, t::Real)
-    if h.Δ isa Vector
+    if !is_time_function(h.Δ)
+        Δ = h.Δ
+    elseif h.Δ isa Vector
         Δ = map(x->x(t), h.Δ)
     else
         Δ = h.Δ(t)

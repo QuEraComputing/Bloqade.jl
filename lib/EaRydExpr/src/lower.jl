@@ -151,14 +151,7 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace=fullspa
     return Hamiltonian((fs..., ), (ts..., ))
 end
 
-"""
-    emit_lowered(expr)
-
-Emit the YaoBlocks expression that only contains single site operators.
-"""
-function emit_lowered end
-
-function emit_lowered(h::SumOfX)
+function YaoBlocks.Optimise.to_basictypes(h::SumOfX)
     is_time_function(h.Ω) && error("cannot get matrix of a time-dependent operator")
     return if h.Ω isa Vector
         sum(h.Ω[i] * put(h.nsites, i=>X) for i in 1:h.nsites)
@@ -167,7 +160,7 @@ function emit_lowered(h::SumOfX)
     end
 end
 
-function emit_lowered(h::Union{SumOfN, SumOfZ})
+function YaoBlocks.Optimise.to_basictypes(h::Union{SumOfN, SumOfZ})
     is_time_function(h.Δ) && error("cannot get matrix of a time-dependent operator")
     op = h isa SumOfN ? ConstGate.P1 : Z
     return if h.Δ isa Vector
@@ -177,7 +170,7 @@ function emit_lowered(h::Union{SumOfN, SumOfZ})
     end
 end
 
-function emit_lowered(h::SumOfXPhase)
+function YaoBlocks.Optimise.to_basictypes(h::SumOfXPhase)
     (is_time_function(h.Ω) || is_time_function(h.ϕ)) &&
         error("cannot get matrix of a time-dependent operator")
 
@@ -193,7 +186,7 @@ function emit_lowered(h::SumOfXPhase)
     end
 end
 
-function emit_lowered(ex::RydInteract)
+function YaoBlocks.Optimise.to_basictypes(ex::RydInteract)
     nsites = length(ex.atoms)
 
     term = nothing
@@ -210,5 +203,8 @@ function emit_lowered(ex::RydInteract)
     return term
 end
 
-emit_lowered(ex::Add) = sum(emit_lowered, ex.list)
-emit_lowered(ex::Scale) = factor(ex) * emit_lowered(content(ex))
+function emit_lowered(h)
+    return YaoBlocks.Optimise.simplify(
+        h; rules=[YaoBlocks.Optimise.to_basictypes]
+    )
+end

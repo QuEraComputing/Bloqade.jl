@@ -9,11 +9,13 @@ function YaoAPI.mat(::Type{T}, h::XPhase) where T
 end
 
 function YaoAPI.mat(::Type{T}, h::AbstractTerm, space::FullSpace=fullspace) where T
-    return YaoAPI.mat(T, emit_lowered(h))
+    blocks = YaoBlocks.Optimise.simplify(h; rules=[YaoBlocks.Optimise.to_basictypes])
+    return YaoAPI.mat(T, blocks)
 end
 
 function YaoAPI.mat(::Type{T}, h::AbstractTerm, space::Subspace) where T
-    return YaoAPI.mat(T, emit_lowered(h), space)
+    blocks = YaoBlocks.Optimise.simplify(h; rules=[YaoBlocks.Optimise.to_basictypes])
+    return YaoAPI.mat(T, blocks, space)
 end
 
 # fallback

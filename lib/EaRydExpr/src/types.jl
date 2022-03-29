@@ -102,6 +102,22 @@ end
 
 Term for sum of X operators.
 
+The following two expressions are equivalent
+
+```jldoctest; setup=:(using EaRydExpr, YaoBlocks)
+julia> SumOfX(nsites=5)
+∑ σ^x_i
+
+julia> sum([X for _ in 1:5])
+nqudits: 1
++
+├─ X
+├─ X
+├─ X
+├─ X
+└─ X
+```
+
 # Expression
 
 ```math
@@ -122,6 +138,26 @@ end
 """
     struct SumOfXPhase <: AbstractTerm
     SumOfXPhase(;nsites, Ω=1, ϕ)
+
+Sum of `XPhase` operators.
+
+The following two expressions are equivalent
+
+```jldoctest; setup=:(using EaRydExpr)
+julia> SumOfXPhase(nsites=5, ϕ=0.1)
+1.0 ⋅ ∑ e^{0.1 ⋅ im} |0⟩⟨1| + e^{-0.1 ⋅ im} |1⟩⟨0|
+
+julia> sum([XPhase(0.1) for _ in 1:5])
+nqudits: 1
++
+├─ XPhase(0.1)
+├─ XPhase(0.1)
+├─ XPhase(0.1)
+├─ XPhase(0.1)
+└─ XPhase(0.1)
+```
+
+But may provide extra speed up.
 
 # Expression
 
@@ -148,7 +184,25 @@ end
     struct SumOfN <: AbstractTerm
     SumOfN(;nsites[, Δ=1])
 
-Sum of N operators.
+Sum of N operators. 
+
+The following two expression are equivalent
+
+```jldoctest; setup=:(using EaRydExpr)
+julia> SumOfN(nsites=5)
+∑ n_i
+
+julia> sum([Op.n for _ in 1:5])
+nqudits: 1
++
+├─ P1
+├─ P1
+├─ P1
+├─ P1
+└─ P1
+```
+
+But may provide extra speed up.
 
 # Expression
 
@@ -172,6 +226,22 @@ end
 
 Sum of Pauli Z operators.
 
+The following two expression are equivalent
+
+```jldoctest; setup=:(using EaRydExpr, YaoBlocks)
+julia> SumOfZ(nsites=5)
+∑ σ^z_i
+
+julia> sum([Z for _ in 1:5])
+nqudits: 1
++
+├─ Z
+├─ Z
+├─ Z
+├─ Z
+└─ Z
+```
+
 # Expression
 
 ```math
@@ -191,9 +261,26 @@ end
 YaoAPI.nqudits(::XPhase) = 1
 YaoAPI.nqudits(h::RydInteract) = length(h.atoms)
 YaoAPI.nqudits(h::SumOfX) = h.nsites
+YaoAPI.nqudits(h::SumOfXPhase) = h.nsites
 YaoAPI.nqudits(h::SumOfZ) = h.nsites
 YaoAPI.nqudits(h::SumOfN) = h.nsites
 
 function Base.:(==)(lhs::RydInteract, rhs::RydInteract)
     lhs.C == rhs.C && lhs.atoms == rhs.atoms
+end
+
+function Base.:(==)(lhs::SumOfX, rhs::SumOfX)
+    lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω
+end
+
+function Base.:(==)(lhs::SumOfZ, rhs::SumOfZ)
+    lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ
+end
+
+function Base.:(==)(lhs::SumOfN, rhs::SumOfN)
+    lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ
+end
+
+function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
+    lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ
 end

@@ -1,9 +1,11 @@
+# benchmark expmv performance for linear map vs sparse matrix
+# conclusion: they have similar performance, lienar map is slightly
+# slower
+
 using Test
 using EaRydKrylov
 using EaRydExpr
 using EaRydExpr: Hamiltonian
-
-
 using BenchmarkTools
 
 function benchmark(n)

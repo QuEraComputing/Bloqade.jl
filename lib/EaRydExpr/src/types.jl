@@ -10,7 +10,15 @@ The actual hamiltonian is the sum of `f_i(t) * t_i` where
 struct Hamiltonian{FS <: Tuple, TS <: Tuple}
     fs::FS # prefactor of each term
     ts::TS # const linear map of each term
+
+    function Hamiltonian(fs, ts)
+        all(x->size(x)==size(ts[1]), ts) || throw(ArgumentError("matrix term should have the same size"))
+        new{typeof(fs), typeof(ts)}(fs, ts)
+    end
 end
+
+Base.size(h::Hamiltonian) = size(h.ts[1])
+Base.size(h::Hamiltonian, idx::Int) = size(h.ts[1], idx)
 
 """
     struct StepHamiltonian
@@ -22,6 +30,16 @@ linear map interface `mul!(Y, H, X)`.
 struct StepHamiltonian{T, FS, TS}
     t::T # clock
     h::Hamiltonian{FS, TS}
+end
+
+Base.size(h::StepHamiltonian, idx::Int) = size(h.h, idx)
+Base.size(h::StepHamiltonian) = size(h.h)
+
+function LinearAlgebra.opnorm(h::StepHamiltonian, p=2)
+    H = sum(zip(h.h.fs, h.h.ts)) do (f, t)
+        f(h.t) * t
+    end
+    return opnorm(H, p)
 end
 
 (h::Hamiltonian)(t::Real) = StepHamiltonian(t, h)

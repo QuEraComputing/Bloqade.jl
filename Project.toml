@@ -1,7 +1,19 @@
-authors = ["Roger-Luo <rogerluo.rl18@gmail.com> and contributors"]
 name = "EaRyd"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe1"
+authors = ["Roger-Luo <rogerluo.rl18@gmail.com> and contributors"]
 version = "0.1.0"
+
+[deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+EaRydCUDA = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe3"
+EaRydCore = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe2"
+EaRydLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
+EaRydODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
+EaRydWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
+Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
+SymEngine = "123dc426-2d89-5057-bbad-38513e3affd8"
 
 [compat]
 CUDA = "3"
@@ -14,17 +26,6 @@ ForwardDiff = "0.10"
 Measurements = "2"
 Reexport = "1"
 julia = "1.6.3"
-
-[deps]
-CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-EaRydCUDA = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe3"
-EaRydCore = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe2"
-EaRydLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
-EaRydODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
-EaRydWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
-ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
-Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
-Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 
 [extras]
 CPUSummary = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"

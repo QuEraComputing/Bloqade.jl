@@ -21,6 +21,7 @@ end
 
 
 @testset "attime" begin
+    positions = [(1, 2), (2, 3)]
     h1 = RydInteract(;atoms=positions) + SumOfX(;nsites=2, Ω=sin)
     h2 = RydInteract(;atoms=positions) + SumOfX(;nsites=2, Ω=sin(0.1))
     @test h1 |> attime(0.1) == h2

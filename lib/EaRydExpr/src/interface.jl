@@ -157,7 +157,7 @@ function attime(h::SumOfXPhase, t::Real)
         Ω = h.Ω(t)
     end
 
-    if !is_time_function(h.Ω)
+    if !is_time_function(h.ϕ)
         ϕ = h.ϕ
     elseif h.ϕ isa Vector
         ϕ = map(x->x(t), h.ϕ)

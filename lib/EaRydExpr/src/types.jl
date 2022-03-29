@@ -243,9 +243,26 @@ end
 YaoAPI.nqudits(::XPhase) = 1
 YaoAPI.nqudits(h::RydInteract) = length(h.atoms)
 YaoAPI.nqudits(h::SumOfX) = h.nsites
+YaoAPI.nqudits(h::SumOfXPhase) = h.nsites
 YaoAPI.nqudits(h::SumOfZ) = h.nsites
 YaoAPI.nqudits(h::SumOfN) = h.nsites
 
 function Base.:(==)(lhs::RydInteract, rhs::RydInteract)
     lhs.C == rhs.C && lhs.atoms == rhs.atoms
+end
+
+function Base.:(==)(lhs::SumOfX, rhs::SumOfX)
+    lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω
+end
+
+function Base.:(==)(lhs::SumOfZ, rhs::SumOfZ)
+    lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ
+end
+
+function Base.:(==)(lhs::SumOfN, rhs::SumOfN)
+    lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ
+end
+
+function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
+    lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ
 end

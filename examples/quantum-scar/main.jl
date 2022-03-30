@@ -130,27 +130,31 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 Ω2 = constant(duration=2.0, value=2* 2π);
 Δ2 = constant(duration=2.0, value=0);
 
-# The waveform for the whole evolution is composed by append the second part to the first part
+# The waveform for the whole evolution is composed by appending the second part to the first part
 
 Ω_tot = append(Ω1, Ω2);
 Δ_tot = append(Δ1, Δ2);
+fig = Figure();
+draw!(fig[1,1], Ω_tot, title="Ω")
+draw!(fig[2,1], Δ_tot, title="Δ")
+fig
 
 # Note that the total evolution is 4.2 ``\mu s``.
-# We then build the Hamiltonian by importing the defined lattice structure and waveforms 
+# We then build the Hamiltonian by importing the defined lattice structure and waveforms. 
 
 h = rydberg_h(atoms; Δ=Δ_tot, Ω=Ω_tot)
 
 
 # # Emulate the problem
 
-# We evaluate the quench dynamics of the Rydberg atom array initially prepared in ground. 
-# Such an initial state can be created by
+# We evaluate the quench dynamics of the Rydberg atom array (initially prepared in the ground state). 
+# The initial state can be created by
 
 reg = zero_state(9)
 
 # We can now set up discrete time evolution problem using the ODE solver. 
-prob = SchrodingerProblem(reg, 4.2, h)
-integrator = init(prob, Vern8())
+prob = SchrodingerProblem(reg, 4.2, h);
+integrator = init(prob, Vern8());
 # Then we measure the real-time expectation value of Rydberg density, and entanglement entropy. 
 
 entropy = Float64[]

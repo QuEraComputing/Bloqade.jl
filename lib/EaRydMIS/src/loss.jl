@@ -17,7 +17,7 @@ Mean size of vertex set.
     The input `config` is an integer of type `Int`, the output
     `config` can be a type supports [`count_vertices`](@ref)
     e.g, an `AbstractVector` or an `Integer`.
-- `reg_or_samples` can be a register (`Yao.ArrayReg` or [`RydbergReg`](@ref))
+- `reg_or_samples` can be a register (`Yao.ArrayReg` or [`SubspaceArrayReg`](@ref))
     or a list of measurement result (config) in `AbstractVector`.
 
 # Example
@@ -78,14 +78,14 @@ function to_int64(b::BitVector) # workaround type piracy
     return reinterpret(Int, b.chunks[1])
 end
 
-struct ConfigAmplitude{Reg <: Yao.AbstractRegister}
+struct ConfigAmplitude{Reg <: YaoAPI.AbstractRegister}
     reg::Reg
     range::UnitRange{Int}
 end
 
-ConfigAmplitude(reg::Yao.AbstractRegister{2}) = ConfigAmplitude(reg, 1:size(reg.state, 1))
+ConfigAmplitude(reg::YaoAPI.AbstractRegister{2}) = ConfigAmplitude(reg, 1:size(reg.state, 1))
 
-Base.eltype(it::ConfigAmplitude) = Tuple{Int, Yao.datatype(it.reg)}
+Base.eltype(it::ConfigAmplitude) = Tuple{Int, datatype(it.reg)}
 Base.length(it::ConfigAmplitude) = length(it.range)
 
 function Transducers.halve(it::ConfigAmplitude)
@@ -93,26 +93,19 @@ function Transducers.halve(it::ConfigAmplitude)
     return ConfigAmplitude(it.reg, left), ConfigAmplitude(it.reg, right)
 end
 
-function Base.iterate(it::ConfigAmplitude{<:RydbergReg{ComplexLayout}}, idx::Int = first(it.range))
+function Base.iterate(it::ConfigAmplitude{<:SubspaceArrayReg}, idx::Int = first(it.range))
     idx > last(it.range) && return
     cfg = it.reg.subspace.subspace_v[idx]
     @inbounds amp = it.reg.state[idx]
     return (cfg, amp), idx + 1
 end
 
-function Base.iterate(it::ConfigAmplitude{<:RydbergReg{RealLayout}}, idx::Int = first(it.range))
-    idx > last(it.range) && return
-    cfg = it.reg.subspace.subspace_v[idx]
-    @inbounds amp = it.reg.state[idx, 1] + im * it.reg.state[idx, 2]
-    return (cfg, amp), idx + 1
-end
-
-function Base.iterate(it::ConfigAmplitude{<:Yao.ArrayReg}, idx::Int = first(it.range))
+function Base.iterate(it::ConfigAmplitude{<:ArrayReg}, idx::Int = first(it.range))
     idx > last(it.range) && return
     return (idx-1, it.reg.state[idx]), idx + 1
 end
 
-function mean_rydberg(f, reg::Yao.AbstractRegister)
+function mean_rydberg(f, reg::YaoAPI.AbstractRegister)
     return sum(ConfigAmplitude(reg)) do (c, amp)
         nvertices = count_vertices(f(c))
         return abs2(amp) * nvertices
@@ -140,13 +133,13 @@ where `n` is the vertex set size.
     The input `config` is an integer of type `Int`, the output
     `config` can be a type supports [`count_vertices`](@ref)
     e.g, an `AbstractVector` or an `Integer`.
-- `reg_or_samples` can be a register (`Yao.ArrayReg` or [`RydbergReg`](@ref))
+- `reg_or_samples` can be a register (`Yao.ArrayReg` or [`SubspaceArrayReg`](@ref))
     or a list of measurement result (config) in `AbstractVector`.
 - `α::Real`: the parameter of Gibbs loss.
 """
 gibbs_loss(reg_or_samples, α::Real) = gibbs_loss(identity, reg_or_samples, α)
 
-function gibbs_loss(f, reg::Yao.AbstractRegister, α::Real)
+function gibbs_loss(f, reg::YaoAPI.AbstractRegister, α::Real)
     expected = ThreadsX.sum(ConfigAmplitude(reg)) do (config, amp)
         abs2(amp) * exp(α * count_vertices(f(config)))
     end
@@ -192,8 +185,7 @@ This algorithm is a naive vertex elimination that does not nesesarily give the m
 
 ```@example
 # run the following code in Atom/VSCode
-atoms = RydAtom.([(0.0, 1.0), (1.0, 0.), (2.0, 0.0),
-    (1.0, 1.0), (1.0, 2.0), (2.0, 2.0)])
+atoms = [(0.0, 1.0), (1.0, 0.), (2.0, 0.0), (1.0, 1.0), (1.0, 2.0), (2.0, 2.0)]
 graph = unit_disk_graph(atoms, 1.5)
 
 config = [1, 1, 1, 0, 1, 1]
@@ -313,7 +305,7 @@ function add_vertices!(config::AbstractVector, graph::AbstractGraph, perm=eachin
 end
 
 """
-    independent_set_probabilities([f], reg::Yao.AbstractRegister, graph_or_mis)
+    independent_set_probabilities([f], reg::YaoAPI.AbstractRegister, graph_or_mis)
 
 Calculate the probabilities of independent sets with given postprocessing function
 `f(config) -> config`. The default postprocessing function `f` will only reduce all
@@ -328,17 +320,17 @@ configurations to independent set.
 """
 function independent_set_probabilities end
 
-function independent_set_probabilities(reg::Yao.AbstractRegister, graph::AbstractGraph)
+function independent_set_probabilities(reg::YaoAPI.AbstractRegister, graph::AbstractGraph)
     independent_set_probabilities(reg, graph) do config
         to_independent_set(config, graph)
     end
 end
 
-function independent_set_probabilities(f, reg::Yao.AbstractRegister, graph::AbstractGraph)
+function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, graph::AbstractGraph)
     return independent_set_probabilities(f, reg, exact_solve_mis(graph))
 end
 
-function independent_set_probabilities(f, reg::Yao.AbstractRegister, mis::Int)
+function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, mis::Int)
     v2amp = ThreadsX.map(ConfigAmplitude(reg)) do (c, amp)
         return count_vertices(f(c)), amp
     end

@@ -1,12 +1,14 @@
 using Test
 using Random
-using EaRydCore
+using EaRydMIS
+using EaRydExpr
+using EaRydLattices
 using Graphs
 
 @testset "unit_disk" begin
     g = SimpleGraph(4)
     positions = [0 0 0.3 0.4; 0 0.6 0 0.6]
-    atms = rydatoms(positions)
+    atms = matrix_to_positions(positions)
     g2 = unit_disk_graph(atms)
     @test ne(g2) == 6
 
@@ -24,12 +26,4 @@ using Graphs
 
     h2 = unit_disk_graph(atms,radius)
     @test g2 == h2
-
-    Random.seed!(42)
-    g1 = unit_disk_graph(rand_atoms(5, 0.8; ndims=2), 1.0)
-
-    Random.seed!(42)
-    g2 = rand_unit_disk_graph(5, 0.8)
-
-    @test g1 == g2
 end

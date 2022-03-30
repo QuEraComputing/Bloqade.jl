@@ -1,5 +1,6 @@
 using Graphs
-using EaRydCore
+using EaRydMIS
+using EaRydExpr
 
 const test_graph = SimpleGraph(5)
 add_edge!(test_graph, 1, 2)

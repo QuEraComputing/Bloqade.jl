@@ -1,40 +1,17 @@
-using Test, EaRydCore
+using Test
 using Random
-using Graphs
 using LinearAlgebra
+using YaoArrayRegister
 using BitBasis
+using Statistics
 
-if !isdefined(@__MODULE__, :test_graph)
-    include("utils.jl")
-end
-
-@testset "test measurement" begin
-    Random.seed!(8)
-    params = rand(10)
-    ts = params[1:2:end]
-    ϕs = params[2:2:end]
-    hs = simple_rydberg.(nv(test_graph), ϕs)
-
-    # prepare a zero state
-    r = EaRydCore.zero_state(test_subspace)
-    sample1 = measure!(r)
-    @test sample1 == zero(BitStr64{5})
-    prob = KrylovEvolution(r, ts, hs)
-    emulate!(prob)
-    Random.seed!(5)
-    # 1. sampling
-    samples = measure(r; nshots=10000)
-    @test samples isa Vector{<:BitStr}
-    expected_sampling = samples .|> count_vertices |> mean
-    # 2. exact
-    expected_exact = r |> mean_rydberg
-    @test isapprox(expected_exact, expected_sampling; rtol=1e-1)
-
-    ####### gibbs
-    Random.seed!(5)
-    # 1. sampling
-    expected_sampling = r |> measure(nshots=10000) |> gibbs_loss(0.5)
-    # 2. exact
-    expected_exact = r |> gibbs_loss(0.5)
-    @test isapprox(expected_exact, expected_sampling; rtol=1e-1)
-end
+Random.seed!(8)
+test_subspace = Subspace(5, sort(randperm(32)[1:32]).-1)
+# prepare a zero state
+r = zero_state(test_subspace)
+sample1 = measure!(r)
+@test sample1 == zero(BitStr64{5})
+# 1. sampling
+r = rand_state(test_subspace)
+samples = measure(r; nshots=10000)
+@test samples isa Vector{<:BitStr}

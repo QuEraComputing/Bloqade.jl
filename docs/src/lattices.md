@@ -2,19 +2,9 @@
 
 ## Create a lattice
 
-With EaRyd, we are going to be simulating the quantum evolution of information stored in neutral atoms. While present-day experimental platforms allow distribution of atoms in arbitrary shapes, most often those come in the shape of an organized lattice structure. This is also the natural setup for quantum simulation of statistical models and quantum matter. To get started with EaRyd, you have to decide on the very architecture you want your quantum processor to have!
+With EaRyd, we are going to be simulating the quantum evolution of information stored in neutral atoms. Present-day experimental platforms allow distribution of atoms in an organized lattice structure and even in  arbitrary shapes.
+This makes neutral atom a natural setup for quantum simulation of statistical models and quantum matter. With EaRyd, we support several built-in lattice structure and allow the users to specify atom positions by inputing coordinates.
 
-
-Creating a lattice is very simple in EaRyd, e.g we can create a square lattice as following
-
-```@repl quick-start
-using EaRyd
-generate_sites(SquareLattice(), 3, 3)
-```
-
-this generates the atom positions on a ``3\times 3`` square lattice using the [`generate_sites`](@ref) function.
-
-we support the following built-in lattice: [`SquareLattice`](@ref), [`KagomeLattice`](@ref), [`HoneycombLattice`](@ref), and more. Please refer to [Lattices](@ref) for more detailed guide of lattice related operation.
 
 ## Lattice types
 
@@ -25,20 +15,22 @@ A [Bravais lattice](https://en.wikipedia.org/wiki/Bravais_lattice) is an infinit
 ```
 where ``d`` is the dimension of space, ``n_1, \ldots, n_d \in Z`` are integers.
 The unit cell of a Bravais lattice is defined by specifing its lattice vectors ``(\mathbf{a}_1, \mathbf{a}_2, \ldots, \mathbf{a}_d)``.
-To create a simple lattice, we just place one atom at location `(0.0, 0.0)` in a unit cell. The following code defines a triangular lattice.
+To create a simple lattice, we just place one site at location `(0.0, 0.0)` in a unit cell. For example, to create a triangular lattice, we can specify its lattice vector to be `(1.0, 0.0)` and `(0.5, 0.5*sqrt(3))`.
 
 ```@repl quick-start
+using EaRyd
 triangular = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))], [(0.0, 0.0)])
 ```
 
-For composite lattices, one should provide multiple atoms as the second argument to specify atom locations in a unitcell. For example, the honeycomb lattice can be defined by typing
+For composite lattices, one should provide multiple sites as the second argument to specify their locations in a unitcell. For example, the honeycomb lattice can be defined by typing
 ```@repl quick-start
 honeycomb = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))],
     [(0.0, 0.0), (0.5, 0.5/sqrt(3))])
 ```
 
+
 We provide a few shorthands for several useful lattices.
-One can use [`lattice_vectors`](@ref) and [`lattice_sites`](@ref) to access the lattice vectors and atom locations in a unit cell as described in the above section.
+One can use [`lattice_vectors`](@ref) and [`lattice_sites`](@ref) to access the lattice vectors and sites locations in a unit cell as described in the above section.
 
 ##### [`ChainLattice`](@ref)
 ```@example quick-start
@@ -64,11 +56,14 @@ lattice_vectors(chain)
 lattice_sites(chain)
 ```
 
+
 ##### [`SquareLattice`](@ref)
 ```@example quick-start
 square = SquareLattice()
 ```
-Note that the numbering showing on atoms are consistent numbering of qubits for the Hamilonian. In other words, if we want to do measurment, or apply opearations on individual atoms (qubits), we can referring the numbers on atoms for convienience. 
+Note that the index showing on sites are consistent with the index of qubits for performing computation. 
+In other words, if we want to do measurment or apply opearations on individual sites (qubits), we can refer the numbering on atoms for convienience. 
+For more details about how to generate Hamiltonian by using lattice as an argument, please see the section [`Hamiltonian`](@ref).
 
 ```@example quick-start
 lattice_vectors(square)
@@ -103,6 +98,7 @@ lattice_vectors(honeycomb)
 ```@example quick-start
 lattice_sites(honeycomb)
 ```
+
 
 ##### [`TriangularLattice`](@ref)
 ```@example quick-start
@@ -144,26 +140,35 @@ lattice_sites(kagome)
 ```
 
 ## Generate and sort sites
-One can generate atom locations using the [`generate_sites`](@ref) API.
-It will return a [`AtomList`](@ref) instance.
+
+Once we have defined certain lattice shapes (which have fixed lattice vectors and site positions), we can generate the atom positons by 
+specifying the number of atoms and the scale size of the lattice. 
+This is done by using the function [`generate_sites`](@ref) , which will return a [`AtomList`](@ref) instance containing the coordinates for each atoms. e.g.  
 
 ```@example quick-start
 atoms = generate_sites(HoneycombLattice(), 3, 5; scale=4.5)
 ```
-where `scale` defines the unit distance (in ``\mu m``) of the lattice.
-One can apply predefined filters, e.g. [`rescale_axes`](@ref), [`clip_axes`](@ref), [`offset_axes`](@ref), to manipulate atom locations.
+where `scale` defines the unit distance in experimental unit (``\mu m``) of the lattice, and `3, 5` specifies the repetitions of unit cells in each lattice vector direction.  
+
+We also support different operations for the generated lattices. For instance,  one can apply predefined filters, e.g. [`rescale_axes`](@ref), [`clip_axes`](@ref), [`offset_axes`](@ref), to manipulate atom locations.
 
 ```@example quick-start
 rescale_axes(atoms, 0.8)
 ```
+where the above operation rescales the coordinates of original `sites` by a factor of `0.8`. 
+
+The code below restricts the atoms sitting in window `(0.0, 5.0), (0.0, 6.0)` and throw aways those outside this regime. 
 
 ```@example quick-start
 clip_axes(atoms, (0.0, 5.0), (0.0, 6.0))
 ```
 
+Further, we can shift the origin of `atoms` by some vector `(5.0, 5.0)` simply by typing the code
+
 ```@example quick-start
 offset_axes(atoms, 5.0, 5.0)
 ```
+
 
 To sort the atoms by the their x-coordinates, one can convert these locations to a [`MaskedGrid`](@ref) representation of the atoms.
 ```@example quick-start
@@ -174,6 +179,9 @@ Then one can get the sorted atoms by typing
 ```@example quick-start
 sorted_atoms = collect_atoms(atoms_in_grid)
 ```
+
+Note that the sorting has changed the index numbering of atoms. 
+
 
 
 ## User-determined arbitrary lattices

@@ -4,7 +4,7 @@ CurrentModule = EaRydWaveforms
 
 # Waveforms
 
-Waveforms are essential ingredients for Rydberg quantum simulations. By controlling the waveforms of ``\Omega`` and ``\Delta``, one can prepare ground states of certain target Hamiltonian and study non-equalibrium dynamics of time-dependent Hamiltonians. With EaRyd, we support several built-in waveforms and allow the users to specify waveforms by inputing functions. We also support different operations of waveforms, such as smoothing, slicing, and composing, et al. 
+Waveforms are essential ingredients for Rydberg quantum simulations. By controlling the waveforms of the Rabi frequency ``\Omega`` and detuning ``\Delta``, one can prepare ground states of certain target Hamiltonian and study non-equilibrium dynamics of time-dependent Hamiltonians. With EaRyd, we support several built-in waveforms, as well as user-defined waveforms. For a given waveform, we also support smoothing, slicing, composing, and other operations. 
 
 The generated waveforms can be directly used to build time-dependent Hamiltonians, see [`Hamiltonian`](@ref). 
 
@@ -13,7 +13,7 @@ The generated waveforms can be directly used to build time-dependent Hamiltonian
 In EaRyd, the waveforms are defined as [`Waveform`](@ref) object,
 which is a composition of a callable object and a real number `duration`.
 
-EaRyd gives users the flexibility to specify general waveforms by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
+EaRyd gives users the flexibility to specify general waveforms by inputing functions. The following code constructs a sinusoidal waveform with time duration of ``4 \pi \mu s``
 
 ```@repl creating-waveform
 using EaRyd
@@ -22,7 +22,7 @@ waveform = Waveform(t->2.2sin(t), duration=4π);
 draw(waveform)
 ```
 
-We also support several built-in time-dependent waveforms, including [`piecewise_linear`](@ref), [`piecewise_constant`](@ref), [`linear_ramp`](@ref), [`constant`](@ref), [`sinusoidal`](@ref). For example, the codes below create different waveform shapes simply by single lines 
+We also support several built-in time-dependent waveforms, including [`piecewise_linear`](@ref), [`piecewise_constant`](@ref), [`linear_ramp`](@ref), [`constant`](@ref), [`sinusoidal`](@ref). For example, the codes below create different waveform shapes with a single line:
 
 ```@repl creating-waveform
 waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0]); 
@@ -49,18 +49,18 @@ waveform =  sinusoidal(duration=4π, amplitude=2.2);
 draw(waveform)
 ```
 
-In certain cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions `piecewise_linear` or `piecewise_constant`, corresponding to different interpolations. 
+In certain cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions `piecewise_linear` or `piecewise_constant`: 
 
 ```@repl user_input
-a =  [i for i in 1:10]
-b = rand(10)
+a =  [i for i in 1:10];
+b = rand(10);
 wf1 = piecewise_linear(clocks=a; values=b)
 wf2 = piecewise_constant(clocks=a; values=b)
 ```
 
-## Operations of Waveforms
+## Operations on Waveforms
 
-EaRyd also supports several operations of the waveforms. 
+EaRyd also supports several operations on the waveforms. 
 Waveforms can be sliced using the duration syntax `start..stop`, e.g
 
 ```@repl slicing
@@ -92,7 +92,7 @@ swf = smooth(wf)
 
 ## Waveform Linear Algebra
 
-EaRyd also supports several linear algebra operations of waveforms. If two waveforms have the same duration, we can directly add up or subtract the strength of two waveforms, simply by using `+` or `-`. 
+EaRyd also supports several linear algebra operations on waveforms. If two waveforms have the same duration, we can directly add up or subtract their strengths, simply by using `+` or `-`. 
 
 ```@repl add
 wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0);
@@ -101,7 +101,7 @@ wf3 = wf1 + wf2
 wf4 = wf1 - wf2
 ```
 
-If we want to increase the strength of a waveform by some times, we can directly use `*`
+If we want to increase the strength of a waveform by some time, we can directly use `*`
 
 ```@repl times
 wf = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0);

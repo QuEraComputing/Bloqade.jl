@@ -7,7 +7,7 @@
 # are favored (to lower the ground state(s) energy). With the interplay of these two mechanisms, different ordered states are supported depending on the strength of blockade radius and the detuning,
 # such as the [``Z_N`` ordered states](https://www.nature.com/articles/nature24622) (1D) and the checkboard phase, star phase, and pure quantum phase ([straited phase](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.124.103601)) (2D). 
 
-# We can use a Variational Quantum Adiabatic Algorithm (VQAA) to prepare these quantum many-body ground states. In this process, we start with all atoms in the ground state 
+# We can use Quantum Annealing (QA) to prepare these quantum many-body ground states. In this process, we start with all atoms in the ground state 
 # ``| 0 \rangle`` (the ground states of the many-body Hamiltonian with large negative detuning ``\Delta``). 
 # Then, the Rabi frequency ``\Omega`` is turned on, and the detuning strength is ramped up from a large negative value to postive values. If this process is slow enough, the quantum state of the system stays close to the ground state of the 
 # instantaneous Hamiltonian. At the end of the process, we arrive at a target Hamiltonian, and correspondingly, the prepared state is approximately the ground state for the final Hamiltonian.  

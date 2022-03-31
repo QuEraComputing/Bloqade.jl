@@ -178,13 +178,10 @@ heatmap(clocks, 1:9, D'; axis=(xlabel="iterations", ylabel="rydberg density per 
 # We can also plot the entanglement as a function of time
 
 fig = Figure(size=(5, 3));
-ax = Axis(fig[1, 1])
 lines!(clocks, entropy,
     axis=(; xlabel="Time (μs)", ylabel="Entanglement Entropy",
         xgridstyle=:dash, ygridstyle=:dash))
 fig
-
-
 
 # # A different initial state 
 

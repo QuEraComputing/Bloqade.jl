@@ -155,7 +155,7 @@ reg = zero_state(9)
 # We can now set up discrete time evolution problem using the ODE solver. 
 prob = SchrodingerProblem(reg, 4.2, h);
 integrator = init(prob, Vern8());
-# Then we measure the real-time expectation value of Rydberg density, and entanglement entropy. 
+# Then we measure the real-time expectation value of Rydberg density and entanglement entropy. 
 
 entropy = Float64[]
 densities = []
@@ -167,19 +167,21 @@ end
 
 
 # # Plot the results 
-# Now we first plot the Rydberg density for each site as a function of time
+# We first plot the Rydberg density for each site as a function of time
 
 clocks = [t for t in 0:1e-3:4.2]
 D = hcat(densities...)
 heatmap(clocks, 1:9, D'; axis=(xlabel="iterations", ylabel="rydberg density per site"))
+        
+# We can see that the state evolves to a Neel state after the first part of pulse. After that, there are clear oscillations between the two partterns of the Rydberg density.
 
-# We can see that the state evolve to Neel state after the first part of pulse. After that, there is a clear oscillations between the two partterns of the Rydberg density.
-
-# We can also plot the entanglement as a function of time, 
+# We can also plot the entanglement as a function of time
 
 fig = Figure(size=(5, 3));
 ax = Axis(fig[1, 1])
-lines!(clocks, entropy)
+lines!(clocks, entropy,
+    axis=(; xlabel="Time (μs)", ylabel="Entanglement Entropy",
+        xgridstyle=:dash, ygridstyle=:dash))
 fig
 
 
@@ -187,7 +189,7 @@ fig
 # # A different initial state 
 
 # In order to show that the revivals depends strongly on the initial state, 
-# we now choose a different initial state, and use ['KrylovEvolution']@(ref) solver to emulate the problem  
+# we now choose a different initial state, and use the ['KrylovEvolution']@(ref) solver to emulate the problem  
 
 
 hd= rydberg_h(atoms;Ω=4π)
@@ -206,6 +208,6 @@ for info in prob_d
     end
 end
 
-heatmap(clocks, 1:nsites, density_mat_d')
-
+heatmap(clocks, 1:nsites, density_mat_d'; axis=(xlabel="iterations", ylabel="rydberg density per site"))
+        
 # From the above figure, we see that the density does not show long-lived oscillations. 

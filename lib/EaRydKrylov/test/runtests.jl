@@ -24,3 +24,14 @@ function benchmark(n)
 end
 
 results = map(benchmark, [5, 8, 10, 15])
+
+
+using ExponentialUtilities
+
+A = rand(10, 10)
+exponential!(copy(A)) ≈ exp(A)
+alloc_mem(A,method)
+method = ExpMethodHigham2005(A)
+ExponentialUtilities.alloc_mem(A, method)
+
+@which exponential!(A, )

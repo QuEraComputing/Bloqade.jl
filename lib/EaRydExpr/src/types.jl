@@ -284,3 +284,11 @@ end
 function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
     lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ
 end
+
+Base.isreal(::RydInteract) = true
+Base.isreal(::SumOfN) = true
+Base.isreal(::SumOfX) = true
+Base.isreal(::SumOfZ) = true
+Base.isreal(::SumOfXPhase) = false
+Base.isreal(h::Add) = all(isreal, subblocks(h))
+Base.isreal(h::Scale) = isreal(factor(h)) && isreal(content(h))

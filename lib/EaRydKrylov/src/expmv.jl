@@ -1,5 +1,5 @@
 # NOTE: copied from Expokit
-
+# TODO: fully switch to ExponentialUtilities after fixing complex number
 function default_anorm(A)
     try
         opnorm(A, Inf)
@@ -86,7 +86,8 @@ function expmv!(w::Vector{T}, t::Number, A, vec::Vector{T};
                 err_loc = btol
                 # F = expm(tsgn*tau*hm[1:j,1:j])
                 # F = expm!(scale(tsgn*tau,view(hm,1:j,1:j)))
-                F = LinearAlgebra.exp!(tsgn*tau*view(hm,1:j,1:j))
+                L = tsgn*tau*view(hm,1:j,1:j)
+                F = ExponentialUtilities.exponential!(L)
                 fill!(w, zero(T))
                 for k=1:j
                     # w[:] = w + beta*vm[k]*F[k,1]
@@ -106,7 +107,7 @@ function expmv!(w::Vector{T}, t::Number, A, vec::Vector{T};
         while (iter < maxiter) && (mx == m)
             # F = expm(tsgn*tau*hm)
             # F = expm!(scale(tsgn*tau,hm))
-            F = LinearAlgebra.exp!(tsgn*tau*hm)
+            F = ExponentialUtilities.exponential!(tsgn*tau*hm)
             # local error estimation
             err1 = abs( beta*F[m+1,1] )
             err2 = abs( beta*F[m+2,1] * avnorm )

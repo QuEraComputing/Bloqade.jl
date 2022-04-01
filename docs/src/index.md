@@ -101,7 +101,7 @@ We are interested in measuring observables of the final quantum state of the Ryd
 
 ```@repl quick-start
 prob = SchrodingerProblem(reg, 1.6, h)
-integrator = init(prob, Vern8())
+integrator = init(prob, Vern8());
 emulate!(prob);
 ```
 Here we have chosen the ODE solver [`ODEEvolution`](@ref) and set the total evolution time to be 1.6 μs.

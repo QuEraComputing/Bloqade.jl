@@ -39,6 +39,10 @@ using EaRyd
 chain = ChainLattice()
 ```
 
+```@example quick-start
+img_atoms(generate_sites(chain, 10))
+```
+
 !!! note
     You can see the above visulization in one of the following editors
     * a [VSCode](https://github.com/julia-vscode/julia-vscode) editor,
@@ -60,7 +64,10 @@ lattice_sites(chain)
 ##### [`SquareLattice`](@ref)
 ```@example quick-start
 square = SquareLattice()
+
+img_atoms(generate_sites(square, 10, 10))
 ```
+
 Note that the index showing on sites are consistent with the index of qubits for performing computation. 
 In other words, if we want to do measurment or apply opearations on individual sites (qubits), we can refer the numbering on atoms for convienience. 
 For more details about how to generate Hamiltonian by using lattice as an argument, please see the section [`Hamiltonian`](@ref).
@@ -76,6 +83,8 @@ lattice_sites(square)
 ##### [`RectangularLattice`](@ref)
 ```@example quick-start
 rectangle = RectangularLattice(0.5)
+
+img_atoms(generate_sites(rectangle, 5, 5))
 ```
 
 ```@example quick-start
@@ -89,6 +98,8 @@ lattice_sites(rectangle)
 ##### [`HoneycombLattice`](@ref)
 ```@example quick-start
 honeycomb = HoneycombLattice()
+
+img_atoms(generate_sites(honeycomb, 5, 5))
 ```
 
 ```@example quick-start
@@ -103,6 +114,8 @@ lattice_sites(honeycomb)
 ##### [`TriangularLattice`](@ref)
 ```@example quick-start
 triangular = TriangularLattice()
+
+img_atoms(generate_sites(triangular, 8, 8))
 ```
 
 ```@example quick-start
@@ -116,6 +129,8 @@ lattice_sites(triangular)
 ##### [`LiebLattice`](@ref)
 ```@example quick-start
 lieb = LiebLattice()
+
+img_atoms(generate_sites(lieb, 5, 5))
 ```
 
 ```@example quick-start
@@ -129,6 +144,8 @@ lattice_sites(lieb)
 ##### [`KagomeLattice`](@ref)
 ```@example quick-start
 kagome = KagomeLattice()
+
+img_atoms(generate_sites(kagome, 5, 5))
 ```
 
 ```@example quick-start

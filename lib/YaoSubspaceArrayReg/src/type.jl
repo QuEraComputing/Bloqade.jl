@@ -100,3 +100,7 @@ end
 function Base.:*(bra::YaoArrayRegister.AdjointRegister{2, <:SubspaceArrayReg}, ket::SubspaceArrayReg)
     return dot(statevec(parent(bra)), statevec(ket))
 end
+
+space(r::SubspaceArrayReg) = r.subspace
+space(r::ArrayReg) = fullspace
+space(r::AdjointRegister) = space(parent(r))

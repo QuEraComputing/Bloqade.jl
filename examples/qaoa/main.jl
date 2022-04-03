@@ -42,6 +42,12 @@ EaRyd.EaRydCore.exact_solve_mis(graph)
 # ```math
 # B = \sum_{j=1}^{n}\sigma_j^x
 # ```
+
+# The QAOA algorithm is a classical-quantum hybrid algorithm, the classical part is the optimizer, which can be either a gradient based or non-gradient based.
+# The quantum part is a Rydberg atom system evolving under a parameterized pulse sequence and finally get measured on the computational basis.
+# For the convenience of simulation, we use the [`expect`](@ref) function to get the averaged measurement output and use automatic differentiation package ForwardDiff to differentiate the pulses.
+# In a experimental setup, the [`expect`] should be replace by measuring on the computational basis and get the energy of bit strings averaged as the loss.
+# Then one can either use non-gradient based optimizers to do the optimization or use finite difference obtain gradients of parameters.
 function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) % 2 == 0
     p = length(x)÷2
@@ -89,18 +95,19 @@ loss_piecewise_constant(atoms, rand(4))
 # ```
 # where ``\beta`` is the "inverse temperature" as a hyperparameter.
 
+# Let us use the forward mode automatic differentiation to get parameter gradient for free,
+# for gradient based optimization.
 using ForwardDiff
 
 t0 = rand(4)
 
 ForwardDiff.gradient(x->loss_piecewise_constant(atoms, x), t0)
 
+# NOTE: this gradient is not consistent with the finite difference!
+# It is uniform
 ## using FiniteDifferences
 
 ## FiniteDifferences.jacobian(central_fdm(5,1; factor=1e2), x->loss_piecewise_constant(atoms, x), t0)
-
-# Let us use the forward mode automatic differentiation to get parameter gradient for free,
-# for gradient based optimization.
 
 # We first prepare the adiabatic pulse sequence as two piecewise linear functions
 # define the rabi waveform

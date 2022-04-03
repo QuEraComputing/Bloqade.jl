@@ -28,25 +28,30 @@ EaRyd.EaRydCore.exact_solve_mis(graph)
 # ## QAOA with piecewise constant pulses
 # The QAOA algorithm (https://arxiv.org/abs/1411.4028) can be .
 # The standard definition involves applying the problem Hamiltonian ``C`` and the transverse field Hamiltonian ``B`` alternately.
-#
+# Let ``G=(V,E)`` be a graph, the hamiltonian for an MIS problem definite on it should be
 # ```math
-# C(z) = \sum_{\alpha=1}^{m} C_{\alpha}(z)
+# C(G, \sigma^z) = -\sum_{i\in V} w_i \sigma_i^z + \infty \sum_{\langle i,j\rangle \in E}\sigma_i^z \sigma_j^z
+# \end{equation}
 # ```
+# where the first summation is proportional to the size of the independent set, while the second term enfores the independence constraints.
+# In a Rydberg hamiltonian, the first term is the detuning ``\Delta``.
+# The second term contains an ``\infty``, which corresponds to the Rydberg blockade term that its strength decreases very fast as distance: ``\propto |r_i - r_j|^{-6}``.
+# It is not a perfect independent constraint term, hence proprocessing might be required in a Rydberg atom array experiment.
 #
+# The transverse field Hamiltonian corresponds to the Rabi term in a Rydberg atom array.
 # ```math
 # B = \sum_{j=1}^{n}\sigma_j^x
 # ```
-# `C` is a classical Hamiltonian that composed of ``m`` clauses (a disjunction of boolean literals)
 function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) % 2 == 0
-    ## durations can not be negative
-    durations = ones(T, length(x))
-
+    p = length(x)÷2
     ## detuning and rabi terms
-    ## Δs = repeat(T[0.0, 1], length(x)÷2)
-    ## Ωs = repeat(T[1.0, 0], length(x)÷2)
-    Ωs = piecewise_constant(; clocks=[0, cumsum(durations)...], values=vcat([[x[2i-1], zero(T)] for i in 1:length(x)÷2]...))
-    Δs = piecewise_constant(; clocks=[0, cumsum(durations)...], values=vcat([[zero(T), x[2i]] for i in 1:length(x)÷2]...))
+    ## Δs = repeat(T[0.0, 1], p)
+    ## Ωs = repeat(T[1.0, 0], p)
+    durations = abs.(x)
+    clocks = [0, cumsum(durations)...]
+    Ωs = piecewise_constant(; clocks=clocks, values=repeat(T[0, 1], p))
+    Δs = piecewise_constant(; clocks=clocks, values=repeat(T[1, 0], p))
 
     ## NOTE: check Δ
     ## hamiltonians = [rydberg_h(atoms; C=C, Ω=Ω, ϕ=zero(T), Δ=Δ) for (Δ, Ω) in zip(Δs, Ωs)]
@@ -86,11 +91,13 @@ loss_piecewise_constant(atoms, rand(4))
 
 using ForwardDiff
 
-ForwardDiff.gradient(x->loss_piecewise_constant(atoms, x), rand(4))
+t0 = rand(4)
 
-using FiniteDifferences
+ForwardDiff.gradient(x->loss_piecewise_constant(atoms, x), t0)
 
-FiniteDifferences.jacobian(central_fdm(5,1), x->loss_piecewise_constant(atoms, x), rand(4))
+## using FiniteDifferences
+
+## FiniteDifferences.jacobian(central_fdm(5,1; factor=1e2), x->loss_piecewise_constant(atoms, x), t0)
 
 # Let us use the forward mode automatic differentiation to get parameter gradient for free,
 # for gradient based optimization.

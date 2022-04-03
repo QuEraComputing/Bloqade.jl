@@ -61,7 +61,7 @@ function Base.getindex(wf::Waveform, slice::Interval{<:Real, Closed, Closed})
 end
 
 function (wf::Waveform)(t::Real, offset::Real=zero(t))
-    t - offset ≤ wf.duration || throw(ArgumentError(
+    t - offset ≤ wf.duration + 10*eps(t) || throw(ArgumentError(
         "t is not in range, expect $(offset) ≤ t ≤ $(wf.duration + offset), got $t")
     )
     return wf.f(t - offset)

@@ -8,6 +8,7 @@ EaRydLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 EaRydODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
 EaRydPlots = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe6"
 EaRydWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
+KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 
 [extras]

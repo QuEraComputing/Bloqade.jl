@@ -38,3 +38,11 @@ end
 function Yao.expect(op::AbstractBlock, reg::RydbergReg)
     return reg' * apply!(copy(reg), op)
 end
+
+function YaoBlocks.regadd!(reg::RydbergReg, reg2::RydbergReg)
+    @assert reg.natoms == reg2.natoms
+    @assert reg.layout == reg2.layout
+    @assert length(reg.subspace) == length(reg2.subspace)
+    reg.state .+= reg2.state
+    return reg
+end

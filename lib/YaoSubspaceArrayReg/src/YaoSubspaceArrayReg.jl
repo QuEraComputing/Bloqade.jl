@@ -8,6 +8,8 @@ using EaRydExpr: AbstractSpace
 using BitBasis
 using LinearAlgebra
 using StatsBase
+using YaoBlocks
+using Base.Cartesian: @nexprs
 
 export Subspace, SubspaceArrayReg, set_zero_state!,
     zero_state, rand_state, product_state,
@@ -17,5 +19,6 @@ export Subspace, SubspaceArrayReg, set_zero_state!,
 
 include("type.jl")
 include("measure.jl")
+include("instruct.jl")
 
 end

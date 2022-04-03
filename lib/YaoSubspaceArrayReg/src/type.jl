@@ -11,7 +11,7 @@ struct SubspaceArrayReg{State <: AbstractVector, Space} <: YaoAPI.AbstractRegist
     end
 end
 
-Base.copy(reg::SubspaceArrayReg) = SubspaceArrayReg(reg.natoms, copy(reg.state), copy(reg.subspace))
+Base.copy(reg::SubspaceArrayReg) = SubspaceArrayReg(copy(reg.state), copy(reg.subspace))
 
 YaoAPI.nqudits(reg::SubspaceArrayReg) = reg.natoms
 YaoAPI.nactive(reg::SubspaceArrayReg) = reg.natoms

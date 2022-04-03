@@ -7,19 +7,19 @@
     tol::Float64 = 1e-7
 end
 
-struct KrylovEvolution{S, T <: Real, H <: Hamiltonian}
-    reg::S
+struct KrylovEvolution{Reg <: AbstractRegister, T <: Real, H <: Hamiltonian}
+    reg::Reg
     start_clock::T
     durations::Vector{T}
     hamiltonian::H
     options::KrylovOptions
 end
 
-function KrylovEvolution(reg, h; start_clock=zero(eltype(durations)), kw...)
+function KrylovEvolution(reg::AbstractRegister, clocks::Vector{<:Real}, h; kw...)
     options = from_kwargs(KrylovOptions; kw...)
-    P = eltype(durations)
-    T = isreal(h) ? P : Complex{P}
-    return KrylovEvolution(reg, start_clock, durations, Hamiltonian(T, h), options)
+    T = isreal(h) ? eltype(clocks) : Complex{eltype(clocks)}
+    start_clock, durations = first(clocks), diff(clocks)
+    return KrylovEvolution(reg, start_clock, durations, Hamiltonian(T, h, space(reg)), options)
 end
 
 function emulate_step!(prob::KrylovEvolution, step::Int, clock::Real, duration::Real)

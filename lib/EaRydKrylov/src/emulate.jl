@@ -47,7 +47,7 @@ Base.@propagate_inbounds function Base.iterate(prob::KrylovEvolution, (step, clo
     return info, (step+1, clock+duration)
 end
 
-function emulate!(prob::KrylovEvolution)
+function EaRydExpr.emulate!(prob::KrylovEvolution)
     niterations = length(prob.durations)
     @inbounds if prob.options.progress
         ProgressLogging.progress() do id

@@ -292,3 +292,11 @@ Base.isreal(::SumOfZ) = true
 Base.isreal(::SumOfXPhase) = false
 Base.isreal(h::Add) = all(isreal, subblocks(h))
 Base.isreal(h::Scale) = isreal(factor(h)) && isreal(content(h))
+
+storage_size(x) = sizeof(x)
+function storage_size(h::Hamiltonian)
+    sum(storage_size, h.ts)
+end
+function storage_size(H::SparseMatrixCSC)
+    return sizeof(H.colptr) + sizeof(H.rowval) + sizeof(H.nzval)
+end

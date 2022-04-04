@@ -38,11 +38,11 @@ YaoBlocks.mat(::Type{T}, c::ControlBlock{N,BT,C}, s::Subspace) where {T,N,BT,C} 
 YaoBlocks.mat(::Type{T}, x::Add{N}, s::Subspace) where {N,T} =
     mapreduce(x -> mat(T, x, s), +, x.list)
 function YaoBlocks.mat(::Type{T}, c::ChainBlock, s::Subspace) where {T}
-    @warn "ChainBlock is applying subspace on its subblocks, which may be inconsistent with multiply and then take subspace."
+    # @warn "ChainBlock is applying subspace on its subblocks, which may be inconsistent with multiply and then take subspace."
     prod(x -> mat(T, x, s), Iterators.reverse(c.blocks))
 end
 function YaoBlocks.mat(::Type{T}, te::TimeEvolution{N}, s::Subspace) where {T,N}
-    @warn "TimeEvolution block is applying subspace on its subblock, which may be inconsistent with time evolve and then take subspace."
+    # @warn "TimeEvolution block is applying subspace on its subblock, which may be inconsistent with time evolve and then take subspace."
     exp(-im * T(te.dt) * Matrix(mat(T, te.H, s)))
 end
 # NOTE: CachedBlock is not yet implemented.

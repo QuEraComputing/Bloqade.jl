@@ -42,7 +42,7 @@ function YaoBlocks.mat(::Type{T}, c::ChainBlock, s::Subspace) where {T}
     prod(x -> mat(T, x, s), Iterators.reverse(c.blocks))
 end
 function YaoBlocks.mat(::Type{T}, te::TimeEvolution{N}, s::Subspace) where {T,N}
-    # @warn "TimeEvolution block is applying subspace on its subblock, which may be inconsistent with time evolve and then take subspace."
+    @warn "TimeEvolution block is applying subspace on its subblock, which may be inconsistent with time evolve and then take subspace."
     exp(-im * T(te.dt) * Matrix(mat(T, te.H, s)))
 end
 # NOTE: CachedBlock is not yet implemented.

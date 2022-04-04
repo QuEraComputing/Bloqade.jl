@@ -1,7 +1,7 @@
 using Test
 using EaRydExpr
 
-@testet "assertions" begin
+@testset "assertions" begin
     include("assert.jl") 
 end
 

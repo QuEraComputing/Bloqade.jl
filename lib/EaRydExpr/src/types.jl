@@ -63,6 +63,16 @@ struct XPhase{T} <: PrimitiveBlock{2}
     ϕ::T
 end
 
+struct PuPhase{T} <: PrimitiveBlock{2}
+    ϕ::T
+end
+
+struct PdPhase{T} <: PrimitiveBlock{2}
+    ϕ::T
+end
+
+
+
 """
     AbstractTerm <: PrimitiveBlock{2}
 
@@ -259,6 +269,8 @@ Base.@kwdef struct SumOfZ <: AbstractTerm
 end
 
 YaoAPI.nqudits(::XPhase) = 1
+YaoAPI.nqudits(::PdPhase) = 1
+YaoAPI.nqudits(::PuPhase) = 1
 YaoAPI.nqudits(h::RydInteract) = length(h.atoms)
 YaoAPI.nqudits(h::SumOfX) = h.nsites
 YaoAPI.nqudits(h::SumOfXPhase) = h.nsites

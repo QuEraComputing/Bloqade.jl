@@ -63,67 +63,67 @@ function emit_dynamic_terms(ex::SumOfXPhase)
         # ϕ time-dependent
         @case (Ω::Number, ϕ::Vector) && if is_time_function(ϕ) end
             lhs = map(enumerate(ϕ)) do (i, ϕ_i)
-                (t->exp(ϕ_i(t) * im)) => put(ex.nsites, i=>matblock([0 Ω;0 0]))
+                (t->exp(ϕ_i(t) * im)) => put(ex.nsites, i=>PuPhase(Ω))
             end
 
             rhs = map(enumerate(ϕ)) do (i, ϕ_i)
-                (t->exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>matblock([0 0;Ω 0]))
+                (t->exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>PdPhase(Ω))
             end
             return append!(lhs, rhs)
 
         @case (Ω::Number, ϕ) && if is_time_function(ϕ) end
             return [
-                (t->exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>matblock([0 Ω;0 0])) for i in 1:ex.nsites),
-                (t->exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>matblock([0 0;Ω 0])) for i in 1:ex.nsites),
+                (t->exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>PuPhase(Ω)) for i in 1:ex.nsites),
+                (t->exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>PdPhase(Ω)) for i in 1:ex.nsites),
             ]
 
         @case (Ω::Vector{<:Number}, ϕ::Vector) && if is_time_function(ϕ) end
             lhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-                (t->exp(ϕ_i(t) * im)) => put(ex.nsites, i=>matblock([0 Ω_i;0 0]))
+                (t->exp(ϕ_i(t) * im)) => put(ex.nsites, i=>PuPhase(Ω_i))
             end
 
             rhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-                (t->exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>matblock([0 0;Ω_i 0]))
+                (t->exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>PdPhase(Ω_i))
             end
             return append!(lhs, rhs)
         @case (Ω::Vector{<:Number}, ϕ) && if is_time_function(ϕ) end
             return [
-                (t->exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>matblock([0 Ω_i;0 0])) for (i, Ω_i) in enumerate(Ω)),
-                (t->exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>matblock([0 0;Ω_i 0])) for (i, Ω_i) in enumerate(Ω)),
+                (t->exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>PuPhase(Ω_i)) for (i, Ω_i) in enumerate(Ω)),
+                (t->exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>PdPhase(Ω_i)) for (i, Ω_i) in enumerate(Ω)),
             ]
 
         # both time-dependent
         @case (Ω::Vector, ϕ::Vector) && if is_time_function(ϕ) && is_time_function(Ω) end
             lhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-                (t->Ω_i(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i=>matblock([0 1;0 0]))
+                (t->Ω_i(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i=>ConstGate.Pu)
             end
 
             rhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-                (t->Ω_i(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>matblock([0 0;1 0]))
+                (t->Ω_i(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>ConstGate.Pd)
             end
             return append!(lhs, rhs)
         @case (Ω::Vector, ϕ) && if is_time_function(ϕ) && is_time_function(Ω) end
             lhs = map(enumerate(Ω)) do (i, Ω_i)
-                (t->Ω_i(t) * exp(ϕ(t) * im)) => put(ex.nsites, i=>matblock([0 1;0 0]))
+                (t->Ω_i(t) * exp(ϕ(t) * im)) => put(ex.nsites, i=>ConstGate.Pu)
             end
 
             rhs = map(enumerate(Ω)) do (i, Ω_i)
-                (t->Ω_i(t) * exp(-ϕ(t) * im)) => put(ex.nsites, i=>matblock([0 0;1 0]))
+                (t->Ω_i(t) * exp(-ϕ(t) * im)) => put(ex.nsites, i=>ConstGate.Pd)
             end
             return append!(lhs, rhs)
         @case (Ω, ϕ::Vector) && if is_time_function(ϕ) && is_time_function(Ω) end
             lhs = map(enumerate(ϕ)) do (i, ϕ_i)
-                (t->Ω(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i=>matblock([0 1;0 0]))
+                (t->Ω(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i=>ConstGate.Pu)
             end
 
             rhs = map(enumerate(ϕ)) do (i, ϕ_i)
-                (t->Ω(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>matblock([0 0;1 0]))
+                (t->Ω(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>ConstGate.Pd)
             end
             return append!(lhs, rhs)
         @case (Ω, ϕ) && if is_time_function(ϕ) && is_time_function(Ω) end
             return [
-                (t->Ω(t) * exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>matblock([0 1;0 0])) for i in 1:ex.nsites),
-                (t->Ω(t) * exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>matblock([0 0;1 0])) for i in 1:ex.nsites),
+                (t->Ω(t) * exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>ConstGate.Pu) for i in 1:ex.nsites),
+                (t->Ω(t) * exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>ConstGate.Pd) for i in 1:ex.nsites),
             ]
         @case (Ω, ϕ)
             error("unexpected value for Ω and ϕ, got $(typeof((Ω, ϕ)))")

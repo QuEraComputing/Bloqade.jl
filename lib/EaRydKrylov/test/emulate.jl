@@ -29,3 +29,4 @@ using Yao
 
     @test state ≈ prob.reg.state
 end
+

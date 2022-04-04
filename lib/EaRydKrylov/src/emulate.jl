@@ -15,9 +15,10 @@ struct KrylovEvolution{Reg <: AbstractRegister, T <: Real, H <: Hamiltonian}
     options::KrylovOptions
 end
 
-function KrylovEvolution(reg::AbstractRegister, clocks::Vector{<:Real}, h; kw...)
+function KrylovEvolution(reg::AbstractRegister, clocks, h; kw...)
     options = from_kwargs(KrylovOptions; kw...)
-    T = isreal(h) ? eltype(clocks) : Complex{eltype(clocks)}
+    P = real(eltype(statevec(reg)))
+    T = isreal(h) ? P : Complex{P}
     start_clock, durations = first(clocks), diff(clocks)
     return KrylovEvolution(reg, start_clock, durations, Hamiltonian(T, h, space(reg)), options)
 end

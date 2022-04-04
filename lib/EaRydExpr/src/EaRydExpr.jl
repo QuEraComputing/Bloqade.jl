@@ -15,7 +15,7 @@ using YaoBlocks: ChainBlock, PutBlock, TrivialGate, Subroutine, Scale, Daggered,
 
 export rydberg_h, FullSpace, Subspace, fullspace,
     RydInteract, SumOfX, SumOfXPhase, SumOfZ, SumOfN, XPhase, Op,
-    attime, matrix_to_positions, storage_size
+    attime, matrix_to_positions, storage_size, emulate!
 
 include("assert.jl")
 include("space.jl")

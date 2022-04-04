@@ -37,8 +37,15 @@ expmv!( t::Number,
     m::Int=min(30,size(A,1)),
     norm=LinearAlgebra.norm, anorm=default_anorm(A)) where {T} = expmv!(vec, t, A, vec; tol=tol, m=m, norm=norm, anorm=anorm)
 
+function unwrap_value(x) # unwrap ForwardDiff.Dual
+    hasfield(typeof(x), :value) ? x.value : x
+end
+
 function expmv!(w::Vector{T}, t::Number, A, vec::Vector{T};
-                   tol::Real=1e-7, m::Int=min(30,size(A,1)), norm=LinearAlgebra.norm, anorm=default_anorm(A)) where {T}
+                   tol::Real=1e-7, m::Int=min(30,size(A,1)),
+                   norm=LinearAlgebra.norm, anorm=default_anorm(A),
+                   expmethod=real(T) <: LinearAlgebra.BlasReal ? ExpMethodHigham2005() : ExpMethodGeneric(),
+                ) where {T}
     if size(vec,1) != size(A,2)
         error("dimension mismatch")
     end
@@ -53,7 +60,7 @@ function expmv!(w::Vector{T}, t::Number, A, vec::Vector{T};
     r = 1/m
     fact = (((m+1)/exp(1.0))^(m+1))*sqrt(2.0*pi*(m+1))
     tau = (1.0/anorm)*((fact*tol)/(4.0*beta*anorm))^r
-    tau = round(tau, sigdigits=2)
+    tau = round(unwrap_value(tau), sigdigits=2)
     # storage for Krylov subspace vectors
     vm = Array{typeof(w)}(undef,m+1)
     for i=1:m+1
@@ -87,7 +94,7 @@ function expmv!(w::Vector{T}, t::Number, A, vec::Vector{T};
                 # F = expm(tsgn*tau*hm[1:j,1:j])
                 # F = expm!(scale(tsgn*tau,view(hm,1:j,1:j)))
                 L = tsgn*tau*view(hm,1:j,1:j)
-                F = ExponentialUtilities.exponential!(L)
+                F = ExponentialUtilities.exponential!(L, expmethod)
                 fill!(w, zero(T))
                 for k=1:j
                     # w[:] = w + beta*vm[k]*F[k,1]
@@ -107,7 +114,7 @@ function expmv!(w::Vector{T}, t::Number, A, vec::Vector{T};
         while (iter < maxiter) && (mx == m)
             # F = expm(tsgn*tau*hm)
             # F = expm!(scale(tsgn*tau,hm))
-            F = ExponentialUtilities.exponential!(tsgn*tau*hm)
+            F = ExponentialUtilities.exponential!(tsgn*tau*hm, expmethod)
             # local error estimation
             err1 = abs( beta*F[m+1,1] )
             err2 = abs( beta*F[m+2,1] * avnorm )
@@ -131,7 +138,7 @@ function expmv!(w::Vector{T}, t::Number, A, vec::Vector{T};
                 break
             end
             tau = gamma * tau * (tau*tol/err_loc)^r # estimate new time-step
-            tau = round(tau, sigdigits=2) # round to 2 signiﬁcant digits
+            tau = round(unwrap_value(tau), sigdigits=2) # round to 2 signiﬁcant digits
                                  # to prevent numerical noise
             iter = iter + 1
         end
@@ -142,7 +149,7 @@ function expmv!(w::Vector{T}, t::Number, A, vec::Vector{T};
         beta = norm(w)
         tk = tk + tau
         tau = gamma * tau * (tau*tol/err_loc)^r # estimate new time-step
-        tau = round(tau, sigdigits=2) # round to 2 signiﬁcant digits
+        tau = round(unwrap_value(tau), sigdigits=2) # round to 2 signiﬁcant digits
                              # to prevent numerical noise
         err_loc = max(err_loc,rndoff)
         fill!(hm, zero(T))

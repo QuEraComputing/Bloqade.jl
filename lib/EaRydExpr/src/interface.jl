@@ -5,6 +5,8 @@ const n = YaoBlocks.ConstGate.P1
 
 end
 
+function emulate! end
+
 """
     rydberg_h(atoms; [C=2π * 862690 * MHz*µm^6], Ω[, ϕ, Δ])
 

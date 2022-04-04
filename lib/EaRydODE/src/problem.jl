@@ -1,19 +1,13 @@
-struct SchrodingerEquation{H, TC}
+struct SchrodingerEquation{ExprType, H <: Hamiltonian}
+    expr::ExprType
     hamiltonian::H
-    term_cache::TC
 end
 
 function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where L
     fill!(dstate, zero(eltype(dstate)))
-    fs, hs = eq.term_cache.fs, eq.term_cache.hs
-    for (f, h) in zip(fs, hs)
-        # NOTE: currently we can expect all h
-        # are preallocated constant matrices
-        mul!(dstate, h, state, -im * f(t), one(t))
+    for (f, term) in zip(eq.hamiltonian.fs, eq.hamiltonian.ts)
+        mul!(dstate, term, state, -im*f(t), one(t))
     end
-    # NOTE: RealLayout is not supported
-    # we will make it work automatically
-    # later by using StructArrays
     return
 end
 
@@ -21,10 +15,10 @@ function Base.show(io::IO, mime::MIME"text/plain", eq::SchrodingerEquation)
     indent = get(io, :indent, 0)
     tab(indent) = " "^indent
     print(io, tab(indent), "storage size: ")
-    printstyled(io, Base.format_bytes(EaRydCore.storage_size(eq.term_cache)); color=:yellow)
+    printstyled(io, Base.format_bytes(storage_size(eq.hamiltonian)); color=:yellow)
     println(io)
     println(io, tab(indent), "expression:")
-    EaRydCore.print_term(IOContext(io, :indent=>indent + 2), eq.hamiltonian)
+    show(IOContext(io, :indent=>indent + 2), eq.expr)
     println(io)
     println(io)
 end
@@ -72,17 +66,18 @@ struct SchrodingerProblem{Reg, EquationType <: ODEFunction, uType, tType, Kwargs
 
     function SchrodingerProblem(
         reg::AbstractRegister, tspan,
-        hamiltonian::EaRydCore.AbstractTerm; kw...)
+        expr; kw...)
 
-        nqubits(reg) == EaRydCore.nsites(hamiltonian) || throw(ArgumentError("number of qubits/sites does not match!"))
+        nqubits(reg) == nqubits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
         # remove this after ArrayReg start using AbstractVector
         state = statevec(reg)
-        space = EaRydCore.get_space(reg)
+        space = YaoSubspaceArrayReg.space(reg)
         tspan = SciMLBase.promote_tspan(tspan)
         # create term cache
-        tc = EaRydCore.split_const_term(eltype(state), hamiltonian, space)
-
-        eq = SchrodingerEquation(hamiltonian, tc)
+        # always follow register element-type
+        T = real(eltype(state))
+        T = isreal(expr) ? T : Complex{T}
+        eq = SchrodingerEquation(expr, Hamiltonian(T, expr, space))
         ode_f = ODEFunction(eq)
 
         default_ode_options = (
@@ -110,7 +105,7 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::SchrodingerProblem)
     println(io)
 
     print(io, tab(indent+4), "storage size: ")
-    printstyled(io, Base.format_bytes(EaRydCore.storage_size(prob.reg)); color=:yellow)
+    printstyled(io, Base.format_bytes(storage_size(prob.reg)); color=:yellow)
     println(io)
     println(io)
 
@@ -156,7 +151,7 @@ end
 
 DiffEqBase.get_concrete_problem(prob::SchrodingerProblem, isadapt; kw...) = prob
 
-function EaRydCore.emulate!(prob::SchrodingerProblem)
+function EaRydExpr.emulate!(prob::SchrodingerProblem)
     solve(prob, get(prob.kwargs, :algo, Vern8()))
     return prob
 end

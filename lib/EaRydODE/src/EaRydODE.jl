@@ -4,8 +4,11 @@ using YaoBase
 using Reexport
 using SciMLBase
 using DiffEqBase
-@reexport using EaRydCore
+using YaoArrayRegister
+using YaoSubspaceArrayReg
+@reexport using EaRydExpr
 @reexport using OrdinaryDiffEq
+using EaRydExpr: Hamiltonian
 using LinearAlgebra
 
 using OrdinaryDiffEq: @logmsg, isadaptive, gamma_default, qmin_default,

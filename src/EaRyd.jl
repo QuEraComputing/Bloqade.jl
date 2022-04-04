@@ -2,7 +2,9 @@ module EaRyd
 
 using Reexport
 
-@reexport using EaRydCore
+@reexport using EaRydExpr
+@reexport using EaRydKrylov
+@reexport using YaoSubspaceArrayReg
 @reexport using EaRydODE
 @reexport using Measurements: ±, Measurement
 @reexport using EaRydWaveforms

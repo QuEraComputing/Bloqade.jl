@@ -24,6 +24,8 @@ end
     positions = [(1, 2), (2, 3)]
     h1 = RydInteract(;atoms=positions) + SumOfX(;nsites=2, Ω=sin)
     h2 = RydInteract(;atoms=positions) + SumOfX(;nsites=2, Ω=sin(0.1))
+    @test isreal(h1)
+    @test isreal(h2)
     @test h1 |> attime(0.1) == h2
 
     h1 = RydInteract(;atoms=positions) + SumOfX(;nsites=2, Ω=sin) -
@@ -36,6 +38,7 @@ end
         SumOfN(;nsites=2, Δ=0.2)
     h2 = RydInteract(;atoms=positions) + SumOfXPhase(;nsites=2, Ω=0.5, ϕ=cos(0.1)) -
         SumOfN(;nsites=2, Δ=0.2)
+    @test !isreal(h1)
     @test h1 |> attime(0.1) == h2
 
     h1 = RydInteract(;atoms=positions) + SumOfX(;nsites=2, Ω=[sin, cos])

@@ -3,7 +3,6 @@ using Random
 using LinearAlgebra
 using YaoArrayRegister
 using BitBasis
-using Statistics
 
 Random.seed!(8)
 test_subspace = Subspace(5, sort(randperm(32)[1:32]).-1)

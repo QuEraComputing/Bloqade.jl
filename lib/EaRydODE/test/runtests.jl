@@ -71,10 +71,3 @@ end
     atoms = [(i, ) for i in 1:5]
     @test_throws ArgumentError SchrodingerProblem(zero_state(10), 0.2, rydberg_h(atoms; Ω=1.0))
 end
-
-
-atoms = [(i, ) for i in 1:5]
-space = blockade_subspace(atoms, 1.5)
-h = rydberg_h(atoms;Δ=sin, Ω=cos, C=2π * 109)
-
-mat(h |> attime(0.1), space)

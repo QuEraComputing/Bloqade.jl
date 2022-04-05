@@ -8,17 +8,17 @@ function find_largest(probs, num)
     return indices
 end
 
-function bitstring_hist(r::ArrayReg; nlargest::Int, title="", kw...)
+function bitstring_hist!(ax, r::ArrayReg; nlargest::Int, title="", kw...)
     ps = probs(r)
     indices = find_largest(ps, nlargest)
 
-    obj = plt.bar(
+    obj = ax.bar(
         1:length(indices), ps[indices],
         kw...
     )
-    plt.xlabel("bitstring")
-    plt.ylabel("probability")
-    plt.xticks(
+    ax.set_xlabel("bitstring")
+    ax.set_ylabel("probability")
+    ax.set_xticks(
         1:length(indices),
         string.(indices.-1;base=2, pad=nqubits(r)),
         rotation=60,
@@ -26,18 +26,24 @@ function bitstring_hist(r::ArrayReg; nlargest::Int, title="", kw...)
     return obj
 end
 
-function bitstring_hist(r::SubspaceArrayReg; nlargest::Int, title="", kw...)
+function bitstring_hist!(ax, r::SubspaceArrayReg; nlargest::Int, title="", kw...)
     state = statevec(r)
     probs = abs2.(state)
     indices = find_largest(probs, nlargest)
 
-    obj = plt.bar(1:length(indices), probs[indices]; kw...)
-    plt.xlabel("bitstring")
-    plt.ylabel("probability")
-    plt.xticks(
+    obj = ax.bar(1:length(indices), probs[indices]; kw...)
+    ax.set_xlabel("bitstring")
+    ax.set_ylabel("probability")
+    ax.set_xticks(
         1:length(indices),
         string.(space(r).subspace_v[indices];base=2, pad=nqubits(r)),
         rotation=60,
     )
     return obj
+end
+
+function bitstring_hist(r; kw...)
+    fig, ax = plt.subplots()
+    bitstring_hist!(ax, r; kw...)
+    return fig
 end

@@ -1,9 +1,15 @@
-function draw(wf::Waveform)
+function draw!(ax, wf::Waveform)
     clocks = sample_clock(wf)
-    fig = plt.plot(
+    fig = ax.plot(
         clocks, EaRydWaveforms._rm_err.(sample_values(wf, clocks));
     )
-    plt.xlabel("clock (μs)")
-    plt.ylabel("value (rad/µs)")
+    ax.set_xlabel("clock (μs)")
+    ax.set_ylabel("value (rad/µs)")
+    return ax
+end
+
+function draw(wf::Waveform)
+    fig, ax = plt.subplots()
+    draw!(ax, wf)
     return fig
 end

@@ -17,6 +17,7 @@ Reexport = "189a3867-3050-52da-a836-e630ba90ab69"
 YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
+ForwardDiff = "0.10"
 julia = "1.6.3"
 
 [extras]

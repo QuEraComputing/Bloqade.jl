@@ -322,11 +322,6 @@ end
 
 for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
     @eval begin
-        function Base.show(io::IO, ::$mime, lt::AbstractLattice{D}) where D
-            sites = generate_sites(lt, ntuple(i->5, D)...)
-            show(io, $mime(), sites)
-        end
-    
         function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
             img_maskedgrid(maskedgrid; format=$format, io=io)
             nothing

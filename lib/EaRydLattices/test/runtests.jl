@@ -70,12 +70,8 @@ end
     grd = make_grid(lt[2:end-1])
     @test img_atoms(lt) isa Compose.Context
     @test img_maskedgrid(grd) isa Compose.Context
-    @test show(IOBuffer(), MIME"text/html"(), KagomeLattice()) === nothing
-    @test show(IOBuffer(), MIME"text/html"(), ChainLattice()) === nothing
     @test show(IOBuffer(), MIME"text/html"(), grd) === nothing
     @test show(IOBuffer(), MIME"text/html"(), lt) === nothing
-    @test show(IOBuffer(), MIME"image/png"(), KagomeLattice()) === nothing
-    @test show(IOBuffer(), MIME"image/png"(), ChainLattice()) === nothing
     @test show(IOBuffer(), MIME"image/png"(), grd) === nothing
     @test show(IOBuffer(), MIME"image/png"(), lt) === nothing
 end

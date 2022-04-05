@@ -3,10 +3,9 @@ uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe6"
 version = "0.1.0"
 
 [deps]
-EaRydCore = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe2"
+EaRydMIS = "bd27d05e-4ce1-5e74-84dd-c5d7d508bbe2"
 EaRydWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
-Makie = "ee78f7c6-11fb-53f2-987a-cfe4a2b5a57a"
-
-[compat]
-EaRydCore = "0.1.0"
-Makie = "0.16"
+PyCall = "438e738f-606a-5dbb-bf0a-cddfbfd45ab0"
+PyPlot = "d330b81b-6aea-500a-939a-2ce795aea3ee"
+YaoArrayRegister = "e600142f-9330-5003-8abb-0ebd767abc51"
+YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"

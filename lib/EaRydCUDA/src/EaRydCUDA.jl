@@ -2,6 +2,13 @@
 
 module EaRydCUDA
 
+using CUDA
+using Adapt
+using EaRydExpr
+using CUDA.CUSPARSE
+using Reexport
+
+
 # using EaRydCore
 # using Yao
 # using CUDA

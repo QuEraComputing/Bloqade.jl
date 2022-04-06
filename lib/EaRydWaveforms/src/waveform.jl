@@ -61,7 +61,7 @@ function Base.getindex(wf::Waveform, slice::Interval{<:Real, Closed, Closed})
 end
 
 function (wf::Waveform)(t::Real, offset::Real=zero(t))
-    t - offset ≤ wf.duration || throw(ArgumentError(
+    t - offset < wf.duration || t - offset ≈ wf.duration || throw(ArgumentError(
         "t is not in range, expect $(offset) ≤ t ≤ $(wf.duration + offset), got $t")
     )
     return wf.f(t - offset)
@@ -107,7 +107,7 @@ function _rm_err(x)
 end
 
 function assert_duration_equal(lhs::Waveform, rhs::Waveform)
-    lhs.duration == rhs.duration ||
+    lhs.duration ≈ rhs.duration ||
         throw(ArgumentError("waveforms durations are different cannot add them"))
 end
 

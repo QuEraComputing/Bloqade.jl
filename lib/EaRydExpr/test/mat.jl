@@ -19,3 +19,7 @@ using SparseArrays
         @test M ≈ mat(g, ss)
     end
 end
+
+@testset "XPhase = PdPhase + PuPhase" begin
+    @test mat(XPhase(1.0)) ≈ mat(PdPhase(1.0)) + mat(PuPhase(1.0))
+end

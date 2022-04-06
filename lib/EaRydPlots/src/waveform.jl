@@ -1,18 +1,15 @@
-function draw(wf::Waveform; kw...)
-    fig = Figure(resolution=(1400, 600))
-    draw!(fig[1, 1], wf; kw...)
-    return fig
+function draw!(ax, wf::Waveform)
+    clocks = sample_clock(wf)
+    fig = ax.plot(
+        clocks, EaRydWaveforms._rm_err.(sample_values(wf, clocks));
+    )
+    ax.set_xlabel("clock (μs)")
+    ax.set_ylabel("value (rad/µs)")
+    return ax
 end
 
-function draw!(plt, wf::Waveform; title::String="")
-    clocks = sample_clock(wf)
-    ax = Axis(
-        plt;
-        # xticks = (1:length(indices), string.(indices.-1;base=2, pad=nqubits(r))),
-        title,
-        xlabel="clock (μs)",
-        ylabel="value (rad/µs)",
-    )
-    lines!(ax, clocks, EaRydWaveforms._rm_err.(sample_values(wf, clocks)))
-    return plt
+function draw(wf::Waveform)
+    fig, ax = plt.subplots()
+    draw!(ax, wf)
+    return fig
 end

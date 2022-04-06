@@ -2,14 +2,25 @@ using Test
 using ForwardDiff
 using EaRydODE
 using YaoSubspaceArrayReg
+using FiniteDifferences
 using YaoArrayRegister
+using EaRydMIS
+using EaRydWaveforms
 
-ForwardDiff.derivative(2.0) do x
-    reg = zero_state(Complex{typeof(x)}, 5)
-    tspan = (0, 1e-4)
+function loss(xs::Vector)
+    reg = zero_state(Complex{eltype(xs)}, 5)
+    tspan = (0, 0.1)
     atoms = [(i, ) for i in 1:5]
-    h = rydberg_h(atoms; C=2π * 109.16, Ω=sin, ϕ=x)
-    prob = SchrodingerProblem(reg, tspan, h; dt=1e-5, progress=true, save_start=false)
+    Ω = piecewise_constant(clocks=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5], values=xs)
+    h = rydberg_h(atoms; C=2π * 109.16, Ω, ϕ=0.1)
+    prob = SchrodingerProblem(reg, tspan, h; dt=1e-3)
     emulate!(prob)
-    sum(abs2.(statevec(prob.reg)))
+    return fidelity(reg, product_state(bit"00001"))
 end
+
+
+xs = rand(5)
+Δ_ad = ForwardDiff.gradient(loss, xs)
+Δ_fd, = FiniteDifferences.grad(central_fdm(5, 1), loss, xs)
+
+@test Δ_ad ≈ Δ_fd rtol=1e-2

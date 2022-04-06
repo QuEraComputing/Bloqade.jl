@@ -8,6 +8,14 @@ function YaoAPI.mat(::Type{T}, h::XPhase) where T
     return PermMatrix([2, 1], [exp(h.ϕ*im), exp(-h.ϕ*im)])
 end
 
+function YaoAPI.mat(::Type{T}, h::PuPhase) where T
+    return sparse([1], [2], [exp(h.ϕ*im)], 2, 2)
+end
+
+function YaoAPI.mat(::Type{T}, h::PdPhase) where T
+    return sparse([2], [1], [exp(-h.ϕ*im)], 2, 2)
+end
+
 function YaoAPI.mat(::Type{T}, h::AbstractTerm, space::FullSpace=fullspace) where T
     blocks = YaoBlocks.Optimise.simplify(h; rules=[YaoBlocks.Optimise.to_basictypes])
     return YaoAPI.mat(T, blocks)

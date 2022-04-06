@@ -1,0 +1,12 @@
+[deps]
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
+YaoArrayRegister = "e600142f-9330-5003-8abb-0ebd767abc51"
+EaRydLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
+EaRydWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
+YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
+EaRydExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18"

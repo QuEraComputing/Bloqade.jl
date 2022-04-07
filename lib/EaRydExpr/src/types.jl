@@ -20,6 +20,8 @@ end
 Base.size(h::Hamiltonian) = size(h.ts[1])
 Base.size(h::Hamiltonian, idx::Int) = size(h.ts[1], idx)
 
+Adapt.@adapt_structure Hamiltonian
+
 """
     struct StepHamiltonian
 

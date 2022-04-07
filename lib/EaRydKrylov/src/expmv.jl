@@ -22,26 +22,32 @@ See R.B. Sidje, ACM Trans. Math. Softw., 24(1):130-156, 1998
 and http://www.maths.uq.edu.au/expokit
 """
 function expmv( t::Number,
-                   A, vec::Vector{T};
+                   A, vec::AbstractVector{T};
                    tol::Real=1e-7,
                    m::Int=min(30, size(A, 1)),
                    norm=LinearAlgebra.norm, anorm=default_anorm(A)) where {T}
-    result = convert(Vector{promote_type(eltype(A), T, typeof(t))}, copy(vec))
+    
+    result = similar(vec, promote_type(eltype(A), T, typeof(t)))
+    copyto!(result, vec)
     expmv!(t, A, result; tol=tol, m=m, norm=norm, anorm=anorm)
     return result
 end
 
-expmv!( t::Number,
-    A, vec::Vector{T};
+function expmv!( t::Number,
+    A, vec::AbstractVector{T};
     tol::Real=1e-7,
     m::Int=min(30,size(A,1)),
-    norm=LinearAlgebra.norm, anorm=default_anorm(A)) where {T} = expmv!(vec, t, A, vec; tol=tol, m=m, norm=norm, anorm=anorm)
+    norm=LinearAlgebra.norm, anorm=default_anorm(A)) where {T}
+
+    expmv!(vec, t, A, vec; tol=tol, m=m, norm=norm, anorm=anorm)
+    return vec
+end
 
 function unwrap_value(x) # unwrap ForwardDiff.Dual
     hasfield(typeof(x), :value) ? x.value : x
 end
 
-function expmv!(w::Vector{T}, t::Number, A, vec::Vector{T};
+function expmv!(w::AbstractVector{T}, t::Number, A, vec::AbstractVector{T};
                    tol::Real=1e-7, m::Int=min(30,size(A,1)),
                    norm=LinearAlgebra.norm, anorm=default_anorm(A),
                    expmethod=real(T) <: LinearAlgebra.BlasReal ? ExpMethodHigham2005() : ExpMethodGeneric(),

@@ -5,9 +5,16 @@ module EaRydCUDA
 using CUDA
 using Adapt
 using EaRydExpr
+using EaRydKrylov
 using CUDA.CUSPARSE
 using Reexport
+using CUDA.CUSPARSE: CuSparseMatrixCSC,
+    CuSparseMatrixCSR,
+    AbstractCuSparseMatrix
 
+# See https://github.com/JuliaGPU/CUDA.jl/pull/1466
+include("opnorm.jl")
+include("krylov.jl")
 
 # using EaRydCore
 # using Yao

@@ -9,6 +9,9 @@ using CUDA.CUSPARSE: CuSparseMatrixCSC, CuSparseMatrixCSR, AbstractCuSparseMatri
 using EaRydCore: AbstractTerm
 using EaRydODE: SchrodingerEquation, update_dstate!
 
+
+
+
 CUDA.allowscalar(false)
 
 atoms = square_lattice(5, 0.8)

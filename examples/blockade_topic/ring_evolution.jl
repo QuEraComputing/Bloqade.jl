@@ -5,7 +5,7 @@ using EaRyd
 
 
 # First, define the geometry of the system, a ring of 12 sites.
-nsites = 12;    # 12 site chain
+nsites = 5;    # 12 site chain
 distance = 7    # Distance between atoms, in microns
 
 R = distance/(2*sin(2*pi/(nsites)/2))                                       # Radius of the circle, using a little trigonometry
@@ -29,7 +29,7 @@ init2 = zero_state(space)                       # Define the initial state in th
 
 # 
 Tmax = 10
-nsteps = 20
+nsteps = 2000
 iteration = 1:nsteps
 ts = [Tmax/nsteps for _ in iteration];
 hs = [h for _ in iteration];
@@ -60,6 +60,6 @@ end
 
 using DelimitedFiles
 
-fil = open("density_matrix_data.txt","w")
-writedlm(fil,data_out)
-close(fil)
+#fil = open("density_matrix_data.txt","w")
+#writedlm(fil,data_out)
+#close(fil)

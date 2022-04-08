@@ -13,7 +13,8 @@ using CUDA.CUSPARSE: CuSparseMatrixCSC,
     AbstractCuSparseMatrix
 
 # See https://github.com/JuliaGPU/CUDA.jl/pull/1466
-include("opnorm.jl")
+include("patch/opnorm.jl")
+include("patch/arraymath.jl")
 include("krylov.jl")
 
 # using EaRydCore

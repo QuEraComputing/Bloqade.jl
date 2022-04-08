@@ -20,26 +20,15 @@ prob = KrylovEvolution(reg, clocks, h)
 d_prob = cu(prob)
 emulate!(d_prob)
 
-
 H = sum(zip(d_prob.hamiltonian.fs, d_prob.hamiltonian.ts)) do (f, t)
-    @show typeof(t)
     f(0.1) * t
 end
 
-using LinearAlgebra
-lmul!(1.0, d_prob.hamiltonian.ts[1])
-@which 1.0 * d_prob.hamiltonian.ts[2]
 
-b = Broadcast.broadcasted(*, 1.0, prob.hamiltonian.ts[1])
-@code_lowered Base.Broadcast.instantiate(b)
+st = statevec(cu(reg))
+dA = d_prob.hamiltonian.ts[1]
+y = similar(st)
 
-function LinearAlgebra.opnorm(h::StepHamiltonian, p=2)
-    H = sum(zip(h.h.fs, h.h.ts)) do (f, t)
-        f(h.t) * t
-    end
-    return opnorm(H, p)
-end
+using StructArrays
 
-space = Subspace(5, [0, 1, 4, 8])
-zero_state(space)|>typeof
-emulate!(prob)
+StructArray{ComplexF32}((real(st), imag(st)))

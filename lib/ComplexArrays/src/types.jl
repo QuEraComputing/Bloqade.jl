@@ -56,6 +56,10 @@ function Base.similar(A::ComplexArray, ::Type{S}, dims::Dims) where {T, S <: Com
     return ComplexArray{T}(undef, dims)
 end
 
+function Base.unsafe_convert(::Type{Ptr{T}}, A::ComplexArray) where T
+    return Base.unsafe_convert(Ptr{T}, A.storage)
+end
+
 Adapt.@adapt_structure ComplexArray
 
 function Adapt.adapt_storage(::Type{<:ComplexArray}, xs::AbstractArray{Complex{T}}) where T

@@ -1,6 +1,8 @@
 using Test
 using Adapt
+using LinearAlgebra
 using ComplexArrays
+using ComplexArrays: unwarp_complex_array_type
 
 @testset "ComplexArray(...)" begin
     X = ComplexArray(rand(Float64, 10, 2))
@@ -52,7 +54,7 @@ end
     X = rand(ComplexF64, 10, 5)
     Y = adapt(ComplexArray, X)
     @test Y isa ComplexMatrix
-    @test X ≈ Y        
+    @test X ≈ Y
 end
 
 @testset "linalg" begin
@@ -61,4 +63,16 @@ end
     Y = similar(X)
     mul!(Y, M, X, true, false)
     @test Y ≈ M * X
+end
+
+@testset "broadcast" begin
+    X = adapt(ComplexArray, rand(ComplexF64, 10))
+    @test X .+ X ≈ 2 * X
+end
+
+@testset "unwarp_complex_array_type" begin
+    X = adapt(ComplexArray, rand(ComplexF64, 10))
+    @test unwarp_complex_array_type(X, X, 2.0) isa Tuple{Matrix{Float64}, Matrix{Float64}, Float64}
+    @test_throws ErrorException unwarp_complex_array_type(X, rand(2, 2), X)
+    @test_throws ErrorException unwarp_complex_array_type(rand(2, 2), X, X)
 end

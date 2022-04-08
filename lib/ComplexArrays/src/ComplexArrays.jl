@@ -7,5 +7,6 @@ export ComplexArray, ComplexVector, ComplexMatrix
 
 include("types.jl")
 include("linalg.jl")
+include("broadcast.jl")
 
 end

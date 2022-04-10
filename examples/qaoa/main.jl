@@ -43,7 +43,7 @@ EaRyd.EaRydCore.exact_solve_mis(graph)
 # B = \sum_{j=1}^{n}\sigma_j^x
 # ```
 
-# The QAOA algorithm is a classical-quantum hybrid algorithm, the classical part is the optimizer, which can be either a gradient based or non-gradient based.
+# The QAOA algorithm is a classical-quantum hybrid algorithm, the classical part is an optimizer, which can be either a gradient based or non-gradient based one.
 # The quantum part is a Rydberg atom system evolving under a parameterized pulse sequence and finally get measured on the computational basis.
 # For the convenience of simulation, we use the [`expect`](@ref) function to get the averaged measurement output and use automatic differentiation package ForwardDiff to differentiate the pulses.
 # In a experimental setup, the [`expect`] should be replace by measuring on the computational basis and get the energy of bit strings averaged as the loss.
@@ -52,15 +52,12 @@ function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) % 2 == 0
     p = length(x)÷2
     ## detuning and rabi terms
-    ## Δs = repeat(T[0.0, 1], p)
-    ## Ωs = repeat(T[1.0, 0], p)
     durations = abs.(x)
     clocks = [0, cumsum(durations)...]
     Ωs = piecewise_constant(; clocks=clocks, values=repeat(T[0, 1], p))
     Δs = piecewise_constant(; clocks=clocks, values=repeat(T[1, 0], p))
 
     ## NOTE: check Δ
-    ## hamiltonians = [rydberg_h(atoms; C=C, Ω=Ω, ϕ=zero(T), Δ=Δ) for (Δ, Ω) in zip(Δs, Ωs)]
     hamiltonian = rydberg_h(atoms; Ω=Ωs, Δ=Δs)
 
     subspace = blockade_subspace(atoms, 5.2)
@@ -171,6 +168,7 @@ end
 x0 = rand(9)
 qaoa_loss_piecewise_constant(atoms, x0; nshots=100)
 
+using Optimisers
 using Optim
 optimize_result = Optim.optimize(x->qaoa_loss_piecewise_constant(atoms, x; nshots=100), x0, NelderMead(), Optim.Options(show_trace=true, iterations=100))
 println("The final loss is $(minimum(optimize_result))")

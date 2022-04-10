@@ -4,8 +4,10 @@ module EaRydCUDA
 
 using CUDA
 using Adapt
+using YaoArrayRegister
 using EaRydExpr
 using EaRydKrylov
+using ComplexArrays
 using CUDA.CUSPARSE
 using Reexport
 using CUDA.CUSPARSE: CuSparseMatrixCSC,
@@ -16,6 +18,7 @@ using CUDA.CUSPARSE: CuSparseMatrixCSC,
 include("patch/opnorm.jl")
 include("patch/arraymath.jl")
 include("krylov.jl")
+include("complex_array.jl")
 
 # using EaRydCore
 # using Yao

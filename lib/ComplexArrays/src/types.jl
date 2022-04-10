@@ -2,7 +2,7 @@ struct ComplexArray{T <: Real, N, AT <: AbstractArray{T}} <: AbstractArray{Compl
     storage::AT
 
     function ComplexArray{T, N}(::UndefInitializer, dims::Dims{N}) where {T, N}
-        storage = Array{T, length(dims)+1}(undef, (dims..., 2))
+        storage = Array{T, N+1}(undef, (dims..., 2))
         new{T, N, typeof(storage)}(storage)
     end
 
@@ -52,12 +52,26 @@ function Base.setindex!(X::ComplexArray{T, N}, value::Complex{T}, idx::Int, othe
 end
 
 Base.IndexStyle(::Type{<:ComplexArray}) = IndexLinear()
-function Base.similar(A::ComplexArray, ::Type{S}, dims::Dims) where {T, S <: Complex{T}}
-    return ComplexArray{T}(undef, dims)
+function Base.similar(A::ComplexArray{T, N}, ::Type{S}, dims::Dims) where {T, N, S}
+    return ComplexArray{real(S)}(undef, dims)
 end
 
 function Base.unsafe_convert(::Type{Ptr{T}}, A::ComplexArray) where T
     return Base.unsafe_convert(Ptr{T}, A.storage)
+end
+
+function Base.copyto!(dst::ComplexArray, src::ComplexArray)
+    copyto!(dst.storage, src.storage)
+    return dst
+end
+
+function Base.fill!(X::ComplexArray{T}, x) where T
+    re, im = T(real(x)), T(imag(x))
+    @views begin
+        fill!(X.storage[:, 1], re)
+        fill!(X.storage[:, 2], im)            
+    end
+    return X
 end
 
 Adapt.@adapt_structure ComplexArray

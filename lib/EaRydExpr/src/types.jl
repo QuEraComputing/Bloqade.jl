@@ -37,11 +37,14 @@ end
 Base.size(h::StepHamiltonian, idx::Int) = size(h.h, idx)
 Base.size(h::StepHamiltonian) = size(h.h)
 
-function LinearAlgebra.opnorm(h::StepHamiltonian, p=2)
-    H = sum(zip(h.h.fs, h.h.ts)) do (f, t)
+function to_matrix(h::StepHamiltonian)
+    return sum(zip(h.h.fs, h.h.ts)) do (f, t)
         f(h.t) * t
     end
-    return opnorm(H, p)
+end
+
+function LinearAlgebra.opnorm(h::StepHamiltonian, p=2)
+    return opnorm(to_matrix(h), p)
 end
 
 (h::Hamiltonian)(t::Real) = StepHamiltonian(t, h)

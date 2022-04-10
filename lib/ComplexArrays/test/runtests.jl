@@ -76,3 +76,33 @@ end
     @test_throws ErrorException unwarp_complex_array_type(X, rand(2, 2), X)
     @test_throws ErrorException unwarp_complex_array_type(rand(2, 2), X, X)
 end
+
+@testset "rmul!" begin
+    X = rand(ComplexF64, 10)
+    Y = adapt(ComplexArray, X)
+    rmul!(X, 1.25)
+    rmul!(Y, 1.25)
+    @test X ≈ Y
+
+    rmul!(X, 1.25+2.1im)
+    rmul!(Y, 1.25+2.1im)
+    @test X ≈ Y
+end
+
+@testset "dot" begin
+    x, y = rand(ComplexF64, 10), rand(ComplexF64, 10)
+    a, b = adapt(ComplexArray, x), adapt(ComplexArray, y)
+    @test dot(a, b) ≈ dot(x, y)        
+end
+
+@testset "axpy!" begin
+    x, y = rand(ComplexF64, 10), rand(ComplexF64, 10)
+    a, b = adapt(ComplexArray, x), adapt(ComplexArray, y)
+    axpy!(2.0, x, y)
+    axpy!(2.0, a, b)
+    @test b ≈ y
+
+    axpy!(1.2+im*3.0, x, y)
+    axpy!(1.2+im*3.0, a, b)
+    @test b ≈ y
+end

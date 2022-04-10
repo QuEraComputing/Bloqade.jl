@@ -2,7 +2,7 @@ using LinearAlgebra
 
 function sum_dim1(A::CuSparseMatrixCSR)
     function kernel(out, dA)
-        idx = threadIdx().x
+        idx = (blockIdx().x-1) * blockDim().x + threadIdx().x
         idx < length(dA.rowPtr) || return
         s = zero(eltype(dA))
         for k in dA.rowPtr[idx]:dA.rowPtr[idx+1]-1

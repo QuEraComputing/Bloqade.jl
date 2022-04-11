@@ -12,3 +12,4 @@ Manifest.toml
 build
 LocalPreferences.tom
 .CondaPkg
+JuliaSysimage.so

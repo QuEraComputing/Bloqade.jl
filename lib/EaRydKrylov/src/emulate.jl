@@ -13,6 +13,18 @@ struct KrylovEvolution{Reg <: AbstractRegister, T <: Real, H <: Hamiltonian}
     durations::Vector{T}
     hamiltonian::H
     options::KrylovOptions
+
+    function KrylovEvolution{Reg, T, H}(reg, start_clock, durations, hamiltonian, options) where {Reg, T, H}
+        start_clock ≥ 0 || throw(ArgumentError("start clock must not be negative"))
+        all(≥(0), durations) || throw(ArgumentError("durations must not be negative"))
+        new{Reg, T, H}(reg, start_clock, durations, hamiltonian, options)
+    end
+end
+
+function KrylovEvolution(reg, start_clock, durations, hamiltonian, options)
+    return KrylovEvolution{typeof(reg), typeof(start_clock), typeof(hamiltonian)}(
+        reg, start_clock, durations, hamiltonian, options
+    )
 end
 
 function Adapt.adapt_structure(to, x::KrylovEvolution)
@@ -25,6 +37,7 @@ function Adapt.adapt_structure(to, x::KrylovEvolution)
 end
 
 function KrylovEvolution(reg::AbstractRegister, clocks, h; kw...)
+    all(≥(0), clocks) || throw(ArgumentError("clocks must not be negative"))
     options = from_kwargs(KrylovOptions; kw...)
     P = real(eltype(statevec(reg)))
     T = isreal(h) ? P : Complex{P}

@@ -14,6 +14,7 @@ using Yao
     h = rydberg_h(atoms; Ω=wf)
     reg = zero_state(length(atoms))
     prob = KrylovEvolution(reg, clocks, h)
+    @test_throws ArgumentError KrylovEvolution(reg, [-0.1, 0.1], h)
     emulate!(prob)
 
     hs = map(clocks[1:end-1]) do t
@@ -29,4 +30,3 @@ using Yao
 
     @test state ≈ prob.reg.state
 end
-

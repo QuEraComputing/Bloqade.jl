@@ -6,12 +6,6 @@
 Modules = [EaRyd]
 ```
 
-## EaRydCore
-
-```@autodocs
-Modules = [EaRydCore]
-```
-
 ## EaRydODE
 
 ```@autodocs

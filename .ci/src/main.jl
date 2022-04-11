@@ -104,7 +104,8 @@ develop the EaRyd components into environment.
         Pkg.develop(collect_lib_deps(path))
     elseif startswith(path, "docs") # need all lib packages included
         Pkg.activate(root_dir(path))
-        Pkg.develop(collect_lib_deps(path))
+        libs = collect_lib(;include_main=true, excluded_libs=[])
+        Pkg.develop(libs)
     elseif startswith(path, "lib")
         pkgs = collect_lib_deps(path)
         isempty(pkgs) && return
@@ -119,7 +120,7 @@ end
 function collect_lib_deps(path::String)
     libs = readdir(root_dir("lib"))
     d = TOML.parsefile(root_dir(path, "Project.toml"))
-    names = [name for name in keys(d["deps"]) if name in libs]
+    names = [name for name in keys(d["deps"]) if name in libs || name == "EaRyd"]
     paths = map(names) do name
         name == "EaRyd" && return "."
         return root_dir("lib", name)

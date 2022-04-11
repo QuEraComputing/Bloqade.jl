@@ -1,7 +1,9 @@
 [deps]
 EaRyd = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe1"
-EaRydCUDA = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe3"
-EaRydCore = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe2"
+EaRydExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
+EaRydMIS = "bd27d05e-4ce1-5e74-84dd-c5d7d508bbe2"
+YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
+EaRydKrylov = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"
 EaRydLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 EaRydODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
 EaRydPlots = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe6"

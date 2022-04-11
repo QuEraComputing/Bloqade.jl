@@ -25,7 +25,7 @@ indigo = DocThemeIndigo.install(EaRyd)
 DocMeta.setdocmeta!(EaRyd, :DocTestSetup, :(using EaRyd); recursive=true)
 
 makedocs(;
-    modules=[EaRyd, EaRydCore, EaRydODE, EaRydLattices, EaRydWaveforms, EaRydPlots],
+    modules=[EaRyd, EaRydODE, EaRydLattices, EaRydWaveforms, EaRydPlots],
     authors="QuEra Computing Inc.",
     repo="https://github.com/Happy-Diode/EaRyd.jl/blob/{commit}{path}#{line}",
     sitename="EaRyd.jl",

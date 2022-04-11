@@ -1,0 +1,18 @@
+name = "ComplexArrays"
+uuid = "bd27d05e-4ce1-2e79-84dd-c5d7d508bbe3"
+authors = ["QuEra Computing Inc."]
+version = "0.1.0"
+
+[deps]
+Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
+[compat]
+Adapt = "3"
+julia = "1.6"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Test"]

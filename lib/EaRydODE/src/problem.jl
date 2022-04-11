@@ -3,6 +3,8 @@ struct SchrodingerEquation{ExprType, H <: Hamiltonian}
     hamiltonian::H
 end
 
+Adapt.@adapt_structure SchrodingerEquation
+
 function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where L
     fill!(dstate, zero(eltype(dstate)))
     for (f, term) in zip(eq.hamiltonian.fs, eq.hamiltonian.ts)
@@ -63,34 +65,36 @@ struct SchrodingerProblem{Reg, EquationType <: ODEFunction, uType, tType, Kwargs
     kwargs::Kwargs
 
     p::Nothing # well make DiffEq happy
-
-    function SchrodingerProblem(
-        reg::AbstractRegister, tspan,
-        expr; kw...)
-
-        nqubits(reg) == nqubits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
-        # remove this after ArrayReg start using AbstractVector
-        state = statevec(reg)
-        space = YaoSubspaceArrayReg.space(reg)
-        tspan = SciMLBase.promote_tspan(tspan)
-        # create term cache
-        # always follow register element-type
-        T = real(eltype(state))
-        T = isreal(expr) ? T : Complex{T}
-        eq = SchrodingerEquation(expr, Hamiltonian(T, expr, space))
-        ode_f = ODEFunction(eq)
-
-        default_ode_options = (
-            save_everystep=false, save_start=false,
-            save_on=false, dense=false,
-        )
-        kw = pairs(merge(default_ode_options, kw))
-
-        new{typeof(reg), typeof(ode_f), typeof(state), typeof(tspan), typeof(kw)}(
-            reg, ode_f, state, copy(state), tspan, kw, nothing
-        )
-    end
 end
+
+function SchrodingerProblem(
+    reg::AbstractRegister, tspan,
+    expr; kw...)
+
+    nqubits(reg) == nqubits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
+    # remove this after ArrayReg start using AbstractVector
+    state = statevec(reg)
+    space = YaoSubspaceArrayReg.space(reg)
+    tspan = SciMLBase.promote_tspan(tspan)
+    # create term cache
+    # always follow register element-type
+    T = real(eltype(state))
+    T = isreal(expr) ? T : Complex{T}
+    eq = SchrodingerEquation(expr, Hamiltonian(T, expr, space))
+    ode_f = ODEFunction(eq)
+
+    default_ode_options = (
+        save_everystep=false, save_start=false,
+        save_on=false, dense=false,
+    )
+    kw = pairs(merge(default_ode_options, kw))
+
+    SchrodingerProblem{typeof(reg), typeof(ode_f), typeof(state), typeof(tspan), typeof(kw)}(
+        reg, ode_f, state, copy(state), tspan, kw, nothing
+    )
+end
+
+Adapt.@adapt_structure SchrodingerProblem
 
 # multi-line printing
 function Base.show(io::IO, mime::MIME"text/plain", prob::SchrodingerProblem)

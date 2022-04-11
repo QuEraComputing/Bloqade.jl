@@ -1,6 +1,5 @@
 using Pkg
 using EaRyd
-using EaRydCore
 using EaRydODE
 using EaRydLattices
 using EaRydWaveforms

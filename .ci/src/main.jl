@@ -104,7 +104,8 @@ develop the EaRyd components into environment.
         Pkg.develop(collect_lib_deps(path))
     elseif startswith(path, "docs") # need all lib packages included
         Pkg.activate(root_dir(path))
-        Pkg.develop(collect_lib_deps(path))
+        libs = collect_lib(;include_main=true, excluded_libs=[])
+        Pkg.develop(libs)
     elseif startswith(path, "lib")
         pkgs = collect_lib_deps(path)
         isempty(pkgs) && return

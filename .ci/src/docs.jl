@@ -8,6 +8,95 @@ using Comonicon
 using LiveServer
 using ..EaRydCI: root_dir, dev
 
+const BEFORE_TUTORIAL = [
+    "Home" => "index.md",
+    "The Julia Programming Language" => "julia.md",
+    "Manual" => [
+        "Waveforms" => "waveform.md",
+        "Lattices" => "lattices.md",
+        "Hamiltonians" => "hamiltonians.md",
+        "Emulation" => "emulation.md",
+        "CUDA Acceleration" => "cuda.md",    
+    ],
+]
+
+const AFTER_TUTORIAL = [
+    "Advanced Topics" => [
+        "Rydberg Blockade" => "topics/blockade.md",
+        "Bravais Lattice" => "topics/bravais.md",
+        "Automatic Differentiation" => "topics/ad.md",
+    ],
+    "Contributing EaRyd" => "contrib.md",
+    "References" => "ref.md",
+]
+
+const LIGHT_PAGES = [
+    BEFORE_TUTORIAL...,
+    AFTER_TUTORIAL...,
+]
+
+const PAGES=[
+    BEFORE_TUTORIAL...,
+    "Tutorials" => [
+        "Quantum Scar" => "tutorials/quantum-scar.md",
+        "Adiabatic Evolution" => "tutorials/adiabatic.md",
+        "Quantum Approximate Optimization Algorithm" => "tutorials/qaoa.md",
+        # "Solving Maximum-Independent Set Using Rydberg QAOA" => "tutorials/mis.md",
+    ],
+    AFTER_TUTORIAL...
+]
+
+function render_all_examples()
+    ci_dir = root_dir(".ci")
+    for each in readdir(root_dir("examples"))
+        project_dir = root_dir("examples", each)
+        isdir(project_dir) || continue
+        @info "building" project_dir
+        input_file = root_dir("examples", each, "main.jl")
+        output_dir = root_dir("docs", "src", "tutorials")
+
+        julia_cmd = """
+        using Pkg, Literate;
+        Pkg.activate(\"$project_dir\")
+        Pkg.instantiate()
+        Literate.markdown(\"$input_file\", \"$output_dir\"; name=\"$each\", execute=true)
+        """
+        run(`$(Base.julia_exename()) --project=$ci_dir -e $julia_cmd`)
+    end
+end
+
+function doc_build_script(pages, repo)
+    using_stmts = ["Documenter", "DocThemeIndigo"]
+    non_cuda_pkgs = filter(!isequal("EaRydCUDA"), readdir(root_dir("lib")))
+    push!(non_cuda_pkgs, "EaRyd")
+    append!(using_stmts, non_cuda_pkgs)
+    
+    return """
+    $(join(map(x->"using "*x, using_stmts), "\n"))
+
+    indigo = DocThemeIndigo.install(EaRyd)
+    DocMeta.setdocmeta!(EaRyd, :DocTestSetup, :(using EaRyd); recursive=true)
+
+    makedocs(;
+        root=\"$(root_dir("docs"))\",
+        modules=[$(join(non_cuda_pkgs, ", "))],
+        authors="QuEra Computing Inc.",
+        repo="https://github.com/$repo/blob/{commit}{path}#{line}",
+        sitename="EaRyd.jl",
+        doctest=false,
+        format=Documenter.HTML(;
+            prettyurls=get(ENV, "CI", "false") == "true",
+            canonical="https://Happy-Diode.github.io/EaRyd.jl",
+            assets=String[indigo],
+        ),
+        pages=$pages,
+    )
+    deploydocs(;
+        repo="github.com/$repo",
+    )
+    """
+end
+
 function dev_examples()
     @info "setting up example Manifest.toml to use local packages"
     for each in readdir()
@@ -17,14 +106,31 @@ function dev_examples()
     end
 end
 
-@cast function serve(;host::String="0.0.0.0", port::Int=8000)
-    # setup environment
+function generate_makejl(light)
+    build_script = if light
+        doc_build_script(LIGHT_PAGES, "Happy-Diode/EaRyd.jl")
+    else
+        doc_build_script(PAGES, "Happy-Diode/EaRyd.jl")
+    end
+
+    write(root_dir("docs", "make.jl"), build_script)
+end
+
+function setup_docs(light)
     dev("docs")
-    dev_examples()
+    light || dev_examples()
+    generate_makejl(light)
+    light || render_all_examples()
+    return
+end
+
+@cast function serve(;host::String="0.0.0.0", port::Int=8000, light::Bool=false)
+    # setup environment
+    setup_docs(light)
+
     docs_dir = root_dir("docs")
     julia_cmd = "using Pkg; Pkg.instantiate()"
     run(`$(Base.julia_exename()) --project=$docs_dir -e $julia_cmd`)
-
 
     docs_dir = root_dir(".ci")
     serve_cmd = """
@@ -55,18 +161,11 @@ end
 """
 build the docs
 """
-@cast function build()
-    dev("docs")
-    dev_examples()
+@cast function build(;light::Bool=false)
+    setup_docs(light)
     docs_dir = root_dir("docs")
     docs_make_jl = root_dir("docs", "make.jl")
     julia_cmd = "using Pkg; Pkg.instantiate()"
-    
-    for each in readdir(root_dir("examples"))
-        example_dir = root_dir("examples", each)
-        isdir(example_dir) || continue
-        dev(example_dir)
-    end
     run(`$(Base.julia_exename()) --project=$docs_dir -e $julia_cmd`)
     run(`$(Base.julia_exename()) --project=$docs_dir $docs_make_jl`)
 end

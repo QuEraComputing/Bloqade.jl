@@ -1,5 +1,6 @@
 module EaRydODE
 
+using Adapt
 using YaoBase
 using Reexport
 using SciMLBase

@@ -10,5 +10,6 @@ Manifest.toml
 /docs/src/tutorials
 /examples/**/**.ipynb
 build
-LocalPreferences.tom
+LocalPreferences.toml
 .CondaPkg
+JuliaSysimage.so

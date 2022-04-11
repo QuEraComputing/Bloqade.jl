@@ -40,17 +40,6 @@ config = [1, 1, 1, 0, 1, 1]
 to_independent_set!(config, graph)
 @test is_independent_set(config, graph)
 
-
-# config = bitarray(36, length(atoms))
-# EaRydCore.to_independent_set!(config, graph)
-
-# space = independent_set_subspace(graph)
-# raw_state = zeros(ComplexF64, length(space))
-# raw_state[space.map[packbits(config)]] = 1.0
-# r = RydbergReg(length(atoms), raw_state, space)
-
-# TODO: add an violation test
-
 @testset "mis probabilities" begin
     raw_state = normalize!(rand(ComplexF64, length(test_subspace)))
     r = SubspaceArrayReg(raw_state, test_subspace)

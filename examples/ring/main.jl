@@ -1,4 +1,5 @@
 using EaRyd
+using Plots
 
 # Simulate nonequilibrium dynamics of a 12-site ring of Rydberg atoms.
 #  This script generates Figure 2 in the example RydbergBlockade.
@@ -23,57 +24,35 @@ h = rydberg_h(atoms;C = 2π * 858386, Ω=π)
 init_state = zero_state(nsites)
 
 # Do the same thing in the blockade subspace...
-space = blockade_subspace(atoms,distance*1.1)   # Compute the blockade subspace
-init_state2 = zero_state(space)                       # Define the initial state in the blockade subspace.
 
 
 # Define the time steps
 Tmax = 10.
-nsteps = 251
-iteration = 1:nsteps
-ts = [Tmax/nsteps for _ in iteration];
-clocks = cumsum(ts);
+nsteps = 5001
+times = LinRange(0,Tmax,nsteps)
 
-
+# Time evolve the system in the full space
 prob = SchrodingerProblem(init_state, Tmax, h);
 integrator = init(prob, Vern8());
-        
-# We measure the Rydberg density for each site and time step
 
 densities = []
-for _ in TimeChoiceIterator(integrator, 0.0:1e-3:Tmax)
+for _ in TimeChoiceIterator(integrator, 0.0:Tmax/(nsteps-1):Tmax)
     push!(densities, expect(put(nsites, 1=>Op.n), init_state))
 end
 
 
+# Time evolve the system in the subspace
+space = blockade_subspace(atoms,distance*1.1)   # Compute the blockade subspace
+init_state2 = zero_state(space)                       # Define the initial state in the blockade subspace.
 
+prob2 = SchrodingerProblem(init_state2, Tmax, h);
+integrator2 = init(prob2, Vern6());
 
-
-
-prob = KrylovEvolution(init_state, ts, h)
-prob2 = KrylovEvolution(init_state2, ts, h)
-
-
-# Then we measure the real-time expectation value of Rydberg density, domain wall density, and entanglement entropy. 
-# These data are stored in the matrix or vector below. 
-
-data_out = zeros(3, length(iteration))
-data_out[1,:] = clocks
-@time begin
-    for info in prob
-        data_out[2, info.step] = expect(put(nsites, 1=>Op.n), info.reg)
-    end
-end
-
-@time begin
-    for info in prob2
-        data_out[3, info.step] = expect(put(nsites, 1=>Op.n), info.reg)
-    end
+densities2 = []
+for (u, t) in TimeChoiceIterator(integrator2, 0.0:Tmax/(nsteps-1):Tmax)
+    push!(densities2, expect(put(nsites, 1=>Op.n), init_state2))#, SubspaceArrayReg(u, space)))
 end
 
 
-using DelimitedFiles
-
-#fil = open("density_matrix_data.txt","w")
-#writedlm(fil,data_out)
-#close(fil)
+plot(times,real(densities))
+plot!(times,real(densities2))

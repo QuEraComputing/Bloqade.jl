@@ -5,7 +5,7 @@ using EaRyd
 
 
 # First, define the geometry of the system, a ring of 12 sites.
-nsites = 5;    # 12 site chain
+nsites = 12;    # 12 site chain
 distance = 7    # Distance between atoms, in microns
 
 R = distance/(2*sin(2*pi/(nsites)/2))                                       # Radius of the circle, using a little trigonometry
@@ -20,24 +20,38 @@ h = rydberg_h(atoms;C = 2π * 858386, Ω=π)
 # # Emulate the problem
 
 # Define the initial state in the full basis
-init = zero_state(nsites)
+init_state = zero_state(nsites)
 
 # Do the same thing in the blockade subspace...
 space = blockade_subspace(atoms,distance*1.1)   # Compute the blockade subspace
-init2 = zero_state(space)                       # Define the initial state in the blockade subspace.
+init_state2 = zero_state(space)                       # Define the initial state in the blockade subspace.
 
 
-# 
-Tmax = 10
-nsteps = 2000
+# Define the time steps
+Tmax = 10.
+nsteps = 251
 iteration = 1:nsteps
 ts = [Tmax/nsteps for _ in iteration];
-hs = [h for _ in iteration];
 clocks = cumsum(ts);
 
 
-prob = KrylovEvolution(init, ts, hs)
-prob2 = KrylovEvolution(init2, ts, hs)
+prob = SchrodingerProblem(init_state, Tmax, h);
+integrator = init(prob, Vern8());
+        
+# We measure the Rydberg density for each site and time step
+
+densities = []
+for _ in TimeChoiceIterator(integrator, 0.0:1e-3:Tmax)
+    push!(densities, expect(put(nsites, 1=>Op.n), init_state))
+end
+
+
+
+
+
+
+prob = KrylovEvolution(init_state, ts, h)
+prob2 = KrylovEvolution(init_state2, ts, h)
 
 
 # Then we measure the real-time expectation value of Rydberg density, domain wall density, and entanglement entropy. 

@@ -1,6 +1,6 @@
 module EaRydPlots
 
-export draw, plt, bitstring_hist
+export draw, draw!, plt, bitstring_hist
 
 using YaoArrayRegister
 using YaoSubspaceArrayReg

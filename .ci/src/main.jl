@@ -120,7 +120,7 @@ end
 function collect_lib_deps(path::String)
     libs = readdir(root_dir("lib"))
     d = TOML.parsefile(root_dir(path, "Project.toml"))
-    names = [name for name in keys(d["deps"]) if name in libs]
+    names = [name for name in keys(d["deps"]) if name in libs || name == "EaRyd"]
     paths = map(names) do name
         name == "EaRyd" && return "."
         return root_dir("lib", name)

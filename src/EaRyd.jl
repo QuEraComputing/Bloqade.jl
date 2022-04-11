@@ -2,12 +2,16 @@ module EaRyd
 
 using Reexport
 
+@reexport using Yao
+@reexport using EaRydMIS
+@reexport using EaRydODE
 @reexport using EaRydExpr
 @reexport using EaRydKrylov
 @reexport using YaoSubspaceArrayReg
-@reexport using EaRydODE
-@reexport using Measurements: ±, Measurement
 @reexport using EaRydWaveforms
+
+# partially reexport
+@reexport using Measurements: ±, Measurement
 @reexport using EaRydLattices: EaRydLattices,
     AbstractLattice, GeneralLattice, HoneycombLattice,
     SquareLattice, TriangularLattice, ChainLattice,

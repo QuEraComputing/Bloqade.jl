@@ -148,3 +148,10 @@ end
 
     @test_throws ArgumentError wf[0.5..(4π+2)]
 end
+
+@testset "piecewise_constant/linear assertions" begin
+    @test_throws ArgumentError piecewise_constant(clocks=[0,1], values=[1,2,3])
+    @test_throws ArgumentError piecewise_constant(clocks=[-1,1], values=[1,2,3])
+    @test_throws ArgumentError piecewise_linear(clocks=[0,1], values=[1,2,3])
+    @test_throws ArgumentError piecewise_linear(clocks=[-1,1], values=[1,2,3])
+end

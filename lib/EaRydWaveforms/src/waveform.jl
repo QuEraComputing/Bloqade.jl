@@ -172,6 +172,12 @@ end
 
 function assert_clocks(clocks)
     issorted(clocks) || throw(ArgumentError("expect clocks to be sorted"))
+    all(≥(0), clocks) || throw(ArgumentError("clocks must be non-nagative values"))
+    return
+end
+
+function assert_clocks_match_values(clocks, values)
+    length(clocks) == length(values) || throw(ArgumentError("expect clocks has the same length as values"))
     return
 end
 
@@ -185,6 +191,7 @@ struct PiecewiseLinear{T <: Real, Interp}
 
     function PiecewiseLinear(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
+        assert_clocks_match_values(clocks, values)
         interp = LinearInterpolation(clocks, values)
         new{eltype(values), typeof(interp)}(clocks, values, interp)
     end
@@ -198,6 +205,7 @@ struct PiecewiseConstant{T <: Real}
 
     function PiecewiseConstant(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
+        assert_clocks_match_values(clocks, values)
         new{eltype(values)}(clocks, values)
     end
 end

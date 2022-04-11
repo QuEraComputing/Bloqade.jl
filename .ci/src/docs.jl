@@ -10,12 +10,16 @@ using ..EaRydCI: root_dir, dev
 
 const BEFORE_TUTORIAL = [
     "Home" => "index.md",
+    "Installation" => "install.md",
     "The Julia Programming Language" => "julia.md",
     "Manual" => [
         "Waveforms" => "waveform.md",
         "Lattices" => "lattices.md",
         "Hamiltonians" => "hamiltonians.md",
+        "Registers" => "registers.md",
         "Emulation" => "emulation.md",
+        "Observables" => "observables.md",
+        "Maximum Independent Set" => "mis.md",
         "CUDA Acceleration" => "cuda.md",    
     ],
 ]

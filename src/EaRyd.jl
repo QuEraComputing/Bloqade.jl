@@ -2,10 +2,16 @@ module EaRyd
 
 using Reexport
 
-@reexport using EaRydCore
+@reexport using Yao
+@reexport using EaRydMIS
 @reexport using EaRydODE
-@reexport using Measurements: ±, Measurement
+@reexport using EaRydExpr
+@reexport using EaRydKrylov
+@reexport using YaoSubspaceArrayReg
 @reexport using EaRydWaveforms
+
+# partially reexport
+@reexport using Measurements: ±, Measurement
 @reexport using EaRydLattices: EaRydLattices,
     AbstractLattice, GeneralLattice, HoneycombLattice,
     SquareLattice, TriangularLattice, ChainLattice,
@@ -18,9 +24,9 @@ using Reexport
     make_kdtree, grouped_nearest, collect_atoms,
     img_atoms, img_maskedgrid
 
-using CUDA
-@static if CUDA.functional()
-    @reexport using EaRydCUDA
-end
+# using CUDA
+# @static if CUDA.functional()
+#     @reexport using EaRydCUDA
+# end
 
 end

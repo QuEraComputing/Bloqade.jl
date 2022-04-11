@@ -9,7 +9,54 @@ with the community and workflows.
 
 ## Documentation
 
+## Setup Documentation
+
+If you are editing the documentation, you can use the `serve` command
+
+```sh
+.ci/run doc serve
+```
+
+to serve the documentation locally, and it will automatically update
+the served webpage while you editing. 
+
+If you wish to just build the documentation, you can use `build` command,
+which will run the build
+
+```sh
+.ci/run doc build
+```
+
+## Light-weight Documentation Build
+
+Due to the ancient technology used by Documenter,
+it cannot render single page while editing, thus
+causing the `doc serve` command to be very slow
+when editing. We provide a light-weight build setup
+to workaround this by removing all literate examples
+from the documentation. You can enable this by
+
+```sh
+.ci/run doc build --light
+.ci/run doc serve --light
+```
+
 ## Setting Up Environments
+
+The EaRyd package itself is a meta-package that simply re-exports
+component packages lives in `lib` directory. Thus one will need to
+`dev` the corresponding component package to make sure they are
+using the `master` branch version while developing, you can always
+do this manually in Julia's Pkg mode via `dev` command, e.g in the
+`EaRyd` environment (the `EaRyd/Project.toml` file), one will need
+to run the following command
+
+```julia
+pkg> dev lib/EaRydExpr lib/EaRydKrylov lib/EaRydLattices lib/EaRydMIS lib/EaRydODE lib/EaRydWaveforms
+```
+
+this can be done automatically using the CLI tool introduced
+in the following.
 
 ## Components
 
@@ -37,4 +84,3 @@ build a single example at `build/my_example` to jupyter notebook.
 ```sh
 .ci/run example build my_example
 ```
-

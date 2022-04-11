@@ -1,12 +1,20 @@
 module EaRydPlots
 
-using Makie
-using EaRydCore
+export draw, draw!, plt, bitstring_hist
+
+using YaoArrayRegister
+using YaoSubspaceArrayReg
 using EaRydWaveforms
+using PythonCall
 
-export bitstring_histgram, bitstring_histgram!, draw, draw!
+const plt = PythonCall.pynew()
 
-include("bitstring_hist.jl")
+function __init__()
+    # copied from PyPlotCall.jl
+    PythonCall.pycopy!(plt, pyimport("matplotlib.pyplot"))
+end
+
 include("waveform.jl")
+include("bitstring_hist.jl")
 
 end # EaRydPlots

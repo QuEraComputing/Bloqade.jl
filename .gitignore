@@ -6,9 +6,11 @@ lcov.info
 .vscode
 Manifest.toml
 /docs/Manifest.toml
+/docs/make.jl
 /docs/src/assets/indigo.css
 /docs/src/tutorials
 /examples/**/**.ipynb
 build
-LocalPreferences.tom
+LocalPreferences.toml
 .CondaPkg
+JuliaSysimage.so

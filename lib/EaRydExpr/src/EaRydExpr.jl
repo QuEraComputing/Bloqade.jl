@@ -2,6 +2,7 @@ module EaRydExpr
 
 using SparseArrays
 using LinearAlgebra
+using Adapt
 using YaoAPI
 using YaoBlocks
 using LuxurySparse

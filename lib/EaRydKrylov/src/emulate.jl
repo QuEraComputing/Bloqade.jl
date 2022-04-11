@@ -15,6 +15,15 @@ struct KrylovEvolution{Reg <: AbstractRegister, T <: Real, H <: Hamiltonian}
     options::KrylovOptions
 end
 
+function Adapt.adapt_structure(to, x::KrylovEvolution)
+    return KrylovEvolution(
+        adapt(to, x.reg),
+        x.start_clock, x.durations,
+        adapt(to, x.hamiltonian),
+        x.options
+    )
+end
+
 function KrylovEvolution(reg::AbstractRegister, clocks, h; kw...)
     options = from_kwargs(KrylovOptions; kw...)
     P = real(eltype(statevec(reg)))

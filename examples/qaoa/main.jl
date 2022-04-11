@@ -1,9 +1,7 @@
 using Graphs
 using EaRyd
-using EaRyd.EaRydLattices
 using Compose
 using Random
-using Yao
 
 # ## The maximum independent set problem
 # In graph theory, an independent set is a set of vertices in a graph, no two of which are adjacent.

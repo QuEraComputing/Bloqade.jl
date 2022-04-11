@@ -1,5 +1,6 @@
 module EaRydKrylov
 
+using Adapt
 using EaRydExpr
 using LinearAlgebra
 using Configurations

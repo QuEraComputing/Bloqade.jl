@@ -5,7 +5,7 @@ on:
 jobs:
   pre_job:
     # continue-on-error: true # Uncomment once integration is finished
-    runs-on: ['self-hosted', 'cuda']
+    runs-on: [self-hosted, linux, cuda]
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}

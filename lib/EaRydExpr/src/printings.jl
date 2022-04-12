@@ -1,8 +1,8 @@
 YaoBlocks.print_block(io::IO, t::AbstractTerm) = print_expr(io, MIME"text/plain"(), t)
 YaoBlocks.print_block(io::IO, t::XPhase) = print(io, "XPhase(", t.ϕ, ")")
 
-Base.show(io::IO, ::Union{MIME"text/latex", MIME"application/x-latex"}, t::AbstractTerm) = print(io, latex_expr(t))
-Base.show(io::IO, ::Union{MIME"text/latex", MIME"application/x-latex"}, t::Add) = print(io, latex_expr(t))
+Base.show(io::IO, ::Union{MIME"text/latex", MIME"application/x-latex"}, t::AbstractTerm) = print(io, latexstring(latex_expr(t)))
+Base.show(io::IO, ::Union{MIME"text/latex", MIME"application/x-latex"}, t::Add) = print(io, latexstring(latex_expr(t)))
 
 function latex_expr(t::Add)
     tex = latex_expr(t.list[1])
@@ -14,16 +14,24 @@ function latex_expr(t::Add)
             alpha = factor(blk)
             blk = content(blk)
             if alpha == -1
-                tex = latexstring(tex, "-")
+                tex *= "-"
             else
-                tex = latexstring(tex, "+", alpha, "\\cdot")
+                tex = string(tex, "+", alpha, "\\cdot")
             end
         else
-            tex = latexstring(tex, "+")
+            tex = string(tex, "+")
         end
-        tex = latexstring(tex, latex_expr(blk))
+        tex = string(tex, latex_expr(blk))
     end
     return tex
+end
+
+function latex_expr(t::YaoBlocks.Scale)
+    if isone(factor(t))
+        latex_expr(content(t))
+    else
+        string(factor(t), "\\cdot", latex_expr(content(t)))
+    end
 end
 
 function print_expr(io::IO, ::MIME"text/plain", t::RydInteract)
@@ -33,7 +41,7 @@ end
 
 function latex_expr(t::RydInteract)
     C = round(t.C, sigdigits=3)
-    return latexstring("\\sum \\frac{$C}{|r_i-r_j|^6} n_i n_j")
+    return "\\sum \\frac{$C}{|r_i-r_j|^6} n_i n_j"
 end
 
 function print_expr(io::IO, ::MIME"text/plain", t::SumOfX)
@@ -64,7 +72,7 @@ function latex_expr(t::SumOfX)
     else
         tex = "Ω(t) ⋅ \\sum σ^x_i"
     end
-    return latexstring(tex)
+    return tex
 end
 
 function print_expr(io::IO, ::MIME"text/plain", t::Union{SumOfN, SumOfZ})
@@ -97,7 +105,7 @@ function latex_expr(t::Union{SumOfN, SumOfZ})
     else
         tex = "Δ(t) ⋅ \\sum $op"
     end
-    return latexstring(tex)
+    return tex
 end
 
 function print_expr(io::IO, ::MIME"text/plain", t::SumOfXPhase)

@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 jobs:
   CompatHelper:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     steps:
       - name: "Add the General registry via Git"
         run: |

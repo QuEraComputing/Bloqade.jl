@@ -89,6 +89,6 @@ results = sim.run(progress_bar=False)
 t2 = time.time()
 print('Total run time: {:0.4f} seconds'.format(t2-t1))
 
-# Look at the last few elements to compare the state to EaRyd
+# Look at the last few elements to compare the state to Bloqade
 print(sort(abs(array(results.get_final_state()))**2,axis=0)[-10::])
 print('Maximum weight eigenstates should be {:0.0f}-fold degenerate'.format(ground_state_spacing+1))

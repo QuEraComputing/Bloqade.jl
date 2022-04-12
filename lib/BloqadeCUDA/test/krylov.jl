@@ -6,10 +6,10 @@ using CUDA.CUSPARSE: CuSparseMatrixCSC,
 using YaoArrayRegister
 using YaoSubspaceArrayReg
 using LinearAlgebra
-using EaRydWaveforms
-using EaRydKrylov
-using EaRydExpr
-using EaRydCUDA
+using BloqadeWaveforms
+using BloqadeKrylov
+using BloqadeExpr
+using BloqadeCUDA
 using Adapt
 CUDA.allowscalar(false)
 

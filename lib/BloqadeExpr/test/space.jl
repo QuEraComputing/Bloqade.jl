@@ -1,5 +1,5 @@
 using Test
-using EaRydExpr
+using BloqadeExpr
 
 @testset "subspace" begin
     @test_throws ArgumentError space = Subspace(8, [1, 3, 5, 300])

@@ -1,8 +1,8 @@
 using Test
-using EaRydExpr
+using BloqadeExpr
 using YaoAPI
 using LinearAlgebra
-using EaRydExpr: Hamiltonian
+using BloqadeExpr: Hamiltonian
 
 atoms = [(1, 1), (1, 2), (1, 3), (1, 4), (1, 5)]
 h = rydberg_h(atoms; Ω=1.0, Δ=sin)

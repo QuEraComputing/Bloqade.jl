@@ -15,9 +15,9 @@
 
 # We start by importing required libraries
 
-using EaRyd
+using Bloqade
 using PythonCall
-using EaRydPlots
+using BloqadePlots
 using KrylovKit
 using SparseArrays
 

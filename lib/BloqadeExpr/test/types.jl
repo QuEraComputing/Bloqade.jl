@@ -1,3 +1,3 @@
 using Test
-using EaRydExpr
+using BloqadeExpr
 using SparseArrays

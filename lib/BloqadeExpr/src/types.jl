@@ -119,7 +119,7 @@ Term for sum of X operators.
 
 The following two expressions are equivalent
 
-```jldoctest; setup=:(using EaRydExpr, YaoBlocks)
+```jldoctest; setup=:(using BloqadeExpr, YaoBlocks)
 julia> SumOfX(nsites=5)
 ∑ σ^x_i
 
@@ -158,7 +158,7 @@ Sum of `XPhase` operators.
 
 The following two expressions are equivalent
 
-```jldoctest; setup=:(using EaRydExpr)
+```jldoctest; setup=:(using BloqadeExpr)
 julia> SumOfXPhase(nsites=5, ϕ=0.1)
 1.0 ⋅ ∑ e^{0.1 ⋅ im} |0⟩⟨1| + e^{-0.1 ⋅ im} |1⟩⟨0|
 
@@ -203,7 +203,7 @@ Sum of N operators.
 
 The following two expression are equivalent
 
-```jldoctest; setup=:(using EaRydExpr)
+```jldoctest; setup=:(using BloqadeExpr)
 julia> SumOfN(nsites=5)
 ∑ n_i
 
@@ -243,7 +243,7 @@ Sum of Pauli Z operators.
 
 The following two expression are equivalent
 
-```jldoctest; setup=:(using EaRydExpr, YaoBlocks)
+```jldoctest; setup=:(using BloqadeExpr, YaoBlocks)
 julia> SumOfZ(nsites=5)
 ∑ σ^z_i
 

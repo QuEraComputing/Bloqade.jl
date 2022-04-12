@@ -1,4 +1,4 @@
-module EaRydExpr
+module BloqadeExpr
 
 using SparseArrays
 using LinearAlgebra

@@ -1,11 +1,11 @@
 using CUDA.CUSPARSE: CuSparseMatrixCSC,
     CuSparseMatrixCSR,
     AbstractCuSparseMatrix
-using EaRydKrylov: expmv, expmv!
+using BloqadeKrylov: expmv, expmv!
 using SparseArrays
 using LinearAlgebra
 using BenchmarkTools
-using EaRydCUDA
+using BloqadeCUDA
 using CUDA
 
 CUDA.allowscalar(false)

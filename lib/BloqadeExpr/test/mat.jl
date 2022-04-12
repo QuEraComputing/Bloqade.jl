@@ -1,7 +1,7 @@
 using Test
 using Random
 using YaoBlocks
-using EaRydExpr
+using BloqadeExpr
 using Yao
 using SparseArrays
 

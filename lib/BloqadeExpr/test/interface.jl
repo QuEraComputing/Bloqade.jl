@@ -1,5 +1,5 @@
 using Test
-using EaRydExpr
+using BloqadeExpr
 using YaoBlocks.Optimise
 
 @testset "rydberg_h" begin

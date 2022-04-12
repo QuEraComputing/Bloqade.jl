@@ -1,5 +1,5 @@
 using Test
-using EaRydExpr
+using BloqadeExpr
 using Unitful: kHz, µm
 
 @testset "term units" begin

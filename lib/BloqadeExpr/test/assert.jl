@@ -1,6 +1,6 @@
 using Test
 using InteractiveUtils
-using EaRydExpr: is_time_function, assert_nsites
+using BloqadeExpr: is_time_function, assert_nsites
 
 @testset "is_time_function" begin
     @test is_time_function(sin) == true

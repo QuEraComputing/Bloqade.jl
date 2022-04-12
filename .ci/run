@@ -14,5 +14,5 @@ if !isfile(joinpath(@__DIR__, "Manifest.toml"))
     Pkg.instantiate()
 end
 
-using EaRydCI
-exit(EaRydCI.command_main())
+using BloqadeCI
+exit(BloqadeCI.command_main())

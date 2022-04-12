@@ -1,5 +1,5 @@
 using Test
-using EaRydExpr
+using BloqadeExpr
 
 @testset "assertions" begin
     include("assert.jl") 

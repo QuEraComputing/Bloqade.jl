@@ -48,7 +48,7 @@ RydInteract(C, atoms) + SumOfXPhase(length(atoms), Ω, ϕ) - SumOfN(length(atoms
 # Example
 
 ```julia-repl
-julia> using EaRyd
+julia> using Bloqade
 
 julia> atoms = [(1, ), (2, ), (3, ), (4, )]
 4-element Vector{Tuple{Int64}}:

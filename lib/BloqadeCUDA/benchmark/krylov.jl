@@ -5,10 +5,10 @@ using CUDA.CUSPARSE: CuSparseMatrixCSC,
 using YaoArrayRegister
 using ComplexArrays
 using YaoSubspaceArrayReg
-using EaRydWaveforms
-using EaRydKrylov
-using EaRydExpr
-using EaRydCUDA
+using BloqadeWaveforms
+using BloqadeKrylov
+using BloqadeExpr
+using BloqadeCUDA
 using Adapt
 using BenchmarkTools
 CUDA.allowscalar(false)

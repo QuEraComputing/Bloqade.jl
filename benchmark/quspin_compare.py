@@ -3,7 +3,7 @@
 Created on Mon Feb 14 10:37:33 2022
 """
 # Python code to compare to
-# C:\Users\jwurtz.QUERA\OneDrive - QuEra Computing\Documents\EaRyd\EaRyd.jl\examples\mis_adiabatic\main.jl
+# C:\Users\jwurtz.QUERA\OneDrive - QuEra Computing\Documents\Bloqade\Bloqade.jl\examples\mis_adiabatic\main.jl
 
 from numpy import *
 from matplotlib.pyplot import *

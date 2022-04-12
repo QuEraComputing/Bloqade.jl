@@ -1,6 +1,6 @@
 # Copyright 2020 QuEra Computing Inc. All rights reserved.
 
-module EaRydCUDA
+module BloqadeCUDA
 
 using CUDA
 using LinearAlgebra

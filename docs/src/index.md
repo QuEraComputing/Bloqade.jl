@@ -1,10 +1,10 @@
 ```@meta
-CurrentModule = EaRyd
+CurrentModule = Bloqade
 ```
 
-# EaRyd
+# Bloqade
 
-[![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/EaRyd.jl/badge.svg?branch=master&t=p1FNvJ)](https://coveralls.io/github/Happy-Diode/EaRyd.jl?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=p1FNvJ)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
 
 Welcome to the documentation page for the QuEra **E**mul**a**tor for **Ryd**berg System.
 
@@ -12,12 +12,12 @@ Welcome to the documentation page for the QuEra **E**mul**a**tor for **Ryd**berg
 
 ```@raw html
 <p>
-EaRyd is a &nbsp;
+Bloqade is a &nbsp;
     <a href="https://julialang.org">
         <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
         Julia Language
     </a>
-    &nbsp; package. To install EaRyd,
+    &nbsp; package. To install Bloqade,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
     Julia's interactive session (known as REPL)</a>, press <kbd>]</kbd> key in the REPL to use the package mode, and then type the following command
 </p>
@@ -32,13 +32,13 @@ pkg> registry add https://github.com/Happy-Diode/Miskatonic.git
 For stable release
 
 ```julia
-pkg> add EaRyd
+pkg> add Bloqade
 ```
 
 For current master
 
 ```julia
-pkg> add EaRyd#master
+pkg> add Bloqade#master
 ```
 
 ## What does the Rydberg Emulator do?
@@ -72,10 +72,10 @@ Here, we show a simple example of simulating quantum many-body dynamics governed
 We start by loading the Emulator Module
 
 ```@repl quick-start
-using EaRyd
+using Bloqade
 ```
 
-As one can see from the Rydberg Hamiltonian, the interactions between Rydberg atoms depend on their positions. EaRyd provides several built-in [Lattices](@ref) structures for specifying the atom positions. For instance, we can use the following codes to quickly generate a chain of 10 atoms in 1D: 
+As one can see from the Rydberg Hamiltonian, the interactions between Rydberg atoms depend on their positions. Bloqade provides several built-in [Lattices](@ref) structures for specifying the atom positions. For instance, we can use the following codes to quickly generate a chain of 10 atoms in 1D: 
 
 ```@repl quick-start
 nsites = 10;
@@ -119,9 +119,9 @@ end
 ## Looking for Help?
 
 - check the slack channel [#julia](https://quera-workspace.slack.com/archives/C011C12GXRD)
-- if not urgent, ask questions in [discussions](https://github.com/Happy-Diode/EaRyd.jl/discussions)
+- if not urgent, ask questions in [discussions](https://github.com/Happy-Diode/Bloqade.jl/discussions)
 
 ## Have Suggestions or Interested in Contribution?
 
 - check the slack channel [#q-emulator](https://quera-workspace.slack.com/archives/C01MKUATZRD) for meetings and discussions
-- [file an issue](https://github.com/Happy-Diode/EaRyd.jl/issues/new) to report a bug or request a feature
+- [file an issue](https://github.com/Happy-Diode/Bloqade.jl/issues/new) to report a bug or request a feature

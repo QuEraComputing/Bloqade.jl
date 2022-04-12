@@ -1,7 +1,7 @@
 using Test
-using EaRydExpr
+using BloqadeExpr
 using YaoBlocks
-using EaRydExpr: emit_dynamic_terms, emit_lowered, Hamiltonian
+using BloqadeExpr: emit_dynamic_terms, emit_lowered, Hamiltonian
 
 @testset "emit_lowered" begin
     @test emit_lowered(SumOfX(5, 0.1)) == 0.1 * sum(put(5, i=>X) for i in 1:5)

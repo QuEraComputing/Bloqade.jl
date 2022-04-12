@@ -18,8 +18,8 @@
 
 # We start by importing required libraries
 
-using EaRyd
-using EaRydPlots
+using Bloqade
+using BloqadePlots
 using PythonCall
 using Random
 

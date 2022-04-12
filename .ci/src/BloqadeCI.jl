@@ -1,4 +1,4 @@
-module EaRydCI
+module BloqadeCI
 
 
 include("main.jl")
@@ -6,7 +6,7 @@ include("docs.jl")
 include("example.jl")
 
 """
-EaRyd CI commands.
+Bloqade CI commands.
 """
 @main
 

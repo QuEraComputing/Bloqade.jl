@@ -1,6 +1,6 @@
-using EaRyd
+using Bloqade
 using Test
 
-@testset "EaRyd.jl" begin
+@testset "Bloqade.jl" begin
     # Write your tests here.
 end

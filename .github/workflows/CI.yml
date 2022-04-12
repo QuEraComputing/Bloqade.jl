@@ -65,6 +65,7 @@ jobs:
           using Pkg
           Pkg.activate("lib/EaRydCUDA")
           Pkg.add(url="https://github.com/Roger-luo/CUDA.jl.git", rev="roger/quera")
+          Pkg.status()
       - name: "develop lib packages"
         run: .ci/run dev
       - uses: julia-actions/julia-buildpkg@v1

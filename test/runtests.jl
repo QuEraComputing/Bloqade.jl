@@ -1,4 +1,5 @@
 using Test
+using Documenter
 using Bloqade
 using BloqadeLattices
 

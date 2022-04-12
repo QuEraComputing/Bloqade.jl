@@ -6,7 +6,7 @@ documentation commands
 using Pkg
 using Comonicon
 using LiveServer
-using ..EaRydCI: root_dir, dev
+using ..BloqadeCI: root_dir, dev
 
 const BEFORE_TUTORIAL = [
     "Home" => "index.md",
@@ -30,7 +30,7 @@ const AFTER_TUTORIAL = [
         "Bravais Lattice" => "topics/bravais.md",
         "Automatic Differentiation" => "topics/ad.md",
     ],
-    "Contributing EaRyd" => "contrib.md",
+    "Contributing Bloqade" => "contrib.md",
     "References" => "ref.md",
 ]
 
@@ -71,26 +71,26 @@ end
 
 function doc_build_script(pages, repo)
     using_stmts = ["Documenter", "DocThemeIndigo"]
-    non_cuda_pkgs = filter(!isequal("EaRydCUDA"), readdir(root_dir("lib")))
-    push!(non_cuda_pkgs, "EaRyd")
+    non_cuda_pkgs = filter(!isequal("BloqadeCUDA"), readdir(root_dir("lib")))
+    push!(non_cuda_pkgs, "Bloqade")
     append!(using_stmts, non_cuda_pkgs)
     
     return """
     $(join(map(x->"using "*x, using_stmts), "\n"))
 
-    indigo = DocThemeIndigo.install(EaRyd)
-    DocMeta.setdocmeta!(EaRyd, :DocTestSetup, :(using EaRyd); recursive=true)
+    indigo = DocThemeIndigo.install(Bloqade)
+    DocMeta.setdocmeta!(Bloqade, :DocTestSetup, :(using Bloqade); recursive=true)
 
     makedocs(;
         root=\"$(root_dir("docs"))\",
         modules=[$(join(non_cuda_pkgs, ", "))],
         authors="QuEra Computing Inc.",
         repo="https://github.com/$repo/blob/{commit}{path}#{line}",
-        sitename="EaRyd.jl",
+        sitename="Bloqade.jl",
         doctest=false,
         format=Documenter.HTML(;
             prettyurls=get(ENV, "CI", "false") == "true",
-            canonical="https://Happy-Diode.github.io/EaRyd.jl",
+            canonical="https://Happy-Diode.github.io/Bloqade.jl",
             assets=String[indigo],
         ),
         pages=$pages,
@@ -112,9 +112,9 @@ end
 
 function generate_makejl(light)
     build_script = if light
-        doc_build_script(LIGHT_PAGES, "Happy-Diode/EaRyd.jl")
+        doc_build_script(LIGHT_PAGES, "Happy-Diode/Bloqade.jl")
     else
-        doc_build_script(PAGES, "Happy-Diode/EaRyd.jl")
+        doc_build_script(PAGES, "Happy-Diode/Bloqade.jl")
     end
 
     write(root_dir("docs", "make.jl"), build_script)

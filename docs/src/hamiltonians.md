@@ -2,7 +2,7 @@
 
 Hamiltonian encodes essential physical properties of Rydberg systems. One can use a Hamiltonian to 
 understand the ground state properties of the corresponding Rydberg system and to generate interesting quantum dynamics. 
-The Rydberg Hamiltonian is generally specified by atom positions, Rabi frequencies and detunings. In EaRyd, 
+The Rydberg Hamiltonian is generally specified by atom positions, Rabi frequencies and detunings. In Bloqade, 
 we can easily create a Hamiltonian by inputting these information, i.e. lattice and strengths of Rabi frequencies and
 detunings,  into the function [`rydberg_h`](@ref). Furthermore, by inputing waveforms for the Rabi frequency and 
 detuning, we can easily generate time-dependent Hamiltonians. 
@@ -13,7 +13,7 @@ detuning, we can easily generate time-dependent Hamiltonians.
 To specify the Hamiltonian, we first need to specify the atom positions, which determine the Rydberg intearctions strengths
 between pairs of atoms. Here we generate a square lattice by using the code below. 
 ```@repl hamiltonian
-using EaRyd
+using Bloqade
 atoms = generate_sites(SquareLattice(), 3, 3, scale=6.3);
 ```
 Please refer to [Lattice](@ref) page for more details about generating lattice and relevant operations. 
@@ -66,7 +66,7 @@ Currently, there are currently 4 terms supported: [`RydInteract`](@ref),
 we can also explicitly add up these terms to compose a new hamiltonian, e.g
 
 ```@repl hamiltonian
-using EaRyd
+using Bloqade
 h = XTerm(5, 1.0) + ZTerm(5, 1.0)
 ```
 
@@ -75,7 +75,7 @@ h = XTerm(5, 1.0) + ZTerm(5, 1.0)
 
 
 In order to better understand physical properties (such as engenstate properties and eigenvalue statistics) of a Rydberg system, we may want to diagonalize the corresponding Hamiltonian 
-matrices. In EaRyd, the Hamiltonian expression can be converted to a matrice
+matrices. In Bloqade, the Hamiltonian expression can be converted to a matrice
 via type conversion, e.g we can convert the above Hamiltonian
 to a `SparseMatrixCSC`
 
@@ -86,7 +86,7 @@ h_m = SparseMatrixCSC(ht)
 
 With strong interactions, only one Rydberg excitation is allowed within the Blockade regime (see [blockade](@ref)). In such a case, the allowed Hilbert space (called blockade subpace) for ``N`` atoms 
 is only part of full ``2^N`` Hilbert space. In this case, it is better to work in the blockade subspace such that one can access larger systems. 
-One of the essential feature of EaRyd is to allow the users to also work in blockade subspace. Here, we can easily convert the Hamiltonian expression into a matrices in subspace basis.
+One of the essential feature of Bloqade is to allow the users to also work in blockade subspace. Here, we can easily convert the Hamiltonian expression into a matrices in subspace basis.
 First, we can specify such a subspace by using function [`blockade_subspace`](@ref), e.g. 
 
 ```@repl hamiltonian

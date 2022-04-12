@@ -8,10 +8,10 @@
 
 ## Create a Lattice
 
-Creating a lattice is very simple in EaRyd, e.g we can create a square lattice as following
+Creating a lattice is very simple in Bloqade, e.g we can create a square lattice as following
 
 ```@repl quick-start
-using EaRyd
+using Bloqade
 generate_sites(SquareLattice(), 3, 3)
 ```
 
@@ -21,13 +21,13 @@ function.
 we support the following built-in lattice: [`SquareLattice`](@ref), [`KagomeLattice`](@ref), [`HoneycombLattice`](@ref), and more. Please refer to [Lattices](@ref) for more detailed guide of lattice related operation.
 
 !!! tips
-    The lattice in EaRyd is actually defined as general Bravis lattice. You can create
+    The lattice in Bloqade is actually defined as general Bravis lattice. You can create
     your own by defining the corresponding lattice vector. Check [Bravais Lattice](@ref bravais-lattice)
 
 ## Create a Waveform
 
 
-EaRyd gives users the flexibility to specify general waveform by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
+Bloqade gives users the flexibility to specify general waveform by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
 
 ```@repl quick-start
 waveform = Waveform(t->2.2sin(t), duration=4π)

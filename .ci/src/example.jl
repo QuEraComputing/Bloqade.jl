@@ -9,7 +9,7 @@ Commands for creating & building examples in examples directory.
 
 using Pkg
 using Comonicon
-using ..EaRydCI: root_dir, collect_lib, dev
+using ..BloqadeCI: root_dir, collect_lib, dev
 
 """
 create an example.
@@ -21,7 +21,7 @@ create an example.
 # Flags
 
 - `-f,--force`: overwrite existing path.
-- `--plot`: use `EaRydPlots`.
+- `--plot`: use `BloqadePlots`.
 """
 @cast function create(name::String; force::Bool=false, plot::Bool=false)
     example_dir = root_dir("examples", name)
@@ -32,11 +32,11 @@ create an example.
     mkpath(example_dir)
     Pkg.activate(example_dir)
     excluded_libs = []
-    plot || push!(excluded_libs, "EaRydPlots")
+    plot || push!(excluded_libs, "BloqadePlots")
     pkgs = collect_lib(;include_main=true, excluded_libs)
     Pkg.develop(pkgs)
     write(joinpath(example_dir, "main.jl"), """
-    # write your EaRyd example with Literate.jl here
+    # write your Bloqade example with Literate.jl here
     """)
     return
 end

@@ -26,7 +26,7 @@ using YaoSubspaceArrayReg
     @test isnormalized(r)
 
     @test set_zero_state!(rand_state(5)) ≈ zero_state(5)
-    @test_throws ArgumentError SubspaceArrayReg(rand(5), Subspace(5, rand(Int, 6)))
+    @test_throws DimensionMismatch SubspaceArrayReg(rand(5), Subspace(5, rand(Int, 6)))
 end
 
 @testset "space" begin

@@ -1,5 +1,5 @@
 ```@meta
-CurrentModule = EaRyd
+CurrentModule = Bloqade
 ```
 
 # Emulation of Shordinger Equation
@@ -45,7 +45,7 @@ emulate!
 For example, we can simulate a constant hamiltonian
 
 ```@repl evolution
-using EaRyd
+using Bloqade
 atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1)
 ds = rand(3) # durations
 hs = [rydberg_h(atoms;Δ=2.0, Ω=1.0) for _ in 1:3]

@@ -4,7 +4,7 @@ using Comonicon
 using CoverageTools
 
 root_dir(xs...) = joinpath(dirname(dirname(@__DIR__)), xs...)
-function collect_lib(;include_main::Bool=false, excluded_libs=["EaRydPlots"])
+function collect_lib(;include_main::Bool=false, excluded_libs=["BloqadePlots"])
     pkgs = Pkg.PackageSpec[]
     for pkg in readdir(root_dir("lib"))
         pkg in excluded_libs && continue
@@ -24,7 +24,7 @@ create an example.
 # Flags
 
 - `-f,--force`: overwrite existing path.
-- `--plot`: use `EaRydPlots`.
+- `--plot`: use `BloqadePlots`.
 """
 @cast function create(name::String; force::Bool=false, plot::Bool=false)
     @warn("`.ci/run create` is deprecated, use `.ci/run example create` instead")
@@ -80,18 +80,18 @@ run all the tests (in parallel).
     end
     push!(paths, ".")
     if cpu
-        paths = filter(x->x!=joinpath("lib", "EaRydCUDA"), paths)
+        paths = filter(x->x!=joinpath("lib", "BloqadeCUDA"), paths)
     end
     return test(paths...; coverage)
 end
 
 """
-develop the EaRyd components into environment.
+develop the Bloqade components into environment.
 
 # Args
 
 - `path`: path to the environment, relative to the main environment,
-    default is the main EaRyd environment.
+    default is the main Bloqade environment.
 """
 @cast function dev(path::String=".")
     path = relpath(path, root_dir())
@@ -104,7 +104,7 @@ develop the EaRyd components into environment.
         Pkg.develop(collect_lib_deps(path))
     elseif startswith(path, "docs") # need all lib packages included
         Pkg.activate(root_dir(path))
-        libs = collect_lib(;include_main=true, excluded_libs=["EaRydCUDA"])
+        libs = collect_lib(;include_main=true, excluded_libs=["BloqadeCUDA"])
         Pkg.develop(libs)
     elseif startswith(path, "lib")
         pkgs = collect_lib_deps(path)
@@ -120,9 +120,9 @@ end
 function collect_lib_deps(path::String)
     libs = readdir(root_dir("lib"))
     d = TOML.parsefile(root_dir(path, "Project.toml"))
-    names = [name for name in keys(d["deps"]) if name in libs || name == "EaRyd"]
+    names = [name for name in keys(d["deps"]) if name in libs || name == "Bloqade"]
     paths = map(names) do name
-        name == "EaRyd" && return "."
+        name == "Bloqade" && return "."
         return root_dir("lib", name)
     end
     pkgs = map(paths) do path

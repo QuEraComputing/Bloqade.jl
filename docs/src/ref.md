@@ -1,31 +1,31 @@
 # References
 
-## EaRyd
+## Bloqade
 
 ```@autodocs
-Modules = [EaRyd]
+Modules = [Bloqade]
 ```
 
-## EaRydODE
+## BloqadeODE
 
 ```@autodocs
-Modules = [EaRydODE]
+Modules = [BloqadeODE]
 ```
 
-## EaRydWaveforms
+## BloqadeWaveforms
 
 ```@autodocs
-Modules = [EaRydWaveforms]
+Modules = [BloqadeWaveforms]
 ```
 
-## EaRydLattices
+## BloqadeLattices
 
 ```@autodocs
-Modules = [EaRydLattices]
+Modules = [BloqadeLattices]
 ```
 
-## EaRydPlots
+## BloqadePlots
 
 ```@autodocs
-Modules = [EaRydPlots]
+Modules = [BloqadePlots]
 ```

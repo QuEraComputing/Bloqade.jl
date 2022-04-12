@@ -43,16 +43,16 @@ from the documentation. You can enable this by
 
 ## Setting Up Environments
 
-The EaRyd package itself is a meta-package that simply re-exports
+The Bloqade package itself is a meta-package that simply re-exports
 component packages lives in `lib` directory. Thus one will need to
 `dev` the corresponding component package to make sure they are
 using the `master` branch version while developing, you can always
 do this manually in Julia's Pkg mode via `dev` command, e.g in the
-`EaRyd` environment (the `EaRyd/Project.toml` file), one will need
+`Bloqade` environment (the `Bloqade/Project.toml` file), one will need
 to run the following command
 
 ```julia
-pkg> dev lib/EaRydExpr lib/EaRydKrylov lib/EaRydLattices lib/EaRydMIS lib/EaRydODE lib/EaRydWaveforms
+pkg> dev lib/BloqadeExpr lib/BloqadeKrylov lib/BloqadeLattices lib/BloqadeMIS lib/BloqadeODE lib/BloqadeWaveforms
 ```
 
 this can be done automatically using the CLI tool introduced
@@ -71,7 +71,7 @@ Here are some common examples of it.
 ### Create New Examples
 
 create a new example project called `my_new_examples` in `examples`
-and setup the dependencies of `EaRyd`.
+and setup the dependencies of `Bloqade`.
 
 ```sh
 .ci/run example create my_new_example

@@ -1,6 +1,6 @@
 # Registers
 
-EaRyd follows the register interface in [Yao]. It uses register to 
+Bloqade follows the register interface in [Yao]. It uses register to 
 represent a device and its internal quantum state.
 As for simulators, the most used register types are `ArrayReg`
 and `SubspaceArrayReg`. They both uses a dense array to store
@@ -14,7 +14,7 @@ special register made for simulations in Rydberg blockade subspace.
 You can use `zero_state` to create a register with its internal state to be zero state ``|00...00\ranlge``.
 
 ```@repl registers
-using EaRyd
+using Bloqade
 zero_state(5) # creates a 5-qubit register
 ```
 

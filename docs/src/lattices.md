@@ -2,8 +2,8 @@
 
 ## Create a lattice
 
-With EaRyd, we are going to be simulating the quantum evolution of information stored in neutral atoms. Present-day experimental platforms allow distribution of atoms in an organized lattice structure and even in  arbitrary shapes.
-This makes neutral atom a natural setup for quantum simulation of statistical models and quantum matter. With EaRyd, we support several built-in lattice structure and allow the users to specify atom positions by inputing coordinates.
+With Bloqade, we are going to be simulating the quantum evolution of information stored in neutral atoms. Present-day experimental platforms allow distribution of atoms in an organized lattice structure and even in  arbitrary shapes.
+This makes neutral atom a natural setup for quantum simulation of statistical models and quantum matter. With Bloqade, we support several built-in lattice structure and allow the users to specify atom positions by inputing coordinates.
 
 
 ## Lattice types
@@ -18,7 +18,7 @@ The unit cell of a Bravais lattice is defined by specifing its lattice vectors `
 To create a simple lattice, we just place one site at location `(0.0, 0.0)` in a unit cell. For example, to create a triangular lattice, we can specify its lattice vector to be `(1.0, 0.0)` and `(0.5, 0.5*sqrt(3))`.
 
 ```@repl quick-start
-using EaRyd
+using Bloqade
 triangular = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))], [(0.0, 0.0)])
 ```
 
@@ -34,7 +34,7 @@ One can use [`lattice_vectors`](@ref) and [`lattice_sites`](@ref) to access the 
 
 ##### [`ChainLattice`](@ref)
 ```@example quick-start
-using EaRyd
+using Bloqade
 
 chain = ChainLattice()
 ```

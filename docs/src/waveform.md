@@ -1,23 +1,23 @@
 ```@meta
-CurrentModule = EaRydWaveforms
+CurrentModule = BloqadeWaveforms
 ```
 
 # Waveforms
 
-Waveforms are essential ingredients for Rydberg quantum simulations. By controlling the waveforms of ``\Omega`` and ``\Delta``, one can prepare ground states of certain target Hamiltonian and study non-equalibrium dynamics of time-dependent Hamiltonians. With EaRyd, we support several built-in waveforms and allow the users to specify waveforms by inputing functions. We also support different operations of waveforms, such as smoothing, slicing, and composing, et al. 
+Waveforms are essential ingredients for Rydberg quantum simulations. By controlling the waveforms of ``\Omega`` and ``\Delta``, one can prepare ground states of certain target Hamiltonian and study non-equalibrium dynamics of time-dependent Hamiltonians. With Bloqade, we support several built-in waveforms and allow the users to specify waveforms by inputing functions. We also support different operations of waveforms, such as smoothing, slicing, and composing, et al. 
 
 The generated waveforms can be directly used to build time-dependent Hamiltonians, see [`Hamiltonian`](@ref). 
 
 ## Creating Waveforms
 
-In EaRyd, the waveforms are defined as [`Waveform`](@ref) object,
+In Bloqade, the waveforms are defined as [`Waveform`](@ref) object,
 which is a composition of a callable object and a real number `duration`.
 
-EaRyd gives users the flexibility to specify general waveforms by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
+Bloqade gives users the flexibility to specify general waveforms by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
 
 ```@repl creating-waveform
-using EaRyd
-using EaRydPlots
+using Bloqade
+using BloqadePlots
 waveform = Waveform(t->2.2sin(t), duration=4π);
 draw(waveform)
 ```
@@ -60,11 +60,11 @@ wf2 = piecewise_constant(clocks=a; values=b)
 
 ## Operations of Waveforms
 
-EaRyd also supports several operations of the waveforms. 
+Bloqade also supports several operations of the waveforms. 
 Waveforms can be sliced using the duration syntax `start..stop`, e.g
 
 ```@repl slicing
-using EaRydWaveform # hide
+using BloqadeWaveform # hide
 wf = sinusoidal(duration=2.2);
 wf[1.1..1.5];
 draw(wf)
@@ -92,7 +92,7 @@ swf = smooth(wf)
 
 ## Waveform Linear Algebra
 
-EaRyd also supports several linear algebra operations of waveforms. If two waveforms have the same duration, we can directly add up or subtract the strength of two waveforms, simply by using `+` or `-`. 
+Bloqade also supports several linear algebra operations of waveforms. If two waveforms have the same duration, we can directly add up or subtract the strength of two waveforms, simply by using `+` or `-`. 
 
 ```@repl add
 wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0);

@@ -59,6 +59,8 @@ jobs:
           Pkg.Registry.add(RegistrySpec(url="https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"))
       - name: "develop lib packages"
         run: .ci/run dev
+      - name: "develop EaRydCUDA"
+        run: .ci/run dev lib/EaRydCUDA
       - name: "use Roger-luo's CUDA fork"
         shell: julia --color=yes {0}
         run: |

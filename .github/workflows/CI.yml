@@ -61,7 +61,7 @@ jobs:
         run: .ci/run dev
       - uses: julia-actions/julia-buildpkg@v1
       - name: "run tests"
-        run: .ci/run testall --cpu --coverage
+        run: .ci/run testall --coverage
       - uses: coverallsapp/github-action@master
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

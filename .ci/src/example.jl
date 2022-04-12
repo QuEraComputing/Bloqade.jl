@@ -1,11 +1,15 @@
 """
 example commands
+
+# Intro
+
+Commands for creating & building examples in examples directory.
 """
 @cast module Example
 
 using Pkg
 using Comonicon
-using ..EaRydCI: root_dir, collect_lib
+using ..EaRydCI: root_dir, collect_lib, dev
 
 """
 create an example.
@@ -53,22 +57,32 @@ Literate script and copy all other files to the build directory.
 # Options
 
 - `--target=<notebook|markdown>`: build target, either `notebook` or `markdown`.
+- `--build-dir=<build dir>`: build directory, default is `build`.
 
 # Flags
 
 - `-e,--eval`: evaluate the Julia code.
 """
-@cast function build(name::String; target::String="notebook", eval::Bool=false)
+@cast function build(name::String; build_dir::String="build", target::String="notebook", eval::Bool=false)
     ci_dir = root_dir(".ci")
     example_dir = root_dir("examples", name)
 
-    ispath(root_dir("build")) || mkpath(root_dir("build"))
+    ispath(root_dir(build_dir)) || mkpath(root_dir(build_dir))
     input_file = root_dir("examples", name, "main.jl")
-    output_dir = root_dir("build", name)
+    output_dir = root_dir(build_dir, name)
+
+    if eval
+        @info "dev example project" example_dir
+        redirect_stdio(stdout=devnull, stdin=devnull, stderr=devnull) do
+            dev(example_dir)
+        end
+    end
+
     if target == "notebook"
         julia_cmd = """
         using Pkg, Literate;
         Pkg.activate(\"$example_dir\")
+        Pkg.instantiate()
         Literate.notebook(\"$input_file\", \"$output_dir\"; execute=$eval)
         """
         cp(example_dir, output_dir; force=true, follow_symlinks=true)
@@ -76,6 +90,7 @@ Literate script and copy all other files to the build directory.
         julia_cmd = """
         using Pkg, Literate;
         Pkg.activate(\"$example_dir\")
+        Pkg.instantiate()
         Literate.markdown(\"$input_file\", \"$output_dir\"; execute=$eval)
         """
     else
@@ -83,6 +98,30 @@ Literate script and copy all other files to the build directory.
     end
     run(`$(Base.julia_exename()) --project=$ci_dir -e $julia_cmd`)
     return
+end
+
+"""
+build all the example in parallel.
+
+# Intro
+
+Similar to `build` but build all the example written Literate
+in parallel.
+
+# Options
+
+- `--target=<notebook|markdown>`: build target, either `notebook` or `markdown`.
+- `--build-dir=<build dir>`: build directory, default is `build`.
+
+# Flags
+
+- `-e,--eval`: evaluate the Julia code.
+"""
+@cast function buildall(;build_dir::String="build", target::String="markdown", eval::Bool=false)
+    @sync for name in readdir(root_dir("examples"))
+        isdir(joinpath(root_dir("examples", name))) || continue
+        Threads.@spawn build(name; build_dir, target, eval)
+    end
 end
 
 end

@@ -3,4 +3,4 @@ using Documenter
 using Bloqade
 using BloqadeLattices
 
-doctest(BloqadeLattices)
+doctest(BloqadeLattices; manual=false)

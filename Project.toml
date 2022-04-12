@@ -4,7 +4,6 @@ authors = ["Roger-Luo <rogerluo.rl18@gmail.com> and contributors"]
 version = "0.1.0"
 
 [deps]
-CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 EaRydExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
 EaRydKrylov = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"
 EaRydLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
@@ -18,7 +17,6 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
-CUDA = "3"
 EaRydExpr = "0.1"
 EaRydKrylov = "0.1"
 EaRydLattices = "0.1"

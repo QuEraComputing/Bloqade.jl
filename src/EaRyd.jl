@@ -24,9 +24,4 @@ using Reexport
     make_kdtree, grouped_nearest, collect_atoms,
     img_atoms, img_maskedgrid
 
-# using CUDA
-# @static if CUDA.functional()
-#     @reexport using EaRydCUDA
-# end
-
 end

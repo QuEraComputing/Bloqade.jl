@@ -1,6 +1,5 @@
-using Bloqade
 using Test
+using Bloqade
+using BloqadeLattices
 
-@testset "Bloqade.jl" begin
-    # Write your tests here.
-end
+doctest(BloqadeLattices)

@@ -3,8 +3,6 @@
 [![Build Status](https://github.com/Happy-Diode/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/Bloqade.jl/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=p1FNvJ)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
 
-QuEra **E**mul**a**tor for **Ryd**berg System.
-
 ## Installation
 
 <p>

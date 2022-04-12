@@ -75,5 +75,3 @@ end
     @test show(IOBuffer(), MIME"image/png"(), grd) === nothing
     @test show(IOBuffer(), MIME"image/png"(), lt) === nothing
 end
-
-doctest(BloqadeLattices)

@@ -57,8 +57,6 @@ jobs:
           ENV["JULIA_PKG_SERVER"] = ""
           Pkg.Registry.add("General")
           Pkg.Registry.add(RegistrySpec(url="https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"))
-      - name: "develop lib packages"
-        run: .ci/run dev
       - name: "develop EaRydCUDA"
         run: .ci/run dev lib/EaRydCUDA
       - name: "use Roger-luo's CUDA fork"
@@ -67,6 +65,8 @@ jobs:
           using Pkg
           Pkg.activate("lib/EaRydCUDA")
           Pkg.add(url="https://github.com/Roger-luo/CUDA.jl.git", rev="roger/quera")
+      - name: "develop lib packages"
+        run: .ci/run dev
       - uses: julia-actions/julia-buildpkg@v1
       - name: "run tests"
         run: .ci/run testall --coverage

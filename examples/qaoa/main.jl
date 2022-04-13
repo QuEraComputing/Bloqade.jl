@@ -3,7 +3,6 @@ using Graphs
 using Bloqade
 using BloqadeMIS
 using BloqadePlots
-##using ForwardDiff   ## for automatic differentiation
 using Compose
 using Random
 using Optim         ## the optimizer
@@ -57,16 +56,12 @@ emulate!(prob)
 
 bitstring_hist(prob.reg; nlargest=20)
 
-#function most_populated(reg::BloqadeMIS.YaoSubspaceArrayReg)
-#    imax = findmax(abs2, reg.state)
-#    BitStr{nqubits(reg)}(s.subspace_v[imax])
-#end
 using BitBasis
-function most_populated(reg::ArrayReg; nlargest::Int)
+function most_probable(reg::ArrayReg; nlargest::Int)
     imax = sortperm(probs(reg))[end-nlargest+1:end]
     BitStr{nqubits(reg)}.(imax .- 1)
 end
-best_bit_string = most_populated(prob.reg; nlargest=2)
+best_bit_string = most_probable(prob.reg; nlargest=2)
 
 img_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_string[1]])
 img_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_string[2]])

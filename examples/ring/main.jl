@@ -17,7 +17,7 @@ distance = 7    # Distance between atoms, in microns
 
 R = distance/(2*sin(2*pi/(nsites)/2))                                       # Radius of the circle, using a little trigonometry
 pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
-atoms = AtomList(pos)                                         # Define the atom positions as an AtomList.
+atoms = AtomList(pos)                                                       # Define the atom positions as an AtomList.
 
 # Build the Hamiltonian by defining the atom list and the Rabi frequency
 # Here, the Rabi frequency Ω is π, such that one oscillation occurs in 0.5usec.
@@ -60,14 +60,23 @@ end
 
 
 # Plot the data
-fig = plt.figure(figsize=(10,6))
+fig = plt.figure(figsize=(8,6))
 ax  = plt.subplot(1,1,1)
 
 plt.plot(times,real(densities),"k",label="Full space")
 plt.plot(times,real(densities2),"r--",label="Subspace")
-ax.axis([0,Tmax,0,0.5])
-plt.xlabel("Time")
+ax.axis([0,Tmax,0,0.45])
+plt.xlabel("Time (us)")
 plt.ylabel("Rydberg density")
 plt.tight_layout()
 plt.legend()
+
+inset_axes = pyimport("mpl_toolkits.axes_grid1.inset_locator")
+ax2 = inset_axes.inset_axes(ax,width="20%",height="30%",loc="lower right",borderpad=1)
+plt.plot(times,real(densities - densities2))
+plt.axis([0,0.6,-0.0008,0.0008])
+plt.ylabel("Difference",fontsize=12)
+plt.yticks(LinRange(-0.0008,0.0008,5),fontsize=12)
+plt.xticks([0,0.2,0.4,0.6],fontsize=12)
+
 plt.show()

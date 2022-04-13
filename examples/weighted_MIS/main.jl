@@ -14,7 +14,6 @@ using Graphs, GraphTensorNetworks
 # unit disk graph on a square lattice.  The atoms represent vertices on the problem graph, 
 # and all vertices closer than a length 1.5 are connected by an edge.  
 locs = [(1,-1), (4,0), (1,1), (2,0), (0,0), (2,2), (2,-2), (3,1), (3,-1)];
-
 g = unit_disk_graph(locs, 1.5)
 show_graph(g; locs=locs, vertex_colors=["white" for i=1:nv(g)])
 
@@ -37,7 +36,7 @@ show_graph(g; locs = locs, vertex_colors=
 # $H_{QA}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \Omega_v(t) \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$
 
 # We will work in the limit of $\Delta, \Omega \ll U$, where 
-# the non-independent sets of the graph can be neglected (in experiments, this corresponds 
+# the non-independent set space of the graph can be neglected (in experiments, this corresponds 
 # to the limit where the interaction energy is much stronger than other energy scales).  
 # In this limit, we can restrict outselves to the Rydberg blockade subspace (see [blockade](@ref)) of the graph 
 # and ignore the interaction term $\sum_{(u, w) \in E} U n_u n_w$ in the Hamiltonian. We can 

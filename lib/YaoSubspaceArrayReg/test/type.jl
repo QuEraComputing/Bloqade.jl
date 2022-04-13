@@ -56,10 +56,10 @@ end
 @testset "reg operations" begin
     subspace = [0, 1, 4, 8]
     s = Subspace(5, subspace)
-    a = SubspaceArrayReg([0.0, 0.8, 0.6, 0.0], s)
+    a = SubspaceArrayReg(ComplexF64[0.0, 0.8, 0.6, 0.0], s)
     b = rand_state(s)
     @test a == a
-    @test most_probable(a, 2) == BitStr{5}.([1, 2])
+    @test most_probable(a, 2) == YaoSubspaceArrayReg.BitStr{5}.([1, 4])
     @test YaoSubspaceArrayReg.regadd!(copy(a), b).state ≈ (a.state + b.state)
     @test YaoSubspaceArrayReg.regsub!(copy(a), b).state ≈ (a.state - b.state)
     @test YaoSubspaceArrayReg.regscale!(copy(a), 0.5).state ≈ 0.5 * a.state

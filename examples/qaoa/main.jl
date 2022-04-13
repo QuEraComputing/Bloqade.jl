@@ -1,4 +1,5 @@
 # # Solving the maximum independent set with variational optimization algorithm
+# This example shows how to find the maximum independent set of a graph using adiabatic algorithm and the 
 using Graphs
 using Bloqade
 using BloqadeMIS
@@ -10,9 +11,9 @@ using Optim         ## the optimizer
 # ## The maximum independent set problem
 # In graph theory, an independent set is a set of vertices in a graph, no two of which are adjacent.
 # The problem of finding maximum independent sets (MIS) is NP-hard, i.e. unlikely to be solved in polynomial time.
-# Even aproximating the MIS size ``\alpha(G)`` for a graph ``G=(V,E)`` is also proven to be hard.
+# Even aproximating the MIS size ``\alpha(G)`` for a graph ``G=(V,E)`` is hard.
 # In this tutorial we study the MIS problem defined on diagonal-coupled unit-disk grid graphs (DUGG).
-# Although these graphs have highly constraint topology, finding its MISs is still NP-hard.
+# Although these graphs have highly constraint topology, finding its MISs is NP-hard.
 # We show how to map the MIS problem on this graph to a Rydberg atom array hamiltonian,
 # and use two quantum algorithms, the standard QAOA and a variational quantum algorithm with specially parametrized waveform, to find maximum independent sets.
 # For those who wants to know more details, we highly recommend they to connect this tutorial with the experiment [arxiv:2202.09372](https://arxiv.org/abs/2202.09372).
@@ -30,24 +31,26 @@ graph = BloqadeMIS.unit_disk_graph(atoms, 7.5)
 BloqadeMIS.exact_solve_mis(graph)
 # For advanced MIS solvers, please check [GenericTensorNetworks](@ref).
 
-# ## Adiabatic approach
+# ## The adiabatic approach
 # We first prepare the adiabatic pulse sequence as two piecewise linear functions
-# define the rabi waveform
+# define the waveform for Rabi pulse
 T_max = 1.65
 Ω_max = 4 * 2π
 Ω = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0])
 BloqadePlots.draw(Ω)
 
 # define the detuning waveform
+Δ_start = -13 * 2π
+Δ_end = 11 * 2π
+Δ = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[Δ_start, Δ_start, Δ_end, Δ_end])
+BloqadePlots.draw(Δ)
+
+# Here, the total time is fixed to `T_max`, the adiabatic evolution path is specified by the piecewise linear function.
 # Rydberg blockade radius can be computed with 
 # ```math
 # C / R_b^6 \sim \sqrt{\Delta^2 + \Omega^2}
 # ```
 # When `\Omega = 0`, the blockade radius for ``7.5\mu m`` is ``\sim 11 \times 2\pi MHz`` [Sepehr2022].
-Δ_start = -13 * 2π
-Δ_end = 11 * 2π
-Δ = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[Δ_start, Δ_start, Δ_end, Δ_end])
-BloqadePlots.draw(Δ)
 
 hamiltonian = rydberg_h(atoms; Ω=Ω, Δ=Δ)
 

@@ -168,7 +168,7 @@ function Base.:(==)(lhs::SubspaceArrayReg, rhs::SubspaceArrayReg)
     lhs.state == rhs.state
 end
 
-function YaoArrayRegister.most_probable(reg::YaoSubspaceArrayReg, n::Int)
-    imax = sortperm(probs(reg); rev=true)[1:n]
-    BitStr{nqubits(reg)}.(s.subspace_v[imax])
+function YaoArrayRegister.most_probable(reg::SubspaceArrayReg, n::Int)
+    imax = sortperm(abs2.(reg.state); rev=true)[1:n]
+    YaoArrayRegister.BitStr{nqubits(reg)}.(reg.subspace.subspace_v[imax])
 end

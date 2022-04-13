@@ -343,7 +343,7 @@ function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, mis::Int
 end
 
 
-function maximum_independent_set_probability(f, reg::YaoAPI.AbstractRegister, graph::AbstractGraph, mis::StaticBitVector)
+function maximum_independent_set_probability(f, reg::YaoAPI.AbstractRegister, graph::AbstractGraph, mis)
     v2amp = ThreadsX.map(ConfigAmplitude(reg)) do (c, amp)
         return bitarray(f(c), nv(graph)), amp
     end

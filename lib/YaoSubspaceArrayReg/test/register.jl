@@ -1,4 +1,5 @@
 using Test
+using Random
 using YaoSubspaceArrayReg
 
 @testset "zero_state" begin
@@ -26,7 +27,8 @@ using YaoSubspaceArrayReg
     @test isnormalized(r)
 
     @test set_zero_state!(rand_state(5)) ≈ zero_state(5)
-    @test_throws DimensionMismatch SubspaceArrayReg(rand(5), Subspace(5, rand(Int, 6)))
+    space = Subspace(5, sort(randperm(1<<5)[1:6]))
+    @test_throws DimensionMismatch SubspaceArrayReg(rand(5), space)
 end
 
 @testset "space" begin

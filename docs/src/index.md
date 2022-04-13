@@ -18,7 +18,7 @@ Welcome to the documentation page for Bloqade, a &nbsp;
 Bloqade enables the easy design and fast execution of quantum computing protocols incorporating the particularities of architectures based on neutral atoms, including the definition of arbitrary-layout quantum registers, the operation in Hilbert spaces constrained by the Rydberg blockade, and more.
 ```
 
-## Embarking
+## Installation
 
 ```@raw html
 <p>

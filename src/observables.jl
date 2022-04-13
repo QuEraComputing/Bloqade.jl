@@ -27,7 +27,7 @@ rydberg_corr(reg) = rydberg_corr(Op.n, reg)
 
 function rydberg_corr(op, reg)
     return [
-        expect(chain(put(i=>op), put(j=>op)), reg)
+        expect(chain(nqubits(reg), put(i=>op), put(j=>op)), reg)
         for i in 1:nqubits(reg), j in 1:nqubits(reg)
     ]
 end

@@ -1,7 +1,5 @@
 # Lattices
 
-## Create a lattice
-
 With Bloqade, we are going to be simulating the quantum evolution of information stored in neutral atoms. Present-day experimental platforms allow distribution of atoms in an organized lattice structure and even in  arbitrary shapes.
 This makes neutral atom a natural setup for quantum simulation of statistical models and quantum matter. With Bloqade, we support several built-in lattice structure and allow the users to specify atom positions by inputing coordinates.
 

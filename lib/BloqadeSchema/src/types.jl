@@ -36,7 +36,7 @@ end
 
 @option struct RydbergDetuning <: QuEraSchema
     global_value::RydbergDetuningGlobal
-    local_value::Vector{RydbergDetuningLocal}
+    local_value::Maybe{Vector{RydbergDetuningLocal}}
 end
 
 @option struct RydbergHamiltonian <: QuEraSchema

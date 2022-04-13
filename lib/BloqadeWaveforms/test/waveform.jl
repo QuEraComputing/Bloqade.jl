@@ -110,6 +110,15 @@ end
     @test wf3(0.1) ≈ wf1(0.1) * 2
 end
 
+@testset "alpha*waveform" begin
+    wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
+    wf2 = 2.0 / wf1
+    @test wf2(0.1) ≈ 2 / wf1(0.1)
+
+    wf3 = wf1 / 2.0
+    @test wf3(0.1) ≈ wf1(0.1) / 2
+end
+
 @testset "broadcast" begin
     wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
     wf2, wf3 = [2.0, 3.0] .* wf1

@@ -51,11 +51,13 @@ draw(waveform)
 
 In certain cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions `piecewise_linear` or `piecewise_constant`: 
 
-```@repl user_input
+```@repl creating-waveform
 a =  [i for i in 1:10];
 b = rand(10);
-wf1 = piecewise_linear(clocks=a; values=b)
-wf2 = piecewise_constant(clocks=a; values=b)
+wf1 = piecewise_linear(clocks=a; values=b);
+wf2 = piecewise_constant(clocks=a; values=b);
+draw(wf1)
+draw(wf2)
 ```
 
 ## Operations on Waveforms
@@ -63,7 +65,7 @@ wf2 = piecewise_constant(clocks=a; values=b)
 EaRyd also supports several operations on the waveforms. 
 Waveforms can be sliced using the duration syntax `start..stop`, e.g
 
-```@repl slicing
+```@repl creating-waveform
 using EaRydWaveform # hide
 wf = sinusoidal(duration=2.2);
 wf[1.1..1.5];
@@ -71,10 +73,11 @@ draw(wf)
 ```
 
 Waveforms can be composed together via `append`
-```@repl append
-wf1 = Waveform(sin, duration=2.2)
-wf2 = linear_ramp(;start_value=0.0, stop_value=1.1, duration=0.5)
-waveform = append(wf1, wf2)
+```@repl creating-waveform
+wf1 = Waveform(sin, duration=2.2);
+wf2 = linear_ramp(;start_value=0.0, stop_value=1.1, duration=0.5);
+waveform = append(wf1, wf2);
+draw(waveform)
 ```
 where the waveform `w2` is appended at the end of `w1`. 
 
@@ -85,31 +88,38 @@ the moving average methods, one can use the [`smooth`](@ref)
 function to create a smooth-ed wavefrom from a piecewise linear
 waveform.
 
-```@repl append
+```@repl creating-waveform
 wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 3.0, 1.1, 2.2])
-swf = smooth(wf)
+draw(wf)
+swf = smooth(wf);
+draw(swf)
 ```
 
 ## Waveform Linear Algebra
 
 EaRyd also supports several linear algebra operations on waveforms. If two waveforms have the same duration, we can directly add up or subtract their strengths, simply by using `+` or `-`. 
 
-```@repl add
+```@repl creating-waveform
 wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0);
 wf2 = Waveform(sin, duration=2.2);
 wf3 = wf1 + wf2
 wf4 = wf1 - wf2
+
+draw(wf3)
+draw(wf4)
 ```
 
 If we want to increase the strength of a waveform by some time, we can directly use `*`
 
-```@repl times
+```@repl creating-waveform
 wf = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0);
 wf_t = 3 * wf
+
+draw(wf_t)
 ```
 
 Such operation could also be broadcasted by using `.*`
-```@repl times
+```@repl creating-waveform
 wf2, wf3 = [2.0, 3.0] .* wf1
 ```
 

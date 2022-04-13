@@ -4,7 +4,7 @@ using Configurations
 
 export TaskSpecification
 
-include("types")
+include("types.jl")
 include("serialize.jl")
 
 end

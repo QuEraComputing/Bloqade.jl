@@ -2,6 +2,8 @@ lcov.info
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
+*.dat
+*.pyc
 /docs/build/
 .vscode
 Manifest.toml

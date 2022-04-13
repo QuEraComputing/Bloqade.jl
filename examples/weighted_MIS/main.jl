@@ -100,16 +100,15 @@ using SparseArrays
 
 
 # We work in the blockade (independent set) subspace
-t_list = [] # clock
+t_list = []
 P_MIS = [] # MIS probability 
 subspace = independent_set_subspace(g)
 
 global t = 0.1 # current time
-global T_  = 0.0 # time to reach P_MIS = 0.9
+T_  = 1.5 # time to reach P_MIS = 0.9
 
-while (t < T_  * 2.5) || (T_  == 0.0)
+while (t < T_  * 2.5)
     global t 
-    global T_
 
     h = build_adiabatic_sweep(g, Ω_max, Δ_max, t, weights)[1]
     
@@ -123,18 +122,10 @@ while (t < T_  * 2.5) || (T_  == 0.0)
     
     # compute MIS probability
     p = maximum_independent_set_probability(prob.reg, g, MIS_config)
-    
-    # find first occurrence p > 0.9
-    ((p > 0.9) && (T_ == 0)) && (global T_ = t)
-    
     push!(t_list, t)
     push!(P_MIS, p)
     
-    if (p > 0.9)
-        global t += T_ * 0.25
-    else
-        global t += 0.1
-    end
+    global t += T_ * 0.25
 end
 
 # We can compute the adiabatic timescale by fitting a Landau Zener curve to the 

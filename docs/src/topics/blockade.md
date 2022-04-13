@@ -28,7 +28,7 @@ distance = 7    # Distance between atoms, in microns
 
 R = distance/(2*sin(2*pi/(nsites)/2))                                       # Radius of the circle, using a little trigonometry
 pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
-atoms = EaRydLattices.AtomList(pos)                                         # Define the atom positions as an AtomList.
+atoms = AtomList(pos)                                                       # Define the atom positions as an AtomList.
 ```
 
 The system is driven by a constant $2\pi \times 0.5$MHz Rabi drive, which couples each atom's ground and Rydberg state. This can be defined using a Hamiltonian
@@ -49,26 +49,52 @@ init2 = zero_state(space)                       # Define the initial state in th
 If the atoms were far apart and non-interacting, each atom would oscillate completely between its ground state and Rydberg state with a period of $0.5 \mu$s. However, because adjacent atoms shift to the Rydberg state concurrently, they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, corresponding to an antiferromagnetic $Z_2$ state. Note that because the ring has a translation symmetry, the Rydberg density is equal on all sites.
 
 ```@example quick-start
-Tmax = 10                               # Total evolution time of 10usec
-nsteps = 1000                           # Total number of steps
-iteration = 1:nsteps
-ts = [Tmax/nsteps for _ in iteration];
-hs = [h for _ in iteration];
-clocks = cumsum(ts);
+# Define the time steps
+Tmax = 10.
+nsteps = 5001
+times = LinRange(0,Tmax,nsteps)
 
-prob = KrylovEvolution(init, ts, hs)    # Initialize Krylov evolution
-prob2 = KrylovEvolution(init2, ts, hs)
 
-data_out = zeros(3, length(iteration))  # Initialize data output
-data_out[1,:] = clocks
+# Time evolve the system in the full space
+prob = SchrodingerProblem(init_state, Tmax, h, dt = Tmax/(nsteps-1) , adaptive = false);
+integrator = init(prob, Vern6());
 
-for info in prob                        # Evolve in the full space
-    data_out[2, info.step] = expect(put(nsites, 1=>Op.n), info.reg)
+densities = []
+for _ in TimeChoiceIterator(integrator, 0.0:Tmax/(nsteps-1):Tmax)
+    push!(densities, expect(put(nsites, 1=>Op.n), init_state))
 end
 
-for info in prob2                       # Evolve in the blockade subspace
-    data_out[3, info.step] = expect(put(nsites, 1=>Op.n), info.reg)
+
+# Time evolve the system in the subspace
+prob2 = SchrodingerProblem(init_state2, Tmax, h, dt = Tmax/(nsteps-1) , adaptive = false);
+integrator2 = init(prob2, Vern8());
+
+densities2 = []
+for _ in TimeChoiceIterator(integrator2, 0.0:Tmax/(nsteps-1):Tmax)
+    push!(densities2, expect(put(nsites, 1=>Op.n), init_state2))#, SubspaceArrayReg(u, space)))
 end
+
+
+# Plot the data
+fig = plt.figure(figsize=(8,6))
+ax  = plt.subplot(1,1,1)
+
+plt.plot(times,real(densities),"k",label="Full space")
+plt.plot(times,real(densities2),"r--",label="Subspace")
+ax.axis([0,Tmax,0,0.45])
+plt.xlabel("Time (us)")
+plt.ylabel("Rydberg density")
+plt.tight_layout()
+plt.legend()
+
+# Using matplotlib plots
+inset_axes = pyimport("mpl_toolkits.axes_grid1.inset_locator")
+ax2 = inset_axes.inset_axes(ax,width="20%",height="30%",loc="lower right",borderpad=1)
+plt.plot(times,real(densities - densities2))
+plt.axis([0,0.6,-0.0008,0.0008])
+plt.ylabel("Difference",fontsize=12)
+plt.yticks(LinRange(-0.0008,0.0008,5),fontsize=12)
+plt.xticks([0,0.2,0.4,0.6],fontsize=12)
 ```
 
 ![RydbergBlockadeSubspace](https://user-images.githubusercontent.com/20091330/157916384-c2571b44-0ba6-4280-83e9-d26cea1a2f9a.png)

@@ -1,4 +1,4 @@
-root_dir(args...) = joinpath(homedir(), ".julia", "dev", "EaRyd", args...)
+root_dir(args...) = joinpath(homedir(), ".julia", "dev", "Bloqade", args...)
 function serve_example(example::String; host::String="0.0.0.0", port::Int=8000)
     # setup environment
     ci_dir = root_dir(".ci")
@@ -12,7 +12,7 @@ function serve_example(example::String; host::String="0.0.0.0", port::Int=8000)
     using LiveServer, Literate
     Pkg.activate("$project_dir")
     Pkg.instantiate()
-    using EaRyd;
+    using Bloqade;
     @info "Watching ", "$(project_dir)"
     @async while true
         e = watch_file(joinpath("$project_dir", "main.jl"))

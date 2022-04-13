@@ -1,7 +1,7 @@
 # # Background
 
 # In this example, we will show how to use Bloqade to prepare ordered ground states in the Rydberg system. 
-# The example is based on the experimental works in a [1D system](https://www.nature.com/articles/nature24622) and [2D system](https://www.nature.com/articles/s41586-021-03582-4). 
+# The example is based on the experimental works in a [1D system](https://www.nature.com/articles/nature24622) and [2D system](https://www.nature.com/articles/s41586-021-03582-4).
 # The Rydberg Hamiltonian can be found in [Bloqade](@ref).
 
 # Due to the strong Rydberg interactions, only one Rydberg excitation is allowed within the blockade radius (see [Rydberg Blockade](@ref)). With a positive detuning Δ, more Rydberg excitations 
@@ -9,11 +9,11 @@
 # such as the [``Z_N`` ordered states](https://www.nature.com/articles/nature24622) in 1D and the checkerboard phase, the star phase, and a pure quantum phase (the striated phase) in 2D 
 # (see the [experimental](https://www.nature.com/articles/s41586-021-03582-4) and [theory](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.124.103601) papers).
 
-# We can use the Quantum Adiabatic Algorithm (QAA) to prepare these quantum many-body ground states. To do that, we can start with all atoms in the ground state 
+# Here, we use the Quantum Adiabatic Algorithm (QAA) to prepare these quantum many-body ground states. To do that, we can start with all atoms in the ground state 
 # ``| 0 \rangle``, which is the ground state of the many-body Hamiltonian with a large negative detuning ``\Delta``. 
 # Then, the Rabi frequency ``\Omega`` is turned on, and the detuning strength is ramped up from a large negative value to postive values. If this process is slow enough, the quantum state of the system stays close to the ground state of the 
 # instantaneous Hamiltonian. At the end of this process, we arrive at a target Hamiltonian, and correspondingly, the prepared state is approximately the ground state for the final Hamiltonian.
-# A quantum phase transition typically occurs during the process and one can probe the phase transition and critical phenomena by simulating and understanding the quantum dynamics.
+# A quantum phase transition typically occurs during this process and one can probe the phase transition and critical phenomena by simulating and understanding the quantum dynamics.
 
 # Let's start by importing the required libraries:
 
@@ -27,42 +27,43 @@ plt = pyimport("matplotlib.pyplot")
 
 # # Ground state properties
 
-# To get a sense of the quantum phase transition, we will first vary the parameters of the Hamiltonian and calculate the corresponding ground state properties. 
-# We start with a 1D chain for simplicity: we consider a chain with 9 atoms, where nearby atoms are seperated by a distance of 5.72 ``\mu m``. 
-# We can generate the system as follows
+# We start by probing the ground state properties of the Rydberg Hamiltonian in a 1D system. 
+# Let's use the 1D chain for simplicity and vary the parameters of the Rydberg Hamiltonian and calculate the corresponding ground state properties.
+# Here, we consider a chain with 9 atoms, where nearby atoms are seperated by a distance of 5.72 ``\mu m``. 
+# One can generate the system as follows:
 
 nsites = 9
-atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
+atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
-# We fix the Rabi frequency to be ``Ω = 2π * 4``, and study the ground state as a function of detuning ``Δ``. 
+# We fix the Rabi frequency to be ``Ω = 2π * 4`` MHz, and study the ground state as a function of the detuning ``Δ``.
 
 Ω = 2π * 4
 Δ_step = 30
-Δ = LinRange(-10*2π , 10*2π , Δ_step);
+Δ = LinRange(-2π * 10, 2π * 10, Δ_step);
 
-# We compute the Rydberg density profile for each parameter of ``\Delta``. 
+# The Rydberg density profile can be computed for each parameter of ``\Delta``. 
 
 density_g = zeros(Δ_step, nsites)
 
 for ii in 1:Δ_step
-    h_ii = rydberg_h(atoms; Δ=Δ[ii], Ω)
-    h_m = mat(h_ii)
-    vals, vecs, info = KrylovKit.eigsolve(h_m,  1, :SR)
-    g_state = ArrayReg(vecs[1]) 
+    h_ii = rydberg_h(atoms; Δ=Δ[ii], Ω) # create the Rydberg Hamiltonian
+    h_m = mat(h_ii) # convert the Hamiltonian into a matrix
+    vals, vecs, info = KrylovKit.eigsolve(h_m,  1, :SR) # find the ground state eigenvalue and eigenvector
+    g_state = ArrayReg(vecs[1]) # creates the initial state with all atoms in ``| 0 \rangle`` state
 
     for jj in 1:nsites
-        density_g[ii, jj] = real(expect(put(nsites, jj=>Op.n), g_state))
+        density_g[ii, jj] = real(expect(put(nsites, jj=>Op.n), g_state)) # measure the density of Rydberg excitations on each site
     end
 end
 
-# To compare, we first plot the density profile when ``\Delta= -10*2π``, 
+# To compare, we first plot the density profile when ``\Delta= -2π * 10`` MHz, 
 
 fig, ax = plt.subplots(figsize = (10,4))
 ax.bar(1:nsites, density_g[1, :])
 ax.set_xticks(1:nsites)
 ax.set_xlabel("Sites")
 ax.set_ylabel("Rydberg density")
-ax.set_title("Density Profile: 1D Chain, Δ = -10 * 2π")
+ax.set_title("Density Profile: 1D Chain, Δ = -2π * 10")
 fig
 
 # We can see that the Rydberg densities in this case is close to 0 for all sites. In contrast, for ``\Delta= 10*2π``, the density shows a clear ``Z_2`` ordered profile 
@@ -71,7 +72,7 @@ ax.bar(1:nsites, density_g[20, :])
 ax.set_xticks(1:nsites)
 ax.set_xlabel("Sites")
 ax.set_ylabel("Rydberg density")
-ax.set_title("Density Profile: 1D Chain, Δ = 10 * 2π")
+ax.set_title("Density Profile: 1D Chain, Δ = -2π * 10")
 fig
         
 
@@ -94,7 +95,7 @@ fig
 
 
 
-# # Ordered state prepration in 1D 
+# # Preparation of ordered states in 1D 
 
 # We first specify the adiabatic pulse sequence for Rabi frequency by using the built-in waveform function [`piecewise_linear`](@ref)
 total_time = 3.0;

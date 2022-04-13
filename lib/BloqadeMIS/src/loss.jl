@@ -337,11 +337,7 @@ function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, mis::Int
 
     return ThreadsX.map(0:mis) do k
         ThreadsX.sum(v2amp) do (nvertices, amp)
-            if nvertices == k
-                abs2(amp)
-            else
-                zero(real(typeof(amp)))
-            end
+            sum_amp(nvertices == k, amp)
         end
     end
 end
@@ -353,13 +349,17 @@ function maximum_independent_set_probability(f, reg::YaoAPI.AbstractRegister, gr
         return b, amp
     end
         return ThreadsX.sum(v2amp) do (b, amp)
-            if b == mis
-                abs2(amp)
-            else 
-                zero(real(typeof(amp)))
-            end
+            sum_amp(b == mis, amp)
     end 
 end
+
+function sum_amp(condition, amp)
+    if condition
+        return abs2(amp)
+    else
+        return zero(real(typeof(amp)))
+    end
+end 
 
 
 """

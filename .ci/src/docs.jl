@@ -31,7 +31,6 @@ const AFTER_TUTORIAL = [
         "Automatic Differentiation" => "topics/ad.md",
     ],
     "Contributing Bloqade" => "contrib.md",
-    "References" => "ref.md",
 ]
 
 const LIGHT_PAGES = [

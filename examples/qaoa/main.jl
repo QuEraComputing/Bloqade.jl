@@ -11,9 +11,8 @@ using Optim         ## the optimizer
 # ## The maximum independent set problem
 # In graph theory, an independent set is a set of vertices in a graph, no two of which are adjacent.
 # The problem of finding maximum independent sets (MIS) is NP-hard, i.e. unlikely to be solved in polynomial time.
-# Even aproximating the MIS size ``\alpha(G)`` for a graph ``G=(V,E)`` is hard.
 # In this tutorial we study the MIS problem defined on diagonal-coupled unit-disk grid graphs (DUGG).
-# Although these graphs have highly constraint topology, finding its MISs is NP-hard.
+# Although these graphs have highly constraint topology, finding its MISs is still NP-hard.
 # We show how to map the MIS problem on this graph to a Rydberg atom array hamiltonian,
 # and use two quantum algorithms, the standard QAOA and a variational quantum algorithm with specially parametrized waveform, to find maximum independent sets.
 # For those who wants to know more details, we highly recommend they to connect this tutorial with the experiment [arxiv:2202.09372](https://arxiv.org/abs/2202.09372).
@@ -60,11 +59,7 @@ emulate!(prob)
 bitstring_hist(prob.reg; nlargest=20)
 
 using BitBasis
-function most_probable(reg::ArrayReg; nlargest::Int)
-    imax = sortperm(probs(reg))[end-nlargest+1:end]
-    BitStr{nqubits(reg)}.(imax .- 1)
-end
-best_bit_string = most_probable(prob.reg; nlargest=2)
+best_bit_string = most_probable(prob.reg, 2)
 
 img_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_string[1]])
 img_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_string[2]])
@@ -112,9 +107,8 @@ loss_qaoa(reg) = -real(expect(SumOfN(nsites=nbits), reg))
 loss_qaoa(prob2.reg)
 
 # This loss does not look good, we can throw it into an optimizer and see if a classical optimizer can help
-# But first, let us wrap up the code into a function.
+# But first, let us wrap up the above code into a loss function.
 
-# patch
 function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) % 2 == 0
     Ω_max = 4 * 2π

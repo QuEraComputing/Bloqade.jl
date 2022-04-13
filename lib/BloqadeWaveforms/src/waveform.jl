@@ -173,6 +173,7 @@ end
 function assert_clocks(clocks)
     issorted(clocks) || throw(ArgumentError("expect clocks to be sorted"))
     all(≥(0), clocks) || throw(ArgumentError("clocks must be non-nagative values"))
+    iszero(first(clocks)) || throw(ArgumentError("the starting clock must be zero"))
     return
 end
 

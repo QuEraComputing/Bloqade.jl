@@ -232,3 +232,9 @@ img_atoms(sorted_atoms[neighbors[2]]; texts=string.(neighbors[2]))
 
 It show the correct second nearest neigbors of site 5.
 One can check the docstring of [`img_atoms`](@ref) to know more about how to custom lattice visualization.
+
+## References
+
+```@autodocs
+Modules = [BloqadeLattices]
+```

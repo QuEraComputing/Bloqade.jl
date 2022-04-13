@@ -35,3 +35,22 @@ register interface, this includes applying operators using `apply!`, measure on 
 calculate an expectation
 using `expect`.
 
+```@docs
+measure
+expect
+```
+
+For more detailed introduction of register interface, please
+refer to [Yao:Array Registers](https://docs.yaoquantum.org/dev/man/array_registers.html) and [Yao:AbstractRegister](https://docs.yaoquantum.org/dev/man/registers.html).
+
+## Working with Subspace
+
+## References
+
+```@docs
+arrayreg
+zero_state
+product_state
+SubspaceArrayReg
+set_zero_state!
+```

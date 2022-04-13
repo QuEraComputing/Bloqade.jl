@@ -5,6 +5,11 @@ const n = YaoBlocks.ConstGate.P1
 
 end
 
+"""
+    emulate!(prob)
+
+Run emulation of a given problem.
+"""
 function emulate! end
 
 """

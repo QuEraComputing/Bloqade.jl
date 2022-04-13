@@ -1,4 +1,4 @@
-# Installation
+# [Installation](@id install)
 
 You can copy the following line to your Julia REPL
 to install latest stable version this package.
@@ -24,7 +24,7 @@ time.
 Some users may want to try the latest version of Bloqade for bugfixes, new features etc. One can use `git` to clone the
 repo to try the latest version of the entire package. This
 requires one to setup the local project environment via `dev`.
-Please refer to [#Contributing](@ref) for more reference.
+Please refer to [Contributing](@ref) for more reference.
 
 If you only want to try the latest version of a specific
 Bloqade package, just add `#master` behind the package name, e.g

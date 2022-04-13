@@ -6,7 +6,8 @@ CurrentModule = Bloqade
 
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=p1FNvJ)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
 
-Welcome to the documentation page for the QuEra **E**mul**a**tor for **Ryd**berg System.
+Welcome to the documentation page for the Bloqade package. A package
+made for Rydberg system.
 
 ## Installation
 
@@ -41,9 +42,11 @@ For current master
 pkg> add Bloqade#master
 ```
 
-## What does the Rydberg Emulator do?
+For more advanced installation guide, please see the [Installation](@ref install) page.
 
-This Rydberg Emulator package simulates the time evolution of a quantum state under the Schrödinger equation where the Hamiltonian is the interacting Rydberg Hamiltonian `` \mathcal{H} ``, 
+## What does the Bloqade do?
+
+Bloqade simulates the time evolution of a quantum state under the Schrödinger equation where the Hamiltonian is the interacting Rydberg Hamiltonian `` \mathcal{H} ``, 
 
 ```math
 i \hbar \dfrac{\partial}{\partial t} | \psi \rangle = \mathcal{H} | \psi \rangle,  \\

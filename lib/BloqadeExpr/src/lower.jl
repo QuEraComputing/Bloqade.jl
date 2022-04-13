@@ -147,7 +147,7 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace=fullspa
         end
     end
     push!(fs, Base.one)
-    push!(ts, mat(Tv, const_term, space))
+    isnothing(const_term) || push!(ts, mat(Tv, const_term, space))
     return Hamiltonian((fs..., ), (ts..., ))
 end
 

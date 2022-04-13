@@ -1,19 +1,21 @@
 # # Background
 
-# In this example, we will show how to use the Emulator to prepare ordered ground states in Rydberg systems. 
-# The example is based on experimental works in a [1D system](https://www.nature.com/articles/nature24622), and [2D system](https://www.nature.com/articles/s41586-021-03582-4). 
+# In this example, we will show how to use Bloqade to prepare ordered ground states in the Rydberg system. 
+# The example is based on the experimental works in a [1D system](https://www.nature.com/articles/nature24622) and [2D system](https://www.nature.com/articles/s41586-021-03582-4). 
+# The Rydberg Hamiltonian can be found in [Bloqade](@ref).
 
-# Due to the strong Rydberg interactions, only one Rydberg excitation is allowed within the blockade radius [Blockade](@ref). With positive detunings, more Rydberg excitations 
-# are favored (to lower the ground state(s) energy). With the interplay of these two mechanisms, different ordered states are supported depending on the strength of blockade radius and the detuning,
-# such as the [``Z_N`` ordered states](https://www.nature.com/articles/nature24622) (1D) and the checkboard phase, star phase, and pure quantum phase ([straited phase](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.124.103601)) (2D). 
+# Due to the strong Rydberg interactions, only one Rydberg excitation is allowed within the blockade radius (see [Rydberg Blockade](@ref)). With a positive detuning Δ, more Rydberg excitations 
+# are favored (to lower the ground state(s) energy). The interplay of these two mechanisms allows the creation of different ordered states depending on the strength of the blockade radius and the detunings,
+# such as the [``Z_N`` ordered states](https://www.nature.com/articles/nature24622) in 1D and the checkerboard phase, the star phase, and a pure quantum phase (the striated phase) in 2D 
+# (see the [experimental](https://www.nature.com/articles/s41586-021-03582-4) and [theory](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.124.103601) papers).
 
-# We can use Quantum Adiabatic Algorithm (QAA) to prepare these quantum many-body ground states. In this process, we start with all atoms in the ground state 
-# ``| 0 \rangle`` (the ground states of the many-body Hamiltonian with large negative detuning ``\Delta``). 
+# We can use the Quantum Adiabatic Algorithm (QAA) to prepare these quantum many-body ground states. To do that, we can start with all atoms in the ground state 
+# ``| 0 \rangle``, which is the ground state of the many-body Hamiltonian with a large negative detuning ``\Delta``. 
 # Then, the Rabi frequency ``\Omega`` is turned on, and the detuning strength is ramped up from a large negative value to postive values. If this process is slow enough, the quantum state of the system stays close to the ground state of the 
-# instantaneous Hamiltonian. At the end of the process, we arrive at a target Hamiltonian, and correspondingly, the prepared state is approximately the ground state for the final Hamiltonian.  
+# instantaneous Hamiltonian. At the end of this process, we arrive at a target Hamiltonian, and correspondingly, the prepared state is approximately the ground state for the final Hamiltonian.
+# A quantum phase transition typically occurs during the process and one can probe the phase transition and critical phenomena by simulating and understanding the quantum dynamics.
 
-
-# We start by importing required libraries
+# Let's start by importing the required libraries:
 
 using Bloqade
 using PythonCall

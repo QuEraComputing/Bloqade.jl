@@ -1,4 +1,4 @@
-# Rydberg Blockade
+# [Rydberg Blockade](@id blockade)
 
 The Rydberg blockade mechanism is a crucial component of the operation of neutral atom computers. By including a term in the effective Hamiltonian which adds an interaction between adjacent Rydberg atoms, we may construct gates and nontrivial dynamics which create entanglement and correlation across the system.
 
@@ -74,8 +74,4 @@ end
 ![RydbergBlockadeSubspace](https://user-images.githubusercontent.com/20091330/157916384-c2571b44-0ba6-4280-83e9-d26cea1a2f9a.png)
 
 Data for this evolution is shown above, where exact evolution in the full space is shown in black, and the truncated evolution in the subspace is shown by red dashed. It is clear that even though the Hilbert space is $12\times$ smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2 atom conditional blockade example. However, at longer times this subspace approximation fails to reproduce the full space (shown by divergence between black and red dashed). Note that for this example, the distance between atoms was chosen to be in an intermediate regime (eg, at the edge of the unit disk), which reduces the blockade effect and amplifies the approximate nature of the blockade. If the atoms were chosen to be closer together (say, $5\mu m$) or the Rabi strength was reduced, the blockade approximation becomes much stronger.
-
-
-
-
 

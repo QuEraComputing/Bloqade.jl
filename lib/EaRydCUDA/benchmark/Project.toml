@@ -1,6 +1,0 @@
-[deps]
-BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
-CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-EaRydCUDA = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe3"
-EaRydExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
-EaRydKrylov = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"

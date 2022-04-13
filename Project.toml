@@ -1,16 +1,16 @@
-name = "EaRyd"
+name = "Bloqade"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe1"
 authors = ["Roger-Luo <rogerluo.rl18@gmail.com> and contributors"]
 version = "0.1.0"
 
 [deps]
-CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-EaRydExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
-EaRydKrylov = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"
-EaRydLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
-EaRydMIS = "bd27d05e-4ce1-5e74-84dd-c5d7d508bbe2"
-EaRydODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
-EaRydWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
+BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
+BloqadeKrylov = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"
+BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
+BloqadeMIS = "bd27d05e-4ce1-5e74-84dd-c5d7d508bbe2"
+BloqadeODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
+BloqadePlots = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe6"
+BloqadeWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 Measurements = "eff96d63-e80a-5855-80a2-b1b0885c5ab7"
 PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
@@ -19,22 +19,23 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
-CUDA = "3"
-EaRydExpr = "0.1"
-EaRydKrylov = "0.1"
-EaRydLattices = "0.1"
-EaRydMIS = "0.1"
-EaRydODE = "0.1"
-EaRydWaveforms = "0.1"
+BloqadeExpr = "0.1"
+BloqadeKrylov = "0.1"
+BloqadeLattices = "0.1"
+BloqadeMIS = "0.1"
+BloqadeODE = "0.1"
+BloqadeWaveforms = "0.1"
 ForwardDiff = "0.10"
 Measurements = "2"
 Reexport = "1"
+Yao = "0.7"
 YaoSubspaceArrayReg = "0.1"
 julia = "1.6.3"
 
 [extras]
 CPUSummary = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"
+Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "Documenter"]

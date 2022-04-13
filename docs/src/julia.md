@@ -1,6 +1,6 @@
 # The Julia Programming Language
 
-The EaRyd project is built in pure [Julia](https://julialang.org) programming language. Thus
+The Bloqade project is built in pure [Julia](https://julialang.org) programming language. Thus
 if you are not familiar with Julia, here is a quick start for basic Julia gramar,
 and a guide for learning more detailed and advanced Julia.
 

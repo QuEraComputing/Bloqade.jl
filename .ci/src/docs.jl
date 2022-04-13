@@ -7,6 +7,7 @@ using Pkg
 using Comonicon
 using LiveServer
 using ..BloqadeCI: root_dir, dev
+using ..BloqadeCI.Example
 
 const BEFORE_TUTORIAL = [
     "Home" => "index.md",
@@ -50,22 +51,11 @@ const PAGES=[
 ]
 
 function render_all_examples()
-    ci_dir = root_dir(".ci")
-    for each in readdir(root_dir("examples"))
-        project_dir = root_dir("examples", each)
-        isdir(project_dir) || continue
-        @info "building" project_dir
-        input_file = root_dir("examples", each, "main.jl")
-        output_dir = root_dir("docs", "src", "tutorials")
-
-        julia_cmd = """
-        using Pkg, Literate;
-        Pkg.activate(\"$project_dir\")
-        Pkg.instantiate()
-        Literate.markdown(\"$input_file\", \"$output_dir\"; name=\"$each\", execute=true)
-        """
-        run(`$(Base.julia_exename()) --project=$ci_dir -e $julia_cmd`)
-    end
+    Example.buildall(
+        build_dir=root_dir("docs", "src", "tutorials"),
+        target="markdown",
+        eval=true,
+    )
 end
 
 function doc_build_script(pages, repo)

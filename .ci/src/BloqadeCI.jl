@@ -2,8 +2,8 @@ module BloqadeCI
 
 
 include("main.jl")
-include("docs.jl")
 include("example.jl")
+include("docs.jl")
 
 """
 Bloqade CI commands.

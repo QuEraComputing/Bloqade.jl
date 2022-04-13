@@ -78,19 +78,27 @@ Literate script and copy all other files to the build directory.
         end
     end
 
-    if target == "notebook"
-        julia_cmd = """
-        using Pkg, Literate;
+    setup_env = if eval
+        """
+        using Pkg
         Pkg.activate(\"$example_dir\")
         Pkg.instantiate()
+        """
+    else
+        ""
+    end
+
+    if target == "notebook"
+        julia_cmd = """
+        using Literate;
+        $setup_env
         Literate.notebook(\"$input_file\", \"$output_dir\"; execute=$eval)
         """
         cp(example_dir, output_dir; force=true, follow_symlinks=true)
     elseif target == "markdown"
         julia_cmd = """
-        using Pkg, Literate;
-        Pkg.activate(\"$example_dir\")
-        Pkg.instantiate()
+        using Literate;
+        $setup_env
         Literate.markdown(\"$input_file\", \"$output_dir\"; execute=$eval)
         """
     else

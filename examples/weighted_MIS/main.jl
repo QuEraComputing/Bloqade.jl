@@ -74,8 +74,8 @@ function build_adiabatic_sweep(graph, Ω_max::Float64, Δ_max::Float64, t_max::F
     return h, Ω, Δ
 end;
 
-# We choose $\Delta_{max} / \Omega_{max} = 2.5$, with $\Omega_{max} = 4 \times 2 \pi$ MHz
-Ω_max = 2 * 4 * pi
+# We choose $\Delta_{max} / \Omega_{max} = 2.5$, with $\Omega_{max} = 2 \pi \times 4$ MHz
+Ω_max = 2 * pi * 4
 Δ_max = 2.5 * Ω_max
 t_max = 1.0
 h, Ω, Δ = build_adiabatic_sweep(g, Ω_max, Δ_max, t, weights);
@@ -122,6 +122,7 @@ while (t < T_  * 2.5)
     
     # compute MIS probability
     p = maximum_independent_set_probability(prob.reg, g, MIS_config)
+
     push!(t_list, t)
     push!(P_MIS, p)
     

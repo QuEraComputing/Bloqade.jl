@@ -80,7 +80,7 @@ X operator.
 omega1_of_T = lambda t:Omega_max*(t/Trise)
 omega2_of_T = lambda t:Omega_max
 omega3_of_T = lambda t:Omega_max*(1 - (t/Tfall))
-x_field = [[1/2*function(i),i] for i in range(N)]
+x_field = [[1/2,i] for i in range(N)]
 
 """
 Z operator. n = (1-z)/2

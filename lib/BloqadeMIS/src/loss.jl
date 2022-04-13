@@ -348,18 +348,18 @@ end
 
 
 function maximum_independent_set_probability(f, reg::YaoAPI.AbstractRegister, graph::AbstractGraph, mis::StaticBitVector)
-    v2amp = ThreadsX.map(EaRydCore.ConfigAmplitude(reg)) do (c, amp)
+    v2amp = ThreadsX.map(ConfigAmplitude(reg)) do (c, amp)
         b = bitarray(c, nv(graph))
         return b, amp
     end
         return ThreadsX.sum(v2amp) do (b, amp)
-            if b == MIS_mapped
+            if b == mis
                 abs2(amp)
             else 
                 zero(real(typeof(amp)))
             end
     end 
-end;
+end
 
 
 """

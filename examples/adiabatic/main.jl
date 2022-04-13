@@ -58,7 +58,7 @@ end
 
 # To compare, we first plot the density profile when ``\Delta= -2π * 10`` MHz, 
 
-fig, ax = plt.subplots(figsize = (10,4))
+fig, ax = plt.subplots(figsize = (10, 4))
 ax.bar(1:nsites, density_g[1, :])
 ax.set_xticks(1:nsites)
 ax.set_xlabel("Sites")
@@ -66,52 +66,55 @@ ax.set_ylabel("Rydberg density")
 ax.set_title("Density Profile: 1D Chain, Δ = -2π * 10")
 fig
 
-# We can see that the Rydberg densities in this case is close to 0 for all sites. In contrast, for ``\Delta= 10*2π``, the density shows a clear ``Z_2`` ordered profile 
-fig, ax = plt.subplots(figsize = (10,4))
-ax.bar(1:nsites, density_g[20, :])
+# We can see that the Rydberg densities in this case is close to 0 for all sites. In contrast, for ``\Delta= 2π * 10`` MHz, the density shows a clear ``Z_2`` ordered profile
+fig, ax = plt.subplots(figsize = (10, 4))
+ax.bar(1:nsites, density_g[30, :])
 ax.set_xticks(1:nsites)
 ax.set_xlabel("Sites")
 ax.set_ylabel("Rydberg density")
-ax.set_title("Density Profile: 1D Chain, Δ = -2π * 10")
+ax.set_title("Density Profile: 1D Chain, Δ = -2π * 10 MHz")
 fig
         
 
-# More generally, we can plot an order parameter as a function of ``\Delta`` to clearly see the onset of phase transition. We can define the parameter by the difference of
-# Rydberg densities in even and odd sites. 
+# More generally, we can plot an order parameter as a function of ``\Delta`` to clearly see the onset of phase transition. 
+# The order parameter can be defined as the difference of Rydberg densities on even and odd sites. 
 
 order_para = map(1: Δ_step) do ii
-    sum(density_g[ii, 1:2:8]) - sum(density_g[ii, 2:2:8])
+    sum(density_g[ii, 1:2:nsites]) - sum(density_g[ii, 2:2:nsites])
 end
 
 fig, ax = plt.subplots(figsize = (10,4))
-ax.plot(collect(Δ)/2π, order_para)
+ax.plot(Δ/2π, order_para)
 ax.set_xlabel("Δ/2π (MHz) ")
 ax.set_ylabel("Order parameter")
 fig
         
-# From the density profile of ground states and the change in order parameter, we observe a phase transition with the change in ``\Delta``. 
-# Below, we show that by slowly changing the parameters in the Hamiltonian, we can follow the trajectory of the ground states and adibatically evolve the atoms from the ground state to the ``Z_2`` 
-# ordered state.  
-
+# From the density profile of ground states and the change in the order parameter, we can observe a phase transition with changing ``\Delta``. 
+# Below, we show that by slowly changing the parameters of the Hamiltonian, we can follow the trajectory of the ground states and adiabatically evolve the atoms from the ground state to the ``Z_2`` 
+# ordered state.
 
 
 # # Preparation of ordered states in 1D 
 
-# We first specify the adiabatic pulse sequence for Rabi frequency by using the built-in waveform function [`piecewise_linear`](@ref)
+# We first specify the adiabatic pulse sequence for Rabi frequency by using the built-in waveform function [`piecewise_linear`](@ref).
 total_time = 3.0;
 Ω_max = 2π * 4;
-Ω = piecewise_linear(clocks=[0.0, 0.1, 2.1, 2.2, total_time], values=[0.0, Ω_max, Ω_max, 0, 0]);
+Ω = piecewise_linear(clocks = [0.0, 0.1, 2.1, 2.2, total_time], values = [0.0, Ω_max, Ω_max, 0, 0]);
 
 
-# The detuning sequence could also be created in a similar way
+# The detuning sequence can also be created in a similar way.
 U1 = -2π * 10;
 U2 = 2π * 10;
-Δ = piecewise_linear(clocks=[0.0, 0.6, 2.1, total_time], values=[U1, U1, U2, U2]);
+Δ = piecewise_linear(clocks = [0.0, 0.6, 2.1, total_time], values = [U1, U1, U2, U2]);
     
 # We plot the two waveforms:
-fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(10, 4))
-draw!(ax1, Ω)
-draw!(ax2, Δ)
+fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+draw!(ax1, 1/2π .* Ω)
+ax1.set_xlabel("time (μs)")
+ax1.set_ylabel("Ω/2π MHz")
+draw!(ax2, 1/2π .* Δ)
+ax2.set_xlabel("time (μs)")
+ax2.set_ylabel("Δ/2π MHz")
 fig
 
 # We then generate the positions of a 1D atomic chain by using the function [`generate_sites`](@ref) 
@@ -152,7 +155,7 @@ fig
 
 bitstring_hist(reg; nlargest=20)
 
-# To prepare ``Z_3`` (``Z_4``) states, we can reduce the seperation between nearby atoms to 3.57 ``\mu m`` (2.87 ``\mu m``). 
+# To prepare ``Z_3`` or ``Z_4`` states, we can reduce the seperation between nearby atoms to 3.57 ``\mu m`` or 2.87 ``\mu m`` respectively. 
 
 # # Run in the blockade subspace  
 

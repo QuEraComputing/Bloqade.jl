@@ -112,7 +112,7 @@ prob = SchrodingerProblem(reg, 1.6, h)
 integrator = init(prob, Vern8());
 emulate!(prob);
 ```
-Here we have chosen the ODE solver [`ODEEvolution`](@ref) and set the total evolution time to be 1.6 μs.
+Here we have chosen the ODE-based solver by using [`SchrodingerProblem`](@ref) and set the total evolution time to be 1.6 μs.
 
 After simulating the time evolution and get the final state, we can measure the Rydberg population at each site for the final state 
 

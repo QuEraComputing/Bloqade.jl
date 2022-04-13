@@ -42,9 +42,9 @@ const LIGHT_PAGES = [
 const PAGES=[
     BEFORE_TUTORIAL...,
     "Tutorials" => [
-        "Quantum Scar" => "tutorials/quantum-scar.md",
-        "Adiabatic Evolution" => "tutorials/adiabatic.md",
-        "Quantum Approximate Optimization Algorithm" => "tutorials/qaoa.md",
+        "Quantum Scar" => "tutorials/quantum-scar/main.md",
+        "Adiabatic Evolution" => "tutorials/adiabatic/main.md",
+        "Quantum Approximate Optimization Algorithm" => "tutorials/qaoa/main.md",
         # "Solving Maximum-Independent Set Using Rydberg QAOA" => "tutorials/mis.md",
     ],
     AFTER_TUTORIAL...

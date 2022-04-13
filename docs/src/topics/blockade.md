@@ -1,1 +1,1 @@
-# Rydberg Blockade
+# [Rydberg Blockade](@id blockade)

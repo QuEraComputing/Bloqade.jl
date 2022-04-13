@@ -1,4 +1,4 @@
-# EaRyd CI tools
+# Bloqade CI tools
 
 # How to use the CLI?
 

@@ -117,13 +117,6 @@ loss_qaoa(prob2.reg)
 # But first, let us wrap up the code into a function.
 
 # patch
-function EaRyd.regadd!(a::SubspaceArrayReg, b::SubspaceArrayReg)
-    @assert a.natoms == b.natoms
-    @assert length(a.subspace) == length(b.subspace)
-    a.state .+= b.state
-    return a
-end
-
 function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) % 2 == 0
     Ω_max = 4 * 2π

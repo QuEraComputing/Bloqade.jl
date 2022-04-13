@@ -1,4 +1,4 @@
-using EaRyd
+using Bloqade
 
 # Simulate nonequilibrium dynamics of a 12-site ring of Rydberg atoms.
 #  This script generates Figure 2 in the example RydbergBlockade.
@@ -10,7 +10,7 @@ distance = 9    # Distance between atoms, in microns
 
 R = distance/(2*sin(2*pi/(nsites)/2))                                       # Radius of the circle, using a little trigonometry
 pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
-atoms = EaRydLattices.AtomList(pos)                                         # Define the atom positions as an AtomList.
+atoms = BloqadeLattices.AtomList(pos)                                         # Define the atom positions as an AtomList.
 
 # Define the pulse by specifying a maximum omega and delta.
 # Note that these parameters are computed using pulser_compare.py

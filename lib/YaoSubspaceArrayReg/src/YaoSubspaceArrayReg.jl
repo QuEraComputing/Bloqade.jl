@@ -3,8 +3,8 @@ module YaoSubspaceArrayReg
 using YaoAPI
 using Random
 using YaoArrayRegister
-using EaRydExpr
-using EaRydExpr: AbstractSpace
+using BloqadeExpr
+using BloqadeExpr: AbstractSpace
 using BitBasis
 using LinearAlgebra
 using StatsBase

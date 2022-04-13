@@ -18,11 +18,12 @@
 
 # We start by importing required libraries
 
-using EaRyd
-using EaRydPlots
+using Bloqade
+using BloqadePlots
+using PythonCall
 using Random
-using CairoMakie
 
+plt = pyimport("matplotlib.pyplot")
 # # Rabi oscillations with Rydberg blockade
 
 # We first demonstrate that the strong Rydberg interactions have important effects on the Rabi oscillations of Rydberg atoms. 
@@ -43,13 +44,9 @@ reg2 = zero_state(2)
 reg3 = zero_state(3)
 
 # We first emulate the dynamics for the single atom's case, where the intial state is quenched under a Hamiltonain with constant Rabi frequency
-
-iteration = 1:150
-ts = [0.01 for _ in iteration];
-h1s = [h1 for _ in iteration];
-prob1 = KrylovEvolution(reg1, ts, h1s)
-
-density_mat1 = zeros(1, length(iteration)) 
+clocks = 0.0:1e-2:1.5
+prob1 = KrylovEvolution(reg1, clocks, h1)
+density_mat1 = zeros(1, length(clocks)-1)
 
 for info in prob1
     for i in 1:1
@@ -58,18 +55,18 @@ for info in prob1
 end
 
 # The Rydberg density of this atom exihibits Rabi oscillations as a function of time, shown by the plot 
-
-lines(ts.*iteration, density_mat1[1, :],
-    axis=(; xlabel="Time (μs)", ylabel="Single Rydberg Probability", title="Rydberg Density: Single Atom Case",
-        xgridstyle=:dash, ygridstyle=:dash))
+fig, ax = plt.subplots()
+ax.plot(clocks[1:end-1], density_mat1[1, :])
+ax.set_xlabel("Time (μs)")
+ax.set_ylabel("Single Rydberg Probability")
+ax.set_title("Rydberg Density: Single Atom Case")
+fig
 
 # For the case of 2 and 3 atoms, if they are seperated far enough with negligible interactions, the total Rydberg excitation densities are simply the sum of each each atom. 
 # However, we will show that this is not the case for systems when atoms are close to each other (which results in strong Rydberg interactions). 
 # Similar to the 1 atom case, we can emulate the dynamics and get the time-dependent dynamics for each atom
-
-h2s = [h2 for _ in iteration];
-prob2 = KrylovEvolution(reg2, ts, h2s);
-density_mat2 = zeros(2, length(iteration)); 
+prob2 = KrylovEvolution(reg2, clocks, h2);
+density_mat2 = zeros(2, length(clocks)-1); 
 
 for info in prob2
     for i in 1:2
@@ -77,10 +74,8 @@ for info in prob2
     end
 end
 
-h3s = [h3 for _ in iteration];
-prob3 = KrylovEvolution(reg3, ts, h3s);
-
-density_mat3 = zeros(3, length(iteration)); 
+prob3 = KrylovEvolution(reg3, clocks, h3);
+density_mat3 = zeros(3, length(clocks)-1); 
 
 for info in prob3
     for i in 1:3
@@ -90,19 +85,26 @@ end
 
 
 # The total Rydberg density for the 1-, 2-, and 3-atom system is plotted below
-lines(ts.*iteration, density_mat1[1, :],
-    axis=(; xlabel="Time (μs)", ylabel="Single Rydberg Probability",
-        xgridstyle=:dash, ygridstyle=:dash))
+fig, ax = plt.subplots()
+ax.plot(clocks[1:end-1], density_mat1[1, :])
+ax.set_xlabel("Time (μs)")
+ax.set_ylabel("Single Rydberg Probability")
+ax.set_title("Rydberg Density: Single Atom Case")
+fig
+
 # 2-atom system 
 density2 = sum(density_mat2, dims=1)
-lines!(ts.*iteration, density2[1, :])
+
+fig, ax = plt.subplots()
+ax.plot(clocks[1:end-1], density2[1, :])
+fig
 
 # 3-atom system 
 density3 = sum(density_mat3, dims=1)
-lines!(ts.*iteration, density3[1, :])
 
-current_figure()
-
+fig, ax = plt.subplots()
+ax.plot(clocks[1:end-1], density3[1, :])
+fig
 
 # From the above plot, we can see that the total Rydberg density for 2 (3) atom case does not exceed 1. This is because
 # it is energitically unfavorable to have more than 1 excitation due to the strong Rydberg interactions. Furthermore, the frequency of Rabi oscillation
@@ -134,9 +136,10 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 
 Ω_tot = append(Ω1, Ω2);
 Δ_tot = append(Δ1, Δ2);
-fig = Figure();
-draw!(fig[1,1], Ω_tot, title="Ω")
-draw!(fig[2,1], Δ_tot, title="Δ")
+
+fig, (ax1, ax2) = plt.subplots(ncols=2)
+draw!(ax1, Ω_tot)
+draw!(ax2, Δ_tot)
 fig
 
 # Note that the total evolution is 4.2 ``\mu s``.
@@ -171,15 +174,21 @@ end
 
 clocks = [t for t in 0:1e-3:4.2]
 D = hcat(densities...)
-heatmap(clocks, 1:9, D'; axis=(xlabel="iterations", ylabel="rydberg density per site"))
-        
+
+fig, ax = plt.subplots(figsize = (10,4))
+ax.imshow(real(D), interpolation="nearest", aspect="auto")
+ax.set_xlabel("iterations")
+ax.set_ylabel("rydberg density per site")
+fig
+
 # We can see that the state evolves to a Neel state after the first part of pulse. After that, there are clear oscillations between the two partterns of the Rydberg density.
 
 # We can also plot the entanglement as a function of time
 
-fig = Figure(size=(5, 3));
-ax = Axis(fig[1, 1], xlabel="Time (μs)", ylabel="Entanglement Entropy")
-lines!(ax, clocks, entropy)
+fig, ax = plt.subplots(figsize = (10,4))
+ax.plot(clocks, entropy)
+ax.set_xlabel("Time (μs)")
+ax.set_ylabel("Entanglement Entropy")
 fig
 
 # # A different initial state 
@@ -188,15 +197,12 @@ fig
 # we now choose a different initial state, and use the ['KrylovEvolution']@(ref) solver to emulate the problem  
 
 
-hd= rydberg_h(atoms;Ω=4π)
+hd = rydberg_h(atoms;Ω=4π)
+clocks = 0.0:1e-2:1.2
 
-iteration = 1:120
-t_d = [0.01 for _ in iteration];
-hs_d = [hd for _ in iteration];
-clocks = cumsum(t_d);
 init_d = product_state(bit"100000101")
-prob_d = KrylovEvolution(init_d, t_d, hs_d)
-density_mat_d = zeros(nsites, length(iteration)) 
+prob_d = KrylovEvolution(init_d, clocks, hd)
+density_mat_d = zeros(nsites, length(clocks)-1) 
 
 for info in prob_d
     for i in 1:nsites
@@ -204,6 +210,10 @@ for info in prob_d
     end
 end
 
-heatmap(clocks, 1:nsites, density_mat_d'; axis=(xlabel="iterations", ylabel="rydberg density per site"))
+fig, ax = plt.subplots(figsize = (10,4))
+ax.imshow(real(density_mat_d), interpolation="nearest", aspect="auto")
+ax.set_xlabel("iterations")
+ax.set_ylabel("rydberg density per site")
+fig
         
 # From the above figure, we see that the density does not show long-lived oscillations. 

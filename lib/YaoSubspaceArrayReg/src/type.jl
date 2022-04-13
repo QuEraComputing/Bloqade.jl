@@ -1,3 +1,10 @@
+"""
+    struct SubspaceArrayReg <: AbstractRegister{2}
+    SubspaceArrayReg(state, subspace)
+
+Type for registers in a subspace. The subspace must be a
+[`Subspace`](@ref).
+"""
 struct SubspaceArrayReg{State <: AbstractVector, Space} <: YaoAPI.AbstractRegister{2}
     natoms::Int
     state::State
@@ -19,6 +26,19 @@ YaoArrayRegister.state(reg::SubspaceArrayReg) = reg.state
 YaoArrayRegister.statevec(reg::SubspaceArrayReg) = reg.state
 YaoArrayRegister.relaxedvec(reg::SubspaceArrayReg) = reg.state
 YaoArrayRegister.datatype(reg::SubspaceArrayReg) = eltype(reg.state)
+
+# for expect to work
+function YaoArrayRegister.regadd!(a::SubspaceArrayReg, b::SubspaceArrayReg)
+    @assert a.natoms == b.natoms
+    @assert length(a.subspace) == length(b.subspace)
+    a.state .+= b.state
+    return a
+end
+
+function YaoArrayRegister.regscale!(a::SubspaceArrayReg, x)
+    a.state .*= x
+    return a
+end
 
 """
     zero_state([T=ComplexF64], n::Int, subspace)
@@ -100,6 +120,13 @@ end
 function Base.:*(bra::YaoArrayRegister.AdjointRegister{2, <:SubspaceArrayReg}, ket::SubspaceArrayReg)
     return dot(statevec(parent(bra)), statevec(ket))
 end
+
+"""
+    space(register)
+
+Return the space of given register.
+"""
+function space end
 
 space(r::SubspaceArrayReg) = r.subspace
 space(r::ArrayReg) = fullspace

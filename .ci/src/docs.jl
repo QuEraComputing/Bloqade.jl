@@ -6,7 +6,8 @@ documentation commands
 using Pkg
 using Comonicon
 using LiveServer
-using ..EaRydCI: root_dir, dev
+using ..BloqadeCI: root_dir, dev
+using ..BloqadeCI.Example
 
 const BEFORE_TUTORIAL = [
     "Home" => "index.md",
@@ -30,8 +31,7 @@ const AFTER_TUTORIAL = [
         "Bravais Lattice" => "topics/bravais.md",
         "Automatic Differentiation" => "topics/ad.md",
     ],
-    "Contributing EaRyd" => "contrib.md",
-    "References" => "ref.md",
+    "Contributing Bloqade" => "contrib.md",
 ]
 
 const LIGHT_PAGES = [
@@ -42,55 +42,49 @@ const LIGHT_PAGES = [
 const PAGES=[
     BEFORE_TUTORIAL...,
     "Tutorials" => [
-        "Quantum Scar" => "tutorials/quantum-scar.md",
-        "Adiabatic Evolution" => "tutorials/adiabatic.md",
-        "Quantum Approximate Optimization Algorithm" => "tutorials/qaoa.md",
+        "Quantum Scar" => "tutorials/quantum-scar/main.md",
+        "Adiabatic Evolution" => "tutorials/adiabatic/main.md",
+        "Quantum Approximate Optimization Algorithm" => "tutorials/qaoa/main.md",
         # "Solving Maximum-Independent Set Using Rydberg QAOA" => "tutorials/mis.md",
     ],
     AFTER_TUTORIAL...
 ]
 
 function render_all_examples()
-    ci_dir = root_dir(".ci")
-    for each in readdir(root_dir("examples"))
-        project_dir = root_dir("examples", each)
-        isdir(project_dir) || continue
-        @info "building" project_dir
-        input_file = root_dir("examples", each, "main.jl")
-        output_dir = root_dir("docs", "src", "tutorials")
-
-        julia_cmd = """
-        using Pkg, Literate;
-        Pkg.activate(\"$project_dir\")
-        Pkg.instantiate()
-        Literate.markdown(\"$input_file\", \"$output_dir\"; name=\"$each\", execute=true)
-        """
-        run(`$(Base.julia_exename()) --project=$ci_dir -e $julia_cmd`)
-    end
+    Example.buildall(
+        build_dir=root_dir("docs", "src", "tutorials"),
+        target="markdown",
+        eval=true,
+    )
 end
 
 function doc_build_script(pages, repo)
+    yao_pkgs = [
+        "Yao", "YaoAPI", "YaoBase",
+        "YaoBlocks", "YaoArrayRegister",
+    ]
     using_stmts = ["Documenter", "DocThemeIndigo"]
-    non_cuda_pkgs = filter(!isequal("EaRydCUDA"), readdir(root_dir("lib")))
-    push!(non_cuda_pkgs, "EaRyd")
+    non_cuda_pkgs = filter(!isequal("BloqadeCUDA"), readdir(root_dir("lib")))
+    push!(non_cuda_pkgs, "Bloqade")
+    append!(non_cuda_pkgs, yao_pkgs)
     append!(using_stmts, non_cuda_pkgs)
     
     return """
     $(join(map(x->"using "*x, using_stmts), "\n"))
 
-    indigo = DocThemeIndigo.install(EaRyd)
-    DocMeta.setdocmeta!(EaRyd, :DocTestSetup, :(using EaRyd); recursive=true)
+    indigo = DocThemeIndigo.install(Bloqade)
+    DocMeta.setdocmeta!(Bloqade, :DocTestSetup, :(using Bloqade); recursive=true)
 
     makedocs(;
         root=\"$(root_dir("docs"))\",
         modules=[$(join(non_cuda_pkgs, ", "))],
         authors="QuEra Computing Inc.",
         repo="https://github.com/$repo/blob/{commit}{path}#{line}",
-        sitename="EaRyd.jl",
+        sitename="Bloqade.jl",
         doctest=false,
         format=Documenter.HTML(;
             prettyurls=get(ENV, "CI", "false") == "true",
-            canonical="https://Happy-Diode.github.io/EaRyd.jl",
+            canonical="https://Happy-Diode.github.io/Bloqade.jl",
             assets=String[indigo],
         ),
         pages=$pages,
@@ -112,9 +106,9 @@ end
 
 function generate_makejl(light)
     build_script = if light
-        doc_build_script(LIGHT_PAGES, "Happy-Diode/EaRyd.jl")
+        doc_build_script(LIGHT_PAGES, "Happy-Diode/Bloqade.jl")
     else
-        doc_build_script(PAGES, "Happy-Diode/EaRyd.jl")
+        doc_build_script(PAGES, "Happy-Diode/Bloqade.jl")
     end
 
     write(root_dir("docs", "make.jl"), build_script)

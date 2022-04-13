@@ -1,22 +1,32 @@
+```@meta
+CurrentModule = Bloqade
+```
+
 # Hamiltonians
 
 Hamiltonian encodes essential physical properties of Rydberg systems. One can use a Hamiltonian to 
 understand the ground state properties of the corresponding Rydberg system and to generate interesting quantum dynamics. 
-The Rydberg Hamiltonian is generally specified by atom positions, Rabi frequencies and detunings. In EaRyd, 
+The Rydberg Hamiltonian is generally specified by atom positions, Rabi frequencies and detunings. In Bloqade, 
 we can easily create a Hamiltonian by inputting these information, i.e. lattice and strengths of Rabi frequencies and
-detunings,  into the function [`rydberg_h`](@ref). Furthermore, by inputing waveforms for the Rabi frequency and 
+detunings, into the function [`rydberg_h`](@ref). Furthermore, by inputing waveforms for the Rabi frequency and 
 detuning, we can easily generate time-dependent Hamiltonians. 
 
+
+```@docs
+rydberg_h
+```
 
 ## Building Time-Independent Hamiltonians
 
 To specify the Hamiltonian, we first need to specify the atom positions, which determine the Rydberg intearctions strengths
-between pairs of atoms. Here we generate a square lattice by using the code below. 
+between pairs of atoms. Here we generate a square lattice by using the code below.
+
 ```@repl hamiltonian
-using EaRyd
-atoms = generate_sites(SquareLattice(), 3, 3, scale=6.3);
+using Bloqade
+atoms = generate_sites(SquareLattice(), 3, 3, scale=6.3)
 ```
-Please refer to [Lattice](@ref) page for more details about generating lattice and relevant operations. 
+
+Please refer to [Lattices](@ref) page for more details about generating lattice and relevant operations. 
 
 Then the Hamiltonian can be simply built by inputing the generated atom positions `atoms` and by specifying the strength of Rabi
 detuning `Δ`, Rabi frequency `Ω`, and laser phase `ϕ`
@@ -32,11 +42,12 @@ One can also directly use waveforms (instead of contanst values of detuning, Rab
 First let us use the  [`generate_sites`](@ref) to create a list of atom coordinates. 
 
 ```@repl hamiltonian
-atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
+atoms = generate_sites(ChainLattice(), 5, scale=5.72)
 ```
 
 Then we generate time-dependent pulses for ``\Omega`` and ``\Delta`` by using 
 [`piecewise_linear`](@ref). For details about how to build waveforms, please refer to the section [Waveforms](@ref). 
+
 ```@repl hamiltonian
 Ω1 = piecewise_linear(clocks=[0.0, 0.1, 2.1, 2.2], values=[0.0, 6.0, 6.0, 0]);
 Δ1 = piecewise_linear(clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1]);
@@ -51,61 +62,121 @@ h1 = rydberg_h(atoms; Δ=Δ1, Ω=Ω1)
 By specifying the time of `h1`, we can  acess the Hamiltonian at a particular time, e.g. 
 
 ```@repl hamiltonian
-ht= h1(0.5)
+ht= h1 |> attime(0.5)
 ```
 
 ## Hamiltonian Expressions
 
-Inside this package, a more general definition of hamiltonians
-are supported as Symbolic expressions, this
-gives users the flexiblity to define various different kind of
-Hamltonian by simply writing down the expression.
+Bloqade uses "block"s from [Yao](https://yaoquantum.org/) to build symbolic hamiltonian
+expressions. This gives users the flexiblity to define various different 
+kind of Hamltonian by simply writing down the expression.
 
-Currently, there are currently 4 terms supported: [`RydInteract`](@ref),
-[`XTerm`](@ref), [`NTerm`](@ref), [`ZTerm`](@ref). Instead of using the function [`rydberg_h`](@ref), 
-we can also explicitly add up these terms to compose a new hamiltonian, e.g
+Except standard operators from Yao, the following operators are supported
+by Bloqade:
 
-```@repl hamiltonian
-using EaRyd
-h = XTerm(5, 1.0) + ZTerm(5, 1.0)
+```@docs
+RydInteract
+SumOfX
+SumOfXPhase
+SumOfZ
+SumOfN
+XPhase
 ```
 
+As an example, we can explicitly add up these terms to compose a new hamiltonian, e.g
+
+```@repl hamiltonian
+using Bloqade
+h = SumOfX(5, 1.0) + SumOfZ(5, 1.0)
+```
 
 ## Convert Hamiltonian to Matrices
 
+Hamiltonian expression can be converted to a matrix via the [`mat`](https://docs.yaoquantum.org/dev/man/blocks.html#YaoAPI.mat-Tuple{AbstractBlock})
+interface from Yao.
 
-In order to better understand physical properties (such as engenstate properties and eigenvalue statistics) of a Rydberg system, we may want to diagonalize the corresponding Hamiltonian 
-matrices. In EaRyd, the Hamiltonian expression can be converted to a matrice
-via type conversion, e.g we can convert the above Hamiltonian
-to a `SparseMatrixCSC`
-
-```@repl hamiltonian
-using SparseArrays
-h_m = SparseMatrixCSC(ht)
+```@docs
+mat
 ```
 
-With strong interactions, only one Rydberg excitation is allowed within the Blockade regime (see [blockade](@ref)). In such a case, the allowed Hilbert space (called blockade subpace) for ``N`` atoms 
-is only part of full ``2^N`` Hilbert space. In this case, it is better to work in the blockade subspace such that one can access larger systems. 
-One of the essential feature of EaRyd is to allow the users to also work in blockade subspace. Here, we can easily convert the Hamiltonian expression into a matrices in subspace basis.
-First, we can specify such a subspace by using function [`blockade_subspace`](@ref), e.g. 
+This method will return the most compact matrix representation of the operator,
+e.g
+
+```@repl hamiltonian
+mat(X) # will return a PermMatrix
+mat(ht) # will return a SparseMatrixCSC
+```
+
+The hamiltonian matrix can also be created in a subspace, such as the
+blockade subspace (see also [Rydberg Blockade](@ref blockade) and
+[Maximum Independent Set](@ref mis)). This will allow one to work
+in larger system size.
+
+For Rydberg hamiltonian, we can create the subspace via [`blockade_subspace`](@ref)
+method, e.g
 
 ```@repl hamiltonian
 space = blockade_subspace(atoms, 7.5)
 ```
+
 The above code means that the blocakde subspace only includes states where there is only one Rydberg excitation 
 within the distance of ``7.5 \mu m``. If we have a chain of atoms seperated by ``5.72 \mu m``, the blocakde subspace 
 does not contains states with nearest-neighbour atoms being simutaniously excited. 
 
-
 Once we have defined the space, we can convert the Hamiltonain to matrice in subspace basis via the codes below
+
 ```@repl hamiltonian
-h_s= SparseMatrixCSC(ht, space)
+h_m = mat(ht, space)
 ```
+
 We can see that the size of the matrices in blockade susbpace is much smaller than that in the full space. 
 
-After the conversion, the Hamiltonian can be diagonalized by using `KrylovKit.eigsolve`
+## Diagonalization of the Hamiltonian
+
+Bloqade doesn't provide any diagonalization tool, as there are already lots of
+tools in Julia ecosystem. Here, we demonstrate how to use [KrylovKit](https://github.com/Jutho/KrylovKit.jl) package for this purpose as following
+
 ```@repl hamiltonian
 using KrylovKit
 vals, vecs, info = KrylovKit.eigsolve(h_m,  1, :SR)
 ```
+
 where the `vals` and `vecs` store calculated eigenvalues and eigenvectors respectively. 
+
+## Low-level representation of the Hamiltonian
+
+Besides the symbolic representation, in order to achieve highest performance possible, we use a lower-level representation of the Hamiltonian in Bloqade,
+which is the `Hamiltonian` and `StepHamiltonian` type.
+
+```@docs
+BloqadeExpr.Hamiltonian
+BloqadeExpr.StepHamiltonian
+```
+
+The `Hamiltonian` type represents the following Hamiltonian expression
+
+```math
+f_1(t) H_1 + f_2(t) H_2 + \cdots + f_n(t) H_n + H_c
+```
+
+where `f_i(t)` are time-dependent parameters of the Hamiltonian,
+``H_i`` are time-independent local terms of the Hamiltonian as linear operator
+(in Julia, this means objects that supports `LinearAlgebra.mul!` interface). And
+``H_c`` is the constant component of the Hamiltonian.
+
+A `Hamiltonian` object supports callable method, which will produce a
+`StepHamiltonian` that is time-independent, e.g
+
+```@repl hamiltonian
+using BloqadeExpr
+h = BloqadeExpr.Hamiltonian(Float64, SumOfX(5, sin) + SumOfZ(5, cos))
+h(0.1)
+```
+
+Here, we see the hamiltonian expression written as Yao blocks are automatically analyzed into time-dependent terms and constant terms. A more complicated example can be [`SumOfXPhase`](@ref)
+
+```@repl hamiltonian
+using BloqadeExpr
+h = BloqadeExpr.Hamiltonian(Float64, SumOfXPhase(5, sin, cos) + SumOfZ(5, cos))
+h(0.1)
+```

@@ -5,7 +5,7 @@ using BloqadePlots
 using KrylovKit
 using SparseArrays
 
-plt = pyimport(&quot;matplotlib.pyplot&quot;)</code></pre><pre><code class="nohighlight hljs">Python module: &lt;module &#39;matplotlib.pyplot&#39; from &#39;/home/runner/work/Bloqade.jl/Bloqade.jl/examples/adiabatic/.CondaPkg/env/lib/python3.10/site-packages/matplotlib/pyplot.py&#39;&gt;</code></pre><h1 id="Ground-state-properties"><a class="docs-heading-anchor" href="#Ground-state-properties">Ground state properties</a><a id="Ground-state-properties-1"></a><a class="docs-heading-anchor-permalink" href="#Ground-state-properties" title="Permalink"></a></h1><p>To get a sense of the quantum phase transition, we will first vary the parameters of the Hamiltonian and calculate the corresponding ground state properties. We start with a 1D chain for simplicity: we consider a chain with 9 atoms, where nearby atoms are seperated by a distance of 5.72 <span>$\mu m$</span>. We can generate the system as follows</p><pre><code class="language-julia hljs">nsites = 9
+plt = pyimport(&quot;matplotlib.pyplot&quot;)</code></pre><pre><code class="nohighlight hljs">Python module: &lt;module &#39;matplotlib.pyplot&#39; from &#39;/home/ubuntu/actions-runner/_work/Bloqade.jl/Bloqade.jl/examples/adiabatic/.CondaPkg/env/lib/python3.10/site-packages/matplotlib/pyplot.py&#39;&gt;</code></pre><h1 id="Ground-state-properties"><a class="docs-heading-anchor" href="#Ground-state-properties">Ground state properties</a><a id="Ground-state-properties-1"></a><a class="docs-heading-anchor-permalink" href="#Ground-state-properties" title="Permalink"></a></h1><p>To get a sense of the quantum phase transition, we will first vary the parameters of the Hamiltonian and calculate the corresponding ground state properties. We start with a 1D chain for simplicity: we consider a chain with 9 atoms, where nearby atoms are seperated by a distance of 5.72 <span>$\mu m$</span>. We can generate the system as follows</p><pre><code class="language-julia hljs">nsites = 9
 atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -21,7 +21,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml ver
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-8805162b-1">
+<g fill="#000000" font-size="3.88" id="img-9255e0ad-1">
   <g transform="translate(23.64,33.09)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -53,7 +53,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml ver
     </g>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-8805162b-2">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-9255e0ad-2">
   <g transform="translate(23.64,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
@@ -82,7 +82,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml ver
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="2.57" id="img-8805162b-3">
+<g fill="#000000" font-size="2.57" id="img-9255e0ad-3">
   <g transform="translate(23.64,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -186,7 +186,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml ver
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-edd667b1-1">
+<g fill="#000000" font-size="3.88" id="img-9ba3004b-1">
   <g transform="translate(23.64,33.09)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -218,7 +218,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml ver
     </g>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-edd667b1-2">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-9ba3004b-2">
   <g transform="translate(23.64,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
@@ -247,7 +247,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)</code></pre><?xml ver
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="2.57" id="img-edd667b1-3">
+<g fill="#000000" font-size="2.57" id="img-9ba3004b-3">
   <g transform="translate(23.64,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -346,4 +346,4 @@ fig, ax = plt.subplots(figsize = (10,4))
 ax.imshow(real(D), interpolation=&quot;nearest&quot;, aspect=&quot;auto&quot;)
 ax.set_xlabel(&quot;iterations&quot;)
 ax.set_ylabel(&quot;rydberg density per site&quot;)
-fig</code></pre><p><img src="../3359163666.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../quantum-scar/main/">« Quantum Scar</a><a class="docs-footer-nextpage" href="../../qaoa/main/">Quantum Approximate Optimization Algorithm »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.15 on <span class="colophon-date" title="Wednesday 13 April 2022 19:32">Wednesday 13 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><p><img src="../3359163666.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../quantum-scar/main/">« Quantum Scar</a><a class="docs-footer-nextpage" href="../../qaoa/main/">Quantum Approximate Optimization Algorithm »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.15 on <span class="colophon-date" title="Wednesday 13 April 2022 19:41">Wednesday 13 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

@@ -21,7 +21,6 @@ const BEFORE_TUTORIAL = [
         "Emulation" => "emulation.md",
         "Working with Subspace" => "subspace.md",
         "Observables" => "observables.md",
-        "Maximum Independent Set" => "mis.md",
         "CUDA Acceleration" => "cuda.md",    
     ],
 ]

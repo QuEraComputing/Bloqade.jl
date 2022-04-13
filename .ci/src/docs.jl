@@ -19,6 +19,7 @@ const BEFORE_TUTORIAL = [
         "Hamiltonians" => "hamiltonians.md",
         "Registers" => "registers.md",
         "Emulation" => "emulation.md",
+        "Working with Subspace" => "subspace.md",
         "Observables" => "observables.md",
         "Maximum Independent Set" => "mis.md",
         "CUDA Acceleration" => "cuda.md",    

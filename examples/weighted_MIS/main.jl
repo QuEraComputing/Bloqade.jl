@@ -100,13 +100,12 @@ using SparseArrays
 
 
 # We work in the blockade (independent set) subspace
-
-t_list = []
-P_MIS = []
+t_list = [] # clock
+P_MIS = [] # MIS probability 
 subspace = independent_set_subspace(g)
 
-global t = 0.1
-global T_  = 0.0
+global t = 0.1 # current time
+global T_  = 0.0 # time to reach P_MIS = 0.9
 
 while (t < T_  * 2.5) || (T_  == 0.0)
     global t 

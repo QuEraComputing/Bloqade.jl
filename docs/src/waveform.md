@@ -17,7 +17,7 @@ which is a composition of a callable object and a real number `duration`.
 BloqadeWaveforms.Waveform
 ```
 
-Bloqade gives users the flexibility to specify general waveforms by inputing functions. The following code constracting a sinusoidal waveform with time duration of ``4 \pi``
+Bloqade gives users the flexibility to specify general waveforms by inputing functions. The following code constructs a sinusoidal waveform with time duration of ``4 \pi \mu s``
 
 ```@example waveform
 using Bloqade
@@ -36,7 +36,7 @@ constant
 sinusoidal
 ```
 
-For example, the codes below create different waveforms with only one line
+For example, the codes below create different waveform shapes with a single line:
 
 ```@example waveform
 waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0]); 

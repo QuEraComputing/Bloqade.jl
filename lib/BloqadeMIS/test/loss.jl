@@ -45,6 +45,8 @@ to_independent_set!(config, graph)
     r = SubspaceArrayReg(raw_state, test_subspace)
     @test sum(independent_set_probabilities(r, graph)) ≈ 1
     @test sum(independent_set_probabilities(mis_postprocessing(graph), r, graph)) ≈ 1
+    
+    @test independent_set_probabilities(r, graph)[1] == maximum_independent_set_probability(r, graph, BitArray([1, 0, 1, 0, 0, 1]))
 end
 
 @testset "mis_postprocessing" begin

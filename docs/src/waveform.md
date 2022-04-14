@@ -23,12 +23,16 @@ Bloqade gives users the flexibility to specify general waveforms by inputing fun
 using Bloqade
 using BloqadePlots: draw, draw!
 using PythonCall
+plt = pyimport("matplotlib.pyplot")
 waveform = Waveform(t->2.2sin(t), duration=4π);
 draw(waveform)
 ```
+where `BloqadePlots` is a plotting package for objects from `Bloqade`,
+that you need to use explicitly. And in our documentation we use the
+python package [`matplotlib`](https://matplotlib.org) for plotting.
 
 Bloqade supports built-in waveforms for convenience (see References below). 
-For example, the codes below create different waveform shapes with a single line:
+For example, the codes below create different waveform shapes with single lines:
 
 ```@example waveform
 waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0]); 
@@ -58,7 +62,6 @@ draw(waveform)
 In certain cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions `piecewise_linear` or `piecewise_constant`, corresponding to different interpolations. 
 
 ```@example waveform
-plt = pyimport("matplotlib.pyplot")
 clocks = collect(0:1e-1:2);
 values = rand(length(clocks));
 wf1 = piecewise_linear(;clocks, values); 

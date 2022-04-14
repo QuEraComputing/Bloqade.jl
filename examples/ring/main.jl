@@ -3,7 +3,7 @@ using Bloqade
 # Use matplotlib to generate plots
 using PythonCall
 matplotlib = pyimport("matplotlib")
-matplotlib.use("TkAgg")
+# matplotlib.use("TkAgg")
 plt = pyimport("matplotlib.pyplot")
 plt.rcParams["font.size"] = 22
 

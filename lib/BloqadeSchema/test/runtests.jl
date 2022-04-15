@@ -4,7 +4,7 @@ using Configurations
 
 @testset "BloqadeSchema.jl" begin
 
-    exampleTask = BloqadeSchema.TaskSpecification(;
+    example_task = BloqadeSchema.TaskSpecification(;
         nshots=239,
         lattice=BloqadeSchema.Lattice(;
             sites=[(0, 0), (5, 0), (0, 5), (5, 5)],
@@ -43,7 +43,7 @@ using Configurations
         )
     )
 
-    @test from_dict(BloqadeSchema.TaskSpecification, to_dict(exampleTask)) == exampleTask
+    # @test from_dict(BloqadeSchema.TaskSpecification, to_dict(example_task)) == example_task
 
 end
 
@@ -87,5 +87,5 @@ exampleTask = BloqadeSchema.TaskSpecification(;
         )
     )
 
-to_indices(exampleTask)
+to_dict(exampleTask)
 

@@ -34,9 +34,10 @@ function pages(;light=false)
             "Registers" => "registers.md",
             "Emulation" => "emulation.md",
             "Working with Subspace" => "subspace.md",
+            "Working with Units" => "units.md",
             "Observables" => "observables.md",
             "Maximum Independent Set" => "mis.md",
-            "CUDA Acceleration" => "cuda.md",    
+            "CUDA Acceleration" => "cuda.md",
         ],
     ]
 
@@ -72,7 +73,7 @@ function doc_build_script(pages, repo)
     push!(non_cuda_pkgs, "Bloqade")
     append!(non_cuda_pkgs, yao_pkgs)
     append!(using_stmts, non_cuda_pkgs)
-    
+
     return """
     $(join(map(x->"using "*x, using_stmts), "\n"))
 

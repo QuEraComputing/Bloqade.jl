@@ -1,4 +1,5 @@
 using Test
+using Unitful: ms, rad
 using Intervals
 using BloqadeWaveforms
 

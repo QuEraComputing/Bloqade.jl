@@ -45,6 +45,15 @@ You can make up any kind of quantum operator in this way
 and use it with the [`expect`](@ref) or [`measure`](@ref)
 function.
 
+And because the hamiltonian is also an operator expression,
+thus it can be used as an observable too
+
+```@repl observable
+r = rand_state(5)
+pos = [(i, ) for i in 1:5]
+h = rydberg_h(pos; Ω=0.1)
+expect(h, r)
+```
 
 ## Reference
 

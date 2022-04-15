@@ -38,6 +38,7 @@ function bitstring_hist!(ax, r::ArrayReg; nlargest::Int, title="", kw...)
         1:length(indices),
         string.(indices.-1;base=2, pad=nqubits(r)),
         rotation=60,
+        ha="right",
     )
     return obj
 end
@@ -54,6 +55,7 @@ function bitstring_hist!(ax, r::SubspaceArrayReg; nlargest::Int, title="", kw...
         1:length(indices),
         string.(space(r).subspace_v[indices];base=2, pad=nqubits(r)),
         rotation=60,
+        ha="right",
     )
     return obj
 end

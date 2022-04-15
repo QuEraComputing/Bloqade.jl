@@ -18,7 +18,7 @@ end
 function default_unit(unit, x::AbstractArray{S}) where {T, S <: Quantity{T}}
     y = similar(x, T)
     @inbounds for i in eachindex(x)
-        y[i] = default_unit(unit, x[i]).val
+        y[i] = default_unit(unit, x[i])
     end
     return y
 end

@@ -210,7 +210,7 @@ struct PiecewiseLinear{T <: Real, Interp}
 end
 
 function PiecewiseLinear(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
-    PiecewiseLinear(default_unit(μs, clocks), default_unit(MHz, clocks))
+    PiecewiseLinear(default_unit(μs, clocks), default_unit(MHz, values))
 end
 
 (f::PiecewiseLinear)(t::Real) = f.interp(t)
@@ -227,7 +227,7 @@ struct PiecewiseConstant{T <: Real}
 end
 
 function PiecewiseConstant(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
-    PiecewiseConstant(default_unit(μs, clocks), default_unit(MHz, clocks))
+    PiecewiseConstant(default_unit(μs, clocks), default_unit(MHz, values))
 end
 
 function (f::PiecewiseConstant)(t::Real)
@@ -317,7 +317,6 @@ function piecewise_constant(;
         clocks::Vector, values::Vector,
         duration::Number=last(clocks),
     )
-    assert_clocks(clocks)
     return Waveform(PiecewiseConstant(clocks, values), duration)
 end
 

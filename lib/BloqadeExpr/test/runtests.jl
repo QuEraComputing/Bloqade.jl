@@ -32,3 +32,7 @@ end
 @testset "atoms" begin
     include("atoms.jl")
 end
+
+@testset "printings" begin
+    include("printings.jl")
+end

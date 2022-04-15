@@ -1,5 +1,5 @@
 """
-    struct SubspaceArrayReg <: AbstractRegister{2}
+    SubspaceArrayReg <: AbstractRegister{2}
     SubspaceArrayReg(state, subspace)
 
 Type for registers in a subspace. The subspace must be a
@@ -82,7 +82,7 @@ end
 
 YaoArrayRegister.isnormalized(r::SubspaceArrayReg) = norm(r.state) ≈ 1
 function Base.isapprox(x::SubspaceArrayReg, y::SubspaceArrayReg; kwargs...)
-    return isapprox(x.state, y.state; kwargs...) && (x.subspace == y.subspace)
+    return x.natoms == x.natoms && isapprox(x.state, y.state; kwargs...) && (x.subspace == y.subspace)
 end
 
 """
@@ -118,3 +118,57 @@ function space end
 space(r::SubspaceArrayReg) = r.subspace
 space(r::ArrayReg) = fullspace
 space(r::AdjointRegister) = space(parent(r))
+
+# arithmatics operations
+# neg
+Base.:-(reg::SubspaceArrayReg) = SubspaceArrayReg(-reg.state, reg.subspace)
+
+# +, -
+for op in [:+, :-]
+    @eval function Base.$op(lhs::SubspaceArrayReg, rhs::SubspaceArrayReg)
+        @assert lhs.natoms == rhs.natoms
+        @assert length(lhs.subspace) == length(rhs.subspace)
+        return SubspaceArrayReg(($op)(lhs.state, rhs.state), lhs.subspace)
+    end
+end
+
+function YaoArrayRegister.regadd!(lhs::SubspaceArrayReg, rhs::SubspaceArrayReg)
+    @assert lhs.natoms == rhs.natoms
+    @assert length(lhs.subspace) == length(rhs.subspace)
+    lhs.state .+= rhs.state
+    return lhs
+end
+
+function YaoArrayRegister.regsub!(lhs::SubspaceArrayReg, rhs::SubspaceArrayReg)
+    @assert lhs.natoms == rhs.natoms
+    @assert length(lhs.subspace) == length(rhs.subspace)
+    lhs.state .-= rhs.state
+    return lhs
+end
+
+function YaoArrayRegister.regscale!(lhs::SubspaceArrayReg, x)
+    lhs.state .*= x
+    return lhs
+end
+
+# *, /
+for op in [:*, :/]
+    @eval function Base.$op(lhs::SubspaceArrayReg, rhs::Number)
+        return SubspaceArrayReg(($op)(lhs.state, rhs), lhs.subspace)
+    end
+end
+
+function Base.:*(lhs::Number, rhs::SubspaceArrayReg)
+    return SubspaceArrayReg(lhs * rhs.state, rhs.subspace)
+end
+
+function Base.:(==)(lhs::SubspaceArrayReg, rhs::SubspaceArrayReg)
+    lhs.natoms == rhs.natoms &&
+    lhs.subspace == rhs.subspace &&
+    lhs.state == rhs.state
+end
+
+function YaoArrayRegister.most_probable(reg::SubspaceArrayReg, n::Int)
+    imax = sortperm(abs2.(reg.state); rev=true)[1:n]
+    YaoArrayRegister.BitStr{nqubits(reg)}.(reg.subspace.subspace_v[imax])
+end

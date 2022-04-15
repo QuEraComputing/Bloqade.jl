@@ -13,6 +13,10 @@ end
     include("types.jl")
 end
 
+@testset "lower" begin
+    include("lower.jl")
+end
+
 @testset "linear algebra on linear map" begin
     include("linalg.jl")    
 end

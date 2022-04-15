@@ -39,4 +39,6 @@ for h in [
     println(stdout, "----------")
     println(stdout, "----------")
     show(stdout, MIME"text/latex"(), h)
+
+    show(stdout, MIME"text/plain"(), Hamiltonian(ComplexF64, h))
 end

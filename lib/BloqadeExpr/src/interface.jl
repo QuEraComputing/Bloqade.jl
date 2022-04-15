@@ -99,7 +99,7 @@ end
 
 function div_by_two(Ω)
     isnothing(Ω) && return
-    if !is_time_function(Ω)
+    if is_const_param(Ω)
         return Ω ./ 2
     end
 
@@ -147,7 +147,7 @@ nqudits: 4
 """
 attime(h::PrimitiveBlock, ::Real) = h
 function attime(h::SumOfX, t::Real)
-    is_time_function(h.Ω) || return h
+    is_const_param(h.Ω) && return h
     if h.Ω isa Vector
         SumOfX(h.nsites, map(x->x(t), h.Ω))
     else
@@ -156,7 +156,7 @@ function attime(h::SumOfX, t::Real)
 end
 
 function attime(h::SumOfXPhase, t::Real)
-    if !is_time_function(h.Ω)
+    if is_const_param(h.Ω)
         Ω = h.Ω
     elseif h.Ω isa Vector
         Ω = map(x->x(t), h.Ω)
@@ -164,7 +164,7 @@ function attime(h::SumOfXPhase, t::Real)
         Ω = h.Ω(t)
     end
 
-    if !is_time_function(h.ϕ)
+    if is_const_param(h.ϕ)
         ϕ = h.ϕ
     elseif h.ϕ isa Vector
         ϕ = map(x->x(t), h.ϕ)
@@ -176,7 +176,7 @@ function attime(h::SumOfXPhase, t::Real)
 end
 
 function attime(h::Union{SumOfZ, SumOfN}, t::Real)
-    if !is_time_function(h.Δ)
+    if is_const_param(h.Δ)
         Δ = h.Δ
     elseif h.Δ isa Vector
         Δ = map(x->x(t), h.Δ)

@@ -189,11 +189,6 @@ function assert_clocks(clocks)
     return
 end
 
-function assert_clocks_match_values(clocks, values)
-    length(clocks) == length(values) || throw(ArgumentError("expect clocks has the same length as values"))
-    return
-end
-
 # this is for accessing the clocks and values
 # in pulse smoothen, we may remove this if a more
 # general version of the smoothen is implemented
@@ -204,7 +199,7 @@ struct PiecewiseLinear{T <: Real, Interp}
 
     function PiecewiseLinear(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
-        assert_clocks_match_values(clocks, values)
+        length(clocks) == length(values) || throw(ArgumentError("expect clocks has the same length as values"))
         interp = LinearInterpolation(clocks, values)
         new{eltype(values), typeof(interp)}(clocks, values, interp)
     end
@@ -218,7 +213,7 @@ struct PiecewiseConstant{T <: Real}
 
     function PiecewiseConstant(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
-        assert_clocks_match_values(clocks, values)
+        length(clocks) == length(values) + 1 || throw(ArgumentError("expect clocks has the same length as values"))
         new{eltype(values)}(clocks, values)
     end
 end

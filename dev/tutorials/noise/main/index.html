@@ -1,135 +1,7 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>measure the Rydberg density for each site · Bloqade.jl</title><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/Bloqade.jl/tutorials/noise/main/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">Bloqade.jl</a></span></div><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><a class="tocitem" href="../../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../../registers/">Registers</a></li><li><a class="tocitem" href="../../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../../observables/">Observables</a></li><li><a class="tocitem" href="../../../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../../../cuda/">CUDA Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../../adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../../qaoa/main/">Quantum Approximate Optimization Algorithm</a></li></ul></li><li><span class="tocitem">Advanced Topics</span><ul><li><a class="tocitem" href="../../../topics/blockade/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../../topics/bravais/">Bravais Lattice</a></li><li><a class="tocitem" href="../../../topics/ad/">Automatic Differentiation</a></li></ul></li><li><a class="tocitem" href="../../../contrib/">Contributing Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>measure the Rydberg density for each site</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>measure the Rydberg density for each site</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/Bloqade.jl/blob/master/examples/noise/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><pre><code class="language-julia hljs">using Bloqade
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Adiabatic Preparation with Sensitivity Analysis · Bloqade.jl</title><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/Bloqade.jl/tutorials/noise/main/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">Bloqade.jl</a></span></div><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><a class="tocitem" href="../../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../../registers/">Registers</a></li><li><a class="tocitem" href="../../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../../../observables/">Observables</a></li><li><a class="tocitem" href="../../../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../../../cuda/">CUDA Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../adiabatic/main/">Adiabatic Evolution</a></li><li class="is-active"><a class="tocitem" href>Adiabatic Preparation with Sensitivity Analysis</a><ul class="internal"><li class="toplevel"><a class="tocitem" href="#measure-the-Rydberg-density-for-each-site"><span>measure the Rydberg density for each site</span></a></li></ul></li><li><a class="tocitem" href="../../qaoa/main/">Quantum Approximate Optimization Algorithm</a></li><li><a class="tocitem" href="../../quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../../ring/main/">Ring Emulation</a></li></ul></li><li><span class="tocitem">Advanced Topics</span><ul><li><a class="tocitem" href="../../../topics/blockade/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../../topics/bravais/">Bravais Lattice</a></li><li><a class="tocitem" href="../../../topics/ad/">Automatic Differentiation</a></li></ul></li><li><a class="tocitem" href="../../../contrib/">Contributing Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Adiabatic Preparation with Sensitivity Analysis</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Adiabatic Preparation with Sensitivity Analysis</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/Bloqade.jl/blob/master/examples/noise/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Adiabatic-Preparation-with-Sensitivity-Analysis"><a class="docs-heading-anchor" href="#Adiabatic-Preparation-with-Sensitivity-Analysis">Adiabatic Preparation with Sensitivity Analysis</a><a id="Adiabatic-Preparation-with-Sensitivity-Analysis-1"></a><a class="docs-heading-anchor-permalink" href="#Adiabatic-Preparation-with-Sensitivity-Analysis" title="Permalink"></a></h1><pre><code class="language-julia hljs">using Bloqade
 using CairoMakie
-using BloqadePlots</code></pre><pre><code class="nohighlight hljs">    CondaPkg Found dependencies: /home/ubuntu/actions-runner/_work/Bloqade.jl/Bloqade.jl/lib/BloqadePlots/CondaPkg.toml
-    CondaPkg Found dependencies: /home/ubuntu/.julia/packages/PythonCall/XgP8G/CondaPkg.toml
-    CondaPkg Resolving changes
-             + matplotlib
-             + python
-    CondaPkg Installing packages
-  Package                           Version  Build                Channel                    Size
-───────────────────────────────────────────────────────────────────────────────────────────────────
-  Install:
-───────────────────────────────────────────────────────────────────────────────────────────────────
-
-  + _libgcc_mutex                       0.1  conda_forge          conda-forge/linux-64     Cached
-  + _openmp_mutex                       4.5  1_gnu                conda-forge/linux-64     Cached
-  + alsa-lib                          1.2.3  h516909a_0           conda-forge/linux-64     Cached
-  + brotli                            1.0.9  h166bdaf_7           conda-forge/linux-64     Cached
-  + brotli-bin                        1.0.9  h166bdaf_7           conda-forge/linux-64     Cached
-  + bzip2                             1.0.8  h7f98852_4           conda-forge/linux-64     Cached
-  + ca-certificates               2021.10.8  ha878542_0           conda-forge/linux-64     Cached
-  + certifi                       2021.10.8  py310hff52083_2      conda-forge/linux-64     Cached
-  + cycler                           0.11.0  pyhd8ed1ab_0         conda-forge/noarch       Cached
-  + dbus                             1.13.6  h5008d03_3           conda-forge/linux-64     Cached
-  + expat                             2.4.8  h27087fc_0           conda-forge/linux-64     Cached
-  + font-ttf-dejavu-sans-mono          2.37  hab24e00_0           conda-forge/noarch       Cached
-  + font-ttf-inconsolata              3.000  h77eed37_0           conda-forge/noarch       Cached
-  + font-ttf-source-code-pro          2.038  h77eed37_0           conda-forge/noarch       Cached
-  + font-ttf-ubuntu                    0.83  hab24e00_0           conda-forge/noarch       Cached
-  + fontconfig                       2.14.0  h8e229c2_0           conda-forge/linux-64     Cached
-  + fonts-conda-ecosystem                 1  0                    conda-forge/noarch       Cached
-  + fonts-conda-forge                     1  0                    conda-forge/noarch       Cached
-  + fonttools                        4.32.0  py310h5764c6d_0      conda-forge/linux-64     Cached
-  + freetype                         2.10.4  h0708190_1           conda-forge/linux-64     Cached
-  + gettext                        0.19.8.1  h73d1719_1008        conda-forge/linux-64     Cached
-  + giflib                            5.2.1  h36c2ea0_2           conda-forge/linux-64     Cached
-  + gst-plugins-base                 1.20.1  hcf0ee16_1           conda-forge/linux-64     Cached
-  + gstreamer                        1.20.1  hd4edc92_1           conda-forge/linux-64     Cached
-  + icu                                69.1  h9c3ff4c_0           conda-forge/linux-64     Cached
-  + jbig                                2.1  h7f98852_2003        conda-forge/linux-64     Cached
-  + jpeg                                 9e  h7f98852_0           conda-forge/linux-64     Cached
-  + keyutils                          1.6.1  h166bdaf_0           conda-forge/linux-64     Cached
-  + kiwisolver                        1.4.2  py310hbf28c38_1      conda-forge/linux-64     Cached
-  + krb5                             1.19.3  h08a2579_0           conda-forge/linux-64     Cached
-  + lcms2                              2.12  hddcbb42_0           conda-forge/linux-64     Cached
-  + ld_impl_linux-64                 2.36.1  hea4e1c9_2           conda-forge/linux-64     Cached
-  + lerc                                3.0  h9c3ff4c_0           conda-forge/linux-64     Cached
-  + libblas                           3.9.0  14_linux64_openblas  conda-forge/linux-64     Cached
-  + libbrotlicommon                   1.0.9  h166bdaf_7           conda-forge/linux-64     Cached
-  + libbrotlidec                      1.0.9  h166bdaf_7           conda-forge/linux-64     Cached
-  + libbrotlienc                      1.0.9  h166bdaf_7           conda-forge/linux-64     Cached
-  + libcblas                          3.9.0  14_linux64_openblas  conda-forge/linux-64     Cached
-  + libclang                         13.0.1  default_hc23dcda_0   conda-forge/linux-64     Cached
-  + libdeflate                         1.10  h7f98852_0           conda-forge/linux-64     Cached
-  + libedit                    3.1.20191231  he28a2e2_2           conda-forge/linux-64     Cached
-  + libevent                         2.1.10  h28343ad_4           conda-forge/linux-64     Cached
-  + libffi                            3.4.2  h7f98852_5           conda-forge/linux-64     Cached
-  + libgcc-ng                        11.2.0  h1d223b6_15          conda-forge/linux-64     Cached
-  + libgfortran-ng                   11.2.0  h69a702a_15          conda-forge/linux-64     Cached
-  + libgfortran5                     11.2.0  h5c6108e_15          conda-forge/linux-64     Cached
-  + libglib                          2.70.2  h174f98d_4           conda-forge/linux-64     Cached
-  + libgomp                          11.2.0  h1d223b6_15          conda-forge/linux-64     Cached
-  + libiconv                           1.16  h516909a_0           conda-forge/linux-64     Cached
-  + liblapack                         3.9.0  14_linux64_openblas  conda-forge/linux-64     Cached
-  + libllvm13                        13.0.1  hf817b99_2           conda-forge/linux-64     Cached
-  + libnsl                            2.0.0  h7f98852_0           conda-forge/linux-64     Cached
-  + libogg                            1.3.4  h7f98852_1           conda-forge/linux-64     Cached
-  + libopenblas                      0.3.20  pthreads_h78a6416_0  conda-forge/linux-64     Cached
-  + libopus                           1.3.1  h7f98852_1           conda-forge/linux-64     Cached
-  + libpng                           1.6.37  h21135ba_2           conda-forge/linux-64     Cached
-  + libpq                              14.2  h676c864_0           conda-forge/linux-64     Cached
-  + libstdcxx-ng                     11.2.0  he4da1e4_15          conda-forge/linux-64     Cached
-  + libtiff                           4.3.0  h542a066_3           conda-forge/linux-64     Cached
-  + libuuid                          2.32.1  h7f98852_1000        conda-forge/linux-64     Cached
-  + libvorbis                         1.3.7  h9c3ff4c_0           conda-forge/linux-64     Cached
-  + libwebp                           1.2.2  h3452ae3_0           conda-forge/linux-64     Cached
-  + libwebp-base                      1.2.2  h7f98852_1           conda-forge/linux-64     Cached
-  + libxcb                             1.13  h7f98852_1004        conda-forge/linux-64     Cached
-  + libxkbcommon                      1.0.3  he3ba5ed_0           conda-forge/linux-64     Cached
-  + libxml2                          2.9.12  h885dcf4_1           conda-forge/linux-64     Cached
-  + libzlib                          1.2.11  h166bdaf_1014        conda-forge/linux-64     Cached
-  + lz4-c                             1.9.3  h9c3ff4c_1           conda-forge/linux-64     Cached
-  + matplotlib                        3.5.1  py310hff52083_0      conda-forge/linux-64     Cached
-  + matplotlib-base                   3.5.1  py310h23f4a51_0      conda-forge/linux-64     Cached
-  + munkres                           1.1.4  pyh9f0ad1d_0         conda-forge/noarch       Cached
-  + mysql-common                     8.0.28  h26416b9_3           conda-forge/linux-64     Cached
-  + mysql-libs                       8.0.28  hbc51c84_3           conda-forge/linux-64     Cached
-  + ncurses                             6.3  h27087fc_1           conda-forge/linux-64     Cached
-  + nspr                               4.32  h9c3ff4c_1           conda-forge/linux-64     Cached
-  + nss                                3.77  h2350873_0           conda-forge/linux-64     Cached
-  + numpy                            1.22.3  py310h45f3432_2      conda-forge/linux-64     Cached
-  + openjpeg                          2.4.0  hb52868f_1           conda-forge/linux-64     Cached
-  + openssl                           3.0.2  h166bdaf_1           conda-forge/linux-64     Cached
-  + packaging                          21.3  pyhd8ed1ab_0         conda-forge/noarch       Cached
-  + pcre                               8.45  h9c3ff4c_0           conda-forge/linux-64     Cached
-  + pillow                            9.1.0  py310he619898_2      conda-forge/linux-64     Cached
-  + pip                              22.0.4  pyhd8ed1ab_0         conda-forge/noarch       Cached
-  + pthread-stubs                       0.4  h36c2ea0_1001        conda-forge/linux-64     Cached
-  + pyparsing                         3.0.8  pyhd8ed1ab_0         conda-forge/noarch       Cached
-  + pyqt                             5.12.3  py310hff52083_8      conda-forge/linux-64     Cached
-  + pyqt-impl                        5.12.3  py310h1f8e252_8      conda-forge/linux-64     Cached
-  + pyqt5-sip                       4.19.18  py310h122e73d_8      conda-forge/linux-64     Cached
-  + pyqtchart                          5.12  py310hfcd6d55_8      conda-forge/linux-64     Cached
-  + pyqtwebengine                    5.12.1  py310hfcd6d55_8      conda-forge/linux-64     Cached
-  + python                           3.10.4  h2660328_0_cpython   conda-forge/linux-64     Cached
-  + python-dateutil                   2.8.2  pyhd8ed1ab_0         conda-forge/noarch       Cached
-  + python_abi                         3.10  2_cp310              conda-forge/linux-64     Cached
-  + qt                               5.12.9  h1304e3e_6           conda-forge/linux-64     Cached
-  + readline                            8.1  h46c0cb4_0           conda-forge/linux-64     Cached
-  + setuptools                       62.1.0  py310hff52083_0      conda-forge/linux-64     Cached
-  + six                              1.16.0  pyh6c4a22f_0         conda-forge/noarch       Cached
-  + sqlite                           3.38.2  h4ff8645_0           conda-forge/linux-64     Cached
-  + tk                               8.6.12  h27826a3_0           conda-forge/linux-64     Cached
-  + tornado                             6.1  py310h5764c6d_3      conda-forge/linux-64     Cached
-  + tzdata                            2022a  h191b570_0           conda-forge/noarch       Cached
-  + unicodedata2                     14.0.0  py310h5764c6d_1      conda-forge/linux-64     Cached
-  + wheel                            0.37.1  pyhd8ed1ab_0         conda-forge/noarch       Cached
-  + xorg-libxau                       1.0.9  h7f98852_0           conda-forge/linux-64     Cached
-  + xorg-libxdmcp                     1.1.3  h7f98852_0           conda-forge/linux-64     Cached
-  + xz                                5.2.5  h516909a_1           conda-forge/linux-64     Cached
-  + zlib                             1.2.11  h166bdaf_1014        conda-forge/linux-64     Cached
-  + zstd                              1.5.2  ha95c52a_0           conda-forge/linux-64     Cached
-
-  Summary:
-
-  Install: 108 packages
-
-  Total download: 0 B
-
-───────────────────────────────────────────────────────────────────────────────────────────────────
-
-</code></pre><p>In this example, we examine the adiabatic preparation of a spin Hamiltonian with noise parameters to show the erro propagation feature.</p><p>We first prepare the adiabatic pulse sequence as two piecewise linear functions the first part considers Hamiltonian parameters with time-dependent global noise (where each atom site is subject to the same noise)</p><p>define the rabi waveform</p><pre><code class="language-julia hljs">Ω_src = 2.3 * 2 * pi</code></pre><pre><code class="nohighlight hljs">14.451326206513047</code></pre><p>the noise strength can be specified by \pm</p><pre><code class="language-julia hljs">Ω_max = Ω_src ± 0.001
+using BloqadePlots</code></pre><p>In this example, we examine the adiabatic preparation of a spin Hamiltonian with noise parameters to show the erro propagation feature.</p><p>We first prepare the adiabatic pulse sequence as two piecewise linear functions the first part considers Hamiltonian parameters with time-dependent global noise (where each atom site is subject to the same noise)</p><p>define the rabi waveform</p><pre><code class="language-julia hljs">Ω_src = 2.3 * 2 * pi</code></pre><pre><code class="nohighlight hljs">14.451326206513047</code></pre><p>the noise strength can be specified by \pm</p><pre><code class="language-julia hljs">Ω_max = Ω_src ± 0.001
 Ω = piecewise_linear(clocks=[0.0, 0.252, 1.052, 1.6], values=[0.0, Ω_max , Ω_max , 0])</code></pre><pre><code class="nohighlight hljs">                  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
                   ┌────────────────────────────────────────┐ 
                20 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
@@ -185,7 +57,7 @@ atoms = generate_sites(SquareLattice(), nx, ny, scale=9.629)</code></pre><?xml v
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-9255e0ad-1">
+<g fill="#000000" font-size="3.88" id="img-000ac520-1">
   <g transform="translate(35,99)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -217,7 +89,7 @@ atoms = generate_sites(SquareLattice(), nx, ny, scale=9.629)</code></pre><?xml v
     </g>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-9255e0ad-2">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-000ac520-2">
   <g transform="translate(35,85)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
@@ -246,7 +118,7 @@ atoms = generate_sites(SquareLattice(), nx, ny, scale=9.629)</code></pre><?xml v
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="7.06" id="img-9255e0ad-3">
+<g fill="#000000" font-size="7.06" id="img-000ac520-3">
   <g transform="translate(35,85)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -345,4 +217,4 @@ end</code></pre><pre><code class="nohighlight hljs">9-element Vector{BloqadeWave
  Waveform(_, 1.6)
  Waveform(_, 1.6)
  Waveform(_, 1.6)
- Waveform(_, 1.6)</code></pre><p>define the Hamiltonian</p><p>h = rydberg<em>h(atoms; C=2 * pi * 858386, Δ, Ω) prob = ODEEvolution(zero</em>state(9), 1.6±0.0, h) emulate!(prob) # run the time evolution directly</p><h1 id="measure-the-Rydberg-density-for-each-site"><a class="docs-heading-anchor" href="#measure-the-Rydberg-density-for-each-site">measure the Rydberg density for each site</a><a id="measure-the-Rydberg-density-for-each-site-1"></a><a class="docs-heading-anchor-permalink" href="#measure-the-Rydberg-density-for-each-site" title="Permalink"></a></h1><p>densities = map(1:nsites) do i     real(expect(put(nsites, i=&gt;Op.n), prob.reg)) end</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.15 on <span class="colophon-date" title="Wednesday 13 April 2022 19:50">Wednesday 13 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ Waveform(_, 1.6)</code></pre><p>define the Hamiltonian</p><p>h = rydberg<em>h(atoms; C=2 * pi * 858386, Δ, Ω) prob = ODEEvolution(zero</em>state(9), 1.6±0.0, h) emulate!(prob) # run the time evolution directly</p><h1 id="measure-the-Rydberg-density-for-each-site"><a class="docs-heading-anchor" href="#measure-the-Rydberg-density-for-each-site">measure the Rydberg density for each site</a><a id="measure-the-Rydberg-density-for-each-site-1"></a><a class="docs-heading-anchor-permalink" href="#measure-the-Rydberg-density-for-each-site" title="Permalink"></a></h1><p>densities = map(1:nsites) do i     real(expect(put(nsites, i=&gt;Op.n), prob.reg)) end</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../adiabatic/main/">« Adiabatic Evolution</a><a class="docs-footer-nextpage" href="../../qaoa/main/">Quantum Approximate Optimization Algorithm »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.15 on <span class="colophon-date" title="Friday 15 April 2022 00:35">Friday 15 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

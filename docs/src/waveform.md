@@ -40,7 +40,7 @@ draw(waveform)
 ```
 
 ```@example waveform
-waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1]);
+waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 0.7], values=[0.0, 1.5, 3.1]);
 draw(waveform)
 ```
 

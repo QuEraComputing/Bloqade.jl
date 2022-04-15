@@ -42,9 +42,9 @@ h = rydberg_h(atoms;C = 2π * 858386, Ω=π)
 The system is initialized into the ground state of all atoms. We have two choices of basis: the first choice is the full Hilbert space of ``2^12`` elements, wheras the second basis is the blockade subspace, which excludes Rydberg excitations within the unit disk radius. The blockade subspace has ``D=322`` elements, which means that computation is much faster.
 
 ```@example blockade
-init = zero_state(nsites)                       # Initial state in the full space
+init_state = zero_state(nsites)                       # Initial state in the full space
 space = blockade_subspace(atoms,distance*1.1)   # Compute the blockade subspace
-init2 = zero_state(space)                       # Define the initial state in the blockade subspace.
+init_state2 = zero_state(space)                       # Define the initial state in the blockade subspace.
 ```
 
 If the atoms were far apart and non-interacting, each atom would oscillate completely between its ground state and Rydberg state with a period of ``0.5 \mu``s. However, because adjacent atoms shift to the Rydberg state concurrently, they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, corresponding to an antiferromagnetic ``Z_2`` state. Note that because the ring has a translation symmetry, the Rydberg density is equal on all sites.

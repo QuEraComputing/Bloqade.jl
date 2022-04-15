@@ -14,12 +14,6 @@ using InteractiveUtils: subtypes
 using Base.Cartesian: @nexprs
 using YaoBlocks: ChainBlock, PutBlock, TrivialGate, Subroutine, Scale, Daggered, Add, ControlBlock, TimeEvolution
 
-Unitful.@unit two_pi_MHz "2π⋅MHz" TwoPiMHz 2π * MHz false
-
-function __init__()
-    Unitful.register(BloqadeExpr)
-end
-
 export rydberg_h, FullSpace, Subspace, fullspace,
     RydInteract, SumOfX, SumOfXPhase, SumOfZ, SumOfN, XPhase, PdPhase, PuPhase,
     Op, attime, matrix_to_positions, storage_size, emulate!

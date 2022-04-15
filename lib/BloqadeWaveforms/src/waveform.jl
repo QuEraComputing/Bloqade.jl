@@ -94,7 +94,7 @@ end
 function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
     clocks = sample_clock(wf)
     plt = lineplot(
-        clocks, _rm_err.(sample_values(wf, clocks));
+        clocks, _rm_err.(sample_values(wf, clocks)./(2π));
         title="Waveform{_, $(eltype(wf))}",
         # TODO: decide the unit?
         xlabel="clock (μs)",
@@ -210,7 +210,7 @@ struct PiecewiseLinear{T <: Real, Interp}
 end
 
 function PiecewiseLinear(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
-    PiecewiseLinear(default_unit(μs, clocks), default_unit(two_pi_MHz, clocks))
+    PiecewiseLinear(default_unit(μs, clocks), default_unit(MHz, clocks))
 end
 
 (f::PiecewiseLinear)(t::Real) = f.interp(t)
@@ -227,7 +227,7 @@ struct PiecewiseConstant{T <: Real}
 end
 
 function PiecewiseConstant(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
-    PiecewiseConstant(default_unit(μs, clocks), default_unit(two_pi_MHz, clocks))
+    PiecewiseConstant(default_unit(μs, clocks), default_unit(MHz, clocks))
 end
 
 function (f::PiecewiseConstant)(t::Real)
@@ -359,8 +359,8 @@ julia> linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
 """
 function linear_ramp(;duration, start_value, stop_value)
     duration = default_unit(μs, duration)
-    start_value = default_unit(two_pi_MHz, start_value)
-    stop_value = default_unit(two_pi_MHz, stop_value)
+    start_value = default_unit(MHz, start_value)
+    stop_value = default_unit(MHz, stop_value)
 
     return Waveform(duration) do t
         (stop_value - start_value) / duration * t + start_value
@@ -379,7 +379,7 @@ Create a constant waveform.
 """
 function constant(;duration, value)
     duration = default_unit(μs, duration)
-    value = default_unit(two_pi_MHz, value)
+    value = default_unit(MHz, value)
     return Waveform(duration) do t
         value
     end
@@ -401,7 +401,7 @@ amplitude * sin(t)
 """
 function sinusoidal(;duration, amplitude=one(duration))
     duration = default_unit(μs, duration)
-    amplitude = default_unit(two_pi_MHz, amplitude)
+    amplitude = default_unit(MHz, amplitude)
     return Waveform(duration) do t
         amplitude * sin(t)
     end

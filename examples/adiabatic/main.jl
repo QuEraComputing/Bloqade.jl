@@ -1,4 +1,5 @@
-# # Background
+# # Adiabatic Evolution
+# ## Background
 
 # In this example, we will show how to use the Emulator to prepare ordered ground states in Rydberg systems. 
 # The example is based on experimental works in a [1D system](https://www.nature.com/articles/nature24622), and [2D system](https://www.nature.com/articles/s41586-021-03582-4). 

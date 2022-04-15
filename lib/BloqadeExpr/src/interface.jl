@@ -35,8 +35,8 @@ RydInteract(C, atoms) + SumOfXPhase(length(atoms), Ω, ϕ) - SumOfN(length(atoms
 
 - `C`: optional, default unit is `MHz*µm^6`, interation parameter,
     see also [`RydInteract`](@ref).
-- `Ω`: optional, default unit is `MHz`, Rabi frequencies, divided by 2, see also [`SumOfX`](@ref).
-- `Δ`: optional, default unit is `MHz`, detuning parameter, see [`SumOfN`](@ref).
+- `Ω`: optional, default unit is `2π ⋅ MHz`, Rabi frequencies, divided by 2, see also [`SumOfX`](@ref).
+- `Δ`: optional, default unit is `2π ⋅ MHz`, detuning parameter, see [`SumOfN`](@ref).
 - `ϕ`: optional, does not have unit, the phase, see [`SumOfXPhase`](@ref).
 
 !!! tips
@@ -74,7 +74,7 @@ nqubits: 4
 └─ 0.05 ⋅ ∑ σ^x_i
 ```
 """
-function rydberg_h(atom_positions; C::Real=2π * 862690, Ω=nothing, ϕ=nothing, Δ=nothing)
+function rydberg_h(atom_positions; C=2π * 862690, Ω=nothing, ϕ=nothing, Δ=nothing)
     positions = map(atom_positions) do pos
         (pos..., )
     end

@@ -12,17 +12,6 @@ Although these graphs have highly constraint topology, finding its MISs is NP-ha
 We show how to map the MIS problem on this graph to a Rydberg atom array hamiltonian,
 and use two quantum algorithms, the standard QAOA and a variational quantum algorithm with specially parametrized waveform, to find maximum independent sets.
 
-## Blockade Subspace
-
-The blockade subspace of Rydberg system can be used to reduce Hilbert space
-size so that one can approximate large system using relatively small space.
-
-One can create a blockade subspace via `blockade_subspace` method
-
-```@docs
-blockade_subspace
-```
-
 ## References
 
 ```@autodocs

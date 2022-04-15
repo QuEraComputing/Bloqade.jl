@@ -213,7 +213,7 @@ struct PiecewiseConstant{T <: Real}
 
     function PiecewiseConstant(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
-        length(clocks) == length(values) + 1 || throw(ArgumentError("expect clocks has the same length as values"))
+        length(clocks) == length(values) + 1 || throw(ArgumentError("expect clocks has one more element than values"))
         new{eltype(values)}(clocks, values)
     end
 end

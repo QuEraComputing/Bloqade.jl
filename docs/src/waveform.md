@@ -159,4 +159,6 @@ piecewise_constant
 linear_ramp
 constant
 sinusoidal
+smooth
+smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
 ```

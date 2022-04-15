@@ -30,27 +30,34 @@ where `bit"10011` is a special Julia string literal defined for bitstrings.
 ## Operations
 
 You can perform various operations on registers via standard [Yao](https://yaoquantum.org)
-register interface. This includes applying operators on quantum states by using `apply!`, measuring certain observables on quantum states by using `measure!`, and
-calculating the expectation value of certain observables by using `expect`.
+register interface. This includes applying operators on quantum 
+states by using [`apply!`](@ref), measuring certain observables with 
+projection on the quantum state by using `measure!`, and
+calculating the expectation value of certain observables by using 
+[`expect`](@ref). To inspect the internal state of the register, one 
+can use the [`statevec`](@ref) method
 
-```@docs
-measure
-expect
+
+```@repl registers
+reg = rand_state(3)
+measure(reg)
+expect(put(1=>X), reg)
+statevec(reg)
 ```
 
 For more detailed introduction of register interface, please
 refer to [Yao:Array Registers](https://docs.yaoquantum.org/dev/man/array_registers.html) and [Yao:AbstractRegister](https://docs.yaoquantum.org/dev/man/registers.html).
-
-## Working with Subspace
-
-
 
 
 ## References
 
 ```@docs
 arrayreg
+apply!
+measure!
+statevec
 zero_state
+rand_state
 product_state
 SubspaceArrayReg
 set_zero_state!

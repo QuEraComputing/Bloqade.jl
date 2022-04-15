@@ -45,7 +45,7 @@ For example, we can simulate quantum dynamics of a time-dependent Hamiltonian by
 ```@repl evolution
 using Bloqade
 atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1);
-clocks = [0.0, 0.1, 0.2, 0.3];
+clocks = [0.0, 0.1, 0.2, 0.3, 0.4];
 wf = piecewise_constant(;clocks, values=[1.0, 2.0, 3.0, 4.0]);
 h = rydberg_h(atoms; Δ=2.0, Ω=wf); # create the Hamiltonian 
 reg = zero_state(length(atoms)); # create fullspace register

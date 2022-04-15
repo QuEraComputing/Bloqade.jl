@@ -66,7 +66,7 @@ img_atoms(generate_sites(square, 10, 10))
 
 Note that the index showing on sites are consistent with the index of qubits for performing computation. 
 In other words, if we want to do measurment or apply opearations on individual sites (qubits), we can refer the numbering on atoms for convienience. 
-For more details about how to generate Hamiltonian by using lattice as an argument, please see the section [`Hamiltonian`](@ref).
+For more details about how to generate Hamiltonian by using lattice as an argument, please see the section [Hamiltonians](@ref).
 
 ```@example quick-start
 lattice_vectors(square)

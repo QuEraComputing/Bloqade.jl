@@ -155,7 +155,7 @@ bitstring_hist(reg; nlargest=20)
 # # Run in the blockade subspace  
 
 # In the above example, we have run the emulation in fullspace, which can be slow and only works for small system. We can turn the above simulation into a blockade subspace simulation 
-# by changing the register to a RydbergReg by feeding a subspace object.
+# by changing the register to a `SubspaceArrayReg` by feeding a subspace object.
 
 # The subspace can be found by looking up the independent set of the graph constructed by a blockade radius; here we choose the radius to be 6.2 ``\mu m``
 

@@ -4,7 +4,7 @@
 Calculates the rydberg density at site `i`.
 
 ```math
-\\langle Op.n_i \\rangle
+\\langle n_i \\rangle
 ```
 """
 rydberg_density(reg, i::Int) = real(expect(put(nqubits(reg), i=>Op.n), reg))
@@ -19,11 +19,13 @@ rydberg_density(reg) = [rydberg_density(reg, i) for i in 1:nqubits(reg)]
 """
     rydberg_corr([op=Op.n], reg) -> Matrix
 
-Calculates the rydberg correlation.
+Calculates the rydberg correlation matrix.
 
 ```math
-\\sum_{ij} \\langle op_i op_j \\rangle
+\\langle \\text{op}_i \\text{op}_j \\rangle
 ```
+
+here `op` can be `Op.n`, `X` or `Y`.
 
 # Arguments
 

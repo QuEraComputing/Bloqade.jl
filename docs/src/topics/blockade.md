@@ -12,16 +12,33 @@ where ``\hat n_i=|r_i\rangle\langle r_i|`` is the number operator on the ``i``th
 
 This conditional drive can be seen given the following dynamics. Suppose two atoms are close to each other (``< 10 \mu m``) and so interact under van der Waals. The left atom is either in a Rydberg state, or in the ground state, and the right atom is originally in the ground state. Then, a Rabi drive is applied to the right atom, which couples the atom's ground state to the Rydberg state. For this example, we choose a Rabi drive of ``\Omega=2\pi\times 0.5``MHz and distance between atoms ``|\vec r_i- \vec r_j| = 7\mu m``, which gives a conditional detuning of ``\approx 50``MHz. When the left atom is in the ground state (black, top), there are no interactions and the state of the right atom oscillates between the ground state and Rydberg state; for a particular choice of timing this executes a ``\pi`` pulse, flipping the right atom from the ground to Rydberg state. However, when the left atom is in the Rydberg state (red, bottom), there is a large detuning on the right atom, which causes the transfer to the Rydberg state to be strongly suppressed. In this case, the right atom (up to perturbative corrections) is never in the Rydberg state.
 
+
+
 ![RydbergBlockade](../assets/RydbergBlockade.png)
 
 This conditional energy shift is the basis of the **Rydberg Blockade**. Because of the large energy shift from having two adjacent atoms in the Rydberg state, evolution from an atomic ground state with local Rabi couplings between ground and Rydberg is restricted to a low energy subspace of states where no two adjacent atoms are in the Rydberg state. Furthermore, because the interaction strength with distance is a large power law, one can define a characteristic scale set by the Rabi coupling. If two atoms are close such that the conditional detuning is much larger than the Rabi coupling, one can consider the atoms to be blockading each other, and both atoms cannot simultaniously be in the Rydberg state. In contrast, if two atoms are far away, the two atoms never blockade each other and both atoms can simultaniously be in the Rydberg state.
+
+## Energy truncation and Blockade subspace
 
 ![EnergyTruncation](../assets/bloqade_subspace.png)
 
 In this way, the low energy classical states of the Rydberg Hamiltonian (``\Omega=0``, ``\Delta=0``) for a given array of atoms are **independent sets** of a **unit disk graph** defined by the positions of the atoms. A unit disk graph is a set of vertices and edges, where vertices represent every atom, and there are edges if the distance between vertices is less than some radius ``|\vec r_i- \vec r_j|<R``. The lowest energy states are representative of independent sets, where Rydberg excitations are in the independent set and no two Rydberg excitations are within some radius. The second energy band are sets with a single independent set violation, where there is equivalently two Rydberg excitations within the unit disk radius of each other. Higher and higher bands represent more and more independent set violations. Note that this band structure is dependent on the arrangement of atoms, and for arbitrary configurations this band structure may not be clear.
 
+Instead of doing quantum dyanamics in the full ``2^N`` Hilbert space, we may take advantage of the energy structure of the classical Hamiltonian to reduce the computational difficulty. The simplest scheme is to truncate the Hilbert space to the low energy subspace, and exclude all states above a certain energy. Given the natural band structure of the classical Hamiltonian, we may simply truncate the Hilbert space to the subspace of independent sets of the unit disk graph. Equivalently, this is the **blockade subspace**, where atoms within the blockade radius are excluded from both being in the Rydberg state.
 
-To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown below, for a ring of 12 atoms seperated by ``7\mu m``. This set of atoms can be defined by
+
+
+
+The validity of the energy truncation subspace is governed by the strength of off-diagonal matrix elements coupling the low energy subspace to the high energy one. For the Rydberg Hamiltonian, these are the Rabi strength ``\Omega``. In order to preserve dynamics within the subspace, the energy difference between states within the blockade subspace (eg, ``|1r\rangle``) and outside (``|rr\rangle``) must be much larger than the Rabi strength. Formally,
+
+```math
+\Omega \ll \frac{C_6}{R^6}
+```
+where ``R`` is the blockade radius. As long as this condition holds, the exact dynamics in the full Hilbert space should be closely approximated by the approximate dynamics in the blockade subspace, as the mixing terms only couple to low energy states.
+
+## Example dynamics in the blockade subspace
+
+To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown below, for a ring of 12 atoms seperated by ``7\mu m``. Given a blockade radius of ``R=7\mu m``, the energy scale is set to be ``\Omega \ll 7.296``MHz. This set of atoms can be defined by
 
 ```@example blockade
 using Bloqade
@@ -33,14 +50,14 @@ pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Po
 atoms = AtomList(pos)                                                       # Define the atom positions as an AtomList.
 ```
 
-The system is driven by a constant ``2\pi \times 0.5``MHz Rabi drive, which couples each atom's ground and Rydberg state. This can be defined using a Hamiltonian
+The system is driven by a constant ``0.5``MHz Rabi drive, which couples each atom's ground and Rydberg state. This is well within the perturbative limits set by the subspace, as ``0.5``MHz``\ll 7.296``MHz and so the blockade subspace should approximate exact dynamics faithfully. The Hamiltonian can be defined in bloqade with
 
 ```@example blockade
-h = rydberg_h(atoms;C = 2π * 858386, Ω=π)
+h = rydberg_h(atoms;C = 2π * 858386, Ω=2*π * 0.5)
 ```
 
 
-The system is initialized into the ground state of all atoms. We have two choices of basis: the first choice is the full Hilbert space of ``2^12`` elements, wheras the second basis is the blockade subspace, which excludes Rydberg excitations within the unit disk radius. The blockade subspace has ``D=322`` elements, which means that computation is much faster.
+The system is initialized into the ground state of all atoms, which is the lowest energy of the classical Hamiltonian. We have two choices of basis: the first choice is the full Hilbert space of ``2^{12}`` elements, wheras the second basis is the blockade subspace, which excludes Rydberg excitations within the unit disk radius. The blockade subspace has ``D=322`` elements, which means that computation is much faster.
 
 ```@example blockade
 init_state = zero_state(nsites)                       # Initial state in the full space

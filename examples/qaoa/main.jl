@@ -2,7 +2,6 @@
 # This example shows how to find the maximum independent set of a graph using adiabatic algorithm and the 
 using Graphs
 using Bloqade
-using BloqadeMIS
 using BloqadePlots
 using Compose
 using Random

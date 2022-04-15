@@ -1,5 +1,5 @@
-
-# # Background
+# # Quantum Scar
+# ## Background
 
 # The experimental study [H. Bernien, et al.](https://www.nature.com/articles/nature24622) finds that if one starts with a 
 # with a particular initial state (e.g. the Neel state), the Rydberg blockade constraint results into persistent revivals of quantum dynamics.

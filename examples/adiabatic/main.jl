@@ -1,4 +1,5 @@
-# # Background
+# # Adiabatic Evolution
+# ## Background
 
 # In this example, we will show how to use Bloqade to prepare ordered ground states in the Rydberg system. 
 # The example is based on the experimental works in a [1D system](https://www.nature.com/articles/nature24622) and [2D system](https://www.nature.com/articles/s41586-021-03582-4).
@@ -160,6 +161,7 @@ bitstring_hist(reg; nlargest = 20)
 # Please refer to the [Rydberg Blockade](@ref) page on how to set the separation distance for preparing the ordered states.
 
 # # Emulation in the blockade subspace
+
 
 # In the above example, we have run the fullspace emulation, without truncating the Hilbert space. 
 # To speed up the emulation, we can also run it in the blockade subspace, throwing out the configurations of the Hilbert space that violate the blockade constraint.

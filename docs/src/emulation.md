@@ -4,24 +4,23 @@ CurrentModule = Bloqade
 
 # [Emulation of Shordinger Equation](@id emulation)
 
-The dynamics of Rydberg system is described by a Shordinger Equation
-of a hamiltonian. The emulation interface of Bloqade is design as 
-define-and-run style.
-
-## Defining the Emulation
-
-There are two major types of emulation:
+After we create the Rydberg Hamiltonian and Register storing the quantum information, we can 
+emulate the quantum many-body dynamics. The coherent dynamics of
+the system is governed by Schrodinger Equation. The emulation interface of Bloqade is designed as 
+define-and-run style.  With Bloqade, we have two major types of emulation:
 
 - ODE solver based emulation for most of the problems.
 - Krylov based emulation for piecewise constant problems or QAOA-like problem.
 
-### ODE Emulation
+
+
+### Define the ODE Emulation Problem
 
 ODE solver is the major backend we uses for most of the exact quantum 
-dynamics simulation. In Bloqade, this is powered by the [DiffEq.jl package](https://diffeq.sciml.ai/).
+dynamics simulation. The ODE solvers for Bloqade are powered by the [DiffEq.jl package](https://diffeq.sciml.ai/).
 
-Bloqade provdes a special problem type [`SchrodingerProblem`](@ref)
-that support most of the 
+Bloqade provides a special problem type [`SchrodingerProblem`](@ref)
+that supports most of the 
 [integrator interface](https://diffeq.sciml.ai/stable/basics/integrator/)
 of `DiffEq`, and most of
 [the solver options](https://diffeq.sciml.ai/stable/basics/common_solver_opts/). Here we will introduce common use cases of the integrator and solver options. For more advanced usage of the solver,
@@ -31,42 +30,34 @@ please refer to the above link.
 BloqadeODE.SchrodingerProblem
 ```
 
-### Krylov Emulation
-
-The Krylov-based method expects time independent hamiltonians, one can define such evolution via [`KrylovEvolution`](@ref) object.
-
-```@docs
-KrylovEvolution
-```
-
 ## Run ODE-based Emulation
 
 To run the emulation, you need to define the exact evolution and solver
-you would like to run with via either [`KrylovEvolution`](@ref) or
-[`BloqadeODE.SchrodingerProblem`](@ref), then feed the corresponding object to
+you would like to run with via [`BloqadeODE.SchrodingerProblem`](@ref), then feed the corresponding object to
 `emulate!` function
 
 ```@docs
 emulate!
 ```
 
-For example, we can simulate a constant hamiltonian
+For example, we can simulate quantum dynamics of a time-dependent Hamiltonian by the following codes
 
 ```@repl evolution
 using Bloqade
-atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1)
-clocks = [0.0, 0.1, 0.2, 0.3]
-wf = piecewise_constant(;clocks, values=[1.0, 2.0, 3.0, 4.0])
-h = rydberg_h(atoms; Δ=2.0, Ω=wf)
-reg = zero_state(length(atoms)) # create fullspace register
+atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1);
+clocks = [0.0, 0.1, 0.2, 0.3, 0.4];
+wf = piecewise_constant(;clocks, values=[1.0, 2.0, 3.0, 4.0]);
+h = rydberg_h(atoms; Δ=2.0, Ω=wf); # create the Hamiltonian 
+reg = zero_state(length(atoms)); # create fullspace register
 ev = SchrodingerProblem(reg, 0.3, h)
 emulate!(ev)
 ```
+With the `emulate!`, the quantum state stored in `reg` has been updated to the state after the time-evolution. 
 
-Or if you would like to do some operation during the evolution,
-such as measure observables during the evolution, you can instead
-using the integrator interface with `for` loop with `TimeChoiceIterator`
-on your desired clocks, e.g
+
+In case you want to do operations during the real-time evolution,
+such as measuring observables, you can instead
+using the integrator interface with `for` loop and with `TimeChoiceIterator` on your desired clocks, e.g
 
 ```@example evolution
 integrator = init(ev, Vern8())
@@ -76,12 +67,12 @@ for _ in TimeChoiceIterator(integrator, [0.1, 0.25])
 end
 ```
 
-You can use any function on the `reg` object, for calculating observables
+You can use any function on the `reg` object.  For calculating observables, 
 please see the [Observables](@ref) section.
 
 !!! tip
 
-    remember to make sure your operation does not mutate your state so that
+    Remember to make sure your operation does not mutate your state so that
     this won't effect the evolution itself, since the entire time evolution
     is simulated by keep mutating the state vector stored in
     `reg` which means do not use any function that has a `!` in its name
@@ -89,34 +80,16 @@ please see the [Observables](@ref) section.
     doing.
 
 
-## Run Krylov-based Emulation
-
-We can run the Krylov-based emulation in a similar way using [`emulate!`](@ref)
-
-```@repl evolution
-emulate!(KrylovEvolution(reg, clocks, h))
-```
-
-However, as its name points out, the Krylov-based emulation is not a standard ODE problem that DiffEq  supports, thus it does not support the ODE problem interface, but a more gate-like interface, e.g the object `KrylovEvolution` is iterable
-
-```@example evolution
-for (step, reg, duration) in KrylovEvolution(reg, clocks, h)
-    @show step
-    @show reg
-    @show duration
-    println("==========")
-end
-```
 
 ## Choosing ODE solver
 
 One of the most powerful aspect of Julia ecosystem is the DiffEq ecosystem
-that implements lots of different solvers. These solvers have different trade-offs, and since simulating many-body Schrodinger equation has some
+that implements lots of different solvers. These solvers have different trade-offs. Since simulating many-body Schrodinger equation has some
 special properties comparing to a general ODE problem, we will discuss some
-general heurestics in this section about how to choose a good ODE solver and
-how to check if your emulation converges. And because many-body Schrodinger equation's stiffness is unknown, we will not be using stiff problem solver, but using non-stiff problem algorithm or auto-switching algorithm.
+general heurestics in this section on how to choose a good ODE solver and
+how to check if your emulation converges. Because many-body Schrodinger equation's stiffness is unknown, we will not be using stiff problem solver, but using non-stiff problem algorithm or auto-switching algorithm.
 
-Most of the case one can use `VCABM` solver for large system simulation, however this method is requires more memory which can be a bottleneck when
+Most of the cases one can use `VCABM` solver for large system simulation. However, this method requires more memory which can be a bottleneck when
 utilizing GPUs.
 
 The `Vern` family is another set of solvers that is good for many-body
@@ -141,10 +114,40 @@ preferred otherwise the ODE solver will give constant results between each
 step
 
 (add @Johnason's plot on ring emulation here)
+(add a few examples of how to turn on or turn off the adaptive)
 
 On the other hand, if one only expects the final state of the evolution,
 or the interval between each chosen clock is much larger than maximum
 step size, adaptive step is preferred.
+
+
+
+### Define Krylov Emulation Problem
+
+The Krylov-based method expects time independent Hamiltonians, one can define such evolution via [`KrylovEvolution`](@ref) object.
+
+```@docs
+KrylovEvolution
+```
+
+## Run Krylov-based Emulation
+
+We can run the Krylov-based emulation in a similar way using [`emulate!`](@ref)
+
+```@repl evolution
+emulate!(KrylovEvolution(reg, clocks, h))
+```
+
+However, as its name points out, the Krylov-based emulation is not a standard ODE problem that DiffEq  supports, thus it does not support the ODE problem interface, but a more gate-like interface, e.g the object `KrylovEvolution` is iterable
+
+```@example evolution
+for (step, reg, duration) in KrylovEvolution(reg, clocks, h)
+    @show step
+    @show reg
+    @show duration
+    println("==========")
+end
+```
 
 ## Krylov vs ODE solver
 

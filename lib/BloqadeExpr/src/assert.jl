@@ -25,6 +25,9 @@ function assert_param(nsites::Int, p, name)
     assert_has_time_method(p, name)
 end
 
+# NOTE: is_time_function is only used in constructor
+# don't use it in other places since it's slow
+
 """
     is_time_function(f)
 
@@ -38,6 +41,10 @@ function is_time_function(f)
         hasmethod(f, Tuple{T}) && return true
     end
     return false
+end
+
+function is_const_param(x)
+    x isa Number || x isa Vector{<:Number}
 end
 
 concrete_subtypes(::Type{T}) where T = concrete_subtypes!([], T)

@@ -24,4 +24,9 @@ using Reexport
     make_kdtree, grouped_nearest, collect_atoms,
     img_atoms, img_maskedgrid
 
+
+export rydberg_density, rydberg_corr
+
+include("observables.jl")
+
 end

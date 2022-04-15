@@ -8,6 +8,22 @@ function find_largest(probs, num)
     return indices
 end
 
+"""
+    bitstring_hist!(ax, register; nlargest::Int, title="", kw...)
+
+Plot the bitstring histgram.
+
+# Arguments
+
+- `ax`: the axis object from `matplotlib.pyplot`.
+- `register`: the register to plot.
+
+# Keyword Arguments
+
+- `nlargest`: plot the first `nlargest` bitstrings.
+- `title`: title of the plot.
+- `kw`: other keyword supported by `matplotlib.bar` function.
+"""
 function bitstring_hist!(ax, r::ArrayReg; nlargest::Int, title="", kw...)
     ps = probs(r)
     indices = find_largest(ps, nlargest)
@@ -22,6 +38,7 @@ function bitstring_hist!(ax, r::ArrayReg; nlargest::Int, title="", kw...)
         1:length(indices),
         string.(indices.-1;base=2, pad=nqubits(r)),
         rotation=60,
+        ha="right",
     )
     return obj
 end
@@ -38,10 +55,26 @@ function bitstring_hist!(ax, r::SubspaceArrayReg; nlargest::Int, title="", kw...
         1:length(indices),
         string.(space(r).subspace_v[indices];base=2, pad=nqubits(r)),
         rotation=60,
+        ha="right",
     )
     return obj
 end
 
+"""
+    bitstring_hist(r; kw...)
+
+Plot the bitstring histgram.
+
+# Arguments
+
+- `register`: the register to plot.
+
+# Keyword Arguments
+
+- `nlargest`: plot the first `nlargest` bitstrings.
+- `title`: title of the plot.
+- `kw...`: other keyword supported by `matplotlib.bar` function.
+"""
 function bitstring_hist(r; kw...)
     fig, ax = plt.subplots()
     bitstring_hist!(ax, r; kw...)

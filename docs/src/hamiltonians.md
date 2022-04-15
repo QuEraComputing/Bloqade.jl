@@ -4,17 +4,14 @@ CurrentModule = Bloqade
 
 # Hamiltonians
 
-Hamiltonian encodes essential physical properties of Rydberg systems. One can use a Hamiltonian to 
-understand the ground state properties of the corresponding Rydberg system and to generate interesting quantum dynamics. 
+Hamiltonian encodes essential physical properties of a quantum system. One can use the Rydberg Hamiltonian to 
+understand the ground state properties of the corresponding system and to generate interesting quantum dynamics. 
 The Rydberg Hamiltonian is generally specified by atom positions, Rabi frequencies and detunings. In Bloqade, 
-we can easily create a Hamiltonian by inputting these information, i.e. lattice and strengths of Rabi frequencies and
+we can easily create a Hamiltonian by inputting these information, including lattice and Rabi frequencies and
 detunings, into the function [`rydberg_h`](@ref). Furthermore, by inputing waveforms for the Rabi frequency and 
 detuning, we can easily generate time-dependent Hamiltonians. 
 
 
-```@docs
-rydberg_h
-```
 
 ## Building Time-Independent Hamiltonians
 
@@ -179,4 +176,10 @@ Here, we see the hamiltonian expression written as Yao blocks are automatically 
 using BloqadeExpr
 h = BloqadeExpr.Hamiltonian(Float64, SumOfXPhase(5, sin, cos) + SumOfZ(5, cos))
 h(0.1)
+```
+
+## References
+
+```@docs
+rydberg_h
 ```

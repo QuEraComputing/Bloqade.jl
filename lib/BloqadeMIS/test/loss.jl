@@ -10,6 +10,8 @@ using FromFile
 using BloqadeLattices
 using Statistics
 
+Random.seed!(1234)
+
 @from "utils.jl" import test_subspace, test_graph
 
 @testset "loss functions" begin

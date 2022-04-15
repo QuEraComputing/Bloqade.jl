@@ -52,3 +52,20 @@ end
     r = product_state(bit"1000", s)
     @test isone(r' * r)
 end
+
+@testset "reg operations" begin
+    subspace = [0, 1, 4, 8]
+    s = Subspace(5, subspace)
+    a = SubspaceArrayReg(ComplexF64[0.0, 0.8, 0.6, 0.0], s)
+    b = rand_state(s)
+    @test a == a
+    @test most_probable(a, 2) == YaoSubspaceArrayReg.BitStr{5}.([1, 4])
+    @test YaoSubspaceArrayReg.regadd!(copy(a), b).state ≈ (a.state + b.state)
+    @test YaoSubspaceArrayReg.regsub!(copy(a), b).state ≈ (a.state - b.state)
+    @test YaoSubspaceArrayReg.regscale!(copy(a), 0.5).state ≈ 0.5 * a.state
+    @test (a * 0.5).state ≈ 0.5 * a.state
+    @test (-a).state ≈ -a.state
+    @test (a / 0.5).state ≈ a.state / 0.5
+    @test (a + b).state ≈ a.state + b.state
+    @test (a - b).state ≈ a.state - b.state
+end

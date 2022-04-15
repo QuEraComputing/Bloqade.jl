@@ -39,7 +39,7 @@ end
 
 @testset "piecewise" begin
     @testset "piecewise_constant" begin
-        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1])
+        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.4, 0.5], values=[0.0, 1.5, 3.1])
         @test waveform(0.0) ≈ 0.0
         @test waveform(0.1) ≈ 0.0
         @test waveform(0.2) ≈ 1.5
@@ -47,7 +47,7 @@ end
         @test waveform(0.5) ≈ 3.1
         @test_throws ArgumentError waveform(0.6) ≈ 3.1
     
-        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1], duration=1.1)
+        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 1.1], values=[0.0, 1.5, 3.1])
         @test waveform(0.6) ≈ 3.1
     end
     
@@ -67,7 +67,7 @@ end
     @test wf3(0.1) ≈ wf1(0.1) + wf2(0.1)
 
     # sum + other
-    wfp = piecewise_constant(clocks=[0.0, 0.3, 0.5], values=[0.0, 1.1, 0.5], duration=2.2)
+    wfp = piecewise_constant(clocks=[0.0, 0.3, 0.5, 2.2], values=[0.0, 1.1, 0.5])
     wf4 = wf3 + wfp
     wf5 = wfp + wf3
     @test wf4 isa Waveform

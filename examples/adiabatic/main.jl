@@ -208,9 +208,9 @@ fig
 
 h = rydberg_h(atoms; Δ, Ω)
 
-reg = zero_state(9)
-prob = SchrodingerProblem(reg, total_time, h)
-integrator = init(prob, Vern8())
+reg = zero_state(9);
+prob = SchrodingerProblem(reg, total_time, h);
+integrator = init(prob, Vern8());
 
 # Again, we can use `TimeChoiceIterator` to specify the time points for measuring some observables.
 densities = [];

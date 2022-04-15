@@ -1,7 +1,5 @@
-using Intervals
-
 """
-    Waveform{F, T <: Real}
+    struct Waveform
 
 Type for waveforms. `Waveform`s are defined
 as a function combiend with a real number
@@ -10,11 +8,17 @@ duration.
 # Fields
 
 - `f`: a callable object.
-- `duration`: a real number defines the duration of this waveform.
+- `duration`: a real number defines the duration of this waveform, default unit is `μs`.
 """
 struct Waveform{F, T <: Real}
     f::F
     duration::T
+
+    function Waveform(f, duration)
+        duration = default_unit(μs, duration)
+        duration ≥ 0 || throw(ArgumentError("duration must be non-negative"))
+        new{typeof(f), typeof(duration)}(f, duration)
+    end
 end
 
 """
@@ -38,7 +42,7 @@ end
            │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
            │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
            │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
-value (rad/µs) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+value (2π ⋅ MHz) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
            │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
            │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
            │⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
@@ -90,11 +94,11 @@ end
 function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
     clocks = sample_clock(wf)
     plt = lineplot(
-        clocks, _rm_err.(sample_values(wf, clocks));
+        clocks, _rm_err.(sample_values(wf, clocks)./(2π));
         title="Waveform{_, $(eltype(wf))}",
         # TODO: decide the unit?
         xlabel="clock (μs)",
-        ylabel="value (rad/µs)",
+        ylabel="value (2π ⋅ MHz)",
         compact=true,
     )
     return show(io, mime, plt)
@@ -205,6 +209,10 @@ struct PiecewiseLinear{T <: Real, Interp}
     end
 end
 
+function PiecewiseLinear(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
+    PiecewiseLinear(default_unit(μs, clocks), default_unit(MHz, clocks))
+end
+
 (f::PiecewiseLinear)(t::Real) = f.interp(t)
 
 struct PiecewiseConstant{T <: Real}
@@ -216,6 +224,10 @@ struct PiecewiseConstant{T <: Real}
         length(clocks) == length(values) + 1 || throw(ArgumentError("expect clocks has one more element than values"))
         new{eltype(values)}(clocks, values)
     end
+end
+
+function PiecewiseConstant(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
+    PiecewiseConstant(default_unit(μs, clocks), default_unit(MHz, clocks))
 end
 
 function (f::PiecewiseConstant)(t::Real)
@@ -247,7 +259,7 @@ julia> piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 2.0, 2.0, 0.0]
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡆⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢱⡀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢇⠀⠀⠀⠀⠀│ 
-   value (rad/µs) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡄⠀⠀⠀⠀│ 
+   value (2π ⋅ MHz) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡄⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⡴⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢹⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⢀⡞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢧⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⣠⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡄⠀⠀│ 
@@ -260,7 +272,7 @@ julia> piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 2.0, 2.0, 0.0]
 ```
 
 """
-function piecewise_linear(;clocks::Vector{<:Real}, values::Vector{<:Real})
+function piecewise_linear(;clocks::Vector, values::Vector)
     iszero(first(clocks)) || throw(ArgumentError("the first clock time should be zero"))
     return Waveform(PiecewiseLinear(clocks, values), last(clocks))
 end
@@ -289,7 +301,7 @@ julia> piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1], durati
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
-   value (rad/µs) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+   value (2π ⋅ MHz) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⢠⠒⠒⠒⠒⠒⠚⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
@@ -302,8 +314,8 @@ julia> piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1], durati
 ```
 """
 function piecewise_constant(;
-        clocks::Vector{<:Real}, values::Vector{<:Real},
-        duration::Real=last(clocks),
+        clocks::Vector, values::Vector,
+        duration::Number=last(clocks),
     )
     assert_clocks(clocks)
     return Waveform(PiecewiseConstant(clocks, values), duration)
@@ -333,7 +345,7 @@ julia> linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
-   value (rad/µs) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
+   value (2π ⋅ MHz) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   │⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
@@ -345,10 +357,14 @@ julia> linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
                   ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀3⠀ 
 ```
 """
-function linear_ramp(;duration::Real, start_value::Real, stop_value::Real)
+function linear_ramp(;duration, start_value, stop_value)
+    duration = default_unit(μs, duration)
+    start_value = default_unit(MHz, start_value)
+    stop_value = default_unit(MHz, stop_value)
+
     return Waveform(duration) do t
         (stop_value - start_value) / duration * t + start_value
-    end
+    end    
 end
 
 """
@@ -361,7 +377,9 @@ Create a constant waveform.
 - `duration::Real`: duration of the whole waveform.
 - `value::Real`: value of the constant waveform.
 """
-function constant(;duration::Real, value::Real)
+function constant(;duration, value)
+    duration = default_unit(μs, duration)
+    value = default_unit(MHz, value)
     return Waveform(duration) do t
         value
     end
@@ -381,7 +399,9 @@ amplitude * sin(t)
 - `duration`: duration of the waveform.
 - `amplitude`: amplitude of the sin waveform.
 """
-function sinusoidal(;duration::Real, amplitude::Real=one(duration))
+function sinusoidal(;duration, amplitude=one(duration))
+    duration = default_unit(μs, duration)
+    amplitude = default_unit(MHz, amplitude)
     return Waveform(duration) do t
         amplitude * sin(t)
     end

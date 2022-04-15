@@ -43,6 +43,7 @@ reg = rand_state(3)
 measure(reg)
 expect(put(1=>X), reg)
 statevec(reg)
+apply!(reg, put(1=>X))
 ```
 
 For more detailed introduction of register interface, please

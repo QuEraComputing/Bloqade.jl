@@ -22,7 +22,7 @@ The allowed states are then **independent sets** of a **unit disk graph** define
 
 To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown below, for a ring of 12 atoms seperated by ``7\mu m``. This set of atoms can be defined by
 
-```@example blockade
+```julia
 using Bloqade
 nsites = 12;    # 12 site chain
 distance = 7    # Distance between atoms, in microns
@@ -34,14 +34,14 @@ atoms = AtomList(pos)                                                       # De
 
 The system is driven by a constant ``2\pi \times 0.5``MHz Rabi drive, which couples each atom's ground and Rydberg state. This can be defined using a Hamiltonian
 
-```@example blockade
+```julia
 h = rydberg_h(atoms;C = 2π * 858386, Ω=π)
 ```
 
 
 The system is initialized into the ground state of all atoms. We have two choices of basis: the first choice is the full Hilbert space of ``2^12`` elements, wheras the second basis is the blockade subspace, which excludes Rydberg excitations within the unit disk radius. The blockade subspace has ``D=322`` elements, which means that computation is much faster.
 
-```@example blockade
+```julia
 init_state = zero_state(nsites)                       # Initial state in the full space
 space = blockade_subspace(atoms,distance*1.1)   # Compute the blockade subspace
 init_state2 = zero_state(space)                       # Define the initial state in the blockade subspace.
@@ -49,7 +49,7 @@ init_state2 = zero_state(space)                       # Define the initial state
 
 If the atoms were far apart and non-interacting, each atom would oscillate completely between its ground state and Rydberg state with a period of ``0.5 \mu``s. However, because adjacent atoms shift to the Rydberg state concurrently, they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, corresponding to an antiferromagnetic ``Z_2`` state. Note that because the ring has a translation symmetry, the Rydberg density is equal on all sites.
 
-```@example blockade
+```julia
 # Define the time steps
 Tmax = 10.
 nsteps = 5001
@@ -74,28 +74,6 @@ densities2 = []
 for _ in TimeChoiceIterator(integrator2, 0.0:Tmax/(nsteps-1):Tmax)
     push!(densities2, expect(put(nsites, 1=>Op.n), init_state2))#, SubspaceArrayReg(u, space)))
 end
-
-
-# Plot the data
-fig = plt.figure(figsize=(8,6))
-ax  = plt.subplot(1,1,1)
-
-plt.plot(times,real(densities),"k",label="Full space")
-plt.plot(times,real(densities2),"r--",label="Subspace")
-ax.axis([0,Tmax,0,0.45])
-plt.xlabel("Time (us)")
-plt.ylabel("Rydberg density")
-plt.tight_layout()
-plt.legend()
-
-# Using matplotlib plots
-inset_axes = pyimport("mpl_toolkits.axes_grid1.inset_locator")
-ax2 = inset_axes.inset_axes(ax,width="20%",height="30%",loc="lower right",borderpad=1)
-plt.plot(times,real(densities - densities2))
-plt.axis([0,0.6,-0.0008,0.0008])
-plt.ylabel("Difference",fontsize=12)
-plt.yticks(LinRange(-0.0008,0.0008,5),fontsize=12)
-plt.xticks([0,0.2,0.4,0.6],fontsize=12)
 ```
 
 ![RydbergBlockadeSubspace](../assets/RydbergBlockadeSubspace.png)

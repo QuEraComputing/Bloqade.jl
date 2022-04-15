@@ -63,9 +63,10 @@ In certain cases, users may have their own waveforms specified by a vector of cl
 
 ```@example waveform
 clocks = collect(0:1e-1:2);
-values = rand(length(clocks));
-wf1 = piecewise_linear(;clocks, values); 
-wf2 = piecewise_constant(;clocks, values); 
+values1 = rand(length(clocks));
+wf1 = piecewise_linear(;clocks, values=values1); 
+values2 = rand(length(clocks)-1)
+wf2 = piecewise_constant(;clocks, values=values2); 
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
 draw!(ax1, wf1)
@@ -161,4 +162,5 @@ constant
 sinusoidal
 smooth
 smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
+append
 ```

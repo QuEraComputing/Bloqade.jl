@@ -87,5 +87,5 @@ exampleTask = BloqadeSchema.TaskSpecification(;
         )
     )
 
-to_dict(exampleTask)
+d = to_dict(exampleTask)
 

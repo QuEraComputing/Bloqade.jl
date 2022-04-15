@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Waveforms · Bloqade.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/Bloqade.jl/waveform/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">Bloqade.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../install/">Installation</a></li><li><a class="tocitem" href="../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li class="is-active"><a class="tocitem" href>Waveforms</a><ul class="internal"><li><a class="tocitem" href="#Creating-Waveforms"><span>Creating Waveforms</span></a></li><li><a class="tocitem" href="#Operations-of-Waveforms"><span>Operations of Waveforms</span></a></li><li><a class="tocitem" href="#Waveform-Arithmetics"><span>Waveform Arithmetics</span></a></li></ul></li><li><a class="tocitem" href="../lattices/">Lattices</a></li><li><a class="tocitem" href="../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../registers/">Registers</a></li><li><a class="tocitem" href="../emulation/">Emulation</a></li><li><a class="tocitem" href="../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../observables/">Observables</a></li><li><a class="tocitem" href="../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../cuda/">CUDA Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../tutorials/adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../tutorials/noise/main/">Adiabatic Preparation with Sensitivity Analysis</a></li><li><a class="tocitem" href="../tutorials/qaoa/main/">Quantum Approximate Optimization Algorithm</a></li><li><a class="tocitem" href="../tutorials/quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../tutorials/ring/main/">Ring Emulation</a></li></ul></li><li><span class="tocitem">Advanced Topics</span><ul><li><a class="tocitem" href="../topics/blockade/">Rydberg Blockade</a></li><li><a class="tocitem" href="../topics/bravais/">Bravais Lattice</a></li><li><a class="tocitem" href="../topics/ad/">Automatic Differentiation</a></li></ul></li><li><a class="tocitem" href="../contrib/">Contributing Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>Waveforms</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Waveforms</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/Bloqade.jl/blob/master/docs/src/waveform.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Waveforms"><a class="docs-heading-anchor" href="#Waveforms">Waveforms</a><a id="Waveforms-1"></a><a class="docs-heading-anchor-permalink" href="#Waveforms" title="Permalink"></a></h1><p>Waveforms are essential ingredients for Rydberg quantum simulations. By controlling the waveforms of <span>$\Omega$</span> and <span>$\Delta$</span>, one can prepare ground states of certain target Hamiltonian and study non-equalibrium dynamics of time-dependent Hamiltonians. With Bloqade, we support several built-in waveforms and allow the users to specify waveforms by inputing functions. We also support different operations of waveforms, such as smoothing, waveform, and composing, et al. </p><p>The generated waveforms can be directly used to build time-dependent Hamiltonians, see also <a href="../hamiltonians/#Hamiltonians">Hamiltonians</a> section of the manual. </p><h2 id="Creating-Waveforms"><a class="docs-heading-anchor" href="#Creating-Waveforms">Creating Waveforms</a><a id="Creating-Waveforms-1"></a><a class="docs-heading-anchor-permalink" href="#Creating-Waveforms" title="Permalink"></a></h2><p>In Bloqade, the waveforms are defined as <a href="#BloqadeWaveforms.Waveform"><code>Waveform</code></a> object, which is a composition of a callable object and a real number <code>duration</code>.</p><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.Waveform" href="#BloqadeWaveforms.Waveform"><code>BloqadeWaveforms.Waveform</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">Waveform{F, T &lt;: Real}</code></pre><p>Type for waveforms. <code>Waveform</code>s are defined as a function combiend with a real number duration.</p><p><strong>Fields</strong></p><ul><li><code>f</code>: a callable object.</li><li><code>duration</code>: a real number defines the duration of this waveform.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/fe787ea45b986146a75022e40803a8ca65acb31d/lib/BloqadeWaveforms/src/waveform.jl#L3-L14">source</a></section></article><p>Bloqade gives users the flexibility to specify general waveforms by inputing functions. The following code constructs a sinusoidal waveform with time duration of <span>$4 \pi \mu s$</span></p><pre><code class="language-julia hljs">using Bloqade
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Waveforms · Bloqade.jl</title><script data-outdated-warner src="../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/Bloqade.jl/waveform/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.039/juliamono-regular.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">Bloqade.jl</a></span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../install/">Installation</a></li><li><a class="tocitem" href="../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li class="is-active"><a class="tocitem" href>Waveforms</a><ul class="internal"><li><a class="tocitem" href="#Creating-Waveforms"><span>Creating Waveforms</span></a></li><li><a class="tocitem" href="#Operations-of-Waveforms"><span>Operations of Waveforms</span></a></li><li><a class="tocitem" href="#Waveform-Arithmetics"><span>Waveform Arithmetics</span></a></li></ul></li><li><a class="tocitem" href="../lattices/">Lattices</a></li><li><a class="tocitem" href="../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../registers/">Registers</a></li><li><a class="tocitem" href="../emulation/">Emulation</a></li><li><a class="tocitem" href="../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../observables/">Observables</a></li><li><a class="tocitem" href="../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../cuda/">CUDA Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../tutorials/adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../tutorials/noise/main/">Adiabatic Preparation with Sensitivity Analysis</a></li><li><a class="tocitem" href="../tutorials/qaoa/main/">Quantum Approximate Optimization Algorithm</a></li><li><a class="tocitem" href="../tutorials/quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../tutorials/ring/main/">Ring Emulation</a></li></ul></li><li><span class="tocitem">Advanced Topics</span><ul><li><a class="tocitem" href="../topics/blockade/">Rydberg Blockade</a></li><li><a class="tocitem" href="../topics/bravais/">Bravais Lattice</a></li><li><a class="tocitem" href="../topics/ad/">Automatic Differentiation</a></li></ul></li><li><a class="tocitem" href="../contrib/">Contributing Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Manual</a></li><li class="is-active"><a href>Waveforms</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Waveforms</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/Bloqade.jl/blob/master/docs/src/waveform.md#" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Waveforms"><a class="docs-heading-anchor" href="#Waveforms">Waveforms</a><a id="Waveforms-1"></a><a class="docs-heading-anchor-permalink" href="#Waveforms" title="Permalink"></a></h1><p>Waveforms are essential ingredients for Rydberg quantum simulations. By controlling the waveforms of <span>$\Omega$</span> and <span>$\Delta$</span>, one can prepare ground states of certain target Hamiltonian and study non-equalibrium dynamics of time-dependent Hamiltonians. With Bloqade, we support several built-in waveforms and allow the users to specify waveforms by inputing functions. We also support different operations of waveforms, such as smoothing, waveform, and composing, et al. </p><p>The generated waveforms can be directly used to build time-dependent Hamiltonians, see also <a href="../hamiltonians/#Hamiltonians">Hamiltonians</a> section of the manual. </p><h2 id="Creating-Waveforms"><a class="docs-heading-anchor" href="#Creating-Waveforms">Creating Waveforms</a><a id="Creating-Waveforms-1"></a><a class="docs-heading-anchor-permalink" href="#Creating-Waveforms" title="Permalink"></a></h2><p>In Bloqade, the waveforms are defined as <a href="#BloqadeWaveforms.Waveform"><code>Waveform</code></a> object, which is a composition of a callable object and a real number <code>duration</code>.</p><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.Waveform" href="#BloqadeWaveforms.Waveform"><code>BloqadeWaveforms.Waveform</code></a> — <span class="docstring-category">Type</span></header><section><div><pre><code class="language-julia hljs">Waveform{F, T &lt;: Real}</code></pre><p>Type for waveforms. <code>Waveform</code>s are defined as a function combiend with a real number duration.</p><p><strong>Fields</strong></p><ul><li><code>f</code>: a callable object.</li><li><code>duration</code>: a real number defines the duration of this waveform.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/4cc5b8a8ab03a7f093b941eeee3659c418509d5e/lib/BloqadeWaveforms/src/waveform.jl#L3-L14">source</a></section></article><p>Bloqade gives users the flexibility to specify general waveforms by inputing functions. The following code constructs a sinusoidal waveform with time duration of <span>$4 \pi \mu s$</span></p><pre><code class="language-julia hljs">using Bloqade
 using BloqadePlots: draw
 waveform = Waveform(t-&gt;2.2sin(t), duration=4π);
 draw(waveform)</code></pre><img src='data:image/svg+xml;utf-8,<?xml version="1.0" encoding="utf-8" standalone="no"?>
@@ -10,7 +10,7 @@ draw(waveform)</code></pre><img src='data:image/svg+xml;utf-8,<?xml version="1.0
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns%23" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns%23">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2022-04-15T00:34:49.891147</dc:date>
+    <dc:date>2022-04-15T00:59:17.834289</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -45,12 +45,12 @@ z
     <g id="xtick_1">
      <g id="line2d_1">
       <defs>
-       <path id="mcf31444cc0" d="M 0 0 
+       <path id="m0f42080cd6" d="M 0 0 
 L 0 3.5 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23mcf31444cc0" x="58.85304" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m0f42080cd6" x="58.85304" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_1">
@@ -86,7 +86,7 @@ z
     <g id="xtick_2">
      <g id="line2d_2">
       <g>
-       <use xlink:href="%23mcf31444cc0" x="110.524939" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m0f42080cd6" x="110.524939" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_2">
@@ -125,7 +125,7 @@ z
     <g id="xtick_3">
      <g id="line2d_3">
       <g>
-       <use xlink:href="%23mcf31444cc0" x="162.196839" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m0f42080cd6" x="162.196839" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_3">
@@ -159,7 +159,7 @@ z
     <g id="xtick_4">
      <g id="line2d_4">
       <g>
-       <use xlink:href="%23mcf31444cc0" x="213.868739" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m0f42080cd6" x="213.868739" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_4">
@@ -204,7 +204,7 @@ z
     <g id="xtick_5">
      <g id="line2d_5">
       <g>
-       <use xlink:href="%23mcf31444cc0" x="265.540638" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m0f42080cd6" x="265.540638" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_5">
@@ -258,7 +258,7 @@ z
     <g id="xtick_6">
      <g id="line2d_6">
       <g>
-       <use xlink:href="%23mcf31444cc0" x="317.212538" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m0f42080cd6" x="317.212538" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_6">
@@ -288,7 +288,7 @@ z
     <g id="xtick_7">
      <g id="line2d_7">
       <g>
-       <use xlink:href="%23mcf31444cc0" x="368.884438" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m0f42080cd6" x="368.884438" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_7">
@@ -495,12 +495,12 @@ z
     <g id="ytick_1">
      <g id="line2d_8">
       <defs>
-       <path id="mc420e69dc7" d="M 0 0 
+       <path id="m606b2e7e07" d="M 0 0 
 L -3.5 0 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23mc420e69dc7" x="42.620313" y="250.219645" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m606b2e7e07" x="42.620313" y="250.219645" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
@@ -523,7 +523,7 @@ z
     <g id="ytick_2">
      <g id="line2d_9">
       <g>
-       <use xlink:href="%23mc420e69dc7" x="42.620313" y="195.237825" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m606b2e7e07" x="42.620313" y="195.237825" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
@@ -537,7 +537,7 @@ z
     <g id="ytick_3">
      <g id="line2d_10">
       <g>
-       <use xlink:href="%23mc420e69dc7" x="42.620313" y="140.256005" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m606b2e7e07" x="42.620313" y="140.256005" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
@@ -550,7 +550,7 @@ z
     <g id="ytick_4">
      <g id="line2d_11">
       <g>
-       <use xlink:href="%23mc420e69dc7" x="42.620313" y="85.274184" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m606b2e7e07" x="42.620313" y="85.274184" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_12">
@@ -563,7 +563,7 @@ z
     <g id="ytick_5">
      <g id="line2d_12">
       <g>
-       <use xlink:href="%23mc420e69dc7" x="42.620313" y="30.292364" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m606b2e7e07" x="42.620313" y="30.292364" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_13">
@@ -891,7 +891,7 @@ L 377.358629 168.817036
 L 383.326734 141.147546 
 L 383.507585 140.300834 
 L 383.507585 140.300834 
-" clip-path="url(%23p72f54f66d4)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
+" clip-path="url(%23p3f1bfadcdf)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
     <path d="M 42.620313 273.312 
@@ -916,7 +916,7 @@ L 399.740313 7.2
   </g>
  </g>
  <defs>
-  <clipPath id="p72f54f66d4">
+  <clipPath id="p3f1bfadcdf">
    <rect x="42.620313" y="7.2" width="357.12" height="266.112"/>
   </clipPath>
  </defs>
@@ -940,7 +940,7 @@ L 399.740313 7.2
                   │⠀⣠⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⡆│ 
                 0 │⡴⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢱│ 
                   └────────────────────────────────────────┘ 
-                  ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀4⠀ </code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/fe787ea45b986146a75022e40803a8ca65acb31d/lib/BloqadeWaveforms/src/waveform.jl#L232-L267">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.piecewise_constant" href="#BloqadeWaveforms.piecewise_constant"><code>BloqadeWaveforms.piecewise_constant</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">piecewise_constant(;clocks, values, duration=last(clocks))</code></pre><p>Create a piecewise constant waveform.</p><p><strong>Keyword Arguments</strong></p><ul><li><code>clocks::Vector{&lt;:Real}</code>: the list of clocks for the corresponding values.</li><li><code>values::Vector{&lt;:Real}</code>: the list of values at each clock.</li><li><code>duration::Real</code>: the duration of the entire waveform, default is the last clock.</li></ul><p><strong>Example</strong></p><pre><code class="language-julia-repl hljs">julia&gt; piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1], duration=1.1)
+                  ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀4⠀ </code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/4cc5b8a8ab03a7f093b941eeee3659c418509d5e/lib/BloqadeWaveforms/src/waveform.jl#L232-L267">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.piecewise_constant" href="#BloqadeWaveforms.piecewise_constant"><code>BloqadeWaveforms.piecewise_constant</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">piecewise_constant(;clocks, values, duration=last(clocks))</code></pre><p>Create a piecewise constant waveform.</p><p><strong>Keyword Arguments</strong></p><ul><li><code>clocks::Vector{&lt;:Real}</code>: the list of clocks for the corresponding values.</li><li><code>values::Vector{&lt;:Real}</code>: the list of values at each clock.</li><li><code>duration::Real</code>: the duration of the entire waveform, default is the last clock.</li></ul><p><strong>Example</strong></p><pre><code class="language-julia-repl hljs">julia&gt; piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1], duration=1.1)
                   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
                   ┌────────────────────────────────────────┐ 
                 4 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
@@ -959,7 +959,7 @@ L 399.740313 7.2
                   │⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                 0 │⣀⣀⣀⣸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   └────────────────────────────────────────┘ 
-                  ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀2⠀ </code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/fe787ea45b986146a75022e40803a8ca65acb31d/lib/BloqadeWaveforms/src/waveform.jl#L273-L308">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.linear_ramp" href="#BloqadeWaveforms.linear_ramp"><code>BloqadeWaveforms.linear_ramp</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">linear_ramp(;duration, start_value, stop_value)</code></pre><p>Create a linear ramp waveform.</p><p><strong>Keyword Arguments</strong></p><ul><li><code>duration::Real</code>: duration of the whole waveform.</li><li><code>start_value::Real</code>: start value of the linear ramp.</li><li><code>stop_value::Real</code>: stop value of the linear ramp.</li></ul><p><strong>Example</strong></p><pre><code class="language-julia-repl hljs">julia&gt; linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
+                  ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀2⠀ </code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/4cc5b8a8ab03a7f093b941eeee3659c418509d5e/lib/BloqadeWaveforms/src/waveform.jl#L273-L308">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.linear_ramp" href="#BloqadeWaveforms.linear_ramp"><code>BloqadeWaveforms.linear_ramp</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">linear_ramp(;duration, start_value, stop_value)</code></pre><p>Create a linear ramp waveform.</p><p><strong>Keyword Arguments</strong></p><ul><li><code>duration::Real</code>: duration of the whole waveform.</li><li><code>start_value::Real</code>: start value of the linear ramp.</li><li><code>stop_value::Real</code>: stop value of the linear ramp.</li></ul><p><strong>Example</strong></p><pre><code class="language-julia-repl hljs">julia&gt; linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
                   ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀ 
                   ┌────────────────────────────────────────┐ 
                 1 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
@@ -978,7 +978,7 @@ L 399.740313 7.2
                   │⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                 0 │⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│ 
                   └────────────────────────────────────────┘ 
-                  ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀3⠀ </code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/fe787ea45b986146a75022e40803a8ca65acb31d/lib/BloqadeWaveforms/src/waveform.jl#L317-L352">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.constant" href="#BloqadeWaveforms.constant"><code>BloqadeWaveforms.constant</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">constant(;duration::Real, value::Real)</code></pre><p>Create a constant waveform.</p><p><strong>Keyword Arguments</strong></p><ul><li><code>duration::Real</code>: duration of the whole waveform.</li><li><code>value::Real</code>: value of the constant waveform.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/fe787ea45b986146a75022e40803a8ca65acb31d/lib/BloqadeWaveforms/src/waveform.jl#L359-L368">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.sinusoidal" href="#BloqadeWaveforms.sinusoidal"><code>BloqadeWaveforms.sinusoidal</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">sinusoidal(;duration::Real, amplitude::Real=one(start))</code></pre><p>Create a sinusoidal waveform of the following expression.</p><pre><code class="language-julia hljs">amplitude * sin(t)</code></pre><p><strong>Keyword Arguments</strong></p><ul><li><code>duration</code>: duration of the waveform.</li><li><code>amplitude</code>: amplitude of the sin waveform.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/fe787ea45b986146a75022e40803a8ca65acb31d/lib/BloqadeWaveforms/src/waveform.jl#L375-L388">source</a></section></article><p>For example, the codes below create different waveform shapes with a single line:</p><pre><code class="language-julia hljs">waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0]);
+                  ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀3⠀ </code></pre></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/4cc5b8a8ab03a7f093b941eeee3659c418509d5e/lib/BloqadeWaveforms/src/waveform.jl#L317-L352">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.constant" href="#BloqadeWaveforms.constant"><code>BloqadeWaveforms.constant</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">constant(;duration::Real, value::Real)</code></pre><p>Create a constant waveform.</p><p><strong>Keyword Arguments</strong></p><ul><li><code>duration::Real</code>: duration of the whole waveform.</li><li><code>value::Real</code>: value of the constant waveform.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/4cc5b8a8ab03a7f093b941eeee3659c418509d5e/lib/BloqadeWaveforms/src/waveform.jl#L359-L368">source</a></section></article><article class="docstring"><header><a class="docstring-binding" id="BloqadeWaveforms.sinusoidal" href="#BloqadeWaveforms.sinusoidal"><code>BloqadeWaveforms.sinusoidal</code></a> — <span class="docstring-category">Function</span></header><section><div><pre><code class="language-julia hljs">sinusoidal(;duration::Real, amplitude::Real=one(start))</code></pre><p>Create a sinusoidal waveform of the following expression.</p><pre><code class="language-julia hljs">amplitude * sin(t)</code></pre><p><strong>Keyword Arguments</strong></p><ul><li><code>duration</code>: duration of the waveform.</li><li><code>amplitude</code>: amplitude of the sin waveform.</li></ul></div><a class="docs-sourcelink" target="_blank" href="https://github.com/Happy-Diode/Bloqade.jl/blob/4cc5b8a8ab03a7f093b941eeee3659c418509d5e/lib/BloqadeWaveforms/src/waveform.jl#L375-L388">source</a></section></article><p>For example, the codes below create different waveform shapes with a single line:</p><pre><code class="language-julia hljs">waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0]);
 draw(waveform)</code></pre><img src='data:image/svg+xml;utf-8,<?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -987,7 +987,7 @@ draw(waveform)</code></pre><img src='data:image/svg+xml;utf-8,<?xml version="1.0
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns%23" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns%23">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2022-04-15T00:34:50.806369</dc:date>
+    <dc:date>2022-04-15T00:59:18.707477</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -1022,12 +1022,12 @@ z
     <g id="xtick_1">
      <g id="line2d_1">
       <defs>
-       <path id="md53ea5ba44" d="M 0 0 
+       <path id="m56b55a0ae1" d="M 0 0 
 L 0 3.5 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23md53ea5ba44" x="60.013977" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m56b55a0ae1" x="60.013977" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_1">
@@ -1072,7 +1072,7 @@ z
     <g id="xtick_2">
      <g id="line2d_2">
       <g>
-       <use xlink:href="%23md53ea5ba44" x="124.944886" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m56b55a0ae1" x="124.944886" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_2">
@@ -1113,7 +1113,7 @@ z
     <g id="xtick_3">
      <g id="line2d_3">
       <g>
-       <use xlink:href="%23md53ea5ba44" x="189.875795" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m56b55a0ae1" x="189.875795" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_3">
@@ -1149,7 +1149,7 @@ z
     <g id="xtick_4">
      <g id="line2d_4">
       <g>
-       <use xlink:href="%23md53ea5ba44" x="254.806705" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m56b55a0ae1" x="254.806705" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_4">
@@ -1196,7 +1196,7 @@ z
     <g id="xtick_5">
      <g id="line2d_5">
       <g>
-       <use xlink:href="%23md53ea5ba44" x="319.737614" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m56b55a0ae1" x="319.737614" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_5">
@@ -1252,7 +1252,7 @@ z
     <g id="xtick_6">
      <g id="line2d_6">
       <g>
-       <use xlink:href="%23md53ea5ba44" x="384.668523" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m56b55a0ae1" x="384.668523" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_6">
@@ -1476,12 +1476,12 @@ z
     <g id="ytick_1">
      <g id="line2d_7">
       <defs>
-       <path id="m7674ce2beb" d="M 0 0 
+       <path id="mac629f0fb9" d="M 0 0 
 L -3.5 0 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23m7674ce2beb" x="43.78125" y="261.216" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mac629f0fb9" x="43.78125" y="261.216" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_8">
@@ -1496,7 +1496,7 @@ L -3.5 0
     <g id="ytick_2">
      <g id="line2d_8">
       <g>
-       <use xlink:href="%23m7674ce2beb" x="43.78125" y="222.196645" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mac629f0fb9" x="43.78125" y="222.196645" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
@@ -1538,7 +1538,7 @@ z
     <g id="ytick_3">
      <g id="line2d_9">
       <g>
-       <use xlink:href="%23m7674ce2beb" x="43.78125" y="183.17729" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mac629f0fb9" x="43.78125" y="183.17729" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
@@ -1553,7 +1553,7 @@ z
     <g id="ytick_4">
      <g id="line2d_10">
       <g>
-       <use xlink:href="%23m7674ce2beb" x="43.78125" y="144.157935" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mac629f0fb9" x="43.78125" y="144.157935" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
@@ -1568,7 +1568,7 @@ z
     <g id="ytick_5">
      <g id="line2d_11">
       <g>
-       <use xlink:href="%23m7674ce2beb" x="43.78125" y="105.138581" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mac629f0fb9" x="43.78125" y="105.138581" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_12">
@@ -1583,7 +1583,7 @@ z
     <g id="ytick_6">
      <g id="line2d_12">
       <g>
-       <use xlink:href="%23m7674ce2beb" x="43.78125" y="66.119226" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mac629f0fb9" x="43.78125" y="66.119226" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_13">
@@ -1598,7 +1598,7 @@ z
     <g id="ytick_7">
      <g id="line2d_13">
       <g>
-       <use xlink:href="%23m7674ce2beb" x="43.78125" y="27.099871" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mac629f0fb9" x="43.78125" y="27.099871" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_14">
@@ -1821,7 +1821,7 @@ L 222.34125 19.296
 L 319.737614 19.296 
 L 384.668523 261.216 
 L 384.668523 261.216 
-" clip-path="url(%23p3e5cc047bc)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
+" clip-path="url(%23pdd240d7899)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
     <path d="M 43.78125 273.312 
@@ -1846,7 +1846,7 @@ L 400.90125 7.2
   </g>
  </g>
  <defs>
-  <clipPath id="p3e5cc047bc">
+  <clipPath id="pdd240d7899">
    <rect x="43.78125" y="7.2" width="357.12" height="266.112"/>
   </clipPath>
  </defs>
@@ -1860,7 +1860,7 @@ draw(waveform)</code></pre><img src='data:image/svg+xml;utf-8,<?xml version="1.0
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns%23" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns%23">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2022-04-15T00:34:51.276627</dc:date>
+    <dc:date>2022-04-15T00:59:19.173832</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -1895,12 +1895,12 @@ z
     <g id="xtick_1">
      <g id="line2d_1">
       <defs>
-       <path id="mb47d362687" d="M 0 0 
+       <path id="mf66daa4c0f" d="M 0 0 
 L 0 3.5 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23mb47d362687" x="60.013977" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mf66daa4c0f" x="60.013977" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_1">
@@ -1945,7 +1945,7 @@ z
     <g id="xtick_2">
      <g id="line2d_2">
       <g>
-       <use xlink:href="%23mb47d362687" x="124.944886" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mf66daa4c0f" x="124.944886" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_2">
@@ -1976,7 +1976,7 @@ z
     <g id="xtick_3">
      <g id="line2d_3">
       <g>
-       <use xlink:href="%23mb47d362687" x="189.875795" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mf66daa4c0f" x="189.875795" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_3">
@@ -2017,7 +2017,7 @@ z
     <g id="xtick_4">
      <g id="line2d_4">
       <g>
-       <use xlink:href="%23mb47d362687" x="254.806705" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mf66daa4c0f" x="254.806705" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_4">
@@ -2066,7 +2066,7 @@ z
     <g id="xtick_5">
      <g id="line2d_5">
       <g>
-       <use xlink:href="%23mb47d362687" x="319.737614" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mf66daa4c0f" x="319.737614" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_5">
@@ -2102,7 +2102,7 @@ z
     <g id="xtick_6">
      <g id="line2d_6">
       <g>
-       <use xlink:href="%23mb47d362687" x="384.668523" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mf66daa4c0f" x="384.668523" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_6">
@@ -2337,12 +2337,12 @@ z
     <g id="ytick_1">
      <g id="line2d_7">
       <defs>
-       <path id="m98ac367d4e" d="M 0 0 
+       <path id="m441dffb4f8" d="M 0 0 
 L -3.5 0 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23m98ac367d4e" x="43.78125" y="261.216" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m441dffb4f8" x="43.78125" y="261.216" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_8">
@@ -2357,7 +2357,7 @@ L -3.5 0
     <g id="ytick_2">
      <g id="line2d_8">
       <g>
-       <use xlink:href="%23m98ac367d4e" x="43.78125" y="222.196645" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m441dffb4f8" x="43.78125" y="222.196645" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
@@ -2372,7 +2372,7 @@ L -3.5 0
     <g id="ytick_3">
      <g id="line2d_9">
       <g>
-       <use xlink:href="%23m98ac367d4e" x="43.78125" y="183.17729" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m441dffb4f8" x="43.78125" y="183.17729" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
@@ -2387,7 +2387,7 @@ L -3.5 0
     <g id="ytick_4">
      <g id="line2d_10">
       <g>
-       <use xlink:href="%23m98ac367d4e" x="43.78125" y="144.157935" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m441dffb4f8" x="43.78125" y="144.157935" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
@@ -2402,7 +2402,7 @@ L -3.5 0
     <g id="ytick_5">
      <g id="line2d_11">
       <g>
-       <use xlink:href="%23m98ac367d4e" x="43.78125" y="105.138581" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m441dffb4f8" x="43.78125" y="105.138581" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_12">
@@ -2417,7 +2417,7 @@ L -3.5 0
     <g id="ytick_6">
      <g id="line2d_12">
       <g>
-       <use xlink:href="%23m98ac367d4e" x="43.78125" y="66.119226" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m441dffb4f8" x="43.78125" y="66.119226" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_13">
@@ -2432,7 +2432,7 @@ L -3.5 0
     <g id="ytick_7">
      <g id="line2d_13">
       <g>
-       <use xlink:href="%23m98ac367d4e" x="43.78125" y="27.099871" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m441dffb4f8" x="43.78125" y="27.099871" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_14">
@@ -2621,7 +2621,7 @@ L 189.875795 144.157935
 L 384.019214 144.157935 
 L 384.668523 19.296 
 L 384.668523 19.296 
-" clip-path="url(%23pbb8fb8b8af)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
+" clip-path="url(%23p2ad98df494)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
     <path d="M 43.78125 273.312 
@@ -2646,7 +2646,7 @@ L 400.90125 7.2
   </g>
  </g>
  <defs>
-  <clipPath id="pbb8fb8b8af">
+  <clipPath id="p2ad98df494">
    <rect x="43.78125" y="7.2" width="357.12" height="266.112"/>
   </clipPath>
  </defs>
@@ -2660,7 +2660,7 @@ draw(waveform)</code></pre><img src='data:image/svg+xml;utf-8,<?xml version="1.0
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns%23" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns%23">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2022-04-15T00:34:51.785361</dc:date>
+    <dc:date>2022-04-15T00:59:19.681062</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -2695,12 +2695,12 @@ z
     <g id="xtick_1">
      <g id="line2d_1">
       <defs>
-       <path id="m6137b881de" d="M 0 0 
+       <path id="m072f40b43d" d="M 0 0 
 L 0 3.5 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23m6137b881de" x="60.013977" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m072f40b43d" x="60.013977" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_1">
@@ -2745,7 +2745,7 @@ z
     <g id="xtick_2">
      <g id="line2d_2">
       <g>
-       <use xlink:href="%23m6137b881de" x="124.944886" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m072f40b43d" x="124.944886" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_2">
@@ -2776,7 +2776,7 @@ z
     <g id="xtick_3">
      <g id="line2d_3">
       <g>
-       <use xlink:href="%23m6137b881de" x="189.875795" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m072f40b43d" x="189.875795" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_3">
@@ -2817,7 +2817,7 @@ z
     <g id="xtick_4">
      <g id="line2d_4">
       <g>
-       <use xlink:href="%23m6137b881de" x="254.806705" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m072f40b43d" x="254.806705" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_4">
@@ -2866,7 +2866,7 @@ z
     <g id="xtick_5">
      <g id="line2d_5">
       <g>
-       <use xlink:href="%23m6137b881de" x="319.737614" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m072f40b43d" x="319.737614" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_5">
@@ -2902,7 +2902,7 @@ z
     <g id="xtick_6">
      <g id="line2d_6">
       <g>
-       <use xlink:href="%23m6137b881de" x="384.668523" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m072f40b43d" x="384.668523" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_6">
@@ -3137,12 +3137,12 @@ z
     <g id="ytick_1">
      <g id="line2d_7">
       <defs>
-       <path id="m90ca6c8977" d="M 0 0 
+       <path id="m16ee92d6ea" d="M 0 0 
 L -3.5 0 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23m90ca6c8977" x="43.78125" y="261.216" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m16ee92d6ea" x="43.78125" y="261.216" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_8">
@@ -3157,7 +3157,7 @@ L -3.5 0
     <g id="ytick_2">
      <g id="line2d_8">
       <g>
-       <use xlink:href="%23m90ca6c8977" x="43.78125" y="212.832" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m16ee92d6ea" x="43.78125" y="212.832" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
@@ -3172,7 +3172,7 @@ L -3.5 0
     <g id="ytick_3">
      <g id="line2d_9">
       <g>
-       <use xlink:href="%23m90ca6c8977" x="43.78125" y="164.448" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m16ee92d6ea" x="43.78125" y="164.448" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
@@ -3187,7 +3187,7 @@ L -3.5 0
     <g id="ytick_4">
      <g id="line2d_10">
       <g>
-       <use xlink:href="%23m90ca6c8977" x="43.78125" y="116.064" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m16ee92d6ea" x="43.78125" y="116.064" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
@@ -3234,7 +3234,7 @@ z
     <g id="ytick_5">
      <g id="line2d_11">
       <g>
-       <use xlink:href="%23m90ca6c8977" x="43.78125" y="67.68" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m16ee92d6ea" x="43.78125" y="67.68" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_12">
@@ -3290,7 +3290,7 @@ z
     <g id="ytick_6">
      <g id="line2d_12">
       <g>
-       <use xlink:href="%23m90ca6c8977" x="43.78125" y="19.296" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m16ee92d6ea" x="43.78125" y="19.296" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_13">
@@ -3476,7 +3476,7 @@ z
     <path d="M 60.013977 261.216 
 L 384.668523 19.296 
 L 384.668523 19.296 
-" clip-path="url(%23p409d1a2d46)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
+" clip-path="url(%23pd37de7a9d7)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
     <path d="M 43.78125 273.312 
@@ -3501,7 +3501,7 @@ L 400.90125 7.2
   </g>
  </g>
  <defs>
-  <clipPath id="p409d1a2d46">
+  <clipPath id="pd37de7a9d7">
    <rect x="43.78125" y="7.2" width="357.12" height="266.112"/>
   </clipPath>
  </defs>
@@ -3515,7 +3515,7 @@ draw(waveform)</code></pre><img src='data:image/svg+xml;utf-8,<?xml version="1.0
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns%23" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns%23">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2022-04-15T00:34:52.267816</dc:date>
+    <dc:date>2022-04-15T00:59:20.161395</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -3550,12 +3550,12 @@ z
     <g id="xtick_1">
      <g id="line2d_1">
       <defs>
-       <path id="ma7b681d2f9" d="M 0 0 
+       <path id="mc61839b26e" d="M 0 0 
 L 0 3.5 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23ma7b681d2f9" x="66.376477" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mc61839b26e" x="66.376477" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_1">
@@ -3600,7 +3600,7 @@ z
     <g id="xtick_2">
      <g id="line2d_2">
       <g>
-       <use xlink:href="%23ma7b681d2f9" x="131.307386" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mc61839b26e" x="131.307386" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_2">
@@ -3631,7 +3631,7 @@ z
     <g id="xtick_3">
      <g id="line2d_3">
       <g>
-       <use xlink:href="%23ma7b681d2f9" x="196.238295" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mc61839b26e" x="196.238295" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_3">
@@ -3672,7 +3672,7 @@ z
     <g id="xtick_4">
      <g id="line2d_4">
       <g>
-       <use xlink:href="%23ma7b681d2f9" x="261.169205" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mc61839b26e" x="261.169205" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_4">
@@ -3721,7 +3721,7 @@ z
     <g id="xtick_5">
      <g id="line2d_5">
       <g>
-       <use xlink:href="%23ma7b681d2f9" x="326.100114" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mc61839b26e" x="326.100114" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_5">
@@ -3757,7 +3757,7 @@ z
     <g id="xtick_6">
      <g id="line2d_6">
       <g>
-       <use xlink:href="%23ma7b681d2f9" x="391.031023" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23mc61839b26e" x="391.031023" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_6">
@@ -3992,12 +3992,12 @@ z
     <g id="ytick_1">
      <g id="line2d_7">
       <defs>
-       <path id="mf56c987a0e" d="M 0 0 
+       <path id="m558147aee3" d="M 0 0 
 L -3.5 0 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23mf56c987a0e" x="50.14375" y="255.456" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m558147aee3" x="50.14375" y="255.456" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_8">
@@ -4013,7 +4013,7 @@ L -3.5 0
     <g id="ytick_2">
      <g id="line2d_8">
       <g>
-       <use xlink:href="%23mf56c987a0e" x="50.14375" y="197.856" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m558147aee3" x="50.14375" y="197.856" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
@@ -4029,7 +4029,7 @@ L -3.5 0
     <g id="ytick_3">
      <g id="line2d_9">
       <g>
-       <use xlink:href="%23mf56c987a0e" x="50.14375" y="140.256" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m558147aee3" x="50.14375" y="140.256" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
@@ -4045,7 +4045,7 @@ L -3.5 0
     <g id="ytick_4">
      <g id="line2d_10">
       <g>
-       <use xlink:href="%23mf56c987a0e" x="50.14375" y="82.656" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m558147aee3" x="50.14375" y="82.656" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
@@ -4061,7 +4061,7 @@ L -3.5 0
     <g id="ytick_5">
      <g id="line2d_11">
       <g>
-       <use xlink:href="%23mf56c987a0e" x="50.14375" y="25.056" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m558147aee3" x="50.14375" y="25.056" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_12">
@@ -4248,7 +4248,7 @@ z
     <path d="M 66.376477 140.256 
 L 391.031023 140.256 
 L 391.031023 140.256 
-" clip-path="url(%23p1839f38085)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
+" clip-path="url(%23pc44cf269f2)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
     <path d="M 50.14375 273.312 
@@ -4273,7 +4273,7 @@ L 407.26375 7.2
   </g>
  </g>
  <defs>
-  <clipPath id="p1839f38085">
+  <clipPath id="pc44cf269f2">
    <rect x="50.14375" y="7.2" width="357.12" height="266.112"/>
   </clipPath>
  </defs>
@@ -4287,7 +4287,7 @@ draw(waveform)</code></pre><img src='data:image/svg+xml;utf-8,<?xml version="1.0
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns%23" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns%23">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2022-04-15T00:34:52.756714</dc:date>
+    <dc:date>2022-04-15T00:59:20.647797</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
@@ -4322,12 +4322,12 @@ z
     <g id="xtick_1">
      <g id="line2d_1">
       <defs>
-       <path id="m392031bad6" d="M 0 0 
+       <path id="m8667a23618" d="M 0 0 
 L 0 3.5 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23m392031bad6" x="58.85304" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m8667a23618" x="58.85304" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_1">
@@ -4363,7 +4363,7 @@ z
     <g id="xtick_2">
      <g id="line2d_2">
       <g>
-       <use xlink:href="%23m392031bad6" x="110.524939" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m8667a23618" x="110.524939" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_2">
@@ -4402,7 +4402,7 @@ z
     <g id="xtick_3">
      <g id="line2d_3">
       <g>
-       <use xlink:href="%23m392031bad6" x="162.196839" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m8667a23618" x="162.196839" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_3">
@@ -4436,7 +4436,7 @@ z
     <g id="xtick_4">
      <g id="line2d_4">
       <g>
-       <use xlink:href="%23m392031bad6" x="213.868739" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m8667a23618" x="213.868739" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_4">
@@ -4481,7 +4481,7 @@ z
     <g id="xtick_5">
      <g id="line2d_5">
       <g>
-       <use xlink:href="%23m392031bad6" x="265.540638" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m8667a23618" x="265.540638" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_5">
@@ -4535,7 +4535,7 @@ z
     <g id="xtick_6">
      <g id="line2d_6">
       <g>
-       <use xlink:href="%23m392031bad6" x="317.212538" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m8667a23618" x="317.212538" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_6">
@@ -4565,7 +4565,7 @@ z
     <g id="xtick_7">
      <g id="line2d_7">
       <g>
-       <use xlink:href="%23m392031bad6" x="368.884438" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m8667a23618" x="368.884438" y="273.312" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_7">
@@ -4772,12 +4772,12 @@ z
     <g id="ytick_1">
      <g id="line2d_8">
       <defs>
-       <path id="mfce2929e47" d="M 0 0 
+       <path id="m00d058f531" d="M 0 0 
 L -3.5 0 
 " style="stroke: %23000000; stroke-width: 0.8"/>
       </defs>
       <g>
-       <use xlink:href="%23mfce2929e47" x="42.620313" y="250.219645" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m00d058f531" x="42.620313" y="250.219645" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_9">
@@ -4800,7 +4800,7 @@ z
     <g id="ytick_2">
      <g id="line2d_9">
       <g>
-       <use xlink:href="%23mfce2929e47" x="42.620313" y="195.237825" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m00d058f531" x="42.620313" y="195.237825" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_10">
@@ -4814,7 +4814,7 @@ z
     <g id="ytick_3">
      <g id="line2d_10">
       <g>
-       <use xlink:href="%23mfce2929e47" x="42.620313" y="140.256005" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m00d058f531" x="42.620313" y="140.256005" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_11">
@@ -4827,7 +4827,7 @@ z
     <g id="ytick_4">
      <g id="line2d_11">
       <g>
-       <use xlink:href="%23mfce2929e47" x="42.620313" y="85.274184" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m00d058f531" x="42.620313" y="85.274184" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_12">
@@ -4840,7 +4840,7 @@ z
     <g id="ytick_5">
      <g id="line2d_12">
       <g>
-       <use xlink:href="%23mfce2929e47" x="42.620313" y="30.292364" style="stroke: %23000000; stroke-width: 0.8"/>
+       <use xlink:href="%23m00d058f531" x="42.620313" y="30.292364" style="stroke: %23000000; stroke-width: 0.8"/>
       </g>
      </g>
      <g id="text_13">
@@ -5168,7 +5168,7 @@ L 377.358629 168.817036
 L 383.326734 141.147546 
 L 383.507585 140.300834 
 L 383.507585 140.300834 
-" clip-path="url(%23p360b3abe92)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
+" clip-path="url(%23pf7c03c09cd)" style="fill: none; stroke: %231f77b4; stroke-width: 1.5; stroke-linecap: square"/>
    </g>
    <g id="patch_3">
     <path d="M 42.620313 273.312 
@@ -5193,46 +5193,46 @@ L 399.740313 7.2
   </g>
  </g>
  <defs>
-  <clipPath id="p360b3abe92">
+  <clipPath id="pf7c03c09cd">
    <rect x="42.620313" y="7.2" width="357.12" height="266.112"/>
   </clipPath>
  </defs>
 </svg>
 '/><p>In certain cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions <code>piecewise_linear</code> or <code>piecewise_constant</code>, corresponding to different interpolations. </p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; clocks = collect(0:1e-1:2);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; values = rand(length(clocks));</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; wf1 = piecewise_linear(;clocks, values)</code><code class="nohighlight hljs ansi" style="display:block;">                  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
                   ┌────────────────────────────────────────┐
-                1 │⠀⠀⠀⢸⠉⠉⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀│
-                  │⠀⠀⠀⢸⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸│
-                  │⠀⠀⠀⡜⠀⠀⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡜⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡏│
-                  │⠀⠀⠀⡇⠀⠀⢸⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⢰⡇⠀⠀⠀⠀⠀⠀⡇⢱⠀⠀⠀⠀⠀⠀⠀⠀⢠⡆⠀⢠⠃│
-                  │⡀⠀⢀⡇⠀⠀⢸⠀⠀⣸⡇⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⢸⠁⢸⠀⠀⠀⠀⠀⠀⠀⠀⢸⢹⡀⣸⠀│
-                  │⡇⠀⢸⠀⠀⠀⠈⡇⠀⡇⢣⠀⠀⠀⠀⠀⠀⡼⢇⠀⠀⠀⠀⠀⣸⠀⢸⡀⠀⠀⠀⠀⠀⠀⠀⣸⠀⢣⡇⠀│
-                  │⢸⠀⢸⠀⠀⠀⠀⡇⢠⠇⢸⠀⠀⠀⠀⠀⠀⡇⢸⠀⠀⠀⠀⠀⡇⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⡇⠀⠈⠁⠀│
-   value (rad/µs) │⠈⡇⡎⠀⠀⠀⠀⢧⢸⠀⢸⡀⠀⠀⠀⠀⢀⡇⢸⠀⠀⠀⠀⢠⠇⠀⠀⡇⠀⠀⠀⠀⠀⠀⠀⡇⠀⠀⠀⠀│
-                  │⠀⢳⡇⠀⠀⠀⠀⢸⡞⠀⠀⡇⠀⠀⠀⠀⢸⠀⠘⡆⠀⠀⣰⠋⠀⠀⠀⢳⠀⠀⠀⢸⡇⠀⢸⠁⠀⠀⠀⠀│
-                  │⠀⠘⠇⠀⠀⠀⠀⢸⡇⠀⠀⡇⠀⠀⠀⠀⢸⠀⠀⡇⠀⢰⠃⠀⠀⠀⠀⢸⠀⠀⠀⣸⢱⠀⢸⠀⠀⠀⠀⠀│
-                  │⠀⠀⠀⠀⠀⠀⠀⠈⠁⠀⠀⢳⠀⠀⠀⠀⡎⠀⠀⣇⠀⡞⠀⠀⠀⠀⠀⢸⠀⠀⠀⡇⠘⡆⡼⠀⠀⠀⠀⠀│
-                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⡇⠀⠀⢸⢰⠃⠀⠀⠀⠀⠀⠀⡇⠀⢠⠇⠀⢧⡇⠀⠀⠀⠀⠀│
-                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡤⠴⠒⠦⠇⠀⠀⢸⡼⠀⠀⠀⠀⠀⠀⠀⢸⡀⢸⠀⠀⢸⡇⠀⠀⠀⠀⠀│
-                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠇⠀⠀⠀⠀⠀⠀⠀⠀⣇⡎⠀⠀⠀⠀⠀⠀⠀⠀⠀│
-              0.1 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                1 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⡇⠀⠀⠀⠀⠀│
+                  │⡆⠀⠀⠀⠀⠀⠀⠀⠀⢸⢳⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡇⡇⠀⠀⠀⠀⠀│
+                  │⡇⠀⠀⠀⠀⠀⠀⠀⠀⡞⠘⡆⠀⠀⠀⢰⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡼⠀⢧⠀⠀⠀⠀⠀│
+                  │⣇⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⢳⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠇⠀⢸⠀⠀⠀⠀⠀│
+                  │⢸⠀⠀⠀⠀⠀⠀⠀⢰⠁⠀⠈⡇⠀⠀⣸⢳⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⢸⠀⠀⠀⠀⠀│
+                  │⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⡇⠀⠀⡇⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠈⡆⠀⢠⡄⠀│
+                  │⠸⡄⠀⢠⡄⠀⠀⠀⡏⠀⠀⠀⢱⠀⠀⡇⠸⡄⠀⠀⠀⢠⠴⠋⡇⠀⠀⠀⠀⠀⠀⡏⠀⠀⠀⡇⠀⣸⠹⡄│
+   value (rad/µs) │⠀⡇⠀⣸⢇⠀⠀⢀⡇⠀⠀⠀⢸⠀⢰⠃⠀⡇⠀⠀⢀⡏⠀⠀⣇⠀⠀⢀⡀⠀⠀⡇⠀⠀⠀⣇⠀⡇⠀⠹│
+                  │⠀⡇⠀⡇⢸⠀⠀⣸⠀⠀⠀⠀⠘⡆⢸⠀⠀⢇⠀⢀⡞⠀⠀⠀⢸⠀⠀⢸⡇⠀⢠⠇⠀⠀⠀⢸⢸⠁⠀⠀│
+                  │⠀⢱⢰⠃⠀⡇⢀⠇⠀⠀⠀⠀⠀⡇⢸⠀⠀⢸⢀⡞⠀⠀⠀⠀⠸⡄⠀⡏⢱⠀⢸⠀⠀⠀⠀⢸⡞⠀⠀⠀│
+                  │⠀⢸⡼⠀⠀⢱⡼⠀⠀⠀⠀⠀⠀⢳⡇⠀⠀⢸⡜⠀⠀⠀⠀⠀⠀⡇⢠⠇⠸⡄⢸⠀⠀⠀⠀⠘⠇⠀⠀⠀│
+                  │⠀⢸⡇⠀⠀⠸⠇⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⢣⢸⠀⠀⡇⡏⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                  │⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⡇⠀⠀⢹⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠃⠀⠀⠸⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+              0.1 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
                   └────────────────────────────────────────┘
                   ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀2⠀</code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; wf2 = piecewise_constant(;clocks, values)</code><code class="nohighlight hljs ansi" style="display:block;">                  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
                   ┌────────────────────────────────────────┐
-                1 │⠀⠀⠀⢰⠉⠉⠉⢹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⠤⢤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀│
-                  │⠀⠀⠀⢸⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸│
-                  │⠀⠀⠀⢸⠀⠀⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸│
-                  │⠀⠀⠀⢸⠀⠀⠀⢸⠀⢸⠉⢹⠀⠀⠀⠀⠀⢰⠉⢹⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⢠⠒⢲⠀⢸│
-                  │⣀⣀⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸│
-                  │⠀⢸⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸│
-                  │⠀⢸⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⠈⠉⠉│
-   value (rad/µs) │⠀⢸⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⢀⠤⠼⠀⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀│
-                  │⠀⢸⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⢸⠀⠀⠀⢸⠀⠀⠀⢸⠉⢹⠀⢸⠀⠀⠀⠀│
-                  │⠀⠘⠤⠼⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⢰⠒⠚⠀⠀⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀│
-                  │⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀│
-                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠉⢹⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀│
-                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⣀⣠⠒⠒⠤⠼⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⣀⣸⠀⠀⠀⠀│
-                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠤⠼⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀│
-              0.1 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⣀⣸⠀⠀⠀⠀⠀⠀⠀⠀│
+                1 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠤⢤⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠉⢹⠀⠀⠀⠀│
+                  │⠒⢲⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀│
+                  │⠀⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⢰⠉⢹⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀│
+                  │⠀⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⠤⠼⠀⢸⠀⠀⠀⠀│
+                  │⠀⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⠈⠉⢹⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⢸⠀⠀⠀⠀│
+                  │⠀⢸⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⠀⠀⢸⠀⢀⠤⢤│
+                  │⠀⢸⠀⢠⠤⢤⠀⠀⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⢀⠤⠼⠉⢹⠀⠀⠀⠀⠀⢸⠀⠀⠀⢸⠀⢸⠀⢸│
+   value (rad/µs) │⠀⢸⠀⢸⠀⢸⠀⠀⣀⣸⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⠀⢸⠀⠀⠀⢸⠀⢀⣀⣀⠀⢸⠀⠀⠀⢸⠀⢸⠀⠸│
+                  │⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⠀⠀⣀⣸⠀⠀⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⢸⠀⢸⠀⠀│
+                  │⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⢸⠀⢸⠀⠀│
+                  │⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⠸⠤⠼⠀⠀│
+                  │⠀⢸⠀⢸⠀⠸⠤⠼⠀⠀⠀⠀⠀⢸⠀⢸⠀⠀⠉⠉⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀│
+                  │⠀⠈⠉⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠘⠤⠼⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠀⢸⠀⢸⠀⢸⠀⠀⠀⠀⠀⠀⠀⠀│
+                  │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠒⠚⠀⠸⠤⠼⠀⠀⠀⠀⠀⠀⠀⠀│
+              0.1 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
                   └────────────────────────────────────────┘
                   ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀2⠀</code></pre><p>For more advanced interpolation options, please see the <a href="http://juliamath.github.io/Interpolations.jl/latest/">JuliaMath/Interpolations</a> package.</p><h2 id="Operations-of-Waveforms"><a class="docs-heading-anchor" href="#Operations-of-Waveforms">Operations of Waveforms</a><a id="Operations-of-Waveforms-1"></a><a class="docs-heading-anchor-permalink" href="#Operations-of-Waveforms" title="Permalink"></a></h2><p>Bloqade also supports several operations of the waveforms.  Waveforms can be sliced using the duration syntax <code>start..stop</code>, e.g</p><pre><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; wf = sinusoidal(duration=2.2);</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; wf[1.1..1.5];</code><code class="nohighlight hljs ansi" style="display:block;"></code><br/><code class="language-julia-repl hljs" style="display:block;">julia&gt; draw(wf)</code><code class="nohighlight hljs ansi" style="display:block;">Python Figure: &lt;Figure size 640x480 with 1 Axes&gt;</code></pre><p>Waveforms can be composed together via <code>append</code></p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; wf1 = Waveform(sin, duration=2.2)</code><code class="nohighlight hljs ansi" style="display:block;">                  ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
                   ┌────────────────────────────────────────┐
@@ -5380,4 +5380,4 @@ L 399.740313 7.2
                   └────────────────────────────────────────┘
                   ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀3⠀</code></pre><p>Such operation could also be broadcasted by using <code>.*</code></p><pre><code class="language-julia-repl hljs" style="display:block;">julia&gt; wf2, wf3 = [2.0, 3.0] .* wf1</code><code class="nohighlight hljs ansi" style="display:block;">2-element Vector{Waveform{BloqadeWaveforms.var&quot;#15#16&quot;{Float64, Waveform{BloqadeWaveforms.var&quot;#28#29&quot;{Float64, Float64, Float64}, Float64}}, Float64}}:
  Waveform(_, 2.2)
- Waveform(_, 2.2)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../julia/">« The Julia Programming Language</a><a class="docs-footer-nextpage" href="../lattices/">Lattices »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.15 on <span class="colophon-date" title="Friday 15 April 2022 00:35">Friday 15 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+ Waveform(_, 2.2)</code></pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../julia/">« The Julia Programming Language</a><a class="docs-footer-nextpage" href="../lattices/">Lattices »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.15 on <span class="colophon-date" title="Friday 15 April 2022 00:59">Friday 15 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

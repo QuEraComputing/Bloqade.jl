@@ -13,3 +13,10 @@ rydberg_h([(1, ), (2, )], C=109.2kHz * µm^6)
 ```
 
 the parameter `C` is automatically converted to default unit `MHz * µm^6`
+
+You can also specify units on waveforms
+
+```@repl units
+using Unitful: rad, ms
+wf = piecewise_linear(clocks=[0.0ms, 0.1ms, 0.2ms], values=[0.1, 1.1, 2.1] .* (rad/ms))
+```

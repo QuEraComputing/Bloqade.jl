@@ -63,10 +63,11 @@ h1 = rydberg_h(atoms; Δ=0.2, Ω=0.1)
 mat(h1, space)
 ```
 
-## Run emulation in subspace
+## Other Operations in Subspace
 
-To run an emulation in subspace, one just need to use the
-subspace register [`SubspaceArrayReg`](@ref) instead of the fullspace register [`ArrayReg`](@ref), e.g
+All other operations in subspace are the same as fullspace
+case, e.g to run an emulation in subspace, one just need to use the
+subspace register [`SubspaceArrayReg`](@ref) instead of the fullspace register [`ArrayReg`](@ref), the rest are all the same
 
 ```@example subspace
 reg = zero_state(space)

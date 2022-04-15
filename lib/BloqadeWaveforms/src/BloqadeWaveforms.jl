@@ -1,9 +1,11 @@
 module BloqadeWaveforms
 
+using Unitful: Unitful, μs, MHz, Quantity
 using Intervals
 using UnicodePlots
 using LinearAlgebra
 using Interpolations
+using BloqadeExpr: default_unit
 
 export 
     Waveform,

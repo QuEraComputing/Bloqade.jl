@@ -10,4 +10,7 @@ using Unitful: kHz, µm
 
     h = RydInteract(atoms=[(1, ), (2, ), (3, ), (4)], C=109.2kHz * µm^6)
     @test h.C ≈ 0.1092
+
+    h = rydberg_h([(1, ), (2, )], C=109.2kHz * µm^6)
+    @test h.C ≈ 0.1092
 end

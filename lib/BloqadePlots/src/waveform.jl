@@ -3,8 +3,8 @@ function draw!(ax, wf::Waveform)
     fig = ax.plot(
         clocks, BloqadeWaveforms._rm_err.(sample_values(wf, clocks));
     )
-    ax.set_xlabel("clock (μs)")
-    ax.set_ylabel("value (rad/µs)")
+    ax.set_xlabel("time (μs)")
+    ax.set_ylabel("value (2π ⋅ MHz)")
     return ax
 end
 

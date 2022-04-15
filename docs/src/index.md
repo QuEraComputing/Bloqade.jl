@@ -6,57 +6,61 @@ CurrentModule = Bloqade
 
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=p1FNvJ)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
 
-Welcome to the documentation page for the Bloqade package. A package
-made for Rydberg system.
+```@raw html
+<p>
+Welcome to the documentation page for Bloqade, a &nbsp;
+    <a href="https://julialang.org">
+        <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
+        Julia Language
+    </a>
+    &nbsp; package for the efficient simulation of quantum computers based on neutral-atom architectures. <br> <br>
+
+Bloqade enables the easy design and fast execution of quantum computing protocols incorporating the particularities of architectures based on neutral atoms, including the definition of arbitrary-layout quantum registers, the operation in Hilbert spaces constrained by the Rydberg blockade, and more.
+```
 
 ## Installation
 
 ```@raw html
 <p>
-Bloqade is a &nbsp;
-    <a href="https://julialang.org">
-        <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
-        Julia Language
-    </a>
-    &nbsp; package. To install Bloqade,
+To install Bloqade,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
-    Julia's interactive session (known as REPL)</a>, press <kbd>]</kbd> key in the REPL to use the package mode, and then type the following command
+    Julia's interactive session (known as REPL)</a>, press <kbd>]</kbd> key in the REPL to use the package mode, and then...
 </p>
 ```
 
-First add the QuEra Julia registry via
+add the QuEra Julia registry via
 
 ```julia
 pkg> registry add https://github.com/Happy-Diode/Miskatonic.git
 ```
 
-For stable release
+For the stable release, type
 
 ```julia
 pkg> add Bloqade
 ```
 
-For current master
+Or for the current master,
 
 ```julia
 pkg> add Bloqade#master
 ```
 
-For more advanced installation guide, please see the [Installation](@ref install) page.
+For a more advanced installation guide, please see the [Installation](@ref install) page.
 
-## What does the Bloqade do?
+## What does Bloqade do?
 
 Bloqade simulates the time evolution of a quantum state under the Schrödinger equation where the Hamiltonian is the interacting Rydberg Hamiltonian `` \mathcal{H} ``, 
 
 ```math
-i \hbar \dfrac{\partial}{\partial t} | \psi \rangle = \mathcal{H} | \psi \rangle,  \\
+i \hbar \dfrac{\partial}{\partial t} | \psi \rangle = \mathcal{H}(t) | \psi \rangle,  \\
 
-\frac{\mathcal{H}}{\hbar} = \sum_j \frac{\Omega_j(t)}{2} \left( e^{i \phi_j(t) } | 1_j \rangle  \langle r_j | + e^{-i \phi_j(t) } | r_j \rangle  \langle 1_j | \right) - \sum_j \Delta_j(t) n_j + \sum_{j < k} V_{jk} n_j n_k.
+\frac{\mathcal{H}(t)}{\hbar} = \sum_j \frac{\Omega_j(t)}{2} \left( e^{i \phi_j(t) } | 1_j \rangle  \langle r_j | + e^{-i \phi_j(t) } | r_j \rangle  \langle 1_j | \right) - \sum_j \Delta_j(t) n_j + \sum_{j < k} V_{jk} n_j n_k.
 ```
 
-Here ``\Omega_j``, ``\phi_j``, and ``\Delta_j``  denote the Rabi frequency, laser phase, and the detuning of the driving laser field on atom (qubit) ``j`` coupling the two states  ``| 1_j \rangle `` (ground state) and `` | r_j \rangle `` (Rydberg state). The number operator ``n_j = |r_j\rangle \langle r_j|``, and ``V_{jk} = C/|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|^6`` describes the Rydberg interaction between atoms ``j`` and ``k`` where ``\overrightarrow{\mathbf{r_j}}`` denotes the position of the atom ``j``; ``C`` is the Rydberg interaction constant that depends on the particular Rydberg state used. For the emulator, the default ``C = 2\pi \times 862690 \text{ MHz μm}^6`` for ``|r \rangle = 70S_{1/2}`` of the ``^{87}``Rb atoms. ``\hbar`` is the reduced Planck's constant.
+Following the atomic physics nomenclature, ``\Omega_j``, ``\phi_j``, and ``\Delta_j``  denote the Rabi frequency, laser phase, and the detuning of the driving laser field on atom (qubit) ``j`` coupling the two states  ``| 1_j \rangle `` (ground state) and `` | r_j \rangle `` (Rydberg state). The number operator ``n_j = |r_j\rangle \langle r_j|``, and ``V_{jk} = C/|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|^6`` describes the Rydberg interaction between atoms ``j`` and ``k`` where ``\overrightarrow{\mathbf{r_j}}`` denotes the position of the atom ``j``; ``C`` is the Rydberg interaction constant that depends on the particular Rydberg state used. For the emulator, the default ``C = 2\pi \times 862690 \text{ MHz μm}^6`` for ``|r \rangle = \lvert 70S_{1/2} \rangle`` of the ``^{87}``Rb atoms. ``\hbar`` is the reduced Planck's constant.
 
-Starting from the initial quantum state ``| \psi_{\text{ini}} \rangle``, the emulator can simulate the time evolution of the quantum state under the time-dependent Hamiltonian ``\mathcal{H}(t)``, given the atom positions, the time-dependent profiles for  ``\Omega_j``, ``\phi_j`` and ``\Delta_j``. The emulator can then produce the real-time evolution of quantum state ``| \psi(t) \rangle`` and one can then measure different observables on such a state.
+Starting from a initial quantum state ``| \psi_{\text{ini}} \rangle``, the emulator simulates its time evolution under the Hamiltonian ``\mathcal{H}(t)``, given the qubit positions and the time-dependent profiles for  ``\Omega_j``, ``\phi_j``, and ``\Delta_j``. The emulator then produces the real-time-evolved state ``| \psi(t) \rangle``, which can then be used for the measurement of different observables.
 
 The default units for various quantities are 
 
@@ -68,9 +72,10 @@ The default units for various quantities are
 | ``\phi``      |  rad        |
 | ``\Delta``    |  MHz        |
 
-## Run a Simple Emulation of Rydberg System
 
-Here, we show a simple example of simulating quantum many-body dynamics governed by the Rydberg Hamiltonian. 
+## First steps
+
+Let's try a simple example of simulating quantum many-body dynamics governed by the Rydberg Hamiltonian. 
 
 We start by loading the Emulator Module
 
@@ -107,7 +112,7 @@ prob = SchrodingerProblem(reg, 1.6, h)
 integrator = init(prob, Vern8());
 emulate!(prob);
 ```
-Here we have chosen the ODE solver [`ODEEvolution`](@ref) and set the total evolution time to be 1.6 μs.
+Here we have chosen the ODE-based solver by using [`SchrodingerProblem`](@ref) and set the total evolution time to be 1.6 μs.
 
 After simulating the time evolution and get the final state, we can measure the Rydberg population at each site for the final state 
 

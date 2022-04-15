@@ -10,4 +10,6 @@ using BloqadeExpr
 
     state = rand(15)
     @test state[space] == state[[2, 4, 6, 11]]
+
+    show(stdout, MIME"text/plain"(), space)
 end

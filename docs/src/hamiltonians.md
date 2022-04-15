@@ -31,6 +31,14 @@ detuning `Δ`, Rabi frequency `Ω`, and laser phase `ϕ`
 ```@repl hamiltonian
 h0 = rydberg_h(atoms; Δ=1.2, Ω=1.1, ϕ=2.1)
 ```
+Note that the default value for the Rydberg interaction constant is ``C = 2\pi \times 862690 \text{ MHz μm}^6`` to match the experimental unit. For more information about units, please 
+refer to [Bloqade](@ref). Instead of using the default value of ``C``, the users are free to set their own values. For instance, if the users would like to have a chain lattice with 
+nearest-neighbour atoms seperted by 1, and interaction strength to be a particular value, say, ``1.4^6``, it can be done with the following codes
+
+```@repl hamiltonian
+atoms = generate_sites(SquareLattice(), 3, 3, scale=1)
+h0 = rydberg_h(atoms; C=1.4^6, Δ=1.2, Ω=1.1, ϕ=2.1)
+```
 
 
 ## Building Time-Dependent Hamiltonians

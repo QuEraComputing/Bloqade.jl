@@ -11,6 +11,11 @@ using Test
     atoms = [(i, ) for i in 1:5]
     h = rydberg_h(atoms; C=2π * 109.16, Ω=sin, ϕ=cos)
     prob = SchrodingerProblem(reg, tspan, h; dt=1e-5, progress=true, save_start=false)
+    
+    println()
+    show(stdout, MIME"text/plain"(), prob)
+    println()
+    show(stdout, MIME"text/plain"(), prob.f.f)
 
     integrator = init(prob, Vern8())
     for (u, t) in tuples(integrator)

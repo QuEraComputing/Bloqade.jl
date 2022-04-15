@@ -29,7 +29,7 @@ Instead of doing quantum dyanamics in the full ``2^N`` Hilbert space, we may tak
 
 
 
-The validity of the energy truncation subspace is governed by the strength of off-diagonal matrix elements coupling the low energy subspace to the high energy one. For the Rydberg Hamiltonian, these are the Rabi strength ``\Omega``. In order to preserve dynamics within the subspace, the energy difference between states within the blockade subspace (eg, ``|1r\rangle``) and outside (``|rr\rangle``) must be much larger than the Rabi strength. Formally,
+The validity of the energy truncation subspace is governed by the strength of off-diagonal matrix elements coupling the low energy subspace to the high energy one. For the Rydberg Hamiltonian, these off-diagonal elements ``|1r\rangle\leftrightarow|rr\rangle`` have a strength ``\Omega``. In order to preserve dynamics within the subspace, the energy difference between states within the blockade subspace (eg, ``|1r\rangle``) and outside (``|rr\rangle``) must be much larger than the Rabi strength. Formally,
 
 ```math
 \Omega \ll \frac{C_6}{R^6}
@@ -60,9 +60,9 @@ h = rydberg_h(atoms;C = 2π * 858386, Ω=2*π * 0.5)
 The system is initialized into the ground state of all atoms, which is the lowest energy of the classical Hamiltonian. We have two choices of basis: the first choice is the full Hilbert space of ``2^{12}`` elements, wheras the second basis is the blockade subspace, which excludes Rydberg excitations within the unit disk radius. The blockade subspace has ``D=322`` elements, which means that computation is much faster.
 
 ```@example blockade
-init_state = zero_state(nsites)                       # Initial state in the full space
+init_state = zero_state(nsites)                 # Initial state in the full space
 space = blockade_subspace(atoms,distance*1.1)   # Compute the blockade subspace
-init_state2 = zero_state(space)                       # Define the initial state in the blockade subspace.
+init_state2 = zero_state(space)                 # Define the initial state in the blockade subspace.
 ```
 
 If the atoms were far apart and non-interacting, each atom would oscillate completely between its ground state and Rydberg state with a period of ``0.5 \mu``s. However, because adjacent atoms shift to the Rydberg state concurrently, they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, corresponding to an antiferromagnetic ``Z_2`` state. Note that because the ring has a translation symmetry, the Rydberg density is equal on all sites.

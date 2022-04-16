@@ -28,5 +28,6 @@ using Reexport
 export rydberg_density, rydberg_corr
 
 include("observables.jl")
+include("precompile.jl")
 
 end

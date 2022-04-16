@@ -1,4 +1,4 @@
-# Contributing
+# Contribution
 
 If you are interested in contributing to this package,
 please consider going through this guide to help you smooth your

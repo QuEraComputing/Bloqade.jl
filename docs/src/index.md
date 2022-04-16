@@ -13,9 +13,10 @@ Welcome to the documentation page for Bloqade, a &nbsp;
         <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
         Julia Language
     </a>
-    &nbsp; package for the efficient simulation of quantum computers based on neutral-atom architectures. <br> <br>
+    &nbsp; package for the simulation of quantum computation and quantum dynamics based on neutral-atom architectures. <br> <br>
 
-Bloqade enables the easy design and fast execution of quantum computing protocols incorporating the particularities of architectures based on neutral atoms, including the definition of arbitrary-layout quantum registers, the operation in Hilbert spaces constrained by the Rydberg blockade, and more.
+Bloqade enables the easy design and fast execution of quantum dynamics based on the neutral-atom quantum computing architecture. Besides fast full Hilbert-space simulation on CPUs, the main features include the design of arbitrary-layout quantum registers ([Lattices](@ref)), easy waveform generation [Waveforms](@ref), the simulation in subspace constrained by the Rydberg blockade ([subspace](@ref)), faster GPU-accelerated simulation ([CUDA Acceleration](@ref)), and more.
+
 ```
 
 ## Installation
@@ -24,7 +25,7 @@ Bloqade enables the easy design and fast execution of quantum computing protocol
 <p>
 To install Bloqade,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
-    Julia's interactive session (known as REPL)</a>, press <kbd>]</kbd> key in the REPL to use the package mode, and then...
+    Julia's interactive session (known as REPL)</a>, press <kbd>]</kbd> key in the REPL to use the package mode, and then
 </p>
 ```
 
@@ -50,15 +51,17 @@ For a more advanced installation guide, please see the [Installation](@ref insta
 
 ## What does Bloqade do?
 
-Bloqade simulates the time evolution of a quantum state under the Schrödinger equation where the Hamiltonian is the interacting Rydberg Hamiltonian `` \mathcal{H} ``, 
+Neutral-atom quantum computers have two major modes of computation: the first mode is a "quantum computing" mode that uses two ground states ``|0\rangle`` and ``|1\rangle`` to encode the qubit, which has long coherence time, and one Rydberg state ``|r\rangle`` to entangle the qubits; the second mode is a "quantum simulation" mode that uses one ground state ``|1\rangle`` and one Rydberg state ``|r\rangle``, where the quantum dynamics is governed by a Rydberg Hamiltonian ``\hat{\mathcal{H}}``.
+
+Bloqade currently only supports the "quantum simulation" mode. In particular, it simulates the time evolution of a quantum state under the Schrödinger equation where the Hamiltonian is the interacting Rydberg Hamiltonian ``\hat{\mathcal{H}}``, 
 
 ```math
-i \hbar \dfrac{\partial}{\partial t} | \psi \rangle = \mathcal{H}(t) | \psi \rangle,  \\
+i \hbar \dfrac{\partial}{\partial t} | \psi \rangle = \hat{\mathcal{H}}(t) | \psi \rangle,  \\
 
-\frac{\mathcal{H}(t)}{\hbar} = \sum_j \frac{\Omega_j(t)}{2} \left( e^{i \phi_j(t) } | 1_j \rangle  \langle r_j | + e^{-i \phi_j(t) } | r_j \rangle  \langle 1_j | \right) - \sum_j \Delta_j(t) n_j + \sum_{j < k} V_{jk} n_j n_k.
+\frac{\mathcal{H}(t)}{\hbar} = \sum_j \frac{\Omega_j(t)}{2} \left( e^{i \phi_j(t) } | 1_j \rangle  \langle r_j | + e^{-i \phi_j(t) } | r_j \rangle  \langle 1_j | \right) - \sum_j \Delta_j(t) \hat{n}_j + \sum_{j < k} V_{jk} \hat{n}_j \hat{n}_k.
 ```
 
-Following the atomic physics nomenclature, ``\Omega_j``, ``\phi_j``, and ``\Delta_j``  denote the Rabi frequency, laser phase, and the detuning of the driving laser field on atom (qubit) ``j`` coupling the two states  ``| 1_j \rangle `` (ground state) and `` | r_j \rangle `` (Rydberg state). The number operator ``n_j = |r_j\rangle \langle r_j|``, and ``V_{jk} = C/|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|^6`` describes the Rydberg interaction between atoms ``j`` and ``k`` where ``\overrightarrow{\mathbf{r_j}}`` denotes the position of the atom ``j``; ``C`` is the Rydberg interaction constant that depends on the particular Rydberg state used. For the emulator, the default ``C = 2\pi \times 862690 \text{ MHz μm}^6`` for ``|r \rangle = \lvert 70S_{1/2} \rangle`` of the ``^{87}``Rb atoms. ``\hbar`` is the reduced Planck's constant.
+Following the atomic physics nomenclature, ``\Omega_j``, ``\phi_j``, and ``\Delta_j``  denote the Rabi frequency, laser phase, and the detuning of the driving laser field on atom (qubit) ``j`` coupling the two states  ``| 1_j \rangle `` (ground state) and `` | r_j \rangle `` (Rydberg state). The number operator ``n_j = |r_j\rangle \langle r_j|``, and ``V_{jk} = C_6/|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|^6`` describes the Rydberg interaction between atoms ``j`` and ``k`` where ``\overrightarrow{\mathbf{r_j}}`` denotes the position of the atom ``j``; ``C`` is the Rydberg interaction constant that depends on the particular Rydberg state used. For the emulator, the default ``C_6 = 2\pi \times 862690 \text{ MHz μm}^6`` for ``|r \rangle = \lvert 70S_{1/2} \rangle`` of the ``^{87}``Rb atoms. ``\hbar`` is the reduced Planck's constant.
 
 Starting from a initial quantum state ``| \psi_{\text{ini}} \rangle``, the emulator simulates its time evolution under the Hamiltonian ``\mathcal{H}(t)``, given the qubit positions and the time-dependent profiles for  ``\Omega_j``, ``\phi_j``, and ``\Delta_j``. The emulator then produces the real-time-evolved state ``| \psi(t) \rangle``, which can then be used for the measurement of different observables.
 

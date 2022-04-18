@@ -1,22 +1,23 @@
 # # Quantum Scar
 # ## Background
 
-# The experimental study [H. Bernien, et al.](https://www.nature.com/articles/nature24622) finds that if one starts with a 
-# with a particular initial state (e.g. the Neel state), the Rydberg blockade constraint results into persistent revivals of quantum dynamics.
-# Later, theoretical studies (e.g. [C. J. Turner, et al.](https://www.nature.com/articles/s41567-018-0137-5)) reveal that this behavior is due to very 
-# specific eigenstates embeded in the quantum many-body spectrum, called quantum many-body scars. 
+# The experimental study [H. Bernien, et al.](https://www.nature.com/articles/nature24622) discovered that if one starts with a 
+# particular initial state (e.g. the Neel state), the Rydberg blockade constraint results into persistent revivals of quantum dynamics, 
+# in constrast to the expectation of reaching thermalization quickly.
+# Later, theoretical studies (e.g. [C. J. Turner, et al.](https://www.nature.com/articles/s41567-018-0137-5)) reveal that this behavior is due to 
+# special eigenstates embedded in the quantum many-body spectrum, and the phenomenon is called quantum many-body scars.
 
-# Quantum many-body scars are analogous to clasical scars in single-particle quantum chaos, where scars represent a concentration of some eigenfunctions 
+# Quantum many-body scars are analogous to the phenomenon of classical scars in single-particle quantum chaos, where scars represent a concentration of some eigenfunctions 
 # along the trajectory of classical periodic orbits. Similarly, in the quantum many-body case, the initial Neel state has a large component of these specific scar states. 
 # Under the time evolution of the Rydberg Hamiltonian, the initial state undergoes the trajectory of periodic quantum orbits. The non-thermal behavior is mainly caused by such non-ergodicity 
-# in Hilbert space. 
+# in the Hilbert space. 
 
-# In this example, we use the Rydberg Emulator to simulate the evolution of a fully coherent, 
-# strongly interacting Rydberg system.  We demonstrate the persistent revivals of many-body dynamics with measurements of the Rydberg density, 
-# and entanglement entropy. For a comprehensive review of quantum many-body scars, we refer readers to this paper [M. Serbyn et al.](https://www.nature.com/articles/s41567-021-01230-2)
+# In this example, we use Bloqade to simulate the evolution of a fully coherent, 
+# strongly interacting Rydberg system.  We demonstrate the persistent revivals of many-body dynamics with measurements of the Rydberg density 
+# and entanglement entropy. For a comprehensive review of quantum many-body scars, we refer readers to the paper [M. Serbyn et al.](https://www.nature.com/articles/s41567-021-01230-2)
 
-
-# We start by importing required libraries
+# In this tutorial, we provide an example of using Bloqade to simulate quantum many-body scars.
+# To start, we first import the required libraries
 
 using Bloqade
 using BloqadePlots
@@ -24,16 +25,17 @@ using PythonCall
 using Random
 
 plt = pyimport("matplotlib.pyplot")
-# # Rabi oscillations with Rydberg blockade
+# # Many-body Rabi oscillations with Rydberg blockade
 
-# We first demonstrate that the strong Rydberg interactions have important effects on the Rabi oscillations of Rydberg atoms. 
-# To do so, we consider a system with 1, 2 and 3 atoms. All the atoms are placed withint the blockade radius of any other atom (see [blockade](@ref) for more details). 
+# We first demonstrate that the strong Rydberg interactions have important effects on the Rabi oscillations of Rydberg atoms.
+# To do so, we consider a system with 1, 2, and 3 atoms. All the atoms are placed within the blockade radius of any other atom (see [blockade](@ref) for more details). 
+# The atom positions can be created as
 
-atom1 = generate_sites(ChainLattice(), 1, scale=3.0)
-atom2 = generate_sites(ChainLattice(), 2, scale= 3.0)
-atom3 = generate_sites(ChainLattice(), 3, scale= 3.0)
+atom1 = generate_sites(ChainLattice(), 1, scale = 3.0)
+atom2 = generate_sites(ChainLattice(), 2, scale = 3.0)
+atom3 = generate_sites(ChainLattice(), 3, scale = 3.0)
 
-# Then a resonant Rabi driving is applied to each of the system. The Hamiltonians can be simply constructed by 
+# Let's apply a resonant Rabi driving on each of the system. The Hamiltonians can be simply constructed by 
 h1 = rydberg_h(atom1; Δ=0, Ω=2π*2)
 h2 = rydberg_h(atom2; Δ=0, Ω=2π*2)
 h3 = rydberg_h(atom3; Δ=0, Ω=2π*2)
@@ -43,75 +45,71 @@ reg1 = zero_state(1)
 reg2 = zero_state(2)
 reg3 = zero_state(3)
 
-# We first emulate the dynamics for the single atom's case, where the intial state is quenched under a Hamiltonain with constant Rabi frequency
-clocks = 0.0:1e-2:1.5
+# We first simulate the dynamics for the single atom's case, where the intial state is quenched under a Hamiltonain with constant Rabi frequency.
+total_time = 1.5
+clocks = 0.0:1e-2:total_time
 prob1 = KrylovEvolution(reg1, clocks, h1)
-density_mat1 = zeros(1, length(clocks)-1)
+density1 = zeros(1, length(clocks)-1)
 
-for info in prob1
-    for i in 1:1
-        density_mat1[i, info.step] = expect(put(1, i=>Op.n), info.reg)
-    end
+for evolution in prob1
+    density1[1, evolution.step] = expect(put(1, 1=>Op.n), evolution.reg)
 end
 
-# The Rydberg density of this atom exihibits Rabi oscillations as a function of time, shown by the plot 
+# Here, we use the `KrylovEvolution` to simulate the dynamics for a time-independent Hamiltonian.
+# One can also use ODE to simulate the dynamics. For an example, see [Adiabatic Evolution](@ref).
+# The Rydberg density of this atom exihibits Rabi oscillations as a function of time, shown by the plot below
 fig, ax = plt.subplots()
-ax.plot(clocks[1:end-1], density_mat1[1, :])
+ax.plot(clocks[1:end-1], density1[1, :])
 ax.set_xlabel("Time (μs)")
 ax.set_ylabel("Single Rydberg Probability")
-ax.set_title("Rydberg Density: Single Atom Case")
+ax.set_title("Rabi Oscillation: Single Atom Case")
 fig
 
-# For the case of 2 and 3 atoms, if they are seperated far enough with negligible interactions, the total Rydberg excitation densities are simply the sum of each each atom. 
-# However, we will show that this is not the case for systems when atoms are close to each other (which results in strong Rydberg interactions). 
-# Similar to the 1 atom case, we can emulate the dynamics and get the time-dependent dynamics for each atom
+# For the case of 2 and 3 atoms, if they are separated far enough with negligible interactions, the total Rydberg excitation densities are simply the sum of the Rydberg density for each atom.
+# However, we show that this is not the case for systems when atoms are close to each other (which results in strong Rydberg interactions). 
+# Similar to the 1 atom case, we can simulate the dynamics and get the time-dependent dynamics for each atom
 prob2 = KrylovEvolution(reg2, clocks, h2);
-density_mat2 = zeros(2, length(clocks)-1); 
+density2 = zeros(2, length(clocks)-1); 
 
-for info in prob2
+for evolution in prob2
     for i in 1:2
-        density_mat2[i, info.step] = expect(put(2, i=>Op.n), info.reg)
+        density2[i, evolution.step] = expect(put(2, i=>Op.n), evolution.reg)
     end
 end
+density2 = sum(density2, dims=1)
 
 prob3 = KrylovEvolution(reg3, clocks, h3);
-density_mat3 = zeros(3, length(clocks)-1); 
+density3 = zeros(3, length(clocks)-1); 
 
-for info in prob3
+for evolution in prob3
     for i in 1:3
-        density_mat3[i, info.step] = expect(put(3, i=>Op.n), info.reg)
+        density3[i, evolution.step] = expect(put(3, i=>Op.n), evolution.reg)
     end
 end
+density3 = sum(density3, dims=1)
 
-
+# Because of the Rydberg blockade, the system will undergo many-body Rabi oscillation with the state 
+# oscillating between the all 0 state and the W state, where the Rabi frequency will be enhanced by ``\sqrt{N}``, 
+# where ``N`` is the number of atoms.
+# For more information, please refer to [H. Bernien, et al.](https://www.nature.com/articles/nature24622).
 # The total Rydberg density for the 1-, 2-, and 3-atom system is plotted below
 fig, ax = plt.subplots()
-ax.plot(clocks[1:end-1], density_mat1[1, :])
-ax.set_xlabel("Time (μs)")
-ax.set_ylabel("Single Rydberg Probability")
-ax.set_title("Rydberg Density: Single Atom Case")
-fig
-
-# 2-atom system 
-density2 = sum(density_mat2, dims=1)
-
-fig, ax = plt.subplots()
+ax.plot(clocks[1:end-1], density1[1, :])
 ax.plot(clocks[1:end-1], density2[1, :])
-fig
-
-# 3-atom system 
-density3 = sum(density_mat3, dims=1)
-
-fig, ax = plt.subplots()
 ax.plot(clocks[1:end-1], density3[1, :])
+ax.set_xlabel("Time (μs)")
+ax.set_ylabel("Rydberg Probability")
+ax.set_title("Many-body Rabi Oscillation for 1-, 2-, and 3-atom system")
+ax.legend(["1 atom", "2 atoms", "3 atoms"], loc ="lower right")
 fig
 
-# From the above plot, we can see that the total Rydberg density for 2 (3) atom case does not exceed 1. This is because
-# it is energitically unfavorable to have more than 1 excitation due to the strong Rydberg interactions. Furthermore, the frequency of Rabi oscillation
-# for the whole system depends strongly on the number of atoms. This again validates the fact that interaction plays an important role in the system's dynamics. 
+# From this plot, we can see that the total Rydberg density for 2 (3) atom case does not exceed 1. This is because
+# it is energitically unfavorable to have more than 1 excitations due to the strong Rydberg interactions. 
+# In addition, we can see the enhancement of the many-body Rabi frequency.
+# This shows that the interactions play an important role in the system's dynamics.
 
-
-# Below, we show that for a system with 9 atoms where only nearest atoms are within each other's blockade radius, the system can also exhibit nontrivial dynamics for certain initial state.  
+# Below, we show that for a system with 9 atoms where only nearest-neighbor atoms in a chain are within each other's blockade radius, 
+# the system can exhibit nontrivial dynamics for certain initial states, the so-called quantum many-body scars.
 
 
 # # Build 9-sites Hamiltonian

@@ -112,9 +112,9 @@ U2 = 2π * 10;
 # We plot the two waveforms:
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
 draw!(ax1, Ω/2π)
-ax1.set_ylabel("Ω/2π MHz")
+ax1.set_ylabel("Ω/2π (MHz)")
 draw!(ax2, Δ/2π)
-ax2.set_ylabel("Δ/2π MHz")
+ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
 # We generate the positions of a 1D atomic chain again: 

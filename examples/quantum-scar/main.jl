@@ -199,7 +199,7 @@ fig
 # # A different initial state 
 
 # In order to see that the revivals depends strongly on the initial state, 
-# we now choose a different initial state, and use the ['KrylovEvolution']@(ref) solver to simulate the dynamics  
+# we now choose a different initial state, and use the [`KrylovEvolution`]@(ref) solver to simulate the dynamics  
 
 hd = rydberg_h(atoms; Ω = 4π)
 total_time = 1.2; 

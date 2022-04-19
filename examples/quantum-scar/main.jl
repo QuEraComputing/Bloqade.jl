@@ -55,7 +55,7 @@ for evolution in prob1
     density1[1, evolution.step] = expect(put(1, 1=>Op.n), evolution.reg)
 end
 
-# Here, we use the `KrylovEvolution` to simulate the dynamics for a time-independent Hamiltonian.
+# Here, we use the [`KrylovEvolution`](@ref) to simulate the dynamics for a time-independent Hamiltonian.
 # One can also use ODE to simulate the dynamics. For an example, see [Adiabatic Evolution](@ref).
 # The Rydberg density of this atom exihibits Rabi oscillations as a function of time, shown by the plot below
 fig, ax = plt.subplots()

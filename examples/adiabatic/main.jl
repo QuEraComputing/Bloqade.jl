@@ -206,8 +206,9 @@ draw!(ax2, Δ/2π)
 ax2.set_ylabel("Δ/2π MHz")
 fig
 
-h = rydberg_h(atoms; Δ, Ω)
+# Then we use the above waveforms and atom sites to create a Hamiltonian and define a time evolution problem
 
+h = rydberg_h(atoms; Δ, Ω)
 reg = zero_state(9);
 prob = SchrodingerProblem(reg, total_time, h);
 integrator = init(prob, Vern8());

@@ -28,8 +28,8 @@ function pages(;light=false)
         "Installation" => "install.md",
         "The Julia Programming Language" => "julia.md",
         "Manual" => [
-            "Waveforms" => "waveform.md",
             "Lattices" => "lattices.md",
+            "Waveforms" => "waveform.md",
             "Hamiltonians" => "hamiltonians.md",
             "Registers" => "registers.md",
             "Emulation" => "emulation.md",
@@ -49,7 +49,7 @@ function pages(;light=false)
             "Bravais Lattice" => "topics/bravais.md",
             "Automatic Differentiation" => "topics/ad.md",
         ],
-        "Contributing Bloqade" => "contrib.md",
+        "Contributing to Bloqade" => "contrib.md",
     ])
 
     return PAGES

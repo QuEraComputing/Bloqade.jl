@@ -21,7 +21,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-0ec35373-1">
+<g fill="#000000" font-size="3.88" id="img-3a8c2b16-1">
   <g transform="translate(23.64,33.09)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -53,7 +53,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     </g>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0ec35373-2">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-3a8c2b16-2">
   <g transform="translate(23.64,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
@@ -82,7 +82,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="2.57" id="img-0ec35373-3">
+<g fill="#000000" font-size="2.57" id="img-3a8c2b16-3">
   <g transform="translate(23.64,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -169,10 +169,10 @@ fig</code></pre><p><img src="../16217221.svg" alt/></p><p>From the density profi
 U2 = 2π * 10;
 Δ = piecewise_linear(clocks = [0.0, 0.6, 2.1, total_time], values = [U1, U1, U2, U2]);</code></pre><p>We plot the two waveforms:</p><pre><code class="language-julia hljs">fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
 draw!(ax1, Ω/2π)
-ax1.set_ylabel(&quot;Ω/2π MHz&quot;)
+ax1.set_ylabel(&quot;Ω/2π (MHz)&quot;)
 draw!(ax2, Δ/2π)
-ax2.set_ylabel(&quot;Δ/2π MHz&quot;)
-fig</code></pre><p><img src="../1296009652.svg" alt/></p><p>We generate the positions of a 1D atomic chain again:</p><pre><code class="language-julia hljs">nsites = 9
+ax2.set_ylabel(&quot;Δ/2π (MHz)&quot;)
+fig</code></pre><p><img src="../984042992.svg" alt/></p><p>We generate the positions of a 1D atomic chain again:</p><pre><code class="language-julia hljs">nsites = 9
 atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -188,7 +188,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-9667e444-1">
+<g fill="#000000" font-size="3.88" id="img-c70158e1-1">
   <g transform="translate(23.64,33.09)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -220,7 +220,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     </g>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-9667e444-2">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-c70158e1-2">
   <g transform="translate(23.64,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
@@ -249,7 +249,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="2.57" id="img-9667e444-3">
+<g fill="#000000" font-size="2.57" id="img-c70158e1-3">
   <g transform="translate(23.64,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -352,4 +352,4 @@ ax.set_ylabel(&quot;site&quot;)
 ax.set_xticks(0:0.2:total_time)
 ax.set_yticks(1:nsites)
 bar = fig.colorbar(shw)
-fig</code></pre><p><img src="../2179518574.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« CUDA Acceleration</a><a class="docs-footer-nextpage" href="../../noise/main/">Adiabatic Preparation with Sensitivity Analysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.16 on <span class="colophon-date" title="Tuesday 19 April 2022 01:24">Tuesday 19 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><p><img src="../2179518574.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« CUDA Acceleration</a><a class="docs-footer-nextpage" href="../../noise/main/">Adiabatic Preparation with Sensitivity Analysis »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.16 on <span class="colophon-date" title="Tuesday 19 April 2022 13:36">Tuesday 19 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

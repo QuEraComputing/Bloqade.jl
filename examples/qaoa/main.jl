@@ -226,7 +226,7 @@ function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     Δ_end = 11 * 2π
     Δ0 = 11 * 2π
     T_max = 0.6
-    #  the strength of the detunings in each step takes the optimizing x as their input 
+    ## the strength of the detunings in each step takes the optimizing x as their input 
     Δs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=T[Δ_start, Δ_start, Δ0*x[1], Δ0*x[2], Δ0*x[3], Δ_end, Δ_end]); kernel_radius=0.1)
     Ωs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.5, T_max], values=T[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.05)
 

@@ -115,7 +115,24 @@ loss_qaoa(reg) = -real(expect(SumOfN(nsites=nbits), reg))
 
 loss_qaoa(prob2.reg)
 
-# This loss does not look good, we can throw it into an optimizer and see if a classical optimizer can help
+# The ouput shows the negative mean independent set size, where we flip the sign because in most optimizers, the loss function should be a real number to minimize.
+# Here, we set the goal to maximize the average independent set size by measuring the output configuration for simplicity:
+# ```math 
+# \mathcal{L} = \frac{1}{N}\sum\limits_{s=1}^N n_s,
+# ```
+# where ``N`` is the number of measurements.
+# Ideally, the goal should be maximizing the probability to get an MIS, but this value is in general not available in a real applications.
+# There are some alternatives like the CVaR loss
+# ```math
+# \mathcal{L}_{\rm CVaR} = \frac{1}{|S|}\sum\limits_{s\sim S}n_s``, where ``S`` is the collection of best ``\alpha``(=$cvar_alpha)``N`` configurations"
+# ```
+# and Gibbs loss
+# ```math
+# \mathcal{L}_{\rm Gibbs} = -\frac{1}{\beta}\log(\langle \psi|e^{-\beta H}|\psi\rangle)
+# ```
+# where ``\beta`` is the "inverse temperature" as a hyperparameter.
+
+# Here, the loss does not look good, we can throw it into an optimizer and see if a classical optimizer can help
 # But first, let us wrap up the above code into a loss function.
 
 function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
@@ -222,20 +239,3 @@ mean_mis_final, reg_final, Δ_final = loss_piecewise_linear(atoms, optresult.min
 bitstring_hist(reg_final; nlargest=20)
 
 BloqadePlots.draw(Δ_final)
-
-# The ouput shows the negative mean independent set size, where we flip the sign because in most optimizers, the loss function should be a real number to minimize.
-# Here, we set the goal to maximize the average independent set size by measuring the output configuration for simplicity:
-# ```math 
-# \mathcal{L} = \frac{1}{N}\sum\limits_{s=1}^N n_s,
-# ```
-# where ``N`` is the number of measurements.
-# Ideally, the goal should be maximizing the probability to get an MIS, but this value is in general not available in a real applications.
-# There are some alternatives like the CVaR loss
-# ```math
-# \mathcal{L}_{\rm CVaR} = \frac{1}{|S|}\sum\limits_{s\sim S}n_s``, where ``S`` is the collection of best ``\alpha``(=$cvar_alpha)``N`` configurations"
-# ```
-# and Gibbs loss
-# ```math
-# \mathcal{L}_{\rm Gibbs} = -\frac{1}{\beta}\log(\langle \psi|e^{-\beta H}|\psi\rangle)
-# ```
-# where ``\beta`` is the "inverse temperature" as a hyperparameter.

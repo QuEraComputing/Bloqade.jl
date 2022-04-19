@@ -13,7 +13,7 @@ using ..BloqadeCI: root_dir, collect_lib, dev
 
 function foreach_example(f)
     example_dir = root_dir("examples")
-    for name in ["qaoa"]#readdir(example_dir)
+    for name in readdir(example_dir)
         path = joinpath(example_dir, name)
         isdir(path) || continue
         f(path)
@@ -141,7 +141,7 @@ in parallel.
     script = """
     using Pkg
     using Literate
-    for name in ["qaoa"]#readdir(\"$example_dir\")
+    for name in readdir(\"$example_dir\")
         project_dir = joinpath(\"$example_dir\", name)
         isdir(project_dir) || continue
 

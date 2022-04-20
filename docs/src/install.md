@@ -24,7 +24,7 @@ time.
 Some users may want to try the latest version of Bloqade for bug fixes, new features, etc. One can use `git` to clone the
 repo to try the latest version of the entire package. This
 requires one to setup the local project environment via `dev`.
-Please refer to [Contribution](@ref) for more information.
+Please refer to the page [Contributing to Bloqade](@ref) for more information.
 
 If you only want to try the latest version of a specific
 Bloqade package, just add `#master` after the package name, e.g.

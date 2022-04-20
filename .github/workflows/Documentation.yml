@@ -6,7 +6,7 @@ on:
       - master
     tags: '*'
   pull_request:
-    types: [ready_for_review, opened]
+    types: [opened]
 
 jobs:
   build:

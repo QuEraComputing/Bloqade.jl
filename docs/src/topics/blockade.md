@@ -38,19 +38,23 @@ where ``R`` is the blockade radius. As long as this condition holds, the exact d
 
 ## ``\Omega_\text{max}``, unit disk radius, and blockade radius
 
-While in principle the unit disk radius can be made equal to the blockade radius, the two values should be differentiated. For any two atoms within the unit disk radius ``R_u``, the energy scale of having both in the Rydberg state must be much larger than ``\Omega``, as described above. However, for any two atoms outside of the unit disk radius, the energy scale of having both be in the Rydberg state must be much smaller than ``\Omega``, as the two atoms should not be blockaded. This condition sets a lower limit on the value of ``\Omega``, as there are still ``1/R^6`` interactions between nearby atoms which may "accidentally" blockade each other if ``\Omega``is too small. This lower limit, which guarantees that dynamics occur within the correct independent set subspace, is then set by the minimum distance between atoms ``R_\text{min}`` that are _not_ within the unit disk radius:
+While in principle the unit disk radius can be made equal to the blockade radius, the two values should be differentiated. For any two atoms within the unit disk radius ``R_u``, the energy scale of having both in the Rydberg state must be much larger than ``\Omega``, as described above. However, for any two atoms outside of the unit disk radius, the energy scale of having both be in the Rydberg state must be much smaller than ``\Omega``, as the two atoms should not be blockaded. This condition sets a lower limit on the value of ``\Omega``, as there are still ``1/R^6`` interactions between nearby atoms which may "accidentally" blockade each other if ``\Omega``is too small. This lower limit guarantees that dynamics occur within the correct independent set subspace and is not affected by longrange "Rydberg tails" which cause each independent set state to have a slightly different energy. The lower limit is set by the minimum distance between atoms ``R_\text{min}`` that are _not_ within the unit disk radius:
 
 ```math
 \Omega \gg \frac{C_6}{R_\text{min}^6}
 ```
 
-One can than choose a value of ``\Omega`` which minimizes the error from both sources. Setting the ratio of perturbative errors equal to one, the optimal value of ``\Omega`` is set by
+Crucially, this lower limit is not necessary if one only cares about the validity of the Hilbert space truncation to the low energy space. This condition is additional, requiring that the dynamics within the low energy subspace effectively are in a degenerate independent set basis, and is not affected by longrange ``1/R^6`` "Rydberg tails". One can than choose a value of ``\Omega`` which minimizes the error from both sources. Setting the ratio of perturbative errors equal to one, the optimal value of ``\Omega`` is set by
 
 ```math
 \Omega_b = \frac{C_6}{R_b^6}\qquad\qquad\text{where}\qquad R_b = R_u\sqrt{\frac{R_\text{max}}{R_u}}
 ```
 
 Here, ``R_b`` is the **blockade radius** of the system, which equivalently is set by the scale of the maximum value of ``(\Omega_b/C_6)^{1/6}``. This blockade radius is the geometric mean of the unit disk radius ``R_u``, the maximum distance between vertices that are connected by an edge, and the minimum distance ``R_\text{min}`` between vertices that are nto connected by an edge. The conversion between unit disk radius and blockade radius is then dependent on the choice of the particular atom arrangement and the minimum ratio ``R_\text{max}/R_u`` as shown below.
+
+![BlockadRadius](../assets/bloqade_subspace_UDGradius.png)
+
+The ratio of the unit disk radius (dark red) to the blockade radius (red dashed) for several choices of atoms. Preferably, ``R_\text{max}/R_u\gg 1``, as large values mean that both perturbative conditions are preserved. Observe that for the 
 
 ## Example dynamics in the blockade subspace
 

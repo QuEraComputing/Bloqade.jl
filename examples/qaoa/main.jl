@@ -152,6 +152,7 @@ loss_MIS(reg) = -real(expect(SumOfN(nsites=nbits), reg))
 loss_MIS(prob2.reg)
 
 # The ouput shows the negative mean independent set size. This is because  we have flipped its sign since most optimizers are set to minimize the the loss function.
+# This loss is equivalent to [`mean_rydberg`](@ref) loss in [`BloqadeMIS`](@ref) module, alternative loss functions include [`gibbs_loss`](@ref) and [`independent_set_probabilities`](@ref).
 
 
 # Here, the loss does not look good, we can throw it into an optimizer and see if a classical optimizer can help. 
@@ -181,7 +182,7 @@ end
 
 # !!!note
 #     Running the emulation in subspace does not violate the independence constraints.
-#     In practice, one needs to post-process the measured bit strings to a get a correct measure of loss.
+#     In practice, one needs to post-process the measured bit strings to a get a correct measure of loss. Related APIs include [`is_independent_set`](@ref), [`num_mis_violation`](@ref) and [`mis_postprocessing`](@ref).
 
 
 # Let us check the loss function by using a random input 

@@ -25,7 +25,7 @@ using Reexport
     img_atoms, img_maskedgrid
 
 
-export rydberg_density, rydberg_corr
+export rydberg_density, rydberg_corr, bitstring_hist, bitstring_hist!
 
 using PythonCall
 const plt = PythonCall.pynew()

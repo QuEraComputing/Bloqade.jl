@@ -54,11 +54,13 @@ Here, ``R_b`` is the **blockade radius** of the system, which equivalently is se
 
 ![BlockadRadius](../assets/bloqade_subspace_UDGradius.png)
 
-The ratio of the unit disk radius (dark red) to the blockade radius (red dashed) for several choices of atoms. Preferably, ``R_\text{max}/R_u\gg 1``, as large values mean that both perturbative conditions are preserved. Observe that for the 
+The ratio of the unit disk radius (dark red) to the blockade radius (red dashed) for several choices of atoms. Preferably, ``R_\text{max}/R_u\gg 1``, as large values mean that both perturbative conditions are preserved. For a 1d nearest neighbor line, the value is ``2``, and so ``(C_6/(2R_u)^6)\ll\Omega_b = (C_6/R_u^6)/8\ll (C_6/R_u^6)``. However, for an example arbitrary graph, this ratio is only ``1.15``, and so the perturbative limit ``0.42740\ll 0.6538\ll 1`` is not well-preserved. For this reason, there must be some care for choosing which graphs have appropriate dynamics within an approximately degenerate independent set subspace. Some graphs, like a 1d chain, are deep within the perturbative limits and so it is reasonable to expect that dynamics can ignore Rydberg tails. However, arbitrary graphs which have vertices close to the unit disk threshold may be sensitive to ``1/R^6`` Rydberg tails and may not have the expected dynamics.
+
+It should be noted and emphisized once again that this lower limit is only necessary if one needs the extra approximation of ignoring Rydberg interactions outside of the unit disk radius. If the subspace is chosen simply as an efficient way to speed up computation by truncating in energy, the value of ``\Omega`` does not have a lower bound. For example, if one wished to do dynamics of a ``\mathbb{Z}_3`` state, eg a next-nearest-neighbor chain, one can choose the blockade radius of a single site to truncate very high energy states, while choosing a value of ``\Omega`` which matches the blockade radius of the NNN chain.
 
 ## Example dynamics in the blockade subspace
 
-To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown below, for a ring of 12 atoms seperated by ``7\mu m``. Given a blockade radius of ``R=7\mu m``, the energy scale is set to be ``\Omega \ll 7.296``MHz. This set of atoms can be defined by
+To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown below, for a ring of 12 atoms seperated by ``7\mu m``. The minimum distance of atoms not within the blockade radius is ``\approx13.5230\mu m``, so that the the blockade radius is ``R_b=7\mu m\times \sqrt{13.52/7}\approx 9.72937``. This sets the blockade energy scale is set to be ``\Omega_b \approx 1.0120``MHz, and the perturbative limits to be ``\Omega_b\ll 7.2961``MHz and ``\Omega_b\gg 0.1404``MHz. This set of atoms can be defined by
 
 ```@example blockade
 using Bloqade

@@ -67,8 +67,8 @@ values2 = rand(length(clocks)-1)
 wf2 = piecewise_constant(;clocks, values=values2); 
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
-draw!(ax1, wf1)
-draw!(ax2, wf2)
+Bloqade.plot!(ax1, wf1)
+Bloqade.plot!(ax2, wf2)
 fig
 ```
 
@@ -119,8 +119,8 @@ wf3 = wf1 + wf2;
 wf4 = wf1 - wf2;
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
-draw!(ax1, wf3)
-draw!(ax2, wf4)
+Bloqade.plot!(ax1, wf3)
+Bloqade.plot!(ax2, wf4)
 fig
 
 ```
@@ -132,8 +132,8 @@ wf = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0);
 wf_t = 3 * wf;
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
-draw!(ax1, wf)
-draw!(ax2, wf_t)
+Bloqade.plot!(ax1, wf)
+Bloqade.plot!(ax2, wf_t)
 fig
 
 ```
@@ -143,8 +143,8 @@ Such operation could also be broadcasted by using `.*`
 wf2, wf3 = [2.0, 3.0] .* wf1; 
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
-draw!(ax1, wf2)
-draw!(ax2, wf3)
+Bloqade.plot!(ax1, wf2)
+Bloqade.plot!(ax2, wf3)
 fig
 ```
 

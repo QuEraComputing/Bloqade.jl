@@ -41,9 +41,9 @@ chain = ChainLattice()
 BloqadeLattices.DEFAULT_LINE_COLOR[] = "#0085FF"
 
 # to show the lattice vectors.
-unitvectors(lattice::AbstractLattice, scale) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
+unitvectors(lattice::AbstractLattice{2}, scale=1.0) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
 
-plot_atoms(generate_sites(chain, 10))
+img_atoms(generate_sites(chain, 10); vectors=[((0.0, 0.0), (1.0, 0.0))])
 ```
 
 !!! note
@@ -67,7 +67,7 @@ lattice_sites(chain)
 ##### [`SquareLattice`](@ref)
 ```@example quick-start
 square = SquareLattice()
-plot_atoms(generate_sites(square, 10, 10))
+img_atoms(generate_sites(square, 10, 10); vectors=unitvectors(square))
 ```
 
 Note that the index showing on sites are consistent with the index of qubits for performing computation. 
@@ -84,7 +84,7 @@ lattice_sites(square)
 ##### [`HoneycombLattice`](@ref)
 ```@example quick-start
 honeycomb = HoneycombLattice()
-plot_atoms(generate_sites(honeycomb, 5, 5))
+img_atoms(generate_sites(honeycomb, 5, 5); vectors=unitvectors(honeycomb))
 ```
 
 
@@ -92,21 +92,21 @@ plot_atoms(generate_sites(honeycomb, 5, 5))
 ##### [`TriangularLattice`](@ref)
 ```@example quick-start
 triangular = TriangularLattice()
-plot_atoms(generate_sites(triangular, 8, 8))
+img_atoms(generate_sites(triangular, 8, 8); vectors=unitvectors(triangular))
 ```
 
 
 ##### [`LiebLattice`](@ref)
 ```@example quick-start
 lieb = LiebLattice()
-plot_atoms(generate_sites(lieb, 5, 5))
+img_atoms(generate_sites(lieb, 5, 5); vectors=unitvectors(lieb))
 ```
 
 
 ##### [`KagomeLattice`](@ref)
 ```@example quick-start
 kagome = KagomeLattice()
-plot_atoms(generate_sites(kagome, 5, 5))
+img_atoms(generate_sites(kagome, 5, 5); vectors=unitvectors(kagome))
 ```
 
 
@@ -181,11 +181,11 @@ neighbors[2]
 
 One can select and display these atoms with correct labeling by typing
 ```@example quick-start
-plot_atoms(sorted_atoms[neighbors[2]]; texts=string.(neighbors[2]))
+img_atoms(sorted_atoms[neighbors[2]]; texts=string.(neighbors[2]))
 ```
 
 It show the correct second nearest neigbors of site 5.
-One can check the docstring of [`plot_atoms`](@ref) to know more about how to custom lattice visualization.
+One can check the docstring of [`img_atoms`](@ref) to know more about how to custom lattice visualization.
 
 ## References
 

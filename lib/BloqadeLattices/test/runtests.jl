@@ -69,13 +69,13 @@ end
     lt = generate_sites(KagomeLattice(), 5, 5, scale=1.5)
     grd = make_grid(lt[2:end-1])
     unitvectors(lattice::AbstractLattice, scale::Real) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
-    @test plot_atoms(lt; vectors=unitvectors(KagomeLattice(), 1.5)) isa Compose.Context
+    @test img_atoms(lt; vectors=unitvectors(KagomeLattice(), 1.5)) isa Compose.Context
     # different colors
-    @test plot_atoms(lt; colors=nothing) isa Compose.Context
-    @test plot_atoms(lt; colors="red") isa Compose.Context
-    @test plot_atoms(lt; colors=fill("blue", length(lt))) isa Compose.Context
-    @test plot_atoms(lt; colors=ByDensity(randn(length(lt)); vmax=10)) isa Compose.Context
-    @test plot_maskedgrid(grd) isa Compose.Context
+    @test img_atoms(lt; colors=nothing) isa Compose.Context
+    @test img_atoms(lt; colors="red") isa Compose.Context
+    @test img_atoms(lt; colors=fill("blue", length(lt))) isa Compose.Context
+    @test img_atoms(lt; colors=ByDensity(randn(length(lt)); vmax=10)) isa Compose.Context
+    @test img_maskedgrid(grd) isa Compose.Context
     @test show(IOBuffer(), MIME"text/html"(), grd) === nothing
     @test show(IOBuffer(), MIME"text/html"(), lt) === nothing
     @test show(IOBuffer(), MIME"image/png"(), grd) === nothing

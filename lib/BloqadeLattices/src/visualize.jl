@@ -57,7 +57,7 @@ function get_rescaler(atoms::AbstractVector{<:Tuple}, pad)
 end
 
 """
-    plot_atoms(atoms::AtomList;
+    img_atoms(atoms::AtomList;
         colors=[DEFAULT_LINE_COLOR[], ...],
         blockade_radius=0,
         texts=["1", "2", ...],
@@ -76,7 +76,7 @@ If you want to write this image to the disk without displaying it in a frontend,
 julia> using Compose
 
 julia> open("test.png", "w") do f
-            plot_atoms(generate_sites(SquareLattice(), 5, 5); io=f, format=Compose.PNG)
+            img_atoms(generate_sites(SquareLattice(), 5, 5); io=f, format=Compose.PNG)
        end
 ```
 
@@ -117,7 +117,7 @@ Atoms within `blockade_radius` will be connected by bonds.
     # image size in cm
     image_size::Float64 = 12
 """
-function plot_atoms(atoms::AtomList{2};
+function img_atoms(atoms::AtomList{2};
         colors=nothing,
         blockade_radius=0,
         texts = nothing,
@@ -137,7 +137,7 @@ function plot_atoms(atoms::AtomList{2};
         return format(io, dx, dy)(img)
     end
 end
-plot_atoms(atoms::AtomList{1}; kwargs...) = plot_atoms(padydim(atoms); kwargs...)
+img_atoms(atoms::AtomList{1}; kwargs...) = img_atoms(padydim(atoms); kwargs...)
 
 function _edges(atoms, blockade_radius)
     n = length(atoms)
@@ -225,7 +225,7 @@ function _viz_atoms(locs, edges, colors, vectors, texts, config, blockade_radius
         @assert length(locs) == length(texts)
     end
     edge_style = Viznet.bondstyle(:default, Compose.stroke(config.bond_color), linewidth(config.bond_linewidth*cm*rescale))
-    vec_style = Viznet.bondstyle(:default, Compose.stroke(config.bond_color), Compose.arrow(), linewidth(config.bond_linewidth*cm*rescale))
+    vec_style = Viznet.bondstyle(:default, Compose.stroke(config.bond_color), Compose.arrow(), linewidth(config.bond_linewidth*cm*rescale), Compose.fill(config.bond_color))
     blockade_radius_style = Viznet.nodestyle(:circle,
         Compose.stroke(config.blockade_stroke_color),
         Compose.strokedash([0.5mm*rescale, 0.5mm*rescale]),
@@ -313,7 +313,7 @@ function _axes!(xs, locs, config, rescale)
 end
 
 """
-    plot_maskedgrid(maskedgrid::MaskedGrid;
+    img_maskedgrid(maskedgrid::MaskedGrid;
         format=SVG,
         io=nothing,
         colors=[DEFAULT_LINE_COLOR[], ...],
@@ -326,9 +326,9 @@ end
 Draw a `maskedgrid` with colors specified by `colors` and texts specified by `texts`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 
-See also the docstring of [`plot_atoms`](@ref) for explanations of other keyword arguments.
+See also the docstring of [`img_atoms`](@ref) for explanations of other keyword arguments.
 """
-function plot_maskedgrid(maskedgrid::MaskedGrid;
+function img_maskedgrid(maskedgrid::MaskedGrid;
         format=SVG, io=nothing,
         colors=nothing,
         texts = nothing,
@@ -373,12 +373,12 @@ end
 for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
     @eval begin
         function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
-            plot_maskedgrid(maskedgrid; format=$format, io=io)
+            img_maskedgrid(maskedgrid; format=$format, io=io)
             nothing
         end
     
         function Base.show(io::IO, ::$mime, list::AtomList)
-            plot_atoms(list; format=$format, io=io)
+            img_atoms(list; format=$format, io=io)
             nothing
         end
     end

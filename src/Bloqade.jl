@@ -27,6 +27,15 @@ using Reexport
 
 export rydberg_density, rydberg_corr
 
+using PythonCall
+const plt = PythonCall.pynew()
+
+function __init__()
+    # copied from PyPlotCall.jl
+    PythonCall.pycopy!(plt, pyimport("matplotlib.pyplot"))
+end
+
+include("plots/plots.jl")
 include("observables.jl")
 include("precompile.jl")
 

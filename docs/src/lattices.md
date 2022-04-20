@@ -37,7 +37,13 @@ chain = ChainLattice()
 ```
 
 ```@example quick-start
-img_atoms(generate_sites(chain, 10))
+# to make the plot look good in both light and dark background
+BloqadeLattices.DEFAULT_LINE_COLOR[] = "#0085FF"
+
+# to show the lattice vectors.
+unitvectors(lattice::AbstractLattice, scale) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
+
+plot_atoms(generate_sites(chain, 10))
 ```
 
 !!! note
@@ -61,7 +67,7 @@ lattice_sites(chain)
 ##### [`SquareLattice`](@ref)
 ```@example quick-start
 square = SquareLattice()
-img_atoms(generate_sites(square, 10, 10))
+plot_atoms(generate_sites(square, 10, 10))
 ```
 
 Note that the index showing on sites are consistent with the index of qubits for performing computation. 
@@ -78,7 +84,7 @@ lattice_sites(square)
 ##### [`HoneycombLattice`](@ref)
 ```@example quick-start
 honeycomb = HoneycombLattice()
-img_atoms(generate_sites(honeycomb, 5, 5))
+plot_atoms(generate_sites(honeycomb, 5, 5))
 ```
 
 
@@ -86,21 +92,21 @@ img_atoms(generate_sites(honeycomb, 5, 5))
 ##### [`TriangularLattice`](@ref)
 ```@example quick-start
 triangular = TriangularLattice()
-img_atoms(generate_sites(triangular, 8, 8))
+plot_atoms(generate_sites(triangular, 8, 8))
 ```
 
 
 ##### [`LiebLattice`](@ref)
 ```@example quick-start
 lieb = LiebLattice()
-img_atoms(generate_sites(lieb, 5, 5))
+plot_atoms(generate_sites(lieb, 5, 5))
 ```
 
 
 ##### [`KagomeLattice`](@ref)
 ```@example quick-start
 kagome = KagomeLattice()
-img_atoms(generate_sites(kagome, 5, 5))
+plot_atoms(generate_sites(kagome, 5, 5))
 ```
 
 
@@ -175,11 +181,11 @@ neighbors[2]
 
 One can select and display these atoms with correct labeling by typing
 ```@example quick-start
-img_atoms(sorted_atoms[neighbors[2]]; texts=string.(neighbors[2]))
+plot_atoms(sorted_atoms[neighbors[2]]; texts=string.(neighbors[2]))
 ```
 
 It show the correct second nearest neigbors of site 5.
-One can check the docstring of [`img_atoms`](@ref) to know more about how to custom lattice visualization.
+One can check the docstring of [`plot_atoms`](@ref) to know more about how to custom lattice visualization.
 
 ## References
 

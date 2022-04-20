@@ -29,7 +29,7 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |> random_dropout(0.2)
 # Then we set the blockade radius to be 7.5 ``\mu m``. In such a case,  if two atoms have a distance of ``a`` or ``\sqrt{2} a``, they are within the blockade radius. 
 # As we discussed in [Rydberg Blockade](@ref), there is only one Rydberg excitation is allowed within the blockade radius.  To better illustrate the constraint, we 
 # plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the strong Rydberg interactions. 
-img_atoms(atoms, blockade_radius=7.5)
+plot_atoms(atoms, blockade_radius=7.5)
 # Our goal is to find a the maximum independent sets of such a graph. 
 
 
@@ -92,9 +92,9 @@ all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), Configs
 @assert all(bs->GenericTensorNetworks.StaticBitVector([bs...]) ∈ all_optimal_configs.c, best_bit_strings)
 
 # We can also visualize these atoms and check them visually.
-img_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[1]])
+plot_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[1]])
 #
-img_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[2]])
+plot_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[2]])
 
 
 

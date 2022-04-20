@@ -1,3 +1,4 @@
+const DEFAULT_LINE_COLOR = Ref("#000000")
 struct Rescaler{T}
     xmin::T
     xmax::T
@@ -56,16 +57,18 @@ function get_rescaler(atoms::AbstractVector{<:Tuple}, pad)
 end
 
 """
-    img_atoms(atoms::AtomList;
-        colors=["black", "black", ...],
+    plot_atoms(atoms::AtomList;
+        colors=[DEFAULT_LINE_COLOR[], ...],
         blockade_radius=0,
         texts=["1", "2", ...],
+        vectors = [],
         format=SVG,
         io=nothing,
         kwargs...
         )
 
 Plots `atoms` with colors specified by `colors` and texts specified by `texts`.
+Extra vectors can be specified by the `vectors` keyword argument, which is a vector of (start_loc, end_loc) pair.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 If you want to write this image to the disk without displaying it in a frontend, please try
 
@@ -73,7 +76,7 @@ If you want to write this image to the disk without displaying it in a frontend,
 julia> using Compose
 
 julia> open("test.png", "w") do f
-            img_atoms(generate_sites(SquareLattice(), 5, 5); io=f, format=Compose.PNG)
+            plot_atoms(generate_sites(SquareLattice(), 5, 5); io=f, format=Compose.PNG)
        end
 ```
 
@@ -88,7 +91,7 @@ Atoms within `blockade_radius` will be connected by bonds.
     pad::Float64 = 1.5 
 
     # axes
-    axes_text_color::String = "black"
+    axes_text_color::String = DEFAULT_LINE_COLOR[]
     axes_text_fontsize::Float64 = 11.0
     axes_num_of_xticks = 5
     axes_num_of_yticks = 5
@@ -98,33 +101,34 @@ Atoms within `blockade_radius` will be connected by bonds.
 
     # node
     node_text_fontsize::Float64 = 5.0
-    node_text_color::String = "black"
-    node_stroke_color = "black"
+    node_text_color::String = DEFAULT_LINE_COLOR[]
+    node_stroke_color = DEFAULT_LINE_COLOR[]
     node_stroke_linewidth = 0.03
     node_fill_color = "white"
     # bond
-    bond_color::String = "black"
+    bond_color::String = DEFAULT_LINE_COLOR[]
     bond_linewidth::Float64 = 0.03
     # blockade
     blockade_style::String = "none"
-    blockade_stroke_color::String = "black"
+    blockade_stroke_color::String = DEFAULT_LINE_COLOR[]
     blockade_fill_color::String = "transparent"
     blockade_fill_opacity::Float64 = 0.5
     blockade_stroke_linewidth = 0.03
     # image size in cm
     image_size::Float64 = 12
 """
-function img_atoms(atoms::AtomList{2};
+function plot_atoms(atoms::AtomList{2};
         colors=nothing,
         blockade_radius=0,
         texts = nothing,
+        vectors = [],
         format=SVG, io=nothing,
         kwargs...)
     if length(atoms) == 0
         dx, dy = 12cm, 12cm
         img = Compose.compose(context())
     else
-        img, (dx, dy) = viz_atoms(atoms; colors=colors, blockade_radius=blockade_radius, texts=texts, config=LatticeDisplayConfig(; config_plotting(atoms)..., kwargs...))
+        img, (dx, dy) = viz_atoms(atoms; colors=colors, vectors=vectors, blockade_radius=blockade_radius, texts=texts, config=LatticeDisplayConfig(; config_plotting(atoms)..., kwargs...))
     end
     if io === nothing
         Compose.set_default_graphic_size(dx, dy)
@@ -133,7 +137,7 @@ function img_atoms(atoms::AtomList{2};
         return format(io, dx, dy)(img)
     end
 end
-img_atoms(atoms::AtomList{1}; kwargs...) = img_atoms(padydim(atoms); kwargs...)
+plot_atoms(atoms::AtomList{1}; kwargs...) = plot_atoms(padydim(atoms); kwargs...)
 
 function _edges(atoms, blockade_radius)
     n = length(atoms)
@@ -158,10 +162,10 @@ function fit_image(rescaler::Rescaler, image_size, imgs...)
 end
 
 # Returns a 2-tuple of (image::Context, size)
-function viz_atoms(al::AtomList; colors, blockade_radius, texts, config)
+function viz_atoms(al::AtomList; colors, vectors, blockade_radius, texts, config)
     atoms = padydim(al).atoms
     rescaler = get_rescaler(atoms, config.pad)
-    img = _viz_atoms(rescaler.(atoms), _edges(atoms, blockade_radius), colors, texts, config, blockade_radius, getscale(rescaler))
+    img = _viz_atoms(rescaler.(atoms), _edges(atoms, blockade_radius), colors, [rescaler.(v) for v in vectors], texts, config, blockade_radius, getscale(rescaler))
     img_axes = _viz_axes(rescaler, config)
     return fit_image(rescaler, config.image_size, img, img_axes)
 end
@@ -181,7 +185,7 @@ Base.@kwdef struct LatticeDisplayConfig
     pad::Float64 = 1.5
 
     # axes
-    axes_text_color::String = "black"
+    axes_text_color::String = DEFAULT_LINE_COLOR[]
     axes_text_fontsize::Float64 = 11.0
     axes_num_of_xticks = 5
     axes_num_of_yticks = 5
@@ -191,18 +195,18 @@ Base.@kwdef struct LatticeDisplayConfig
 
     # node
     node_text_fontsize::Float64 = 5.0
-    node_text_color::String = "black"
-    node_stroke_color = "black"
+    node_text_color::String = DEFAULT_LINE_COLOR[]
+    node_stroke_color = DEFAULT_LINE_COLOR[]
     node_stroke_linewidth = 0.03
     node_fill_color = "white"
 
     # bond
-    bond_color::String = "black"
+    bond_color::String = DEFAULT_LINE_COLOR[]
     bond_linewidth::Float64 = 0.03
 
     # blockade
     blockade_style::String = "none"
-    blockade_stroke_color::String = "black"
+    blockade_stroke_color::String = DEFAULT_LINE_COLOR[]
     blockade_fill_color::String = "transparent"
     blockade_fill_opacity::Float64 = 0.5
     blockade_stroke_linewidth = 0.03
@@ -211,21 +215,17 @@ Base.@kwdef struct LatticeDisplayConfig
     image_size::Float64 = 12
 end
 
-function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale)
+function _viz_atoms(locs, edges, colors, vectors, texts, config, blockade_radius, rescale)
     radi = (config.blockade_style=="half" ? blockade_radius/2 : blockade_radius)*rescale
     rescale = rescale * config.image_size * config.scale * 1.6
     _node_style(fill_color) = compose(context(), Viznet.nodestyle(:default, r=0.15cm*rescale),
         Compose.stroke(config.node_stroke_color), fill(fill_color), linewidth(config.node_stroke_linewidth*cm*rescale))
-    if colors !== nothing
-        @assert length(locs) == length(colors)
-        node_styles = [_node_style(color) for color in colors]
-    else
-        node_styles = fill(_node_style(config.node_fill_color), length(locs))
-    end
+    node_styles = [_node_style(color) for color in resolve_colors(colors, locs, config)]
     if texts !== nothing
         @assert length(locs) == length(texts)
     end
     edge_style = Viznet.bondstyle(:default, Compose.stroke(config.bond_color), linewidth(config.bond_linewidth*cm*rescale))
+    vec_style = Viznet.bondstyle(:default, Compose.stroke(config.bond_color), Compose.arrow(), linewidth(config.bond_linewidth*cm*rescale))
     blockade_radius_style = Viznet.nodestyle(:circle,
         Compose.stroke(config.blockade_stroke_color),
         Compose.strokedash([0.5mm*rescale, 0.5mm*rescale]),
@@ -234,6 +234,11 @@ function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale
         Compose.fillopacity(config.blockade_fill_opacity);
         r=radi)
     text_style = Viznet.textstyle(:default, fontsize(config.node_text_fontsize*pt*rescale), fill(config.node_text_color))
+    img0 = Viznet.canvas() do
+        for v in vectors
+            vec_style >> (v[1], v[2])
+        end
+    end
     img1 = Viznet.canvas() do
         for (i, node) in enumerate(locs)
             node_styles[i] >> node
@@ -252,7 +257,49 @@ function _viz_atoms(locs, edges, colors, texts, config, blockade_radius, rescale
             end
         end
     end
-    Compose.compose(context(), img1, img2)
+    Compose.compose(context(), img0, img1, img2)
+end
+
+struct ByDensity
+    values::Vector{Float64}
+    colormap::String
+    vmin::Float64
+    vmax::Float64
+end
+
+"""
+    ByDensity(values; colormap="Grays", vmin=minimum(values), vmax=maximum(values))
+
+For specifying the colors for density plots, where `values` are densities.
+
+# Keyword arguments
+* `colormap` is a string for specifying the color map, check the documentation of [`Colors`] package for the detailed description.
+* `vmin` and `vmax` are the color range.
+"""
+function ByDensity(values; colormap="Grays", vmin=minimum(values), vmax=maximum(values))
+    @assert vmax >= vmin
+    ByDensity(values, colormap, vmin, vmax)
+end
+
+function resolve_colors(::Nothing, locs, config)
+    return fill(config.node_fill_color, length(locs))
+end 
+function resolve_colors(colors::String, locs, config)
+    return fill(colors, length(locs))
+end
+function resolve_colors(colors, locs, config)
+    @assert length(locs) == length(colors)
+    return collect(String, colors)
+end
+function resolve_colors(colors::ByDensity, locs, config)
+    @assert length(locs) == length(colors.values)
+    N = 100
+    cmap = Compose.colormap(colors.colormap, N)
+    return map(colors.values) do v
+        scale = max(colors.vmax - colors.vmin, 1e-12)  # avoid zero devision
+        index = max(min(ceil(Int, (v - colors.vmin)/scale * N), N), 1)
+        cmap[index]
+    end
 end
 
 function _axes!(xs, locs, config, rescale)
@@ -266,11 +313,12 @@ function _axes!(xs, locs, config, rescale)
 end
 
 """
-    img_maskedgrid(maskedgrid::MaskedGrid;
+    plot_maskedgrid(maskedgrid::MaskedGrid;
         format=SVG,
         io=nothing,
-        colors=nothing,
-        texts = nothing,
+        colors=[DEFAULT_LINE_COLOR[], ...],
+        texts=["1", "2", ...],
+        vectors=[],
         blockade_radius = 0,
         kwargs...
         )
@@ -278,18 +326,19 @@ end
 Draw a `maskedgrid` with colors specified by `colors` and texts specified by `texts`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 
-See also the docstring of [`img_atoms`](@ref) for explanations of other keyword arguments.
+See also the docstring of [`plot_atoms`](@ref) for explanations of other keyword arguments.
 """
-function img_maskedgrid(maskedgrid::MaskedGrid;
+function plot_maskedgrid(maskedgrid::MaskedGrid;
         format=SVG, io=nothing,
         colors=nothing,
         texts = nothing,
+        vectors=[],
         blockade_radius = 0,
         kwargs...
         )
     atoms = padydim(collect_atoms(maskedgrid))
     isempty(atoms) && return
-    img, (dx, dy) = viz_maskedgrid(maskedgrid; colors=colors, texts=texts, blockade_radius=blockade_radius, config=LatticeDisplayConfig(; config_plotting(atoms)..., kwargs...))
+    img, (dx, dy) = viz_maskedgrid(maskedgrid; colors, vectors, texts, blockade_radius, config=LatticeDisplayConfig(; config_plotting(atoms)..., kwargs...))
     if io === nothing
         Compose.set_default_graphic_size(dx, dy)
         return img
@@ -299,12 +348,12 @@ function img_maskedgrid(maskedgrid::MaskedGrid;
 end
 
 # Returns a 2-tuple of (image::Context, size)
-function viz_maskedgrid(maskedgrid::MaskedGrid; colors, texts, config, blockade_radius)
+function viz_maskedgrid(maskedgrid::MaskedGrid; colors, vectors, texts, config, blockade_radius)
     atoms = padydim(collect_atoms(maskedgrid))
     rescaler = get_rescaler(atoms, config.pad)
     rescale = getscale(rescaler) * config.image_size * config.scale * 1.6
     line_style_grid = Viznet.bondstyle(:default, Compose.stroke("#AAAAAA"), linewidth(0.3mm*rescale); dashed=true)
-    img1 = _viz_atoms(rescaler.(atoms), _edges(atoms, blockade_radius), colors, texts, config, blockade_radius, getscale(rescaler))
+    img1 = _viz_atoms(rescaler.(atoms), _edges(atoms, blockade_radius), colors, vectors, texts, config, blockade_radius, getscale(rescaler))
     ymax = (rescaler.ymax - rescaler.ymin + 2*rescaler.pad)/(rescaler.xmax - rescaler.xmin + 2*rescaler.pad)
     img2 = _viz_grid(rescaler.(maskedgrid.xs; dims=1), rescaler.(maskedgrid.ys; dims=2), line_style_grid, ymax)
     img_axes = _viz_axes(rescaler, config)
@@ -324,12 +373,12 @@ end
 for (mime, format) in [MIME"image/png"=>PNG, MIME"text/html"=>SVG]
     @eval begin
         function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
-            img_maskedgrid(maskedgrid; format=$format, io=io)
+            plot_maskedgrid(maskedgrid; format=$format, io=io)
             nothing
         end
     
         function Base.show(io::IO, ::$mime, list::AtomList)
-            img_atoms(list; format=$format, io=io)
+            plot_atoms(list; format=$format, io=io)
             nothing
         end
     end

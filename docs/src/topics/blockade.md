@@ -22,7 +22,7 @@ This conditional energy shift is the basis of the **Rydberg Blockade**. Because 
 
 ![EnergyTruncation](../assets/bloqade_subspace.png)
 
-In this way, the low energy classical states of the Rydberg Hamiltonian (``\Omega=0``, ``\Delta=0``) for a given array of atoms are **independent sets** of a **unit disk graph** defined by the positions of the atoms. A unit disk graph is a set of vertices and edges, where vertices represent every atom, and there are edges if the distance between vertices is less than some radius ``|\vec r_i- \vec r_j|<R``. The lowest energy states are representative of independent sets, where Rydberg excitations are in the independent set and no two Rydberg excitations are within some radius. The second energy band are sets with a single independent set violation, where there is equivalently two Rydberg excitations within the unit disk radius of each other. Higher and higher bands represent more and more independent set violations. Note that this band structure is dependent on the arrangement of atoms, and for arbitrary configurations this band structure may not be clear.
+In this way, the low energy classical states of the Rydberg Hamiltonian (``\Omega=0``, ``\Delta=0``) for a given array of atoms are **independent sets** of a **unit disk graph** defined by the positions of the atoms. A unit disk graph is a set of vertices and edges, where vertices represent every atom, and there are edges if the distance between vertices is less than some radius ``|\vec r_i- \vec r_j|<R_u``. The lowest energy states are representative of independent sets, where Rydberg excitations are in the independent set and no two Rydberg excitations are within some radius. The second energy band are sets with a single independent set violation, where there is equivalently two Rydberg excitations within the unit disk radius of each other. Higher and higher bands represent more and more independent set violations. Note that this band structure is dependent on the arrangement of atoms, and for arbitrary configurations this band structure may not be clear.
 
 Instead of doing quantum dyanamics in the full ``2^N`` Hilbert space, we may take advantage of the energy structure of the classical Hamiltonian to reduce the computational difficulty. The simplest scheme is to truncate the Hilbert space to the low energy subspace, and exclude all states above a certain energy. Given the natural band structure of the classical Hamiltonian, we may simply truncate the Hilbert space to the subspace of independent sets of the unit disk graph. Equivalently, this is the **blockade subspace**, where atoms within the blockade radius are excluded from both being in the Rydberg state.
 
@@ -32,9 +32,25 @@ Instead of doing quantum dyanamics in the full ``2^N`` Hilbert space, we may tak
 The validity of the energy truncation subspace is governed by the strength of off-diagonal matrix elements coupling the low energy subspace to the high energy one. For the Rydberg Hamiltonian, these off-diagonal elements ``|1r\rangle\leftrightarow|rr\rangle`` have a strength ``\Omega``. In order to preserve dynamics within the subspace, the energy difference between states within the blockade subspace (eg, ``|1r\rangle``) and outside (``|rr\rangle``) must be much larger than the Rabi strength. Formally,
 
 ```math
-\Omega \ll \frac{C_6}{R^6}
+\Omega \ll \frac{C_6}{R_u^6}
 ```
 where ``R`` is the blockade radius. As long as this condition holds, the exact dynamics in the full Hilbert space should be closely approximated by the approximate dynamics in the blockade subspace, as the mixing terms only couple to low energy states.
+
+## ``\Omega_\text{max}``, unit disk radius, and blockade radius
+
+While in principle the unit disk radius can be made equal to the blockade radius, the two values should be differentiated. For any two atoms within the unit disk radius ``R_u``, the energy scale of having both in the Rydberg state must be much larger than ``\Omega``, as described above. However, for any two atoms outside of the unit disk radius, the energy scale of having both be in the Rydberg state must be much smaller than ``\Omega``, as the two atoms should not be blockaded. This condition sets a lower limit on the value of ``\Omega``, as there are still ``1/R^6`` interactions between nearby atoms which may "accidentally" blockade each other if ``\Omega``is too small. This lower limit, which guarantees that dynamics occur within the correct independent set subspace, is then set by the minimum distance between atoms ``R_\text{min}`` that are _not_ within the unit disk radius:
+
+```math
+\Omega \gg \frac{C_6}{R_\text{min}^6}
+```
+
+One can than choose a value of ``\Omega`` which minimizes the error from both sources. Setting the ratio of perturbative errors equal to one, the optimal value of ``\Omega`` is set by
+
+```math
+\Omega_b = \frac{C_6}{R_b^6}\qquad\qquad\text{where}\qquad R_b = R_u\sqrt{\frac{R_\text{max}}{R_u}}
+```
+
+Here, ``R_b`` is the **blockade radius** of the system, which equivalently is set by the scale of the maximum value of ``(\Omega_b/C_6)^{1/6}``. This blockade radius is the geometric mean of the unit disk radius ``R_u``, the maximum distance between vertices that are connected by an edge, and the minimum distance ``R_\text{min}`` between vertices that are nto connected by an edge. The conversion between unit disk radius and blockade radius is then dependent on the choice of the particular atom arrangement and the minimum ratio ``R_\text{max}/R_u`` as shown below.
 
 ## Example dynamics in the blockade subspace
 

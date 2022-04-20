@@ -4,58 +4,59 @@ CurrentModule = Bloqade
 
 # Waveforms
 
-Waveforms are essential ingredients for Rydberg quantum simulations. By controlling the waveforms of ``\Omega`` and ``\Delta``, one can prepare the ground states of certain target Hamiltonians and study their non-equalibrium dynamics. With Bloqade, we support several built-in waveforms and allow the users to specify waveforms by inputing functions. We also support different operations of waveforms, such as smoothing, waveform, and composing, and more. 
+Waveforms are essential ingredients for generating the Rydberg Hamiltonian. By controlling the waveforms of ``\Omega``, ``\Delta``, and ``\phi``, one can prepare the ground states of certain target Hamiltonians and study their non-equilibrium dynamics. 
+Bloqade supports several built-in waveforms and allows the users to specify waveforms by inputting functions. It also supports different operations of waveforms, such as waveform smoothening, composing, and more.
 
-The generated waveforms can be directly used to build time-dependent Hamiltonians, please see [Hamiltonians](@ref) section for more details. 
+The generated waveforms can be directly used to build the time-dependent Hamiltonians. Please see the [Hamiltonians](@ref) section for more details.
 
 ## Creating Waveforms
 
-In Bloqade, the waveforms are defined as [`Waveform`](@ref) object,
+In Bloqade, the waveforms are defined as a [`Waveform`](@ref) object,
 which is a composition of a callable object and a real number `duration`.
 
 ```@docs
 BloqadeWaveforms.Waveform
 ```
 
-Bloqade gives users the flexibility to specify general waveforms by inputing functions. The following code constructs a sinusoidal waveform with time duration of ``4 \pi \mu s``
+Bloqade gives users the flexibility to specify general waveforms by inputting functions. The following code constructs a sinusoidal waveform with a time duration of ``2 \mu s``
 
 ```@example waveform
 using Bloqade
 using BloqadePlots: draw, draw!
 using PythonCall
 plt = pyimport("matplotlib.pyplot")
-waveform = Waveform(t->2.2sin(t), duration=4π);
+waveform = Waveform(t->2.2*2π*sin(2π*t), duration = 2);
 draw(waveform)
 ```
 where `BloqadePlots` is a plotting package for objects from `Bloqade`,
-that you need to use explicitly. And in our documentation we use the
+which you need to use explicitly. In our documentations, we use the
 python package [`matplotlib`](https://matplotlib.org) for plotting.
 
 Bloqade supports built-in waveforms for convenience (see References below). 
-For example, the codes below create different waveform shapes with single lines:
+For example, the codes below create different waveform shapes with a single line:
 
 ```@example waveform
-waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0]); 
+waveform = piecewise_linear(clocks = [0.0, 0.2, 0.5, 0.8, 1.0], values = 2π*[0.0, 1.5, 3.1, 3.1, 0.0]); 
 draw(waveform)
 ```
 
 ```@example waveform
-waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 0.7], values=[0.0, 1.5, 3.1]);
+waveform = piecewise_constant(clocks = [0.0, 0.2, 0.5, 0.7], values = 2π*[0.0, 1.5, 3.1]);
 draw(waveform)
 ```
 
 ```@example waveform
-waveform = linear_ramp(duration=0.5, start_value=0.0, stop_value=1.0);
+waveform = linear_ramp(duration=0.5, start_value=0.0, stop_value=1.0*2π);
 draw(waveform)
 ```
 
 ```@example waveform
-waveform =  constant(duration=0.5, value=2.1);
+waveform =  constant(duration=0.5, value=2.1*2π);
 draw(waveform)
 ```
 
 ```@example waveform
-waveform = sinusoidal(duration=4π, amplitude=2.2); 
+waveform = sinusoidal(duration = 2, amplitude = 2.2*2π); 
 draw(waveform)
 ```
 

@@ -22,42 +22,40 @@ Bloqade gives users the flexibility to specify general waveforms by inputting fu
 
 ```@example waveform
 using Bloqade
-using BloqadePlots: draw, draw!
 using PythonCall
 plt = pyimport("matplotlib.pyplot")
-waveform = Waveform(t->2.2*2π*sin(2π*t), duration = 2);
-draw(waveform)
+waveform = Waveform(t->2.2sin(t), duration=4π);
+Bloqade.plot(waveform)
 ```
-where `BloqadePlots` is a plotting package for objects from `Bloqade`,
-which you need to use explicitly. In our documentations, we use the
+And in our documentation we use the
 python package [`matplotlib`](https://matplotlib.org) for plotting.
 
 Bloqade supports built-in waveforms for convenience (see References below). 
 For example, the codes below create different waveform shapes with a single line:
 
 ```@example waveform
-waveform = piecewise_linear(clocks = [0.0, 0.2, 0.5, 0.8, 1.0], values = 2π*[0.0, 1.5, 3.1, 3.1, 0.0]); 
-draw(waveform)
+waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0]); 
+Bloqade.plot(waveform)
 ```
 
 ```@example waveform
-waveform = piecewise_constant(clocks = [0.0, 0.2, 0.5, 0.7], values = 2π*[0.0, 1.5, 3.1]);
-draw(waveform)
+waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 0.7], values=[0.0, 1.5, 3.1]);
+Bloqade.plot(waveform)
 ```
 
 ```@example waveform
-waveform = linear_ramp(duration=0.5, start_value=0.0, stop_value=1.0*2π);
-draw(waveform)
+waveform = linear_ramp(duration=0.5, start_value=0.0, stop_value=1.0);
+Bloqade.plot(waveform)
 ```
 
 ```@example waveform
-waveform =  constant(duration=0.5, value=2.1*2π);
-draw(waveform)
+waveform =  constant(duration=0.5, value=2.1);
+Bloqade.plot(waveform)
 ```
 
 ```@example waveform
-waveform = sinusoidal(duration = 2, amplitude = 2.2*2π); 
-draw(waveform)
+waveform = sinusoidal(duration=4π, amplitude=2.2); 
+Bloqade.plot(waveform)
 ```
 
 In some cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions `piecewise_linear` or `piecewise_constant`, corresponding to different interpolations. 
@@ -70,8 +68,8 @@ values2 = 2π*rand(length(clocks)-1)
 wf2 = piecewise_constant(;clocks, values=values2); 
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
-draw!(ax1, wf1)
-draw!(ax2, wf2)
+Bloqade.plot!(ax1, wf1)
+Bloqade.plot!(ax2, wf2)
 fig
 ```
 
@@ -84,9 +82,9 @@ Bloqade also supports several operations on the waveforms.
 Waveforms can be sliced using the duration syntax `start..stop`, e.g.
 
 ```@example waveform
-wf = 2π*sinusoidal(duration=2.2);
-wf1 = wf[1.1..1.5];
-draw(wf1)
+wf = sinusoidal(duration=2.2);
+wf[1.1..1.5];
+Bloqade.plot(wf)
 ```
 Note that time starts from `0.0` again, so the total duration is `stop - start`.
 
@@ -95,7 +93,7 @@ Waveforms can be composed together via `append`
 ```@example waveform
 wf2 = linear_ramp(;start_value=0.0, stop_value=1.1*2π, duration=0.5);
 waveform = append(wf1, wf2); 
-draw(waveform)
+Bloqade.plot(waveform)
 ```
 
 where the waveform `wf2` is appended at the end of `wf1`. 
@@ -107,9 +105,9 @@ function to create a smoothened wavefrom from a piecewise linear
 waveform.
 
 ```@example waveform
-wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=2π*[0.0, 3.0, 1.1, 2.2]);
-swf = smooth(wf;kernel_radius=0.2);
-draw(swf)
+wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 3.0, 1.1, 2.2]);
+swf = smooth(wf);
+Bloqade.plot(swf)
 ```
 
 ## Waveform Arithmetics
@@ -123,8 +121,8 @@ wf3 = wf1 + wf2;
 wf4 = wf1 - wf2;
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
-draw!(ax1, wf3)
-draw!(ax2, wf4)
+Bloqade.plot!(ax1, wf3)
+Bloqade.plot!(ax2, wf4)
 fig
 
 ```
@@ -136,8 +134,8 @@ wf = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0*2π);
 wf_t = 3 * wf;
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
-draw!(ax1, wf)
-draw!(ax2, wf_t)
+Bloqade.plot!(ax1, wf)
+Bloqade.plot!(ax2, wf_t)
 fig
 
 ```
@@ -147,8 +145,8 @@ Such operations can also be broadcasted by using `.*`
 wf2, wf3 = [2.0, 3.0] .* wf1; 
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
-draw!(ax1, wf2)
-draw!(ax2, wf3)
+Bloqade.plot!(ax1, wf2)
+Bloqade.plot!(ax2, wf3)
 fig
 ```
 

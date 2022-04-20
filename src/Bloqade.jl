@@ -22,7 +22,7 @@ using Reexport
     MaskedGrid, make_grid, random_dropout,
     clip_axes, lattice_sites, lattice_vectors,
     make_kdtree, grouped_nearest, collect_atoms,
-    img_atoms, img_maskedgrid
+    img_atoms, img_maskedgrid, ByDensity
 
 
 export rydberg_density, rydberg_corr

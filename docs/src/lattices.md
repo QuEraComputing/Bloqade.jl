@@ -36,7 +36,13 @@ chain = ChainLattice()
 ```
 
 ```@example quick-start
-img_atoms(generate_sites(chain, 10))
+# to make the plot look good in both light and dark background
+BloqadeLattices.DEFAULT_LINE_COLOR[] = "#0085FF"
+
+# to show the lattice vectors (rescaled a bit to shrink the head).
+unitvectors(lattice::AbstractLattice{2}, scale=0.9) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
+
+img_atoms(generate_sites(chain, 10); vectors=[((0.0, 0.0), (0.9, 0.0))], bond_linewidth=0.015)
 ```
 
 !!! note
@@ -70,7 +76,7 @@ Here are some examples of other lattices.
 ##### [`SquareLattice`](@ref)
 ```@example quick-start
 square = SquareLattice()
-img_atoms(generate_sites(square, 10, 10))
+img_atoms(generate_sites(square, 10, 10); vectors=unitvectors(square), bond_linewidth=0.015)
 ```
 
 Note that the indices showing on the sites are consistent with the indices of the qubits for performing computation. 
@@ -87,7 +93,7 @@ lattice_sites(square)
 ##### [`HoneycombLattice`](@ref)
 ```@example quick-start
 honeycomb = HoneycombLattice()
-img_atoms(generate_sites(honeycomb, 5, 5))
+img_atoms(generate_sites(honeycomb, 5, 5); vectors=unitvectors(honeycomb), bond_linewidth=0.015)
 ```
 
 
@@ -95,21 +101,21 @@ img_atoms(generate_sites(honeycomb, 5, 5))
 ##### [`TriangularLattice`](@ref)
 ```@example quick-start
 triangular = TriangularLattice()
-img_atoms(generate_sites(triangular, 8, 8))
+img_atoms(generate_sites(triangular, 8, 8); vectors=unitvectors(triangular), bond_linewidth=0.015)
 ```
 
 
 ##### [`LiebLattice`](@ref)
 ```@example quick-start
 lieb = LiebLattice()
-img_atoms(generate_sites(lieb, 5, 5))
+img_atoms(generate_sites(lieb, 5, 5); vectors=unitvectors(lieb), bond_linewidth=0.015)
 ```
 
 
 ##### [`KagomeLattice`](@ref)
 ```@example quick-start
 kagome = KagomeLattice()
-img_atoms(generate_sites(kagome, 5, 5))
+img_atoms(generate_sites(kagome, 5, 5); vectors=unitvectors(kagome), bond_linewidth=0.015)
 ```
 
 

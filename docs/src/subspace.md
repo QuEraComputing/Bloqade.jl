@@ -41,7 +41,7 @@ corresponds to the space composed by the [independent set](https://en.wikipedia.
 an input, and gives the subspace as the output. Here is an example code
 
 ```@example subspace
-using graph
+using Graphs
 
 g = SimpleGraph(5)
 edge_set = [(1,2), (1, 4), (2, 5), (3, 4)]

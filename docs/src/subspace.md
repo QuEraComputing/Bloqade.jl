@@ -110,7 +110,7 @@ using Bloqade
 atoms = generate_sites(ChainLattice(), 10, scale=5.1)
 space = blockade_subspace(atoms, 5.2)
 register = product_state(bit"0101010101", space)
-h = XTerm(length(atoms), Ω=1.0) - NTerm(length(atoms), Δ=0)
+h = XTerm(length(atoms), Ω=1.0) - NTerm(length(atoms), Δ=0) 
 prob = SchrodingerProblem(reg, 0.1, h)
 emulate!(prob)
 ```

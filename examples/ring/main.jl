@@ -1,14 +1,9 @@
-# # Ring Emulation
 using Bloqade
 
 # Use matplotlib to generate plots
-# for windows users you may need to use the following commands
-# ```julia
-# matplotlib = pyimport("matplotlib")
-# matplotlib.use("TkAgg")
-# ```
-
 using PythonCall
+matplotlib = pyimport("matplotlib")
+matplotlib.use("TkAgg")
 plt = pyimport("matplotlib.pyplot")
 plt.rcParams["font.size"] = 22
 
@@ -26,7 +21,7 @@ atoms = AtomList(pos)                                                       # De
 
 # Build the Hamiltonian by defining the atom list and the Rabi frequency
 # Here, the Rabi frequency Ω is π, such that one oscillation occurs in 0.5usec.
-h = rydberg_h(atoms;C = 2π * 858386, Ω=π)
+h = rydberg_h(atoms;C = 2π * 858386, Ω=2*π*1)
 
 
 # # Emulate the problem
@@ -39,8 +34,8 @@ init_state2 = zero_state(space)                       # Define the initial state
 
 
 # Define the time steps
-Tmax = 10.
-nsteps = 5001
+Tmax = 6.
+nsteps = 1001
 times = LinRange(0,Tmax,nsteps)
 
 
@@ -65,21 +60,23 @@ end
 
 
 # Plot the data
-fig, ax = plt.subplots(figsize=(8,6))
+fig = plt.figure(figsize=(8,6))
+ax  = plt.subplot(1,1,1)
 
-ax.plot(times,real(densities),"k",label="Full space")
-ax.plot(times,real(densities2),"r--",label="Subspace")
+plt.plot(times,real(densities),"k",label="Full space")
+plt.plot(times,real(densities2),"r--",label="Subspace")
 ax.axis([0,Tmax,0,0.45])
-ax.set_xlabel("Time (us)")
-ax.set_ylabel("Rydberg density")
+plt.xlabel("Time (us)")
+plt.ylabel("Rydberg density")
 plt.tight_layout()
-ax.legend()
+plt.legend()
 
 inset_axes = pyimport("mpl_toolkits.axes_grid1.inset_locator")
 ax2 = inset_axes.inset_axes(ax,width="20%",height="30%",loc="lower right",borderpad=1)
-ax2.plot(times,real(densities - densities2))
-ax2.axis([0,0.6,-0.0008,0.0008])
-ax2.set_ylabel("Difference",fontsize=12)
-ax2.set_yticks(LinRange(-0.0008,0.0008,5),fontsize=12)
-ax2.set_xticks([0,0.2,0.4,0.6],fontsize=12)
-fig
+plt.plot(times,real(densities - densities2))
+plt.axis([0,0.5,-0.001,0.003])
+plt.ylabel("Difference",fontsize=12)
+plt.yticks(LinRange(-0.001,0.003,5),fontsize=12)
+plt.xticks([0,0.2,0.4,0.6],fontsize=12)
+
+plt.show()

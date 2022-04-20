@@ -10,3 +10,7 @@ doctest(BloqadeLattices; manual=false)
 @testset "observables" begin
     include("observables.jl")    
 end
+
+@testset "plots" begin
+    include("plots.jl")
+end

@@ -20,7 +20,6 @@
 # To start, we first import the required libraries
 
 using Bloqade
-using BloqadePlots
 using PythonCall
 using Random
 
@@ -136,8 +135,8 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 Δ_tot = append(Δ1, Δ2);
 
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-draw!(ax1, Ω_tot)
-draw!(ax2, Δ_tot)
+Bloqade.plot!(ax1, Ω_tot)
+Bloqade.plot!(ax2, Δ_tot)
 ax1.set_ylabel("Ω/2π (MHz)")
 ax2.set_ylabel("Δ/2π (MHz)")
 fig

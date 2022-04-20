@@ -225,7 +225,8 @@ function _viz_atoms(locs, edges, colors, vectors, texts, config, blockade_radius
         @assert length(locs) == length(texts)
     end
     edge_style = Viznet.bondstyle(:default, Compose.stroke(config.bond_color), linewidth(config.bond_linewidth*cm*rescale))
-    vec_style = Viznet.bondstyle(:default, Compose.stroke(config.bond_color), Compose.arrow(), linewidth(config.bond_linewidth*cm*rescale), Compose.fill(config.bond_color))
+    # can only use black due to a bug in Compose display (head is always black!).
+    vec_style = Viznet.bondstyle(:default, Compose.stroke("black"), Compose.arrow(), linewidth(config.bond_linewidth*cm*rescale))
     blockade_radius_style = Viznet.nodestyle(:circle,
         Compose.stroke(config.blockade_stroke_color),
         Compose.strokedash([0.5mm*rescale, 0.5mm*rescale]),

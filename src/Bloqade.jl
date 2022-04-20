@@ -21,8 +21,7 @@ using Reexport
     generate_sites, offset_axes, rescale_axes,
     MaskedGrid, make_grid, random_dropout,
     clip_axes, lattice_sites, lattice_vectors,
-    make_kdtree, grouped_nearest, collect_atoms,
-    img_atoms, img_maskedgrid
+    make_kdtree, grouped_nearest, collect_atoms
 
 
 export rydberg_density, rydberg_corr, bitstring_hist, bitstring_hist!

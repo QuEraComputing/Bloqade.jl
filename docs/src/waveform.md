@@ -21,14 +21,12 @@ Bloqade gives users the flexibility to specify general waveforms by inputing fun
 
 ```@example waveform
 using Bloqade
-using BloqadePlots: draw, draw!
 using PythonCall
 plt = pyimport("matplotlib.pyplot")
 waveform = Waveform(t->2.2sin(t), duration=4π);
-draw(waveform)
+Bloqade.plot(waveform)
 ```
-where `BloqadePlots` is a plotting package for objects from `Bloqade`,
-that you need to use explicitly. And in our documentation we use the
+And in our documentation we use the
 python package [`matplotlib`](https://matplotlib.org) for plotting.
 
 Bloqade supports built-in waveforms for convenience (see References below). 
@@ -36,27 +34,27 @@ For example, the codes below create different waveform shapes with single lines:
 
 ```@example waveform
 waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0]); 
-draw(waveform)
+Bloqade.plot(waveform)
 ```
 
 ```@example waveform
 waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 0.7], values=[0.0, 1.5, 3.1]);
-draw(waveform)
+Bloqade.plot(waveform)
 ```
 
 ```@example waveform
 waveform = linear_ramp(duration=0.5, start_value=0.0, stop_value=1.0);
-draw(waveform)
+Bloqade.plot(waveform)
 ```
 
 ```@example waveform
 waveform =  constant(duration=0.5, value=2.1);
-draw(waveform)
+Bloqade.plot(waveform)
 ```
 
 ```@example waveform
 waveform = sinusoidal(duration=4π, amplitude=2.2); 
-draw(waveform)
+Bloqade.plot(waveform)
 ```
 
 In certain cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions `piecewise_linear` or `piecewise_constant`, corresponding to different interpolations. 
@@ -84,7 +82,7 @@ Waveforms can be sliced using the duration syntax `start..stop`, e.g
 ```@example waveform
 wf = sinusoidal(duration=2.2);
 wf[1.1..1.5];
-draw(wf)
+Bloqade.plot(wf)
 ```
 
 Waveforms can be composed together via `append`
@@ -93,7 +91,7 @@ Waveforms can be composed together via `append`
 wf1 = Waveform(sin, duration=2.2);
 wf2 = linear_ramp(;start_value=0.0, stop_value=1.1, duration=0.5);
 waveform = append(wf1, wf2); 
-draw(waveform)
+Bloqade.plot(waveform)
 ```
 
 where the waveform `w2` is appended at the end of `w1`. 
@@ -107,7 +105,7 @@ waveform.
 ```@example waveform
 wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 3.0, 1.1, 2.2]);
 swf = smooth(wf);
-draw(swf)
+Bloqade.plot(swf)
 ```
 
 ## Waveform Arithmetics

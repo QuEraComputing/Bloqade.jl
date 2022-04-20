@@ -2,7 +2,6 @@
 
 using Bloqade
 using CairoMakie
-using BloqadePlots
 
 # In this example, we examine the adiabatic preparation of a spin Hamiltonian with noise parameters to show the erro propagation feature.  
 

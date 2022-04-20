@@ -1,4 +1,5 @@
 using Test
+using Unitful: ms, rad
 using Intervals
 using BloqadeWaveforms
 
@@ -46,17 +47,28 @@ end
         @test waveform(0.3) ≈ 1.5
         @test waveform(0.5) ≈ 3.1
         @test_throws ArgumentError waveform(0.6) ≈ 3.1
-    
+
         waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 1.1], values=[0.0, 1.5, 3.1])
         @test waveform(0.6) ≈ 3.1
+
+        wf = piecewise_constant(clocks=[0.0ms, 0.1ms, 0.2ms, 0.3ms], values=[0.1, 1.1, 2.1] .* (rad/ms))
+        @test wf(0.0) ≈ 0.0001
+        @test wf(100.) ≈ 0.0011
+        @test wf(200.) ≈ 0.0021
+        @test wf.duration ≈ 300.0
     end
-    
+
     @testset "piecewise_linear" begin
         waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0])
         @test waveform(0.1) ≈ 0.75
         @test waveform(0.6) ≈ 3.1
         @test waveform(1.0) ≈ 0.0
         @test_throws ArgumentError waveform(1.1)
+
+        wf = piecewise_linear(clocks=[0.0ms, 0.1ms, 0.2ms], values=[0.1, 1.1, 2.1] .* (rad/ms))
+        @test wf(0.0) ≈ 0.0001
+        @test wf(100.) ≈ 0.0011
+        @test wf(200.) ≈ 0.0021
     end
 end
 

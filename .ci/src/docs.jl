@@ -28,15 +28,16 @@ function pages(;light=false)
         "Installation" => "install.md",
         "The Julia Programming Language" => "julia.md",
         "Manual" => [
-            "Waveforms" => "waveform.md",
             "Lattices" => "lattices.md",
+            "Waveforms" => "waveform.md",
             "Hamiltonians" => "hamiltonians.md",
             "Registers" => "registers.md",
             "Emulation" => "emulation.md",
             "Working with Subspace" => "subspace.md",
+            "Working with Units" => "units.md",
             "Observables" => "observables.md",
             "Maximum Independent Set" => "mis.md",
-            "CUDA Acceleration" => "cuda.md",    
+            "CUDA Acceleration" => "cuda.md",
         ],
     ]
 
@@ -48,7 +49,7 @@ function pages(;light=false)
             "Bravais Lattice" => "topics/bravais.md",
             "Automatic Differentiation" => "topics/ad.md",
         ],
-        "Contributing Bloqade" => "contrib.md",
+        "Contributing to Bloqade" => "contrib.md",
     ])
 
     return PAGES
@@ -66,13 +67,14 @@ function doc_build_script(pages, repo)
     yao_pkgs = [
         "Yao", "YaoAPI", "YaoBase",
         "YaoBlocks", "YaoArrayRegister",
+        "Unitful",
     ]
     using_stmts = ["Documenter", "DocThemeIndigo"]
     non_cuda_pkgs = filter(!isequal("BloqadeCUDA"), readdir(root_dir("lib")))
     push!(non_cuda_pkgs, "Bloqade")
     append!(non_cuda_pkgs, yao_pkgs)
     append!(using_stmts, non_cuda_pkgs)
-    
+
     return """
     $(join(map(x->"using "*x, using_stmts), "\n"))
 

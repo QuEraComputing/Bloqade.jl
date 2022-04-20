@@ -62,7 +62,7 @@ It should be noted and emphasized once again that this lower limit is only neces
 
 To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown below, for a ring of 12 atoms seperated by ``7\mu m``. The minimum distance of atoms not within the blockade radius is ``\approx13.5230\mu m``, so that the the blockade radius is ``R_b=7\mu m\times \sqrt{13.52/7}\approx 9.72937``. This sets the blockade energy scale is set to be ``\Omega_b \approx 1.0120``MHz, and the perturbative limits to be ``\Omega_b\ll 7.2961``MHz and ``\Omega_b\gg 0.1404``MHz. This set of atoms can be defined by
 
-```@example blockade
+```julia
 using Bloqade
 nsites = 12;    # 12 site chain
 distance = 7    # Distance between atoms, in microns
@@ -75,7 +75,7 @@ atoms = AtomList(pos)                                                       # De
 The system is driven by a constant ``1``MHz Rabi drive, which couples each atom's ground and Rydberg state. This is well within the perturbative limits set by the subspace, as ``1``MHz``\ll 7.296``MHz and so the blockade subspace should approximate exact dynamics faithfully. The Hamiltonian can be defined in bloqade with
 
 ```@example blockade
-h = rydberg_h(atoms;C = 2π * 858386, Ω=2*π * 1)
+h = rydberg_h(atoms;C = 2π * 858386, Ω=2π * 1)
 ```
 
 
@@ -89,7 +89,7 @@ init_state2 = zero_state(space)                 # Define the initial state in th
 
 If the atoms were far apart and non-interacting, each atom would oscillate completely between its ground state and Rydberg state with a period of ``0.5 \mu``s. However, because adjacent atoms shift to the Rydberg state concurrently, they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, corresponding to an antiferromagnetic ``Z_2`` state. Note that because the ring has a translation symmetry, the Rydberg density is equal on all sites.
 
-```@example blockade
+```julia
 # Define the time steps
 Tmax = 6.
 nsteps = 2001
@@ -113,36 +113,6 @@ densities2 = []
 for _ in TimeChoiceIterator(integrator2, 0.0:Tmax/(nsteps-1):Tmax)
     push!(densities2, expect(put(nsites, 1=>Op.n), init_state2))#, SubspaceArrayReg(u, space)))
 end
-
-
-# Plot the data
-
-# Use matplotlib to generate plots
-using PythonCall
-matplotlib = pyimport("matplotlib")
-matplotlib.use("TkAgg")
-plt = pyimport("matplotlib.pyplot")
-plt.rcParams["font.size"] = 22
-
-
-fig = plt.figure(figsize=(8,6))
-ax  = plt.subplot(1,1,1)
-plt.plot(times,real(densities),"k",label="Full space")
-plt.plot(times,real(densities2),"r--",label="Subspace")
-ax.axis([0,Tmax,0,0.45])
-plt.xlabel("Time (us)")
-plt.ylabel("Rydberg density")
-plt.tight_layout()
-plt.legend()
-
-
-inset_axes = pyimport("mpl_toolkits.axes_grid1.inset_locator")
-ax2 = inset_axes.inset_axes(ax,width="20%",height="30%",loc="lower right",borderpad=1)
-plt.plot(times,real(densities - densities2))
-plt.axis([0,0.6,-0.0008,0.0008])
-plt.ylabel("Difference",fontsize=12)
-plt.yticks(LinRange(-0.0008,0.0008,5),fontsize=12)
-plt.xticks([0,0.2,0.4,0.6],fontsize=12)
 ```
 
 ![RydbergBlockadeSubspace](../assets/RydbergBlockadeSubspace.png)

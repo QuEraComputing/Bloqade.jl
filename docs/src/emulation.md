@@ -42,7 +42,7 @@ emulate!
 
 For example, we can simulate quantum dynamics of a time-dependent Hamiltonian by the following codes
 
-```@repl evolution
+```@example evolution
 using Bloqade
 atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1);
 clocks = [0.0, 0.1, 0.2, 0.3, 0.4];

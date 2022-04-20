@@ -25,7 +25,22 @@ product_state(bit"10011")
 ```
 where `bit"10011` is a special Julia string literal defined for bitstrings.
 
+One can also construct the [`ArrayReg`](@ref) or [`SubspaceArrayReg`](@ref) directly from arrays, e.g
 
+```@repl registers
+ArrayReg(rand(ComplexF64, 1<<5))
+```
+
+Or for subspace register, one can create in the following way
+
+```@repl registers
+space = Subspace(5, [0, 2, 3, 7])
+state = rand(ComplexF64, length(space))
+reg = SubspaceArrayReg(state, space)
+```
+
+For more detailed guide about working with subspace, please see
+[subspace](@ref).
 
 ## Operations
 
@@ -43,6 +58,7 @@ reg = rand_state(3)
 measure(reg)
 expect(put(1=>X), reg)
 statevec(reg)
+apply!(reg, put(1=>X))
 ```
 
 For more detailed introduction of register interface, please

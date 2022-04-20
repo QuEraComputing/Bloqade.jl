@@ -40,7 +40,7 @@ draw(waveform)
 ```
 
 ```@example waveform
-waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1]);
+waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 0.7], values=[0.0, 1.5, 3.1]);
 draw(waveform)
 ```
 
@@ -63,9 +63,10 @@ In certain cases, users may have their own waveforms specified by a vector of cl
 
 ```@example waveform
 clocks = collect(0:1e-1:2);
-values = rand(length(clocks));
-wf1 = piecewise_linear(;clocks, values); 
-wf2 = piecewise_constant(;clocks, values); 
+values1 = rand(length(clocks));
+wf1 = piecewise_linear(;clocks, values=values1); 
+values2 = rand(length(clocks)-1)
+wf2 = piecewise_constant(;clocks, values=values2); 
 
 fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
 draw!(ax1, wf1)
@@ -159,6 +160,7 @@ piecewise_constant
 linear_ramp
 constant
 sinusoidal
+append
 smooth
 smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
 ```

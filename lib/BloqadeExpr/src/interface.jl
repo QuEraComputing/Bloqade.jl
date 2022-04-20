@@ -74,7 +74,7 @@ nqubits: 4
 └─ 0.05 ⋅ ∑ σ^x_i
 ```
 """
-function rydberg_h(atom_positions; C::Real=2π * 862690, Ω=nothing, ϕ=nothing, Δ=nothing)
+function rydberg_h(atom_positions; C=2π * 862690, Ω=nothing, ϕ=nothing, Δ=nothing)
     positions = map(atom_positions) do pos
         (pos..., )
     end

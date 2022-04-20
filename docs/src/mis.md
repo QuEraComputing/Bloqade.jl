@@ -1,7 +1,7 @@
 # [Maximum Independent Set](@id mis)
 
 One of the most important property of Rydberg system is the Rydberg blockade,
-which naturally embeds the maximum independent set problem into its ground state. In Bloqade, we provide several functions to work with such property and we will discuss them in this section.
+which naturally embeds the [maximum independent set problem](https://en.wikipedia.org/wiki/Independent_set_(graph_theory)) into its ground state. In Bloqade, we provide several functions to work with such property and we will discuss them in this section.
 
 ## The maximum independent set problem
 In graph theory, an independent set is a set of vertices in a graph, no two of which are adjacent.

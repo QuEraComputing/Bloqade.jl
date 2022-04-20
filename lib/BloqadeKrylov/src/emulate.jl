@@ -14,52 +14,6 @@ end
 
 """
     struct KrylovEvolution
-
-Type describes the time evolution problem using Krylov subspace methods.
-"""
-struct KrylovEvolution{Reg <: AbstractRegister, T <: Real, H <: Hamiltonian}
-    reg::Reg
-    start_clock::T
-    durations::Vector{T}
-    hamiltonian::H
-    options::KrylovOptions
-
-    function KrylovEvolution{Reg, T, H}(reg, start_clock, durations, hamiltonian, options) where {Reg, T, H}
-        start_clock ≥ 0 || throw(ArgumentError("start clock must not be negative"))
-        all(≥(0), durations) || throw(ArgumentError("durations must not be negative"))
-        new{Reg, T, H}(reg, start_clock, durations, hamiltonian, options)
-    end
-end
-
-"""
-    KrylovEvolution(reg, start_clock, durations, hamiltonian, options)
-
-Create a `KrylovEvolution` object.
-
-# Arguments
-
-- `reg`: a register object.
-- `start_clock`: start clock of the evolution.
-- `durations`: list of durations at each time step.
-- `hamiltonian`: low-level hamiltonian object of type [`Hamiltonian`](@ref).
-- `options`: options of the evolution in type [`KrylovOptions`](@ref).
-"""
-function KrylovEvolution(reg, start_clock, durations, hamiltonian, options)
-    return KrylovEvolution{typeof(reg), typeof(start_clock), typeof(hamiltonian)}(
-        reg, start_clock, durations, hamiltonian, options
-    )
-end
-
-function Adapt.adapt_structure(to, x::KrylovEvolution)
-    return KrylovEvolution(
-        adapt(to, x.reg),
-        x.start_clock, x.durations,
-        adapt(to, x.hamiltonian),
-        x.options
-    )
-end
-
-"""
     KrylovEvolution(reg::AbstractRegister, clocks, h; kw...)
 
 Create a `KrylovEvolution` object that describes a time evolution
@@ -113,6 +67,48 @@ julia> prob = KrylovEvolution(r, 0.0:1e-2:0.1, h);
 julia> emulate!(prob); # run the emulation
 ```
 """
+struct KrylovEvolution{Reg <: AbstractRegister, T <: Real, H <: Hamiltonian}
+    reg::Reg
+    start_clock::T
+    durations::Vector{T}
+    hamiltonian::H
+    options::KrylovOptions
+
+    function KrylovEvolution{Reg, T, H}(reg, start_clock, durations, hamiltonian, options) where {Reg, T, H}
+        start_clock ≥ 0 || throw(ArgumentError("start clock must not be negative"))
+        all(≥(0), durations) || throw(ArgumentError("durations must not be negative"))
+        new{Reg, T, H}(reg, start_clock, durations, hamiltonian, options)
+    end
+end
+
+"""
+    KrylovEvolution(reg, start_clock, durations, hamiltonian, options)
+
+Create a `KrylovEvolution` object.
+
+# Arguments
+
+- `reg`: a register object.
+- `start_clock`: start clock of the evolution.
+- `durations`: list of durations at each time step.
+- `hamiltonian`: low-level hamiltonian object of type [`Hamiltonian`](@ref).
+- `options`: options of the evolution in type [`KrylovOptions`](@ref).
+"""
+function KrylovEvolution(reg, start_clock, durations, hamiltonian, options)
+    return KrylovEvolution{typeof(reg), typeof(start_clock), typeof(hamiltonian)}(
+        reg, start_clock, durations, hamiltonian, options
+    )
+end
+
+function Adapt.adapt_structure(to, x::KrylovEvolution)
+    return KrylovEvolution(
+        adapt(to, x.reg),
+        x.start_clock, x.durations,
+        adapt(to, x.hamiltonian),
+        x.options
+    )
+end
+
 function KrylovEvolution(reg::AbstractRegister, clocks, h; kw...)
     all(≥(0), clocks) || throw(ArgumentError("clocks must not be negative"))
     options = from_kwargs(KrylovOptions; kw...)

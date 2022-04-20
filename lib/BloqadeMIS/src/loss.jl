@@ -209,6 +209,12 @@ function to_independent_set!(config::AbstractVector, graph::AbstractGraph)
     return config
 end
 
+"""
+    to_independent_set(config::Integer, graph::AbstractGraph)
+
+Eliminate vertices in `config` so that remaining vertices do not have connected edges
+without changing the original config, see also [`to_independent_set!`](@ref).
+"""
 function to_independent_set(config::Integer, graph::AbstractGraph)
     return to_independent_set!(bitarray(config, nv(graph)), graph)
 end

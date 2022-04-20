@@ -11,12 +11,13 @@ getscale(r::Rescaler) = min(1/(r.xmax-r.xmin+2*r.pad), 1/(r.ymax-r.ymin+2*r.pad)
 function config_plotting(sites)
     n = length(sites)
     if n <= 1
-        return (1.0, 0.5, 0.4, 1.0)
-    end
-    shortest_distance = Inf
-    for i=1:n
-        for j=i+1:n
-            shortest_distance = min(sqrt(sum(abs2, sites[i] .- sites[j])), shortest_distance)
+        shortest_distance = 1.0
+    else
+        shortest_distance = Inf
+        for i=1:n
+            for j=i+1:n
+                shortest_distance = min(sqrt(sum(abs2, sites[i] .- sites[j])), shortest_distance)
+            end
         end
     end
 

@@ -9,46 +9,51 @@ using LiveServer
 using ..BloqadeCI: root_dir, dev
 using ..BloqadeCI.Example
 
-const BEFORE_TUTORIAL = [
-    "Home" => "index.md",
-    "Installation" => "install.md",
-    "The Julia Programming Language" => "julia.md",
-    "Manual" => [
-        "Waveforms" => "waveform.md",
-        "Lattices" => "lattices.md",
-        "Hamiltonians" => "hamiltonians.md",
-        "Registers" => "registers.md",
-        "Emulation" => "emulation.md",
-        "Observables" => "observables.md",
-        "Maximum Independent Set" => "mis.md",
-        "CUDA Acceleration" => "cuda.md",    
-    ],
-]
+function tutorial_pages()
+    tutorials = Pair{String, String}[]
+    Example.foreach_example() do path
+        name = basename(path)
+        mainjl = joinpath(path, "main.jl")
+        target = joinpath("tutorials", name, "main.md")
+        firstline = readline(mainjl)
+        startswith(firstline, "# # ") || error("expecting example script start with # # <title>")
+        push!(tutorials, firstline[5:end]=>target)
+    end
+    return tutorials
+end
 
-const AFTER_TUTORIAL = [
-    "Advanced Topics" => [
-        "Rydberg Blockade" => "topics/blockade.md",
-        "Bravais Lattice" => "topics/bravais.md",
-        "Automatic Differentiation" => "topics/ad.md",
-    ],
-    "Contributing Bloqade" => "contrib.md",
-]
+function pages(;light=false)
+    PAGES = [
+        "Home" => "index.md",
+        "Installation" => "install.md",
+        "The Julia Programming Language" => "julia.md",
+        "Manual" => [
+            "Lattices" => "lattices.md",
+            "Waveforms" => "waveform.md",
+            "Hamiltonians" => "hamiltonians.md",
+            "Registers" => "registers.md",
+            "Emulation" => "emulation.md",
+            "Working with Subspace" => "subspace.md",
+            "Working with Units" => "units.md",
+            "Observables" => "observables.md",
+            "Maximum Independent Set" => "mis.md",
+            "CUDA Acceleration" => "cuda.md",
+        ],
+    ]
 
-const LIGHT_PAGES = [
-    BEFORE_TUTORIAL...,
-    AFTER_TUTORIAL...,
-]
+    light || push!(PAGES, "Tutorials" => tutorial_pages())
 
-const PAGES=[
-    BEFORE_TUTORIAL...,
-    "Tutorials" => [
-        "Quantum Scar" => "tutorials/quantum-scar/main.md",
-        "Adiabatic Evolution" => "tutorials/adiabatic/main.md",
-        "Quantum Approximate Optimization Algorithm" => "tutorials/qaoa/main.md",
-        # "Solving Maximum-Independent Set Using Rydberg QAOA" => "tutorials/mis.md",
-    ],
-    AFTER_TUTORIAL...
-]
+    append!(PAGES, [
+        "Advanced Topics" => [
+            "Rydberg Blockade" => "topics/blockade.md",
+            "Bravais Lattice" => "topics/bravais.md",
+            "Automatic Differentiation" => "topics/ad.md",
+        ],
+        "Contributing to Bloqade" => "contrib.md",
+    ])
+
+    return PAGES
+end
 
 function render_all_examples()
     Example.buildall(
@@ -62,13 +67,14 @@ function doc_build_script(pages, repo)
     yao_pkgs = [
         "Yao", "YaoAPI", "YaoBase",
         "YaoBlocks", "YaoArrayRegister",
+        "Unitful",
     ]
     using_stmts = ["Documenter", "DocThemeIndigo"]
     non_cuda_pkgs = filter(!isequal("BloqadeCUDA"), readdir(root_dir("lib")))
     push!(non_cuda_pkgs, "Bloqade")
     append!(non_cuda_pkgs, yao_pkgs)
     append!(using_stmts, non_cuda_pkgs)
-    
+
     return """
     $(join(map(x->"using "*x, using_stmts), "\n"))
 
@@ -105,12 +111,10 @@ function dev_examples()
 end
 
 function generate_makejl(light)
-    build_script = if light
-        doc_build_script(LIGHT_PAGES, "Happy-Diode/Bloqade.jl")
-    else
-        doc_build_script(PAGES, "Happy-Diode/Bloqade.jl")
-    end
-
+    build_script = doc_build_script(
+        pages(;light),
+        "Happy-Diode/Bloqade.jl"
+    )
     write(root_dir("docs", "make.jl"), build_script)
 end
 

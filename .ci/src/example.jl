@@ -11,6 +11,16 @@ using Pkg
 using Comonicon
 using ..BloqadeCI: root_dir, collect_lib, dev
 
+function foreach_example(f)
+    example_dir = root_dir("examples")
+    for name in readdir(example_dir)
+        path = joinpath(example_dir, name)
+        isdir(path) || continue
+        f(path)
+    end
+    return
+end
+
 """
 create an example.
 
@@ -126,10 +136,33 @@ in parallel.
 - `-e,--eval`: evaluate the Julia code.
 """
 @cast function buildall(;build_dir::String="build", target::String="markdown", eval::Bool=false)
-    @sync for name in readdir(root_dir("examples"))
-        isdir(joinpath(root_dir("examples", name))) || continue
-        Threads.@spawn build(name; build_dir, target, eval)
+    ci_dir = root_dir(".ci")
+    example_dir = root_dir("examples")
+    script = """
+    using Pkg
+    using Literate
+    for name in readdir(\"$example_dir\")
+        project_dir = joinpath(\"$example_dir\", name)
+        isdir(project_dir) || continue
+
+        Pkg.activate(project_dir)
+
+        @info "building" project_dir
+        Literate.$target(
+            joinpath(project_dir, "main.jl"),
+            joinpath(\"$build_dir\", name),
+            ;execute=$eval
+        )
+    end    
+    """
+
+    # dev the examples first
+    # then we run the build in one process
+    # so that we can share compile results
+    foreach_example() do path
+        dev(path)
     end
+    run(`$(Base.julia_exename()) --project=$ci_dir -e $script`)
 end
 
 end

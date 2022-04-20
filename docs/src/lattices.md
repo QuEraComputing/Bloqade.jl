@@ -1,7 +1,5 @@
 # Lattices
 
-## Create a lattice
-
 With Bloqade, we are going to be simulating the quantum evolution of information stored in neutral atoms. Present-day experimental platforms allow distribution of atoms in an organized lattice structure and even in  arbitrary shapes.
 This makes neutral atom a natural setup for quantum simulation of statistical models and quantum matter. With Bloqade, we support several built-in lattice structure and allow the users to specify atom positions by inputing coordinates.
 
@@ -29,13 +27,12 @@ honeycomb = GeneralLattice([(1.0, 0.0), (0.5, 0.5*sqrt(3))],
 ```
 
 
-We provide a few shorthands for several useful lattices.
+We provide a few shorthands for several useful lattices, inlucding the [`ChainLattice`](@ref), [`SquareLattice`](@ref), [`HoneycombLattice`](@ref), [`TriangularLattice`](@ref), [`LiebLattice`](@ref), and [`KagomeLattice`](@ref) shown below. 
 One can use [`lattice_vectors`](@ref) and [`lattice_sites`](@ref) to access the lattice vectors and sites locations in a unit cell as described in the above section.
 
 ##### [`ChainLattice`](@ref)
 ```@example quick-start
 using Bloqade
-
 chain = ChainLattice()
 ```
 
@@ -64,97 +61,48 @@ lattice_sites(chain)
 ##### [`SquareLattice`](@ref)
 ```@example quick-start
 square = SquareLattice()
-
 img_atoms(generate_sites(square, 10, 10))
 ```
 
 Note that the index showing on sites are consistent with the index of qubits for performing computation. 
 In other words, if we want to do measurment or apply opearations on individual sites (qubits), we can refer the numbering on atoms for convienience. 
-For more details about how to generate Hamiltonian by using lattice as an argument, please see the section [`Hamiltonian`](@ref).
+For more details about how to generate Hamiltonian by using lattice as an argument, please see the section [Hamiltonians](@ref).
 
 ```@example quick-start
 lattice_vectors(square)
 ```
-
 ```@example quick-start
 lattice_sites(square)
-```
-
-##### [`RectangularLattice`](@ref)
-```@example quick-start
-rectangle = RectangularLattice(0.5)
-
-img_atoms(generate_sites(rectangle, 5, 5))
-```
-
-```@example quick-start
-lattice_vectors(rectangle)
-```
-
-```@example quick-start
-lattice_sites(rectangle)
 ```
 
 ##### [`HoneycombLattice`](@ref)
 ```@example quick-start
 honeycomb = HoneycombLattice()
-
 img_atoms(generate_sites(honeycomb, 5, 5))
 ```
 
-```@example quick-start
-lattice_vectors(honeycomb)
-```
-
-```@example quick-start
-lattice_sites(honeycomb)
-```
 
 
 ##### [`TriangularLattice`](@ref)
 ```@example quick-start
 triangular = TriangularLattice()
-
 img_atoms(generate_sites(triangular, 8, 8))
 ```
 
-```@example quick-start
-lattice_vectors(triangular)
-```
-
-```@example quick-start
-lattice_sites(triangular)
-```
 
 ##### [`LiebLattice`](@ref)
 ```@example quick-start
 lieb = LiebLattice()
-
 img_atoms(generate_sites(lieb, 5, 5))
 ```
 
-```@example quick-start
-lattice_vectors(lieb)
-```
-
-```@example quick-start
-lattice_sites(lieb)
-```
 
 ##### [`KagomeLattice`](@ref)
 ```@example quick-start
 kagome = KagomeLattice()
-
 img_atoms(generate_sites(kagome, 5, 5))
 ```
 
-```@example quick-start
-lattice_vectors(kagome)
-```
-
-```@example quick-start
-lattice_sites(kagome)
-```
 
 ## Generate and sort sites
 

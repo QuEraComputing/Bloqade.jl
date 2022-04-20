@@ -5,10 +5,12 @@ on:
     branches:
       - master
     tags: '*'
+  pull_request:
+    types: [ready_for_review, opened]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest]
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@latest

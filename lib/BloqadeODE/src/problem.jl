@@ -41,7 +41,7 @@ to solve the dynamics.
 
 # Arguments
 
-- `register`: required, the evolution problem register, can be a [`RydbergReg`](@ref) or an `ArrayReg`
+- `register`: required, the evolution problem register, can be a [`SubspaceArrayReg`](@ref) or an `ArrayReg`
     from `Yao`.
 - `tspan`: required, a `(start, stop)` tuple or a single number `t`, the single value form `t` is equivalent
     to `(zero(t), t)`.

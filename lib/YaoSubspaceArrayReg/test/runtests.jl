@@ -1,7 +1,11 @@
 using Test
 
 @testset "register" begin
-    include("register.jl")    
+    include("type.jl")    
+end
+
+@testset "instruct" begin
+    include("instruct.jl")    
 end
 
 @testset "measure" begin

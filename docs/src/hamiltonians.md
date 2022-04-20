@@ -4,17 +4,14 @@ CurrentModule = Bloqade
 
 # Hamiltonians
 
-Hamiltonian encodes essential physical properties of Rydberg systems. One can use a Hamiltonian to 
-understand the ground state properties of the corresponding Rydberg system and to generate interesting quantum dynamics. 
+Hamiltonian encodes essential physical properties of a quantum system. One can use the Rydberg Hamiltonian to 
+understand the ground state properties of the corresponding system and to generate interesting quantum dynamics. 
 The Rydberg Hamiltonian is generally specified by atom positions, Rabi frequencies and detunings. In Bloqade, 
-we can easily create a Hamiltonian by inputting these information, i.e. lattice and strengths of Rabi frequencies and
+we can easily create a Hamiltonian by inputting these information, including lattice and Rabi frequencies and
 detunings, into the function [`rydberg_h`](@ref). Furthermore, by inputing waveforms for the Rabi frequency and 
 detuning, we can easily generate time-dependent Hamiltonians. 
 
 
-```@docs
-rydberg_h
-```
 
 ## Building Time-Independent Hamiltonians
 
@@ -33,6 +30,14 @@ detuning `Δ`, Rabi frequency `Ω`, and laser phase `ϕ`
 
 ```@repl hamiltonian
 h0 = rydberg_h(atoms; Δ=1.2, Ω=1.1, ϕ=2.1)
+```
+Note that the default value for the Rydberg interaction constant is ``C = 2\pi \times 862690 \text{ MHz μm}^6`` to match the experimental unit. For more information about units, please 
+refer to [Bloqade](@ref). Instead of using the default value of ``C``, the users are free to set their own values. For instance, if the users would like to have a chain lattice with 
+nearest-neighbour atoms seperted by 1, and interaction strength to be a particular value, say, ``1.4^6``, it can be done with the following codes
+
+```@repl hamiltonian
+atoms = generate_sites(SquareLattice(), 3, 3, scale=1)
+h0 = rydberg_h(atoms; C=1.4^6, Δ=1.2, Ω=1.1, ϕ=2.1)
 ```
 
 
@@ -179,4 +184,10 @@ Here, we see the hamiltonian expression written as Yao blocks are automatically 
 using BloqadeExpr
 h = BloqadeExpr.Hamiltonian(Float64, SumOfXPhase(5, sin, cos) + SumOfZ(5, cos))
 h(0.1)
+```
+
+## References
+
+```@docs
+rydberg_h
 ```

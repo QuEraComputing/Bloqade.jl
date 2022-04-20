@@ -46,54 +46,54 @@ function emit_dynamic_terms(ex::SumOfXPhase)
             return Any[one=>ex]
 
         # Ω time-dependent
-        @case (Ω::Vector, ϕ::Number) && if is_time_function(Ω) end
+        @case (Ω::Vector, ϕ::Number)
             return map(enumerate(Ω)) do (i, Ω_i)
                 Ω_i => put(ex.nsites, i=>XPhase(ϕ))
             end
-        @case (Ω, ϕ::Number) && if is_time_function(Ω) end
+        @case (Ω, ϕ::Number)
             return Any[Ω=>SumOfXPhase(ex.nsites, one(ϕ), ϕ)]
 
-        @case (Ω::Vector, ϕ::Vector{<:Number}) && if is_time_function(Ω) end
+        @case (Ω::Vector, ϕ::Vector{<:Number})
             return map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
                 Ω_i => put(ex.nsites, i=>XPhase(ϕ_i))
             end
-        @case (Ω, ϕ::Vector{<:Number}) && if is_time_function(Ω) end
+        @case (Ω, ϕ::Vector{<:Number})
             return Any[Ω=>SumOfXPhase(ex.nsites, one(eltype(ϕ)), ϕ)]
 
         # ϕ time-dependent
-        @case (Ω::Number, ϕ::Vector) && if is_time_function(ϕ) end
+        @case (Ω::Number, ϕ::Vector)
             lhs = map(enumerate(ϕ)) do (i, ϕ_i)
-                (t->exp(ϕ_i(t) * im)) => put(ex.nsites, i=>PuPhase(Ω))
+                (t->exp(ϕ_i(t) * im)) => put(ex.nsites, i=>(Ω * ConstGate.Pu))
             end
 
             rhs = map(enumerate(ϕ)) do (i, ϕ_i)
-                (t->exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>PdPhase(Ω))
+                (t->exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>(Ω * ConstGate.Pd))
             end
-            return append!(lhs, rhs)
+            return vcat(lhs, rhs)
 
-        @case (Ω::Number, ϕ) && if is_time_function(ϕ) end
+        @case (Ω::Number, ϕ)
             return [
-                (t->exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>PuPhase(Ω)) for i in 1:ex.nsites),
-                (t->exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>PdPhase(Ω)) for i in 1:ex.nsites),
+                (t->exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>(Ω * ConstGate.Pu)) for i in 1:ex.nsites),
+                (t->exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>(Ω * ConstGate.Pd)) for i in 1:ex.nsites),
             ]
 
-        @case (Ω::Vector{<:Number}, ϕ::Vector) && if is_time_function(ϕ) end
+        @case (Ω::Vector{<:Number}, ϕ::Vector)
             lhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-                (t->exp(ϕ_i(t) * im)) => put(ex.nsites, i=>PuPhase(Ω_i))
+                (t->exp(ϕ_i(t) * im)) => put(ex.nsites, i=>(Ω_i * ConstGate.Pu))
             end
 
             rhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-                (t->exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>PdPhase(Ω_i))
+                (t->exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>(Ω_i * ConstGate.Pd))
             end
-            return append!(lhs, rhs)
-        @case (Ω::Vector{<:Number}, ϕ) && if is_time_function(ϕ) end
+            return vcat(lhs, rhs)
+        @case (Ω::Vector{<:Number}, ϕ)
             return [
-                (t->exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>PuPhase(Ω_i)) for (i, Ω_i) in enumerate(Ω)),
-                (t->exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>PdPhase(Ω_i)) for (i, Ω_i) in enumerate(Ω)),
+                (t->exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>(Ω_i * ConstGate.Pu)) for (i, Ω_i) in enumerate(Ω)),
+                (t->exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>(Ω_i * ConstGate.Pd)) for (i, Ω_i) in enumerate(Ω)),
             ]
 
         # both time-dependent
-        @case (Ω::Vector, ϕ::Vector) && if is_time_function(ϕ) && is_time_function(Ω) end
+        @case (Ω::Vector, ϕ::Vector)
             lhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
                 (t->Ω_i(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i=>ConstGate.Pu)
             end
@@ -101,8 +101,8 @@ function emit_dynamic_terms(ex::SumOfXPhase)
             rhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
                 (t->Ω_i(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>ConstGate.Pd)
             end
-            return append!(lhs, rhs)
-        @case (Ω::Vector, ϕ) && if is_time_function(ϕ) && is_time_function(Ω) end
+            return vcat(lhs, rhs)
+        @case (Ω::Vector, ϕ)
             lhs = map(enumerate(Ω)) do (i, Ω_i)
                 (t->Ω_i(t) * exp(ϕ(t) * im)) => put(ex.nsites, i=>ConstGate.Pu)
             end
@@ -110,8 +110,8 @@ function emit_dynamic_terms(ex::SumOfXPhase)
             rhs = map(enumerate(Ω)) do (i, Ω_i)
                 (t->Ω_i(t) * exp(-ϕ(t) * im)) => put(ex.nsites, i=>ConstGate.Pd)
             end
-            return append!(lhs, rhs)
-        @case (Ω, ϕ::Vector) && if is_time_function(ϕ) && is_time_function(Ω) end
+            return vcat(lhs, rhs)
+        @case (Ω, ϕ::Vector)
             lhs = map(enumerate(ϕ)) do (i, ϕ_i)
                 (t->Ω(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i=>ConstGate.Pu)
             end
@@ -119,14 +119,12 @@ function emit_dynamic_terms(ex::SumOfXPhase)
             rhs = map(enumerate(ϕ)) do (i, ϕ_i)
                 (t->Ω(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i=>ConstGate.Pd)
             end
-            return append!(lhs, rhs)
-        @case (Ω, ϕ) && if is_time_function(ϕ) && is_time_function(Ω) end
+            return vcat(lhs, rhs)
+        @case (Ω, ϕ)
             return [
                 (t->Ω(t) * exp(ϕ(t) * im)) => sum(put(ex.nsites, i=>ConstGate.Pu) for i in 1:ex.nsites),
                 (t->Ω(t) * exp(-ϕ(t) * im)) => sum(put(ex.nsites, i=>ConstGate.Pd) for i in 1:ex.nsites),
             ]
-        @case (Ω, ϕ)
-            error("unexpected value for Ω and ϕ, got $(typeof((Ω, ϕ)))")
     end
 end
 
@@ -152,7 +150,7 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace=fullspa
 end
 
 function YaoBlocks.Optimise.to_basictypes(h::SumOfX)
-    is_time_function(h.Ω) && error("cannot get matrix of a time-dependent operator")
+    is_const_param(h.Ω) || throw(ArgumentError("expect constant hamiltonian"))
     return if h.Ω isa Vector
         sum(h.Ω[i] * put(h.nsites, i=>X) for i in 1:h.nsites)
     else
@@ -161,7 +159,7 @@ function YaoBlocks.Optimise.to_basictypes(h::SumOfX)
 end
 
 function YaoBlocks.Optimise.to_basictypes(h::Union{SumOfN, SumOfZ})
-    is_time_function(h.Δ) && error("cannot get matrix of a time-dependent operator")
+    is_const_param(h.Δ) || throw(ArgumentError("expect constant hamiltonian"))
     op = h isa SumOfN ? ConstGate.P1 : Z
     return if h.Δ isa Vector
         sum(h.Δ[i] * put(h.nsites, i=>op) for i in 1:h.nsites)
@@ -171,9 +169,8 @@ function YaoBlocks.Optimise.to_basictypes(h::Union{SumOfN, SumOfZ})
 end
 
 function YaoBlocks.Optimise.to_basictypes(h::SumOfXPhase)
-    (is_time_function(h.Ω) || is_time_function(h.ϕ)) &&
-        error("cannot get matrix of a time-dependent operator")
-
+    is_const_param(h.Ω) || throw(ArgumentError("expect constant hamiltonian"))
+    is_const_param(h.ϕ) || throw(ArgumentError("expect constant hamiltonian"))
     return @switch (h.Ω, h.ϕ) begin
         @case (::Vector, ::Vector)
             sum(h.Ω[i] * put(h.nsites, i=>XPhase(h.ϕ[i])) for i in 1:h.nsites)

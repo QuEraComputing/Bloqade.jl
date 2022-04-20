@@ -14,3 +14,4 @@ build
 LocalPreferences.toml
 .CondaPkg
 JuliaSysimage.so
+.DS_Store

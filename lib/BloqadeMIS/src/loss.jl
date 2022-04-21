@@ -361,7 +361,7 @@ function config_probability(f, reg::YaoAPI.AbstractRegister, graph::AbstractGrap
     v2amp = ThreadsX.map(ConfigAmplitude(reg)) do (c, amp)
         return f(c), amp
     end
-        return ThreadsX.sum(v2amp) do (b, amp)
+    return ThreadsX.sum(v2amp) do (b, amp)
             sum_amp(b == mis_postprocessed, amp)
     end 
 end

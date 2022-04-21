@@ -12,7 +12,7 @@ using EliminateGraphs
 using YaoArrayRegister
 using YaoSubspaceArrayReg
 
-export mean_rydberg, gibbs_loss, is_independent_set, independent_set,
+export rydberg_density_sum, gibbs_loss, is_independent_set, independent_set,
     independent_set_subspace, independent_set_probabilities, config_probability,
     to_independent_set, to_independent_set!, unit_disk_graph,
     mis_postprocessing, bitarray, count_vertices, blockade_subspace,

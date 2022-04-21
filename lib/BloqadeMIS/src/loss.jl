@@ -7,9 +7,9 @@ count_vertices(config::Integer) = count_ones(config)
 count_vertices(config::AbstractVector) = count(isone, config)
 
 """
-    mean_rydberg([f], reg_or_samples)
+    rydberg_density_sum([f], reg_or_samples)
 
-Mean size of vertex set.
+Sum of rydberg density.
 
 # Arguments
 
@@ -24,13 +24,13 @@ Mean size of vertex set.
 
 To implement the postprocessing protocal in MIS experiment:
 
-1. calculating `mean_rydberg` by first reducing the configuration
+1. calculating `rydberg_density_sum` by first reducing the configuration
 to independent set using [`to_independent_set`](@ref)
 2. randomly adding vertices then pick the largest [`count_vertices`](@ref)
 using [`add_random_vertices`](@ref).
 
 ```julia
-mean_rydberg(r) do config
+rydberg_density_sum(r) do config
     config = to_independent_set(config, graph)
     add_random_vertices(config, graph, 10)
     return config
@@ -40,16 +40,16 @@ end
 Or one can also just add vertice by atom order
 
 ```julia
-mean_rydberg(r) do config
+rydberg_density_sum(r) do config
     config = to_independent_set(config, graph)
     add_vertices!(config, graph)
     return config
 end
 ```
 """
-function mean_rydberg end
+function rydberg_density_sum end
 
-mean_rydberg(x) = mean_rydberg(identity, x)
+rydberg_density_sum(x) = rydberg_density_sum(identity, x)
 
 struct SubspaceMap
     d::Dict{Int, Int}
@@ -105,14 +105,14 @@ function Base.iterate(it::ConfigAmplitude{<:ArrayReg}, idx::Int = first(it.range
     return (idx-1, it.reg.state[idx]), idx + 1
 end
 
-function mean_rydberg(f, reg::YaoAPI.AbstractRegister)
+function rydberg_density_sum(f, reg::YaoAPI.AbstractRegister)
     return sum(ConfigAmplitude(reg)) do (c, amp)
         nvertices = count_vertices(f(c))
         return abs2(amp) * nvertices
     end
 end
 
-function mean_rydberg(f, samples::AbstractVector)
+function rydberg_density_sum(f, samples::AbstractVector)
     return mean(count_vertices ∘ f, samples)
 end
 
@@ -403,11 +403,11 @@ Curried version of [`mis_postprocessing`](@ref).
 
 # Example
 
-To calculate `mean_rydberg` loss with postprocessing used in
+to calculate `rydberg_density_sum` loss with postprocessing used in
 Harvard experiment: [arxiv:2202.09372](https://arxiv.org/abs/2202.09372).
 
 ```julia
-mean_rydberg(mis_postprocessing(graph), reg)
+rydberg_density_sum(mis_postprocessing(graph), reg)
 ```
 """
 function mis_postprocessing(graph::AbstractGraph; ntrials::Int = 10)

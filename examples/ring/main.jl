@@ -50,7 +50,7 @@ integrator = init(prob, Vern6());
 
 densities = []
 for _ in TimeChoiceIterator(integrator, 0.0:Tmax/(nsteps-1):Tmax)
-    push!(densities, expect(put(nsites, 1=>Op.n), init_state))
+    push!(densities, rydberg_density(init_state, 1))
 end
 
 
@@ -60,9 +60,8 @@ integrator2 = init(prob2, Vern8());
 
 densities2 = []
 for _ in TimeChoiceIterator(integrator2, 0.0:Tmax/(nsteps-1):Tmax)
-    push!(densities2, expect(put(nsites, 1=>Op.n), init_state2))#, SubspaceArrayReg(u, space)))
+    push!(densities2, rydberg_density(init_state2, 1))
 end
-
 
 # Plot the data
 fig, ax = plt.subplots(figsize=(8,6))

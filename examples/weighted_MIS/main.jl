@@ -8,7 +8,7 @@
 
 # We import the required packages to compute weighted MIS classically
 
-using Graphs, GraphTensorNetworks
+using Graphs, GenericTensorNetworks
 
 # We initially specify the atom locations and construct the corresponding diagonally-coupled 
 # unit disk graph on a square lattice.  The atoms represent vertices on the problem graph, 

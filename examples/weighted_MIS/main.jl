@@ -45,9 +45,9 @@ show_graph(g; locs = locs, vertex_colors=
 
 
 # The QAA can be designed by first initializing all qubits to the ground state of 
-# $H_{QA}(t = 0)$ where $\Delta(t = 0) = 0$ and $\Omega(t = 0) = \Omega_{max}$.
+# $H_{QA}(t = 0)$ where $\Delta(t = 0) = -\Delta_0 < 0 $ and $\Omega(t = 0) = \Omega_0$.
 #  We then change the parameters by turning down $\Omega(t)$ to 0, and turning 
-#  up $\Delta(t)$ to $\Delta_{max}$ after some final time $t_f$.  
+#  up $\Delta(t)$ to $\Delta_0 > 0$ after some final time $t_f$.  
 
 # By the adiabatic theorem, when the time evolution is sufficiently slow, 
 # the system follows the instantaneous ground state and ends up in the 
@@ -65,16 +65,15 @@ plt = pyimport("matplotlib.pyplot")
 
 # We build the Hamiltonian and the corresponding waveforms for adiabatic evolution of the system
 function build_adiabatic_sweep(graph, Ω_max::Float64, Δ_max::Float64, t_max::Float64, weights::Vector{Float64})
-    Ω = Waveform(t->Ω_max + (- Ω_max)*t/t_max, duration=t_max)
+    Ω = Waveform(t->Ω_max * sin(pi * t/t_max)^2, duration=t_max)
     Δ = map(1:nv(graph)) do idx
-        Waveform(t->weights[idx] * Δ_max * t/t_max, duration=t_max)
+        Waveform(t->weights[idx] * Δ_max * (2 * t/t_max - 1), duration=t_max)
     end
-
-    h = XTerm(nv(graph), Ω) - NTerm(nv(graph), Δ)
+    h = SumOfX(nv(graph), Ω) - SumOfN(nv(graph), Δ)
     return h, Ω, Δ
 end;
 
-# We choose $\Delta_{max} / \Omega_{max} = 2.5$, with $\Omega_{max} = 2 \pi \times 4$ MHz
+# We choose $\Delta_0 / \Omega_0 = 2.5$, with $\Omega_{max} = 2 \pi \times 4$ MHz
 Ω_max = 2 * pi * 4
 Δ_max = 2.5 * Ω_max
 t_max = 1.0
@@ -121,7 +120,7 @@ while (t < T_  * 2.5)
     emulate!(prob)
     
     # compute MIS probability
-    p = maximum_independent_set_probability(prob.reg, g, MIS_config)
+    p = config_probability(prob.reg, g, MIS_config)
 
     push!(t_list, t)
     push!(P_MIS, p)

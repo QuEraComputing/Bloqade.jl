@@ -1,14 +1,15 @@
 # Registers
 
-Bloqade follows the register interface in [Yao](https://yaoquantum.org). It uses register to 
+Bloqade follows the register interface in [Yao](https://yaoquantum.org). It uses a register to 
 represent a device and its internal quantum state.
-As for our Rydberg emulator, the most commonly used register types are `ArrayReg`
+For Bloqade, the most commonly used register types are `ArrayReg`
 and `SubspaceArrayReg`. They both use a dense array to store
 the corresponding quantum state. The only difference is that `SubspaceArrayReg` also stores
-a subspace object. In this section, we will only cover how to create and operate registers in the full space. For subspace operations, please refer to [subspace](@ref). 
+a subspace object. In this section, we will only cover how to create registers and perform operations on it in the full Hilbert space. For subspace operations, please refer to the [subspace](@ref) page.
 
-## Basic Interfaces
+In the analog mode, we use the states ``|g\rangle`` (ground state) and ``|r\rangle`` (Rydberg state) to encode a qubit. To be consistent with the standard language of qubits, we refer the states ``|g\rangle`` and ``|r\rangle`` as ``|0\rangle`` and ``|1\rangle`` here.
 
+## Basic Interface
 
 To create a register with its internal state to be Rydberg ground state ``| 00..00 \rangle``, we can simply use 
 the function [`zero_state`](@ref) by specifying the number of qubits

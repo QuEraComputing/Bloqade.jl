@@ -4,7 +4,7 @@ using Comonicon
 using CoverageTools
 
 root_dir(xs...) = joinpath(dirname(dirname(@__DIR__)), xs...)
-function collect_lib(;include_main::Bool=false, excluded_libs=["BloqadePlots"])
+function collect_lib(;include_main::Bool=false, excluded_libs=[])
     pkgs = Pkg.PackageSpec[]
     for pkg in readdir(root_dir("lib"))
         pkg in excluded_libs && continue
@@ -24,11 +24,10 @@ create an example.
 # Flags
 
 - `-f,--force`: overwrite existing path.
-- `--plot`: use `BloqadePlots`.
 """
-@cast function create(name::String; force::Bool=false, plot::Bool=false)
+@cast function create(name::String; force::Bool=false)
     @warn("`.ci/run create` is deprecated, use `.ci/run example create` instead")
-    Example.create(name; force, plot)
+    Example.create(name; force)
 end
 
 """

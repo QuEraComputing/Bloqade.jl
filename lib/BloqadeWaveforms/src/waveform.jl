@@ -2,13 +2,13 @@
     struct Waveform
 
 Type for waveforms. `Waveform`s are defined
-as a function combiend with a real number
+as a function combined with a real number
 duration.
 
 # Fields
 
 - `f`: a callable object.
-- `duration`: a real number defines the duration of this waveform, default unit is `μs`.
+- `duration`: a real number defines the duration of this waveform; default unit is `μs`.
 """
 struct Waveform{F, T <: Real}
     f::F
@@ -390,7 +390,7 @@ end
 Create a sinusoidal waveform of the following expression.
 
 ```julia
-amplitude * sin(t)
+amplitude * sin(2π*t)
 ```
 
 # Keyword Arguments
@@ -402,6 +402,6 @@ function sinusoidal(;duration, amplitude=one(duration))
     duration = default_unit(μs, duration)
     amplitude = default_unit(MHz, amplitude)
     return Waveform(duration) do t
-        amplitude * sin(t)
+        amplitude * sin(2π*t)
     end
 end

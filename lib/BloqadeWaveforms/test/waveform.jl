@@ -9,8 +9,8 @@ using BloqadeWaveforms
     @test_throws ArgumentError waveform(0.1+4π)
 
     # constant bindings
-    wf = sinusoidal(;duration=4π, amplitude=2.2)
-    @test wf(0.1) ≈ 2.2 * sin(0.1)
+    wf = sinusoidal(;duration=2, amplitude=2.2)
+    @test wf(0.1) ≈ 2.2 * sin(2π*0.1)
 
     show(stdout, wf)
     println(stdout)

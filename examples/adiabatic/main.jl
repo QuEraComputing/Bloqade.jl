@@ -20,7 +20,6 @@
 
 using Bloqade
 using PythonCall
-using BloqadePlots
 using KrylovKit
 using SparseArrays
 
@@ -54,7 +53,7 @@ for ii in 1:Δ_step
     g_state = ArrayReg(vecs[1]) # creates the initial state with all atoms in ``| 0 \rangle`` state
 
     for jj in 1:nsites
-        density_g[ii, jj] = real(expect(put(nsites, jj=>Op.n), g_state)) # measure the density of Rydberg excitations on each site
+        density_g[ii, jj] = rydberg_density(g_state, jj) # measure the density of Rydberg excitations on each site
     end
 end
 
@@ -111,9 +110,9 @@ U2 = 2π * 10;
     
 # We plot the two waveforms:
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-draw!(ax1, Ω/2π)
+Bloqade.plot!(ax1, Ω/2π)
 ax1.set_ylabel("Ω/2π (MHz)")
-draw!(ax2, Δ/2π)
+Bloqade.plot!(ax2, Δ/2π)
 ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
@@ -138,7 +137,7 @@ integrator = init(prob, Vern8());
 
 densities = []
 for _ in TimeChoiceIterator(integrator, 0.0:1e-3:total_time)
-    push!(densities, [expect(put(nsites, i=>Op.n), reg) for i in 1:nsites])
+    push!(densities, rydberg_density(reg))
 end
 D = hcat(densities...);
 
@@ -200,9 +199,9 @@ U = 2π * 15.0
 Δ = piecewise_linear(clocks=[0.0, 0.3, 2.6, total_time], values=[-U, -U, U , U]);
 
 fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(10, 4))
-draw!(ax1, Ω/2π)
+Bloqade.plot!(ax1, Ω/2π)
 ax1.set_ylabel("Ω/2π MHz")
-draw!(ax2, Δ/2π)
+Bloqade.plot!(ax2, Δ/2π)
 ax2.set_ylabel("Δ/2π MHz")
 fig
 
@@ -216,7 +215,7 @@ integrator = init(prob, Vern8());
 # Again, we can use `TimeChoiceIterator` to specify the time points for measuring some observables.
 densities = [];
 for _ in TimeChoiceIterator(integrator, 0.0:1e-3:total_time)
-    push!(densities, [expect(put(nsites, i=>Op.n), reg) for i in 1:nsites])
+    push!(densities, rydberg_density(reg))
 end
 D = hcat(densities...)
 

@@ -1,4 +1,4 @@
-function draw!(ax, wf::Waveform)
+function plot!(ax, wf::Waveform)
     clocks = sample_clock(wf)
     fig = ax.plot(
         clocks, BloqadeWaveforms._rm_err.(sample_values(wf, clocks)./(2π));
@@ -8,8 +8,8 @@ function draw!(ax, wf::Waveform)
     return ax
 end
 
-function draw(wf::Waveform)
+function plot(wf::Waveform)
     fig, ax = plt.subplots()
-    draw!(ax, wf)
+    plot!(ax, wf)
     return fig
 end

@@ -133,18 +133,25 @@ function emulate_step!(prob::KrylovEvolution, step::Int, clock::Real, duration::
     return prob
 end
 
-Base.@propagate_inbounds function Base.iterate(prob::KrylovEvolution, (step, clock)=(1, prob.start_clock))
-    step > length(prob.durations) && return
+Base.length(prob::KrylovEvolution) = length(prob.durations)+1
 
-    duration=prob.durations[step]
+function Base.iterate(prob::KrylovEvolution)
+    info = (;step=1, reg=prob.reg, clock=prob.start_clock, duration=zero(prob.start_clock))
+    return info, (2, prob.start_clock)
+end
+
+Base.@propagate_inbounds function Base.iterate(prob::KrylovEvolution, (step, clock))
+    step > length(prob) && return
+
+    duration=prob.durations[step-1]
     emulate_step!(prob, step, clock, duration)
 
-    info = (;step, reg=prob.reg, duration)
+    info = (;step, reg=prob.reg, clock=clock+duration, duration)
     return info, (step+1, clock+duration)
 end
 
 function BloqadeExpr.emulate!(prob::KrylovEvolution)
-    niterations = length(prob.durations)
+    niterations = length(prob)
     @inbounds if prob.options.progress
         ProgressLogging.progress() do id
             for info in prob
@@ -157,4 +164,42 @@ function BloqadeExpr.emulate!(prob::KrylovEvolution)
         for info in prob; end
     end
     return prob
+end
+
+tab(indent) = " "^indent
+
+function Base.show(io::IO, mime::MIME"text/plain", prob::KrylovEvolution)
+    indent = get(io, :indent, 0)
+    println(io, tab(indent), "KrylovEvolution:")
+    # state info
+    print_state_info(io, prob)
+    println(io)
+
+    # clocks
+    println(io, tab(indent+2), "clocks")
+    println(io, tab(indent+4), "start:", prob.start_clock, "μs")
+    println(io, tab(indent+4), " last:", prob.start_clock + sum(prob.durations), "μs")
+    println(io)
+
+    # equation info
+    show(IOContext(io, :indent=>indent+2), mime, prob.hamiltonian)
+    println(io)
+    println(io)
+
+    println(io, tab(indent+2), "Options:")
+    for name in fieldnames(KrylovOptions)
+        println(io, tab(indent+4), name, "=", repr(getfield(prob.options, name)))
+    end
+end
+
+function print_state_info(io::IO, prob::KrylovEvolution)
+    indent = get(io, :indent, 0)
+    println(io, tab(indent+2), "register info:")
+    print(io, tab(indent+4), "type: ")
+    printstyled(io, typeof(prob.reg); color=:green)
+    println(io)
+
+    print(io, tab(indent+4), "storage size: ")
+    printstyled(io, Base.format_bytes(storage_size(prob.reg)); color=:yellow)
+    println(io)
 end

@@ -99,7 +99,7 @@ integrator = init(prob, Vern6());
 
 densities = [] # Time evolve the system in the full space
 for _ in TimeChoiceIterator(integrator, 0.0:Tmax/(nsteps-1):Tmax)
-    push!(densities, expect(put(nsites, 1=>Op.n), init_state))
+    push!(densities, rydberg_density(init_state, 1))
 end
 
 
@@ -109,11 +109,8 @@ integrator2 = init(prob2, Vern8());
 
 densities2 = [] # Time evolve the system in the subspace
 for _ in TimeChoiceIterator(integrator2, 0.0:Tmax/(nsteps-1):Tmax)
-    push!(densities2, expect(put(nsites, 1=>Op.n), init_state2))#, SubspaceArrayReg(u, space)))
+    push!(densities2, rydberg_density(init_state2, 1))
 end
-
-
-
 
 using PythonCall # Use matplotlib to generate plots
 matplotlib = pyimport("matplotlib")

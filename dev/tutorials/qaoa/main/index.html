@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>The Maximum Independent Set Problem · Bloqade.jl</title><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/Bloqade.jl/tutorials/qaoa/main/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">Bloqade.jl</a></span></div><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><a class="tocitem" href="../../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../../registers/">Registers</a></li><li><a class="tocitem" href="../../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../../../units/">Working with Units</a></li><li><a class="tocitem" href="../../../observables/">Observables</a></li><li><a class="tocitem" href="../../../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../../../cuda/">CUDA Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../../noise/main/">Adiabatic Preparation with Sensitivity Analysis</a></li><li class="is-active"><a class="tocitem" href>The Maximum Independent Set Problem</a><ul class="internal"><li><a class="tocitem" href="#Background"><span>Background</span></a></li><li class="toplevel"><a class="tocitem" href="#Set-up-the-problem"><span>Set up the problem</span></a></li><li><a class="tocitem" href="#The-adiabatic-approach"><span>The adiabatic approach</span></a></li><li><a class="tocitem" href="#QAOA-with-piecewise-constant-pulses"><span>QAOA with piecewise constant pulses</span></a></li><li><a class="tocitem" href="#Smoothen-Piecewise-linear-pulses"><span>Smoothen Piecewise linear pulses</span></a></li></ul></li><li><a class="tocitem" href="../../quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../../ring/main/">Ring Emulation</a></li></ul></li><li><span class="tocitem">Advanced Topics</span><ul><li><a class="tocitem" href="../../../topics/blockade/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../../topics/bravais/">Bravais Lattice</a></li><li><a class="tocitem" href="../../../topics/ad/">Automatic Differentiation</a></li></ul></li><li><a class="tocitem" href="../../../contrib/">Contributing to Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/Bloqade.jl/blob/master/examples/qaoa/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="The-Maximum-Independent-Set-Problem"><a class="docs-heading-anchor" href="#The-Maximum-Independent-Set-Problem">The Maximum Independent Set Problem</a><a id="The-Maximum-Independent-Set-Problem-1"></a><a class="docs-heading-anchor-permalink" href="#The-Maximum-Independent-Set-Problem" title="Permalink"></a></h1><h2 id="Background"><a class="docs-heading-anchor" href="#Background">Background</a><a id="Background-1"></a><a class="docs-heading-anchor-permalink" href="#Background" title="Permalink"></a></h2><p>In graph theory, an <a href="https://en.wikipedia.org/wiki/Independent_set_(graph_theory)">independent set</a> is a set of vertices in a graph, no two of which are adjacent. The problem of finding maximum independent sets (MIS) is NP-hard, i.e. unlikely to be solved in polynomial time for a large system size. In this tutorial we study the MIS problem defined on diagonal-coupled unit-disk grid graphs (DUGG).  Although these graphs have highly constraint topology, finding its MISs is still NP-hard. Recent studies show that these graphs can be naturally mapped to the Rydberg atom system with strong blockade interactions (see <a href="https://arxiv.org/abs/1808.10816">arxiv:1808.10816</a>. In this tutorial, we show how to using variational quantum algorithms on Rydberg atom arrays to solve the MIS problem on these graphs. For those who wants to know more details, we highly recommend to connect this tutorial with the recent experiment <a href="https://arxiv.org/abs/2202.09372">arxiv:2202.09372</a>.</p><p>Let&#39;s start by importing the required libraries:</p><pre><code class="language-julia hljs">using Graphs
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>The Maximum Independent Set Problem · Bloqade.jl</title><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/Bloqade.jl/tutorials/qaoa/main/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">Bloqade.jl</a></span></div><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><a class="tocitem" href="../../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../../registers/">Registers</a></li><li><a class="tocitem" href="../../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../../../units/">Working with Units</a></li><li><a class="tocitem" href="../../../observables/">Observables</a></li><li><a class="tocitem" href="../../../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../../../cuda/">CUDA Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../../noise/main/">Adiabatic Preparation with Sensitivity Analysis</a></li><li class="is-active"><a class="tocitem" href>The Maximum Independent Set Problem</a><ul class="internal"><li><a class="tocitem" href="#Background"><span>Background</span></a></li><li class="toplevel"><a class="tocitem" href="#Set-up-the-problem"><span>Set up the problem</span></a></li><li><a class="tocitem" href="#The-adiabatic-approach"><span>The adiabatic approach</span></a></li><li><a class="tocitem" href="#QAOA-with-piecewise-constant-pulses"><span>QAOA with piecewise constant pulses</span></a></li><li><a class="tocitem" href="#Smoothen-Piecewise-linear-pulses"><span>Smoothen Piecewise linear pulses</span></a></li></ul></li><li><a class="tocitem" href="../../quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../../ring/main/">Rydberg Blockade</a></li></ul></li><li><span class="tocitem">Advanced Topics</span><ul><li><a class="tocitem" href="../../../topics/blockade/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../../topics/bravais/">Bravais Lattice</a></li><li><a class="tocitem" href="../../../topics/ad/">Automatic Differentiation</a></li></ul></li><li><a class="tocitem" href="../../../contrib/">Contributing to Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/Bloqade.jl/blob/master/examples/qaoa/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="The-Maximum-Independent-Set-Problem"><a class="docs-heading-anchor" href="#The-Maximum-Independent-Set-Problem">The Maximum Independent Set Problem</a><a id="The-Maximum-Independent-Set-Problem-1"></a><a class="docs-heading-anchor-permalink" href="#The-Maximum-Independent-Set-Problem" title="Permalink"></a></h1><h2 id="Background"><a class="docs-heading-anchor" href="#Background">Background</a><a id="Background-1"></a><a class="docs-heading-anchor-permalink" href="#Background" title="Permalink"></a></h2><p>In graph theory, an <a href="https://en.wikipedia.org/wiki/Independent_set_(graph_theory)">independent set</a> is a set of vertices in a graph, no two of which are adjacent. The problem of finding maximum independent sets (MIS) is NP-hard, i.e. unlikely to be solved in polynomial time for a large system size. In this tutorial we study the MIS problem defined on diagonal-coupled unit-disk grid graphs (DUGG).  Although these graphs have highly constraint topology, finding its MISs is still NP-hard. Recent studies show that these graphs can be naturally mapped to the Rydberg atom system with strong blockade interactions (see <a href="https://arxiv.org/abs/1808.10816">arxiv:1808.10816</a>. In this tutorial, we show how to using variational quantum algorithms on Rydberg atom arrays to solve the MIS problem on these graphs. For those who wants to know more details, we highly recommend to connect this tutorial with the recent experiment <a href="https://arxiv.org/abs/2202.09372">arxiv:2202.09372</a>.</p><p>Let&#39;s start by importing the required libraries:</p><pre><code class="language-julia hljs">using Graphs
 using Bloqade
 using Compose
 using Random
@@ -22,7 +22,7 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-e07c5e66-1">
+<g fill="#000000" font-size="3.88" id="img-133affd3-1">
   <g transform="translate(30.97,101.42)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -64,72 +64,72 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
     </g>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-2">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-2">
   <g transform="translate(89.03,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-3">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-3">
   <g transform="translate(69.68,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-4">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-4">
   <g transform="translate(50.32,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-5">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-5">
   <g transform="translate(30.97,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-6">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-6">
   <g transform="translate(89.03,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-7">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-7">
   <g transform="translate(69.68,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-8">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-8">
   <g transform="translate(50.32,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-9">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-9">
   <g transform="translate(30.97,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-10">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-10">
   <g transform="translate(89.03,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-11">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-11">
   <g transform="translate(69.68,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-12">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-12">
   <g transform="translate(50.32,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-13">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-13">
   <g transform="translate(69.68,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e07c5e66-14">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-133affd3-14">
   <g transform="translate(30.97,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="5.46" id="img-e07c5e66-15">
+<g fill="#000000" font-size="5.46" id="img-133affd3-15">
   <g transform="translate(30.97,89.03)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -207,13 +207,13 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
      stroke-width="0.3"
      font-size="3.88"
 
-     id="img-2d5b1898">
+     id="img-5f96e18f">
 <defs>
   <marker id="arrow" markerWidth="15" markerHeight="7" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-2d5b1898-1">
+<g fill="#000000" font-size="3.88" id="img-5f96e18f-1">
   <g transform="translate(30.97,101.42)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -255,7 +255,7 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
     </g>
   </g>
 </g>
-<g stroke-width="0.93" stroke="#000000" id="img-2d5b1898-2">
+<g stroke-width="0.93" stroke="#000000" id="img-5f96e18f-2">
   <g transform="translate(40.65,79.35)">
     <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
   </g>
@@ -347,72 +347,72 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
     <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-3">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-3">
   <g transform="translate(89.03,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-4">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-4">
   <g transform="translate(69.68,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-5">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-5">
   <g transform="translate(50.32,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-6">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-6">
   <g transform="translate(30.97,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-7">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-7">
   <g transform="translate(89.03,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-8">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-8">
   <g transform="translate(69.68,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-9">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-9">
   <g transform="translate(50.32,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-10">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-10">
   <g transform="translate(30.97,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-11">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-11">
   <g transform="translate(89.03,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-12">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-12">
   <g transform="translate(69.68,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-13">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-13">
   <g transform="translate(50.32,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-14">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-14">
   <g transform="translate(69.68,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2d5b1898-15">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-5f96e18f-15">
   <g transform="translate(30.97,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="5.46" id="img-2d5b1898-16">
+<g fill="#000000" font-size="5.46" id="img-5f96e18f-16">
   <g transform="translate(30.97,89.03)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -675,13 +675,13 @@ all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), Configs
      stroke-width="0.3"
      font-size="3.88"
 
-     id="img-28ffd426">
+     id="img-b2a19c9f">
 <defs>
   <marker id="arrow" markerWidth="15" markerHeight="7" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-28ffd426-1">
+<g fill="#000000" font-size="3.88" id="img-b2a19c9f-1">
   <g transform="translate(30.97,101.42)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -723,72 +723,72 @@ all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), Configs
     </g>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-28ffd426-2">
+<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-b2a19c9f-2">
   <g transform="translate(89.03,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-28ffd426-3">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-b2a19c9f-3">
   <g transform="translate(69.68,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-28ffd426-4">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-b2a19c9f-4">
   <g transform="translate(50.32,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-28ffd426-5">
+<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-b2a19c9f-5">
   <g transform="translate(30.97,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-28ffd426-6">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-b2a19c9f-6">
   <g transform="translate(89.03,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-28ffd426-7">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-b2a19c9f-7">
   <g transform="translate(69.68,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-28ffd426-8">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-b2a19c9f-8">
   <g transform="translate(50.32,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-28ffd426-9">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-b2a19c9f-9">
   <g transform="translate(30.97,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-28ffd426-10">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-b2a19c9f-10">
   <g transform="translate(89.03,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-28ffd426-11">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-b2a19c9f-11">
   <g transform="translate(69.68,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-28ffd426-12">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-b2a19c9f-12">
   <g transform="translate(50.32,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-28ffd426-13">
+<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-b2a19c9f-13">
   <g transform="translate(69.68,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-28ffd426-14">
+<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-b2a19c9f-14">
   <g transform="translate(30.97,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="5.46" id="img-28ffd426-15">
+<g fill="#000000" font-size="5.46" id="img-b2a19c9f-15">
   <g transform="translate(30.97,89.03)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -1012,13 +1012,13 @@ amount2:1-d})};a.filter.invert.toString=function(){return this()};a.filter.brigh
      stroke-width="0.3"
      font-size="3.88"
 
-     id="img-e4ec0f95">
+     id="img-ff336267">
 <defs>
   <marker id="arrow" markerWidth="15" markerHeight="7" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-e4ec0f95-1">
+<g fill="#000000" font-size="3.88" id="img-ff336267-1">
   <g transform="translate(30.97,101.42)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -1060,72 +1060,72 @@ amount2:1-d})};a.filter.invert.toString=function(){return this()};a.filter.brigh
     </g>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-e4ec0f95-2">
+<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-ff336267-2">
   <g transform="translate(89.03,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e4ec0f95-3">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-ff336267-3">
   <g transform="translate(69.68,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e4ec0f95-4">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-ff336267-4">
   <g transform="translate(50.32,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-e4ec0f95-5">
+<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-ff336267-5">
   <g transform="translate(30.97,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e4ec0f95-6">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-ff336267-6">
   <g transform="translate(89.03,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e4ec0f95-7">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-ff336267-7">
   <g transform="translate(69.68,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e4ec0f95-8">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-ff336267-8">
   <g transform="translate(50.32,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e4ec0f95-9">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-ff336267-9">
   <g transform="translate(30.97,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-e4ec0f95-10">
+<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-ff336267-10">
   <g transform="translate(89.03,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e4ec0f95-11">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-ff336267-11">
   <g transform="translate(69.68,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e4ec0f95-12">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-ff336267-12">
   <g transform="translate(50.32,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e4ec0f95-13">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-ff336267-13">
   <g transform="translate(69.68,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-e4ec0f95-14">
+<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-ff336267-14">
   <g transform="translate(30.97,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="5.46" id="img-e4ec0f95-15">
+<g fill="#000000" font-size="5.46" id="img-ff336267-15">
   <g transform="translate(30.97,89.03)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -1401,4 +1401,4 @@ Bloqade.plot(Δ_initial)
 mean_mis</code></pre><pre><code class="nohighlight hljs">-3.8967671107238795</code></pre><p>If we plot the distribution</p><pre><code class="language-julia hljs">bitstring_hist(reg0; nlargest=20)</code></pre><p><img src="../3042575259.svg" alt/></p><p>It is quite good already. Again, let us use the <code>NelderMead</code> optimizer to optimize the loss</p><pre><code class="language-julia hljs">optresult = Optim.optimize(x-&gt;loss_piecewise_linear(atoms, x)[1], x0)
 
 mean_mis_final, reg_final, Δ_final = loss_piecewise_linear(atoms, optresult.minimizer)
-mean_mis_final</code></pre><pre><code class="nohighlight hljs">-3.9419078253111506</code></pre><p>One can see the mean MIS size can be further improved to a value close to optimal value of MIS solution.</p><pre><code class="language-julia hljs">bitstring_hist(reg_final; nlargest=20)</code></pre><p><img src="../2987867560.svg" alt/></p><p>We can also plot out the final optimized waveform for Δ</p><pre><code class="language-julia hljs">Bloqade.plot(Δ_final)</code></pre><p><img src="../2193654699.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../noise/main/">« Adiabatic Preparation with Sensitivity Analysis</a><a class="docs-footer-nextpage" href="../../quantum-scar/main/">Quantum Scar »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.16 on <span class="colophon-date" title="Thursday 21 April 2022 19:00">Thursday 21 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+mean_mis_final</code></pre><pre><code class="nohighlight hljs">-3.9419078253111506</code></pre><p>One can see the mean MIS size can be further improved to a value close to optimal value of MIS solution.</p><pre><code class="language-julia hljs">bitstring_hist(reg_final; nlargest=20)</code></pre><p><img src="../2987867560.svg" alt/></p><p>We can also plot out the final optimized waveform for Δ</p><pre><code class="language-julia hljs">Bloqade.plot(Δ_final)</code></pre><p><img src="../2193654699.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../noise/main/">« Adiabatic Preparation with Sensitivity Analysis</a><a class="docs-footer-nextpage" href="../../quantum-scar/main/">Quantum Scar »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.16 on <span class="colophon-date" title="Thursday 21 April 2022 19:21">Thursday 21 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

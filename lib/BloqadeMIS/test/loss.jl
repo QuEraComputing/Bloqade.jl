@@ -18,7 +18,7 @@ Random.seed!(1234)
     constraint_r = zero_state(test_subspace)
     fullspace_r = zero_state(5)
 
-    for loss_fn in [mean_rydberg, x->gibbs_loss(x, 0.3)]
+    for loss_fn in [rydberg_density_sum, x->gibbs_loss(x, 0.3)]
         @test loss_fn(constraint_r) == 0.0
         @test loss_fn(fullspace_r) == 0.0
         @test loss_fn(measure(fullspace_r; nshots=10)) == 0.0
@@ -63,9 +63,9 @@ end
     space = independent_set_subspace(graph)
     reg = rand_state(space)
     Random.seed!(1234)
-    l1 = mean_rydberg(mis_postprocessing(graph), reg)
+    l1 = rydberg_density_sum(mis_postprocessing(graph), reg)
     Random.seed!(1234)
-    l2 = mean_rydberg(SubspaceMap(mis_postprocessing(graph), space), reg)
+    l2 = rydberg_density_sum(SubspaceMap(mis_postprocessing(graph), space), reg)
     @test l1 ≈ l2
 end
 
@@ -74,7 +74,7 @@ end
     samples = measure(r; nshots=10000)
     expected_sampling = samples .|> count_vertices |> mean
     # 2. exact
-    expected_exact = r |> mean_rydberg
+    expected_exact = r |> rydberg_density_sum
     @test isapprox(expected_exact, expected_sampling; rtol=1e-1)
 
     ####### gibbs

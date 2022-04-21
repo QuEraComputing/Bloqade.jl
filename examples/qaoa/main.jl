@@ -172,11 +172,7 @@ function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
     subspace = blockade_subspace(atoms, 7.5)  # we run our emulation within the blockade subspace 
     prob = KrylovEvolution(zero_state(Complex{T}, subspace), clocks, hamiltonian)
     emulate!(prob)
-
-    ## results are bit strings
-    nbits = length(atoms)
-    ## return real(sum(prob.reg.state))
-    return -real(expect(sum([put(nbits, i=>ConstGate.P1) for i=1:nbits]), prob.reg)), prob.reg
+    return -rydberg_density_sum(prob.reg), prob.reg
 end
 
 # !!!note
@@ -234,11 +230,7 @@ function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     subspace = blockade_subspace(atoms, 7.5)
     prob = SchrodingerProblem(zero_state(Complex{T}, subspace), T_max, hamiltonian)
     emulate!(prob)
-
-    ## results are bit strings
-    nbits = length(atoms)
-    ## return real(sum(prob.reg.state))
-    return -real(expect(sum([put(nbits, i=>ConstGate.P1) for i=1:nbits]), prob.reg)), prob.reg, Δs
+    return -rydberg_density_sum(prob.reg), prob.reg, Δs
 end
 
 x0 = [0.1, 0.8, 0.8]

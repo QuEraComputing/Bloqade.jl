@@ -53,7 +53,7 @@ for ii in 1:Δ_step
     g_state = ArrayReg(vecs[1]) # creates the initial state with all atoms in ``| 0 \rangle`` state
 
     for jj in 1:nsites
-        density_g[ii, jj] = real(expect(put(nsites, jj=>Op.n), g_state)) # measure the density of Rydberg excitations on each site
+        density_g[ii, jj] = rydberg_density(g_state, jj) # measure the density of Rydberg excitations on each site
     end
 end
 
@@ -137,7 +137,7 @@ integrator = init(prob, Vern8());
 
 densities = []
 for _ in TimeChoiceIterator(integrator, 0.0:1e-3:total_time)
-    push!(densities, [expect(put(nsites, i=>Op.n), reg) for i in 1:nsites])
+    push!(densities, rydberg_density(reg))
 end
 D = hcat(densities...);
 
@@ -215,7 +215,7 @@ integrator = init(prob, Vern8());
 # Again, we can use `TimeChoiceIterator` to specify the time points for measuring some observables.
 densities = [];
 for _ in TimeChoiceIterator(integrator, 0.0:1e-3:total_time)
-    push!(densities, [expect(put(nsites, i=>Op.n), reg) for i in 1:nsites])
+    push!(densities, rydberg_density(reg))
 end
 D = hcat(densities...)
 

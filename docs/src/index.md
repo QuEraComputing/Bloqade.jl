@@ -117,7 +117,7 @@ After simulating the time evolution and get the final state, we can measure the 
 
 ```@repl quick-start
 rydberg_populations = map(1:nsites) do i
-    real(expect(put(nsites, i=>Op.n), prob.reg))
+    rydberg_density(prob.reg, i)
 end
 ```
 `prob.reg` is the register storing the final state after the time evolution.

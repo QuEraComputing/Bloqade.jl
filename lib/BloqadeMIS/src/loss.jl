@@ -348,18 +348,18 @@ function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, mis::Int
     end
 end
 
-function maximum_independent_set_probability end
+function config_probability end
 
-function maximum_independent_set_probability(reg::YaoAPI.AbstractRegister, graph::AbstractGraph, mis)
-    maximum_independent_set_probability(reg, graph, mis) do config
+function config_probability(reg::YaoAPI.AbstractRegister, graph::AbstractGraph, independent_set_config)
+    config_probability(reg, graph, independent_set_config) do config
         to_independent_set(config, graph)
     end
 end
 
-function maximum_independent_set_probability(f, reg::YaoAPI.AbstractRegister, graph::AbstractGraph, mis)
-    mis_postprocessed = f(mis)
+function config_probability(f, reg::YaoAPI.AbstractRegister, graph::AbstractGraph, independent_set_config)
+    mis_postprocessed = to_independent_set!(independent_set_config, graph)
     v2amp = ThreadsX.map(ConfigAmplitude(reg)) do (c, amp)
-        return bitarray(f(c), nv(graph)), amp
+        return f(c), amp
     end
         return ThreadsX.sum(v2amp) do (b, amp)
             sum_amp(b == mis_postprocessed, amp)

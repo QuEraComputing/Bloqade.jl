@@ -74,6 +74,22 @@ By specifying the time of `h1`, we can access the Hamiltonian at a particular ti
 ht= h1 |> attime(0.5)
 ```
 
+## Building Hamiltonians with Site-Dependent Waveforms
+
+
+In certain cases, the user may want to building a Hamiltonian which has site-dependent ``\Omega_j``, ``\phi_j``, and ``\Delta_j`` (that may have or not have time dependence). 
+This can be done by first building up a site-dependent waveform. Then one can directly feed this waveform directly to [`rydberg_h`](@ref). See for example 
+
+
+```@repl hamiltonian
+atoms = generate_sites(ChainLattice(), 5, scale=5.72)
+Δ1 = map(1:length(atoms)) do idx
+    Waveform(t-> idx*sin(t), duration=4π)
+end
+h =rydberg_h(atoms; Δ=Δ1)
+```
+
+
 ## Hamiltonian Expressions
 
 Bloqade uses "block"s from [Yao](https://yaoquantum.org/) to build symbolic hamiltonian

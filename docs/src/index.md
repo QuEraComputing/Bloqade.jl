@@ -49,7 +49,7 @@ For a more advanced installation guide, please see the [Installation](@ref insta
 
 ## What does Bloqade do?
 
-Neutral-atom quantum computers have two major modes of computation: the first mode is a "digital mode" to do universal, digital quantum computation that uses two ground states ``|0\rangle`` and ``|1\rangle`` to encode the qubit, which has long coherence time, and one Rydberg state ``|r\rangle`` to entangle the qubits; the second mode is a "analog mode" as a programmable quantum simulator that uses one ground state ``|1\rangle`` and one Rydberg state ``|r\rangle``, where the quantum dynamics is governed by a Rydberg Hamiltonian ``\hat{\mathcal{H}}``.
+Neutral-atom quantum computers have two major modes of computation: the first mode is a "digital mode" to do universal, digital quantum computation that uses two ground states ``|0\rangle`` and ``|1\rangle`` to encode the qubit, which has long coherence time, and one Rydberg state ``|r\rangle`` to entangle the qubits; the second mode is an "analog mode" as a programmable quantum simulator that uses one ground state ``|1\rangle`` and one Rydberg state ``|r\rangle``, where the quantum dynamics is governed by a Rydberg Hamiltonian ``\hat{\mathcal{H}}``.
 
 Currently, Bloqade only supports the analog mode. In particular, it simulates the time evolution of a quantum state under the Schrödinger equation where the Hamiltonian is the interacting Rydberg Hamiltonian ``\hat{\mathcal{H}}``, 
 

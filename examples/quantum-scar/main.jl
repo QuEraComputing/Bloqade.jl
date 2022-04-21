@@ -20,7 +20,6 @@
 # To start, we first import the required libraries
 
 using Bloqade
-using BloqadePlots
 using PythonCall
 using Random
 
@@ -49,7 +48,7 @@ reg3 = zero_state(3)
 total_time = 1.5
 clocks = 0.0:1e-2:total_time
 prob1 = KrylovEvolution(reg1, clocks, h1)
-density1 = zeros(1, length(clocks)-1);
+density1 = zeros(1, length(clocks));
 
 for evolution in prob1
     density1[1, evolution.step] = expect(put(1, 1=>Op.n), evolution.reg)
@@ -136,8 +135,8 @@ atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
 Δ_tot = append(Δ1, Δ2);
 
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-draw!(ax1, Ω_tot)
-draw!(ax2, Δ_tot)
+Bloqade.plot!(ax1, Ω_tot)
+Bloqade.plot!(ax2, Δ_tot)
 ax1.set_ylabel("Ω/2π (MHz)")
 ax2.set_ylabel("Δ/2π (MHz)")
 fig
@@ -207,7 +206,7 @@ clocks = 0.0:1e-2:total_time;
 
 init_d = product_state(bit"100000101")
 prob_d = KrylovEvolution(init_d, clocks, hd)
-density_mat_d = zeros(nsites, length(clocks)-1) 
+density_mat_d = zeros(nsites, length(clocks)) 
 
 for evolution in prob_d
     for i in 1:nsites

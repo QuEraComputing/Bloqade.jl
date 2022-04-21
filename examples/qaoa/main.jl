@@ -13,12 +13,12 @@
 
 using Graphs
 using Bloqade
-using BloqadePlots
 using Compose
 using Random
 using GenericTensorNetworks
-using Optim;
-
+using Optim
+using PythonCall
+plt = pyimport("matplotlib.pyplot")
 
 # # Set up the problem
 
@@ -29,7 +29,7 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |> random_dropout(0.2)
 # Then we set the blockade radius to be 7.5 ``\mu m``. In such a case,  if two atoms have a distance of ``a`` or ``\sqrt{2} a``, they are within the blockade radius. 
 # As we discussed in [Rydberg Blockade](@ref), there is only one Rydberg excitation is allowed within the blockade radius.  To better illustrate the constraint, we 
 # plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the strong Rydberg interactions. 
-img_atoms(atoms, blockade_radius=7.5)
+Bloqade.plot(atoms, blockade_radius=7.5)
 # Our goal is to find a the maximum independent sets of such a graph. 
 
 
@@ -58,9 +58,9 @@ T_max = 1.65
 Δ = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[Δ_start, Δ_start, Δ_end, Δ_end])
 
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-draw!(ax1, Ω/2π)
+Bloqade.plot!(ax1, Ω/2π)
 ax1.set_ylabel("Ω/2π (MHz)")
-draw!(ax2, Δ/2π)
+Bloqade.plot!(ax2, Δ/2π)
 ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
@@ -92,9 +92,9 @@ all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), Configs
 @assert all(bs->GenericTensorNetworks.StaticBitVector([bs...]) ∈ all_optimal_configs.c, best_bit_strings)
 
 # We can also visualize these atoms and check them visually.
-img_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[1]])
+Bloqade.plot(atoms; colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[1]])
 #
-img_atoms(atoms, colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[2]])
+Bloqade.plot(atoms; colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[2]])
 
 
 
@@ -133,9 +133,9 @@ clocks = [0, cumsum(durations)...]
 Δ2 = piecewise_constant(; clocks=clocks, values=repeat([0.0, Δ_end], 3))
 
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-draw!(ax1, Ω2/2π)
+Bloqade.plot!(ax1, Ω2/2π)
 ax1.set_ylabel("Ω/2π (MHz)")
-draw!(ax2, Δ2/2π)
+Bloqade.plot!(ax2, Δ2/2π)
 ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
@@ -214,7 +214,7 @@ bitstring_hist(reg_final; nlargest=20)
 
 # A smoothen piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the [`piecewise_linear`] function.
 smoothen_curve = smooth(piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.1); 
-BloqadePlots.draw(smoothen_curve)
+Bloqade.plot(smoothen_curve)
 
 # Here, the function [`smooth`](@ref) takes a `kernel_radius` keyword parameter as the Gaussian kernel parameter.
 # With the new waveform, we can define the loss as follows.
@@ -245,7 +245,7 @@ x0 = [0.1, 0.8, 0.8]
 
 # Let us check the loss function
 mean_mis, reg0, Δ_initial = loss_piecewise_linear(atoms, x0)
-BloqadePlots.draw(Δ_initial)
+Bloqade.plot(Δ_initial)
 mean_mis
 
 # If we plot the distribution
@@ -261,4 +261,4 @@ mean_mis_final
 bitstring_hist(reg_final; nlargest=20)
 
 # We can also plot out the final optimized waveform for Δ
-BloqadePlots.draw(Δ_final)
+Bloqade.plot(Δ_final)

@@ -20,7 +20,6 @@
 
 using Bloqade
 using PythonCall
-using BloqadePlots
 using KrylovKit
 using SparseArrays
 
@@ -111,9 +110,9 @@ U2 = 2π * 10;
     
 # We plot the two waveforms:
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-draw!(ax1, Ω/2π)
+Bloqade.plot!(ax1, Ω/2π)
 ax1.set_ylabel("Ω/2π (MHz)")
-draw!(ax2, Δ/2π)
+Bloqade.plot!(ax2, Δ/2π)
 ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
@@ -200,9 +199,9 @@ U = 2π * 15.0
 Δ = piecewise_linear(clocks=[0.0, 0.3, 2.6, total_time], values=[-U, -U, U , U]);
 
 fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(10, 4))
-draw!(ax1, Ω/2π)
+Bloqade.plot!(ax1, Ω/2π)
 ax1.set_ylabel("Ω/2π MHz")
-draw!(ax2, Δ/2π)
+Bloqade.plot!(ax2, Δ/2π)
 ax2.set_ylabel("Δ/2π MHz")
 fig
 

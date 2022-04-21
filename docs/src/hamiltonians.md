@@ -40,7 +40,7 @@ Note that the default value for the Rydberg interaction constant is ``C_6 = 2\pi
 refer to [Bloqade](@ref). Instead of using the default value for ``C_6``, the users are free to set their own values. For instance, if the users would like to have a chain lattice with nearest-neighbor atoms separated by 1 μm, and interaction strength to be a particular value, say, ``2\pi * 10.0^6 \text{ MHz μm}^6``, it can be done with the following code
 
 ```@repl hamiltonian
-atoms = generate_sites(SquareLattice(), 3, 3, scale=6.3)
+atoms = generate_sites(ChainLattice(), 9, scale=1.0)
 h0 = rydberg_h(atoms; C=2π*10.0^6, Δ=1.2*2π, Ω=1.1*2π, ϕ=2.1)
 ```
 
@@ -73,6 +73,22 @@ By specifying the time of `h1`, we can access the Hamiltonian at a particular ti
 ```@repl hamiltonian
 ht= h1 |> attime(0.5)
 ```
+
+## Building Hamiltonians with Site-Dependent Waveforms
+
+
+In certain cases, the user may want to building a Hamiltonian which has site-dependent ``\Omega_j``, ``\phi_j``, and ``\Delta_j`` (that may have or not have time dependence). 
+This can be done by first building up a site-dependent waveform. Then one can directly feed this waveform directly to [`rydberg_h`](@ref). See for example 
+
+
+```@repl hamiltonian
+atoms = generate_sites(ChainLattice(), 5, scale=5.72)
+Δ1 = map(1:length(atoms)) do idx
+    Waveform(t-> idx*sin(t), duration=4π)
+end
+h =rydberg_h(atoms; Δ=Δ1)
+```
+
 
 ## Hamiltonian Expressions
 

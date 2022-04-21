@@ -27,6 +27,7 @@ end
 
     # smoothen waveform should have similar abs gradient at same point
     swf = smooth(wf; kernel_radius=0.5)
+    x = 2.0; delta=1e-5
     grad_p = (swf(x) - swf(x-delta))/delta
     grad_m = (swf(x) - swf(x+delta))/delta
     @test abs(abs(grad_p) - abs(grad_m)) ≤ 1e-4

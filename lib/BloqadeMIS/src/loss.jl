@@ -335,7 +335,7 @@ end
 function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, graph::AbstractGraph)
     return independent_set_probabilities(f, reg, exact_solve_mis(graph))
 end
-
+    
 function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, mis::Int)
     v2amp = ThreadsX.map(ConfigAmplitude(reg)) do (c, amp)
         return count_vertices(f(c)), amp
@@ -343,14 +343,37 @@ function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, mis::Int
 
     return ThreadsX.map(0:mis) do k
         ThreadsX.sum(v2amp) do (nvertices, amp)
-            if nvertices == k
-                abs2(amp)
-            else
-                zero(real(typeof(amp)))
-            end
+            sum_amp(nvertices == k, amp)
         end
     end
 end
+
+function config_probability end
+
+function config_probability(reg::YaoAPI.AbstractRegister, graph::AbstractGraph, independent_set_config)
+    config_probability(reg, graph, independent_set_config) do config
+        to_independent_set(config, graph)
+    end
+end
+
+function config_probability(f, reg::YaoAPI.AbstractRegister, graph::AbstractGraph, independent_set_config)
+    mis_postprocessed = to_independent_set!(independent_set_config, graph)
+    v2amp = ThreadsX.map(ConfigAmplitude(reg)) do (c, amp)
+        return f(c), amp
+    end
+    return ThreadsX.sum(v2amp) do (b, amp)
+            sum_amp(b == mis_postprocessed, amp)
+    end 
+end
+
+function sum_amp(condition, amp)
+    if condition
+        return abs2(amp)
+    else
+        return zero(real(typeof(amp)))
+    end
+end 
+
 
 """
     mis_postprocessing(config, graph::AbstractGraph; ntrials::Int=10)

@@ -89,7 +89,7 @@ init_state2 = zero_state(space)                 # Define the initial state in th
 
 
 Tmax = 6.
-nsteps = 1001
+nsteps = 2001
 times = LinRange(0,Tmax,nsteps)
 
 
@@ -117,12 +117,12 @@ end
 
 using PythonCall # Use matplotlib to generate plots
 matplotlib = pyimport("matplotlib")
-matplotlib.use("TkAgg")
+#matplotlib.use("TkAgg")
 plt = pyimport("matplotlib.pyplot")
 plt.rcParams["font.size"] = 22
 
 # Plot the data
-fig = plt.figure(figsize=(8,6))
+#fig = plt.figure(figsize=(8,6))
 ax  = plt.subplot(1,1,1)
 
 plt.plot(times,real(densities),"k",label="Full space")

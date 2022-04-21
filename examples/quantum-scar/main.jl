@@ -50,15 +50,15 @@ clocks = 0.0:1e-2:total_time
 prob1 = KrylovEvolution(reg1, clocks, h1)
 density1 = zeros(1, length(clocks));
 
-for evolution in prob1
-    density1[1, evolution.step] = expect(put(1, 1=>Op.n), evolution.reg)
+for info in prob1
+    density1[1, info.step] = rydberg_density(info.reg, 1)
 end
 
 # Here, we use the [`KrylovEvolution`](@ref) to simulate the dynamics for a time-independent Hamiltonian.
 # One can also use ODE to simulate the dynamics. For an example, see [Adiabatic Evolution](@ref).
 # The Rydberg density of this atom exihibits Rabi oscillations as a function of time, shown by the plot below
 fig, ax = plt.subplots()
-ax.plot(clocks[1:end-1], density1[1, :])
+ax.plot(clocks, density1[1, :])
 ax.set_xlabel("Time (μs)")
 ax.set_ylabel("Single Rydberg Probability")
 ax.set_title("Rabi Oscillation: Single Atom Case")
@@ -68,21 +68,21 @@ fig
 # However, we show that this is not the case for systems when atoms are close to each other (which results in strong Rydberg interactions). 
 # Similar to the 1 atom case, we can simulate the dynamics and get the time-dependent dynamics for each atom
 prob2 = KrylovEvolution(reg2, clocks, h2);
-density2 = zeros(2, length(clocks)-1); 
+density2 = zeros(2, length(clocks)); 
 
-for evolution in prob2
+for info in prob2
     for i in 1:2
-        density2[i, evolution.step] = expect(put(2, i=>Op.n), evolution.reg)
+        density2[i, info.step] = rydberg_density(info.reg, i)
     end
 end
 density2 = sum(density2, dims=1);
 
 prob3 = KrylovEvolution(reg3, clocks, h3);
-density3 = zeros(3, length(clocks)-1); 
+density3 = zeros(3, length(clocks)); 
 
-for evolution in prob3
+for info in prob3
     for i in 1:3
-        density3[i, evolution.step] = expect(put(3, i=>Op.n), evolution.reg)
+        density3[i, info.step] = rydberg_density(info.reg, i)
     end
 end
 density3 = sum(density3, dims=1);
@@ -93,9 +93,9 @@ density3 = sum(density3, dims=1);
 # For more information, please refer to [H. Bernien, et al.](https://www.nature.com/articles/nature24622).
 # The total Rydberg density for the 1-, 2-, and 3-atom system is plotted below
 fig, ax = plt.subplots()
-ax.plot(clocks[1:end-1], density1[1, :])
-ax.plot(clocks[1:end-1], density2[1, :])
-ax.plot(clocks[1:end-1], density3[1, :])
+ax.plot(clocks, density1[1, :])
+ax.plot(clocks, density2[1, :])
+ax.plot(clocks, density3[1, :])
 ax.set_xlabel("Time (μs)")
 ax.set_ylabel("Rydberg Probability")
 ax.set_title("Many-body Rabi Oscillation for 1-, 2-, and 3-atom system")
@@ -163,7 +163,7 @@ integrator = init(prob, Vern8());
 entropy = Float64[]
 densities = []
 for _ in TimeChoiceIterator(integrator, 0.0:1e-3:total_time)
-    push!(densities, [expect(put(nsites, i=>Op.n), reg) for i in 1:nsites])
+    push!(densities, rydberg_density(reg))
     rho = density_matrix(reg, (1,2,3,4,5)) # calculate the reduced density matrix
     push!(entropy, von_neumann_entropy(rho)) # compute entropy from the reduced density matrix
 end
@@ -172,7 +172,7 @@ end
 # ## Plotting the results
 # We first plot the Rydberg density for each site as a function of time
 
-clocks = [t for t in 0:1e-3:total_time]
+clocks = 0:1e-3:total_time
 D = hcat(densities...)
 
 fig, ax = plt.subplots(figsize = (10,4))
@@ -208,9 +208,9 @@ init_d = product_state(bit"100000101")
 prob_d = KrylovEvolution(init_d, clocks, hd)
 density_mat_d = zeros(nsites, length(clocks)) 
 
-for evolution in prob_d
+for info in prob_d
     for i in 1:nsites
-        density_mat_d[i, evolution.step] = expect(put(nsites, i=>Op.n), evolution.reg)
+        density_mat_d[i, info.step] = rydberg_density(info.reg, i)
     end
 end
 

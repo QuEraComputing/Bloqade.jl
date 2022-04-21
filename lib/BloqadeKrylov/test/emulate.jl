@@ -31,8 +31,6 @@ using Yao
 
     @test state ≈ prob.reg.state
 
-
-    set_zero_state!(reg)
     prob = KrylovEvolution(reg, clocks, h)
     for info in prob
         @test info.clock == clocks[info.step]

@@ -16,8 +16,9 @@ using Bloqade
 using Compose
 using Random
 using GenericTensorNetworks
-using Optim;
-
+using Optim
+using PythonCall
+plt = pyimport("matplotlib.pyplot")
 
 # # Set up the problem
 

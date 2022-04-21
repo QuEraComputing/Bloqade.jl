@@ -15,7 +15,7 @@ CUDA.allowscalar(false)
 
 @testset "KrylovEvolution" begin
     atoms = [(i*3.2, ) for i in 1:5]
-    clocks=[0.0, 0.5, 0.8, 1.1, 1.5]
+    clocks=[0.0, 0.5, 0.8, 1.1, 1.5, 1.6]
     wf = piecewise_constant(clocks=clocks, values=[0.0, 2.1, 2.1, 1.5, 0.0])
     h = rydberg_h(atoms; Ω=wf)
     reg = zero_state(length(atoms))

@@ -4,8 +4,6 @@ CurrentModule = Bloqade
 
 # Bloqade
 
-[![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=p1FNvJ)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
-
 ```@raw html
 <p>
 Welcome to the documentation page for Bloqade, a &nbsp;

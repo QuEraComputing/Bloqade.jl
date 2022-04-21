@@ -1,6 +1,6 @@
 # Examples
 
-This directory contains the examples of EaRyd package.
+This directory contains the examples of Bloqade package.
 
 ## Setup
 

@@ -1,6 +1,6 @@
-using EaRyd
 using Test
+using Documenter
+using Bloqade
+using BloqadeLattices
 
-@testset "EaRyd.jl" begin
-    # Write your tests here.
-end
+doctest(BloqadeLattices; manual=false)

@@ -1,6 +1,0 @@
-[deps]
-DocThemeIndigo = "8bac0ac5-51bf-41f9-885e-2bf1ac2bec5f"
-Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
-EaRydCore = "12dc9fdf-52a0-4520-b7fc-d1c1ff3ad2fe"
-Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
-YaoExtensions = "7a06699c-c960-11e9-3c98-9f78548b5f0f"

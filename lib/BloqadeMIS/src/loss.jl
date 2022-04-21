@@ -355,7 +355,8 @@ end
 """
     mis_postprocessing(config, graph::AbstractGraph; ntrials::Int=10)
 
-The postprocessing protocal used in Harvard.
+The postprocessing protocal used in Harvard experiment for finding MISs: [arxiv:2202.09372](https://arxiv.org/abs/2202.09372),
+which includes a combination of [`to_independent_set`](@ref) and [`add_random_vertices`](@ref).
 
 # Arguments
 
@@ -380,7 +381,7 @@ Curried version of [`mis_postprocessing`](@ref).
 # Example
 
 to calculate `rydberg_density_sum` loss with postprocessing used in
-Harvard experiment.
+Harvard experiment: [arxiv:2202.09372](https://arxiv.org/abs/2202.09372).
 
 ```julia
 rydberg_density_sum(mis_postprocessing(graph), reg)

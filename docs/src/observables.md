@@ -80,7 +80,7 @@ expect(h, r)
 
 Please refer to the [Hamiltonians](@ref) to see other operators that are supported to build the Haimiltonian. 
 
-## Reference
+## References
 
 Here are some common operators re-exported from `Yao`.
 

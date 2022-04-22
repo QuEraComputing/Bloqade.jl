@@ -109,10 +109,14 @@ compared to standard fixed-step methods (see [our benchmark here](#)).
 However, if one expects to retrieve the results during the time evolution, e.g.,
 plotting Rydberg densities with the evolution time, fixed-step methods are
 preferred; otherwise, the ODE solver may give constant results between each
-step.
+step. One can use the code below to turn off the adaptive steps when setting up the the [`SchrodingerProblem`](@ref).
 
-(add @Jonathan's plot on ring emulation here)
-(add a few examples of how to turn on or turn off adaptive steps)
+```@example evolution
+atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1);
+h = rydberg_h(atoms; Δ=2π*2.0, Ω= 2π*1.0); # create the Hamiltonian 
+reg = zero_state(length(atoms)); 
+prob = SchrodingerProblem(reg, 3.0, h, adaptive = false);
+```
 
 On the other hand, if one only expects the final state of the evolution,
 or the intervals between each chosen clock is much larger than the maximum

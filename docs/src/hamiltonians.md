@@ -36,6 +36,7 @@ Then, the Hamiltonian can be simply built by inputting the generated atom positi
 ```@repl hamiltonian
 h0 = rydberg_h(atoms; Δ=1.2*2π, Ω=1.1*2π, ϕ=2.1)
 ```
+
 Note that the default value for the Rydberg interaction constant is ``C_6 = 2\pi \times 862690 \text{ MHz μm}^6`` to match the default unit used on the hardware. For more information about units, please 
 refer to [Bloqade](@ref). Instead of using the default value for ``C_6``, the users are free to set their own values. For instance, if the users would like to have a chain lattice with nearest-neighbor atoms separated by 1 μm, and interaction strength to be a particular value, say, ``2\pi * 10.0^6 \text{ MHz μm}^6``, it can be done with the following code
 
@@ -76,15 +77,20 @@ ht= h1 |> attime(0.5)
 
 ## Building Hamiltonians with Site-Dependent Waveforms
 
+In certain cases, the user may want to build a Hamiltonian that has site-dependent ``\Omega_j``, ``\phi_j``, and ``\Delta_j``, which may or may not have time dependence.
 
-In certain cases, the user may want to building a Hamiltonian which has site-dependent ``\Omega_j``, ``\phi_j``, and ``\Delta_j`` (that may have or not have time dependence). 
-This can be done by first building up a site-dependent waveform. Then one can directly feed this waveform directly to [`rydberg_h`](@ref). See for example 
+For the time-independent Hamiltonian, one can for example build a Hamiltonian like 
 
+```@repl hamiltonian
+h0 = rydberg_h(atoms; Δ=1.2*2π*rand(length(atoms)), Ω=1.1*2π*rand(length(atoms)), ϕ=2.1)
+```
+
+For time-dependent Hamiltonians, here is an example:
 
 ```@repl hamiltonian
 atoms = generate_sites(ChainLattice(), 5, scale=5.72)
 Δ1 = map(1:length(atoms)) do idx
-    Waveform(t-> idx*sin(t), duration=4π)
+    Waveform(t-> idx*sin(2π*t), duration = 2)
 end
 h =rydberg_h(atoms; Δ=Δ1)
 ```
@@ -156,7 +162,7 @@ vals, vecs, info = KrylovKit.eigsolve(h_m,  1, :SR)
 
 where the `vals` and `vecs` store the calculated eigenvalues and eigenvectors respectively. 
 
-## Low-level representation of the Hamiltonian
+## Low-level Representation of the Hamiltonian
 
 Besides the symbolic representation, in order to achieve the best possible performance, we use a lower-level representation of the Hamiltonian in Bloqade,
 which is the `Hamiltonian` and `StepHamiltonian` type.

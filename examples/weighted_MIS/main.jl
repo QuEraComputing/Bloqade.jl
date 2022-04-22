@@ -143,7 +143,7 @@ ax1.set_xlabel("Time (μs)")
 
 ax2.scatter(t_list, broadcast(log, 1 .- P_MIS))
 ax2.plot(t_list, a .+ b .* t_list)
-ax2.set_yscale('log')
+ax2.set_yscale("log")
 ax2.set_xlabel("Time (μs)")
 ax2.set_ylabel("1 - P(MWIS)")
 

@@ -24,37 +24,37 @@ Bloqade gives users the flexibility to specify general waveforms by inputting fu
 using Bloqade
 using PythonCall
 plt = pyimport("matplotlib.pyplot")
-waveform = Waveform(t->2.2sin(t), duration=4π);
+waveform = Waveform(t->2.2*2π*sin(2π*t), duration = 2);
 Bloqade.plot(waveform)
 ```
-And in our documentation we use the
+In our documentation, we use the
 python package [`matplotlib`](https://matplotlib.org) for plotting.
 
 Bloqade supports built-in waveforms for convenience (see References below). 
 For example, the codes below create different waveform shapes with a single line:
 
 ```@example waveform
-waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0]); 
+waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values= 2π* [0.0, 1.5, 3.1, 3.1, 0.0]); 
 Bloqade.plot(waveform)
 ```
 
 ```@example waveform
-waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 0.7], values=[0.0, 1.5, 3.1]);
+waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 0.7], values= 2π*[0.0, 1.5, 3.1]);
 Bloqade.plot(waveform)
 ```
 
 ```@example waveform
-waveform = linear_ramp(duration=0.5, start_value=0.0, stop_value=1.0);
+waveform = linear_ramp(duration=0.5, start_value=0.0, stop_value=2π*1.0);
 Bloqade.plot(waveform)
 ```
 
 ```@example waveform
-waveform =  constant(duration=0.5, value=2.1);
+waveform =  constant(duration=0.5, value=2π*2.1);
 Bloqade.plot(waveform)
 ```
 
 ```@example waveform
-waveform = sinusoidal(duration=4π, amplitude=2.2); 
+waveform = sinusoidal(duration=2, amplitude=2π*2.2); 
 Bloqade.plot(waveform)
 ```
 
@@ -82,9 +82,9 @@ Bloqade also supports several operations on the waveforms.
 Waveforms can be sliced using the duration syntax `start..stop`, e.g.
 
 ```@example waveform
-wf = sinusoidal(duration=2.2);
-wf[1.1..1.5];
-Bloqade.plot(wf)
+wf = 2π*sinusoidal(duration=2.2);
+wf1 = wf[1.1..1.5];
+Bloqade.plot(wf1)
 ```
 Note that time starts from `0.0` again, so the total duration is `stop - start`.
 
@@ -101,13 +101,17 @@ where the waveform `wf2` is appended at the end of `wf1`.
 Sharp points in waveforms may result in bad performance in practice (e.g. for adiabatically preparing a ground state of a target Hamiltonian).
 It is sometimes preferred to smoothen the waveform using
 the moving average methods. One can use the [`smooth`](@ref)
-function to create a smoothened wavefrom from a piecewise linear
+function to create a smoothened waveform from a piecewise linear
 waveform.
 
 ```@example waveform
-wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 3.0, 1.1, 2.2]);
-swf = smooth(wf);
-Bloqade.plot(swf)
+wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=2π*[0.0, 3.0, 1.1, 2.2]);
+swf = smooth(wf;kernel_radius=0.1);
+
+fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
+Bloqade.plot!(ax1, wf)
+Bloqade.plot!(ax2, swf)
+fig
 ```
 
 ## Waveform Arithmetics

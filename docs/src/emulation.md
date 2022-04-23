@@ -107,9 +107,17 @@ solvers in Julia in [DiffEq:Translation from MATLAB/Python/R](https://diffeq.sci
 Our ODE solvers use adaptive steps by default. It provides a significant speedup
 compared to standard fixed-step methods (see [our benchmark here](#)).
 However, if one expects to retrieve the results during the time evolution, e.g.,
-plotting Rydberg densities with the evolution time, fixed-step methods are
-preferred; otherwise, the ODE solver may give constant results between each
-step. One can use the code below to turn off the adaptive steps when setting up the the [`SchrodingerProblem`](@ref).
+plotting Rydberg densities with the evolution time, fixed-step methods are sometimes 
+preferred.
+
+More specifically, when the adaptive steps are turned on, the time steps might be large,
+but if one is interested in measuring some observables in smaller time steps, then the adpative steps 
+method will produce constant results for the finer time step.
+
+; otherwise, the ODE solver may give constant results between each
+step. 
+
+One can use the code below to turn off the adaptive steps when setting up the the [`SchrodingerProblem`](@ref).
 
 ```@example evolution
 atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1);

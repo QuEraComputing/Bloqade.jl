@@ -18,10 +18,8 @@ converted to τηε default unit `MHz * µm^6` in Bloqade.
 
 Other than the Hamiltonian, we can also specify units on waveforms, e.g. 
 
-```@repl units
+```@example units
 using Unitful: rad, ms
-using PythonCall
-plt = pyimport("matplotlib.pyplot")
 
 wf = piecewise_linear(clocks=[0.0ms, 0.1ms, 0.2ms], values= [0.1, 1.1, 2.1] .* (rad/ms))
 Bloqade.plot(wf)

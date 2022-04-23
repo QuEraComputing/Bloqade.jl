@@ -8,9 +8,9 @@
 # seeks to find the independent set whose weights sum to the maximum possible value. 
 
 # We import the required packages to compute weighted MIS classically
-
+using Random
+Random.seed!(42)
 using Graphs, GenericTensorNetworks
-
 # We initially specify the atom locations and construct the corresponding diagonally-coupled 
 # unit disk graph on a square lattice.  The atoms represent vertices on the problem graph, 
 # and all vertices closer than a length 1.5 are connected by an edge.  
@@ -108,10 +108,7 @@ subspace = independent_set_subspace(g)
 total_time = 1.5
 for t in 0.1:total_time*0.25:total_time*2.5
     h = build_adiabatic_sweep(g, Ω_max, Δ_max, t, weights)[1]
-    
-    # compute the ground state of the initial Hamiltonian
-    energies, GS = eigsolve(mat(h|>attime(t), subspace), 1, :SR);
-    r = SubspaceArrayReg(GS[1], subspace);
+    r = zero_state(subspace)
     prob = SchrodingerProblem(r, t, h)
     emulate!(prob)
 
@@ -120,32 +117,6 @@ for t in 0.1:total_time*0.25:total_time*2.5
 
     push!(t_list, t)
     push!(P_MIS, p)
-end
-
-
-global t = 0.1 # current time
-T_  = 1.5 # time to reach P_MIS = 0.9
-
-while (t < T_  * 2.5)
-    global t 
-
-    h = build_adiabatic_sweep(g, Ω_max, Δ_max, t, weights)[1]
-    
-    # compute the ground state of the initial Hamiltonian
-    energies, GS = eigsolve(mat(h |> attime(0.0), subspace), 1, :SR);
-    r = SubspaceArrayReg(GS[1], subspace);
-    
-    # run ODE evolution
-    prob = SchrodingerProblem(r, t, h)
-    emulate!(prob)
-    
-    # compute MIS probability
-    p = config_probability(prob.reg, g, BitVector(MIS_config))
-
-    push!(t_list, t)
-    push!(P_MIS, p)
-    
-    global t += T_ * 0.25
 end
 
 # We can compute the adiabatic timescale by fitting a Landau Zener curve to the 

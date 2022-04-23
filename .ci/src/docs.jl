@@ -37,7 +37,7 @@ function pages(;light=false)
             "Working with Units" => "units.md",
             "Observables" => "observables.md",
             "Maximum Independent Set" => "mis.md",
-            "CUDA Acceleration" => "cuda.md",
+            "GPU Acceleration" => "cuda.md",
         ],
     ]
 

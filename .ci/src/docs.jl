@@ -31,11 +31,10 @@ function pages(;light=false)
             "Lattices" => "lattices.md",
             "Waveforms" => "waveform.md",
             "Hamiltonians" => "hamiltonians.md",
-            "Registers" => "registers.md",
+            "Registers and Observables" => "registers.md",
             "Emulation" => "emulation.md",
             "Working with Subspace" => "subspace.md",
             "Working with Units" => "units.md",
-            "Observables" => "observables.md",
             "Maximum Independent Set" => "mis.md",
             "GPU Acceleration" => "cuda.md",
         ],
@@ -44,11 +43,6 @@ function pages(;light=false)
     light || push!(PAGES, "Tutorials" => tutorial_pages())
 
     append!(PAGES, [
-        "Advanced Topics" => [
-            "Rydberg Blockade" => "topics/blockade.md",
-            "Bravais Lattice" => "topics/bravais.md",
-            "Automatic Differentiation" => "topics/ad.md",
-        ],
         "Contributing to Bloqade" => "contrib.md",
     ])
 

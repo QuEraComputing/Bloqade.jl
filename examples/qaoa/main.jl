@@ -67,10 +67,11 @@ mis_size_and_counting = GenericTensorNetworks.solve(IndependentSet(graph), Count
 # In the following, we are going to show how to solve the independent set problem with both quantum adiabatic and variational algorithms.
 
 
-# ## The adiabatic approach
+# ## The Adiabatic Approach
 
-# Here we generalize the adiabatic algorithm we used in [Adiabatic Evolution](@ref) to prepare ground states for this disordered lattice. 
-# We first construct the adiabatic pulse sequences for Rabi frequency ``\Omega`` and detuning ``\Delta``.
+# Here, we generalize the quantum adiabatic algorithm used in 
+# the tutorial [Adiabatic Evolution](@ref) to prepare ground states of the Rydberg Hamiltonian for this disordered lattice.
+# We first construct the adiabatic pulse sequences for the Rabi frequency ``\Omega`` and the detuning ``\Delta``.
 
 T_max = 1.65
 Ω_max = 2π *4
@@ -92,33 +93,32 @@ fig
 # ```math
 # C_6 / R_b^6 \sim \sqrt{\Delta^2 + \Omega^2}
 # ```
-# For the default ``C_6=2π * 862690 * MHz*µm^6`` and ``\Omega = 0``, if we want to set the the blockade radius to be ``7.5\mu m``, the corresponding 
-# detuning is ``2\pi \times \sim 11  MHz`` (see the parameter in [arxiv:2202.09372](https://arxiv.org/abs/2202.09372)). This is the reason why we have chosen 
-# ``Δ_end =  2π *11 MHz``. 
+# The default ``C_6=2π * 862690`` MHz*µm^6. 
+# For encoding the corresponding MIS problem at ``\Omega = 0``, 
+# the detuning can be set ``~ 2\pi \times 11`` MHz 
+# for a blockade radius of ``7.5\mu m``
+# (see the parameters in [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372)).
 
-
-# Then we create the time-dependent Hamiltonian and emulate its time evolution by using the [`SchrodingerProblem`](@ref) solver.
+# Next, we create the time-dependent Hamiltonian and simulate its time evolution by using the [`SchrodingerProblem`](@ref) solver.
 
 hamiltonian = rydberg_h(atoms; Ω=Ω, Δ=Δ)
 prob = SchrodingerProblem(zero_state(nqubits(hamiltonian)), T_max, hamiltonian)
 emulate!(prob)
 
-# Finally, we can plot the most probable bitstrings by using [`bitstring_hist`]@(ref) for the resulting register (quantum state)
+# Finally, we can plot the most probable bitstrings by using the [`bitstring_hist`](@ref) function on the resulting register (quantum state)
 bitstring_hist(prob.reg; nlargest=20)
 
-# One can see the most probable several configurations indeed have size 4 by counting the number of ones.
-# This correctness of the output can be verified by comparing it to the classical solution.
+# We can see that some of the most probable configurations indeed have an independent set size 4 by counting the number of ones in the bitstring.
+# The correctness of the output can be verified by comparing it to the classical solution.
 
 best_bit_strings = most_probable(prob.reg, 2)
 all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), ConfigsMax())[]
 @assert all(bs->GenericTensorNetworks.StaticBitVector([bs...]) ∈ all_optimal_configs.c, best_bit_strings)
 
 # We can also visualize these atoms and check them visually.
-Bloqade.plot(atoms; colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[1]])
+Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[1]])
 #
-Bloqade.plot(atoms; colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[2]])
-
-
+Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[2]])
 
 
 # ## QAOA with piecewise constant pulses

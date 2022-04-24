@@ -39,26 +39,28 @@ show_graph(g; locs = locs, vertex_colors=
 
 # # Quantum Adiabatic Algorithm to Solve the MWIS Problem
 
-# A quantum adiabatic algorithm (QAA) can be performed with the Hamiltonian:
+# The quantum adiabatic algorithm (QAA) can be performed with the Hamiltonian:
 
-# $H_{QA}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \Omega_v(t) \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$
+# $H_{\text{QA}}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \Omega_v(t) \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$
 
-# We will work in the limit of $\Delta, \Omega \ll U$, where 
-# the non-independent set space of the graph can be neglected (in experiments, this corresponds 
-# to the limit where the interaction energy is much stronger than other energy scales).  
+# Here, we work in the limit of $\Delta, \Omega \ll U$, where 
+# the non-independent set space of the graph can be neglected 
+# (on neutral-atom quantum hardware, this corresponds 
+# to the limit where the interaction energy is much stronger than other energy scales). 
 # In this limit, we can restrict outselves to the Rydberg blockade subspace (see [blockade](@ref)) of the graph 
-# and ignore the interaction term $\sum_{(u, w) \in E} U n_u n_w$ in the Hamiltonian. We can 
-# vertex weights of the MWIS problem in this Hamiltonian with individual atom detuning (specifying $\Delta_v(t)$
-# for each atom)
-
+# and ignore the interaction term $\sum_{(u, w) \in E} U n_u n_w$ in the Hamiltonian. 
+# Note that in this tutorial, we also do not include the long-range interaction tail in the Hamiltonian. 
+# The vertex weights of the MWIS problem in this Hamiltonian can be implemented on the hardware 
+# with individual atom detunings (specifying $\Delta_v(t)$ for each atom).
 
 # The QAA can be designed by first initializing all qubits to the ground state of 
-# $H_{QA}(t = 0)$ where $\Delta(t = 0) = -\Delta_0 < 0 $ and $\Omega(t = 0) = \Omega_0$.
-#  We then change the parameters by turning down $\Omega(t)$ to 0, and turning 
-#  up $\Delta(t)$ to $\Delta_0 > 0$ after some final time $t_f$.  
+# $H_{\text{QA}}(t = 0)$ where $\Delta(t = 0) = -\Delta_0 < 0 $ and $\Omega(t = 0) = 0$; 
+# the many-body ground state is basically with all atoms in the ground state ``| g \rangle ``.
+# We then change the parameters by turning up $\Omega(t)$ to a finite value and then to 0, 
+# and sweeping $\Delta(t)$ to $\Delta_0 > 0$ after some final time $t_f$.  
 
 # By the adiabatic theorem, when the time evolution is sufficiently slow, 
-# the system follows the instantaneous ground state and ends up in the 
+# the system should follow the instantaneous ground state and ends up in the 
 # solution to the MWIS problem.  
 
 

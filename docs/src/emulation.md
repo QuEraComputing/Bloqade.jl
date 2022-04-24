@@ -121,9 +121,10 @@ One can use the code below to turn off the adaptive steps when setting up the [`
 atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1);
 h = rydberg_h(atoms; Δ=2π*2.0, Ω= 2π*1.0); # create the Hamiltonian 
 reg = zero_state(length(atoms)); 
-prob = SchrodingerProblem(reg, 3.0, h, adaptive = false);
+prob = SchrodingerProblem(reg, 3.0, h, adaptive = false, dt=1e-3);
 ```
 
+Here, we've specified the fixed time step as `dt = 1e-3`.
 If one only expects the final state of the evolution,
 or the intervals between each chosen clock is much larger than the maximum
 step size, then adaptive steps are preferred.

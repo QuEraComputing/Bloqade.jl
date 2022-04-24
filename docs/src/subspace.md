@@ -127,7 +127,7 @@ h = 2π * 4.0 * SumOfX(length(atoms)) - 2π * 1.0 * SumOfN(length(atoms))
 prob = SchrodingerProblem(reg, 0.2, h)
 emulate!(prob)
 ```
-After creating the subspace, we have built a Hamiltonian by explicitly summing up the Rabi frequency term  and the detuning term by using [`SumOfX`]@(ref) and [`SumOfN`]@(ref) respectively. 
+After creating the subspace, we have built a Hamiltonian by explicitly summing up the Rabi frequency term  and the detuning term by using [`SumOfX`](@ref) and [`SumOfN`](@ref) respectively. 
 In this way, we have created a local constraint Hamiltonian (without the long-range interaction tail). Futhermore, if we want to emulate 
 quantum dynamics under this Hamiltonian, we just need to create a subspace register and emulate the system under the created Hamiltonian.
 

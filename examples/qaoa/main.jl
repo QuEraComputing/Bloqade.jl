@@ -1,13 +1,29 @@
-# # The Maximum Independent Set Problem
+# # [The Maximum Independent Set Problem](@id mis-tutorial)
 
 # ## Background
 
-# In graph theory, an [independent set](https://en.wikipedia.org/wiki/Independent_set_(graph_theory)) is a set of vertices in a graph, no two of which are adjacent.
-# The problem of finding maximum independent sets (MIS) is NP-hard, i.e. unlikely to be solved in polynomial time for a large system size.
-# In this tutorial we study the MIS problem defined on diagonal-coupled unit-disk grid graphs (DUGG).  Although these graphs have highly constraint topology, finding its MISs is still NP-hard.
-# Recent studies show that these graphs can be naturally mapped to the Rydberg atom system with strong blockade interactions (see [arxiv:1808.10816](https://arxiv.org/abs/1808.10816). 
-# In this tutorial, we show how to using variational quantum algorithms on Rydberg atom arrays to solve the MIS problem on these graphs.
-# For those who wants to know more details, we highly recommend to connect this tutorial with the recent experiment [arxiv:2202.09372](https://arxiv.org/abs/2202.09372).
+# In graph theory, an independent set is a set of vertices in a graph such that no two of which are adjacent.
+# The problem of finding maximum independent sets (MIS) is NP-hard, i.e., it is unlikely to be solved in a time polynomial to the problem size.
+# Interestingly, there is a natural connection between the independent set constraint,
+# and the [Rydberg Blockade](@ref blockade) phenomenon in neutral-atom quantum computing using Rydberg states. 
+# More specifically, Rydberg blockade implies that two atoms cannot be both excited to the Rydberg state ``|r\rangle`` if they are close to each other, 
+# whereas independent set constraint means two vertices cannot be both in the independent set when they are connected by an edge.
+# Thus, one can consider atoms in the Rydberg state as vertices in an independent set. See the proposal in [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf) for more details. 
+
+# In particular, one can use the ground state of the [Rydberg Hamiltonian](@ref Hamiltonians) to encode the [maximum independent set problem](https://en.wikipedia.org/wiki/Independent_set_(graph_theory)), 
+# which is to find the largest independent set of a given graph. 
+# For a particular subclass of geometric graphs, the so-called unit disk graphs, 
+# the Rydberg Hamiltonian can encode the solution without any overhead in the number of qubits. 
+# In fact, see an experimental demonstration of quantum optimization of maximum independent set up to 289 qubits in [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372).
+
+# In this tutorial, we show how to solve the MIS problem using Bloqade.
+# We focus on a particular subclass of graphs defined on diagonal-connected unit-disk grid graphs (DUGG).
+# This is the class of graphs studied in the demonstration experiment [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372).
+# Although they have highly constraint topologies, finding its MISs is still NP-hard.
+# Here, we show how to use variational quantum algorithms with Rydberg Hamiltonians to solve the MIS problem on these graphs.
+
+# For more details on the functionalities supported by Bloqade in studying independent set problems,
+# please refer to the [MIS manual](@ref mis) page. 
 
 # Let's start by importing the required libraries:
 
@@ -18,31 +34,35 @@ using Random
 using GenericTensorNetworks
 using Optim
 using PythonCall
-plt = pyimport("matplotlib.pyplot")
+plt = pyimport("matplotlib.pyplot");
 
-# # Set up the problem
+# ## Setting Up the Problem
 
-# To begin with, we create a ``4*4`` DUGG with 0.8 filling, by using the [`random_dropout`](@ref) function. Here we choose the lattice constant ``a`` to be 4.5 ``\mu m``. 
+# To begin, we create a ``4*4`` DUGG with 0.8 filling, by using the [`random_dropout`](@ref) function. 
+# Here, we choose the lattice constant ``a`` to be 4.5 ``\mu m``. 
 Random.seed!(2)
 atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |> random_dropout(0.2)
 
-# Then we set the blockade radius to be 7.5 ``\mu m``. In such a case,  if two atoms have a distance of ``a`` or ``\sqrt{2} a``, they are within the blockade radius. 
-# As we discussed in [Rydberg Blockade](@ref), there is only one Rydberg excitation is allowed within the blockade radius.  To better illustrate the constraint, we 
-# plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the strong Rydberg interactions. 
+# Nest, we set the blockade radius to be 7.5 μm, 
+# corresponding to a case where nearest-neighbors and next-nearest neighbors (diagonal) are within the blockade radius.
+# As we discussed in [Rydberg Blockade](@ref), only one Rydberg excitation is allowed within the blockade radius.  
+# To better illustrate the constraint, we 
+# plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the blockade radius. 
 Bloqade.plot(atoms, blockade_radius=7.5)
-# Our goal is to find a the maximum independent sets of such a graph. 
 
+# Our goal is to find a maximum independent set of such a graph.
 
-# For the pedagogical purpose, we first calculate the MIS size here using the graph utilities in Bloqade so that a user can compare this exact result with the quantum one.
-# The exact MIS size and its degeneracy can be solved with the generic tensor network algorithm in package [`GenericTensorNetworks`](https://github.com/QuEraComputing/GenericTensorNetworks.jl).
+# For comparison, we first use classical algorithms to calculate the MIS size here using the graph utilities in Bloqade, 
+# so that one can compare this exact result with the quantum algorithm.
+# The exact MIS size and its degeneracy can be solved with the generic tensor network algorithm in the package [`GenericTensorNetworks`](https://github.com/QuEraComputing/GenericTensorNetworks.jl).
 graph = BloqadeMIS.unit_disk_graph(atoms, 7.5)
 mis_size_and_counting = GenericTensorNetworks.solve(IndependentSet(graph), CountingMax())[]
 
 # The `solve` function takes a graph instance and a solution space property as inputs,
-# where the graph instance is generated by the [`unit_disk_graph`](@ref) function in module `BloqadeMIS`.
-# For this specific DUGG, we see that the MIS size is 4, and the function also outputs number of independent sets of such size.
-# In the following, we are going to solve the independent set problem with both adiabatic and variational algorithms.
-
+# where the graph instance is generated by the [`unit_disk_graph`](@ref) function in the module `BloqadeMIS`,
+# and the solution space property is to count the maximum independent sets here.
+# For this specific DUGG, we see that the MIS size is 4, and the number of maximum independent sets is 26.
+# In the following, we are going to show how to solve the independent set problem with both adiabatic and variational algorithms.
 
 
 # ## The adiabatic approach

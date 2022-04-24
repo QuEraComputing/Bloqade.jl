@@ -96,19 +96,18 @@ fig
 
 # ## Compute the MIS Probability and the Adiabatic Timescale
 
-# We import additional libraries to solve for the ground state of the initial Hamiltonian
-using KrylovKit
-using SparseArrays
+# Here, We compute the MWIS probability of the graph as a function of time. 
+# In addition, we would like to extract the adiabatic timescale $T_{\text{LZ}}$ from the Landau-Zener fitting: 
+# $1 - P_{\text{MWIS}} = e^{a - T/T_{\text{LZ}}}$. 
+# To do this, we find the first instance time $T^*$
+# such that $P_{\text{MWIS}}(T) > 0.9$, and 
+# then continue to run evolutions to $2.5T^*$ to extract $T_L{LZ}$. 
+# See [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf) 
+# for more details on the procedure to extract the Landau-Zener timescale.
 
-# We compute the MIS probability of the original graph as a function of time.  We 
-# want to extract the adiabatic timescale $T_{LZ}$ from the Landau-Zener fitting: 
-# $1 - P_{MIS} = e^{a - T/T_{LZ}}$.  To do this, we find the first instance time $T^*$
-# such that P_{MIS}(T) > 0.9, and continue to run evolutions to 2.5T^* to extract $T_L{LZ}$.
-
-
-# We work in the blockade (independent set) subspace
+# We run the simulation in the blockade (independent set) subspace.
 t_list = []
-P_MIS = [] # MIS probability 
+P_MWIS = [] # MIS probability 
 subspace = independent_set_subspace(g)
 
 total_time = 1.5
@@ -120,26 +119,25 @@ for t in 0.1:total_time*0.25:total_time*2.5
     p = config_probability(prob.reg, g, BitVector(MIS_config))
 
     push!(t_list, t)
-    push!(P_MIS, p)
+    push!(P_MWIS, p)
 end
 
-# We can compute the adiabatic timescale by fitting a Landau Zener curve to the 
+# We can compute the adiabatic timescale by fitting a Landau-Zener curve to the 
 # MIS probability: 
 using CurveFit
-y = broadcast(log, 1 .- P_MIS[P_MIS .> 0.9])
-a, b = linear_fit(t_list[P_MIS .> 0.9], y)
+y = broadcast(log, 1 .- P_MWIS[P_MWIS .> 0.9])
+a, b = linear_fit(t_list[P_MWIS .> 0.9], y)
 T_LZ = -1/b
 
 # Plot results
-fig, (ax1, ax2) = plt.subplots(ncols = 2)
-ax1.scatter(t_list, 1 .- P_MIS)
+fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize=(14, 6))
+ax1.scatter(t_list, P_MWIS)
 ax1.set_ylabel("MWIS Probability")
 ax1.set_xlabel("Time (μs)")
 
 ax2.scatter(t_list, broadcast(log, 1 .- P_MIS))
 ax2.plot(t_list, a .+ b .* t_list)
-ax2.set_yscale("log")
 ax2.set_xlabel("Time (μs)")
-ax2.set_ylabel("1 - P(MWIS)")
+ax2.set_ylabel("log(1 - MWIS Probability)")
 
 fig

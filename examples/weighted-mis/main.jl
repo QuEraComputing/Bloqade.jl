@@ -13,7 +13,9 @@
 # We first import the required packages to compute MWIS classically.
 using Random
 Random.seed!(42)
-using Graphs, GenericTensorNetworks
+using Graphs
+using GenericTensorNetworks
+using GenericTensorNetworks: unit_disk_graph
 using Bloqade
 using PythonCall
 plt = pyimport("matplotlib.pyplot");

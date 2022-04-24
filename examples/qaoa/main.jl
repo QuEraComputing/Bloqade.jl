@@ -246,12 +246,13 @@ bitstring_hist(reg_final; nlargest=20)
 
 # ## Smoothened Piecewise Linear Pulses
 
-# A smoothen piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the [`piecewise_linear`] function.
-smoothen_curve = smooth(piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.1); 
-Bloqade.plot(smoothen_curve)
+# A smoothened piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the `piecewise_linear` function. 
+# For example,
+smoothened_curve = smooth(piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.1); 
+Bloqade.plot(smoothened_curve)
 
 # Here, the function [`smooth`](@ref) takes a `kernel_radius` keyword parameter as the Gaussian kernel parameter.
-# With the new waveform, we can define the loss as follows.
+# With the new waveforms, we can define the loss function as follows.
 
 function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) == 3
@@ -260,7 +261,8 @@ function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     Δ_end = 11 * 2π
     Δ0 = 11 * 2π
     T_max = 0.6
-    ## the strength of the detunings in each step takes the optimizing x as their input 
+
+    ## the strength of the detunings at each step takes the optimizing x as their input 
     Δs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=T[Δ_start, Δ_start, Δ0*x[1], Δ0*x[2], Δ0*x[3], Δ_end, Δ_end]); kernel_radius=0.1)
     Ωs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.5, T_max], values=T[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.05)
 
@@ -271,24 +273,44 @@ function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     return -rydberg_density_sum(prob.reg), prob.reg, Δs
 end
 
-x0 = [0.1, 0.8, 0.8]
+x0 = [0.1, 0.8, 0.8]; # initial point for the optimization
 
-# Let us check the loss function
-mean_mis, reg0, Δ_initial = loss_piecewise_linear(atoms, x0)
-Bloqade.plot(Δ_initial)
-mean_mis
+# Let us check the loss function with smoothened waveform with the initial point
+Δ_start = -13 * 2π
+Δ_end = 11 * 2π
+Δ0 = 11 * 2π
+T_max = 0.6
+Δ_initial = piecewise_linear(clocks=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=[Δ_start, Δ_start, Δ0*x0[1], Δ0*x0[2], Δ0*x0[3], Δ_end, Δ_end])
 
-# If we plot the distribution
+rydberg_density, reg0, Δ_initial_smooth = loss_piecewise_linear(atoms, x0)
+rydberg_density
+
+fig, ax = plt.subplots()
+Bloqade.plot!(ax, Δ_initial)
+Bloqade.plot!(ax, Δ_initial_smooth)
+ax.set_ylabel("Δ/2π (MHz)")
+ax.legend(["piecewise linear", "smoothened piecewise linear"], loc ="lower right")
+fig
+
+# Let's plot the distribution
 bitstring_hist(reg0; nlargest=20)
 
-# It is quite good already. Again, let us use the `NelderMead` optimizer to optimize the loss
+# The performance of the algorithm is quite good. 
+# Again, let us use the `NelderMead` optimizer to optimize the loss function.
 optresult = Optim.optimize(x->loss_piecewise_linear(atoms, x)[1], x0)
 
-mean_mis_final, reg_final, Δ_final = loss_piecewise_linear(atoms, optresult.minimizer)
-mean_mis_final
-# One can see the mean MIS size can be further improved to a value close to optimal value of MIS solution.
+rydberg_density_final, reg_final, Δ_final = loss_piecewise_linear(atoms, optresult.minimizer)
+rydberg_density_final
+# One can see the mean MIS size can be further improved to a value close to the size of the MIS,
+# which means there is a substantial probability for measuring an MIS state. 
 
 bitstring_hist(reg_final; nlargest=20)
 
-# We can also plot out the final optimized waveform for Δ
-Bloqade.plot(Δ_final)
+# We can also plot out the final optimized waveform for Δ 
+# and compare with the initial waveform
+fig, ax = plt.subplots()
+Bloqade.plot!(ax, Δ_initial_smooth)
+Bloqade.plot!(ax, Δ_final)
+ax.set_ylabel("Δ/2π (MHz)")
+ax.legend(["initial", "optimized"], loc ="lower right")
+fig

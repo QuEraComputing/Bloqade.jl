@@ -1,38 +1,45 @@
-# # Weighted MIS
+# # Maximum Weight Independent Set
 # ## Background
-# In [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf), it was shown that 
-# Rydberg atom arrays can be used to encode the maximum independent set (MIS)
-# problem on unit disk graphs (UDG).  In this example, we present an implementation of 
-# quantum annealing to solve the maximum weight independent set (MWIS) problem 
-# of a weighted unit disk graph, with arbitrary weights for each vertex.  The MWIS problem 
-# seeks to find the independent set whose weights sum to the maximum possible value. 
+# In the [The Maximum Independent Set Problem](@id mis-tutorial) page, 
+# we provide a detailed example on how to solve the Maximum Independent Set (MIS) problem
+# using neutral-atom quantum computers. 
+# The first algorithm proposal and experimental demonstration can be found in 
+# [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf) and [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372).
+# In this tutorial, we present a more advanced example of using neutral atom quantum computers
+# to solve the [maximum weight independent set](https://en.wikipedia.org/wiki/Independent_set_(graph_theory)) (MWIS) problem 
+# on a weighted unit disk graph, with arbitrary weights for each vertex. The MWIS problem 
+# seeks to find an independent set whose weights sum to the maximum possible value.
 
-# We import the required packages to compute weighted MIS classically
+# We first import the required packages to compute MWIS classically.
 using Random
 Random.seed!(42)
 using Graphs, GenericTensorNetworks
-# We initially specify the atom locations and construct the corresponding diagonally-coupled 
-# unit disk graph on a square lattice.  The atoms represent vertices on the problem graph, 
-# and all vertices closer than a length 1.5 are connected by an edge.  
+using Bloqade
+using PythonCall
+plt = pyimport("matplotlib.pyplot");
+
+# We now specify the atom locations and construct an example  
+# unit disk graph on a square lattice with nearest neighbor connections. 
+# The atoms represent vertices on the problem graph, 
+# and all vertices closer than a distance 1.5 are connected by an edge.  
 locs = [(1,-1), (4,0), (1,1), (2,0), (0,0), (2,2), (2,-2), (3,1), (3,-1)];
 g = unit_disk_graph(locs, 1.5)
 show_graph(g; locs=locs, vertex_colors=["white" for i=1:nv(g)])
 
-# We assign random weights to each vertex.  
+# We then assign random weights to each vertex for this example problem.
 weights = [rand() for i = 1:nv(g)];
 
-# We solve the MWIS problem classically for this graph for reference 
-# using [GraphTensorNetworks package](https://github.com/QuEraComputing/GenericTensorNetworks.jl). 
+# We can solve the MWIS problem classically for this graph
+# using the [GraphTensorNetworks](https://github.com/QuEraComputing/GenericTensorNetworks.jl) package. 
 # The MWIS is shown in red.
 configs_mapped = solve(IndependentSet(g; weights= weights), ConfigsMax())[]
 MIS_config = configs_mapped.c[1]
 show_graph(g; locs = locs, vertex_colors=
           [iszero(MIS_config[i]) ? "white" : "red" for i=1:nv(g)])
 
+# # Quantum Adiabatic Algorithm to Solve the MWIS Problem
 
-# # Quantum Annealing to solve the MWIS problem
-
-# A quantum annealing algorithm (QAA) can be performed with the Hamiltonian:
+# A quantum adiabatic algorithm (QAA) can be performed with the Hamiltonian:
 
 # $H_{QA}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \Omega_v(t) \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$
 
@@ -59,10 +66,6 @@ show_graph(g; locs = locs, vertex_colors=
 # Because we are considering the weighted MIS problem, we implement individual
 # atom detuning with $\Delta(t)_i = w_i \times \Delta(t)$.  We can simulate individual 
 # pulse shapes on the emulator.
-
-using Bloqade
-using PythonCall
-plt = pyimport("matplotlib.pyplot")
 
 # We build the Hamiltonian and the corresponding waveforms for adiabatic evolution of the system
 function build_adiabatic_sweep(graph, Ω_max::Float64, Δ_max::Float64, t_max::Float64, weights::Vector{Float64})

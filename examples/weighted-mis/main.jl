@@ -111,8 +111,6 @@ for t in 0.1:total_time*0.25:total_time*2.5
     r = zero_state(subspace)
     prob = SchrodingerProblem(r, t, h)
     emulate!(prob)
-
-    # compute MIS probability
     p = config_probability(prob.reg, g, BitVector(MIS_config))
 
     push!(t_list, t)

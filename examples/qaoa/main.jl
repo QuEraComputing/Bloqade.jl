@@ -2,7 +2,7 @@
 
 # ## Background
 
-# In graph theory, an independent set is a set of vertices in a graph such that no two of which are adjacent.
+# In graph theory, an independent set is a set of vertices in a graph such that no two of which are connected by an edge.
 # The problem of finding maximum independent sets (MIS) is NP-hard, i.e., it is unlikely to be solved in a time polynomial to the problem size.
 # Interestingly, there is a natural connection between the independent set constraint,
 # and the [Rydberg Blockade](@ref blockade) phenomenon in neutral-atom quantum computing using Rydberg states. 
@@ -93,7 +93,7 @@ fig
 # ```math
 # C_6 / R_b^6 \sim \sqrt{\Delta^2 + \Omega^2}
 # ```
-# The default ``C_6=2π * 862690`` MHz*µm^6. 
+# The default ``C_6=2π * 862690 \text{MHz μm}^6``.
 # For encoding the corresponding MIS problem at ``\Omega = 0``, 
 # the detuning can be set around ``2\pi \times 11`` MHz 
 # for a blockade radius of ``7.5`` µm
@@ -130,7 +130,7 @@ Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? "white" : "red" for
 # The standard definition of QAOA involves applying the problem (cost function) Hamiltonian ``C`` and the transverse field Hamiltonian ``B`` alternately.
 # Let ``G=(V,E)`` be a graph. The cost Hamiltonian for an MIS problem can be defined as 
 # ```math
-# C(G, \sigma^z) = -\sum_{j\in V}^{n} w_j n_j^z + \infty \sum_{\langle j,k\rangle \in E}n_j^z n_k^z
+# C(G) = -\sum_{j\in V}^{n} w_j n_j^z + \infty \sum_{\langle j,k\rangle \in E}n_j^z n_k^z
 # ```
 # where the first summation is proportional to the size of the independent set, 
 # and the second term enforces the independence constraints.
@@ -141,12 +141,14 @@ Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? "white" : "red" for
 # As we can see, the Rydberg interaction is not a perfect independence constraint (with finite blockade interaction and unwanted long-rance interaction). 
 # Thus, postprocessing might be required using neutral-atom quantum computers to solve the MIS problem.
 #
-# The transverse field Hamiltonian corresponds to the Rabi term in the Rydberg Hamiltonian.
+# The transverse field Hamiltonian corresponds to the Rabi term in the Rydberg Hamiltonian,
 # ```math
-# B = \sum_{j=1}^{n}\sigma_j^x
+# B = \sum_{j=1}^{n}\sigma_j^x + \infty \sum_{\langle j,k\rangle \in E}n_j^z n_k^z.
 # ```
 
-# For the convenience of simulation, we use the [`expect`](@ref) function to get the averaged measurement outputs. 
+# Note that the Rybderg interaction term is always on here 
+# in contrast to the standard QAOA protocol. 
+# For the convenience of the simulation, we use the [`expect`](@ref) function to get the averaged measurement outputs. 
 # On the actual quantum hardware, the `expect` should be replaced by measuring in the computational basis
 # and obtaining the averaged number of Rydberg excitations as the loss function (also called objective function or cost function).
 # One can then either use non-gradient-based optimizers to perform the optimization 
@@ -248,8 +250,15 @@ bitstring_hist(reg_final; nlargest=20)
 
 # A smoothened piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the `piecewise_linear` function. 
 # For example,
-smoothened_curve = smooth(piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.1); 
-Bloqade.plot(smoothened_curve)
+Ω_piecewise_linear = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]);
+Ω_smooth = smooth(Ω_piecewise_linear; kernel_radius=0.1);
+
+fig, ax = plt.subplots()
+Bloqade.plot!(ax, Ω_piecewise_linear)
+Bloqade.plot!(ax, Ω_smooth)
+ax.set_ylabel("Ω/2π (MHz)")
+ax.legend(["piecewise linear", "smoothened piecewise linear"], loc ="lower right")
+fig
 
 # Here, the function [`smooth`](@ref) takes a `kernel_radius` keyword parameter as the Gaussian kernel parameter.
 # With the new waveforms, we can define the loss function as follows.

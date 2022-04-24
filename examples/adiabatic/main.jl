@@ -23,7 +23,7 @@ using PythonCall
 using KrylovKit
 using SparseArrays
 
-plt = pyimport("matplotlib.pyplot")
+plt = pyimport("matplotlib.pyplot");
 
 # # Ground state properties
 

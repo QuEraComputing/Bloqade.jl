@@ -1,4 +1,5 @@
-# # Background
+# # Weighted MIS
+# ## Background
 # In [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf), it was shown that 
 # Rydberg atom arrays can be used to encode the maximum independent set (MIS)
 # problem on unit disk graphs (UDG).  In this example, we present an implementation of 
@@ -7,9 +8,9 @@
 # seeks to find the independent set whose weights sum to the maximum possible value. 
 
 # We import the required packages to compute weighted MIS classically
-
+using Random
+Random.seed!(42)
 using Graphs, GenericTensorNetworks
-
 # We initially specify the atom locations and construct the corresponding diagonally-coupled 
 # unit disk graph on a square lattice.  The atoms represent vertices on the problem graph, 
 # and all vertices closer than a length 1.5 are connected by an edge.  
@@ -59,7 +60,7 @@ show_graph(g; locs = locs, vertex_colors=
 # atom detuning with $\Delta(t)_i = w_i \times \Delta(t)$.  We can simulate individual 
 # pulse shapes on the emulator.
 
-using Bloqade, BloqadePlots
+using Bloqade
 using PythonCall
 plt = pyimport("matplotlib.pyplot")
 
@@ -77,12 +78,12 @@ end;
 Ω_max = 2 * pi * 4
 Δ_max = 2.5 * Ω_max
 t_max = 1.0
-h, Ω, Δ = build_adiabatic_sweep(g, Ω_max, Δ_max, t, weights);
+h, Ω, Δ = build_adiabatic_sweep(g, Ω_max, Δ_max, t_max, weights);
 
 fig, (ax1, ax2) = plt.subplots(nrows=2)
-draw!(ax1, Ω) 
+Bloqade.plot!(ax1, Ω) 
 for i = 1:nv(g)
-    draw!(ax2, Δ[i])
+    Bloqade.plot!(ax2, Δ[i])
 end 
 fig
 
@@ -90,6 +91,7 @@ fig
 # # Compute MIS Probability and Adiabatic Timescale
 
 # We import additional libraries to solve for the ground state of the initial Hamiltonian
+using KrylovKit
 using SparseArrays
 
 # We compute the MIS probability of the original graph as a function of time.  We 
@@ -103,29 +105,18 @@ t_list = []
 P_MIS = [] # MIS probability 
 subspace = independent_set_subspace(g)
 
-global t = 0.1 # current time
-T_  = 1.5 # time to reach P_MIS = 0.9
-
-while (t < T_  * 2.5)
-    global t 
-
+total_time = 1.5
+for t in 0.1:total_time*0.25:total_time*2.5
     h = build_adiabatic_sweep(g, Ω_max, Δ_max, t, weights)[1]
-    
-    # compute the ground state of the initial Hamiltonian
-    energies, GS = eigsolve(SparseMatrixCSC(h(0.0), subspace), 1, :SR);
-    r = RydbergReg(GS[1], subspace);
-    
-    # run ODE evolution
-    prob = ODEEvolution(r, t, h; dt=1e-3, adaptive=false)
+    r = zero_state(subspace)
+    prob = SchrodingerProblem(r, t, h)
     emulate!(prob)
-    
+
     # compute MIS probability
-    p = config_probability(prob.reg, g, MIS_config)
+    p = config_probability(prob.reg, g, BitVector(MIS_config))
 
     push!(t_list, t)
     push!(P_MIS, p)
-    
-    global t += T_ * 0.25
 end
 
 # We can compute the adiabatic timescale by fitting a Landau Zener curve to the 

@@ -14,13 +14,13 @@
 
 
 
-# ![RydbergBlockade](../assets/RydbergBlockade.png)
+# ![RydbergBlockade](../../../assets/RydbergBlockade.png)
 
 # This conditional energy shift is the basis of the **Rydberg Blockade**. Because of the large energy shift from having two adjacent atoms in the Rydberg state, evolution from an atomic ground state with local Rabi couplings between ground and Rydberg is restricted to a low energy subspace of states where no two adjacent atoms are in the Rydberg state. Furthermore, because the interaction strength with distance is a large power law, one can define a characteristic scale set by the Rabi coupling. If two atoms are close such that the conditional detuning is much larger than the Rabi coupling, one can consider the atoms to be blockading each other, and both atoms cannot simultaneously be in the Rydberg state. In contrast, if two atoms are far away, the two atoms never blockade each other and both atoms can simultaneously be in the Rydberg state.
 
 # ## Energy truncation and Blockade subspace
 
-# ![EnergyTruncation](../assets/bloqade_subspace.png)
+# ![EnergyTruncation](../../../assets/bloqade_subspace.png)
 
 # In this way, the low energy classical states of the Rydberg Hamiltonian (``\Omega=0``, ``\Delta=0``) for a given array of atoms are **independent sets** of a **unit disk graph** defined by the positions of the atoms. A unit disk graph is a set of vertices and edges, where vertices represent every atom, and there are edges if the distance between vertices is less than some radius ``|\vec r_i- \vec r_j|<R_u``. The lowest energy states are representative of independent sets, where Rydberg excitations are in the independent set and no two Rydberg excitations are within some radius. The second energy band are sets with a single independent set violation, where there is equivalently two Rydberg excitations within the unit disk radius of each other. Higher and higher bands represent more and more independent set violations. Note that this band structure is dependent on the arrangement of atoms, and for arbitrary configurations this band structure may not be clear.
 
@@ -52,7 +52,7 @@
 
 # Here, ``R_b`` is the **blockade radius** of the system, which equivalently is set by the scale of the maximum value of ``(\Omega_b/C_6)^{1/6}``. This blockade radius is the geometric mean of the unit disk radius ``R_u``, the maximum distance between vertices that are connected by an edge, and the minimum distance ``R_\text{min}`` between vertices that are not connected by an edge. The conversion between unit disk radius and blockade radius is then dependent on the choice of the particular atom arrangement and the minimum ratio ``R_\text{max}/R_u`` as shown below.
 
-# ![BlockadRadius](../assets/bloqade_subspace_UDGradius.png)
+# ![BlockadRadius](../../../assets/bloqade_subspace_UDGradius.png)
 
 # The ratio of the unit disk radius (dark red) to the blockade radius (red dashed) for several choices of atoms. Preferably, ``R_\text{max}/R_u\gg 1``, as large values mean that both perturbative conditions are preserved. For a 1d nearest neighbor line, the value is ``2``, and so ``(C_6/(2R_u)^6)\ll\Omega_b = (C_6/R_u^6)/8\ll (C_6/R_u^6)``. However, for an example arbitrary graph, this ratio is only ``1.15``, and so the perturbative limit ``0.42740\ll 0.6538\ll 1`` is not well-preserved. For this reason, there must be some care for choosing which graphs have appropriate dynamics within an approximately degenerate independent set subspace. Some graphs, like a 1d chain, are deep within the perturbative limits and so it is reasonable to expect that dynamics can ignore Rydberg tails. However, arbitrary graphs which have vertices close to the unit disk threshold may be sensitive to ``1/R^6`` Rydberg tails and may not have the expected dynamics.
 
@@ -142,7 +142,7 @@ plt.show()
 
 
 
-# ![RydbergBlockadeSubspace](../assets/RydbergBlockadeSubspace.png)
+# ![RydbergBlockadeSubspace](../../../assets/RydbergBlockadeSubspace.png)
 
 # Data for this evolution is shown above, where exact evolution in the full space is shown in black, and the truncated evolution in the subspace is shown by red dashed. It is clear that even though the Hilbert space is ``12\times`` smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2 atom conditional blockade example. However, at longer times this subspace approximation fails to reproduce the full space (shown by divergence between black and red dashed), as the perturbative effects become relevant over longer timescales.
 

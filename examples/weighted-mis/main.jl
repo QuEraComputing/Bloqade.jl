@@ -41,7 +41,7 @@ show_graph(g; locs = locs, vertex_colors=
 
 # The quantum adiabatic algorithm (QAA) can be performed with the Hamiltonian:
 
-# $H_{\text{QA}}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \Omega_v(t) \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$
+# $H_{\text{QA}}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \frac{1}{2}\Omega_v(t) \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$
 
 # Here, we work in the limit of $\Delta, \Omega \ll U$, where 
 # the non-independent set space of the graph can be neglected 
@@ -64,36 +64,37 @@ show_graph(g; locs = locs, vertex_colors=
 # solution to the MWIS problem.  
 
 
-# ## Build Pulse Sequence
-# Because we are considering the weighted MIS problem, we implement individual
-# atom detuning with $\Delta(t)_i = w_i \times \Delta(t)$.  We can simulate individual 
-# pulse shapes on the emulator.
+# ## Building Pulse Sequences
+# Since we are considering the MWIS problem, we can implement individual
+# atom detuning with, e.g., $\Delta(t)_i = w_i \times \Delta(t)$.  
 
-# We build the Hamiltonian and the corresponding waveforms for adiabatic evolution of the system
+# Let's first build and plot the individual pulse waveforms.
+# We use the following function to build the Hamiltonian and the corresponding waveforms for the adiabatic evolution of the system.
 function build_adiabatic_sweep(graph, Ω_max::Float64, Δ_max::Float64, t_max::Float64, weights::Vector{Float64})
     Ω = Waveform(t->Ω_max * sin(pi * t/t_max)^2, duration=t_max)
     Δ = map(1:nv(graph)) do idx
         Waveform(t->weights[idx] * Δ_max * (2 * t/t_max - 1), duration=t_max)
     end
-    h = SumOfX(nv(graph), Ω) - SumOfN(nv(graph), Δ)
+    h = SumOfX(nv(graph), Ω)/2 - SumOfN(nv(graph), Δ)
     return h, Ω, Δ
-end;
+end
 
-# We choose $\Delta_0 / \Omega_0 = 2.5$, with $\Omega_{max} = 2 \pi \times 4$ MHz
-Ω_max = 2 * pi * 4
-Δ_max = 2.5 * Ω_max
-t_max = 1.0
+# Here, we choose $\Delta_{\max} / \Omega_{\max} = 3$, with $\Omega_{\max} = 2 \pi \times 4$ MHz
+Ω_max = 2π * 4
+Δ_max = 3 * Ω_max
+t_max = 1.5
 h, Ω, Δ = build_adiabatic_sweep(g, Ω_max, Δ_max, t_max, weights);
 
-fig, (ax1, ax2) = plt.subplots(nrows=2)
-Bloqade.plot!(ax1, Ω) 
+fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(10, 4))
+Bloqade.plot!(ax1, Ω)
+ax1.set_ylabel("Ω/2π (MHz)")
 for i = 1:nv(g)
     Bloqade.plot!(ax2, Δ[i])
-end 
+end
+ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
-
-# # Compute MIS Probability and Adiabatic Timescale
+# ## Compute the MIS Probability and the Adiabatic Timescale
 
 # We import additional libraries to solve for the ground state of the initial Hamiltonian
 using KrylovKit

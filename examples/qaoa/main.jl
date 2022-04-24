@@ -1,4 +1,4 @@
-# # The Maximum Independent Set Problem
+# # [The Maximum Independent Set Problem](@id mis-tutorial)
 
 # ## Background
 

@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>The Maximum Independent Set Problem · Bloqade.jl</title><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/Bloqade.jl/tutorials/qaoa/main/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">Bloqade.jl</a></span></div><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><a class="tocitem" href="../../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../../registers/">Registers and Observables</a></li><li><a class="tocitem" href="../../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../../../units/">Working with Units</a></li><li><a class="tocitem" href="../../../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../../../cuda/">GPU Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../../noise/main/">Adiabatic Preparation with Sensitivity Analysis</a></li><li class="is-active"><a class="tocitem" href>The Maximum Independent Set Problem</a><ul class="internal"><li><a class="tocitem" href="#Background"><span>Background</span></a></li><li class="toplevel"><a class="tocitem" href="#Set-up-the-problem"><span>Set up the problem</span></a></li><li><a class="tocitem" href="#The-adiabatic-approach"><span>The adiabatic approach</span></a></li><li><a class="tocitem" href="#QAOA-with-piecewise-constant-pulses"><span>QAOA with piecewise constant pulses</span></a></li><li><a class="tocitem" href="#Smoothen-Piecewise-linear-pulses"><span>Smoothen Piecewise linear pulses</span></a></li></ul></li><li><a class="tocitem" href="../../quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../../ring/main/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../weighted-mis/main/">Weighted MIS</a></li></ul></li><li><a class="tocitem" href="../../../contrib/">Contributing to Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/Bloqade.jl/blob/master/examples/qaoa/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="mis-tutorial"><a class="docs-heading-anchor" href="#mis-tutorial">The Maximum Independent Set Problem</a><a id="mis-tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#mis-tutorial" title="Permalink"></a></h1><h2 id="Background"><a class="docs-heading-anchor" href="#Background">Background</a><a id="Background-1"></a><a class="docs-heading-anchor-permalink" href="#Background" title="Permalink"></a></h2><p>In graph theory, an <a href="https://en.wikipedia.org/wiki/Independent_set_(graph_theory)">independent set</a> is a set of vertices in a graph, no two of which are adjacent. The problem of finding maximum independent sets (MIS) is NP-hard, i.e. unlikely to be solved in polynomial time for a large system size. In this tutorial we study the MIS problem defined on diagonal-coupled unit-disk grid graphs (DUGG).  Although these graphs have highly constraint topology, finding its MISs is still NP-hard. Recent studies show that these graphs can be naturally mapped to the Rydberg atom system with strong blockade interactions (see <a href="https://arxiv.org/abs/1808.10816">arxiv:1808.10816</a>. In this tutorial, we show how to using variational quantum algorithms on Rydberg atom arrays to solve the MIS problem on these graphs. For those who wants to know more details, we highly recommend to connect this tutorial with the recent experiment <a href="https://arxiv.org/abs/2202.09372">arxiv:2202.09372</a>.</p><p>Let&#39;s start by importing the required libraries:</p><pre><code class="language-julia hljs">using Graphs
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>The Maximum Independent Set Problem · Bloqade.jl</title><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://Happy-Diode.github.io/Bloqade.jl/tutorials/qaoa/main/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.044/juliamono.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.11/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../../">Bloqade.jl</a></span></div><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><a class="tocitem" href="../../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../../registers/">Registers and Observables</a></li><li><a class="tocitem" href="../../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../../../units/">Working with Units</a></li><li><a class="tocitem" href="../../../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../../../cuda/">GPU Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../../noise/main/">Adiabatic Preparation with Sensitivity Analysis</a></li><li class="is-active"><a class="tocitem" href>The Maximum Independent Set Problem</a><ul class="internal"><li><a class="tocitem" href="#Background"><span>Background</span></a></li><li><a class="tocitem" href="#Setting-Up-the-Problem"><span>Setting Up the Problem</span></a></li><li><a class="tocitem" href="#The-Adiabatic-Approach"><span>The Adiabatic Approach</span></a></li><li><a class="tocitem" href="#QAOA-with-Piecewise-Constant-Pulses"><span>QAOA with Piecewise Constant Pulses</span></a></li><li><a class="tocitem" href="#Smoothened-Piecewise-Linear-Pulses"><span>Smoothened Piecewise Linear Pulses</span></a></li></ul></li><li><a class="tocitem" href="../../quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../../ring/main/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../weighted-mis/main/">Weighted MIS</a></li></ul></li><li><a class="tocitem" href="../../../contrib/">Contributing to Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/Happy-Diode/Bloqade.jl/blob/master/examples/qaoa/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="mis-tutorial"><a class="docs-heading-anchor" href="#mis-tutorial">The Maximum Independent Set Problem</a><a id="mis-tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#mis-tutorial" title="Permalink"></a></h1><h2 id="Background"><a class="docs-heading-anchor" href="#Background">Background</a><a id="Background-1"></a><a class="docs-heading-anchor-permalink" href="#Background" title="Permalink"></a></h2><p>In graph theory, an independent set is a set of vertices in a graph such that no two of which are connected by an edge. The problem of finding maximum independent sets (MIS) is NP-hard, i.e., it is unlikely to be solved in a time polynomial to the problem size. Interestingly, there is a natural connection between the independent set constraint, and the <a href="../../ring/main/#blockade">Rydberg Blockade</a> phenomenon in neutral-atom quantum computing using Rydberg states. More specifically, Rydberg blockade implies that two atoms cannot be both excited to the Rydberg state <span>$|r\rangle$</span> if they are close to each other, whereas independent set constraint means two vertices cannot be both in the independent set when they are connected by an edge. Thus, one can consider atoms in the Rydberg state as vertices in an independent set. See the proposal in <a href="https://arxiv.org/pdf/1808.10816.pdf">H. Pichler, et al.</a> for more details.</p><p>In particular, one can use the ground state of the <a href="../../../hamiltonians/#Hamiltonians">Rydberg Hamiltonian</a> to encode the <a href="https://en.wikipedia.org/wiki/Independent_set_(graph_theory)">maximum independent set problem</a>, which is to find the largest independent set of a given graph. For a particular subclass of geometric graphs, the so-called unit disk graphs, the Rydberg Hamiltonian can encode the solution without any overhead in the number of qubits. In fact, an experimental demonstration of quantum optimization has been realized in solving the maximum independent set problem up to 289 qubits in <a href="https://arxiv.org/abs/2202.09372">S. Ebadi, et al.</a>.</p><p>In this tutorial, we show how to solve the MIS problem using Bloqade. We focus on a particular subclass of unit disk graphs defined as diagonal-connected unit-disk grid graphs (DUGG). This is the class of graphs studied in the demonstration experiment <a href="https://arxiv.org/abs/2202.09372">S. Ebadi, et al.</a>. Although these graphs have highly constraint topologies, finding its MISs is still NP-hard. Here, we show how to use variational quantum algorithms with Rydberg Hamiltonians to solve the MIS problem on these graphs. The tutorial here strongly resembles the setup in <a href="https://arxiv.org/abs/2202.09372">S. Ebadi, et al.</a>, but, unsurprisingly, Bloqade can only simulate a much smaller problem.</p><p>For more details on the functionalities supported by Bloqade in studying independent set problems, please refer to the <a href="../../../mis/#mis">MIS manual</a> page.</p><p>Let&#39;s start by importing the required libraries:</p><pre><code class="language-julia hljs">using Graphs
 using Bloqade
 using Compose
 using Random
 using GenericTensorNetworks
 using Optim
 using PythonCall
-plt = pyimport(&quot;matplotlib.pyplot&quot;)</code></pre><pre><code class="nohighlight hljs">Python module: &lt;module &#39;matplotlib.pyplot&#39; from &#39;/home/runner/work/Bloqade.jl/Bloqade.jl/examples/adiabatic/.CondaPkg/env/lib/python3.10/site-packages/matplotlib/pyplot.py&#39;&gt;</code></pre><h1 id="Set-up-the-problem"><a class="docs-heading-anchor" href="#Set-up-the-problem">Set up the problem</a><a id="Set-up-the-problem-1"></a><a class="docs-heading-anchor-permalink" href="#Set-up-the-problem" title="Permalink"></a></h1><p>To begin with, we create a <span>$4*4$</span> DUGG with 0.8 filling, by using the <a href="../../../lattices/#BloqadeLattices.random_dropout-Union{Tuple{T}, Tuple{D}, Tuple{AtomList{D, T}, Real}} where {D, T}"><code>random_dropout</code></a> function. Here we choose the lattice constant <span>$a$</span> to be 4.5 <span>$\mu m$</span>.</p><pre><code class="language-julia hljs">Random.seed!(2)
+plt = pyimport(&quot;matplotlib.pyplot&quot;);</code></pre><h2 id="Setting-Up-the-Problem"><a class="docs-heading-anchor" href="#Setting-Up-the-Problem">Setting Up the Problem</a><a id="Setting-Up-the-Problem-1"></a><a class="docs-heading-anchor-permalink" href="#Setting-Up-the-Problem" title="Permalink"></a></h2><p>To begin, we create a <span>$4*4$</span> DUGG with 0.8 filling, by using the <a href="../../../lattices/#BloqadeLattices.random_dropout-Union{Tuple{T}, Tuple{D}, Tuple{AtomList{D, T}, Real}} where {D, T}"><code>random_dropout</code></a> function. Here, we choose the lattice constant <span>$a$</span> to be 4.5 μm.</p><pre><code class="language-julia hljs">Random.seed!(2)
 atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.2)</code></pre><?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -22,7 +22,7 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-2255b628-1">
+<g fill="#000000" font-size="3.88" id="img-9c54cb9c-1">
   <g transform="translate(30.97,101.42)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -64,72 +64,72 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
     </g>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-2">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-2">
   <g transform="translate(89.03,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-3">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-3">
   <g transform="translate(69.68,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-4">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-4">
   <g transform="translate(50.32,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-5">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-5">
   <g transform="translate(30.97,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-6">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-6">
   <g transform="translate(89.03,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-7">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-7">
   <g transform="translate(69.68,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-8">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-8">
   <g transform="translate(50.32,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-9">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-9">
   <g transform="translate(30.97,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-10">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-10">
   <g transform="translate(89.03,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-11">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-11">
   <g transform="translate(69.68,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-12">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-12">
   <g transform="translate(50.32,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-13">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-13">
   <g transform="translate(69.68,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-2255b628-14">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-9c54cb9c-14">
   <g transform="translate(30.97,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="5.46" id="img-2255b628-15">
+<g fill="#000000" font-size="5.46" id="img-9c54cb9c-15">
   <g transform="translate(30.97,89.03)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -197,7 +197,7 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
   </g>
 </g>
 </svg>
-<p>Then we set the blockade radius to be 7.5 <span>$\mu m$</span>. In such a case,  if two atoms have a distance of <span>$a$</span> or <span>$\sqrt{2} a$</span>, they are within the blockade radius. As we discussed in <a href="tutorials/qaoa/@ref">Rydberg Blockade</a>, there is only one Rydberg excitation is allowed within the blockade radius.  To better illustrate the constraint, we plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the strong Rydberg interactions.</p><pre><code class="language-julia hljs">Bloqade.plot(atoms, blockade_radius=7.5)</code></pre><?xml version="1.0" encoding="UTF-8"?>
+<p>Next, we set the blockade radius to be 7.5 μm, corresponding to a case where nearest neighbors and next-nearest neighbors (diagonal) are within the blockade radius. As we discussed in <a href="tutorials/qaoa/@ref">Rydberg Blockade</a>, only one Rydberg excitation is allowed within the blockade radius. To better illustrate this constraint, we plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the blockade radius.</p><pre><code class="language-julia hljs">Bloqade.plot(atoms, blockade_radius=7.5)</code></pre><?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
      version="1.2"
@@ -207,13 +207,13 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
      stroke-width="0.3"
      font-size="3.88"
 
-     id="img-bd49a729">
+     id="img-fa841f8c">
 <defs>
   <marker id="arrow" markerWidth="15" markerHeight="7" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-bd49a729-1">
+<g fill="#000000" font-size="3.88" id="img-fa841f8c-1">
   <g transform="translate(30.97,101.42)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -255,7 +255,7 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
     </g>
   </g>
 </g>
-<g stroke-width="0.93" stroke="#000000" id="img-bd49a729-2">
+<g stroke-width="0.93" stroke="#000000" id="img-fa841f8c-2">
   <g transform="translate(40.65,79.35)">
     <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
   </g>
@@ -347,72 +347,72 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |&gt; random_dropout(0.
     <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-3">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-3">
   <g transform="translate(89.03,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-4">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-4">
   <g transform="translate(69.68,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-5">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-5">
   <g transform="translate(50.32,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-6">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-6">
   <g transform="translate(30.97,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-7">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-7">
   <g transform="translate(89.03,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-8">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-8">
   <g transform="translate(69.68,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-9">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-9">
   <g transform="translate(50.32,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-10">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-10">
   <g transform="translate(30.97,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-11">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-11">
   <g transform="translate(89.03,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-12">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-12">
   <g transform="translate(69.68,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-13">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-13">
   <g transform="translate(50.32,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-14">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-14">
   <g transform="translate(69.68,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-bd49a729-15">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-fa841f8c-15">
   <g transform="translate(30.97,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="5.46" id="img-bd49a729-16">
+<g fill="#000000" font-size="5.46" id="img-fa841f8c-16">
   <g transform="translate(30.97,89.03)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -626,8 +626,8 @@ amount2:1-d})};a.filter.invert.toString=function(){return this()};a.filter.brigh
 
 ]]> </script>
 </svg>
-<p>Our goal is to find a the maximum independent sets of such a graph.</p><p>For the pedagogical purpose, we first calculate the MIS size here using the graph utilities in Bloqade so that a user can compare this exact result with the quantum one. The exact MIS size and its degeneracy can be solved with the generic tensor network algorithm in package <a href="https://github.com/QuEraComputing/GenericTensorNetworks.jl"><code>GenericTensorNetworks</code></a>.</p><pre><code class="language-julia hljs">graph = BloqadeMIS.unit_disk_graph(atoms, 7.5)
-mis_size_and_counting = GenericTensorNetworks.solve(IndependentSet(graph), CountingMax())[]</code></pre><pre><code class="nohighlight hljs">(4.0, 26.0)ₜ</code></pre><p>The <code>solve</code> function takes a graph instance and a solution space property as inputs, where the graph instance is generated by the <a href="../../../mis/#BloqadeMIS.unit_disk_graph"><code>unit_disk_graph</code></a> function in module <code>BloqadeMIS</code>. For this specific DUGG, we see that the MIS size is 4, and the function also outputs number of independent sets of such size. In the following, we are going to solve the independent set problem with both adiabatic and variational algorithms.</p><h2 id="The-adiabatic-approach"><a class="docs-heading-anchor" href="#The-adiabatic-approach">The adiabatic approach</a><a id="The-adiabatic-approach-1"></a><a class="docs-heading-anchor-permalink" href="#The-adiabatic-approach" title="Permalink"></a></h2><p>Here we generalize the adiabatic algorithm we used in <a href="../../adiabatic/main/#Adiabatic-Evolution">Adiabatic Evolution</a> to prepare ground states for this disordered lattice. We first construct the adiabatic pulse sequences for Rabi frequency <span>$\Omega$</span> and detuning <span>$\Delta$</span>.</p><pre><code class="language-julia hljs">T_max = 1.65
+<p>Our goal is to find a maximum independent set of such a graph.</p><p>For comparison, we first use classical algorithms to calculate the MIS size here using the graph utilities in Bloqade, so that one can compare this exact result with the quantum algorithms. The exact MIS size and its degeneracy can be solved with the generic tensor network algorithm in the package <a href="https://github.com/QuEraComputing/GenericTensorNetworks.jl"><code>GenericTensorNetworks</code></a>.</p><pre><code class="language-julia hljs">graph = BloqadeMIS.unit_disk_graph(atoms, 7.5)
+mis_size_and_counting = GenericTensorNetworks.solve(IndependentSet(graph), CountingMax())[]</code></pre><pre><code class="nohighlight hljs">(4.0, 26.0)ₜ</code></pre><p>The <code>solve</code> function takes a graph instance and a solution space property as inputs, where the graph instance is generated by the <a href="../../../mis/#BloqadeMIS.unit_disk_graph"><code>unit_disk_graph</code></a> function in the module <code>BloqadeMIS</code>, and the solution space property is to count the number of maximum independent sets here. For this specific DUGG, we see that the MIS size is 4, and the number of maximum independent sets is 26. In the following, we are going to show how to solve the independent set problem with both quantum adiabatic and variational algorithms.</p><h2 id="The-Adiabatic-Approach"><a class="docs-heading-anchor" href="#The-Adiabatic-Approach">The Adiabatic Approach</a><a id="The-Adiabatic-Approach-1"></a><a class="docs-heading-anchor-permalink" href="#The-Adiabatic-Approach" title="Permalink"></a></h2><p>Here, we generalize the quantum adiabatic algorithm used in the tutorial <a href="../../adiabatic/main/#Adiabatic-Evolution">Adiabatic Evolution</a> to prepare ground states of the Rydberg Hamiltonian for this disordered lattice. We first construct the adiabatic pulse sequences for the Rabi frequency <span>$\Omega$</span> and the detuning <span>$\Delta$</span>.</p><pre><code class="language-julia hljs">T_max = 1.65
 Ω_max = 2π *4
 Ω = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0])
 Δ_start = -2π *13
@@ -635,11 +635,11 @@ mis_size_and_counting = GenericTensorNetworks.solve(IndependentSet(graph), Count
 Δ = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[Δ_start, Δ_start, Δ_end, Δ_end])
 
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-Bloqade.plot!(ax1, Ω/2π)
+Bloqade.plot!(ax1, Ω)
 ax1.set_ylabel(&quot;Ω/2π (MHz)&quot;)
-Bloqade.plot!(ax2, Δ/2π)
+Bloqade.plot!(ax2, Δ)
 ax2.set_ylabel(&quot;Δ/2π (MHz)&quot;)
-fig</code></pre><p><img src="../714029559.svg" alt/></p><p>Here, the total time is fixed to <code>T_max</code>, the adiabatic evolution path is specified by the <a href="../../../waveform/#BloqadeWaveforms.piecewise_linear"><code>piecewise_linear</code></a> function. Rydberg blockade radius can be computed with</p><p class="math-container">\[C_6 / R_b^6 \sim \sqrt{\Delta^2 + \Omega^2}\]</p><p>For the default <span>$C_6=2π * 862690 * MHz*µm^6$</span> and <span>$\Omega = 0$</span>, if we want to set the the blockade radius to be <span>$7.5\mu m$</span>, the corresponding detuning is <span>$2\pi \times \sim 11  MHz$</span> (see the parameter in <a href="https://arxiv.org/abs/2202.09372">arxiv:2202.09372</a>). This is the reason why we have chosen <span>$Δ_end =  2π *11 MHz$</span>.</p><p>Then we create the time-dependent Hamiltonian and emulate its time evolution by using the <a href="../../../emulation/#BloqadeODE.SchrodingerProblem"><code>SchrodingerProblem</code></a> solver.</p><pre><code class="language-julia hljs">hamiltonian = rydberg_h(atoms; Ω=Ω, Δ=Δ)
+fig</code></pre><p><img src="../1103806145.svg" alt/></p><p>Here, the total time is fixed to <code>T_max</code>, the adiabatic evolution path is specified by the <a href="../../../waveform/#BloqadeWaveforms.piecewise_linear"><code>piecewise_linear</code></a> function. Rydberg blockade radius can be computed with</p><p class="math-container">\[C_6 / R_b^6 \sim \sqrt{\Delta^2 + \Omega^2}\]</p><p>The default <span>$C_6=2π * 862690 \text{MHz μm}^6$</span>. For encoding the corresponding MIS problem at <span>$\Omega = 0$</span>, the detuning can be set around <span>$2\pi \times 11$</span> MHz for a blockade radius of <span>$7.5$</span> µm (see the parameters in <a href="https://arxiv.org/abs/2202.09372">S. Ebadi, et al.</a>).</p><p>Next, we create the time-dependent Hamiltonian and simulate its time evolution by using the <a href="../../../emulation/#BloqadeODE.SchrodingerProblem"><code>SchrodingerProblem</code></a> solver.</p><pre><code class="language-julia hljs">hamiltonian = rydberg_h(atoms; Ω=Ω, Δ=Δ)
 prob = SchrodingerProblem(zero_state(nqubits(hamiltonian)), T_max, hamiltonian)
 emulate!(prob)</code></pre><pre><code class="nohighlight hljs">SchrodingerProblem:
   register info:
@@ -663,9 +663,9 @@ nqubits: 13
     save_start: false
     save_on: false
     dense: false
-</code></pre><p>Finally, we can plot the most probable bitstrings by using [<code>bitstring_hist</code>]@(ref) for the resulting register (quantum state)</p><pre><code class="language-julia hljs">bitstring_hist(prob.reg; nlargest=20)</code></pre><p><img src="../950787268.svg" alt/></p><p>One can see the most probable several configurations indeed have size 4 by counting the number of ones. This correctness of the output can be verified by comparing it to the classical solution.</p><pre><code class="language-julia hljs">best_bit_strings = most_probable(prob.reg, 2)
+</code></pre><p>Finally, we can plot the most probable bitstrings by using the <a href="tutorials/qaoa/@ref"><code>bitstring_hist</code></a> function on the resulting register (quantum state).</p><pre><code class="language-julia hljs">bitstring_hist(prob.reg; nlargest=20)</code></pre><p><img src="../950787268.svg" alt/></p><p>We can see that some of the most probable configurations indeed have an independent set size 4 by counting the number of ones in the bitstring. The correctness of the output can be verified by comparing it to the classical solution.</p><pre><code class="language-julia hljs">best_bit_strings = most_probable(prob.reg, 2)
 all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), ConfigsMax())[]
-@assert all(bs-&gt;GenericTensorNetworks.StaticBitVector([bs...]) ∈ all_optimal_configs.c, best_bit_strings)</code></pre><p>We can also visualize these atoms and check them visually.</p><pre><code class="language-julia hljs">Bloqade.plot(atoms; colors=[iszero(b) ? &quot;white&quot; : &quot;black&quot; for b in best_bit_strings[1]])</code></pre><?xml version="1.0" encoding="UTF-8"?>
+@assert all(bs-&gt;GenericTensorNetworks.StaticBitVector([bs...]) ∈ all_optimal_configs.c, best_bit_strings)</code></pre><p>We can also visualize these atoms and check them visually.</p><pre><code class="language-julia hljs">Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? &quot;white&quot; : &quot;red&quot; for b in best_bit_strings[1]])</code></pre><?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
      version="1.2"
@@ -675,13 +675,13 @@ all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), Configs
      stroke-width="0.3"
      font-size="3.88"
 
-     id="img-d90d1fb7">
+     id="img-db061969">
 <defs>
   <marker id="arrow" markerWidth="15" markerHeight="7" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-d90d1fb7-1">
+<g fill="#000000" font-size="3.88" id="img-db061969-1">
   <g transform="translate(30.97,101.42)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -723,72 +723,164 @@ all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), Configs
     </g>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-d90d1fb7-2">
+<g stroke-width="0.93" stroke="#000000" id="img-db061969-2">
+  <g transform="translate(40.65,79.35)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,79.35)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(69.68,79.35)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,79.35)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,69.68)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,60)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(50.32,60)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,60)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,69.68)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(60,60)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(69.68,60)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,60)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,60)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(89.03,60)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,50.32)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(30.97,40.65)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,40.65)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,50.32)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,40.65)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(50.32,40.65)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,40.65)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,50.32)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(60,40.65)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(69.68,40.65)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,40.65)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,40.65)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(89.03,40.65)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,30.97)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(60,30.97)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,30.97)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.93" fill="#FF0000" stroke="#000000" id="img-db061969-3">
   <g transform="translate(89.03,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-d90d1fb7-3">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-db061969-4">
   <g transform="translate(69.68,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-d90d1fb7-4">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-db061969-5">
   <g transform="translate(50.32,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-d90d1fb7-5">
+<g stroke-width="0.93" fill="#FF0000" stroke="#000000" id="img-db061969-6">
   <g transform="translate(30.97,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-d90d1fb7-6">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-db061969-7">
   <g transform="translate(89.03,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-d90d1fb7-7">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-db061969-8">
   <g transform="translate(69.68,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-d90d1fb7-8">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-db061969-9">
   <g transform="translate(50.32,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-d90d1fb7-9">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-db061969-10">
   <g transform="translate(30.97,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-d90d1fb7-10">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-db061969-11">
   <g transform="translate(89.03,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-d90d1fb7-11">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-db061969-12">
   <g transform="translate(69.68,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-d90d1fb7-12">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-db061969-13">
   <g transform="translate(50.32,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-d90d1fb7-13">
+<g stroke-width="0.93" fill="#FF0000" stroke="#000000" id="img-db061969-14">
   <g transform="translate(69.68,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-d90d1fb7-14">
+<g stroke-width="0.93" fill="#FF0000" stroke="#000000" id="img-db061969-15">
   <g transform="translate(30.97,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="5.46" id="img-d90d1fb7-15">
+<g fill="#000000" font-size="5.46" id="img-db061969-16">
   <g transform="translate(30.97,89.03)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -1002,7 +1094,7 @@ amount2:1-d})};a.filter.invert.toString=function(){return this()};a.filter.brigh
 
 ]]> </script>
 </svg>
-<pre><code class="language-julia hljs">Bloqade.plot(atoms; colors=[iszero(b) ? &quot;white&quot; : &quot;black&quot; for b in best_bit_strings[2]])</code></pre><?xml version="1.0" encoding="UTF-8"?>
+<pre><code class="language-julia hljs">Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? &quot;white&quot; : &quot;red&quot; for b in best_bit_strings[2]])</code></pre><?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
      version="1.2"
@@ -1012,13 +1104,13 @@ amount2:1-d})};a.filter.invert.toString=function(){return this()};a.filter.brigh
      stroke-width="0.3"
      font-size="3.88"
 
-     id="img-e36275c7">
+     id="img-0f4646a7">
 <defs>
   <marker id="arrow" markerWidth="15" markerHeight="7" refX="5" refY="3.5" orient="auto" markerUnits="strokeWidth">
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-e36275c7-1">
+<g fill="#000000" font-size="3.88" id="img-0f4646a7-1">
   <g transform="translate(30.97,101.42)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -1060,72 +1152,164 @@ amount2:1-d})};a.filter.invert.toString=function(){return this()};a.filter.brigh
     </g>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-e36275c7-2">
+<g stroke-width="0.93" stroke="#000000" id="img-0f4646a7-2">
+  <g transform="translate(40.65,79.35)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,79.35)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(69.68,79.35)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,79.35)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,69.68)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,60)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(50.32,60)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,60)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,69.68)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(60,60)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(69.68,60)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,60)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,60)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(89.03,60)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,50.32)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(30.97,40.65)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,40.65)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,50.32)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,40.65)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(50.32,40.65)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(60,40.65)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,50.32)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(60,40.65)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(69.68,40.65)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,40.65)">
+    <path fill="none" d="M-9.68,9.68 L9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,40.65)">
+    <path fill="none" d="M9.68,9.68 L-9.68,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(89.03,40.65)">
+    <path fill="none" d="M0,9.68 L0,-9.68 " class="primitive"/>
+  </g>
+  <g transform="translate(40.65,30.97)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(60,30.97)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+  <g transform="translate(79.35,30.97)">
+    <path fill="none" d="M-9.68,0 L9.68,0 " class="primitive"/>
+  </g>
+</g>
+<g stroke-width="0.93" fill="#FF0000" stroke="#000000" id="img-0f4646a7-3">
   <g transform="translate(89.03,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e36275c7-3">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-0f4646a7-4">
   <g transform="translate(69.68,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e36275c7-4">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-0f4646a7-5">
   <g transform="translate(50.32,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-e36275c7-5">
+<g stroke-width="0.93" fill="#FF0000" stroke="#000000" id="img-0f4646a7-6">
   <g transform="translate(30.97,30.97)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e36275c7-6">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-0f4646a7-7">
   <g transform="translate(89.03,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e36275c7-7">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-0f4646a7-8">
   <g transform="translate(69.68,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e36275c7-8">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-0f4646a7-9">
   <g transform="translate(50.32,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e36275c7-9">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-0f4646a7-10">
   <g transform="translate(30.97,50.32)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-e36275c7-10">
+<g stroke-width="0.93" fill="#FF0000" stroke="#000000" id="img-0f4646a7-11">
   <g transform="translate(89.03,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e36275c7-11">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-0f4646a7-12">
   <g transform="translate(69.68,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e36275c7-12">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-0f4646a7-13">
   <g transform="translate(50.32,69.68)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-e36275c7-13">
+<g stroke-width="0.93" fill="#FFFFFF" stroke="#000000" id="img-0f4646a7-14">
   <g transform="translate(69.68,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.93" fill="#000000" stroke="#000000" id="img-e36275c7-14">
+<g stroke-width="0.93" fill="#FF0000" stroke="#000000" id="img-0f4646a7-15">
   <g transform="translate(30.97,89.03)">
     <circle cx="0" cy="0" r="4.65" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="5.46" id="img-e36275c7-15">
+<g fill="#000000" font-size="5.46" id="img-0f4646a7-16">
   <g transform="translate(30.97,89.03)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -1339,50 +1523,59 @@ amount2:1-d})};a.filter.invert.toString=function(){return this()};a.filter.brigh
 
 ]]> </script>
 </svg>
-<h2 id="QAOA-with-piecewise-constant-pulses"><a class="docs-heading-anchor" href="#QAOA-with-piecewise-constant-pulses">QAOA with piecewise constant pulses</a><a id="QAOA-with-piecewise-constant-pulses-1"></a><a class="docs-heading-anchor-permalink" href="#QAOA-with-piecewise-constant-pulses" title="Permalink"></a></h2><p>The QAOA algorithm (<a href="https://arxiv.org/abs/1411.4028">arxiv:1411.4028</a>) is a hybrid quantum-classical algorithm. The classical part of the algorithm is an optimizer, which can be either a gradient based or non-gradient based one. For our specific problem, the corresponding quantum part is a Rydberg atom system evolving under parameterized pulse sequences and finally got measured on the computational basis.</p><p>The standard definition of QAOA involves applying the problem (cost function) Hamiltonian <span>$C$</span> and the transverse field Hamiltonian <span>$B$</span> alternately. Let <span>$G=(V,E)$</span> be a graph, the hamiltonian for an MIS problem definite on it should be</p><p class="math-container">\[C(G, \sigma^z) = -\sum_{i\in V} w_i \sigma_i^z + \infty \sum_{\langle i,j\rangle \in E}\sigma_i^z \sigma_j^z\]</p><pre><code class="language-julia hljs">#where the first summation is proportional to the size of the independent set, while the second term enfores the independence constraints.</code></pre><p>In a Rydberg hamiltonian, the first term corresponds to the detuning <span>$\Delta$</span>. The second term contains an <span>$\infty$</span>, which corresponds to the Rydberg blockade term that its strength decreases very fast as distance: <span>$\propto |r_i - r_j|^{-6}$</span>. It is not a perfect independent constraint term, hence proprocessing might be required in a Rydberg atom array experiment.</p><p>The transverse field Hamiltonian corresponds to the Rabi term in a Rydberg atom array.</p><p class="math-container">\[B = \sum_{j=1}^{n}\sigma_j^x\]</p><p>For the convenience of simulation, we use the <a href="../../../registers/#YaoAPI.expect"><code>expect</code></a> function to get the averaged measurement output. In an experimental setup, the [<code>expect</code>] should be replaced by measuring on the computational basis and get the averaged number of Rydberg excitations as the loss function. Then one can either use non-gradient based optimizers to do the optimization or use finite difference obtain gradients of parameters.</p><p>Let us first set up a non-optimized pulse sequences for QAOA with step <span>$p=3$</span>.</p><pre><code class="language-julia hljs">durations = [0.1, 0.5, 0.3, 0.3, 0.2, 0.4]
+<h2 id="QAOA-with-Piecewise-Constant-Pulses"><a class="docs-heading-anchor" href="#QAOA-with-Piecewise-Constant-Pulses">QAOA with Piecewise Constant Pulses</a><a id="QAOA-with-Piecewise-Constant-Pulses-1"></a><a class="docs-heading-anchor-permalink" href="#QAOA-with-Piecewise-Constant-Pulses" title="Permalink"></a></h2><p>The QAOA algorithm (<a href="https://arxiv.org/abs/1411.4028">arxiv:1411.4028</a>) is a hybrid quantum-classical algorithm. The classical part of the algorithm is an optimizer, which can be either a gradient-based or non-gradient-based one. For our specific problem, the corresponding quantum part is a neutral-atom quantum computer first evolving under the Rydberg Hamiltonian with parameterized pulse sequences and then being measured in the computational basis.</p><p>The standard definition of QAOA involves applying the problem (cost function) Hamiltonian <span>$C$</span> and the transverse field Hamiltonian <span>$B$</span> alternately. Let <span>$G=(V,E)$</span> be a graph. The cost Hamiltonian for an MIS problem can be defined as</p><p class="math-container">\[C(G) = -\sum_{j\in V}^{n} w_j n_j^z + \infty \sum_{\langle j,k\rangle \in E}n_j^z n_k^z\]</p><p>where the first summation is proportional to the size of the independent set, and the second term enforces the independence constraints.</p><p>In a Rydberg Hamiltonian, the first term corresponds to the detuning <span>$w_i = \Delta$</span>. The second term contains an <span>$\infty$</span>, which corresponds to the Rydberg blockade term with its strength described as <span>$V_{jk} = C_6/|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|^6$</span>. As we can see, the Rydberg interaction is not a perfect independence constraint (with finite blockade interaction and unwanted long-rance interaction). Thus, postprocessing might be required using neutral-atom quantum computers to solve the MIS problem.</p><p>The transverse field Hamiltonian corresponds to the Rabi term in the Rydberg Hamiltonian,</p><p class="math-container">\[B = \sum_{j=1}^{n}\sigma_j^x + \infty \sum_{\langle j,k\rangle \in E}n_j^z n_k^z.\]</p><p>Note that the Rybderg interaction term is always on here in contrast to the standard QAOA protocol. For the convenience of the simulation, we use the <a href="../../../registers/#YaoAPI.expect"><code>expect</code></a> function to get the averaged measurement outputs. On the actual quantum hardware, the <code>expect</code> should be replaced by measuring in the computational basis and obtaining the averaged number of Rydberg excitations as the loss function (also called objective function or cost function). One can then either use non-gradient-based optimizers to perform the optimization or use finite-difference methods to obtain gradients of parameters.</p><p>Let us first set up a non-optimized pulse sequences for QAOA with step <span>$p=3$</span>.</p><pre><code class="language-julia hljs">durations = [0.1, 0.5, 0.3, 0.3, 0.2, 0.4]
 clocks = [0, cumsum(durations)...]
 Ω2 = piecewise_constant(; clocks=clocks, values=repeat([Ω_max, 0.0], 3))
 Δ2 = piecewise_constant(; clocks=clocks, values=repeat([0.0, Δ_end], 3))
 
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-Bloqade.plot!(ax1, Ω2/2π)
+Bloqade.plot!(ax1, Ω2)
 ax1.set_ylabel(&quot;Ω/2π (MHz)&quot;)
-Bloqade.plot!(ax2, Δ2/2π)
+Bloqade.plot!(ax2, Δ2)
 ax2.set_ylabel(&quot;Δ/2π (MHz)&quot;)
-fig</code></pre><p><img src="../2545335122.svg" alt/></p><p><code>piecewise_constant</code> pulses can be more accurately solved with the <a href="../../../emulation/#BloqadeKrylov.KrylovEvolution"><code>KrylovEvolution</code></a> solver.</p><pre><code class="language-julia hljs">hamiltonian2 = rydberg_h(atoms; Ω=Ω2, Δ=Δ2)
-nbits = length(atoms)
-prob2 = KrylovEvolution(zero_state(nbits), clocks, hamiltonian)
-emulate!(prob2);</code></pre><p>We defined a loss function as the mean MIS size, which corresponds to the expectation value of <a href="../../../hamiltonians/#BloqadeExpr.SumOfN"><code>SumOfN</code></a> operator. Then we can calculate the average loss function after the time evolution</p><pre><code class="language-julia hljs">loss_MIS(reg) = -real(expect(SumOfN(nsites=nbits), reg))
-loss_MIS(prob2.reg)</code></pre><pre><code class="nohighlight hljs">-3.4271973821517623</code></pre><p>The ouput shows the negative mean independent set size. This is because  we have flipped its sign since most optimizers are set to minimize the the loss function. This loss is equivalent to <a href="tutorials/qaoa/@ref"><code>mean_rydberg</code></a> loss in <a href="tutorials/qaoa/@ref"><code>BloqadeMIS</code></a> module, alternative loss functions include <a href="../../../mis/#BloqadeMIS.gibbs_loss-Tuple{Any, Real}"><code>gibbs_loss</code></a> and <a href="../../../mis/#BloqadeMIS.independent_set_probabilities"><code>independent_set_probabilities</code></a>.</p><p>Here, the loss does not look good, we can throw it into an optimizer and see if a classical optimizer can help. But first, let us wrap up the above code into a loss function.</p><pre><code class="language-julia hljs">function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
+fig</code></pre><p><img src="../3263482881.svg" alt/></p><p>The <code>piecewise_constant</code> pulses can be more accurately simulated with the <a href="../../../emulation/#BloqadeKrylov.KrylovEvolution"><code>KrylovEvolution</code></a> solver.</p><pre><code class="language-julia hljs">hamiltonian2 = rydberg_h(atoms; Ω=Ω2, Δ=Δ2)
+nsites = length(atoms)
+prob2 = KrylovEvolution(zero_state(nsites), clocks, hamiltonian)
+emulate!(prob2);</code></pre><p>We defined the loss function as the negative of the mean MIS size, which corresponds to the expectation value of the <a href="../../../hamiltonians/#BloqadeExpr.SumOfN"><code>SumOfN</code></a> operator. Thus, we can calculate the average loss function after the time evolution</p><pre><code class="language-julia hljs">loss_MIS(reg) = -real(expect(SumOfN(nsites=nsites), reg))
+loss_MIS(prob2.reg)</code></pre><pre><code class="nohighlight hljs">-3.427197382152446</code></pre><p>The ouput shows the negative mean independent set size. This is because we have flipped its sign since most optimizers are set to minimize the loss function. This loss is equivalent to the <a href="../../../mis/#BloqadeMIS.rydberg_density_sum"><code>rydberg_density_sum</code></a> loss function in the <a href="tutorials/qaoa/@ref"><code>BloqadeMIS</code></a> module. Alternative loss functions include the <a href="../../../mis/#BloqadeMIS.gibbs_loss-Tuple{Any, Real}"><code>gibbs_loss</code></a> and the <a href="../../../mis/#BloqadeMIS.independent_set_probabilities"><code>independent_set_probabilities</code></a>.</p><p>Here, the loss produced by these pulse sequences does not look very good. We can throw it into an optimizer and see if a classical optimizer can help. First, let us wrap up the above code into a loss function.</p><pre><code class="language-julia hljs">function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) % 2 == 0
     Ω_max = 4 * 2π
     Δ_end = 11 * 2π
     p = length(x)÷2
+
     # detuning and rabi terms
-    durations = abs.(x)   # the durations of each layer of QAOA pulse take the optimizing vector x as their input
+    durations = abs.(x)   # the durations of each layer of the QAOA pulse take the optimizing vector x as their input
     clocks = [0, cumsum(durations)...]
     Ωs = piecewise_constant(; clocks=clocks, values=repeat(T[Ω_max, 0.0], p))
     Δs = piecewise_constant(; clocks=clocks, values=repeat(T[0.0, Δ_end], p))
 
     hamiltonian = rydberg_h(atoms; Ω=Ωs, Δ=Δs)
-    subspace = blockade_subspace(atoms, 7.5)  # we run our emulation within the blockade subspace
+    subspace = blockade_subspace(atoms, 7.5)  # we run our simulation within the blockade subspace
     prob = KrylovEvolution(zero_state(Complex{T}, subspace), clocks, hamiltonian)
     emulate!(prob)
     return -rydberg_density_sum(prob.reg), prob.reg
-end</code></pre><pre><code class="nohighlight hljs">loss_piecewise_constant (generic function with 1 method)</code></pre><p>!!!note     Running the emulation in subspace does not violate the independence constraints.     In practice, one needs to post-process the measured bit strings to a get a correct measure of loss. Related APIs include <a href="../../../mis/#BloqadeMIS.is_independent_set-Tuple{Any, Graphs.AbstractGraph}"><code>is_independent_set</code></a>, <a href="tutorials/qaoa/@ref"><code>num_mis_violation</code></a> and <a href="../../../mis/#BloqadeMIS.mis_postprocessing-Tuple{Any, Graphs.AbstractGraph}"><code>mis_postprocessing</code></a>.</p><p>Let us check the loss function by using a random input</p><pre><code class="language-julia hljs">x0 = (Random.seed!(2); rand(6))
-mean_mis, reg0 = loss_piecewise_constant(atoms, x0)
-mean_mis</code></pre><pre><code class="nohighlight hljs">-2.5269872294317963</code></pre><p>The most probable bitstrings are</p><pre><code class="language-julia hljs">bitstring_hist(reg0; nlargest=20)</code></pre><p><img src="../3042575259.svg" alt/></p><p>We see that, without optimization, many of these bitstrings are not the MIS solutions.</p><p>Let us now use the non-gradient based optimizer <code>NelderMead</code> in the <code>Optim</code> package to optimize the loss</p><pre><code class="language-julia hljs">optresult = Optim.optimize(x-&gt;loss_piecewise_constant(atoms, x)[1], x0)
+end</code></pre><pre><code class="nohighlight hljs">loss_piecewise_constant (generic function with 1 method)</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Running the simulation in the subspace does not violate the independence constraints. In practice, one may need to post-process the measured bit strings to a get a correct measure of the loss, if we don&#39;t set the blockade constraint. Related APIs include <a href="../../../mis/#BloqadeMIS.is_independent_set-Tuple{Any, Graphs.AbstractGraph}"><code>is_independent_set</code></a>, <a href="tutorials/qaoa/@ref"><code>num_mis_violation</code></a>, and <a href="../../../mis/#BloqadeMIS.mis_postprocessing-Tuple{Any, Graphs.AbstractGraph}"><code>mis_postprocessing</code></a>.</p></div></div><p>Let us check the loss function by using a random input</p><pre><code class="language-julia hljs">x0 = (Random.seed!(2); rand(6))
+rydberg_density, reg0 = loss_piecewise_constant(atoms, x0)
+rydberg_density</code></pre><pre><code class="nohighlight hljs">-2.526987229433377</code></pre><p>The most probable bitstrings are</p><pre><code class="language-julia hljs">bitstring_hist(reg0; nlargest=20)</code></pre><p><img src="../3042575259.svg" alt/></p><p>We see that, without optimization, many of these bitstrings are not the MIS solutions.</p><p>Let us now use the non-gradient-based optimizer <code>NelderMead</code> in the <code>Optim</code> package to optimize the loss</p><pre><code class="language-julia hljs">optresult = Optim.optimize(x-&gt;loss_piecewise_constant(atoms, x)[1], x0)
 
-mean_mis_final, reg_final = loss_piecewise_constant(atoms, optresult.minimizer)
-mean_mis_final</code></pre><pre><code class="nohighlight hljs">-2.8479440137341894</code></pre><p>We see that the loss is indeed decreased, but not much. This is probably because the program is trapped in a local minimal.</p><pre><code class="language-julia hljs">bitstring_hist(reg_final; nlargest=20)</code></pre><p><img src="../2987867560.svg" alt/></p><p>The good thing is that the most probable bitstring now converge to the solutions of MIS.</p><p>To better solve the local minimal issue, below we try  a set of different optimizations by parameterizing the curve using smoothen piecewise linear waveforms.</p><h2 id="Smoothen-Piecewise-linear-pulses"><a class="docs-heading-anchor" href="#Smoothen-Piecewise-linear-pulses">Smoothen Piecewise linear pulses</a><a id="Smoothen-Piecewise-linear-pulses-1"></a><a class="docs-heading-anchor-permalink" href="#Smoothen-Piecewise-linear-pulses" title="Permalink"></a></h2><p>A smoothen piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the [<code>piecewise_linear</code>] function.</p><pre><code class="language-julia hljs">smoothen_curve = smooth(piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.1);
-Bloqade.plot(smoothen_curve)</code></pre><p><img src="../1816832363.svg" alt/></p><p>Here, the function <a href="../../../waveform/#BloqadeWaveforms.smooth"><code>smooth</code></a> takes a <code>kernel_radius</code> keyword parameter as the Gaussian kernel parameter. With the new waveform, we can define the loss as follows.</p><pre><code class="language-julia hljs">function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
+rydberg_density_final, reg_final = loss_piecewise_constant(atoms, optresult.minimizer)
+rydberg_density_final</code></pre><pre><code class="nohighlight hljs">-2.8479440137341503</code></pre><p>We see that the loss is indeed decreased, but not by much. This is likely because the optimization is trapped in a local minimum.</p><pre><code class="language-julia hljs">bitstring_hist(reg_final; nlargest=20)</code></pre><p><img src="../2987867560.svg" alt/></p><p>This example shows that the performance of the algorithm very much depends on the parametrization of the pulse sequences, the initialization of the variational parameters, and the classical optimizers. See <a href="https://arxiv.org/abs/2202.09372">S. Ebadi, et al.</a> for more in-depth comparison of different pulse parametrizations and tips on how to improve the performance.</p><p>In the example below, we show a better pulse parametrization using smoothened piecewise linear waveforms.</p><h2 id="Smoothened-Piecewise-Linear-Pulses"><a class="docs-heading-anchor" href="#Smoothened-Piecewise-Linear-Pulses">Smoothened Piecewise Linear Pulses</a><a id="Smoothened-Piecewise-Linear-Pulses-1"></a><a class="docs-heading-anchor-permalink" href="#Smoothened-Piecewise-Linear-Pulses" title="Permalink"></a></h2><p>A smoothened piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the <code>piecewise_linear</code> function. For example,</p><pre><code class="language-julia hljs">Ω_piecewise_linear = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]);
+Ω_smooth = smooth(Ω_piecewise_linear; kernel_radius=0.1);
+
+fig, ax = plt.subplots()
+Bloqade.plot!(ax, Ω_piecewise_linear)
+Bloqade.plot!(ax, Ω_smooth)
+ax.set_ylabel(&quot;Ω/2π (MHz)&quot;)
+ax.legend([&quot;piecewise linear&quot;, &quot;smoothened piecewise linear&quot;], loc =&quot;lower right&quot;)
+fig</code></pre><p><img src="../3116119498.svg" alt/></p><p>Here, the function <a href="../../../waveform/#BloqadeWaveforms.smooth"><code>smooth</code></a> takes a <code>kernel_radius</code> keyword parameter as the Gaussian kernel parameter. With the new waveforms, we can define the loss function as follows.</p><pre><code class="language-julia hljs">function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) == 3
     Ω_max = 4 * 2π
     Δ_start = -13 * 2π
     Δ_end = 11 * 2π
     Δ0 = 11 * 2π
     T_max = 0.6
-    # the strength of the detunings in each step takes the optimizing x as their input
+
+    # the strength of the detunings at each step takes the optimizing x as their input
     Δs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=T[Δ_start, Δ_start, Δ0*x[1], Δ0*x[2], Δ0*x[3], Δ_end, Δ_end]); kernel_radius=0.1)
     Ωs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.5, T_max], values=T[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.05)
 
@@ -1393,12 +1586,26 @@ Bloqade.plot(smoothen_curve)</code></pre><p><img src="../1816832363.svg" alt/></
     return -rydberg_density_sum(prob.reg), prob.reg, Δs
 end
 
-x0 = [0.1, 0.8, 0.8]</code></pre><pre><code class="nohighlight hljs">3-element Vector{Float64}:
- 0.1
- 0.8
- 0.8</code></pre><p>Let us check the loss function</p><pre><code class="language-julia hljs">mean_mis, reg0, Δ_initial = loss_piecewise_linear(atoms, x0)
-Bloqade.plot(Δ_initial)
-mean_mis</code></pre><pre><code class="nohighlight hljs">-3.8967671107238795</code></pre><p>If we plot the distribution</p><pre><code class="language-julia hljs">bitstring_hist(reg0; nlargest=20)</code></pre><p><img src="../3042575259.svg" alt/></p><p>It is quite good already. Again, let us use the <code>NelderMead</code> optimizer to optimize the loss</p><pre><code class="language-julia hljs">optresult = Optim.optimize(x-&gt;loss_piecewise_linear(atoms, x)[1], x0)
+x0 = [0.1, 0.8, 0.8]; # initial point for the optimization</code></pre><p>Let us check the loss function with smoothened waveform with the initial point</p><pre><code class="language-julia hljs">Δ_start = -13 * 2π
+Δ_end = 11 * 2π
+Δ0 = 11 * 2π
+T_max = 0.6
+Δ_initial = piecewise_linear(clocks=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=[Δ_start, Δ_start, Δ0*x0[1], Δ0*x0[2], Δ0*x0[3], Δ_end, Δ_end])
 
-mean_mis_final, reg_final, Δ_final = loss_piecewise_linear(atoms, optresult.minimizer)
-mean_mis_final</code></pre><pre><code class="nohighlight hljs">-3.9419078253111506</code></pre><p>One can see the mean MIS size can be further improved to a value close to optimal value of MIS solution.</p><pre><code class="language-julia hljs">bitstring_hist(reg_final; nlargest=20)</code></pre><p><img src="../2987867560.svg" alt/></p><p>We can also plot out the final optimized waveform for Δ</p><pre><code class="language-julia hljs">Bloqade.plot(Δ_final)</code></pre><p><img src="../2193654699.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../noise/main/">« Adiabatic Preparation with Sensitivity Analysis</a><a class="docs-footer-nextpage" href="../../quantum-scar/main/">Quantum Scar »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.16 on <span class="colophon-date" title="Monday 25 April 2022 14:13">Monday 25 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+rydberg_density, reg0, Δ_initial_smooth = loss_piecewise_linear(atoms, x0)
+rydberg_density
+
+fig, ax = plt.subplots()
+Bloqade.plot!(ax, Δ_initial)
+Bloqade.plot!(ax, Δ_initial_smooth)
+ax.set_ylabel(&quot;Δ/2π (MHz)&quot;)
+ax.legend([&quot;piecewise linear&quot;, &quot;smoothened piecewise linear&quot;], loc =&quot;lower right&quot;)
+fig</code></pre><p><img src="../3634091198.svg" alt/></p><p>Let&#39;s plot the distribution</p><pre><code class="language-julia hljs">bitstring_hist(reg0; nlargest=20)</code></pre><p><img src="../3042575259.svg" alt/></p><p>The performance of the algorithm is quite good. Again, let us use the <code>NelderMead</code> optimizer to optimize the loss function.</p><pre><code class="language-julia hljs">optresult = Optim.optimize(x-&gt;loss_piecewise_linear(atoms, x)[1], x0)
+
+rydberg_density_final, reg_final, Δ_final = loss_piecewise_linear(atoms, optresult.minimizer)
+rydberg_density_final</code></pre><pre><code class="nohighlight hljs">-3.9419078253111506</code></pre><p>One can see the mean MIS size can be further improved to a value close to the size of the MIS, which means there is a substantial probability for measuring an MIS state.</p><pre><code class="language-julia hljs">bitstring_hist(reg_final; nlargest=20)</code></pre><p><img src="../2987867560.svg" alt/></p><p>We can also plot out the final optimized waveform for Δ and compare with the initial waveform</p><pre><code class="language-julia hljs">fig, ax = plt.subplots()
+Bloqade.plot!(ax, Δ_initial_smooth)
+Bloqade.plot!(ax, Δ_final)
+ax.set_ylabel(&quot;Δ/2π (MHz)&quot;)
+ax.legend([&quot;initial&quot;, &quot;optimized&quot;], loc =&quot;lower right&quot;)
+fig</code></pre><p><img src="../2891456198.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../noise/main/">« Adiabatic Preparation with Sensitivity Analysis</a><a class="docs-footer-nextpage" href="../../quantum-scar/main/">Quantum Scar »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.16 on <span class="colophon-date" title="Monday 25 April 2022 14:14">Monday 25 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

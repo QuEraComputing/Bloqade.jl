@@ -34,7 +34,7 @@ weights = [rand() for i = 1:nv(g)];
 # We can solve the MWIS problem classically for this graph
 # using the [GraphTensorNetworks](https://github.com/QuEraComputing/GenericTensorNetworks.jl) package. 
 # The MWIS is shown in red.
-configs_mapped = solve(IndependentSet(g; weights= weights), ConfigsMax())[]
+configs_mapped = GenericTensorNetworks.solve(IndependentSet(g; weights= weights), ConfigsMax())[]
 MIS_config = configs_mapped.c[1]
 show_graph(g; locs = locs, vertex_colors=
           [iszero(MIS_config[i]) ? "white" : "red" for i=1:nv(g)])

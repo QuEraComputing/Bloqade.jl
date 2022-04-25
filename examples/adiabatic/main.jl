@@ -23,7 +23,7 @@ using PythonCall
 using KrylovKit
 using SparseArrays
 
-plt = pyimport("matplotlib.pyplot")
+plt = pyimport("matplotlib.pyplot");
 
 # # Ground state properties
 
@@ -85,7 +85,7 @@ order_para = map(1: Δ_step) do ii
 end
 
 fig, ax = plt.subplots(figsize = (10,4))
-ax.plot(Δ/2π, order_para)
+ax.plot(Δ, order_para)
 ax.set_xlabel("Δ/2π (MHz) ")
 ax.set_ylabel("Order parameter")
 fig
@@ -110,9 +110,9 @@ U2 = 2π * 10;
     
 # We plot the two waveforms:
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-Bloqade.plot!(ax1, Ω/2π)
+Bloqade.plot!(ax1, Ω)
 ax1.set_ylabel("Ω/2π (MHz)")
-Bloqade.plot!(ax2, Δ/2π)
+Bloqade.plot!(ax2, Δ)
 ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
@@ -199,10 +199,10 @@ U = 2π * 15.0
 Δ = piecewise_linear(clocks=[0.0, 0.3, 2.6, total_time], values=[-U, -U, U , U]);
 
 fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(10, 4))
-Bloqade.plot!(ax1, Ω/2π)
-ax1.set_ylabel("Ω/2π MHz")
-Bloqade.plot!(ax2, Δ/2π)
-ax2.set_ylabel("Δ/2π MHz")
+Bloqade.plot!(ax1, Ω)
+ax1.set_ylabel("Ω/2π (MHz)")
+Bloqade.plot!(ax2, Δ)
+ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
 # Then we use the above waveforms and atom sites to create a Hamiltonian and define a time evolution problem

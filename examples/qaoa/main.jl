@@ -2,12 +2,30 @@
 
 # ## Background
 
-# In graph theory, an [independent set](https://en.wikipedia.org/wiki/Independent_set_(graph_theory)) is a set of vertices in a graph, no two of which are adjacent.
-# The problem of finding maximum independent sets (MIS) is NP-hard, i.e. unlikely to be solved in polynomial time for a large system size.
-# In this tutorial we study the MIS problem defined on diagonal-coupled unit-disk grid graphs (DUGG).  Although these graphs have highly constraint topology, finding its MISs is still NP-hard.
-# Recent studies show that these graphs can be naturally mapped to the Rydberg atom system with strong blockade interactions (see [arxiv:1808.10816](https://arxiv.org/abs/1808.10816). 
-# In this tutorial, we show how to using variational quantum algorithms on Rydberg atom arrays to solve the MIS problem on these graphs.
-# For those who wants to know more details, we highly recommend to connect this tutorial with the recent experiment [arxiv:2202.09372](https://arxiv.org/abs/2202.09372).
+# In graph theory, an independent set is a set of vertices in a graph such that no two of which are connected by an edge.
+# The problem of finding maximum independent sets (MIS) is NP-hard, i.e., it is unlikely to be solved in a time polynomial to the problem size.
+# Interestingly, there is a natural connection between the independent set constraint,
+# and the [Rydberg Blockade](@ref blockade) phenomenon in neutral-atom quantum computing using Rydberg states. 
+# More specifically, Rydberg blockade implies that two atoms cannot be both excited to the Rydberg state ``|r\rangle`` if they are close to each other, 
+# whereas independent set constraint means two vertices cannot be both in the independent set when they are connected by an edge.
+# Thus, one can consider atoms in the Rydberg state as vertices in an independent set. See the proposal in [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf) for more details. 
+
+# In particular, one can use the ground state of the [Rydberg Hamiltonian](@ref Hamiltonians) to encode the [maximum independent set problem](https://en.wikipedia.org/wiki/Independent_set_(graph_theory)), 
+# which is to find the largest independent set of a given graph. 
+# For a particular subclass of geometric graphs, the so-called unit disk graphs, 
+# the Rydberg Hamiltonian can encode the solution without any overhead in the number of qubits. 
+# In fact, an experimental demonstration of quantum optimization has been realized in solving the maximum independent set problem up to 289 qubits in [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372).
+
+# In this tutorial, we show how to solve the MIS problem using Bloqade.
+# We focus on a particular subclass of unit disk graphs defined as diagonal-connected unit-disk grid graphs (DUGG).
+# This is the class of graphs studied in the demonstration experiment [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372).
+# Although these graphs have highly constraint topologies, finding its MISs is still NP-hard.
+# Here, we show how to use variational quantum algorithms with Rydberg Hamiltonians to solve the MIS problem on these graphs.
+# The tutorial here strongly resembles the setup in [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372),
+# but, unsurprisingly, Bloqade can only simulate a much smaller problem.
+
+# For more details on the functionalities supported by Bloqade in studying independent set problems,
+# please refer to the [MIS manual](@ref mis) page. 
 
 # Let's start by importing the required libraries:
 
@@ -18,37 +36,42 @@ using Random
 using GenericTensorNetworks
 using Optim
 using PythonCall
-plt = pyimport("matplotlib.pyplot")
+plt = pyimport("matplotlib.pyplot");
 
-# # Set up the problem
+# ## Setting Up the Problem
 
-# To begin with, we create a ``4*4`` DUGG with 0.8 filling, by using the [`random_dropout`](@ref) function. Here we choose the lattice constant ``a`` to be 4.5 ``\mu m``. 
+# To begin, we create a ``4*4`` DUGG with 0.8 filling, by using the [`random_dropout`](@ref) function. 
+# Here, we choose the lattice constant ``a`` to be 4.5 μm. 
 Random.seed!(2)
 atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |> random_dropout(0.2)
 
-# Then we set the blockade radius to be 7.5 ``\mu m``. In such a case,  if two atoms have a distance of ``a`` or ``\sqrt{2} a``, they are within the blockade radius. 
-# As we discussed in [Rydberg Blockade](@ref), there is only one Rydberg excitation is allowed within the blockade radius.  To better illustrate the constraint, we 
-# plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the strong Rydberg interactions. 
+# Next, we set the blockade radius to be 7.5 μm, 
+# corresponding to a case where nearest neighbors and next-nearest neighbors (diagonal) are within the blockade radius.
+# As we discussed in [Rydberg Blockade](@ref), only one Rydberg excitation is allowed within the blockade radius.  
+# To better illustrate this constraint, we 
+# plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the blockade radius. 
 Bloqade.plot(atoms, blockade_radius=7.5)
-# Our goal is to find a the maximum independent sets of such a graph. 
 
+# Our goal is to find a maximum independent set of such a graph.
 
-# For the pedagogical purpose, we first calculate the MIS size here using the graph utilities in Bloqade so that a user can compare this exact result with the quantum one.
-# The exact MIS size and its degeneracy can be solved with the generic tensor network algorithm in package [`GenericTensorNetworks`](https://github.com/QuEraComputing/GenericTensorNetworks.jl).
+# For comparison, we first use classical algorithms to calculate the MIS size here using the graph utilities in Bloqade, 
+# so that one can compare this exact result with the quantum algorithms.
+# The exact MIS size and its degeneracy can be solved with the generic tensor network algorithm in the package [`GenericTensorNetworks`](https://github.com/QuEraComputing/GenericTensorNetworks.jl).
 graph = BloqadeMIS.unit_disk_graph(atoms, 7.5)
 mis_size_and_counting = GenericTensorNetworks.solve(IndependentSet(graph), CountingMax())[]
 
 # The `solve` function takes a graph instance and a solution space property as inputs,
-# where the graph instance is generated by the [`unit_disk_graph`](@ref) function in module `BloqadeMIS`.
-# For this specific DUGG, we see that the MIS size is 4, and the function also outputs number of independent sets of such size.
-# In the following, we are going to solve the independent set problem with both adiabatic and variational algorithms.
+# where the graph instance is generated by the [`unit_disk_graph`](@ref) function in the module `BloqadeMIS`,
+# and the solution space property is to count the number of maximum independent sets here.
+# For this specific DUGG, we see that the MIS size is 4, and the number of maximum independent sets is 26.
+# In the following, we are going to show how to solve the independent set problem with both quantum adiabatic and variational algorithms.
 
 
+# ## The Adiabatic Approach
 
-# ## The adiabatic approach
-
-# Here we generalize the adiabatic algorithm we used in [Adiabatic Evolution](@ref) to prepare ground states for this disordered lattice. 
-# We first construct the adiabatic pulse sequences for Rabi frequency ``\Omega`` and detuning ``\Delta``.
+# Here, we generalize the quantum adiabatic algorithm used in 
+# the tutorial [Adiabatic Evolution](@ref) to prepare ground states of the Rydberg Hamiltonian for this disordered lattice.
+# We first construct the adiabatic pulse sequences for the Rabi frequency ``\Omega`` and the detuning ``\Delta``.
 
 T_max = 1.65
 Ω_max = 2π *4
@@ -58,9 +81,9 @@ T_max = 1.65
 Δ = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[Δ_start, Δ_start, Δ_end, Δ_end])
 
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-Bloqade.plot!(ax1, Ω/2π)
+Bloqade.plot!(ax1, Ω)
 ax1.set_ylabel("Ω/2π (MHz)")
-Bloqade.plot!(ax2, Δ/2π)
+Bloqade.plot!(ax2, Δ)
 ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
@@ -70,62 +93,68 @@ fig
 # ```math
 # C_6 / R_b^6 \sim \sqrt{\Delta^2 + \Omega^2}
 # ```
-# For the default ``C_6=2π * 862690 * MHz*µm^6`` and ``\Omega = 0``, if we want to set the the blockade radius to be ``7.5\mu m``, the corresponding 
-# detuning is ``2\pi \times \sim 11  MHz`` (see the parameter in [arxiv:2202.09372](https://arxiv.org/abs/2202.09372)). This is the reason why we have chosen 
-# ``Δ_end =  2π *11 MHz``. 
+# The default ``C_6=2π * 862690 \text{MHz μm}^6``.
+# For encoding the corresponding MIS problem at ``\Omega = 0``, 
+# the detuning can be set around ``2\pi \times 11`` MHz 
+# for a blockade radius of ``7.5`` µm
+# (see the parameters in [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372)).
 
-
-# Then we create the time-dependent Hamiltonian and emulate its time evolution by using the [`SchrodingerProblem`](@ref) solver.
+# Next, we create the time-dependent Hamiltonian and simulate its time evolution by using the [`SchrodingerProblem`](@ref) solver.
 
 hamiltonian = rydberg_h(atoms; Ω=Ω, Δ=Δ)
 prob = SchrodingerProblem(zero_state(nqubits(hamiltonian)), T_max, hamiltonian)
 emulate!(prob)
 
-# Finally, we can plot the most probable bitstrings by using [`bitstring_hist`]@(ref) for the resulting register (quantum state)
+# Finally, we can plot the most probable bitstrings by using the [`bitstring_hist`](@ref) function on the resulting register (quantum state).
 bitstring_hist(prob.reg; nlargest=20)
 
-# One can see the most probable several configurations indeed have size 4 by counting the number of ones.
-# This correctness of the output can be verified by comparing it to the classical solution.
+# We can see that some of the most probable configurations indeed have an independent set size 4 by counting the number of ones in the bitstring.
+# The correctness of the output can be verified by comparing it to the classical solution.
 
 best_bit_strings = most_probable(prob.reg, 2)
 all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), ConfigsMax())[]
 @assert all(bs->GenericTensorNetworks.StaticBitVector([bs...]) ∈ all_optimal_configs.c, best_bit_strings)
 
 # We can also visualize these atoms and check them visually.
-Bloqade.plot(atoms; colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[1]])
+Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? "white" : "red" for b in best_bit_strings[1]])
 #
-Bloqade.plot(atoms; colors=[iszero(b) ? "white" : "black" for b in best_bit_strings[2]])
+Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? "white" : "red" for b in best_bit_strings[2]])
 
 
-
-
-# ## QAOA with piecewise constant pulses
-# The QAOA algorithm ([arxiv:1411.4028](https://arxiv.org/abs/1411.4028)) is a hybrid quantum-classical algorithm. The classical part of the algorithm is an optimizer, which can be either a gradient based or non-gradient based one.
-# For our specific problem, the corresponding quantum part is a Rydberg atom system evolving under parameterized pulse sequences and finally got measured on the computational basis.
-
+# ## QAOA with Piecewise Constant Pulses
+# The QAOA algorithm ([arxiv:1411.4028](https://arxiv.org/abs/1411.4028)) is a hybrid quantum-classical algorithm. 
+# The classical part of the algorithm is an optimizer, which can be either a gradient-based or non-gradient-based one.
+# For our specific problem, the corresponding quantum part is a neutral-atom quantum computer 
+# first evolving under the Rydberg Hamiltonian with parameterized pulse sequences and then being measured in the computational basis.
 
 # The standard definition of QAOA involves applying the problem (cost function) Hamiltonian ``C`` and the transverse field Hamiltonian ``B`` alternately.
-# Let ``G=(V,E)`` be a graph, the hamiltonian for an MIS problem definite on it should be
+# Let ``G=(V,E)`` be a graph. The cost Hamiltonian for an MIS problem can be defined as 
 # ```math
-# C(G, \sigma^z) = -\sum_{i\in V} w_i \sigma_i^z + \infty \sum_{\langle i,j\rangle \in E}\sigma_i^z \sigma_j^z
+# C(G) = -\sum_{j\in V}^{n} w_j n_j^z + \infty \sum_{\langle j,k\rangle \in E}n_j^z n_k^z
 # ```
-#where the first summation is proportional to the size of the independent set, while the second term enfores the independence constraints.
+# where the first summation is proportional to the size of the independent set, 
+# and the second term enforces the independence constraints.
 
-
-# In a Rydberg hamiltonian, the first term corresponds to the detuning ``\Delta``.
-# The second term contains an ``\infty``, which corresponds to the Rydberg blockade term that its strength decreases very fast as distance: ``\propto |r_i - r_j|^{-6}``.
-# It is not a perfect independent constraint term, hence proprocessing might be required in a Rydberg atom array experiment.
+# In a Rydberg Hamiltonian, the first term corresponds to the detuning ``w_i = \Delta``.
+# The second term contains an ``\infty``, which corresponds to the Rydberg blockade term 
+# with its strength described as ``V_{jk} = C_6/|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|^6``.
+# As we can see, the Rydberg interaction is not a perfect independence constraint (with finite blockade interaction and unwanted long-rance interaction). 
+# Thus, postprocessing might be required using neutral-atom quantum computers to solve the MIS problem.
 #
-# The transverse field Hamiltonian corresponds to the Rabi term in a Rydberg atom array.
+# The transverse field Hamiltonian corresponds to the Rabi term in the Rydberg Hamiltonian,
 # ```math
-# B = \sum_{j=1}^{n}\sigma_j^x
+# B = \sum_{j=1}^{n}\sigma_j^x + \infty \sum_{\langle j,k\rangle \in E}n_j^z n_k^z.
 # ```
 
-# For the convenience of simulation, we use the [`expect`](@ref) function to get the averaged measurement output. 
-# In an experimental setup, the [`expect`] should be replaced by measuring on the computational basis and get the averaged number of Rydberg excitations as the loss function.
-# Then one can either use non-gradient based optimizers to do the optimization or use finite difference obtain gradients of parameters.
+# Note that the Rybderg interaction term is always on here 
+# in contrast to the standard QAOA protocol. 
+# For the convenience of the simulation, we use the [`expect`](@ref) function to get the averaged measurement outputs. 
+# On the actual quantum hardware, the `expect` should be replaced by measuring in the computational basis
+# and obtaining the averaged number of Rydberg excitations as the loss function (also called objective function or cost function).
+# One can then either use non-gradient-based optimizers to perform the optimization 
+# or use finite-difference methods to obtain gradients of parameters.
 
-#  Let us first set up a non-optimized pulse sequences for QAOA with step ``p=3``. 
+# Let us first set up a non-optimized pulse sequences for QAOA with step ``p=3``.
 
 durations = [0.1, 0.5, 0.3, 0.3, 0.2, 0.4]
 clocks = [0, cumsum(durations)...]
@@ -133,88 +162,106 @@ clocks = [0, cumsum(durations)...]
 Δ2 = piecewise_constant(; clocks=clocks, values=repeat([0.0, Δ_end], 3))
 
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-Bloqade.plot!(ax1, Ω2/2π)
+Bloqade.plot!(ax1, Ω2)
 ax1.set_ylabel("Ω/2π (MHz)")
-Bloqade.plot!(ax2, Δ2/2π)
+Bloqade.plot!(ax2, Δ2)
 ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
-
-# `piecewise_constant` pulses can be more accurately solved with the [`KrylovEvolution`](@ref) solver.
+# The `piecewise_constant` pulses can be more accurately simulated with the [`KrylovEvolution`](@ref) solver.
 hamiltonian2 = rydberg_h(atoms; Ω=Ω2, Δ=Δ2)
-nbits = length(atoms)
-prob2 = KrylovEvolution(zero_state(nbits), clocks, hamiltonian)
+nsites = length(atoms)
+prob2 = KrylovEvolution(zero_state(nsites), clocks, hamiltonian)
 emulate!(prob2);
 
-# We defined a loss function as the mean MIS size, which corresponds to the expectation value of [`SumOfN`](@ref) operator. Then we can calculate the 
+# We defined the loss function as the negative of the mean MIS size, 
+# which corresponds to the expectation value of the [`SumOfN`](@ref) operator.
+# Thus, we can calculate the 
 # average loss function after the time evolution  
-loss_MIS(reg) = -real(expect(SumOfN(nsites=nbits), reg))
+loss_MIS(reg) = -real(expect(SumOfN(nsites=nsites), reg))
 loss_MIS(prob2.reg)
 
-# The ouput shows the negative mean independent set size. This is because  we have flipped its sign since most optimizers are set to minimize the the loss function.
-# This loss is equivalent to [`mean_rydberg`](@ref) loss in [`BloqadeMIS`](@ref) module, alternative loss functions include [`gibbs_loss`](@ref) and [`independent_set_probabilities`](@ref).
+# The ouput shows the negative mean independent set size. 
+# This is because we have flipped its sign since most optimizers are set to minimize the loss function.
+# This loss is equivalent to the [`rydberg_density_sum`](@ref) loss function in the [`BloqadeMIS`](@ref) module. 
+# Alternative loss functions include the [`gibbs_loss`](@ref) and the [`independent_set_probabilities`](@ref).
 
-
-# Here, the loss does not look good, we can throw it into an optimizer and see if a classical optimizer can help. 
-# But first, let us wrap up the above code into a loss function.
+# Here, the loss produced by these pulse sequences does not look very good.
+# We can throw it into an optimizer and see if a classical optimizer can help.
+# First, let us wrap up the above code into a loss function.
 
 function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) % 2 == 0
     Ω_max = 4 * 2π
     Δ_end = 11 * 2π
     p = length(x)÷2
+
     ## detuning and rabi terms
-    durations = abs.(x)   # the durations of each layer of QAOA pulse take the optimizing vector x as their input 
+    durations = abs.(x)   # the durations of each layer of the QAOA pulse take the optimizing vector x as their input 
     clocks = [0, cumsum(durations)...]
     Ωs = piecewise_constant(; clocks=clocks, values=repeat(T[Ω_max, 0.0], p))
     Δs = piecewise_constant(; clocks=clocks, values=repeat(T[0.0, Δ_end], p))
 
     hamiltonian = rydberg_h(atoms; Ω=Ωs, Δ=Δs)
-    subspace = blockade_subspace(atoms, 7.5)  # we run our emulation within the blockade subspace 
+    subspace = blockade_subspace(atoms, 7.5)  # we run our simulation within the blockade subspace 
     prob = KrylovEvolution(zero_state(Complex{T}, subspace), clocks, hamiltonian)
     emulate!(prob)
     return -rydberg_density_sum(prob.reg), prob.reg
 end
 
-# !!!note
-#     Running the emulation in subspace does not violate the independence constraints.
-#     In practice, one needs to post-process the measured bit strings to a get a correct measure of loss. Related APIs include [`is_independent_set`](@ref), [`num_mis_violation`](@ref) and [`mis_postprocessing`](@ref).
-
+# !!! note
+#     Running the simulation in the subspace does not violate the independence constraints.
+#     In practice, one may need to post-process the measured bit strings to a get a correct measure of the loss, if we don't set the blockade constraint. 
+#     Related APIs include [`is_independent_set`](@ref), [`num_mis_violation`](@ref), and [`mis_postprocessing`](@ref).
 
 # Let us check the loss function by using a random input 
 
 x0 = (Random.seed!(2); rand(6))
-mean_mis, reg0 = loss_piecewise_constant(atoms, x0)
-mean_mis
+rydberg_density, reg0 = loss_piecewise_constant(atoms, x0)
+rydberg_density
 
 # The most probable bitstrings are
 
 bitstring_hist(reg0; nlargest=20)
 
-# We see that, without optimization, many of these bitstrings are not the MIS solutions. 
+# We see that, without optimization, many of these bitstrings are not the MIS solutions.
 
-# Let us now use the non-gradient based optimizer `NelderMead` in the `Optim` package to optimize the loss
+# Let us now use the non-gradient-based optimizer `NelderMead` in the `Optim` package to optimize the loss
 optresult = Optim.optimize(x->loss_piecewise_constant(atoms, x)[1], x0)
 
-mean_mis_final, reg_final = loss_piecewise_constant(atoms, optresult.minimizer)
-mean_mis_final
+rydberg_density_final, reg_final = loss_piecewise_constant(atoms, optresult.minimizer)
+rydberg_density_final
 
-# We see that the loss is indeed decreased, but not much. This is probably because the program is trapped in a local minimal.
+# We see that the loss is indeed decreased, but not by much. 
+# This is likely because the optimization is trapped in a local minimum.
 
 bitstring_hist(reg_final; nlargest=20)
 
-# The good thing is that the most probable bitstring now converge to the solutions of MIS. 
+# This example shows that the performance of the algorithm very much depends on 
+# the parametrization of the pulse sequences, the initialization of the variational parameters, 
+# and the classical optimizers. 
+# See [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372)
+# for more in-depth comparison of different pulse parametrizations and tips on how to improve the performance.
 
-# To better solve the local minimal issue, below we try  a set of different optimizations by parameterizing the curve using smoothen piecewise linear waveforms. 
+# In the example below, we show a better pulse parametrization 
+# using smoothened piecewise linear waveforms. 
 
-# ## Smoothen Piecewise linear pulses
+# ## Smoothened Piecewise Linear Pulses
 
-# A smoothen piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the [`piecewise_linear`] function.
-smoothen_curve = smooth(piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.1); 
-Bloqade.plot(smoothen_curve)
+# A smoothened piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the `piecewise_linear` function. 
+# For example,
+Ω_piecewise_linear = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]);
+Ω_smooth = smooth(Ω_piecewise_linear; kernel_radius=0.1);
+
+fig, ax = plt.subplots()
+Bloqade.plot!(ax, Ω_piecewise_linear)
+Bloqade.plot!(ax, Ω_smooth)
+ax.set_ylabel("Ω/2π (MHz)")
+ax.legend(["piecewise linear", "smoothened piecewise linear"], loc ="lower right")
+fig
 
 # Here, the function [`smooth`](@ref) takes a `kernel_radius` keyword parameter as the Gaussian kernel parameter.
-# With the new waveform, we can define the loss as follows.
+# With the new waveforms, we can define the loss function as follows.
 
 function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     @assert length(x) == 3
@@ -223,7 +270,8 @@ function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     Δ_end = 11 * 2π
     Δ0 = 11 * 2π
     T_max = 0.6
-    ## the strength of the detunings in each step takes the optimizing x as their input 
+
+    ## the strength of the detunings at each step takes the optimizing x as their input 
     Δs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=T[Δ_start, Δ_start, Δ0*x[1], Δ0*x[2], Δ0*x[3], Δ_end, Δ_end]); kernel_radius=0.1)
     Ωs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.5, T_max], values=T[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.05)
 
@@ -234,24 +282,44 @@ function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     return -rydberg_density_sum(prob.reg), prob.reg, Δs
 end
 
-x0 = [0.1, 0.8, 0.8]
+x0 = [0.1, 0.8, 0.8]; # initial point for the optimization
 
-# Let us check the loss function
-mean_mis, reg0, Δ_initial = loss_piecewise_linear(atoms, x0)
-Bloqade.plot(Δ_initial)
-mean_mis
+# Let us check the loss function with smoothened waveform with the initial point
+Δ_start = -13 * 2π
+Δ_end = 11 * 2π
+Δ0 = 11 * 2π
+T_max = 0.6
+Δ_initial = piecewise_linear(clocks=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=[Δ_start, Δ_start, Δ0*x0[1], Δ0*x0[2], Δ0*x0[3], Δ_end, Δ_end])
 
-# If we plot the distribution
+rydberg_density, reg0, Δ_initial_smooth = loss_piecewise_linear(atoms, x0)
+rydberg_density
+
+fig, ax = plt.subplots()
+Bloqade.plot!(ax, Δ_initial)
+Bloqade.plot!(ax, Δ_initial_smooth)
+ax.set_ylabel("Δ/2π (MHz)")
+ax.legend(["piecewise linear", "smoothened piecewise linear"], loc ="lower right")
+fig
+
+# Let's plot the distribution
 bitstring_hist(reg0; nlargest=20)
 
-# It is quite good already. Again, let us use the `NelderMead` optimizer to optimize the loss
+# The performance of the algorithm is quite good. 
+# Again, let us use the `NelderMead` optimizer to optimize the loss function.
 optresult = Optim.optimize(x->loss_piecewise_linear(atoms, x)[1], x0)
 
-mean_mis_final, reg_final, Δ_final = loss_piecewise_linear(atoms, optresult.minimizer)
-mean_mis_final
-# One can see the mean MIS size can be further improved to a value close to optimal value of MIS solution.
+rydberg_density_final, reg_final, Δ_final = loss_piecewise_linear(atoms, optresult.minimizer)
+rydberg_density_final
+# One can see the mean MIS size can be further improved to a value close to the size of the MIS,
+# which means there is a substantial probability for measuring an MIS state. 
 
 bitstring_hist(reg_final; nlargest=20)
 
-# We can also plot out the final optimized waveform for Δ
-Bloqade.plot(Δ_final)
+# We can also plot out the final optimized waveform for Δ 
+# and compare with the initial waveform
+fig, ax = plt.subplots()
+Bloqade.plot!(ax, Δ_initial_smooth)
+Bloqade.plot!(ax, Δ_final)
+ax.set_ylabel("Δ/2π (MHz)")
+ax.legend(["initial", "optimized"], loc ="lower right")
+fig

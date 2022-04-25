@@ -23,7 +23,7 @@ using Bloqade
 using PythonCall
 using Random
 
-plt = pyimport("matplotlib.pyplot")
+plt = pyimport("matplotlib.pyplot");
 # # Many-body Rabi oscillations with Rydberg blockade
 
 # We first demonstrate that the strong Rydberg interactions have important effects on the Rabi oscillations of Rydberg atoms.

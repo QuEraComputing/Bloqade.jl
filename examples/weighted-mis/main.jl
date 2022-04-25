@@ -112,6 +112,8 @@ t_list = []
 P_MWIS = [] # MIS probability 
 subspace = independent_set_subspace(g)
 
+
+# mis probability incorrect; does not converge to 1
 total_time = 1.5
 for t in 0.1:total_time*0.25:total_time*2.5
     h = build_adiabatic_sweep(g, Ω_max, Δ_max, t, weights)[1]

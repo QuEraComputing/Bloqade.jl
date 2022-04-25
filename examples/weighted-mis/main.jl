@@ -139,7 +139,7 @@ ax1.scatter(t_list, P_MWIS)
 ax1.set_ylabel("MWIS Probability")
 ax1.set_xlabel("Time (μs)")
 
-ax2.scatter(t_list, broadcast(log, 1 .- P_MIS))
+ax2.scatter(t_list, broadcast(log, 1 .- P_MWIS))
 ax2.plot(t_list, a .+ b .* t_list)
 ax2.set_xlabel("Time (μs)")
 ax2.set_ylabel("log(1 - MWIS Probability)")

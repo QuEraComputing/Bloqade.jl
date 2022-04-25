@@ -80,7 +80,7 @@ please see the [Observables](@ref) section.
 
 
 
-## Choosing an ODE solver
+## Choosing an ODE Solver
 
 One of the most powerful tool of the Julia ecosystem is the DiffEq ecosystem
 that implements many different solvers. These solvers have different advantages and trade-offs. Since simulating a quantum many-body Schrödinger equation has some
@@ -102,27 +102,32 @@ methods that you use in MATLAB or Python; you can find the corresponding
 solvers in Julia in [DiffEq:Translation from MATLAB/Python/R](https://diffeq.sciml.ai/stable/solvers/ode_solve/#Translations-from-MATLAB/Python/R).
 
 
-## Adaptive Steps in ODE solvers
+## Adaptive Steps in ODE Solvers
 
 Our ODE solvers use adaptive steps by default. It provides a significant speedup
 compared to standard fixed-step methods (see [our benchmark here](#)).
 However, if one expects to retrieve the results during the time evolution, e.g.,
-plotting Rydberg densities with the evolution time, fixed-step methods are
-preferred; otherwise, the ODE solver may give constant results between each
-step. One can use the code below to turn off the adaptive steps when setting up the the [`SchrodingerProblem`](@ref).
+plotting Rydberg densities with the evolution time, fixed-step methods are sometimes 
+preferred.
+
+More specifically, when the adaptive steps are turned on, the time steps might be large,
+but if one is interested in measuring some observables in smaller time steps, then the adaptive step 
+method will not produce accurate results for the finer time step, but instead output results at the specific adaptive steps. 
+In this situation, it's better to use fixed-step methods at the clocks where the observables are measured.
+
+One can use the code below to turn off the adaptive steps when setting up the [`SchrodingerProblem`](@ref).
 
 ```@example evolution
 atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1);
 h = rydberg_h(atoms; Δ=2π*2.0, Ω= 2π*1.0); # create the Hamiltonian 
 reg = zero_state(length(atoms)); 
-prob = SchrodingerProblem(reg, 3.0, h, adaptive = false);
+prob = SchrodingerProblem(reg, 3.0, h, adaptive = false, dt=1e-3);
 ```
 
-On the other hand, if one only expects the final state of the evolution,
+Here, we've specified the fixed time step as `dt = 1e-3`.
+If one only expects the final state of the evolution,
 or the intervals between each chosen clock is much larger than the maximum
 step size, then adaptive steps are preferred.
-
-
 
 ### Define the Krylov Emulation Problem
 
@@ -151,7 +156,7 @@ for (step, reg, duration) in KrylovEvolution(reg, clocks, h)
 end
 ```
 
-## Krylov vs ODE solvers
+## Krylov vs ODE Solvers
 
 The [`KrylovEvolution`](@ref) uses the Krylov subspace methods to simulate the
 time evolution of time-independent operators ``\exp(i\Delta t_i H)``, where ``\Delta t_i`` is the duration of time-independent Hamiltonian ``H`` at time ``t``. This method is more efficient when the evolution itself is a discrete evolution, e.g. in QAOA and with

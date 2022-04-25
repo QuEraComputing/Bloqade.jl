@@ -34,7 +34,7 @@ weights = [rand() for i = 1:nv(g)];
 # We can solve the MWIS problem classically for this graph
 # using the [GraphTensorNetworks](https://github.com/QuEraComputing/GenericTensorNetworks.jl) package. 
 # The MWIS is shown in red.
-configs_mapped = solve(IndependentSet(g; weights= weights), ConfigsMax())[]
+configs_mapped = GenericTensorNetworks.solve(IndependentSet(g; weights= weights), ConfigsMax())[]
 MIS_config = configs_mapped.c[1]
 show_graph(g; locs = locs, vertex_colors=
           [iszero(MIS_config[i]) ? "white" : "red" for i=1:nv(g)])
@@ -112,6 +112,8 @@ t_list = []
 P_MWIS = [] # MIS probability 
 subspace = independent_set_subspace(g)
 
+
+# mis probability incorrect; does not converge to 1
 total_time = 1.5
 for t in 0.1:total_time*0.25:total_time*2.5
     h = build_adiabatic_sweep(g, Ω_max, Δ_max, t, weights)[1]

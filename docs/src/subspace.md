@@ -18,14 +18,14 @@ obtain the Hamiltonian matrix in the subspace, and run emulation in the subspace
 
 ## Create the Blockade Subspace
 
-One can create a blockade subspace via the `blockade_subspace` method if we know the atomic positions 
+One can create a blockade subspace via the `blockade_subspace` method if we know the atomic positions: 
 
 ```@docs
 blockade_subspace
 ```
 
 For example, we can construct a blockade subspace of a square lattice
-using the code below
+using the code below:
 
 ```@example subspace
 using Bloqade
@@ -42,7 +42,7 @@ For the dictionary shown, the left is the new index of the states in the blockad
 in this case, there are 63 allowed states, which is much smaller than the full Hilbert space size 512.
 The vectors on the right correspond to the base-10 representations of the states in bitstrings. 
 
-Here `space` is of the type `Subspace`
+Here `space` is of the type `Subspace`:
 
 ```@docs
 Subspace
@@ -50,7 +50,7 @@ Subspace
 
 Other than using atomic positions and the subspace radius, we can also use a graph to create a subspace. In this case, the subspace 
 corresponds to the space composed by the [independent sets](https://en.wikipedia.org/wiki/Independent_set_(graph_theory)) of this graph. Bloqade has an explicit function for this, by using a graph as 
-an input, and produces the subspace as the output. Here is an example code
+an input, and produces the subspace as the output. Here is an example code:
 
 ```@example subspace
 using Graphs
@@ -66,7 +66,7 @@ space = independent_set_subspace(g)
 
 ## Create Registers in the Subspace
 
-One can create a register in the subspace by feeding the `space` object instead of an integer for the common register interfaces, e.g.
+One can create a register in the subspace by feeding the `space` object instead of an integer for the common register interfaces, e.g.:
 
 ```@repl subspace
 zero_state(space)
@@ -74,7 +74,7 @@ product_state(bit"000_000_001", space)
 ```
 
 Alternatively, if you have an existing state stored as a subtype of `AbstractVector`, you can also create the register using
-the constructor
+the constructor:
 
 ```@repl subspace
 state = rand(ComplexF64, length(space))
@@ -84,7 +84,7 @@ reg = SubspaceArrayReg(state, space)
 ## Obtain the Hamiltonian Matrix in the Subspace
 
 The matrix projected in the subspace of a given Hamiltonian can be obtained via
-[`mat`](@ref) as well, e.g.,
+[`mat`](@ref) as well, e.g.:
 
 ```@repl subspace
 h1 = rydberg_h(atoms; Δ=2.0*2π, Ω=1.0*2π)
@@ -98,7 +98,7 @@ All other operations in the subspace are the same as the fullspace
 case. 
 For example, to run an emulation in the subspace, one just need to use the
 subspace register [`SubspaceArrayReg`](@ref) instead of the fullspace register [`ArrayReg`](@ref).
-The rest of the code are the same
+The rest of the code are the same:
 
 ```@example subspace
 reg = zero_state(space)

@@ -12,13 +12,13 @@ The generated waveforms can be directly used to build the time-dependent Hamilto
 ## Creating Waveforms
 
 In Bloqade, the waveforms are defined as a [`Waveform`](@ref) object,
-which is a composition of a callable object and a real number `duration`.
+which is a composition of a callable object and a real number `duration`:
 
 ```@docs
 BloqadeWaveforms.Waveform
 ```
 
-Bloqade gives users the flexibility to specify general waveforms by inputting functions. The following code constructs a sinusoidal waveform with a time duration of ``2 \mu s``
+Bloqade gives users the flexibility to specify general waveforms by inputting functions. The following code constructs a sinusoidal waveform with a time duration of 2 μs:
 
 ```@example waveform
 using Bloqade
@@ -79,7 +79,7 @@ For more advanced interpolation options, please see the [JuliaMath/Interpolation
 
 Bloqade also supports several operations on the waveforms. 
 
-Waveforms can be sliced using the duration syntax `start..stop`, e.g.
+Waveforms can be sliced using the duration syntax `start..stop`, e.g.:
 
 ```@example waveform
 wf = 2π*sinusoidal(duration=2.2);
@@ -88,7 +88,7 @@ Bloqade.plot(wf1)
 ```
 Note that time starts from `0.0` again, so the total duration is `stop - start`.
 
-Waveforms can be composed together via `append`
+Waveforms can be composed together via `append`:
 
 ```@example waveform
 wf2 = linear_ramp(;start_value=0.0, stop_value=1.1*2π, duration=0.5);
@@ -102,7 +102,7 @@ Sharp points in waveforms may result in bad performance in practice (e.g. for ad
 It is sometimes preferred to smoothen the waveform using
 the moving average methods. One can use the [`smooth`](@ref)
 function to create a smoothened waveform from a piecewise linear
-waveform.
+waveform:
 
 ```@example waveform
 wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=2π*[0.0, 3.0, 1.1, 2.2]);
@@ -116,7 +116,7 @@ fig
 
 ## Waveform Arithmetics
 
-Bloqade also supports several arithmetics on the waveforms. If two waveforms have the same duration, we can directly add up or subtract the strength of them, simply by using `+` or `-`. 
+Bloqade also supports several arithmetics on the waveforms. If two waveforms have the same duration, we can directly add up or subtract the strength of them, simply by using `+` or `-`: 
 
 ```@example waveform
 wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0*2π);
@@ -131,7 +131,7 @@ fig
 
 ```
 
-To increase the strength of a waveform by some factors, we can directly use `*`
+To increase the strength of a waveform by some factors, we can directly use `*`:
 
 ```@example waveform
 wf = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0*2π);
@@ -144,7 +144,7 @@ fig
 
 ```
 
-Such operations can also be broadcasted by using `.*`
+Such operations can also be broadcasted by using `.*`:
 ```@example waveform
 wf2, wf3 = [2.0, 3.0] .* wf1; 
 

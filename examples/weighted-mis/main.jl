@@ -32,7 +32,7 @@ show_graph(g; locs=locs, vertex_colors=["white" for i=1:nv(g)])
 weights = [rand() for i = 1:nv(g)];
 
 # We can solve the MWIS problem classically for this graph
-# using the [GraphTensorNetworks](https://github.com/QuEraComputing/GenericTensorNetworks.jl) package. 
+# using the [GenericTensorNetworks](https://github.com/QuEraComputing/GenericTensorNetworks.jl) package. 
 # The MWIS is shown in red.
 configs_mapped = GenericTensorNetworks.solve(IndependentSet(g; weights= weights), ConfigsMax())[]
 MIS_config = configs_mapped.c[1]
@@ -85,9 +85,9 @@ end
 Ω_max = 2π * 4
 Δ_max = 3 * Ω_max
 t_max = 1.5
-h, Ω, Δ = build_adiabatic_sweep(g, Ω_max, Δ_max, t_max, weights);
+H, Ω, Δ = build_adiabatic_sweep(g, Ω_max, Δ_max, t_max, weights);
 
-fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(10, 4))
+fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(14, 4))
 Bloqade.plot!(ax1, Ω)
 ax1.set_ylabel("Ω/2π (MHz)")
 for i = 1:nv(g)
@@ -103,17 +103,15 @@ fig
 # $1 - P_{\text{MWIS}} = e^{a - T/T_{\text{LZ}}}$. 
 # To do this, we find the first instance time $T^*$
 # such that $P_{\text{MWIS}}(T) > 0.9$, and 
-# then continue to run evolutions to $2.5T^*$ to extract $T_L{LZ}$. 
+# then continue to run evolutions to $2.5T^*$ to extract $T_{\text{LZ}}$. 
 # See [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf) 
 # for more details on the procedure to extract the Landau-Zener timescale.
 
 # We run the simulation in the blockade (independent set) subspace.
 t_list = []
 P_MWIS = [] # MIS probability 
-subspace = independent_set_subspace(g)
+subspace = independent_set_subspace(g);
 
-
-# mis probability incorrect; does not converge to 1
 total_time = 1.5
 for t in 0.1:total_time*0.25:total_time*2.5
     h = build_adiabatic_sweep(g, Ω_max, Δ_max, t, weights)[1]
@@ -131,7 +129,7 @@ end
 using CurveFit
 y = broadcast(log, 1 .- P_MWIS[P_MWIS .> 0.9])
 a, b = linear_fit(t_list[P_MWIS .> 0.9], y)
-T_LZ = -1/b
+T_LZ = -1/b;
 
 # Plot results
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize=(14, 6))

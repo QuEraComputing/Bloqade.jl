@@ -11,7 +11,7 @@ end
 end
 
 @option struct RydbergRabiFrequencyAmplitude <: QuEraSchema
-    global_value::RydbergRabiFrequencyAmplitudeGlobal # TODO: custom (de)serializer
+    global_value::RydbergRabiFrequencyAmplitudeGlobal
 end
 
 @option struct RydbergRabiFrequencyPhaseGlobal <: QuEraSchema
@@ -20,7 +20,7 @@ end
 end
 
 @option struct RydbergRabiFrequencyPhase <: QuEraSchema
-    global_value::RydbergRabiFrequencyPhaseGlobal # TODO: custom (de)serializer
+    global_value::RydbergRabiFrequencyPhaseGlobal
 end
 
 @option struct RydbergDetuningGlobal <: QuEraSchema

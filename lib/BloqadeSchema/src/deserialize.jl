@@ -13,12 +13,12 @@ end
 function Configurations.from_dict(::Type{RydbergDetuning}, d::Dict{String, Any})
     return if haskey(d, "local")
         RydbergDetuning(
-            from_dict(RydbergDetuningGlobal, d["global"]),
-            from_dict.(RydbergDetuningLocal, d["local"]),
+            global_value=from_dict(RydbergDetuningGlobal, d["global"]),
+            local_value=from_dict.(RydbergDetuningLocal, d["local"]),
         )
     else
         RydbergDetuning(
-            from_dict(RydbergDetuningGlobal, d["global"]),
+            global_value=from_dict(RydbergDetuningGlobal, d["global"]),
             nothing,
         )
     end

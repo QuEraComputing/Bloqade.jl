@@ -3,6 +3,7 @@ module BloqadeSchema
 using BloqadeExpr
 using BloqadeWaveforms
 using Configurations
+using Yao
 
 export TaskSpecification
 

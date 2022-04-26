@@ -165,7 +165,7 @@ BloqadeMIS.is_independent_set(fixed, graph)
 
 # Let us first set up a non-optimized pulse sequences for QAOA with step ``p=3``.
 
-durations = [0.1, 0.5, 0.3, 0.3, 0.2, 0.4]
+durations = [0.1, 0.1, 0.1, 0.1, 0.1, 0.1]
 clocks = [0, cumsum(durations)...]
 Ω2 = piecewise_constant(; clocks=clocks, values=repeat([Ω_max, 0.0], 3))
 Δ2 = piecewise_constant(; clocks=clocks, values=repeat([0.0, Δ_end], 3))
@@ -225,7 +225,7 @@ end
 
 # Let us check the loss function by using a random input 
 
-x0 = (Random.seed!(2); rand(6))
+x0 = fill(0.1, 6)
 rydberg_density, reg1 = loss_piecewise_constant(atoms, x0)
 rydberg_density
 

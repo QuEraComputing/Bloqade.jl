@@ -73,12 +73,12 @@ mis_size_and_counting = GenericTensorNetworks.solve(IndependentSet(graph), Count
 # the tutorial [Adiabatic Evolution](@ref) to prepare ground states of the Rydberg Hamiltonian for this disordered lattice.
 # We first construct the adiabatic pulse sequences for the Rabi frequency ``\Omega`` and the detuning ``\Delta``.
 
-T_max = 1.65
+T_max = 0.6
 Ω_max = 2π *4
-Ω = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0])
+Ω = piecewise_linear(clocks=[0.0, 0.1, 0.5, T_max], values=[0.0, Ω_max , Ω_max , 0])
 Δ_start = -2π *13 
 Δ_end =  2π *11
-Δ = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[Δ_start, Δ_start, Δ_end, Δ_end])
+Δ = piecewise_linear(clocks=[0.0, 0.1, 0.5, T_max], values=[Δ_start, Δ_start, Δ_end, Δ_end])
 
 fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
 Bloqade.plot!(ax1, Ω)
@@ -119,6 +119,15 @@ all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), Configs
 Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? "white" : "red" for b in best_bit_strings[1]])
 #
 Bloqade.plot(atoms, blockade_radius=7.5; colors=[iszero(b) ? "white" : "red" for b in best_bit_strings[2]])
+
+# But there are still some configurations violate the blockade constraint, because the blockade interaction is not an ideal unit disk one.
+# One can check whether the independence constraint is satisfied or not with [`BloqadeMIS.is_independent_set`](@ref) function.
+best5_bit_strings = most_probable(prob.reg, 3)
+BloqadeMIS.is_independent_set.(best5_bit_strings, Ref(graph))
+
+# This issue happens a lot in experiment, one can fix it with the [`mis_postprocessing`](@ref) function.
+fixed = mis_postprocessing(best10_bit_strings[3], graph)
+BloqadeMIS.is_independent_set(fixed, graph)
 
 
 # ## QAOA with Piecewise Constant Pulses
@@ -171,7 +180,7 @@ fig
 # The `piecewise_constant` pulses can be more accurately simulated with the [`KrylovEvolution`](@ref) solver.
 hamiltonian2 = rydberg_h(atoms; Ω=Ω2, Δ=Δ2)
 nsites = length(atoms)
-prob2 = KrylovEvolution(zero_state(nsites), clocks, hamiltonian)
+prob2 = KrylovEvolution(zero_state(nsites), clocks, hamiltonian2)
 emulate!(prob2);
 
 # We defined the loss function as the negative of the mean MIS size, 
@@ -217,12 +226,12 @@ end
 # Let us check the loss function by using a random input 
 
 x0 = (Random.seed!(2); rand(6))
-rydberg_density, reg0 = loss_piecewise_constant(atoms, x0)
+rydberg_density, reg1 = loss_piecewise_constant(atoms, x0)
 rydberg_density
 
 # The most probable bitstrings are
 
-bitstring_hist(reg0; nlargest=20)
+bitstring_hist(reg1; nlargest=20)
 
 # We see that, without optimization, many of these bitstrings are not the MIS solutions.
 
@@ -250,13 +259,13 @@ bitstring_hist(reg_final; nlargest=20)
 
 # A smoothened piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the `piecewise_linear` function. 
 # For example,
-Ω_piecewise_linear = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, Ω_max , Ω_max , 0]);
-Ω_smooth = smooth(Ω_piecewise_linear; kernel_radius=0.1);
+pulse_piecewise_linear = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, 0.4 , 0.4 , 0]);
+pulse_smooth = smooth(pulse_piecewise_linear; kernel_radius=0.1);
 
 fig, ax = plt.subplots()
-Bloqade.plot!(ax, Ω_piecewise_linear)
-Bloqade.plot!(ax, Ω_smooth)
-ax.set_ylabel("Ω/2π (MHz)")
+Bloqade.plot!(ax, pulse_piecewise_linear)
+Bloqade.plot!(ax, pulse_smooth)
+ax.set_ylabel("strength")
 ax.legend(["piecewise linear", "smoothened piecewise linear"], loc ="lower right")
 fig
 
@@ -291,7 +300,7 @@ x0 = [0.1, 0.8, 0.8]; # initial point for the optimization
 T_max = 0.6
 Δ_initial = piecewise_linear(clocks=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=[Δ_start, Δ_start, Δ0*x0[1], Δ0*x0[2], Δ0*x0[3], Δ_end, Δ_end])
 
-rydberg_density, reg0, Δ_initial_smooth = loss_piecewise_linear(atoms, x0)
+rydberg_density, reg2, Δ_initial_smooth = loss_piecewise_linear(atoms, x0)
 rydberg_density
 
 fig, ax = plt.subplots()
@@ -302,7 +311,7 @@ ax.legend(["piecewise linear", "smoothened piecewise linear"], loc ="lower right
 fig
 
 # Let's plot the distribution
-bitstring_hist(reg0; nlargest=20)
+bitstring_hist(reg2; nlargest=20)
 
 # The performance of the algorithm is quite good. 
 # Again, let us use the `NelderMead` optimizer to optimize the loss function.

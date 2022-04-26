@@ -259,8 +259,8 @@ bitstring_hist(reg_final; nlargest=20)
 
 # A smoothened piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the `piecewise_linear` function. 
 # For example,
-pulse_piecewise_linear = piecewise_linear(clocks=[0.0, 0.2, 1.45, T_max], values=[0.0, 0.4 , 0.4 , 0]);
-pulse_smooth = smooth(pulse_piecewise_linear; kernel_radius=0.1);
+pulse_piecewise_linear = piecewise_linear(clocks=[0.0, 0.05, 0.1, 0.5, 0.55, T_max], values=[0, 0, 0.4 , 0.4 , 0, 0]);
+pulse_smooth = smooth(pulse_piecewise_linear; kernel_radius=0.02);
 
 fig, ax = plt.subplots()
 Bloqade.plot!(ax, pulse_piecewise_linear)
@@ -281,8 +281,8 @@ function loss_piecewise_linear(atoms::AtomList, x::AbstractVector{T}) where T
     T_max = 0.6
 
     ## the strength of the detunings at each step takes the optimizing x as their input 
-    Δs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=T[Δ_start, Δ_start, Δ0*x[1], Δ0*x[2], Δ0*x[3], Δ_end, Δ_end]); kernel_radius=0.1)
-    Ωs = smooth(piecewise_linear(clocks=T[0.0, 0.1, 0.5, T_max], values=T[0.0, Ω_max , Ω_max , 0]); kernel_radius=0.05)
+    Δs = smooth(piecewise_linear(clocks=T[0.0, 0.05, 0.2, 0.3, 0.4, 0.55, T_max], values=T[Δ_start, Δ_start, Δ0*x[1], Δ0*x[2], Δ0*x[3], Δ_end, Δ_end]); kernel_radius=0.02)
+    Ωs = smooth(piecewise_linear(clocks=T[0.0, 0.05, 0.1, 0.5, 0.55, T_max], values=T[0, 0, Ω_max , Ω_max, 0, 0]); kernel_radius=0.02)
 
     hamiltonian = rydberg_h(atoms; Ω=Ωs, Δ=Δs)
     subspace = blockade_subspace(atoms, 7.5)
@@ -298,7 +298,7 @@ x0 = [0.1, 0.8, 0.8]; # initial point for the optimization
 Δ_end = 11 * 2π
 Δ0 = 11 * 2π
 T_max = 0.6
-Δ_initial = piecewise_linear(clocks=[0.0, 0.1, 0.2, 0.3, 0.4, 0.5, T_max], values=[Δ_start, Δ_start, Δ0*x0[1], Δ0*x0[2], Δ0*x0[3], Δ_end, Δ_end])
+Δ_initial = piecewise_linear(clocks=[0.0, 0.05, 0.2, 0.3, 0.4, 0.55, T_max], values=[Δ_start, Δ_start, Δ0*x0[1], Δ0*x0[2], Δ0*x0[3], Δ_end, Δ_end])
 
 rydberg_density, reg2, Δ_initial_smooth = loss_piecewise_linear(atoms, x0)
 rydberg_density

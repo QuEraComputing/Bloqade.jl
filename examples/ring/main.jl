@@ -72,25 +72,25 @@
 
 using Bloqade
 nsites = 12;    # 12 site chain
-unit_disk_radius = 7    # Distance between atoms, in microns
+unit_disk_radius = 6.9    # Distance between atoms, in microns
 
 R = unit_disk_radius/(2*sin(2*pi/(nsites)/2))                               # Radius of the circle, using a little trigonometry
 pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
 atoms = AtomList(pos);                                                      # Define the atom positions as an AtomList.
 
-subspace_radius = unit_disk_radius  # The subspace radius is choosen to be the unit_disk_radius to ensure accurate approximation
+blockade_radius = unit_disk_radius*sqrt(2)  # The blockade radius is the unit disk radius scaled by ~root2, the geometric factor for a line. Note that in principle this is slightly less due to the line actually being a finite-radius circle.
  
 # The system is driven by a constant Rabi drive, which couples each atom's ground and Rydberg state. The value of ``\Omega\approx 1``MHz is set by the distance between vertices and is well within the perturbative limits set by the subspace, as ``1``MHz``\ll 7.296``MHz and so the blockade subspace should approximate exact dynamics faithfully. The Hamiltonian can be defined in bloqade with
 
-Omega = 858386 / subspace_radius**6
-h = rydberg_h(atoms;C = 2π * 858386, Ω=2*π*Omega);
+Omega = 862690 / blockade_radius**6
+h = rydberg_h(atoms;C = 2π * 862690, Ω=2*π*Omega);
 
 
 # The system is initialized into the ground state of all atoms, which is the lowest energy of the classical Hamiltonian. We have two choices of basis: the first choice is the full Hilbert space of ``2^{12}`` elements, wheras the second basis is the blockade subspace, which excludes Rydberg excitations within the unit disk radius. The blockade subspace has ``D=322`` elements, which means that computation is much faster.
 
 
 init_state = zero_state(nsites)                 # Define the initial state in the full space.
-space = blockade_subspace(atoms,subspace_radius)# Compute the blockade subspace.
+space = blockade_subspace(atoms,blockade_radius)# Compute the blockade subspace.
 init_state2 = zero_state(space);                # Define the initial state in the blockade subspace.
 
 

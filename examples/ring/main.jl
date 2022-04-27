@@ -86,15 +86,16 @@ Omega = 862690 / blockade_radius**6
 h = rydberg_h(atoms;C = 2π * 862690, Ω=2*π*Omega);
 
 
-# The system is initialized into the ground state of all atoms, which is the lowest energy of the classical Hamiltonian. We have two choices of basis: the first choice is the full Hilbert space of ``2^{12}`` elements, wheras the second basis is the blockade subspace, which excludes Rydberg excitations within the unit disk radius. The blockade subspace has ``D=322`` elements, which means that computation is much faster.
-
+# The system is initialized into the ground state of all atoms, which is the lowest energy of the classical Hamiltonian. We have two choices of basis: the first choice is the full Hilbert space of ``2^{12}`` elements, wheras the second basis is the blockade subspace, which excludes Rydberg excitations within the **subspace radius**. In principle, the subspace radius can be taken to be any value less than the blockade radius. For a subspace radius of zero, no states are excluded and one recovers exact dynamics. For a subspace radius anywhere between the blockade radius and ``R_\text{min}``, the subspace is the same, as there are no vertices within those radii. One reasonable value of the subspace radius for the ring of atoms is to simply choose it to be the unit disk radius. However, for more general graphs it may be reasonable to choose the subspace radius to be smaller than the unit disk radius and include extra states to improve the fidelity of the energy truncation. For example, for the next nearest neighbor line, it may be reasonable to choose the subspace radius to be half the unit disk radius, which includes high-energy NNN blockade states to improve numerical accuracy. See the [subspace](@ref) page for more details.
+ 
+subspace_radius = unit_disk_radius
 
 init_state = zero_state(nsites)                 # Define the initial state in the full space.
-space = blockade_subspace(atoms,blockade_radius)# Compute the blockade subspace.
+space = blockade_subspace(atoms,subspace_radius)# Compute the blockade subspace.
 init_state2 = zero_state(space);                # Define the initial state in the blockade subspace.
 
 
-# If the atoms were far apart and non-interacting, each atom would oscillate completely between its ground state and Rydberg state with a period of ``0.5 \mu``s. However, because adjacent atoms shift to the Rydberg state concurrently, they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, corresponding to an antiferromagnetic ``Z_2`` state. Note that because the ring has a translation symmetry, the Rydberg density is equal on all sites.
+# The blockade subspace has ``D=322`` elements, which means that computation is much faster. If the atoms were far apart and non-interacting, each atom would oscillate completely between its ground state and Rydberg state with a period of ``0.5 \mu``s. However, because adjacent atoms shift to the Rydberg state concurrently, they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, corresponding to an antiferromagnetic ``Z_2`` state. Note that because the ring has a translation symmetry, the Rydberg density is equal on all sites.
 
 
 Tmax = 6.

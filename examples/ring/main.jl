@@ -82,7 +82,7 @@ blockade_radius = unit_disk_radius*sqrt(2)  # The blockade radius is the unit di
  
 # The system is driven by a constant Rabi drive, which couples each atom's ground and Rydberg state. The value of ``\Omega\approx 1``MHz is set by the distance between vertices and is well within the perturbative limits set by the subspace, as ``1``MHz``\ll 7.296``MHz and so the blockade subspace should approximate exact dynamics faithfully. The Hamiltonian can be defined in bloqade with
 
-Omega = 862690 / blockade_radius**6
+Omega = 862690 / blockade_radius^6
 h = rydberg_h(atoms;C = 2π * 862690, Ω=2*π*Omega);
 
 
@@ -129,9 +129,9 @@ plt = pyimport("matplotlib.pyplot")
 plt.rcParams["font.size"] = 22
 
 # Plot the data
-#fig = plt.figure(figsize=(8,6))
-ax  = plt.subplot(1,1,1)
+#fig, ax = plt.figure(figsize=(8,6))
 
+ax  = plt.subplot(1,1,1)
 plt.plot(times,real(densities),"k",label="Full space")
 plt.plot(times,real(densities2),"r--",label="Subspace")
 ax.axis([0,Tmax,0,0.45])
@@ -145,10 +145,9 @@ ax2 = inset_axes.inset_axes(ax,width="20%",height="30%",loc="lower right",border
 plt.plot(times,real(densities - densities2))
 plt.axis([0,0.5,-0.001,0.003])
 plt.ylabel("Difference",fontsize=12)
-plt.yticks(LinRange(-0.001,0.003,5),fontsize=12)
-plt.xticks([0,0.2,0.4,0.6],fontsize=12)
+plt.yticks(LinRange(-0.001,0.003,5),fontsize=12);
+plt.xticks([0,0.2,0.4,0.6],fontsize=12);
 
-plt.show()
 
 
 

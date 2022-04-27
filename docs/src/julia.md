@@ -30,18 +30,21 @@ and a guide for learning more about Julia and advanced usage.
 
 !!! info
 
-    Multi-stage programming (MSP) is a variety of metaprogramming in which compilation is divided into a series of intermediate phases, allowing typesafe run-time code generation. Statically defined types are used to verify that dynamically constructed types are valid and do not violate the type system. -- Wikipedia
+    Multi-stage programming (MSP) is a variety of metaprogramming in which compilation is divided into a series of intermediate phases, allowing typesafe run-time code generation. Statically defined types are used to verify that dynamically constructed types are valid and do not violate the type system. 
+
+    -- Wikipedia
 
 ## Quick Start
 
 ### Variables and Some Basic Types
-In Julia, you can define a variable similar to how you define it in Python. For example, you can define a `x` using `=` (assignment)
+In Julia, you can define a variable similar to how you define it in Python. 
+For example, you can define a `x` using `=` (assignment):
 
 ```@repl quick-start
 x = 1
 ```
 
-Every variable has a type. You can check it using `typeof`
+Every variable has a type. You can check it using `typeof`:
 
 ```@repl quick-start
 typeof(x)
@@ -73,7 +76,7 @@ end
 ```
 
 ### Control Flows
-In Julia, there are `for`, `if` and `while` control flows. For example, the `for` loop looks like
+In Julia, there are `for`, `if` and `while` control flows. For example, the `for` loop looks like:
 
 ```@repl quick-start
 s = 0
@@ -82,7 +85,7 @@ for i in 1:10
 end
 ```
 
-we can now check the value of `s` by typing it again
+we can now check the value of `s` by typing it again:
 
 ```@repl quick-start
 s
@@ -94,7 +97,7 @@ Here, `1:10` is a **range** representing the numbers from 1 to 10:
 typeof(1:10)
 ```
 
-the `if else` statement looks like the following
+the `if else` statement looks like the following:
 
 ```@repl quick-start
 if s < 10
@@ -128,7 +131,7 @@ Most functions involving matrices and arrays follow the same convention as `nump
 rand(5, 5)
 ```
 
-If you have questions about using a function, you can always type the question mark `?` in your REPL following the function name
+If you have questions about using a function, you can always type the question mark `?` in your REPL following the function name:
 ```julia
 julia> ?rand
 ```
@@ -138,11 +141,11 @@ Julia carries its own package manager. You can use it as a normal package:
 ```julia
 julia> using Pkg
 ```
-To install a package, you can use
+To install a package, you can use:
 ```julia
 julia> Pkg.add("Bloqade")
 ```
-To remove a package, you can use
+To remove a package, you can use:
 ```julia
 julia> Pkg.rm("Bloqade")
 ```
@@ -150,7 +153,7 @@ All Julia programs **run inside an environment**. The default is the global envi
 
 ## Resources
 
-For more resources, check the official website [julialang.org/learning](https://julialang.org/learning)
+For more resources, check the official website [julialang.org/learning](https://julialang.org/learning):
 
 ```@raw html
 <style>

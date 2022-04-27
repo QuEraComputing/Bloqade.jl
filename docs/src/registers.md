@@ -12,27 +12,27 @@ In the analog mode, we use the states ``|g\rangle`` (ground state) and ``|r\rang
 ## Basic Interface
 
 To create a register with all atoms being in the ground state ``| 00..00 \rangle``, we can use 
-the function [`zero_state`](@ref) by specifying the number of qubits
+the function [`zero_state`](@ref) by specifying the number of qubits:
 
 ```@repl registers
 using Bloqade
 zero_state(5) # creates a 5-qubit register
 ```
 
-To create a more general product state in the computational basis, one can use the [`product_state`](@ref) function by inputting its bitstring
+To create a more general product state in the computational basis, one can use the [`product_state`](@ref) function by inputting its bitstring:
 
 ```@repl registers
 product_state(bit"10011")
 ```
 where `bit"10011"` is a special Julia string literal defined for bitstrings.
 
-One can also construct the [`ArrayReg`](@ref) or [`SubspaceArrayReg`](@ref) directly from arrays, e.g.
+One can also construct the [`ArrayReg`](@ref) or [`SubspaceArrayReg`](@ref) directly from arrays, e.g.:
 
 ```@repl registers
 ArrayReg(rand(ComplexF64, 2^5))
 ```
 
-For a subspace register, one can create in the following way
+For a subspace register, one can create in the following way:
 
 ```@repl registers
 space = Subspace(5, [0, 2, 3, 7])
@@ -69,25 +69,25 @@ refer to [Yao:Array Registers](https://docs.yaoquantum.org/dev/man/array_registe
 
 ## Convenient Wrappers
 
-Bloqade also provides a few convenient wrappers on some commonly used observables for Rydberg systems, including the Rydberg density and two-point correlation functions. 
+Bloqade also provides a few convenient wrappers on some commonly used observables for Rydberg systems, including the Rydberg density and two-point correlation functions: 
 
 ```@docs
 rydberg_density
 ```
-For example, if we want to measure the Rydberg density at each site or at a specific site, we can use the code below
+For example, if we want to measure the Rydberg density at each site or at a specific site, we can use the code below:
 
 ```@repl registers
 reg = rand_state(10)
 n_each = rydberg_density(reg)
 n_2 = rydberg_density(reg, 2)
 ```
-To access the two-point correlation functions, we can use the [`rydberg_corr`](@ref) function below. 
+To access the two-point correlation functions, we can use the [`rydberg_corr`](@ref) function below: 
 
 ```@docs
 rydberg_corr
 ```
 
-This function will output a matrix that stores the correlation function for each pair of sites 
+This function will output a matrix that stores the correlation function for each pair of sites: 
 
 ```@repl registers
 nn_corr = rydberg_corr(Op.n, reg)
@@ -96,12 +96,12 @@ nn_corr = rydberg_corr(Op.n, reg)
 It is worth mentioning that besides `Op.n`, other single-site operators including the Pauli operators `X`, `Y` and `Z` can also be used. 
 
 
-## Create General Observables using Operator Expression
+## Create General Observables using Operator Expressions
 
 Bloqade makes use of Yao's block system to represent
 operator expressions. 
 For example, one can construct the Rydberg
-correlation operator as
+correlation operator as:
 
 ```@repl registers
 corr(n, i, j) = chain(n, put(i=>Op.n), put(j=>Op.n))
@@ -109,7 +109,7 @@ corr(n, i, j) = chain(n, put(i=>Op.n), put(j=>Op.n))
 
 You can thus create any kinds of quantum operators in this way
 and use it with the [`expect`](@ref) or [`measure`](@ref)
-function, e.g. 
+function, e.g.: 
 
 ```@repl registers
 reg = rand_state(10)

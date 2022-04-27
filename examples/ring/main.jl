@@ -32,9 +32,9 @@
 # The validity of the energy truncation subspace is governed by the strength of off-diagonal matrix elements coupling the low energy subspace to the high energy one. For the Rydberg Hamiltonian, these off-diagonal elements ``|1r\rangle\leftrightarrow|rr\rangle`` have a strength ``\Omega``. In order to preserve dynamics within the subspace, the energy difference between states within the blockade subspace (e.g., ``|1r\rangle``) and outside (``|rr\rangle``) must be much larger than the Rabi strength. Formally,
 
 # ```math
-# \Omega \ll \frac{C_6}{R_s^6}
+# \Omega \ll \frac{C_6}{R_u^6}
 # ```
-# where ``R_s`` is the **blockade radius** of the graph, which is equivalent to the unit disk radius of the graph, or equivalently the **subspace radius**. As long as this condition holds, the exact dynamics in the full Hilbert space should be closely approximated by the approximate dynamics in the blockade subspace, as the mixing terms only couple to low energy states.
+# where ``R_u`` is the unit disk radius of the graph. As long as this condition holds, the exact dynamics in the full Hilbert space should be closely approximated by the approximate dynamics in the blockade subspace, as the mixing terms only couple to low energy states.
 
 # ## ``\Omega_\text{max}``, unit disk radius, and blockade radius
 
@@ -54,7 +54,7 @@
 
 # ![BlockadRadius](../../../assets/bloqade_subspace_UDGradius.png)
 
-# The ratio of the unit disk radius (dark red) to the blockade radius (red dashed) for several choices of atoms. Preferably, ``R_\text{min}/R_u\gg 1``, as large values mean that both perturbative conditions are preserved. For a 1d nearest neighbor line, the value is ``2``, and so ``(C_6/(2R_u)^6)\ll\Omega_b = (C_6/R_u^6)/8\ll (C_6/R_u^6)``. However, for an example arbitrary graph, this ratio is only ``1.15``, and so the perturbative limit ``0.42740\ll 0.6538\ll 1`` is not well-preserved. For this reason, there must be some care for choosing which graphs have appropriate dynamics within an approximately degenerate independent set subspace. Some graphs, like a 1d chain, are deep within the perturbative limits and so it is reasonable to expect that dynamics can ignore Rydberg tails. However, arbitrary graphs which have vertices close to the unit disk threshold may be sensitive to ``1/R^6`` Rydberg tails and may not have the expected dynamics within a degenerate independent set subspace.
+# The ratio of the unit disk radius (dark red) to the blockade radius (red dashed) for several choices of atoms. Preferably, ``R_\text{min}/R_u\gg 1``, as large values mean that both perturbative conditions are preserved. For a 1d nearest neighbor line, if we choose  ``R_u``to be the lattice constant ``a`` and ``R_{min} =2a``, then the ratio between them is ``2``, and so ``(C_6/(2R_u)^6)\ll\Omega_b = (C_6/R_u^6)/8\ll (C_6/R_u^6)``. However, for an example arbitrary graph and if we choose the ``R_u`` and ``R_{min}`` to be the nearest- and next-nearest-neighbour atom distances respectively, this ratio is only ``1.15``, and so the perturbative limit ``0.42740\ll 0.6538\ll 1`` is not well-preserved. For this reason, there must be some care for choosing which graphs have appropriate dynamics within an approximately degenerate independent set subspace. Some graphs, like a 1d chain, are deep within the perturbative limits and so it is reasonable to expect that dynamics can ignore Rydberg tails. However, arbitrary graphs which have vertices close to the unit disk threshold may be sensitive to ``1/R^6`` Rydberg tails and may not have the expected dynamics within a degenerate independent set subspace.
 
 # Because by definition there are no vertices with a distance between ``R_u`` and ``R_\text{min}``, one can choose any blockade radius ``R_b`` to be any value in between. Here, the blockade radius is chosen as the geometric mean and thus sets sets the scale of ``\Omega_b``. Given a fixed value of ``\Omega_b``, one can choose the distance between atoms (eg with units ``\mu m``) by scaling the unit disk radius with ``\Omega`` as
 
@@ -63,6 +63,8 @@
 # ```
 
 # It should be noted and emphasized once again that this lower limit is only necessary if one needs the extra approximation of ignoring Rydberg interactions outside of the unit disk radius. If the subspace is chosen simply as an efficient way to speed up computation by truncating in energy, the value of ``\Omega`` does not have a lower bound. For example, if one wished to do dynamics of a ``\mathbb{Z}_3`` state, e.g. a next-nearest-neighbor chain, one can choose the blockade radius of a single site to truncate very high energy states, while choosing a value of ``\Omega`` which matches the blockade radius of the NNN chain.
+
+# On the other hand,  if the user knows the value of ``\Omega``, then the corresponding blockade radius ``R_b`` can be computed by definition. Then the user can choose the unit disk radius ``R_u`` which is smaller than ``R_b`` and  atisfies the relation ``\Omega \ll \frac{C_6}{R_u^6}``. Then the user is able to compute the value of ``R_{min}`` by using the its relation with ``R_b`` and ``R_u``. This ensures the relation ``\Omega \gg \frac{C_6}{R_\text{min}^6}`` is satisfied.  Finally, the user is recommended to choose the subspace radius ``R_s`` to be ``R_u``, which makes the Hilbert space truncation only occurs for Rydberg excitations within the smallest radius. Thus accurate emulations are expected. For more information about setting the subspace radius, please refer to the section [subspace](@ref). 
 
 # ## Example dynamics in the blockade subspace
 
@@ -76,7 +78,7 @@ R = unit_disk_radius/(2*sin(2*pi/(nsites)/2))                               # Ra
 pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
 atoms = AtomList(pos);                                                      # Define the atom positions as an AtomList.
 
-subspace_radius = unit_disk_radius * sqrt(2) # The subspace radius is the geometric mean of neighbor to NN neighbor. In principle this is slightly smaller due to the vertices being on a circle instead of a line, but this is an unnecessary complication.
+subspace_radius = unit_disk_radius  # The subspace radius is choosen to be the unit_disk_radius to ensure accurate approximation
  
 # The system is driven by a constant Rabi drive, which couples each atom's ground and Rydberg state. The value of ``\Omega\approx 1``MHz is set by the distance between vertices and is well within the perturbative limits set by the subspace, as ``1``MHz``\ll 7.296``MHz and so the blockade subspace should approximate exact dynamics faithfully. The Hamiltonian can be defined in bloqade with
 

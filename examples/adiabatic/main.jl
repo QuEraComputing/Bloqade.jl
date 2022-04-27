@@ -191,6 +191,7 @@ nx, ny = 3, 3
 nsites = nx*ny
 atoms = generate_sites(SquareLattice(), nx, ny, scale = 6.7)
 
+# We program and plot the waveforms in the following:
 total_time = 2.9
 Ω_max = 2π * 4.3
 Ω = piecewise_linear(clocks=[0.0, 0.3, 2.6, total_time], values=[0.0, Ω_max , Ω_max , 0]);

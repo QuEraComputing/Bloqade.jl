@@ -61,6 +61,15 @@ Following the atomic physics nomenclature, ``\Omega_j``, ``\phi_j``, and ``\Delt
 
 Starting from an initial quantum state ``| \psi_{\text{ini}} \rangle``, Bloqade simulates its time evolution under the Hamiltonian ``\hat{\mathcal{H}}(t)``, given the qubit positions and the time-dependent profiles for  ``\Omega_j``, ``\phi_j``, and ``\Delta_j``. Bloqade then outputs the real-time-evolved state ``| \psi(t) \rangle``, which can then be used for measuring different observables.
 
+More specifically, here are the steps to program neutral-atom quantum computers using Bloqade:
+
+- specify atom positions (see [Lattices](@ref))
+- program waveforms of Hamiltonian parameters (see [Waveforms](@ref))  
+- create the Hamiltonian (see [Hamiltonians](@ref))
+- specify the initial state (see [Registers and Observables](@ref))
+- emulation (see [Emulation](@ref emulation))
+- measurements & observables (see [Registers and Observables](@ref)).
+
 The default units for various quantities are: 
 
 | Quantity      | Default Unit |

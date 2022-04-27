@@ -34,13 +34,13 @@ BloqadeODE.SchrodingerProblem
 
 To run the emulation, you need to define the exact evolution and solver
 you would like to run with via [`BloqadeODE.SchrodingerProblem`](@ref), and then feed the corresponding object to the
-`emulate!` function
+`emulate!` function:
 
 ```@docs
 emulate!
 ```
 
-For example, we can simulate the quantum dynamics of a time-dependent Hamiltonian by the following codes
+For example, we can simulate the quantum dynamics of a time-dependent Hamiltonian by the following codes:
 
 ```@example evolution
 using Bloqade
@@ -56,7 +56,7 @@ With `emulate!`, the quantum state stored in `reg` has been updated to the state
 
 If you want to do operations during the real-time evolution,
 such as measuring observables, you can instead
-using the integrator interface with `for` loop and with `TimeChoiceIterator` on your desired clocks, e.g.
+using the integrator interface with `for` loop and with `TimeChoiceIterator` on your desired clocks, e.g.:
 
 ```@example evolution
 integrator = init(ev, Vern8())
@@ -80,7 +80,7 @@ please see the [Observables](@ref) section.
 
 
 
-## Choosing an ODE Solver
+## Choose an ODE Solver
 
 One of the most powerful tool of the Julia ecosystem is the DiffEq ecosystem
 that implements many different solvers. These solvers have different advantages and trade-offs. Since simulating a quantum many-body Schrödinger equation has some
@@ -115,7 +115,7 @@ but if one is interested in measuring some observables in smaller time steps, th
 method will not produce accurate results for the finer time step, but instead output results at the specific adaptive steps. 
 In this situation, it's better to use fixed-step methods at the clocks where the observables are measured.
 
-One can use the code below to turn off the adaptive steps when setting up the [`SchrodingerProblem`](@ref).
+One can use the code below to turn off the adaptive steps when setting up the [`SchrodingerProblem`](@ref):
 
 ```@example evolution
 atoms = generate_sites(SquareLattice(), 3, 3; scale=5.1);
@@ -139,13 +139,13 @@ KrylovEvolution
 
 ## Run Krylov-based Emulation
 
-We can run the Krylov-based emulation in a similar way using [`emulate!`](@ref)
+We can run the Krylov-based emulation in a similar way using [`emulate!`](@ref):
 
 ```@repl evolution
 emulate!(KrylovEvolution(reg, clocks, h))
 ```
 
-However, as its name suggests, the Krylov-based emulation is not a standard ODE problem that DiffEq  supports. Thus, it does not support the ODE problem interface, but it's more like a gate-based interface. For example, the object `KrylovEvolution` is iterable.
+However, as its name suggests, the Krylov-based emulation is not a standard ODE problem that DiffEq  supports. Thus, it does not support the ODE problem interface, but it's more like a gate-based interface. For example, the object `KrylovEvolution` is iterable:
 
 ```@example evolution
 for (step, reg, duration) in KrylovEvolution(reg, clocks, h)

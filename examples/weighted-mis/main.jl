@@ -10,7 +10,7 @@
 # on a weighted unit disk graph, with arbitrary weights for each vertex. The MWIS problem 
 # seeks to find an independent set whose weights sum to the maximum possible value.
 
-# We first import the required packages to compute MWIS classically.
+# We first import the required packages to compute MWIS classically:
 using Random
 Random.seed!(42)
 using Graphs
@@ -28,7 +28,7 @@ locs = [(1,-1), (4,0), (1,1), (2,0), (0,0), (2,2), (2,-2), (3,1), (3,-1)];
 g = unit_disk_graph(locs, 1.5)
 show_graph(g; locs=locs, vertex_colors=["white" for i=1:nv(g)])
 
-# We then assign random weights to each vertex for this example problem.
+# We then assign random weights to each vertex for this example problem:
 weights = [rand() for i = 1:nv(g)];
 
 # We can solve the MWIS problem classically for this graph
@@ -43,7 +43,7 @@ show_graph(g; locs = locs, vertex_colors=
 
 # The quantum adiabatic algorithm (QAA) can be performed with the Hamiltonian:
 
-# $H_{\text{QA}}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \frac{1}{2}\Omega_v(t) \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$
+# $H_{\text{QA}}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \frac{1}{2}\Omega_v(t) \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$.
 
 # Here, we work in the limit of $\Delta, \Omega \ll U$, where 
 # the non-independent set space of the graph can be neglected 
@@ -71,7 +71,7 @@ show_graph(g; locs = locs, vertex_colors=
 # atom detuning with, e.g., $\Delta(t)_i = w_i \times \Delta(t)$.  
 
 # Let's first build and plot the individual pulse waveforms.
-# We use the following function to build the Hamiltonian and the corresponding waveforms for the adiabatic evolution of the system.
+# We use the following function to build the Hamiltonian and the corresponding waveforms for the adiabatic evolution of the system:
 function build_adiabatic_sweep(graph, Ω_max::Float64, Δ_max::Float64, t_max::Float64, weights::Vector{Float64})
     Ω = Waveform(t->Ω_max * sin(pi * t/t_max)^2, duration=t_max)
     Δ = map(1:nv(graph)) do idx
@@ -81,7 +81,7 @@ function build_adiabatic_sweep(graph, Ω_max::Float64, Δ_max::Float64, t_max::F
     return h, Ω, Δ
 end
 
-# Here, we choose $\Delta_{\max} / \Omega_{\max} = 3$, with $\Omega_{\max} = 2 \pi \times 4$ MHz
+# Here, we choose $\Delta_{\max} / \Omega_{\max} = 3$, with $\Omega_{\max} = 2 \pi \times 4$ MHz:
 Ω_max = 2π * 4
 Δ_max = 3 * Ω_max
 t_max = 1.5
@@ -107,7 +107,7 @@ fig
 # See [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf) 
 # for more details on the procedure to extract the Landau-Zener timescale.
 
-# We run the simulation in the blockade (independent set) subspace.
+# We run the simulation in the blockade (independent set) subspace:
 t_list = []
 P_MWIS = [] # MIS probability 
 subspace = independent_set_subspace(g);
@@ -131,8 +131,8 @@ y = broadcast(log, 1 .- P_MWIS[P_MWIS .> 0.9])
 a, b = linear_fit(t_list[P_MWIS .> 0.9], y)
 T_LZ = -1/b;
 
-# Plot results
-fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize=(14, 6))
+# Finally, we plot the results:
+fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize=(16, 6))
 ax1.scatter(t_list, P_MWIS)
 ax1.set_ylabel("MWIS Probability")
 ax1.set_xlabel("Time (μs)")

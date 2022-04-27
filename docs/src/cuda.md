@@ -5,7 +5,7 @@ CUDA acceleration, you will need a NVIDIA graphics processing unit (GPU).
 
 ## Installation
 
-To use CUDA accelerators, you need to install the CUDA package
+To use CUDA accelerators, you need to install the CUDA package:
 
 ```julia
 pkg> add CUDA
@@ -19,7 +19,7 @@ the CUDA toolkit.
 Converting your CPU-based simulation to CUDA-based simulation
 is extremely simple: just use the `cu` function from `CUDA`
 on the register object, which will convert the CPU-based
-register to a CUDA-based register, e.g.
+register to a CUDA-based register, e.g.:
 
 ```julia
 using CUDA
@@ -29,7 +29,7 @@ dreg = cu(reg) # device register
 
 For emulation, you can call `cu` on your emulation object
 to convert everything (emulation intermediate memory, etc.)
-into the GPU memory, e.g.
+into the GPU memory, e.g.:
 
 ```julia
 cu(KrylovEvolution(reg, clocks, h))

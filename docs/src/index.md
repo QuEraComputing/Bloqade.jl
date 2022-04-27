@@ -24,23 +24,21 @@ Currently, Bloqade enables the easy design and fast execution of quantum dynamic
 <p>
 To install Bloqade,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
-    Julia's interactive session (known as REPL)</a>, press <kbd>]</kbd> key in the REPL to use the package mode, and then
+    Julia's interactive session (known as REPL)</a>, press <kbd>]</kbd> key in the REPL to use the package mode, and then add the QuEra Julia registry via:
 </p>
 ```
-
-add the QuEra Julia registry via
 
 ```julia
 pkg> registry add https://github.com/Happy-Diode/Miskatonic.git
 ```
 
-For the stable release, type
+For the stable release, type:
 
 ```julia
 pkg> add Bloqade
 ```
 
-Or for the current master,
+Or for the current master:
 
 ```julia
 pkg> add Bloqade#master
@@ -48,7 +46,7 @@ pkg> add Bloqade#master
 
 For a more advanced installation guide, please see the [Installation](@ref install) page.
 
-## What does Bloqade do?
+## What does Bloqade Do?
 
 
 In the analog mode, Bloqade simulates the time evolution of a quantum state under the Schrödinger equation where the Hamiltonian is the interacting Rydberg Hamiltonian ``\hat{\mathcal{H}}``, 
@@ -72,7 +70,7 @@ More specifically, here are the steps to program neutral-atom quantum computers 
 - emulation (see [Emulation](@ref emulation))
 - measurements & observables (see [Registers and Observables](@ref)).
 
-The default units for various quantities are 
+The default units for various quantities are: 
 
 | Quantity      | Default Unit |
 | :---:         |    :----:   |
@@ -83,11 +81,11 @@ The default units for various quantities are
 | ``\Delta``    |  MHz        |
 
 
-## First steps
+## A Simple Example
 
 Let's try a simple example of simulating quantum many-body dynamics governed by the Rydberg Hamiltonian. 
 
-We start by loading the Bloqade Module
+We start by loading the Bloqade Module:
 
 ```@repl quick-start
 using Bloqade
@@ -101,7 +99,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.74)
 ```
 We have set the distance between nearest-neighbor atoms to be 5.74 μm. Note that the default unit of length is μm as shown in the table above.
 
-Let's set both ``\Omega`` and ``\Delta`` to be constants (and ``\phi = 0``). Since all the variable parameters in the Hamiltonian are specified, we can now create an interacting Rydberg Hamiltonian by using [`rydberg_h`](@ref), 
+Let's set both ``\Omega`` and ``\Delta`` to be constants (and ``\phi = 0``). Since all the variable parameters in the Hamiltonian are specified, we can now create an interacting Rydberg Hamiltonian by using [`rydberg_h`](@ref): 
 
 ```@repl quick-start
 h = rydberg_h(atoms; Ω = 4 * 2π, Δ = 0)
@@ -109,7 +107,7 @@ h = rydberg_h(atoms; Ω = 4 * 2π, Δ = 0)
 
 To create more complicated waveforms for ``\Omega`` and ``\Delta`` and find the supported utilities, please refer to the [Waveforms](@ref) page.
 
-Let's create an initial state with all the atoms in the ground state by using [`zero_state`](@ref)
+Let's create an initial state with all the atoms in the ground state by using [`zero_state`](@ref).
 
 ```@repl quick-start
 reg = zero_state(10)
@@ -124,7 +122,7 @@ emulate!(prob);
 ```
 Here, we have chosen the ODE-based solver (`Vern8()`) by using [`SchrodingerProblem`](@ref) and set the total evolution time to be 1.6 μs.
 
-After simulating the time evolution and get the final state, we can measure the Rydberg population at each site for the final state 
+After simulating the time evolution and get the final state, we can measure the Rydberg population at each site for the final state: 
 
 ```@repl quick-start
 rydberg_populations = map(1:nsites) do i
@@ -133,12 +131,6 @@ end
 ```
 `prob.reg` is the register storing the final state after the time evolution.
 
+## Have Suggestions or Interested in Contributing?
 
-## Looking for Help?
-
-- check the slack channel [#julia](https://quera-workspace.slack.com/archives/C011C12GXRD)
-- if not urgent, ask questions in [discussions](https://github.com/Happy-Diode/Bloqade.jl/discussions)
-
-## Have Suggestions or Interested in Contribution?
-
-- [file an issue](https://github.com/Happy-Diode/Bloqade.jl/issues/new) to report a bug or request a feature
+- [file an issue]() to report a bug or request a feature.

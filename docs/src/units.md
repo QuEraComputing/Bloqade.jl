@@ -13,10 +13,10 @@ using Bloqade
 using Unitful: kHz, µm
 rydberg_h([(1, ), (2, )], C = 2π * 109.2kHz * µm^6)
 ```
-In the above example, we have assigned the parameter `C_6` with the unit `kHz * µm^6`, which is automatically
-converted to τηε default unit `MHz * µm^6` in Bloqade. 
+In the above example, we have assigned the parameter `C_6` with the unit `kHz * μm^6`, which is automatically
+converted to the default unit `MHz * µm^6` in Bloqade. 
 
-Other than the Hamiltonian, we can also specify units on waveforms, e.g. 
+Other than the Hamiltonian, we can also specify units on waveforms, e.g.: 
 
 ```@example units
 using Unitful: rad, ms

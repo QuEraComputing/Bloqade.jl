@@ -87,6 +87,8 @@ The matrix projected in the subspace of a given Hamiltonian can be obtained via
 [`mat`](@ref) as well, e.g.,
 
 ```@repl subspace
+atoms = generate_sites(SquareLattice(), 3, 3, scale=5.1);
+space = blockade_subspace(atoms, 5.2);
 h1 = rydberg_h(atoms; Δ=2.0*2π, Ω=1.0*2π)
 mat(h1, space)
 ```
@@ -119,7 +121,6 @@ In this case, we can use Bloqade to easily deal with such problems for an arbitr
 Let us take the PXP model in 1D as an example. We first create a 1D chain and then generate a subspace by projecting out states that have nearest-neighbor interactions. 
 
 ```@example subspace
-using Bloqade
 atoms = generate_sites(ChainLattice(), 10, scale=5.1)
 space = blockade_subspace(atoms, 5.2)
 register = product_state(bit"0101010101", space)

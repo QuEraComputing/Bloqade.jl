@@ -1,16 +1,17 @@
 # using YaoBlocks
 using Yao
 
-function to_json(h::AbstractBlock)
+function to_json(h::AbstractBlock, params::SchemaConversionParams)
     # 1. check if the input block expression is a summation
     # of RydInteract, SumOfX, SumOfXPhase, SumOfN
 
-    components = Set(map((x) -> typeof(content(x)), h))
-    if length(components) > 0 && components <= Set([RydInteract, SumOfX, SumOfXPhase, SumOfN])
-        return to_schema(h).to_dict()
-    else
-        return nothing
-    end
+    # components = Set(map((x) -> typeof(content(x)), h))
+    # if length(components) > 0 && components <= Set([RydInteract, SumOfX, SumOfXPhase, SumOfN])
+    #     return to_schema(h).to_dict()
+    # else
+    #     return nothing
+    # end
+    return to_schema(h,)
 
 
     # 2. extract the atom positions, Ω, ϕ, Δ (inside RydbergInteract, )
@@ -23,7 +24,9 @@ function to_json(h::AbstractBlock)
     # since in our representation it's all local pulse
 end
 
-function to_schema(h::AbstractBlock, max_slope::Number)
+function to_schema(h::AbstractBlock; rabi_frequency_amplitude_max_slope::Number,
+    rabi_frequency_phase_max_slope::Number, rabi_detuning_max_slope::Number, n_shots::Number
+)
     atoms::Maybe{Vector} = nothing
     ϕ::Maybe{Waveform} = nothing
     Ω::Maybe{Waveform} = nothing
@@ -36,15 +39,21 @@ function to_schema(h::AbstractBlock, max_slope::Number)
         elseif typeof(contents) == SumOfXPhase
             ϕ = contents.ϕ
             Ω = contents.Ω.Ω
+        elseif typeof(contents) == SumOfX
+            Ω = contents.Ω.Ω
         elseif typeof(contents) == SumOfN
             Δ = contents.Δ
         end
     end
 
     return TaskSpecification(;
-        nshots=1,
+        nshots=n_shots,
         lattice=to_lattice(atoms),
-        effective_hamiltonian=to_hamiltonian(; ϕ=ϕ, Ω=Ω, Δ=Δ, max_slope=max_slope)
+        effective_hamiltonian=to_hamiltonian(; ϕ=ϕ, Ω=Ω, Δ=Δ,
+            rabi_frequency_amplitude_max_slope=rabi_frequency_amplitude_max_slope,
+            rabi_frequency_phase_max_slope=rabi_frequency_phase_max_slope,
+            rabi_detuning_max_slope=rabi_detuning_max_slope
+        )
     )
 
 end
@@ -61,11 +70,15 @@ function to_lattice(atoms::Vector)
     return Lattice(; sites=coords, filling=vec(ones(length(coords), 1)))
 end
 
-# TODO: Check if it's piecewise constant and if so then use the max slope to convert to piecewise linear.
+# Check if the waveform is piecewise constant and if so then use the max slope to convert to piecewise linear.
 # Given a piecewise constant function with clocks [t1, t2, t3] and values [v1, v2, v3], this creates 
 # clocks [t1, t2-((v2-v1)/max_slope), t2, v3-((v3-v2)/max_slope), v3] and values [v1, v1, v2, v2, v3]
-function get_piecewise_linear_times_and_clocks(w::Waveform, max_slope::Number)
-    isempty(w.f.clocks) && return ([], [])
+# If the waveform is empty or nothing, returns clocks [0] and values [0]
+function get_piecewise_linear_times_and_clocks(w::Maybe{Waveform}, max_slope::Number)
+    # if nothing or empty
+    (isnothing(w) || isempty(w.f.clocks)) && return ([0], [0])
+
+    # if not piecewise constant, return clocks and values directly
     !isa(w.f, BloqadeWaveforms.PiecewiseConstant) && return (w.f.clocks, w.f.values)
 
     clocks = []
@@ -87,10 +100,12 @@ function get_piecewise_linear_times_and_clocks(w::Waveform, max_slope::Number)
 
 end
 
-function to_hamiltonian(; ϕ::Waveform, Ω::Waveform, Δ::Waveform, max_slope::Number)
-    amp_times, amp_values = get_piecewise_linear_times_and_clocks(Ω, max_slope)
-    phase_times, phase_values = get_piecewise_linear_times_and_clocks(ϕ, max_slope)
-    detuning_times, detuning_values = get_piecewise_linear_times_and_clocks(Δ, max_slope)
+function to_hamiltonian(; ϕ::Maybe{Waveform}, Ω::Maybe{Waveform}, Δ::Maybe{Waveform}, rabi_frequency_amplitude_max_slope::Number,
+    rabi_frequency_phase_max_slope::Number, rabi_detuning_max_slope::Number
+)
+    amp_times, amp_values = get_piecewise_linear_times_and_clocks(Ω, rabi_frequency_amplitude_max_slope)
+    phase_times, phase_values = get_piecewise_linear_times_and_clocks(ϕ, rabi_frequency_phase_max_slope)
+    detuning_times, detuning_values = get_piecewise_linear_times_and_clocks(Δ, rabi_detuning_max_slope)
 
     return EffectiveHamiltonian(; rydberg=RydbergHamiltonian(;
         rabi_frequency_amplitude=RydbergRabiFrequencyAmplitude(;

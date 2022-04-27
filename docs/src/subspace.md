@@ -124,7 +124,7 @@ atoms = generate_sites(ChainLattice(), 10, scale=5.1)
 space = blockade_subspace(atoms, 5.2)
 register = product_state(bit"0101010101", space)
 h = 2π * 4.0 * SumOfX(length(atoms)) - 2π * 1.0 * SumOfN(length(atoms))
-prob = SchrodingerProblem(reg, 0.2, h)
+prob = SchrodingerProblem(register, 0.2, h)
 emulate!(prob)
 ```
 After creating the subspace, we have built a Hamiltonian by explicitly summing up the Rabi frequency term  and the detuning term by using [`SumOfX`](@ref) and [`SumOfN`](@ref) respectively. 

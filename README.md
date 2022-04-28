@@ -3,6 +3,7 @@ src="docs/src/assets/logo-black.png"
 alt="Yao Logo" width="400"></img>
 </div>
 
+---
 
 [![Build Status](https://github.com/Happy-Diode/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/Bloqade.jl/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=9IEs1W)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)

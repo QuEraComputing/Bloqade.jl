@@ -204,23 +204,5 @@ end
         n_shots=100
     )
 
-    @test BloqadeSchema.to_json(block, params) == OrderedCollections.OrderedDict{String,Any}(
-        "nshots" => 100,
-        "lattice" => Dict{String,Vector}(
-            "sites" => [[0.0, 0.0], [1.0, 3.0], [4.0, 2.0], [6.0, 3.0], [0.0, 5.0], [2.0, 5.0]],
-            "filling" => Int32[1, 1, 1, 1, 1, 1]),
-        "effective_hamiltonian" => OrderedCollections.OrderedDict{String,Any}(
-            "rydberg" => OrderedCollections.OrderedDict{String,Any}(
-                "rabi_frequency_amplitude" => Dict{String,OrderedCollections.OrderedDict{String,Any}}(
-                    "global" => OrderedCollections.OrderedDict(
-                        "times" => [0.0, 1.8, 2.0, 3.9, 4.0, 5.8, 6.0],
-                        "values" => [5.0, 5.0, 3.0, 3.0, 4.0, 4.0, 6.0])),
-                "rabi_frequency_phase" => Dict{String,OrderedCollections.OrderedDict{String,Any}}(
-                    "global" => OrderedCollections.OrderedDict(
-                        "times" => [0.0, 5.0],
-                        "values" => [33.0, 0.0])),
-                "detuning" => Dict{String,OrderedCollections.OrderedDict{String,Any}}(
-                    "global" => OrderedCollections.OrderedDict(
-                        "times" => [0.0, 0.6, 2.1, 2.2],
-                        "values" => [-10.1, -10.1, 10.1, 10.1])))))
+    @test BloqadeSchema.to_json(block, params) == "{\"nshots\":100,\"lattice\":{\"sites\":[[0.0,0.0],[1.0,3.0],[4.0,2.0],[6.0,3.0],[0.0,5.0],[2.0,5.0]],\"filling\":[1,1,1,1,1,1]},\"effective_hamiltonian\":{\"rydberg\":{\"rabi_frequency_amplitude\":{\"global\":{\"times\":[0.0,1.8,2.0,3.9,4.0,5.8,6.0],\"values\":[5.0,5.0,3.0,3.0,4.0,4.0,6.0]}},\"rabi_frequency_phase\":{\"global\":{\"times\":[0.0,5.0],\"values\":[33.0,0.0]}},\"detuning\":{\"global\":{\"times\":[0.0,0.6,2.1,2.2],\"values\":[-10.1,-10.1,10.1,10.1]}}}}}"
 end

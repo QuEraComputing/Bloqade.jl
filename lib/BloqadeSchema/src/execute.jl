@@ -1,26 +1,14 @@
 using Yao
 using Configurations
+using JSON3
 
 function to_json(h::AbstractBlock, params::SchemaConversionParams)
-    # 1. check if the input block expression is a summation
-    # of RydInteract, SumOfX, SumOfXPhase, SumOfN
-
-    return Configurations.to_dict(to_schema(h;
+    return JSON3.write(Configurations.to_dict(to_schema(h;
         rabi_frequency_amplitude_max_slope=params.rabi_frequency_amplitude_max_slope,
         rabi_frequency_phase_max_slope=params.rabi_frequency_phase_max_slope,
         rabi_detuning_max_slope=params.rabi_detuning_max_slope,
         n_shots=params.n_shots
-    ))
-
-
-    # 2. extract the atom positions, Ω, ϕ, Δ (inside RydbergInteract, )
-
-
-    # 3. generate corresponding pulses in QuEraSchema
-    # 4. call to_dict on QuEraSchema then using JSON3
-    #    to convert the dict to json string
-    # NOTE: let's ignore local pulse pattern for now
-    # since in our representation it's all local pulse
+    )))
 end
 
 function to_schema(h::AbstractBlock; rabi_frequency_amplitude_max_slope::Number,

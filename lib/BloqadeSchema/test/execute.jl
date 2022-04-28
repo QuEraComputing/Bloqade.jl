@@ -4,6 +4,7 @@ using BloqadeWaveforms
 using Test
 using Configurations
 using Yao
+using OrderedCollections
 
 @testset "to_lattice with 1d chains" begin
     @test BloqadeSchema.to_lattice([1, 2, 3, 4, 5]) == BloqadeSchema.Lattice(;
@@ -189,6 +190,37 @@ end
     @test BloqadeSchema.get_piecewise_linear_times_and_clocks(nothing, 10) == ([0], [0])
 end
 
-# @testset "to_json" begin
+@testset "to_json no local detuning" begin
+    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6], values=[5, 3, 4, 6])
+    Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1])
+    ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0, 5], values=[33, 0])
+    atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
 
-# end
+    block = BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
+    params = BloqadeSchema.SchemaConversionParams(
+        rabi_frequency_amplitude_max_slope=10,
+        rabi_frequency_phase_max_slope=10,
+        rabi_detuning_max_slope=10,
+        n_shots=100
+    )
+
+    @test BloqadeSchema.to_json(block, params) == OrderedCollections.OrderedDict{String,Any}(
+        "nshots" => 100,
+        "lattice" => Dict{String,Vector}(
+            "sites" => [[0.0, 0.0], [1.0, 3.0], [4.0, 2.0], [6.0, 3.0], [0.0, 5.0], [2.0, 5.0]],
+            "filling" => Int32[1, 1, 1, 1, 1, 1]),
+        "effective_hamiltonian" => OrderedCollections.OrderedDict{String,Any}(
+            "rydberg" => OrderedCollections.OrderedDict{String,Any}(
+                "rabi_frequency_amplitude" => Dict{String,OrderedCollections.OrderedDict{String,Any}}(
+                    "global" => OrderedCollections.OrderedDict(
+                        "times" => [0.0, 1.8, 2.0, 3.9, 4.0, 5.8, 6.0],
+                        "values" => [5.0, 5.0, 3.0, 3.0, 4.0, 4.0, 6.0])),
+                "rabi_frequency_phase" => Dict{String,OrderedCollections.OrderedDict{String,Any}}(
+                    "global" => OrderedCollections.OrderedDict(
+                        "times" => [0.0, 5.0],
+                        "values" => [33.0, 0.0])),
+                "detuning" => Dict{String,OrderedCollections.OrderedDict{String,Any}}(
+                    "global" => OrderedCollections.OrderedDict(
+                        "times" => [0.0, 0.6, 2.1, 2.2],
+                        "values" => [-10.1, -10.1, 10.1, 10.1])))))
+end

@@ -73,7 +73,7 @@ ax.bar(1:nsites, density_g[30, :])
 ax.set_xticks(1:nsites)
 ax.set_xlabel("Sites")
 ax.set_ylabel("Rydberg density")
-ax.set_title("Density Profile: 1D Chain, Δ = -2π * 10 MHz")
+ax.set_title("Density Profile: 1D Chain, Δ = 2π * 10 MHz")
 fig
         
 

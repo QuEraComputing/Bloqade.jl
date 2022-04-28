@@ -1,6 +1,6 @@
 <div align="center"> <img
 src="docs/src/assets/logo-black.png"
-alt="Yao Logo" width="210"></img>
+alt="Yao Logo" width="400"></img>
 </div>
 
 

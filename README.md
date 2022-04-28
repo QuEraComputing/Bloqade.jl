@@ -8,7 +8,7 @@ alt="Yao Logo" width="400"></img>
 [![Build Status](https://github.com/Happy-Diode/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/Bloqade.jl/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=9IEs1W)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
 
-package for the simulation of quantum computation and quantum dynamics based on neutral-atom architectures.
+Package for the simulation of quantum computation and quantum dynamics based on neutral-atom architectures.
 
 ## Installation
 
@@ -20,16 +20,16 @@ Bloqade is a &nbsp;
     </a>
     &nbsp; package. To install Bloqade,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
-    Julia's interactive session (known as REPL)</a> and press <kbd>]</kbd> key in the REPL to use the package mode, then type the following command
+    Julia's interactive session (known as REPL)</a> and press <kbd>]</kbd> key in the REPL to use the package mode, then type the following command:
 </p>
 
-For stable release
+For stable release:
 
 ```julia
 pkg> add Bloqade
 ```
 
-For current master
+For current master:
 
 ```julia
 pkg> add Bloqade#master

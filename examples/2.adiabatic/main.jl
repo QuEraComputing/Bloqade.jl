@@ -85,7 +85,7 @@ order_para = map(1: Δ_step) do ii
 end
 
 fig, ax = plt.subplots(figsize = (10,4))
-ax.plot(Δ, order_para)
+ax.plot(Δ/2π, order_para)
 ax.set_xlabel("Δ/2π (MHz) ")
 ax.set_ylabel("Order parameter")
 fig

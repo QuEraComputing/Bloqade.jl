@@ -1,5 +1,6 @@
 # using YaoBlocks
 using Yao
+using Configurations
 
 function to_json(h::AbstractBlock, params::SchemaConversionParams)
     # 1. check if the input block expression is a summation
@@ -11,7 +12,12 @@ function to_json(h::AbstractBlock, params::SchemaConversionParams)
     # else
     #     return nothing
     # end
-    return to_schema(h,)
+    return Configurations.to_dict(to_schema(h;
+        rabi_frequency_amplitude_max_slope=params.rabi_frequency_amplitude_max_slope,
+        rabi_frequency_phase_max_slope=params.rabi_frequency_phase_max_slope,
+        rabi_detuning_max_slope=params.rabi_detuning_max_slope,
+        n_shots=params.n_shots
+    ))
 
 
     # 2. extract the atom positions, Ω, ϕ, Δ (inside RydbergInteract, )

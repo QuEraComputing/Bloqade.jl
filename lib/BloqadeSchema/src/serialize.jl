@@ -5,6 +5,12 @@ function Configurations.to_dict(::Type{T}, x::Union{RydbergRabiFrequencyAmplitud
 end
 
 function Configurations.to_dict(::Type{T}, x::RydbergDetuning, option::Configurations.ToDictOption) where {T}
+    if isnothing(x.local_value)
+        return Dict(
+            "global" => to_dict(x.global_value)
+        )
+    end
+    
     return Dict(
         "global" => to_dict(x.global_value),
         "local" => to_dict.(x.local_value)

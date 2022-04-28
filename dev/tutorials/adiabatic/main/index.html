@@ -4,137 +4,7 @@ using PythonCall
 using KrylovKit
 using SparseArrays
 
-plt = pyimport(&quot;matplotlib.pyplot&quot;);</code></pre><pre><code class="nohighlight hljs">    CondaPkg Found dependencies: /home/runner/work/Bloqade.jl/Bloqade.jl/CondaPkg.toml
-    CondaPkg Found dependencies: /home/runner/.julia/packages/PythonCall/XgP8G/CondaPkg.toml
-    CondaPkg Resolving changes
-             + matplotlib
-             + python
- Downloading artifact: micromamba-0.22.0
- Downloading artifact: micromamba-0.22.0
-    CondaPkg Installing packages
-  Package                           Version  Build                Channel                   Size
-──────────────────────────────────────────────────────────────────────────────────────────────────
-  Install:
-──────────────────────────────────────────────────────────────────────────────────────────────────
-
-  + _libgcc_mutex                       0.1  conda_forge          conda-forge/linux-64       3kB
-  + _openmp_mutex                       4.5  2_gnu                conda-forge/linux-64      24kB
-  + alsa-lib                          1.2.3  h516909a_0           conda-forge/linux-64     573kB
-  + brotli                            1.0.9  h166bdaf_7           conda-forge/linux-64      18kB
-  + brotli-bin                        1.0.9  h166bdaf_7           conda-forge/linux-64      19kB
-  + bzip2                             1.0.8  h7f98852_4           conda-forge/linux-64     496kB
-  + ca-certificates               2021.10.8  ha878542_0           conda-forge/linux-64     142kB
-  + certifi                       2021.10.8  py310hff52083_2      conda-forge/linux-64     148kB
-  + cycler                           0.11.0  pyhd8ed1ab_0         conda-forge/noarch        10kB
-  + dbus                             1.13.6  h5008d03_3           conda-forge/linux-64     619kB
-  + expat                             2.4.8  h27087fc_0           conda-forge/linux-64     192kB
-  + font-ttf-dejavu-sans-mono          2.37  hab24e00_0           conda-forge/noarch       397kB
-  + font-ttf-inconsolata              3.000  h77eed37_0           conda-forge/noarch        97kB
-  + font-ttf-source-code-pro          2.038  h77eed37_0           conda-forge/noarch       701kB
-  + font-ttf-ubuntu                    0.83  hab24e00_0           conda-forge/noarch         2MB
-  + fontconfig                       2.14.0  h8e229c2_0           conda-forge/linux-64     312kB
-  + fonts-conda-ecosystem                 1  0                    conda-forge/noarch         4kB
-  + fonts-conda-forge                     1  0                    conda-forge/noarch         4kB
-  + fonttools                        4.33.3  py310h5764c6d_0      conda-forge/linux-64       2MB
-  + freetype                         2.10.4  h0708190_1           conda-forge/linux-64     911kB
-  + gettext                        0.19.8.1  h73d1719_1008        conda-forge/linux-64       4MB
-  + giflib                            5.2.1  h36c2ea0_2           conda-forge/linux-64      79kB
-  + gst-plugins-base                 1.20.1  hcf0ee16_1           conda-forge/linux-64       3MB
-  + gstreamer                        1.20.1  hd4edc92_1           conda-forge/linux-64       2MB
-  + icu                                69.1  h9c3ff4c_0           conda-forge/linux-64      14MB
-  + jbig                                2.1  h7f98852_2003        conda-forge/linux-64      44kB
-  + jpeg                                 9e  h166bdaf_1           conda-forge/linux-64     274kB
-  + keyutils                          1.6.1  h166bdaf_0           conda-forge/linux-64     118kB
-  + kiwisolver                        1.4.2  py310hbf28c38_1      conda-forge/linux-64      77kB
-  + krb5                             1.19.3  h08a2579_0           conda-forge/linux-64       2MB
-  + lcms2                              2.12  hddcbb42_0           conda-forge/linux-64     453kB
-  + ld_impl_linux-64                 2.36.1  hea4e1c9_2           conda-forge/linux-64     683kB
-  + lerc                                3.0  h9c3ff4c_0           conda-forge/linux-64     222kB
-  + libblas                           3.9.0  14_linux64_openblas  conda-forge/linux-64      13kB
-  + libbrotlicommon                   1.0.9  h166bdaf_7           conda-forge/linux-64      66kB
-  + libbrotlidec                      1.0.9  h166bdaf_7           conda-forge/linux-64      34kB
-  + libbrotlienc                      1.0.9  h166bdaf_7           conda-forge/linux-64     294kB
-  + libcblas                          3.9.0  14_linux64_openblas  conda-forge/linux-64      13kB
-  + libclang                         13.0.1  default_hc23dcda_0   conda-forge/linux-64      12MB
-  + libdeflate                         1.10  h7f98852_0           conda-forge/linux-64      79kB
-  + libedit                    3.1.20191231  he28a2e2_2           conda-forge/linux-64     124kB
-  + libevent                         2.1.10  h28343ad_4           conda-forge/linux-64       1MB
-  + libffi                            3.4.2  h7f98852_5           conda-forge/linux-64      58kB
-  + libgcc-ng                        11.2.0  h1d223b6_16          conda-forge/linux-64     923kB
-  + libgfortran-ng                   11.2.0  h69a702a_16          conda-forge/linux-64      23kB
-  + libgfortran5                     11.2.0  h5c6108e_16          conda-forge/linux-64       2MB
-  + libglib                          2.70.2  h174f98d_4           conda-forge/linux-64       3MB
-  + libgomp                          11.2.0  h1d223b6_16          conda-forge/linux-64     438kB
-  + libiconv                           1.16  h516909a_0           conda-forge/linux-64       1MB
-  + liblapack                         3.9.0  14_linux64_openblas  conda-forge/linux-64      13kB
-  + libllvm13                        13.0.1  hf817b99_2           conda-forge/linux-64      35MB
-  + libnsl                            2.0.0  h7f98852_0           conda-forge/linux-64      31kB
-  + libogg                            1.3.4  h7f98852_1           conda-forge/linux-64     211kB
-  + libopenblas                      0.3.20  pthreads_h78a6416_0  conda-forge/linux-64      11MB
-  + libopus                           1.3.1  h7f98852_1           conda-forge/linux-64     261kB
-  + libpng                           1.6.37  h21135ba_2           conda-forge/linux-64     314kB
-  + libpq                              14.2  h676c864_0           conda-forge/linux-64       3MB
-  + libstdcxx-ng                     11.2.0  he4da1e4_16          conda-forge/linux-64       4MB
-  + libtiff                           4.3.0  h542a066_3           conda-forge/linux-64     653kB
-  + libuuid                          2.32.1  h7f98852_1000        conda-forge/linux-64      28kB
-  + libvorbis                         1.3.7  h9c3ff4c_0           conda-forge/linux-64     286kB
-  + libwebp                           1.2.2  h3452ae3_0           conda-forge/linux-64      87kB
-  + libwebp-base                      1.2.2  h7f98852_1           conda-forge/linux-64     844kB
-  + libxcb                             1.13  h7f98852_1004        conda-forge/linux-64     400kB
-  + libxkbcommon                      1.0.3  he3ba5ed_0           conda-forge/linux-64     595kB
-  + libxml2                          2.9.12  h885dcf4_1           conda-forge/linux-64     778kB
-  + libzlib                          1.2.11  h166bdaf_1014        conda-forge/linux-64      61kB
-  + lz4-c                             1.9.3  h9c3ff4c_1           conda-forge/linux-64     184kB
-  + matplotlib                        3.5.1  py310hff52083_0      conda-forge/linux-64       7kB
-  + matplotlib-base                   3.5.1  py310h23f4a51_0      conda-forge/linux-64       8MB
-  + munkres                           1.1.4  pyh9f0ad1d_0         conda-forge/noarch        12kB
-  + mysql-common                     8.0.29  h26416b9_0           conda-forge/linux-64       2MB
-  + mysql-libs                       8.0.29  hbc51c84_0           conda-forge/linux-64       2MB
-  + ncurses                             6.3  h27087fc_1           conda-forge/linux-64       1MB
-  + nspr                               4.32  h9c3ff4c_1           conda-forge/linux-64     239kB
-  + nss                                3.77  h2350873_0           conda-forge/linux-64       2MB
-  + numpy                            1.22.3  py310h4ef5377_2      conda-forge/linux-64       7MB
-  + openjpeg                          2.4.0  hb52868f_1           conda-forge/linux-64     455kB
-  + openssl                           3.0.2  h166bdaf_1           conda-forge/linux-64       3MB
-  + packaging                          21.3  pyhd8ed1ab_0         conda-forge/noarch        36kB
-  + pcre                               8.45  h9c3ff4c_0           conda-forge/linux-64     259kB
-  + pillow                            9.1.0  py310he619898_2      conda-forge/linux-64      47MB
-  + pip                              22.0.4  pyhd8ed1ab_0         conda-forge/noarch         2MB
-  + pthread-stubs                       0.4  h36c2ea0_1001        conda-forge/linux-64       6kB
-  + pyparsing                         3.0.8  pyhd8ed1ab_0         conda-forge/noarch        81kB
-  + pyqt                             5.12.3  py310hff52083_8      conda-forge/linux-64      22kB
-  + pyqt-impl                        5.12.3  py310h1f8e252_8      conda-forge/linux-64       6MB
-  + pyqt5-sip                       4.19.18  py310h122e73d_8      conda-forge/linux-64     319kB
-  + pyqtchart                          5.12  py310hfcd6d55_8      conda-forge/linux-64     260kB
-  + pyqtwebengine                    5.12.1  py310hfcd6d55_8      conda-forge/linux-64     179kB
-  + python                           3.10.4  h2660328_0_cpython   conda-forge/linux-64      30MB
-  + python-dateutil                   2.8.2  pyhd8ed1ab_0         conda-forge/noarch       246kB
-  + python_abi                         3.10  2_cp310              conda-forge/linux-64       4kB
-  + qt                               5.12.9  h1304e3e_6           conda-forge/linux-64     103MB
-  + readline                            8.1  h46c0cb4_0           conda-forge/linux-64     302kB
-  + setuptools                       62.1.0  py310hff52083_0      conda-forge/linux-64       1MB
-  + six                              1.16.0  pyh6c4a22f_0         conda-forge/noarch        14kB
-  + sqlite                           3.38.2  h4ff8645_0           conda-forge/linux-64       2MB
-  + tk                               8.6.12  h27826a3_0           conda-forge/linux-64       3MB
-  + tornado                             6.1  py310h5764c6d_3      conda-forge/linux-64     673kB
-  + tzdata                            2022a  h191b570_0           conda-forge/noarch       124kB
-  + unicodedata2                     14.0.0  py310h5764c6d_1      conda-forge/linux-64     508kB
-  + wheel                            0.37.1  pyhd8ed1ab_0         conda-forge/noarch        32kB
-  + xorg-libxau                       1.0.9  h7f98852_0           conda-forge/linux-64      13kB
-  + xorg-libxdmcp                     1.1.3  h7f98852_0           conda-forge/linux-64      19kB
-  + xz                                5.2.5  h516909a_1           conda-forge/linux-64     352kB
-  + zlib                             1.2.11  h166bdaf_1014        conda-forge/linux-64      90kB
-  + zstd                              1.5.2  ha95c52a_0           conda-forge/linux-64     469kB
-
-  Summary:
-
-  Install: 108 packages
-
-  Total download: 338MB
-
-──────────────────────────────────────────────────────────────────────────────────────────────────
-
-</code></pre><h1 id="Ground-State-Properties"><a class="docs-heading-anchor" href="#Ground-State-Properties">Ground State Properties</a><a id="Ground-State-Properties-1"></a><a class="docs-heading-anchor-permalink" href="#Ground-State-Properties" title="Permalink"></a></h1><p>We start by probing the ground state properties of the Rydberg Hamiltonian in a 1D system. Let&#39;s use the 1D chain for simplicity and vary the parameters of the Rydberg Hamiltonian and calculate the corresponding ground state properties. Here, we consider a chain with 9 atoms, where nearby atoms are seperated by a distance of 5.72 μm. Please refer to the <a href="tutorials/adiabatic/@ref">Rydberg Blockade</a> page on tips for setting the separation distance for the atoms in preparing different ordered states. One can generate the system as follows using the function <a href="../../../lattices/#BloqadeLattices.generate_sites-Union{Tuple{D}, Tuple{AbstractLattice{D}, Vararg{Int64, D}}} where D"><code>generate_sites</code></a>:</p><pre><code class="language-julia hljs">nsites = 9
+plt = pyimport(&quot;matplotlib.pyplot&quot;);</code></pre><h1 id="Ground-State-Properties"><a class="docs-heading-anchor" href="#Ground-State-Properties">Ground State Properties</a><a id="Ground-State-Properties-1"></a><a class="docs-heading-anchor-permalink" href="#Ground-State-Properties" title="Permalink"></a></h1><p>We start by probing the ground state properties of the Rydberg Hamiltonian in a 1D system. Let&#39;s use the 1D chain for simplicity and vary the parameters of the Rydberg Hamiltonian and calculate the corresponding ground state properties. Here, we consider a chain with 9 atoms, where nearby atoms are seperated by a distance of 5.72 μm. Please refer to the <a href="tutorials/adiabatic/@ref">Rydberg Blockade</a> page on tips for setting the separation distance for the atoms in preparing different ordered states. One can generate the system as follows using the function <a href="../../../lattices/#BloqadeLattices.generate_sites-Union{Tuple{D}, Tuple{AbstractLattice{D}, Vararg{Int64, D}}} where D"><code>generate_sites</code></a>:</p><pre><code class="language-julia hljs">nsites = 9
 atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg"
      xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -150,7 +20,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-0236f7a8-1">
+<g fill="#000000" font-size="3.88" id="img-2170da09-1">
   <g transform="translate(23.64,33.09)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -182,52 +52,52 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     </g>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0236f7a8-2">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-2170da09-2">
   <g transform="translate(96.36,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0236f7a8-3">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-2170da09-3">
   <g transform="translate(87.27,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0236f7a8-4">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-2170da09-4">
   <g transform="translate(78.18,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0236f7a8-5">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-2170da09-5">
   <g transform="translate(69.09,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0236f7a8-6">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-2170da09-6">
   <g transform="translate(60,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0236f7a8-7">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-2170da09-7">
   <g transform="translate(50.91,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0236f7a8-8">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-2170da09-8">
   <g transform="translate(41.82,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0236f7a8-9">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-2170da09-9">
   <g transform="translate(32.73,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-0236f7a8-10">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-2170da09-10">
   <g transform="translate(23.64,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="2.57" id="img-0236f7a8-11">
+<g fill="#000000" font-size="2.57" id="img-2170da09-11">
   <g transform="translate(23.64,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -333,7 +203,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-a809d315-1">
+<g fill="#000000" font-size="3.88" id="img-e439946f-1">
   <g transform="translate(23.64,33.09)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -365,52 +235,52 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)</code></pre><?xml v
     </g>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-a809d315-2">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-e439946f-2">
   <g transform="translate(96.36,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-a809d315-3">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-e439946f-3">
   <g transform="translate(87.27,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-a809d315-4">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-e439946f-4">
   <g transform="translate(78.18,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-a809d315-5">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-e439946f-5">
   <g transform="translate(69.09,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-a809d315-6">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-e439946f-6">
   <g transform="translate(60,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-a809d315-7">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-e439946f-7">
   <g transform="translate(50.91,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-a809d315-8">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-e439946f-8">
   <g transform="translate(41.82,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-a809d315-9">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-e439946f-9">
   <g transform="translate(32.73,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-a809d315-10">
+<g stroke-width="0.44" fill="#FFFFFF" stroke="#000000" id="img-e439946f-10">
   <g transform="translate(23.64,23.64)">
     <circle cx="0" cy="0" r="2.18" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="2.57" id="img-a809d315-11">
+<g fill="#000000" font-size="2.57" id="img-e439946f-11">
   <g transform="translate(23.64,23.64)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -495,7 +365,7 @@ atoms = generate_sites(SquareLattice(), nx, ny, scale = 6.7)</code></pre><?xml v
     <path d="M0,0 L15,3.5 L0,7 z" stroke="context-stroke" fill="context-stroke"/>
   </marker>
 </defs>
-<g fill="#000000" font-size="3.88" id="img-6f138031-1">
+<g fill="#000000" font-size="3.88" id="img-6a6149b9-1">
   <g transform="translate(35,99)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">0.0μm</text>
@@ -527,52 +397,52 @@ atoms = generate_sites(SquareLattice(), nx, ny, scale = 6.7)</code></pre><?xml v
     </g>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6f138031-2">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6a6149b9-2">
   <g transform="translate(85,35)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6f138031-3">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6a6149b9-3">
   <g transform="translate(60,35)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6f138031-4">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6a6149b9-4">
   <g transform="translate(35,35)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6f138031-5">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6a6149b9-5">
   <g transform="translate(85,60)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6f138031-6">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6a6149b9-6">
   <g transform="translate(60,60)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6f138031-7">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6a6149b9-7">
   <g transform="translate(35,60)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6f138031-8">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6a6149b9-8">
   <g transform="translate(85,85)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6f138031-9">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6a6149b9-9">
   <g transform="translate(60,85)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6f138031-10">
+<g stroke-width="1.2" fill="#FFFFFF" stroke="#000000" id="img-6a6149b9-10">
   <g transform="translate(35,85)">
     <circle cx="0" cy="0" r="6" class="primitive"/>
   </g>
 </g>
-<g fill="#000000" font-size="7.06" id="img-6f138031-11">
+<g fill="#000000" font-size="7.06" id="img-6a6149b9-11">
   <g transform="translate(35,85)">
     <g class="primitive">
       <text text-anchor="middle" dy="0.35em">1</text>
@@ -648,4 +518,4 @@ ax.set_ylabel(&quot;site&quot;)
 ax.set_xticks(0:0.2:total_time)
 ax.set_yticks(1:nsites)
 bar = fig.colorbar(shw)
-fig</code></pre><p><img src="../2631061096.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« GPU Acceleration</a><a class="docs-footer-nextpage" href="../../qaoa/main/">The Maximum Independent Set Problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.16 on <span class="colophon-date" title="Wednesday 27 April 2022 23:18">Wednesday 27 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><p><img src="../2631061096.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« GPU Acceleration</a><a class="docs-footer-nextpage" href="../../qaoa/main/">The Maximum Independent Set Problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.16 on <span class="colophon-date" title="Thursday 28 April 2022 01:34">Thursday 28 April 2022</span>. Using Julia version 1.7.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

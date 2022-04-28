@@ -33,3 +33,7 @@ For current master
 ```julia
 pkg> add Bloqade#master
 ```
+
+## License
+
+Apache License 2.0

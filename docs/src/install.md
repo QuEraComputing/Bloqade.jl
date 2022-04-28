@@ -49,10 +49,22 @@ pkg> add BloqadeExpr#master
 ## Developing Bloqade
 
 When developing Bloqade, one will need to setup a local environment
-that contains all the local changes. This can be done via the `dev`
-command in Julia's Pkg mode. See also [Modifying A Dependency](https://pkgdocs.julialang.org/v1/getting-started/#Modifying-A-Dependency).
+that contains all the local changes. To work with the Bloqade repo,
+first you need to clone this repo
 
-One will need to `dev` the corresponding package to make the changes
+```sh
+# clone this repo
+git clone https://github.com/Happy-Diode/Bloqade.jl.git Bloqade
+# go into the directory
+cd Bloqade
+# dev the corresponding environment
+.ci/run dev
+```
+
+How this works? `.ci/run dev` command actually calls the `Pkg.develop`
+command from Julia's package manager. Because we want to use the local
+changes of the package,
+one will need to `dev` the corresponding package to make the changes
 happen in your current environment, e.g one will need to `dev` the
 `lib/BloqadeExpr` package to apply changes in `BloqadeExpr` module.
 
@@ -64,3 +76,6 @@ looking up dependencies in `lib` in one's `Project.toml` file,
 ```
 
 will `dev` all the Bloqade dependencies in your environment.
+
+See also [Modifying A Dependency](https://pkgdocs.julialang.org/v1/getting-started/#Modifying-A-Dependency)
+for more detailed explainations.

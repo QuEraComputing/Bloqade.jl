@@ -1,16 +1,16 @@
-# BloqadeODE
+# BloqadeCUDA
 
-Bloqade ODE (DiffEq-based) backend.
+CUDA patches for Bloqade.
 
 ## Installation
 
 <p>
-BloqadeODE is a &nbsp;
+BloqadeCUDA is a &nbsp;
     <a href="https://julialang.org">
         <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
         Julia Language
     </a>
-    &nbsp; package. To install BloqadeODE,
+    &nbsp; package. To install BloqadeCUDA,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
     Julia's interactive session (known as REPL)</a> and press <kbd>]</kbd> key in the REPL to use the package mode, then type the following command
 </p>
@@ -18,11 +18,11 @@ BloqadeODE is a &nbsp;
 For stable release
 
 ```julia
-pkg> add BloqadeODE
+pkg> add BloqadeCUDA
 ```
 
 For current master
 
 ```julia
-pkg> add BloqadeODE#master
+pkg> add BloqadeCUDA#master
 ```

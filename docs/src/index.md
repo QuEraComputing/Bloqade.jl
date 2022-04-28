@@ -11,7 +11,7 @@ Welcome to the documentation page for Bloqade, a &nbsp;
         <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
         Julia Language
     </a>
-    &nbsp; package for the simulation of quantum computation and quantum dynamics based on neutral-atom architectures.
+    &nbsp; package for the quantum computation and quantum dynamics based on neutral-atom architectures.
 ```
 
 Neutral-atom quantum computers have two major modes of computation: the first mode is a "digital mode" to do universal, digital quantum computation that uses two ground states ``|0\rangle`` and ``|1\rangle`` to encode the qubit, which has long coherence time, and one Rydberg state ``|r\rangle`` to entangle the qubits; the second mode is an "analog mode" as a programmable quantum simulator that uses one ground state ``|g\rangle`` and one Rydberg state ``|r\rangle``, where the quantum dynamics is governed by a Rydberg Hamiltonian ``\hat{\mathcal{H}}`` described below.

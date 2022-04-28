@@ -8,7 +8,7 @@ alt="Bloqade Logo" width="400"></img>
 [![Build Status](https://github.com/Happy-Diode/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/Bloqade.jl/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=9IEs1W)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
 
-Package for the simulation of quantum computation and quantum dynamics based on neutral-atom architectures.
+Package for the quantum computation and quantum dynamics based on neutral-atom architectures.
 
 ## Installation
 

@@ -36,7 +36,7 @@
 # ```
 # where ``R_\text{min}`` is the minimum the unit disk radius can be without removing vertices to the graph, or equivalently the maximum distance between any two vertices that are connected. As long as this condition holds, the exact dynamics in the full Hilbert space should be closely approximated by the approximate dynamics in the blockade subspace, as the mixing terms only couple to low energy states.
 
-# ## ``\Omega_\text{max}``, unit disk radius, and blockade radius
+# ## ``\Omega_b``, unit disk radius, and blockade radius
 
 # While in principle the unit disk radius can be made equal to the blockade radius, the two values should be differentiated. For any two atoms within the unit disk radius ``R_u``, the energy scale of having both in the Rydberg state must be much larger than ``\Omega``, as described above. However, for any two atoms outside of the unit disk radius, the energy scale of having both be in the Rydberg state must be much smaller than ``\Omega``, as the two atoms should not be blockaded. This condition sets a lower limit on the value of ``\Omega``, as there are still ``1/R^6`` interactions between nearby atoms which may "accidentally" blockade each other if ``\Omega`` is too small. This lower limit guarantees that dynamics occur within the correct independent set subspace and is not affected by long range "Rydberg tails" which cause each independent set state to have a slightly different energy. The lower limit is set by ``R_\text{max}``, which is the maximum unit disk can be without adding any edges. This is equivalently the minimum distance between atoms that are _not_ within the unit disk radius:
 
@@ -47,13 +47,13 @@
 # Crucially, this lower limit is not necessary if one only cares about the validity of the Hilbert space truncation to the low energy space. This condition is additional, requiring that the dynamics within the low energy subspace effectively are in a degenerate independent set basis, and is not affected by long range ``1/R^6`` "Rydberg tails". One can than choose a value of ``\Omega`` which minimizes the error from both sources. Setting the ratio of perturbative errors equal to one, the optimal value of ``\Omega`` is set by
 
 # ```math
-# \Omega_b \equiv \frac{C_6}{R_b^6}\qquad\qquad\text{where}\qquad R_b = R_b = \sqrt{R_\text{min}R_\text{max}}
+# \Omega_b \equiv \frac{C_6}{R_b^6}\qquad\qquad\text{where}\qquad R_b = \sqrt{R_\text{min}R_\text{max}}
 # ```
 
 # Given that ``\Omega`` is usually fixed by the experemental system, it is usually more natural to set the unit disk radius by the Rabi drive
 
 # ```math
-# R_u = \bigg(\frac{C_6}{\Omega}\bigg)^{1/6} \sqrt{\frac{R_max}{R_\text{min}}}.
+# R_u = \bigg(\frac{C_6}{\Omega}\bigg)^{1/6} \sqrt{\frac{R_\text{min}}{R_\text{max}}}.
 # ```
 
 # There are now several characteristic distance scales:
@@ -77,7 +77,7 @@
 
 # ## Example dynamics in the blockade subspace
 
-# To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown below, for a ring of 12 atoms seperated by ``7\mu m``. The minimum distance of atoms not within the blockade radius is ``\approx13.5230\mu m``, so that the the blockade radius is ``R_b=7\mu m\times \sqrt{13.52/7}\approx 9.72937``. This sets the blockade energy scale is set to be ``\Omega_b \approx 1.0120``MHz, and the perturbative limits to be ``\Omega_b\ll 7.2961``MHz and ``\Omega_b\gg 0.1404``MHz. This set of atoms can be defined by
+# To emphisize the effectiveness of this independent set subspace, some example nonequilibrium dynamics are shown below, for a ring of 12 atoms seperated by ``7\mu m``. The minimum distance of atoms not within the blockade radius is ``\approx13.5230\mu m``, so that the the blockade radius is ``R_b=6.9\mu m\times \sqrt{13.32/6.9}\approx 9.58``. This sets the blockade energy scale is set to be ``\Omega_b \approx 1.01``MHz, and the perturbative limits to be ``\Omega_b\ll 7.29``MHz and ``\Omega_b\gg 0.14``MHz. This set of atoms can be defined by
 
 using Bloqade
 nsites = 12;    # 12 site chain
@@ -87,7 +87,7 @@ R = unit_disk_radius/(2*sin(2*pi/(nsites)/2))                               # Ra
 pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
 atoms = AtomList(pos);                                                      # Define the atom positions as an AtomList.
 
-blockade_radius = unit_disk_radius*sqrt(2)  # The blockade radius is the unit disk radius scaled by ~root2, the geometric factor for a line. Note that in principle this is slightly less due to the line actually being a finite-radius circle.
+blockade_radius = unit_disk_radius*sqrt(2);  # The blockade radius is the unit disk radius scaled by ~root2, the geometric factor for a line. Note that in principle this is slightly less due to the line actually being a finite-radius circle.
  
 # The system is driven by a constant Rabi drive, which couples each atom's ground and Rydberg state. The value of ``\Omega\approx 1``MHz is set by the distance between vertices and is well within the perturbative limits set by the subspace, as ``1``MHz``\ll 7.296``MHz and so the blockade subspace should approximate exact dynamics faithfully. The Hamiltonian can be defined in bloqade with
 
@@ -136,7 +136,7 @@ matplotlib = pyimport("matplotlib")
 #matplotlib.use("TkAgg")
 plt = pyimport("matplotlib.pyplot")
 
-# Plot the data
+#Plot the data
 #fig, ax = plt.figure(figsize=(8,6))
 
 ax  = plt.subplot(1,1,1)

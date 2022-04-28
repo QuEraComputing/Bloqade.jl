@@ -101,6 +101,7 @@ function dev_examples()
         project_dir = root_dir("examples", each)
         isdir(project_dir) || continue
         dev(project_dir)
+        Pkg.instantiate(;io=devnull)
     end
 end
 

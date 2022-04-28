@@ -135,7 +135,6 @@ using PythonCall # Use matplotlib to generate plots
 matplotlib = pyimport("matplotlib")
 #matplotlib.use("TkAgg")
 plt = pyimport("matplotlib.pyplot")
-plt.rcParams["font.size"] = 22;
 
 # Plot the data
 #fig, ax = plt.figure(figsize=(8,6))

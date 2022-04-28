@@ -28,10 +28,6 @@ To install Bloqade,
 </p>
 ```
 
-```julia
-pkg> registry add https://github.com/Happy-Diode/Miskatonic.git
-```
-
 For the stable release, type:
 
 ```julia

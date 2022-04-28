@@ -86,6 +86,7 @@ function doc_build_script(pages, repo)
             prettyurls=get(ENV, "CI", "false") == "true",
             canonical="https://Happy-Diode.github.io/Bloqade.jl",
             assets=String[indigo],
+            sidebar_sitename=false,
         ),
         pages=$pages,
     )

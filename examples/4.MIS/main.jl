@@ -47,7 +47,7 @@ atoms = generate_sites(SquareLattice(), 4, 4; scale=4.5) |> random_dropout(0.2)
 
 # Next, we set the blockade radius to be 7.5 μm, 
 # corresponding to a case where nearest neighbors and next-nearest neighbors (diagonal) are within the blockade radius.
-# As we discussed in [Rydberg Blockade](@ref), only one Rydberg excitation is allowed within the blockade radius.  
+# As we discussed in [Rydberg Blockade](@ref blockade), only one Rydberg excitation is allowed within the blockade radius.  
 # To better illustrate this constraint, we 
 # plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the blockade radius: 
 Bloqade.plot(atoms, blockade_radius=7.5)

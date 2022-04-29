@@ -35,9 +35,7 @@ end
     Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1])
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0, 5], values=[33, 0])
 
-    result = BloqadeSchema.to_hamiltonian(; ϕ=ϕ, Ω=Ω, Δ=Δ,
-        rabi_frequency_amplitude_max_slope=10, rabi_frequency_phase_max_slope=10, rabi_detuning_max_slope=10
-    )
+    result = BloqadeSchema.to_hamiltonian(Ω, ϕ, Δ, 10, 10, 10)
 
     @test result == BloqadeSchema.EffectiveHamiltonian(; rydberg=BloqadeSchema.RydbergHamiltonian(;
         rabi_frequency_amplitude=BloqadeSchema.RydbergRabiFrequencyAmplitude(;

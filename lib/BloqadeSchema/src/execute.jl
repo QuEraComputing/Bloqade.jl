@@ -11,24 +11,24 @@ function to_json(h::AbstractBlock, params::SchemaConversionParams)
     )))
 end
 
-function to_schema(h::AbstractBlock; rabi_frequency_amplitude_max_slope::Number,
-    rabi_frequency_phase_max_slope::Number, rabi_detuning_max_slope::Number, n_shots::Number
+function to_schema(h::AbstractBlock; rabi_frequency_amplitude_max_slope::Real,
+    rabi_frequency_phase_max_slope::Real, rabi_detuning_max_slope::Real, n_shots::Real
 )
-    atoms::Maybe{Vector} = nothing
-    ϕ::Maybe{Waveform} = nothing
-    Ω::Maybe{Waveform} = nothing
-    Δ::Maybe{Waveform} = nothing
+    atoms = nothing
+    ϕ = nothing
+    Ω = nothing
+    Δ = nothing
 
-    for component in h
+    for component in subblocks(h)
         contents = content(component)
-        if typeof(contents) == RydInteract
+        if contents isa RydInteract
             atoms = contents.atoms
-        elseif typeof(contents) == SumOfXPhase
+        elseif contents isa SumOfXPhase
             ϕ = contents.ϕ
             Ω = contents.Ω.Ω
-        elseif typeof(contents) == SumOfX
+        elseif contents isa SumOfX
             Ω = contents.Ω.Ω
-        elseif typeof(contents) == SumOfN
+        elseif contents isa SumOfN
             Δ = contents.Δ
         end
     end
@@ -36,23 +36,19 @@ function to_schema(h::AbstractBlock; rabi_frequency_amplitude_max_slope::Number,
     return TaskSpecification(;
         nshots=n_shots,
         lattice=to_lattice(atoms),
-        effective_hamiltonian=to_hamiltonian(; ϕ=ϕ, Ω=Ω, Δ=Δ,
-            rabi_frequency_amplitude_max_slope=rabi_frequency_amplitude_max_slope,
-            rabi_frequency_phase_max_slope=rabi_frequency_phase_max_slope,
-            rabi_detuning_max_slope=rabi_detuning_max_slope
+        effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ,
+            rabi_frequency_amplitude_max_slope,
+            rabi_frequency_phase_max_slope,
+            rabi_detuning_max_slope
         )
     )
 
 end
 
 function to_lattice(atoms::Vector)
-    coords = Vector{Tuple{Float64,Float64}}()
-    for atom in atoms
-        coord = atom
-        if length(atom) == 1
-            coord = Tuple([atom[1], 0])
-        end
-        push!(coords, coord)
+    coords = map(atoms) do coord
+        length(coord) == 1 && return (coord[1], 0)
+        coord
     end
     return Lattice(; sites=coords, filling=vec(ones(length(coords), 1)))
 end
@@ -61,15 +57,15 @@ end
 # Given a piecewise constant function with clocks [t1, t2, t3] and values [v1, v2, v3], this creates 
 # clocks [t1, t2-((v2-v1)/max_slope), t2, v3-((v3-v2)/max_slope), v3] and values [v1, v1, v2, v2, v3]
 # If the waveform is empty or nothing, returns clocks [0] and values [0]
-function get_piecewise_linear_times_and_clocks(w::Maybe{Waveform}, max_slope::Number)
+function get_piecewise_linear_times_and_clocks(w::Maybe{Waveform}, max_slope::Real)
     # if nothing or empty
     (isnothing(w) || isempty(w.f.clocks)) && return ([0], [0])
 
     # if not piecewise constant, return clocks and values directly
     !isa(w.f, BloqadeWaveforms.PiecewiseConstant) && return (w.f.clocks, w.f.values)
 
-    clocks = []
-    values = []
+    clocks = Real[]
+    values = Real[]
     for i in 1:(length(w.f.clocks)-1)
         rise = abs(w.f.values[i+1] - w.f.values[i])
         run_t = rise / max_slope
@@ -87,8 +83,8 @@ function get_piecewise_linear_times_and_clocks(w::Maybe{Waveform}, max_slope::Nu
 
 end
 
-function to_hamiltonian(; ϕ::Maybe{Waveform}, Ω::Maybe{Waveform}, Δ::Maybe{Waveform}, rabi_frequency_amplitude_max_slope::Number,
-    rabi_frequency_phase_max_slope::Number, rabi_detuning_max_slope::Number
+function to_hamiltonian(Ω::Maybe{Waveform}, ϕ::Maybe{Waveform}, Δ::Maybe{Waveform},
+    rabi_frequency_amplitude_max_slope::Real, rabi_frequency_phase_max_slope::Real, rabi_detuning_max_slope::Real
 )
     amp_times, amp_values = get_piecewise_linear_times_and_clocks(Ω, rabi_frequency_amplitude_max_slope)
     phase_times, phase_values = get_piecewise_linear_times_and_clocks(ϕ, rabi_frequency_phase_max_slope)

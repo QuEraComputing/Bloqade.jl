@@ -3,12 +3,16 @@ using Configurations
 using JSON3
 
 function to_json(h::AbstractBlock, params::SchemaConversionParams)
-    return JSON3.write(Configurations.to_dict(to_schema(h;
+    return JSON3.write(BloqadeSchema.to_dict(h, params))
+end
+
+function to_dict(h::AbstractBlock, params::SchemaConversionParams)
+    return Configurations.to_dict(to_schema(h;
         rabi_frequency_amplitude_max_slope=params.rabi_frequency_amplitude_max_slope,
         rabi_frequency_phase_max_slope=params.rabi_frequency_phase_max_slope,
         rabi_detuning_max_slope=params.rabi_detuning_max_slope,
         n_shots=params.n_shots
-    )))
+    ))
 end
 
 function to_schema(h::AbstractBlock; rabi_frequency_amplitude_max_slope::Real,

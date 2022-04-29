@@ -42,5 +42,5 @@ task = TaskSpecification(;
 )
 
 to_dict(task)["effective_hamiltonian"]["rydberg"]["detuning"]["local"]
-to_toml("test.toml", task)
-from_toml(TaskSpecification, pkgdir(BloqadeSchema, "test", "test.toml"))
+# to_toml("test.toml", task)
+# from_toml(TaskSpecification, pkgdir(BloqadeSchema, "test", "test.toml"))

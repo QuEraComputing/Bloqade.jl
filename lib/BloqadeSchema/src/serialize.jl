@@ -1,19 +1,19 @@
 function Configurations.to_dict(::Type{T}, x::Union{RydbergRabiFrequencyAmplitude,RydbergRabiFrequencyPhase}, option::Configurations.ToDictOption) where {T}
     return Dict(
-        "global" => to_dict(x.global_value),
+        "global" => Configurations.to_dict(x.global_value),
     )
 end
 
 function Configurations.to_dict(::Type{T}, x::RydbergDetuning, option::Configurations.ToDictOption) where {T}
     if isnothing(x.local_value)
         return Dict(
-            "global" => to_dict(x.global_value)
+            "global" => Configurations.to_dict(x.global_value)
         )
     end
     
     return Dict(
-        "global" => to_dict(x.global_value),
-        "local" => to_dict.(x.local_value)
+        "global" => Configurations.to_dict(x.global_value),
+        "local" => Configurations.to_dict.(x.local_value)
     )
 end
 

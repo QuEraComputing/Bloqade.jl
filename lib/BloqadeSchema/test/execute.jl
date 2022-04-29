@@ -1,8 +1,8 @@
+using Configurations
 using BloqadeSchema
 using BloqadeExpr
 using BloqadeWaveforms
 using Test
-using Configurations
 using Yao
 using OrderedCollections
 
@@ -203,4 +203,27 @@ end
     )
 
     @test BloqadeSchema.to_json(block, params) == "{\"nshots\":100,\"lattice\":{\"sites\":[[0.0,0.0],[1.0,3.0],[4.0,2.0],[6.0,3.0],[0.0,5.0],[2.0,5.0]],\"filling\":[1,1,1,1,1,1]},\"effective_hamiltonian\":{\"rydberg\":{\"rabi_frequency_amplitude\":{\"global\":{\"times\":[0.0,1.8,2.0,3.9,4.0,5.8,6.0],\"values\":[5.0,5.0,3.0,3.0,4.0,4.0,6.0]}},\"rabi_frequency_phase\":{\"global\":{\"times\":[0.0,5.0],\"values\":[33.0,0.0]}},\"detuning\":{\"global\":{\"times\":[0.0,0.6,2.1,2.2],\"values\":[-10.1,-10.1,10.1,10.1]}}}}}"
+end
+
+@testset "from_dict after to_dict" begin
+    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6], values=[5, 3, 4, 6])
+    Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1])
+    ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0, 5], values=[33, 0])
+    atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
+
+    block = BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
+    params = BloqadeSchema.SchemaConversionParams(
+        rabi_frequency_amplitude_max_slope=10,
+        rabi_frequency_phase_max_slope=10,
+        rabi_detuning_max_slope=10,
+        n_shots=100
+    )
+
+    d = BloqadeSchema.to_dict(block, params)
+    @test Configurations.from_dict(BloqadeSchema.TaskSpecification, d) == BloqadeSchema.to_schema(block;
+        rabi_frequency_amplitude_max_slope=10,
+        rabi_frequency_phase_max_slope=10,
+        rabi_detuning_max_slope=10,
+        n_shots=100
+    )
 end

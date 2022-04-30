@@ -1,6 +1,6 @@
 # # [Rydberg Blockade](@id blockade)
 
-# The Rydberg blockade mechanism is one of the most important phenomena of neutral atom quantum computers.
+# The Rydberg blockade mechanism is one of the most important phenomena of neutral atom quantum computing based on Rydberg atoms.
 # By including a term in the effective Hamiltonian which adds an interaction between adjacent atoms in the Rydberg states, 
 # one can construct gates and nontrivial dynamics that create entanglement and correlation across the system.
 
@@ -83,7 +83,7 @@
 # the specific atom arrangement and the specific many-body quantum dynamics. 
 # For example, if ``R_s = 1/2 * R_b``, we will be throwing away states that have interaction energies at least ``2^6*\Omega``, 
 # which will typically be a good approximation. 
-# When the blockade approximation is good, the computational states would be separated into bands due to the strong Rydberg interaction,
+# When the blockade approximation is valid, the computational states would be separated into bands due to the strong Rydberg interaction,
 # and there will be small perturbative coupling between the bands due to the Rabi coupling.
 # See the illustrative figure below: 
 
@@ -109,7 +109,7 @@
 # For the Rydberg Hamiltonian, these off-diagonal elements ``|1r\rangle\leftrightarrow|rr\rangle`` have a strength ``\Omega``. 
 # In order to preserve dynamics within the subspace, the energy difference 
 # between states within the blockade subspace (e.g., ``|1r\rangle``) and outside (``|rr\rangle``) must be much larger than the Rabi strength. 
-# Formally,if ``\Omega \ll \frac{C_6}{R_s^6}``, then the blockade approximation should be valid.
+# Formally, if ``\Omega \ll C_6/R_s^6``, then the blockade approximation should be valid.
 # As long as this condition holds, the exact dynamics in the full Hilbert space should be closely approximated by the approximate dynamics in the blockade subspace, 
 # as the mixing terms only couple to low-energy states.
 
@@ -123,7 +123,7 @@
 # Suppose given certain arrangement of atoms, we would like to have the close-by atoms to be mutually blockaded, 
 # while the far-away atoms to be non-blockaded. 
 # This corresponds to a unit disk graph 
-# and the distance scale is set by the blockade radius ``R_b``.
+# and the distance scale can be set by the blockade radius ``R_b``.
 # For any two atoms within the unit disk radius ``R_u``, 
 # the energy scale of having both in the Rydberg state must be much larger than ``\Omega``;
 # this sets a lower bound for ``R_u`` compared to ``R_b``.
@@ -188,16 +188,17 @@
 # So with ``R_b = \sqrt{R_\text{min} R_\text{max}}``, we have ``a = R_b/\sqrt{2}``.
 # Therefore, 
 # - For a given ``\Omega = 2\pi \times 4`` MHz,
-# - ``R_b = (C_6 / \Omega)^(1/6) \approx 7.74`` μm,
+# - ``R_b = (C_6 / \Omega)^{(1/6)} \approx 7.74`` μm,
 # - `` a = R_b /\sqrt{2} \approx 5.48`` μm. 
 
 # Thus, for the ``Z_2`` phase transition of the [adiabatic example](@ref Adiabatic Evolution) 
-# and in the [paper](https://www.nature.com/articles/nature24622), it is good to set ``a = 5.48`` μm.
+# and in the 1D [paper](https://www.nature.com/articles/nature24622), it is good to set ``a = 5.48`` μm.
 # Similarly, one can compute that ``a = 3.16`` μm and ``a = 2.24`` μm will be good choices 
 # for observing ``Z_3`` and ``Z_4`` phase transitions in the 1D chain. 
 # For the 2D square lattice, ``a = 6.51`` μm and ``a = 4.60`` μm are good options for 
 # observing the checkerboard phase (nearest-neighbor blockade) and the striated phase (next-nearest-neighbor blockade)
-# as in this [paper](https://www.nature.com/articles/s41586-021-03582-4).
+# as in this [paper](https://www.nature.com/articles/s41586-021-03582-4),
+# following the same rationale as above.
 
 # For an example arbitrary graph shown in the right most panel of the above figure,
 # one only has ``R_\text{max}/R_\text{min} \approx 1.15``.
@@ -206,7 +207,7 @@
 # (``1.15^6 \approx  2.34``).
 # Thus, the blockade approximation for the atoms with a separation close to the blockade radius 
 # will not be as good. For accurate simulation of the actual Rydberg dynamics, 
-# one should take a subspace radius ``R_s < R_\text{min}``. 
+# one should take a subspace radius ``R_s \ll R_\text{min}``. 
 # Therefore, we can see that graphs on a regular lattice typically have larger and better energy separation 
 # between the blockaded and the non-blockaded states than random graphs.
 
@@ -215,84 +216,90 @@
 
 # ## Example Dynamics in the Blockade Subspace
 
-# To emphisize the effectiveness of this independent set subspace, 
+# To emphasize the effectiveness of the subspace emulation, 
 # some example nonequilibrium dynamics are shown below, 
-# for a ring of 12 atoms seperated by ``7\mu m``. 
-# The minimum distance of atoms not within the blockade radius is ``\approx13.5230\mu m``, 
-# so that the the blockade radius is ``R_b=6.9\mu m\times \sqrt{13.32/6.9}\approx 9.58``. 
-# This sets the blockade energy scale is set to be ``\Omega_b \approx 1.01``MHz, 
-# and the perturbative limits to be ``\Omega_b\ll 7.29``MHz and ``\Omega_b\gg 0.14``MHz. 
-# This set of atoms can be defined by
+# for a ring of ``12`` atoms seperated by ``R_\text{min} = 6.9`` μm. 
+# The minimum distance of atoms not within the blockade radius is ``R_\text{max} \approx 13.33`` μm, 
+# so that the the blockade radius is ``R_b = 6.9 \text{ \mu m} \times \sqrt{13.33/6.9}\approx 9.59``. 
+# This blockade energy scale corresponds to ``\Omega \approx 1.11`` MHz, 
+# and the perturbative limits to be 
+# ``\Omega \ll C_6/R_\text{min} \approx 7.99``MHz 
+# and ``\Omega \gg C_6/R_\text{max} \approx 0.15``MHz. 
+# This set of atoms can be defined by:
 
 using Bloqade
-nsites = 12;    # 12 site chain
-unit_disk_radius = 6.9    # Distance between atoms, in microns
+nsites = 12; # 12-site ring
+unit_disk_radius = 6.9 # Distance between nearest-neighbor atoms, in microns; ``R_\text{min}``
 
-R = unit_disk_radius/(2*sin(2*pi/(nsites)/2))                               # Radius of the circle, using a little trigonometry
+R = unit_disk_radius/(2*sin(2*pi/(nsites)/2)) # Radius of the circle, using a little trigonometry; it is also the next-nearest neighbor distance, ``R_\text{max}``.
 pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
-atoms = AtomList(pos);                                                      # Define the atom positions as an AtomList.
+atoms = AtomList(pos); # Define the atom positions as an AtomList.
 
-blockade_radius = unit_disk_radius*sqrt(2);  # The blockade radius is the unit disk radius scaled by ~root2, the geometric factor for a line. Note that in principle this is slightly less due to the line actually being a finite-radius circle.
+blockade_radius = sqrt(unit_disk_radius * R);  # ``R_b = \sqrt{R_\text{min} R_\text{max}}`` 
  
 # The system is driven by a constant Rabi drive, 
 # which couples each atom's ground and Rydberg state. 
-# The value of ``\Omega\approx 1``MHz is set by the distance between vertices 
-# and is well within the perturbative limits set by the subspace, 
-# as ``1``MHz``\ll 7.296``MHz and so the blockade subspace should approximate exact dynamics faithfully. 
 # The Hamiltonian can be defined in bloqade with:
 
-Omega = 862690 / blockade_radius^6
-h = rydberg_h(atoms;C = 2π * 862690, Ω=2*π*Omega);
+C6 = 2π * 862690; 
+Ω = C6 / blockade_radius^6
+h = rydberg_h(atoms; Ω=Ω);
 
-# The system is initialized into the ground state of all atoms, 
+# The system is then initialized into the ground state of all atoms, 
 # which is the lowest energy of the classical Hamiltonian. 
 # We have two choices of basis: the first choice is the full Hilbert space of ``2^{12}`` elements, 
-# wheras the second basis is the blockade subspace, 
-# which excludes Rydberg excitations within the **subspace radius**. 
-# In principle, the subspace radius can be taken to be any value less than the blockade radius. 
-# For a subspace radius of zero, no states are excluded and one recovers exact dynamics. 
-# For a subspace radius anywhere between the blockade radius and ``R_\text{max}``, 
-# the subspace is the same, as there are no vertices within those radii. 
-# One reasonable value of the subspace radius for the ring of atoms is to simply choose it to be the unit disk radius. 
-# However, for more general graphs it may be reasonable to choose the subspace radius to be smaller than the unit disk radius 
+# whereas the second basis is the blockade subspace, 
+# which excludes Rydberg excitations within the **subspace radius**, ``R_s``. 
+# In principle, the subspace radius can be taken to be any value less than the blockade radius,
+# but for better approximation, it is better to take smaller ``R_s``. 
+# Typically, ``R_s < R_b / 1.7`` will be reasonably good approximation,
+# since states with Rydberg interaction ``1.7^6 \Omega \approx 24 \Omega`` will be then truncated.
+# For ``R_s = 0``, no states are excluded and one recovers the exact dynamics. 
+# For a subspace radius anywhere between ``R_\text{min}`` and ``R_\text{max}``, 
+# the subspace is the same, as there are no vertices having a separation within those radii. 
+# Here, we choose the subspace radius for the ring of atoms to be the unit disk radius, 
+# which corresponds to truncating the states having a Rydberg interaction 
+# ``>(R_b/R_u)^6 \Omega \approx 7.2 \Omega``.
+# For more general graphs, it may be reasonable to choose the subspace radius to be smaller than the unit disk radius 
 # and include extra states to improve the fidelity of the energy truncation. 
-# For example, for the next nearest neighbor line, it may be reasonable to choose the subspace radius to be half the unit disk radius, 
-# which includes high-energy NNN blockade states to improve numerical accuracy. 
+# For example, for the next-nearest-neighbor line, it may be reasonable to choose the subspace radius to be half the unit disk radius, 
+# which includes high-energy NNN blockade states to improve numerical accuracy.
 # See the [subspace](@ref subspace) page for more details.
  
-subspace_radius = unit_disk_radius
+subspace_radius = unit_disk_radius # ``R_s``
 
-init_state = zero_state(nsites)                 # Define the initial state in the full space.
-space = blockade_subspace(atoms,subspace_radius)# Compute the blockade subspace.
-init_state2 = zero_state(space);                # Define the initial state in the blockade subspace.
+init_state = zero_state(nsites) # Define the initial state in the full space.
+space = blockade_subspace(atoms, subspace_radius) # Compute the blockade subspace with ``R_s``.
+init_state2 = zero_state(space); # Define the initial state in the blockade subspace.
 
 # The blockade subspace has ``D=322`` elements, 
-# which means that computation is much faster. 
+# which is much smaller than ``2^12``, so the emulation will be much faster. 
 # If the atoms were far apart and non-interacting, 
-# each atom would oscillate completely between its ground state and Rydberg state with a period of ``0.5 \mu``s. 
+# each atom would oscillate completely between its ground state and Rydberg state with a period of ``\approx 0.5`` μs. 
 # However, because adjacent atoms shift to the Rydberg state concurrently, 
-# they are dynamically blockaded, causing the maximum Rydberg density to only be 1/2, 
+# they are dynamically blockaded, causing the maximum Rydberg density to only be ``1/2``, 
 # corresponding to an antiferromagnetic ``Z_2`` state. 
 # Note that because the ring has a translation symmetry, 
 # the Rydberg density is equal on all sites.
 
-Tmax = 6.
+Tmax = 6.0
 nsteps = 2001
 times = LinRange(0,Tmax,nsteps)
+dt = Tmax/(nsteps-1)
 
-prob = SchrodingerProblem(init_state, Tmax, h, dt = Tmax/(nsteps-1) , adaptive = false);
-integrator = init(prob, Vern6());
+prob = SchrodingerProblem(init_state, Tmax, h, dt = dt, adaptive = false);
+integrator = init(prob, Vern8()); 
 
 densities = [] # Time evolve the system in the full space
-for _ in TimeChoiceIterator(integrator, 0.0:Tmax/(nsteps-1):Tmax)
+for _ in TimeChoiceIterator(integrator, 0.0:dt:Tmax)
     push!(densities, rydberg_density(init_state, 1))
 end
 
-prob2 = SchrodingerProblem(init_state2, Tmax, h, dt = Tmax/(nsteps-1) , adaptive = false);
+prob2 = SchrodingerProblem(init_state2, Tmax, h, dt = dt, adaptive = false);
 integrator2 = init(prob2, Vern8());
 
 densities2 = [] # Time evolve the system in the subspace
-for _ in TimeChoiceIterator(integrator2, 0.0:Tmax/(nsteps-1):Tmax)
+for _ in TimeChoiceIterator(integrator2, 0.0:dt:Tmax)
     push!(densities2, rydberg_density(init_state2, 1))
 end
 
@@ -300,7 +307,7 @@ using PythonCall # Use matplotlib to generate plots
 matplotlib = pyimport("matplotlib")
 plt = pyimport("matplotlib.pyplot")
 
-#Plot the data
+# Plot the data
 ax  = plt.subplot(1,1,1)
 plt.plot(times,real(densities),"k",label="Full space")
 plt.plot(times,real(densities2),"r--",label="Subspace")
@@ -326,6 +333,6 @@ plt.xticks([0,0.2,0.4,0.6],fontsize=12);
 # It is clear that even though the Hilbert space is ``12\times`` smaller, 
 # the dynamics are faithfully reproduced, 
 # up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, 
-# similar to the high frequency oscillations of the 2 atom conditional blockade example. 
+# similar to the high frequency oscillations of the 2-atom conditional blockade example above. 
 # However, at longer times this subspace approximation fails to reproduce the full space (shown by divergence between black and red dashed), 
 # as the perturbative effects become relevant over longer timescales.

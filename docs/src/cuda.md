@@ -5,6 +5,12 @@ CUDA acceleration, you will need a NVIDIA graphics processing unit (GPU).
 
 ## Installation
 
+**you need to install the following fork for now**
+
+```julia
+pkg> add https://github.com/Roger-luo/CUDA.jl.git#roger/quera
+```
+
 To use CUDA accelerators, you need to install the CUDA package:
 
 ```julia

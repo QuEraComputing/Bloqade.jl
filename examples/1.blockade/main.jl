@@ -1,50 +1,52 @@
 # # [Rydberg Blockade](@id blockade)
 
-# The Rydberg blockade mechanism is a crucial component of the operation of neutral atom computers. 
-# By including a term in the effective Hamiltonian which adds an interaction between adjacent Rydberg atoms, 
-# we may construct gates and nontrivial dynamics which create entanglement and correlation across the system.
+# The Rydberg blockade mechanism is one of the most important phenomena of neutral atom quantum computers.
+# By including a term in the effective Hamiltonian which adds an interaction between adjacent atoms in the Rydberg states, 
+# one can construct gates and nontrivial dynamics that create entanglement and correlation across the system.
 
-# The term is a van der Waals interaction where there is an energy shift if two adjacent atoms are in the Rydberg state. 
+# The Rydberg interaction is a van der Waals interaction, where there is an energy shift if two adjacent atoms are both in the Rydberg state. 
 # The Van der Waals interaction is
 
 # ```math
-# V_{ij} = \frac{C_6}{|\vec r_i - \vec r_j|^6}\hat n_i \hat n_j,
+# V_{jk} = \frac{C_6}{|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|^6}\hat n_j \hat n_k,
 # ```
 
-# where ``\hat n_i=|r_i\rangle\langle r_i|`` is the number operator on the ``i``th site, 
-# which is 1 if the atom is in the Rydberg state, and zero if the atom is in the ground state. 
-# The coefficient ``C_6 = 2\pi\times 862690 MHz/\mu m^6`` is the interaction strength; 
-# characteristically, this interaction has a strength ``\approx 10MHz`` for two atoms separated by ``10\mu m``, 
-# a similar scale to the Rabi coupling between the ground and Rydberg state. 
-# Crucially, this can be seen as an energy shift on atom ``j``, conditional on the state of atom ``i``, 
+# where ``\hat n_j=|r_j\rangle\langle r_j|`` is the number operator on the ``j``th site, 
+# which is 1 if the atom is in the Rydberg state ``| r_j \rangle``, and zero if the atom is in the ground state ``| g_j \rangle``. 
+# The coefficient ``C_6 = 2\pi\times 862690 \text{ MHz μm}^6`` is the interaction strength; 
+# characteristically, this interaction has a strength ``C_6 \approx 2\pi\times 4`` MHz for two atoms separated by ``7.75`` μm,
+# a similar scale to the Rabi frequency coupling the ground and the Rydberg state. 
+# Crucially, this can be seen as an energy shift on atom ``k``, conditional on the state of atom ``j``, 
 # and so can be used, in a loose sense, as a conditional logical gate. 
-# This is because the adjacent atom forces the atom to be off-resonant with the laser field.
+# This is because the adjacent atom forces the atom to be off-resonant with the laser field if it is in the Rydberg state.
+# Please refer to the [Hamiltonians](@ref) page for descriptions of all the terms in the Rydberg Hamiltonian.
 
 # This conditional drive can be seen given the following dynamics. 
-# Suppose two atoms are close to each other (``< 10 \mu m``) and so interact under van der Waals. 
+# Suppose two atoms are close to each other (``< 10`` μm) and so experience a strong Rydberg interaction. 
 # The left atom is either in a Rydberg state, or in the ground state, and the right atom is originally in the ground state. 
 # Then, a Rabi drive is applied to the right atom, which couples the atom's ground state to the Rydberg state. 
-# For this example, we choose a Rabi drive of ``\Omega=2\pi\times 0.5``MHz 
-# and distance between atoms ``|\vec r_i- \vec r_j| = 7\mu m``, 
-# which gives a conditional detuning of ``\approx 50``MHz. 
+# For this example, we choose a Rabi frequency of ``\Omega=2\pi\times 0.5`` MHz 
+# and distance between atoms ``|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}| = 7`` μm, 
+# which gives a conditional detuning (Rydberg interaction) of ``\approx 2\pi \times 7.33`` MHz. 
 # When the left atom is in the ground state (black, top), 
-# there are no interactions and the state of the right atom oscillates between the ground state and Rydberg state; 
-# for a particular choice of timing this executes a ``\pi`` pulse, 
-# flipping the right atom from the ground to Rydberg state. 
+# there are no interactions and the state of the right atom experiences 
+# standard [Rabi oscillation](https://en.wikipedia.org/wiki/Rabi_cycle) between the ground state and the Rydberg state; 
+# for a particular choice of timing, this executes a ``\pi`` pulse, 
+# flipping the right atom from the ground to the Rydberg state. 
 # However, when the left atom is in the Rydberg state (red, bottom), 
-# there is a large detuning on the right atom, 
+# there is a large detuning on the right atom due to the strong Rydberg interaction, 
 # which causes the transfer to the Rydberg state to be strongly suppressed. 
 # In this case, the right atom (up to perturbative corrections) is never in the Rydberg state.
+# This is the so-called Rydberg blockade.
 
 # ![RydbergBlockade](../../../assets/RydbergBlockade.png)
-
-# This conditional energy shift is the basis of the **Rydberg Blockade**. 
+ 
 # Because of the large energy shift from having two adjacent atoms in the Rydberg state, 
-# evolution from an atomic ground state with local Rabi couplings between ground and Rydberg is restricted to a low energy subspace of states 
+# evolution from an atomic ground state with local Rabi couplings between ground and Rydberg is restricted to a low-energy subspace of states 
 # where no two adjacent atoms are in the Rydberg state. 
 # Furthermore, because the interaction strength with distance is a large power law, 
-# one can define a characteristic scale set by the Rabi coupling. 
-# If two atoms are close such that the conditional detuning is much larger than the Rabi coupling, 
+# one can define a characteristic scale set by the Rabi frequency. 
+# If two atoms are close such that the conditional detuning is much larger than the Rabi frequency, 
 # one can consider the atoms to be blockading each other, 
 # and both atoms cannot simultaneously be in the Rydberg state. 
 # In contrast, if two atoms are far away, the two atoms never blockade each other and both atoms can simultaneously be in the Rydberg state.
@@ -56,7 +58,7 @@
 # In this way, the low energy classical states of the Rydberg Hamiltonian (``\Omega=0``, ``\Delta=0``) for a given array of atoms 
 # are **independent sets** of a **unit disk graph** defined by the positions of the atoms. 
 # A unit disk graph is a set of vertices and edges, where vertices represent every atom, 
-# and there are edges if the distance between vertices is less than some unit disk radius ``|\vec r_i- \vec r_j|<R_u``. 
+# and there are edges if the distance between vertices is less than some unit disk radius ``|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|<R_u``. 
 # The lowest energy states are representative of independent sets, 
 # where Rydberg excitations are in the independent set and no two Rydberg excitations are within some radius. 
 # The second energy band are sets with a single independent set violation, 

@@ -129,4 +129,4 @@ end
 
 ## Have Suggestions or Interested in Contributing?
 
-- [file an issue]() to report a bug or request a feature.
+- [file an issue](https://github.com/QuEraComputing/Bloqade.jl/issues) to report a bug or request a feature.

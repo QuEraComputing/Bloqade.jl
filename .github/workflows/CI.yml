@@ -62,11 +62,10 @@ jobs:
           path-to-lcov: lcov.info
 
   finish:
-      name: Coveralls Finished
+      name: Codecov
       needs: test
       runs-on: [ubuntu-latest]
       steps:
-        - uses: coverallsapp/github-action@master
+        - uses: codecov/codecov-action@v1
           with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            parallel-finished: true
+            file: lcov.info

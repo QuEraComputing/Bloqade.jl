@@ -13,7 +13,6 @@ jobs:
           import Pkg.Registry: RegistrySpec
           ENV["JULIA_PKG_SERVER"] = ""
           Pkg.Registry.add("General")
-          Pkg.Registry.add(RegistrySpec(url="https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"))
         shell: julia --color=yes {0}
       - name: "Install CompatHelper"
         run: |

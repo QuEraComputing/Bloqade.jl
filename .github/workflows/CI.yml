@@ -5,7 +5,7 @@ on:
 jobs:
   pre_job:
     # continue-on-error: true # Uncomment once integration is finished
-    runs-on: [Linux]
+    runs-on: [ubuntu-latest]
     # Map a step output to a job output
     outputs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
@@ -30,7 +30,7 @@ jobs:
         version:
           - '1'
         os:
-          - Linux
+          - ubuntu-latest
         arch:
           - x64
     steps:
@@ -64,7 +64,7 @@ jobs:
   finish:
       name: Coveralls Finished
       needs: test
-      runs-on: [Linux]
+      runs-on: [ubuntu-latest]
       steps:
         - uses: coverallsapp/github-action@master
           with:

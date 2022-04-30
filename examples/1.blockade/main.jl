@@ -220,22 +220,22 @@
 # some example nonequilibrium dynamics are shown below, 
 # for a ring of ``12`` atoms seperated by ``R_\text{min} = 6.9`` μm. 
 # The minimum distance of atoms not within the blockade radius is ``R_\text{max} \approx 13.33`` μm, 
-# so that the the blockade radius is ``R_b = 6.9 \text{ \mu m} \times \sqrt{13.33/6.9}\approx 9.59``. 
-# This blockade energy scale corresponds to ``\Omega \approx 1.11`` MHz, 
+# so that the the blockade radius is ``R_b = 6.9 \times \sqrt{13.33/6.9} \approx 9.59`` μm. 
+# This blockade energy scale corresponds to ``\Omega \approx 2\pi * 1.11`` MHz, 
 # and the perturbative limits to be 
-# ``\Omega \ll C_6/R_\text{min} \approx 7.99``MHz 
-# and ``\Omega \gg C_6/R_\text{max} \approx 0.15``MHz. 
+# ``\Omega \ll C_6/R_\text{min} \approx 7.99`` MHz 
+# and ``\Omega \gg C_6/R_\text{max} \approx 0.15`` MHz. 
 # This set of atoms can be defined by:
 
 using Bloqade
 nsites = 12; # 12-site ring
-unit_disk_radius = 6.9 # Distance between nearest-neighbor atoms, in microns; ``R_\text{min}``
+unit_disk_radius = 6.9 # Distance between nearest-neighbor atoms, in microns; R_min
 
-R = unit_disk_radius/(2*sin(2*pi/(nsites)/2)) # Radius of the circle, using a little trigonometry; it is also the next-nearest neighbor distance, ``R_\text{max}``.
+R = unit_disk_radius/(2*sin(2*pi/(nsites)/2)) # Radius of the circle, using a little trigonometry; it is also the next-nearest neighbor distance, R_max.
 pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
 atoms = AtomList(pos); # Define the atom positions as an AtomList.
 
-blockade_radius = sqrt(unit_disk_radius * R);  # ``R_b = \sqrt{R_\text{min} R_\text{max}}`` 
+blockade_radius = sqrt(unit_disk_radius * R);  # R_b = \sqrt{R_min R_max} 
  
 # The system is driven by a constant Rabi drive, 
 # which couples each atom's ground and Rydberg state. 
@@ -266,14 +266,14 @@ h = rydberg_h(atoms; Ω=Ω);
 # which includes high-energy NNN blockade states to improve numerical accuracy.
 # See the [subspace](@ref subspace) page for more details.
  
-subspace_radius = unit_disk_radius # ``R_s``
+subspace_radius = unit_disk_radius # R_s
 
 init_state = zero_state(nsites) # Define the initial state in the full space.
-space = blockade_subspace(atoms, subspace_radius) # Compute the blockade subspace with ``R_s``.
+space = blockade_subspace(atoms, subspace_radius) # Compute the blockade subspace with R_s.
 init_state2 = zero_state(space); # Define the initial state in the blockade subspace.
 
 # The blockade subspace has ``D=322`` elements, 
-# which is much smaller than ``2^12``, so the emulation will be much faster. 
+# which is much smaller than ``2^{12}``, so the emulation will be much faster. 
 # If the atoms were far apart and non-interacting, 
 # each atom would oscillate completely between its ground state and Rydberg state with a period of ``\approx 0.5`` μs. 
 # However, because adjacent atoms shift to the Rydberg state concurrently, 
@@ -303,11 +303,11 @@ for _ in TimeChoiceIterator(integrator2, 0.0:dt:Tmax)
     push!(densities2, rydberg_density(init_state2, 1))
 end
 
+# Plot the data
 using PythonCall # Use matplotlib to generate plots
 matplotlib = pyimport("matplotlib")
 plt = pyimport("matplotlib.pyplot")
 
-# Plot the data
 ax  = plt.subplot(1,1,1)
 plt.plot(times,real(densities),"k",label="Full space")
 plt.plot(times,real(densities2),"r--",label="Subspace")

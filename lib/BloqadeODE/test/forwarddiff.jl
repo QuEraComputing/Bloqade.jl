@@ -20,7 +20,7 @@ function loss(xs::Vector)
 end
 
 Random.seed!(42)
-xs = rand(6)
+xs = rand(5)
 Δ_ad = ForwardDiff.gradient(loss, xs)
 Δ_fd, = FiniteDifferences.grad(central_fdm(5, 1), loss, xs)
 

@@ -1,1 +1,0 @@
-# [Rydberg Blockade](@id blockade)

@@ -1,25 +1,25 @@
-# CUDA Acceleration
+# GPU Acceleration
 
-The emulator supports CUDA acceleration, to use
-CUDA acceleration, you will need NVIDIA graphic card.
+Bloqade supports CUDA acceleration. To use
+CUDA acceleration, you will need a NVIDIA graphics processing unit (GPU).
 
 ## Installation
 
-To use CUDA accelerators, you need to install CUDA package
+To use CUDA accelerators, you need to install the CUDA package:
 
 ```julia
 pkg> add CUDA
 ```
 
-This will automatically download all needed dependencies of
-CUDA toolkit.
+This will automatically download all the needed dependencies of
+the CUDA toolkit.
 
 ## Using CUDA
 
 Converting your CPU-based simulation to CUDA-based simulation
-is simple, just use the `cu` function from `CUDA`
+is extremely simple: just use the `cu` function from `CUDA`
 on the register object, which will convert the CPU-based
-register to a CUDA-based register, e.g
+register to a CUDA-based register, e.g.:
 
 ```julia
 using CUDA
@@ -28,12 +28,12 @@ dreg = cu(reg) # device register
 ```
 
 For emulation, you can call `cu` on your emulation object
-to convert everything (emulation intermediate memory etc.)
-into GPU memory, e.g
+to convert everything (emulation intermediate memory, etc.)
+into the GPU memory, e.g.:
 
 ```julia
 cu(KrylovEvolution(reg, clocks, h))
 ```
 
-other code in the emulator should adapt to CUDA
+Other codes in Bloqade should work with CUDA
 automatically.

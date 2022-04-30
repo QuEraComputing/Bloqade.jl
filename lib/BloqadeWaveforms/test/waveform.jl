@@ -1,4 +1,5 @@
 using Test
+using Unitful: ms, rad
 using Intervals
 using BloqadeWaveforms
 
@@ -8,8 +9,8 @@ using BloqadeWaveforms
     @test_throws ArgumentError waveform(0.1+4π)
 
     # constant bindings
-    wf = sinusoidal(;duration=4π, amplitude=2.2)
-    @test wf(0.1) ≈ 2.2 * sin(0.1)
+    wf = sinusoidal(;duration=2, amplitude=2.2)
+    @test wf(0.1) ≈ 2.2 * sin(2π*0.1)
 
     show(stdout, wf)
     println(stdout)
@@ -39,24 +40,35 @@ end
 
 @testset "piecewise" begin
     @testset "piecewise_constant" begin
-        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1])
+        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.4, 0.5], values=[0.0, 1.5, 3.1])
         @test waveform(0.0) ≈ 0.0
         @test waveform(0.1) ≈ 0.0
         @test waveform(0.2) ≈ 1.5
         @test waveform(0.3) ≈ 1.5
         @test waveform(0.5) ≈ 3.1
         @test_throws ArgumentError waveform(0.6) ≈ 3.1
-    
-        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1], duration=1.1)
+
+        waveform = piecewise_constant(clocks=[0.0, 0.2, 0.5, 1.1], values=[0.0, 1.5, 3.1])
         @test waveform(0.6) ≈ 3.1
+
+        wf = piecewise_constant(clocks=[0.0ms, 0.1ms, 0.2ms, 0.3ms], values=[0.1, 1.1, 2.1] .* (rad/ms))
+        @test wf(0.0) ≈ 0.0001
+        @test wf(100.) ≈ 0.0011
+        @test wf(200.) ≈ 0.0021
+        @test wf.duration ≈ 300.0
     end
-    
+
     @testset "piecewise_linear" begin
         waveform = piecewise_linear(clocks=[0.0, 0.2, 0.5, 0.8, 1.0], values=[0.0, 1.5, 3.1, 3.1, 0.0])
         @test waveform(0.1) ≈ 0.75
         @test waveform(0.6) ≈ 3.1
         @test waveform(1.0) ≈ 0.0
         @test_throws ArgumentError waveform(1.1)
+
+        wf = piecewise_linear(clocks=[0.0ms, 0.1ms, 0.2ms], values=[0.1, 1.1, 2.1] .* (rad/ms))
+        @test wf(0.0) ≈ 0.0001
+        @test wf(100.) ≈ 0.0011
+        @test wf(200.) ≈ 0.0021
     end
 end
 
@@ -67,7 +79,7 @@ end
     @test wf3(0.1) ≈ wf1(0.1) + wf2(0.1)
 
     # sum + other
-    wfp = piecewise_constant(clocks=[0.0, 0.3, 0.5], values=[0.0, 1.1, 0.5], duration=2.2)
+    wfp = piecewise_constant(clocks=[0.0, 0.3, 0.5, 2.2], values=[0.0, 1.1, 0.5])
     wf4 = wf3 + wfp
     wf5 = wfp + wf3
     @test wf4 isa Waveform
@@ -108,6 +120,15 @@ end
 
     wf3 = wf1 * 2.0
     @test wf3(0.1) ≈ wf1(0.1) * 2
+end
+
+@testset "alpha*waveform" begin
+    wf1 = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
+    wf2 = 2.0 / wf1
+    @test wf2(0.1) ≈ 2 / wf1(0.1)
+
+    wf3 = wf1 / 2.0
+    @test wf3(0.1) ≈ wf1(0.1) / 2
 end
 
 @testset "broadcast" begin

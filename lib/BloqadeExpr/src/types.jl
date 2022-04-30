@@ -150,6 +150,8 @@ Base.@kwdef struct SumOfX <: AbstractTerm
     end
 end
 
+SumOfX(n::Int) = SumOfX(n, 1)
+
 """
     struct SumOfXPhase <: AbstractTerm
     SumOfXPhase(;nsites, Ω=1, ϕ)
@@ -235,6 +237,8 @@ Base.@kwdef struct SumOfN <: AbstractTerm
     end
 end
 
+SumOfN(n::Int) = SumOfN(n, 1)
+
 """
     struct SumOfZ <: AbstractTerm
     SumOfZ(;nsites, Δ=1)
@@ -272,6 +276,8 @@ Base.@kwdef struct SumOfZ <: AbstractTerm
         new(nsites, default_unit(MHz, Δ))
     end
 end
+
+SumOfZ(n::Int) = SumOfZ(n, 1)
 
 YaoAPI.nqudits(::XPhase) = 1
 YaoAPI.nqudits(::PdPhase) = 1

@@ -1,0 +1,14 @@
+[deps]
+Bloqade = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe1"
+BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
+BloqadeKrylov = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"
+BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
+BloqadeMIS = "bd27d05e-4ce1-5e74-84dd-c5d7d508bbe2"
+BloqadeODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
+BloqadeWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
+KrylovKit = "0b1a1467-8014-51b9-945f-bf0ae24f4b77"
+PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
+YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
+
+[extras]
+CPUSummary = "2a0fbf3d-bb9c-48f3-b0a9-814d99fd7ab9"

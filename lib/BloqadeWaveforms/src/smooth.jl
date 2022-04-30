@@ -68,21 +68,23 @@ Kernel smoother function for piece-wise linear function/waveform via weighted mo
 function smooth end
 
 # forward waveform objects
-function smooth(kernel, wf::Waveform{<:Union{PiecewiseLinear, PiecewiseConstant}}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))
-    return Waveform(smooth(kernel, wf.f; edge_pad_size, kernel_radius), wf.duration)
+function smooth(kernel, wf::Waveform{<:Union{PiecewiseLinear, PiecewiseConstant}}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks), dt=kernel_radius/1e2)
+    return Waveform(smooth(kernel, wf.f; edge_pad_size, kernel_radius, dt), wf.duration)
 end
 
-function smooth(wf::Waveform{<:Union{PiecewiseLinear, PiecewiseConstant}}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks))
-    return smooth(Kernels.gaussian, wf; edge_pad_size, kernel_radius)
+function smooth(wf::Waveform{<:Union{PiecewiseLinear, PiecewiseConstant}}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks), dt=kernel_radius/1e2)
+    return smooth(Kernels.gaussian, wf; edge_pad_size, kernel_radius, dt)
 end
 
-function smooth(kernel, f::Union{PiecewiseLinear, PiecewiseConstant}; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks))
-    clocks = edge_pad(f.clocks, edge_pad_size)
-    values = edge_pad(f.values, edge_pad_size)
+function smooth(kernel, f::Union{PiecewiseLinear, PiecewiseConstant}; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks), dt=kernel_radius/1e2)
+    clocks = zero(dt):dt:last(f.clocks)
+    clocks = edge_pad(clocks, edge_pad_size)
+    values = [f(t) for t in clocks]
+    values = edge_pad(values, edge_pad_size)
     return smooth(kernel, clocks, values, kernel_radius)
 end
 
-smooth(f::Union{PiecewiseLinear, PiecewiseConstant}; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks)) =
+smooth(f::Union{PiecewiseLinear, PiecewiseConstant}; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks), dt=kernel_radius/1e2) =
     smooth(Kernels.gaussian, f; edge_pad_size, kernel_radius)
 
 """

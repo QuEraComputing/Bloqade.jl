@@ -20,7 +20,6 @@ jobs:
         shell: julia --color=yes {0}
         run: |
           using Pkg; pkg"registry add General"
-          pkg"registry add https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"
       - name: Build and deploy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # For authentication with GitHub Actions token

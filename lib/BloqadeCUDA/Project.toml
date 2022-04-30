@@ -1,28 +1,17 @@
 name = "BloqadeCUDA"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe3"
 authors = ["QuEra Computing Inc."]
-version = "0.1.2"
+version = "0.1.0"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
-BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
-BloqadeKrylov = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"
-BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
-BloqadeMIS = "bd27d05e-4ce1-5e74-84dd-c5d7d508bbe2"
-BloqadeODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
-BloqadeWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
-Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
-YaoArrayRegister = "e600142f-9330-5003-8abb-0ebd767abc51"
-YaoBase = "a8f54c17-34bc-5a9d-b050-f522fe3f755f"
-YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
 Adapt = "3"
 CUDA = "3"
-Yao = "0.7"
 julia = "1.6"
 
 [extras]

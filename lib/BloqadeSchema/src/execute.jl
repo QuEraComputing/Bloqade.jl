@@ -15,25 +15,41 @@ function to_dict(h::AbstractBlock, params::SchemaConversionParams)
     ))
 end
 
+function assert_hamiltonian_schema(h::AbstractBlock)
+    h isa RydInteract || return
+    h isa Add || error("expect a Rydberg hamiltonian")
+    isempty(blockfilter(x->isa(x, RydInteract), h)) && error("expect RydInteract term")
+
+    for each in subblocks(h)
+        if each isa Scale
+            content(each) isa Union{RydInteract, SumOfX, SumOfXPhase} && factor(each) == 1 ||
+                error("only hamiltonian created by rydberg_h is supported")
+            content(each) isa SumOfN && factor(each) == -1 || error("expect the prefactor of SumOfN to be -1")
+        end
+    end
+    return
+end
+
 function to_schema(h::AbstractBlock; rabi_frequency_amplitude_max_slope::Real,
     rabi_frequency_phase_max_slope::Real, rabi_detuning_max_slope::Real, n_shots::Real
 )
+    assert_hamiltonian_schema(h)
     atoms = nothing
     ϕ = nothing
     Ω = nothing
     Δ = nothing
 
-    for component in subblocks(h)
-        contents = content(component)
-        if contents isa RydInteract
-            atoms = contents.atoms
-        elseif contents isa SumOfXPhase
-            ϕ = contents.ϕ
-            Ω = contents.Ω.Ω
-        elseif contents isa SumOfX
-            Ω = contents.Ω.Ω
-        elseif contents isa SumOfN
-            Δ = contents.Δ
+    for each in subblocks(h)
+        block = content(each)
+        if block isa RydInteract
+            atoms = block.atoms
+        elseif block isa SumOfXPhase
+            ϕ = block.ϕ
+            Ω = block.Ω.Ω
+        elseif block isa SumOfX
+            Ω = block.Ω.Ω
+        elseif block isa SumOfN
+            Δ = block.Δ
         end
     end
 
@@ -70,7 +86,7 @@ function get_piecewise_linear_times_and_clocks(w::Maybe{Waveform}, max_slope::Re
 
     clocks = Real[]
     values = Real[]
-    for i in 1:(length(w.f.clocks)-1)
+    for i in 1:(length(w.f.values)-1)
         rise = abs(w.f.values[i+1] - w.f.values[i])
         run_t = rise / max_slope
 

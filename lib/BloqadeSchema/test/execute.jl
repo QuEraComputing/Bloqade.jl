@@ -31,7 +31,7 @@ end
 end
 
 @testset "to_hamiltonian" begin
-    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6], values=[5, 3, 4, 6])
+    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6, 6], values=[5, 3, 4, 6])
     Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1])
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0, 5], values=[33, 0])
 
@@ -60,7 +60,7 @@ end
 end
 
 @testset "to_schema" begin
-    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6], values=[5, 3, 4, 6])
+    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6, 7], values=[5, 3, 4, 6])
     Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1])
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0, 5], values=[33, 0])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
@@ -70,29 +70,31 @@ end
     ) == TaskSpecification(;
         nshots=100,
         lattice=BloqadeSchema.Lattice(;
-            sites=[(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)],
-            filling=[1, 1, 1, 1, 1, 1]
+            sites=[(0.0, 0.0), (1.0, 3.0), (4.0, 2.0), (6.0, 3.0), (0.0, 5.0), (2.0, 5.0)],
+            filling=Int32[1, 1, 1, 1, 1, 1]
         ),
-        effective_hamiltonian=BloqadeSchema.EffectiveHamiltonian(; rydberg=BloqadeSchema.RydbergHamiltonian(;
-            rabi_frequency_amplitude=BloqadeSchema.RydbergRabiFrequencyAmplitude(;
-                global_value=BloqadeSchema.RydbergRabiFrequencyAmplitudeGlobal(;
-                    times=[0.0, 1.8, 2.0, 3.9, 4.0, 5.8, 6.0],
-                    values=[5.0, 5.0, 3.0, 3.0, 4.0, 4.0, 6.0]
-                )
-            ),
-            rabi_frequency_phase=BloqadeSchema.RydbergRabiFrequencyPhase(;
-                global_value=BloqadeSchema.RydbergRabiFrequencyPhaseGlobal(;
-                    times=[0, 5],
-                    values=[33, 0]
-                )
-            ),
-            detuning=BloqadeSchema.RydbergDetuning(;
-                global_value=BloqadeSchema.RydbergDetuningGlobal(;
-                    times=[0.0, 0.6, 2.1, 2.2],
-                    values=[-10.1, -10.1, 10.1, 10.1]
+        effective_hamiltonian=BloqadeSchema.EffectiveHamiltonian(
+            BloqadeSchema.RydbergHamiltonian(
+                BloqadeSchema.RydbergRabiFrequencyAmplitude(
+                    BloqadeSchema.RydbergRabiFrequencyAmplitudeGlobal(
+                        [0.0, 1.8, 2.0, 3.9, 4.0, 5.8, 7.0],
+                        [5.0, 5.0, 3.0, 3.0, 4.0, 4.0, 6.0]
+                    )
+                ),
+                BloqadeSchema.RydbergRabiFrequencyPhase(
+                    BloqadeSchema.RydbergRabiFrequencyPhaseGlobal(
+                        [0.0, 5.0], [33.0, 0.0]
+                    )
+                ),
+                BloqadeSchema.RydbergDetuning(
+                    BloqadeSchema.RydbergDetuningGlobal(
+                        [0.0, 0.6, 2.1, 2.2],
+                        [-10.1, -10.1, 10.1, 10.1]
+                    ),
+                    nothing
                 )
             )
-        ))
+        )
     )
 end
 
@@ -174,9 +176,9 @@ end
 end
 
 @testset "get_piecewise_linear_times_and_clocks" begin
-    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6], values=[5, 3, 4, 6])
-    ϕ = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2.1, 4.9, 6.3], values=[5.7, 3, 4.9, 9])
-    Ψ = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6], values=[5, 4, 4, 6])
+    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6, 6], values=[5, 3, 4, 6])
+    ϕ = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2.1, 4.9, 6.3, 6.3], values=[5.7, 3, 4.9, 9])
+    Ψ = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6, 6], values=[5, 4, 4, 6])
     Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1])
 
     @test BloqadeSchema.get_piecewise_linear_times_and_clocks(Δ, 1.0) == ([0.0, 0.6, 2.1, 2.2], [-10.1, -10.1, 10.1, 10.1])
@@ -189,7 +191,7 @@ end
 end
 
 @testset "to_json no local detuning" begin
-    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6], values=[5, 3, 4, 6])
+    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6, 6], values=[5, 3, 4, 6])
     Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1])
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0, 5], values=[33, 0])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
@@ -206,7 +208,7 @@ end
 end
 
 @testset "from_dict after to_dict" begin
-    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6], values=[5, 3, 4, 6])
+    Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6, 7], values=[5, 3, 4, 6])
     Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1])
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0, 5], values=[33, 0])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]

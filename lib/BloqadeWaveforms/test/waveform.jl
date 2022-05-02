@@ -176,3 +176,9 @@ end
     @test_throws ArgumentError piecewise_linear(clocks=[0,1], values=[1,2,3])
     @test_throws ArgumentError piecewise_linear(clocks=[-1,1], values=[1,2,3])
 end
+
+@testset "sampling" begin
+    wf = piecewise_linear(clocks=[0.0, 0.3, 0.8, 1.0], values=[0.0, 2.0, 2.0, 0.0])
+    @test sample_clocks(wf) == 0.0:0.001:1.0
+    @test sample_values(wf) == wf.(0.0:0.001:1.0)
+end

@@ -10,7 +10,7 @@ using BloqadeExpr: default_unit
 export 
     Waveform,
     sample_values,
-    sample_clock,
+    sample_clocks,
     piecewise_constant,
     piecewise_linear,
     linear_ramp,

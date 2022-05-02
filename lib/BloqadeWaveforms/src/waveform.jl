@@ -71,7 +71,30 @@ function (wf::Waveform)(t::Real, offset::Real=zero(t))
     return wf.f(t - offset)
 end
 
-function sample_clock(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-3)
+"""
+    sample_clocks(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-3)
+
+Sample clocks from given waveform `wf`.
+
+# Arguments
+
+- `wf`: the waveform object.
+
+# Keyword Arguments
+
+- `offset`: the start clock.
+- `dt`: time between each clock.
+
+# Examples
+
+```jldoctest
+julia> wf = piecewise_linear(clocks=[0.0, 0.3, 0.8, 1.0], values=[0.0, 2.0, 2.0, 0.0]);
+
+julia> sample_clocks(wf)
+0.0:0.001:1.0
+```
+"""
+function sample_clocks(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-3)
     return offset:dt:wf.duration+offset
 end
 
@@ -79,8 +102,42 @@ function sample_values(wf::Waveform, clocks; offset::Real=zero(eltype(wf)))
     return [wf(t, offset) for t in clocks]
 end
 
+"""
+    sample_values(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-3)
+
+Sample values from a given waveform.
+
+# Arguments
+
+- `wf`: the waveform object.
+
+# Keyword Arguments
+
+- `offset`: offset of the resulting clock, default is zero.
+- `dt`: sampling precision.
+
+# Examples
+
+```jldoctest
+julia> wf = piecewise_linear(clocks=[0.0, 0.3, 0.8, 1.0], values=[0.0, 2.0, 2.0, 0.0]);
+
+julia> sample_values(wf; dt=1e-1)
+11-element Vector{Float64}:
+ 0.0
+ 0.6666666666666667
+ 1.3333333333333335
+ 2.0
+ 2.0
+ 2.0
+ 2.0
+ 2.0
+ 2.0
+ 1.0
+ 0.0
+```
+"""
 function sample_values(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-3)
-    return sample_values(wf, sample_clock(wf; offset, dt))
+    return sample_values(wf, sample_clocks(wf; offset, dt))
 end
 
 function Base.show(io::IO, wf::Waveform)
@@ -92,7 +149,7 @@ function Base.show(io::IO, wf::Waveform)
 end
 
 function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
-    clocks = sample_clock(wf)
+    clocks = sample_clocks(wf)
     plt = lineplot(
         clocks, _rm_err.(sample_values(wf, clocks)./(2π));
         title="Waveform{_, $(eltype(wf))}",

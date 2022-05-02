@@ -151,9 +151,9 @@ end
 
     @testset "sample_values(::CompositeWaveform, $dt)" for dt in [1e-3, 1e-3, 1e-4]
         values = sample_values(waveform; dt)
-        @test length(values) == length(sample_clock(waveform; dt))
-        wf_value_1 = wf1.(sample_clock(wf1; dt))
-        wf_value_2 = wf2.(sample_clock(wf2; dt))
+        @test length(values) == length(sample_clocks(waveform; dt))
+        wf_value_1 = wf1.(sample_clocks(wf1; dt))
+        wf_value_2 = wf2.(sample_clocks(wf2; dt))
 
         @test values[1:length(wf_value_1)] ≈ wf_value_1[1:end]
         @test values[length(wf_value_1)+1:end] ≈ wf_value_2[2:end]

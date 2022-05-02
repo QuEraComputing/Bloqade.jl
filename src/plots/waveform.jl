@@ -1,5 +1,5 @@
 function plot!(ax, wf::Waveform)
-    clocks = sample_clock(wf)
+    clocks = sample_clocks(wf)
     fig = ax.plot(
         clocks, BloqadeWaveforms._rm_err.(sample_values(wf, clocks)./(2π));
     )

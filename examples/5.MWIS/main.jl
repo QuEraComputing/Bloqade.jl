@@ -1,6 +1,6 @@
 # # Maximum Weight Independent Set
 # ## Background
-# In the [The Maximum Independent Set Problem](@id mis-tutorial) page, 
+# In the [The Maximum Independent Set Problem](@ref mis-tutorial) page, 
 # we provide a detailed example on how to solve the Maximum Independent Set (MIS) problem
 # using neutral-atom quantum computers. 
 # The first algorithm proposal and experimental demonstration can be found in 

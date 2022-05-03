@@ -12,16 +12,16 @@ BloqadeCUDA is a &nbsp;
     </a>
     &nbsp; package. To install BloqadeCUDA,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
-    Julia's interactive session (known as REPL)</a> and press <kbd>]</kbd> key in the REPL to use the package mode, then type the following command
+    Julia's interactive session (known as REPL)</a> and press <kbd>]</kbd> key in the REPL to use the package mode, and then type the following command:
 </p>
 
-For stable release
+For stable release:
 
 ```julia
 pkg> add BloqadeCUDA
 ```
 
-For current master
+For current master:
 
 ```julia
 pkg> add BloqadeCUDA#master

@@ -58,7 +58,7 @@ waveform = sinusoidal(duration=2, amplitude=2π*2.2);
 Bloqade.plot(waveform)
 ```
 
-In some cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions `piecewise_linear` or `piecewise_constant`, corresponding to different interpolations. 
+In some cases, users may have their own waveforms specified by a vector of clocks and a vector of signal strengths. To build a waveform from the two vectors, we can directly use the functions [`piecewise_linear`](@ref) or [`piecewise_constant`](@ref), corresponding to different interpolations. 
 
 ```@example waveform
 clocks = collect(0:1e-1:2);

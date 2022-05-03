@@ -99,7 +99,7 @@ mat(h1, space)
 All other operations in the subspace are the same as the fullspace
 case. 
 For example, to run an emulation in the subspace, one just need to use the
-subspace register [`SubspaceArrayReg`](@ref) instead of the fullspace register [`ArrayReg`](@ref).
+subspace register [`SubspaceArrayReg`](@ref) instead of the fullspace register [`ArrayReg`](https://docs.yaoquantum.org/dev/man/registers.html#Array-Registers).
 The rest of the code are the same:
 
 ```@example subspace

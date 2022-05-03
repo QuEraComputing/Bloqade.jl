@@ -1,6 +1,6 @@
 # # [Rydberg Blockade](@id blockade)
 
-# The Rydberg blockade mechanism is one of the most important phenomena of neutral atom quantum computing based on Rydberg atoms.
+# The Rydberg blockade mechanism is one of the most important phenomena of neutral atom quantum computing based on Rydberg interactions.
 # By including a term in the effective Hamiltonian which adds an interaction between adjacent atoms in the Rydberg states, 
 # one can construct gates and nontrivial dynamics that create entanglement and correlation across the system.
 
@@ -52,7 +52,6 @@
 # In contrast, if two atoms are far away, the two atoms never blockade each other and both atoms can simultaneously be in the Rydberg state.
 
 
-
 # ## Blockade radius ``R_b``, subspace radius ``R_s``, and unit disk graphs
 
 # The blockade radius is defined as the distance at which 
@@ -64,7 +63,9 @@
 
 # where ``R_b`` is the blockade radius, which sets the characteristic distance scale 
 # for which Rydberg interaction will be strong compared to the coupling strength between
-# the ground and the Rydberg state set by ``\Omega``. In practice, the blockade approximation, 
+# the ground and the Rydberg state set by ``\Omega``. 
+# In the above example, ``\Omega = 2\pi\times 0.5`` MHz, so ``R_b = (C_6 / \Omega)^{1/6} \approx 10.95``  μm.
+# In practice, the blockade approximation,
 # i.e., truncating the states that have both atoms in the Rydberg state, may not be a good approximation at the distance ``R_b``, 
 # since it is more like the onset energy scale at which Rydberg interaction becomes strong. For a better blockade approximation, 
 # the atoms should be closer than ``R_b``. We refer this distance as the subspace radius ``R_s`` (``R_s \leq R_b``), 
@@ -74,17 +75,22 @@
 # Therefore, in simulating the quantum dynamics, instead of doing it in the full ``2^N`` Hilbert space, we may take advantage of the energy structure
 # and truncate those blockade-violated states. 
 # Mathematically, this is related to the [independent sets](@ref mis-tutorial) of the unit disk graph defined by the positions of the atoms.
-# A unit disk graph is a set of vertices and edges, where vertices represent every atom, 
+# A unit disk graph is a set of vertices and edges, where each vertex represents an atom, 
 # and there are edges if the distance between vertices is less than or equal to some unit disk radius ``|\overrightarrow{\mathbf{r}_j} - \overrightarrow{\mathbf{r}_k}| \leq R_u``.
 # An independent set is a set of vertices in the graph such that no two of which are connected by an edge.
-# Thus, the non-blockade-violated states are the independent set states of the corresponding unit disk graph.
+# Thus, the non-blockade-violated states are the independent set states of the corresponding unit disk graph, 
+# where the independent set consists of the vertices (atoms) that are excited to the Rydberg state.
 # If we set ``R_u = R_s``, it will be a good approximation to throw away those non-independent-sets.
 # In practice, a priori, it may not be easy to know what will be a good choice for ``R_s``, since it depends on 
 # the specific atom arrangement and the specific many-body quantum dynamics. 
 # For example, if ``R_s = 1/2 * R_b``, we will be throwing away states that have interaction energies at least ``2^6*\Omega``, 
-# which will typically be a good approximation. 
+# which will typically be a very good approximation. 
+# In the two-atom example above, we can set ``R_s = 7`` μm and throw away the state when both atoms are in the Rydberg state,
+# which is quite good an approximation as seen in the figure. 
+# In this case, the Rydberg-blockaded state has an interaction of ``(R_b / R_s)^6 \Omega \approx 14.7 \Omega``.
 # When the blockade approximation is valid, the computational states would be separated into bands due to the strong Rydberg interaction,
-# and there will be small perturbative coupling between the bands due to the Rabi coupling.
+# and there will be small perturbative coupling between the bands due to the Rabi coupling, 
+# (which is typically in the order of ``(\Omega / V_{jk})^2``).
 # See the illustrative figure below: 
 
 # ![EnergyTruncation](../../../assets/bloqade_subspace.png)
@@ -97,19 +103,20 @@
 # We emphasize again that this band structure is dependent on the arrangement of atoms, 
 # and for arbitrary configurations, this band structure may not be clear.
 
-# To run more efficient simulation in the blockade subspace,
+# To run more efficient simulation in the blockade [subspace](@ref subspace),
 # the simplest scheme is to truncate the Hilbert space to the low-energy subspace, 
 # and exclude all states above a certain energy. 
 # Given the natural band structure of the classical Hamiltonian, 
 # we may simply truncate the Hilbert space to the subspace of independent sets of the unit disk graph
 # with the unit disk radius set as ``R_u = R_s``.
 # Equivalently, this is the **blockade subspace**, 
-# where atoms within the blockade radius are excluded from both being in the Rydberg state.
+# where atoms within the subspace radius are excluded from both being in the Rydberg state.
 # The validity of the energy truncation subspace is governed by the strength of off-diagonal matrix elements coupling the low-energy subspace to the high-energy one. 
 # For the Rydberg Hamiltonian, these off-diagonal elements ``|1r\rangle\leftrightarrow|rr\rangle`` have a strength ``\Omega``. 
 # In order to preserve dynamics within the subspace, the energy difference 
 # between states within the blockade subspace (e.g., ``|1r\rangle``) and outside (``|rr\rangle``) must be much larger than the Rabi strength. 
-# Formally, if ``\Omega \ll C_6/R_s^6``, then the blockade approximation should be valid.
+# Formally, if ``\Omega \ll C_6/R_s^6``, then the blockade approximation should be valid 
+# (the perturbation is typically in the second order ``(\Omega/ (C_6/R_s^6))^2``).
 # As long as this condition holds, the exact dynamics in the full Hilbert space should be closely approximated by the approximate dynamics in the blockade subspace, 
 # as the mixing terms only couple to low-energy states.
 
@@ -141,9 +148,9 @@
 # More specifically, we denote the lower bound as ``R_\text{min}``, 
 # which is the minimum ``R_u`` can be without removing any edges from the unit disk graph. 
 # Equivalently, it is the maximum distance between vertices that are connected by an edge. 
-# We denote the uppper bound as ``R_\text{max}``, 
+# We denote the upper bound as ``R_\text{max}``, 
 # which is the maximum ``R_u`` can be without adding any additional edges to the unit disk graph. 
-# This is equivalently the minimum distance between vertices that are _not_ connected by an edge. 
+# This is equivalently the minimum distance between vertices that are _not_ connected by an edge in the unit disk graph. 
 # Therefore, we have ``R_\text{min}\leq R_u < R_\text{max}``.
 
 # The actual scale for ``R_\text{min}, R_u, R_\text{max}`` can be set by ``R_b``. 
@@ -156,7 +163,8 @@
 # as much as possible, it's best to have 
 
 # ```math
-# R_b = \sqrt{R_\text{min} R_\text{max}}.
+# R_b = \sqrt{R_\text{min} R_\text{max}} = R_\text{min} * \sqrt{\frac{R_\text{max}}{R_\text{min}}} 
+# \quad \Rightarrow \quad R_\text{min} = R_b * \sqrt{\frac{R_\text{min}}{R_\text{max}}}.
 # ```
 
 # Now, there are several characteristic distances. To summarize, we have: 

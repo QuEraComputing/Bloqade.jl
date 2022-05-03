@@ -8,9 +8,10 @@ alt="Bloqade Logo" width="400"></img>
 [![Build Status](https://github.com/Happy-Diode/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/Bloqade.jl/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=9IEs1W)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
 
-**due to component packages registration, there is about one week until Bloqade is fully registered, to try this package please use refer to [the developer guide](https://queracomputing.github.io/Bloqade.jl/dev/install/#Developing-Bloqade) for now**
+**Due to component package registration, Bloqade won't become fully registered until around May 10th. To try this package now, please refer to [the developer guide](https://queracomputing.github.io/Bloqade.jl/dev/install/#Developing-Bloqade) for now.**
 
-Package for the quantum computation and quantum simulation based on the neutral-atom architecture.
+Bloqade is a package developed for quantum computation and quantum simulation based on the neutral-atom architecture.
+Please refer to the [documentation](https://queracomputing.github.io/Bloqade.jl/dev/) page to learn more about Bloqade.
 
 ## Installation
 
@@ -22,7 +23,7 @@ Bloqade is a &nbsp;
     </a>
     &nbsp; package. To install Bloqade,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
-    Julia's interactive session (known as REPL)</a> and press <kbd>]</kbd> key in the REPL to use the package mode, then type the following command:
+    Julia's interactive session (known as REPL)</a> and press <kbd>]</kbd> key in the REPL to use the package mode, and then type the following command:
 </p>
 
 For stable release:

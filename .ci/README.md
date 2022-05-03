@@ -2,7 +2,7 @@
 
 # How to use the CLI?
 
-just type the following in your terminal
+just type the following in your terminal:
 
 ```sh
 .ci/run -h

@@ -8,6 +8,8 @@ alt="Bloqade Logo" width="400"></img>
 [![Build Status](https://github.com/Happy-Diode/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/Bloqade.jl/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=9IEs1W)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
 
+**due to component packages registration, there is about one week until Bloqade is fully registered, to try this package please use refer to [the developer guide](https://queracomputing.github.io/Bloqade.jl/dev/install/#Developing-Bloqade) for now**
+
 Package for the quantum computation and quantum simulation based on the neutral-atom architecture.
 
 ## Installation

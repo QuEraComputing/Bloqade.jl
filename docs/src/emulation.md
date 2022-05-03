@@ -67,7 +67,7 @@ end
 ```
 
 You can use any function on the `reg` object.  For calculating observables, 
-please see the [Observables](https://queracomputing.github.io/Bloqade.jl/dev/registers/) section.
+please see the [Registers and Observables](@ref) section.
 
 !!! tip
 

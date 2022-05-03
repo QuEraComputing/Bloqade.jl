@@ -217,6 +217,9 @@
 # | Square checkerboard     |       ``a``                   |       ``\sqrt{2}a``                    |                 6.51                    |                 5.59                    |
 # | Square striated         |    ``\sqrt{2}a``              |       ``2a``                           |                 4.60                    |                 3.95                    |
 # | Square star             |      ``2a``                   |       ``\sqrt{5}a``                    |                 3.66                    |                 3.14                    |
+# | Lieb NN                 |      ``a``                    |       ``2a``                           |                 5.48                    |                 4.70                    |
+# | Lieb NNN                |      ``2a``                   |       ``\sqrt{5}a``                    |                 3.66                    |                 3.14                    |
+# | Lieb NNNN               |      ``\sqrt{5}a``            |       ``\sqrt{8}a``                    |                 3.08                    |                 2.64                    |
 # | Triangular NN           |       ``a``                   |       ``\sqrt{3}a``                    |                 5.88                    |                 5.05                    |
 # | Triangular NNN          |       ``\sqrt{3}a``           |       ``2a``                           |                 4.16                    |                 3.57                    |
 # | Honeycomb NN            |       ``a``                   |       ``\sqrt{3}a``                    |                 5.88                    |                 5.05                    |

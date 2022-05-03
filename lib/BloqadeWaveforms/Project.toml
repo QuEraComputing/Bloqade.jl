@@ -1,6 +1,5 @@
 name = "BloqadeWaveforms"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
-authors = ["QuEra Computing Inc."]
 version = "0.1.1"
 
 [deps]

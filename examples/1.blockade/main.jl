@@ -207,8 +207,22 @@
 # observing the checkerboard phase (nearest-neighbor blockade) and the striated phase (next-nearest-neighbor blockade)
 # as in this [paper](https://www.nature.com/articles/s41586-021-03582-4),
 # following the same rationale as above.
-# Here, we summarize the recommended lattice constants for common lattices in the following table:
+# Here, we summarize the recommended lattice constants (unit μm) for common lattices in the following table:
 
+# |                         | ``R_\text{min}``              | ``R_\text{max}``                       | ``a`` for ``\Omega = 2\pi * 4`` MHz     | ``a`` for ``\Omega = 2\pi * 10`` MHz    | 
+# | :-----:                 |    :-----:                    |     :-----:                            |              :-----:                    |             :-----:                     | 
+# | Chain ``Z_2``           |      ``a``                    |       ``2a``                           |                 5.48                    |                 4.70                    |
+# | Chain ``Z_3``           |      ``2a``                   |       ``3a``                           |                 3.16                    |                 2.71                    |
+# | Chain ``Z_4``           |      ``3a``                   |       ``4a``                           |                 2.24                    |                 1.92                    |
+# | Square checkerboard     |       ``a``                   |       ``\sqrt{2}a``                    |                 6.51                    |                 5.59                    |
+# | Square striated         |    ``\sqrt{2}a``              |       ``2a``                           |                 4.60                    |                 3.95                    |
+# | Square star             |      ``2a``                   |       ``\sqrt{5}a``                    |                 3.66                    |                 3.14                    |
+# | Triangular NN           |       ``a``                   |       ``\sqrt{3}a``                    |                 5.88                    |                 5.05                    |
+# | Triangular NNN          |       ``\sqrt{3}a``           |       ``2a``                           |                 4.16                    |                 3.57                    |
+# | Honeycomb NN            |       ``a``                   |       ``\sqrt{3}a``                    |                 5.88                    |                 5.05                    |
+# | Honeycomb NNN           |       ``\sqrt{3}a``           |       ``2a``                           |                 4.16                    |                 3.57                    |
+# | Kagome NN               |       ``a``                   |       ``\sqrt{3}a``                    |                 5.88                    |                 5.05                    |
+# | Kagome NNN              |       ``\sqrt{3}a``           |       ``2a``                           |                 4.16                    |                 3.57                    |
 
 # Other than regular lattices, for an example arbitrary graph shown in the right most panel of the above figure,
 # one only has ``R_\text{max}/R_\text{min} \approx 1.15``.
@@ -235,12 +249,13 @@
 # and the perturbative limits to be 
 # ``\Omega \ll C_6/R_\text{min} \approx 7.99`` MHz 
 # and ``\Omega \gg C_6/R_\text{max} \approx 0.15`` MHz. 
+
 # Note that in this example, we set the blockade radius from ``R_\text{min}`` and ``R_\text{max}``, 
 # and then obtain Rabi frequency ``\Omega`` from the blockade radius. 
 # In practice, it's often the opposite order for specification on the hardware. 
 # ``\Omega`` is typically limited by the laser power on the hardware. 
 # Thus, one starts from a given ``\Omega``, which determines the blockade radius, ``R_b``,
-# which can then inform the separation between atoms described in the previous section.
+# which can then inform the separation between atoms as described in the previous section.
 # If one starts from the atom separation distance first, 
 # it may often results in a Rabi frequency 
 # that is too large or too small to be feasible on the neutral-atom hardware.

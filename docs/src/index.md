@@ -16,7 +16,7 @@ Welcome to the documentation page for Bloqade, a &nbsp;
 
 Neutral-atom quantum computers have two major modes of computation: the first mode is a "digital mode" to do universal, digital quantum computation that uses two ground states ``|0\rangle`` and ``|1\rangle`` to encode the qubit, which has long coherence time, and one Rydberg state ``|r\rangle`` to entangle the qubits; the second mode is an "analog mode" as a programmable quantum simulator that uses one ground state ``|g\rangle`` and one Rydberg state ``|r\rangle``, where the quantum dynamics is governed by a Rydberg Hamiltonian ``\hat{\mathcal{H}}`` described below.
 
-Currently, Bloqade enables the easy design and fast execution of quantum dynamics in the analog mode,  based on the neutral-atom quantum computing architecture. Besides fast full Hilbert-space simulation on CPUs, the main features include the design of arbitrary-layout quantum registers ([Lattices](@ref)), easy waveform generation ([Waveforms](@ref)), the simulation in subspace constrained by the Rydberg blockade ([Working with Subspace](@ref)), faster GPU-accelerated simulation (['GPU Acceleration'](@ref)), and more.
+Currently, Bloqade enables the easy design and fast execution of quantum dynamics in the analog mode,  based on the neutral-atom quantum computing architecture. Besides fast full Hilbert-space simulation on CPUs, the main features include the design of arbitrary-layout quantum registers ([Lattices](@ref)), easy waveform generation ([Waveforms](@ref)), the simulation in subspace constrained by the Rydberg blockade ([Working with Subspace](@ref)), faster GPU-accelerated simulation ([GPU Acceleration](@ref)), and more.
 
 ## Installation
 

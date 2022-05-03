@@ -64,7 +64,7 @@ apply!(reg, put(1=>X))
 ```
 
 For a more detailed introduction of the register interface, please
-refer to [Yao:Array Registers](https://docs.yaoquantum.org/dev/man/array_registers.html) and [Yao:AbstractRegister](https://docs.yaoquantum.org/dev/man/registers.html).
+refer to [Yao:Array Registers](https://docs.yaoquantum.org/dev/man/registers.html#Array-Registers) and [Yao:AbstractRegister](https://docs.yaoquantum.org/dev/man/registers.html).
 
 
 ## Convenient Wrappers

@@ -1,4 +1,4 @@
-# Registers and Observables
+# [Registers and Observables] (@id observables)
 
 Bloqade follows the register interface in [Yao](https://yaoquantum.org). It uses a register to 
 represent a device and its internal quantum state.

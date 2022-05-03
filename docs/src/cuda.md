@@ -1,4 +1,4 @@
-# GPU Acceleration
+# GPU Acceleration (@id cuda)
 
 Bloqade supports CUDA acceleration. To use
 CUDA acceleration, you will need a NVIDIA graphics processing unit (GPU).

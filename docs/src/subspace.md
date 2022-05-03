@@ -2,7 +2,7 @@
 
 Due to the strong Rydberg interactions, only one Rydberg excitation is allowed if the atoms are close to each other. 
 We typically take this as the blockade radius, ``R_b``, which is the 
-distance for which the Rydberg interaction is the same as the Rabi frequency, ``\Omega`` (see [Rydberg Blockade](https://queracomputing.github.io/Bloqade.jl/dev/tutorials/1.blockade/main/)). This is the so-called blockade constraint. 
+distance for which the Rydberg interaction is the same as the Rabi frequency, ``\Omega`` (see [Rydberg Blockade](@ref blockade)). This is the so-called blockade constraint. 
 
 In Bloqade, we can take advantage of this effect by allowing users to run emulation in a truncated subspace, i.e., by throwing out states that violate the blockade constraint. 
 This can help accelerate the simulation and enables simulation for a larger system size. 
@@ -13,7 +13,7 @@ obtain the Hamiltonian matrix in the subspace, and run emulation in the subspace
     Note that the blockade radius ``R_b`` is the distance for which the Rydberg interaction is the same as the Rabi frequency, ``\Omega``. 
     For accurate simulation, however, it's not recommended to throw away the states that's close to the blockade radius. In other words, it's safer to set the subspace radius ``R_s`` to be smaller than ``R_b``, where we throw away the blockade violated states when the atoms are within ``R_s``. 
     For example, if we set ``R_s = 1/2 * R_b``, we will be throwing away states that have interaction energies at least ``2^6*\Omega``, which will be a good approximation. 
-    See the [Rydberg Blockade](https://queracomputing.github.io/Bloqade.jl/dev/tutorials/1.blockade/main/) page for recommendations on how to set ``R_b``, ``R_s``, and the atom lattice separation, ``a``.
+    See the [Rydberg Blockade](@ref blockade) page for recommendations on how to set ``R_b``, ``R_s``, and the atom lattice separation, ``a``.
 
 
 ## Create the Blockade Subspace

@@ -27,7 +27,7 @@ plt = pyimport("matplotlib.pyplot");
 # # Many-Body Rabi Oscillations with Rydberg Blockade
 
 # We first demonstrate that the strong Rydberg interactions have important effects on the Rabi oscillations of Rydberg atoms.
-# To do so, we consider a system with 1, 2, and 3 atoms. All the atoms are placed within the blockade radius of any other atom (see ['Rydberg Blockade'](@ref) for more details). 
+# To do so, we consider a system with 1, 2, and 3 atoms. All the atoms are placed within the blockade radius of any other atom (see ['Rydberg Blockade'](@ref blockade) for more details). 
 # The atom positions can be created as:
 
 atom1 = generate_sites(ChainLattice(), 1, scale = 3.0)

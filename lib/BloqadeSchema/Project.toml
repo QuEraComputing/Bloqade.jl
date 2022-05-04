@@ -1,6 +1,6 @@
 name = "BloqadeSchema"
 uuid = "a64e8dd8-bb5a-11ec-104d-290571fc3a8d"
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"

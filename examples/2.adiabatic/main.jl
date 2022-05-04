@@ -64,7 +64,7 @@ ax.bar(1:nsites, density_g[1, :])
 ax.set_xticks(1:nsites)
 ax.set_xlabel("Sites")
 ax.set_ylabel("Rydberg density")
-ax.set_title("Density Profile: 1D Chain, Δ = -2π * 10")
+ax.set_title("Density Profile: 1D Chain, Δ = -2π * 10 MHz")
 fig
 
 # We can see that the Rydberg densities in this case is close to 0 for all sites. In contrast, for ``\Delta= 2π * 10`` MHz, the density shows a clear ``Z_2`` ordered profile:

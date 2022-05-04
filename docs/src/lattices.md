@@ -2,6 +2,7 @@
 
 We can use Bloqade to simulate the quantum evolution of information stored in neutral atoms. Present-day neutral-atom hardware permits the arrangement of atoms in a regular lattice structure and even in nearly arbitrary geometries in 1D, 2D, and 3D.
 This makes neutral atom platform a natural playground for quantum simulation of statistical models and quantum matters. With Bloqade, we support several built-in lattice structures and also allow the users to specify atom positions by inputting coordinates.
+Please refer to the [Rydberg Blockade](@ref blockade) page for recommendations on how to set the lattice constants for different lattices.
 
 ## Types of Lattices
 

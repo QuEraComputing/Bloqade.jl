@@ -8,8 +8,7 @@ alt="Bloqade Logo" width="400"></img>
 [![Build Status](https://github.com/Happy-Diode/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/Bloqade.jl/actions)
 [![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=9IEs1W)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
 
-Bloqade is a package developed for quantum computation and quantum simulation based on the neutral-atom architecture.
-Please refer to the [documentation](https://queracomputing.github.io/Bloqade.jl/dev/) page to learn more about Bloqade.
+Bloqade is a package developed for quantum computation and quantum simulation based on the neutral-atom architecture. Please refer to the [documentation](https://queracomputing.github.io/Bloqade.jl/dev/) page to learn more about Bloqade.
 
 ## Installation
 

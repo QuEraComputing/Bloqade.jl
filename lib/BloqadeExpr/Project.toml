@@ -1,6 +1,6 @@
 name = "BloqadeExpr"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
@@ -16,7 +16,7 @@ YaoAPI = "0843a435-28de-4971-9e8b-a9641b2983a8"
 YaoBlocks = "418bc28f-b43b-5e0b-a6e7-61bbc1a2c1df"
 
 [compat]
-julia = "1.6"
+Adapt = "3"
 BitBasis = "0.7"
 LaTeXStrings = "1"
 LuxurySparse = "0.6"
@@ -24,7 +24,7 @@ MLStyle = "0.4"
 Unitful = "1"
 YaoAPI = "0.3"
 YaoBlocks = "0.12"
-Adapt = "3"
+julia = "1.6"
 
 [extras]
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"

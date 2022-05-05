@@ -67,7 +67,7 @@ end
 ```
 
 You can use any function on the `reg` object.  For calculating observables, 
-please see the [Observables](@ref) section.
+please see the [Registers and Observables](@ref observables) section.
 
 !!! tip
 

@@ -157,7 +157,7 @@ fig
 bitstring_hist(reg; nlargest = 20)
 
 # To prepare the ``Z_3`` or ``Z_4`` states, we can reduce the separation between nearby atoms to 3.57 μm or 2.87 μm respectively.
-# Please refer to the [Rydberg Blockade](@ref) page on how to set the separation distance for preparing the ordered states.
+# Please refer to the [Rydberg Blockade](@ref blockade) page on how to set the separation distance for preparing the ordered states.
 
 # # Emulation in the Blockade Subspace
 

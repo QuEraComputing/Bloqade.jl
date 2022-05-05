@@ -21,6 +21,7 @@ YaoBase = "a8f54c17-34bc-5a9d-b050-f522fe3f755f"
 YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
+julia = "1.7"
 Adapt = "3"
 BloqadeExpr = "0.1"
 BloqadeKrylov = "0.1"

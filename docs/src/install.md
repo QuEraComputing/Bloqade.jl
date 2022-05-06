@@ -54,7 +54,7 @@ first you need to clone this repo
 
 ```sh
 # clone this repo
-git clone https://github.com/Happy-Diode/Bloqade.jl.git Bloqade
+git clone https://github.com/QuEraComputing/Bloqade.jl.git Bloqade
 # go into the directory
 cd Bloqade
 # dev the corresponding environment

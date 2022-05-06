@@ -84,7 +84,7 @@ function doc_build_script(pages, repo)
         doctest=false,
         format=Documenter.HTML(;
             prettyurls=get(ENV, "CI", "false") == "true",
-            canonical="https://Happy-Diode.github.io/Bloqade.jl",
+            canonical="https://QuEraComputing.github.io/Bloqade.jl",
             assets=String[indigo],
             sidebar_sitename=false,
         ),
@@ -108,7 +108,7 @@ end
 function generate_makejl(light)
     build_script = doc_build_script(
         pages(;light),
-        "Happy-Diode/Bloqade.jl"
+        "QuEraComputing/Bloqade.jl"
     )
     write(root_dir("docs", "make.jl"), build_script)
 end

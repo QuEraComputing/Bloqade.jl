@@ -10,7 +10,6 @@ jobs:
       - name: "Add the General registry via Git"
         run: |
           import Pkg
-          import Pkg.Registry: RegistrySpec
           ENV["JULIA_PKG_SERVER"] = ""
           Pkg.Registry.add("General")
         shell: julia --color=yes {0}
@@ -25,8 +24,9 @@ jobs:
       - name: "Run CompatHelper"
         run: |
           import CompatHelper
-          CompatHelper.main(subdirs=["", "lib"])
+          CompatHelper.main(subdirs=["", readdir(pwd(), "lib")...])
         shell: julia --color=yes {0}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COMPATHELPER_PRIV: ${{ secrets.DOCUMENTER_KEY }}
+          # COMPATHELPER_PRIV: ${{ secrets.COMPATHELPER_PRIV }}

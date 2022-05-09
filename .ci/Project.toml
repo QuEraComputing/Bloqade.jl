@@ -5,6 +5,7 @@ version = "0.1.0"
 
 [deps]
 Comonicon = "863f3e99-da2a-4334-8734-de3dacbe5542"
+CondaPkg = "992eb4ea-22a4-4c89-a5bb-47a3300528ab"
 CoverageTools = "c36e975a-824b-4404-a568-ef97ca766997"
 Literate = "98b081ad-f1c9-55d3-8b20-4c87d4299306"
 LiveServer = "16fef848-5104-11e9-1b77-fb7a48bbb589"

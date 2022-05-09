@@ -1,6 +1,5 @@
 name = "BloqadeLattices"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
-authors = ["QuEra Computing Inc."]
 version = "0.1.1"
 
 [deps]
@@ -10,6 +9,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 Viznet = "52a3aca4-6234-47fd-b74a-806bdf78ede9"
 
 [compat]
+Cairo = "1"
 NearestNeighbors = "0.4"
 StatsBase = "0.33"
 Viznet = "0.3"

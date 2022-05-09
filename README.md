@@ -1,7 +1,14 @@
-# Bloqade
+<div align="center"> <img
+src="docs/src/assets/logo.png"
+alt="Bloqade Logo" width="400"></img>
+</div>
 
-[![Build Status](https://github.com/Happy-Diode/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/Happy-Diode/Bloqade.jl/actions)
-[![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=9IEs1W)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
+---
+
+[![Build Status](https://github.com/QuEraComputing/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/QuEraComputing/Bloqade.jl/actions)
+[![Coverage Status](https://coveralls.io/repos/github/QuEraComputing/Bloqade.jl/badge.svg?branch=master&t=9IEs1W)](https://coveralls.io/github/QuEraComputing/Bloqade.jl?branch=master)
+
+Bloqade is a package developed for quantum computation and quantum simulation based on the neutral-atom architecture. Please refer to the [documentation](https://queracomputing.github.io/Bloqade.jl/dev/) page to learn more about Bloqade.
 
 ## Installation
 
@@ -13,23 +20,21 @@ Bloqade is a &nbsp;
     </a>
     &nbsp; package. To install Bloqade,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
-    Julia's interactive session (known as REPL)</a> and press <kbd>]</kbd> key in the REPL to use the package mode, then type the following command
+    Julia's interactive session (known as REPL)</a> and press <kbd>]</kbd> key in the REPL to use the package mode, and then type the following command:
 </p>
 
-First add the QuEra Julia registry via
-
-```julia
-pkg> registry add https://github.com/Happy-Diode/Miskatonic.git
-```
-
-For stable release
+For stable release:
 
 ```julia
 pkg> add Bloqade
 ```
 
-For current master
+For current master:
 
 ```julia
 pkg> add Bloqade#master
 ```
+
+## License
+
+Apache License 2.0

@@ -31,9 +31,8 @@ create an example.
 # Flags
 
 - `-f,--force`: overwrite existing path.
-- `--plot`: use `BloqadePlots`.
 """
-@cast function create(name::String; force::Bool=false, plot::Bool=false)
+@cast function create(name::String; force::Bool=false)
     example_dir = root_dir("examples", name)
     if !force && ispath(example_dir)
         error("$example_dir already exists")
@@ -42,7 +41,6 @@ create an example.
     mkpath(example_dir)
     Pkg.activate(example_dir)
     excluded_libs = []
-    plot || push!(excluded_libs, "BloqadePlots")
     pkgs = collect_lib(;include_main=true, excluded_libs)
     Pkg.develop(pkgs)
     write(joinpath(example_dir, "main.jl"), """
@@ -140,12 +138,15 @@ in parallel.
     example_dir = root_dir("examples")
     script = """
     using Pkg
+    using CondaPkg
     using Literate
     for name in readdir(\"$example_dir\")
         project_dir = joinpath(\"$example_dir\", name)
         isdir(project_dir) || continue
 
         Pkg.activate(project_dir)
+        Pkg.instantiate()
+        CondaPkg.resolve()
 
         @info "building" project_dir
         Literate.$target(
@@ -153,7 +154,7 @@ in parallel.
             joinpath(\"$build_dir\", name),
             ;execute=$eval
         )
-    end    
+    end
     """
 
     # dev the examples first

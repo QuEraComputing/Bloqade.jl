@@ -21,12 +21,20 @@ using Reexport
     generate_sites, offset_axes, rescale_axes,
     MaskedGrid, make_grid, random_dropout,
     clip_axes, lattice_sites, lattice_vectors,
-    make_kdtree, grouped_nearest, collect_atoms,
-    img_atoms, img_maskedgrid, ByDensity
+    make_kdtree, grouped_nearest, collect_atoms
 
 
-export rydberg_density, rydberg_corr
+export rydberg_density, rydberg_corr, bitstring_hist, bitstring_hist!
 
+using PythonCall
+const plt = PythonCall.pynew()
+
+function __init__()
+    # copied from PyPlotCall.jl
+    PythonCall.pycopy!(plt, pyimport("matplotlib.pyplot"))
+end
+
+include("plots/plots.jl")
 include("observables.jl")
 include("precompile.jl")
 

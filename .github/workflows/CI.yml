@@ -30,7 +30,7 @@ jobs:
         version:
           - '1'
         os:
-          - self-hosted
+          - ubuntu-latest
         arch:
           - x64
     steps:
@@ -49,32 +49,17 @@ jobs:
             ${{ runner.os }}-test-${{ env.cache-name }}-
             ${{ runner.os }}-test-
             ${{ runner.os }}-
-      - name: "Setup Private Registry"
-        shell: julia --color=yes {0}
-        run: |
-          import Pkg
-          import Pkg.Registry: RegistrySpec
-          ENV["JULIA_PKG_SERVER"] = ""
-          Pkg.Registry.add("General")
-          Pkg.Registry.add(RegistrySpec(url="https://DrHenryArmitage:${{ secrets.CI_TOKEN }}@github.com/Happy-Diode/Miskatonic.git"))
       - name: "develop lib packages"
         run: .ci/run dev
       - uses: julia-actions/julia-buildpkg@v1
       - name: "run tests"
         run: .ci/run testall --cpu --coverage
-      - uses: coverallsapp/github-action@master
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          flag-name: ${{ matrix.package }} - Julia ${{ matrix.version }} - ${{ matrix.os }} - ${{ matrix.arch }}
-          parallel: true
-          path-to-lcov: lcov.info
 
   finish:
-      name: Coveralls Finished
+      name: Codecov
       needs: test
-      runs-on: [self-hosted]
+      runs-on: [ubuntu-latest]
       steps:
-        - uses: coverallsapp/github-action@master
+        - uses: codecov/codecov-action@v1
           with:
-            github-token: ${{ secrets.GITHUB_TOKEN }}
-            parallel-finished: true
+            file: lcov.info

@@ -4,8 +4,6 @@ CurrentModule = Bloqade
 
 # Bloqade
 
-[![Coverage Status](https://coveralls.io/repos/github/Happy-Diode/Bloqade.jl/badge.svg?branch=master&t=p1FNvJ)](https://coveralls.io/github/Happy-Diode/Bloqade.jl?branch=master)
-
 ```@raw html
 <p>
 Welcome to the documentation page for Bloqade, a &nbsp;
@@ -13,9 +11,12 @@ Welcome to the documentation page for Bloqade, a &nbsp;
         <img src="https://raw.githubusercontent.com/JuliaLang/julia-logo-graphics/master/images/julia.ico" width="16em">
         Julia Language
     </a>
-    &nbsp; package for the simulation of quantum computation and quantum dynamics based on neutral-atom architectures.
+    &nbsp; package for the quantum computation and quantum dynamics based on neutral-atom architectures.
 ```
-Bloqade enables the easy design and fast execution of quantum dynamics based on the neutral-atom quantum computing architecture. Besides fast full Hilbert-space simulation on CPUs, the main features include the design of arbitrary-layout quantum registers ([Lattices](@ref)), easy waveform generation ([Waveforms](@ref)), the simulation in subspace constrained by the Rydberg blockade ([subspace](@ref)), faster GPU-accelerated simulation ([CUDA Acceleration](@ref)), and more.
+
+Neutral-atom quantum computers have two major modes of computation: the first mode is a "digital mode" to do universal, digital quantum computation that uses two ground states ``|0\rangle`` and ``|1\rangle`` to encode the qubit, which has long coherence time, and one Rydberg state ``|r\rangle`` to entangle the qubits; the second mode is an "analog mode" as a programmable quantum simulator that uses one ground state ``|g\rangle`` and one Rydberg state ``|r\rangle``, where the quantum dynamics is governed by a Rydberg Hamiltonian ``\hat{\mathcal{H}}`` described below.
+
+Currently, Bloqade enables the easy design and fast execution of quantum dynamics in the analog mode,  based on the neutral-atom quantum computing architecture. Besides fast full Hilbert-space simulation on CPUs, the main features include the design of arbitrary-layout quantum registers ([Lattices](@ref)), easy waveform generation ([Waveforms](@ref)), the simulation in subspace constrained by the Rydberg blockade ([Working with Subspace](@ref)), faster GPU-accelerated simulation ([GPU Acceleration](@ref)), and more.
 
 ## Installation
 
@@ -23,23 +24,17 @@ Bloqade enables the easy design and fast execution of quantum dynamics based on 
 <p>
 To install Bloqade,
     please <a href="https://docs.julialang.org/en/v1/manual/getting-started/">open
-    Julia's interactive session (known as REPL)</a>, press <kbd>]</kbd> key in the REPL to use the package mode, and then
+    Julia's interactive session (known as REPL)</a>, press <kbd>]</kbd> key in the REPL to use the package mode, and then add the QuEra Julia registry via:
 </p>
 ```
 
-add the QuEra Julia registry via
-
-```julia
-pkg> registry add https://github.com/Happy-Diode/Miskatonic.git
-```
-
-For the stable release, type
+For the stable release, type:
 
 ```julia
 pkg> add Bloqade
 ```
 
-Or for the current master,
+Or for the current master:
 
 ```julia
 pkg> add Bloqade#master
@@ -47,23 +42,31 @@ pkg> add Bloqade#master
 
 For a more advanced installation guide, please see the [Installation](@ref install) page.
 
-## What does Bloqade do?
+## What does Bloqade Do?
 
-Neutral-atom quantum computers have two major modes of computation: the first mode is a "digital mode" to do universal, digital quantum computation that uses two ground states ``|0\rangle`` and ``|1\rangle`` to encode the qubit, which has long coherence time, and one Rydberg state ``|r\rangle`` to entangle the qubits; the second mode is a "analog mode" as a programmable quantum simulator that uses one ground state ``|1\rangle`` and one Rydberg state ``|r\rangle``, where the quantum dynamics is governed by a Rydberg Hamiltonian ``\hat{\mathcal{H}}``.
 
-Currently, Bloqade only supports the analog mode. In particular, it simulates the time evolution of a quantum state under the Schrödinger equation where the Hamiltonian is the interacting Rydberg Hamiltonian ``\hat{\mathcal{H}}``, 
+In the analog mode, Bloqade simulates the time evolution of a quantum state under the Schrödinger equation where the Hamiltonian is the interacting Rydberg Hamiltonian ``\hat{\mathcal{H}}``, 
 
 ```math
 i \hbar \dfrac{\partial}{\partial t} | \psi \rangle = \hat{\mathcal{H}}(t) | \psi \rangle,  \\
 
-\frac{\mathcal{H}(t)}{\hbar} = \sum_j \frac{\Omega_j(t)}{2} \left( e^{i \phi_j(t) } | 1_j \rangle  \langle r_j | + e^{-i \phi_j(t) } | r_j \rangle  \langle 1_j | \right) - \sum_j \Delta_j(t) \hat{n}_j + \sum_{j < k} V_{jk} \hat{n}_j \hat{n}_k.
+\frac{\mathcal{H}(t)}{\hbar} = \sum_j \frac{\Omega_j(t)}{2} \left( e^{i \phi_j(t) } | g_j \rangle  \langle r_j | + e^{-i \phi_j(t) } | r_j \rangle  \langle g_j | \right) - \sum_j \Delta_j(t) \hat{n}_j + \sum_{j < k} V_{jk} \hat{n}_j \hat{n}_k.
 ```
 
-Following the atomic physics nomenclature, ``\Omega_j``, ``\phi_j``, and ``\Delta_j``  denote the Rabi frequency, laser phase, and the detuning of the driving laser field on atom (qubit) ``j`` coupling the two states  ``| 1_j \rangle `` (ground state) and `` | r_j \rangle `` (Rydberg state); ``\hat{n}_j = |r_j\rangle \langle r_j|`` is the number operator, and ``V_{jk} = C_6/|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|^6`` describes the Rydberg interaction (van der Waals interaction) between atoms ``j`` and ``k`` where ``\overrightarrow{\mathbf{r_j}}`` denotes the position of the atom ``j``; ``C_6`` is the Rydberg interaction constant that depends on the particular Rydberg state used. For Bloqade, the default ``C_6 = 862690 \times 2\pi \text{ MHz μm}^6`` for ``|r \rangle = \lvert 70S_{1/2} \rangle`` of the ``^{87}``Rb atoms; ``\hbar`` is the reduced Planck's constant.
+Following the atomic physics nomenclature, ``\Omega_j``, ``\phi_j``, and ``\Delta_j``  denote the Rabi frequency, laser phase, and the detuning of the driving laser field on atom (qubit) ``j`` coupling the two states  ``| g_j \rangle `` (ground state) and `` | r_j \rangle `` (Rydberg state); ``\hat{n}_j = |r_j\rangle \langle r_j|`` is the number operator, and ``V_{jk} = C_6/|\overrightarrow{\mathbf{r}_j} - \overrightarrow{\mathbf{r}_k}|^6`` describes the Rydberg interaction (van der Waals interaction) between atoms ``j`` and ``k`` where ``\overrightarrow{\mathbf{r}_j}`` denotes the position of the atom ``j``; ``C_6`` is the Rydberg interaction constant that depends on the particular Rydberg state used. For Bloqade, the default ``C_6 = 862690 \times 2\pi \text{ MHz μm}^6`` for ``|r \rangle = \lvert 70S_{1/2} \rangle`` of the ``^{87}``Rb atoms; ``\hbar`` is the reduced Planck's constant. Sometimes, we also refer the states ``|g\rangle`` and ``|r\rangle`` as ``|0\rangle`` and ``|1\rangle`` as well in the analog mode.
 
 Starting from an initial quantum state ``| \psi_{\text{ini}} \rangle``, Bloqade simulates its time evolution under the Hamiltonian ``\hat{\mathcal{H}}(t)``, given the qubit positions and the time-dependent profiles for  ``\Omega_j``, ``\phi_j``, and ``\Delta_j``. Bloqade then outputs the real-time-evolved state ``| \psi(t) \rangle``, which can then be used for measuring different observables.
 
-The default units for various quantities are 
+More specifically, here are the steps to program neutral-atom quantum computers using Bloqade:
+
+- specify atom positions (see [Lattices](@ref))
+- program waveforms of Hamiltonian parameters (see [Waveforms](@ref))  
+- create the Hamiltonian (see [Hamiltonians](@ref))
+- specify the initial state (see [Registers and Observables](@ref))
+- emulation (see [Emulation](@ref emulation))
+- measurements & observables (see [Registers and Observables](@ref)).
+
+The default units for various quantities are: 
 
 | Quantity      | Default Unit |
 | :---:         |    :----:   |
@@ -74,11 +77,11 @@ The default units for various quantities are
 | ``\Delta``    |  MHz        |
 
 
-## First steps
+## A Simple Example
 
 Let's try a simple example of simulating quantum many-body dynamics governed by the Rydberg Hamiltonian. 
 
-We start by loading the Bloqade Module
+We start by loading the Bloqade Module:
 
 ```@repl quick-start
 using Bloqade
@@ -92,7 +95,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.74)
 ```
 We have set the distance between nearest-neighbor atoms to be 5.74 μm. Note that the default unit of length is μm as shown in the table above.
 
-Let's set both ``\Omega`` and ``\Delta`` to be constants (and ``\phi = 0``). Since all the variable parameters in the Hamiltonian are specified, we can now create an interacting Rydberg Hamiltonian by using [`rydberg_h`](@ref), 
+Let's set both ``\Omega`` and ``\Delta`` to be constants (and ``\phi = 0``). Since all the variable parameters in the Hamiltonian are specified, we can now create an interacting Rydberg Hamiltonian by using [`rydberg_h`](@ref): 
 
 ```@repl quick-start
 h = rydberg_h(atoms; Ω = 4 * 2π, Δ = 0)
@@ -100,7 +103,7 @@ h = rydberg_h(atoms; Ω = 4 * 2π, Δ = 0)
 
 To create more complicated waveforms for ``\Omega`` and ``\Delta`` and find the supported utilities, please refer to the [Waveforms](@ref) page.
 
-Let's create an initial state with all the atoms in the ground state by using [`zero_state`](@ref)
+Let's create an initial state with all the atoms in the ground state by using [`zero_state`](@ref).
 
 ```@repl quick-start
 reg = zero_state(10)
@@ -115,21 +118,15 @@ emulate!(prob);
 ```
 Here, we have chosen the ODE-based solver (`Vern8()`) by using [`SchrodingerProblem`](@ref) and set the total evolution time to be 1.6 μs.
 
-After simulating the time evolution and get the final state, we can measure the Rydberg population at each site for the final state 
+After simulating the time evolution and get the final state, we can measure the Rydberg population at each site for the final state: 
 
 ```@repl quick-start
 rydberg_populations = map(1:nsites) do i
-    real(expect(put(nsites, i=>Op.n), prob.reg))
+    rydberg_density(prob.reg, i)
 end
 ```
 `prob.reg` is the register storing the final state after the time evolution.
 
+## Have Suggestions or Interested in Contributing?
 
-## Looking for Help?
-
-- check the slack channel [#julia](https://quera-workspace.slack.com/archives/C011C12GXRD)
-- if not urgent, ask questions in [discussions](https://github.com/Happy-Diode/Bloqade.jl/discussions)
-
-## Have Suggestions or Interested in Contribution?
-
-- [file an issue](https://github.com/Happy-Diode/Bloqade.jl/issues/new) to report a bug or request a feature
+- [file an issue](https://github.com/QuEraComputing/Bloqade.jl/issues) to report a bug or request a feature.

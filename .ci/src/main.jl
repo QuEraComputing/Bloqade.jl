@@ -4,7 +4,7 @@ using Comonicon
 using CoverageTools
 
 root_dir(xs...) = joinpath(dirname(dirname(@__DIR__)), xs...)
-function collect_lib(;include_main::Bool=false, excluded_libs=["BloqadePlots"])
+function collect_lib(;include_main::Bool=false, excluded_libs=[])
     pkgs = Pkg.PackageSpec[]
     for pkg in readdir(root_dir("lib"))
         pkg in excluded_libs && continue
@@ -24,11 +24,10 @@ create an example.
 # Flags
 
 - `-f,--force`: overwrite existing path.
-- `--plot`: use `BloqadePlots`.
 """
-@cast function create(name::String; force::Bool=false, plot::Bool=false)
+@cast function create(name::String; force::Bool=false)
     @warn("`.ci/run create` is deprecated, use `.ci/run example create` instead")
-    Example.create(name; force, plot)
+    Example.create(name; force)
 end
 
 """
@@ -57,7 +56,7 @@ run tests (in parallel process).
     end
 
     coverage || return
-    
+
     dirs = map(paths) do path
         joinpath(path, "src")
     end
@@ -92,27 +91,35 @@ develop the Bloqade components into environment.
 
 - `path`: path to the environment, relative to the main environment,
     default is the main Bloqade environment.
+
+# Flags
+
+- `-v,--verbose`: print the environment status.
 """
-@cast function dev(path::String=".")
+@cast function dev(path::String="."; verbose::Bool=false)
     path = relpath(path, root_dir())
 
     if path == "."
-        Pkg.activate(root_dir())
-        Pkg.develop(collect_lib_deps(path))
+        Pkg.activate(root_dir(); io=devnull)
+        Pkg.develop(collect_lib_deps(path); io=devnull)
     elseif startswith(path, "examples")
-        Pkg.activate(root_dir(path))
-        Pkg.develop(collect_lib_deps(path))
+        Pkg.activate(root_dir(path); io=devnull)
+        Pkg.develop(collect_lib_deps(path); io=devnull)
     elseif startswith(path, "docs") # need all lib packages included
-        Pkg.activate(root_dir(path))
+        Pkg.activate(root_dir(path); io=devnull)
         libs = collect_lib(;include_main=true, excluded_libs=["BloqadeCUDA"])
-        Pkg.develop(libs)
+        Pkg.develop(libs; io=devnull)
     elseif startswith(path, "lib")
         pkgs = collect_lib_deps(path)
         isempty(pkgs) && return
-        Pkg.activate(root_dir(path))
-        Pkg.develop(pkgs)
+        Pkg.activate(root_dir(path); io=devnull)
+        Pkg.develop(pkgs; io=devnull)
     else
         error("invalid path: $(root_dir(path))")
+    end
+
+    if verbose
+        Pkg.status()
     end
     return
 end

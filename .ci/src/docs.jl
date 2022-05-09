@@ -31,24 +31,18 @@ function pages(;light=false)
             "Lattices" => "lattices.md",
             "Waveforms" => "waveform.md",
             "Hamiltonians" => "hamiltonians.md",
-            "Registers" => "registers.md",
+            "Registers and Observables" => "registers.md",
             "Emulation" => "emulation.md",
             "Working with Subspace" => "subspace.md",
             "Working with Units" => "units.md",
-            "Observables" => "observables.md",
             "Maximum Independent Set" => "mis.md",
-            "CUDA Acceleration" => "cuda.md",
+            "GPU Acceleration" => "cuda.md",
         ],
     ]
 
     light || push!(PAGES, "Tutorials" => tutorial_pages())
 
     append!(PAGES, [
-        "Advanced Topics" => [
-            "Rydberg Blockade" => "topics/blockade.md",
-            "Bravais Lattice" => "topics/bravais.md",
-            "Automatic Differentiation" => "topics/ad.md",
-        ],
         "Contributing to Bloqade" => "contrib.md",
     ])
 
@@ -90,8 +84,9 @@ function doc_build_script(pages, repo)
         doctest=false,
         format=Documenter.HTML(;
             prettyurls=get(ENV, "CI", "false") == "true",
-            canonical="https://Happy-Diode.github.io/Bloqade.jl",
+            canonical="https://QuEraComputing.github.io/Bloqade.jl",
             assets=String[indigo],
+            sidebar_sitename=false,
         ),
         pages=$pages,
     )
@@ -113,7 +108,7 @@ end
 function generate_makejl(light)
     build_script = doc_build_script(
         pages(;light),
-        "Happy-Diode/Bloqade.jl"
+        "QuEraComputing/Bloqade.jl"
     )
     write(root_dir("docs", "make.jl"), build_script)
 end

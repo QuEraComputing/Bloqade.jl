@@ -37,7 +37,7 @@ end
 function print_expr(io::IO, ::MIME"text/plain", t::RydInteract)
     C = t.C/2π
     n = ceil(log10(C))
-    C = round(C / 10^n, digits=3)
+    C = round(C / 10^(n-1), digits=3)
     print(io, "∑ 2π ⋅ $(C)e$n/|r_i-r_j|^6 n_i n_j")
 end
 
@@ -148,7 +148,7 @@ end
 
 function Base.show(io::IO, ::MIME"text/plain", h::Hamiltonian)
     tab(n) = " "^(n + get(io, :indent, 0))
-    println(io, "Hamiltonian")
+    println(io, tab(0), "Hamiltonian")
     println(io, tab(2), "number of dynamic terms: ", count(x->x!==Base.one, h.fs))
     print(io, tab(2), "storage size: ")
     print(io, Base.format_bytes(sum(sizeof, h.ts)))

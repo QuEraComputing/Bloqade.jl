@@ -3,49 +3,40 @@ Built-in kernel functions.
 """
 module Kernels
 
-export gaussian,
-    triangle,
-    uniform,
-    parabolic,
-    biweight,
-    tricube,
-    cosine,
-    logistic,
-    sigmoid
+export gaussian, triangle, uniform, parabolic, biweight, tricube, cosine, logistic, sigmoid
 
 # kernels
 # https://en.wikipedia.org/wiki/Kernel_(statistics)#Kernel_functions_in_common_use
 _in_radius(t, value) = abs(t) ≤ 1 ? value : zero(t)
-gaussian(t) = exp(-abs2(t)/2)/sqrt(2π)
+gaussian(t) = exp(-abs2(t) / 2) / sqrt(2π)
 triangle(t) = _in_radius(t, 1 - abs(t))
 
-function uniform(t::T) where T
+function uniform(t::T) where {T}
     # we calculate the normalize factor
     # in smooth, no need to div by m
     return T(abs(t) ≤ 1)
 end
 
-parabolic(t) = _in_radius(t, 3/4 * (1 - abs2(t)))
-biweight(t) = _in_radius(t, 15/16 * (1 - abs2(t))^2)
-triweight(t) = _in_radius(t, 35/32 * (1 - abs2(t))^3)
-tricube(t) = _in_radius(t, 70/81 * (1 - abs(t)^3)^3)
-cosine(t) = _in_radius(t, π/4 * cos(π/2 * t))
+parabolic(t) = _in_radius(t, 3 / 4 * (1 - abs2(t)))
+biweight(t) = _in_radius(t, 15 / 16 * (1 - abs2(t))^2)
+triweight(t) = _in_radius(t, 35 / 32 * (1 - abs2(t))^3)
+tricube(t) = _in_radius(t, 70 / 81 * (1 - abs(t)^3)^3)
+cosine(t) = _in_radius(t, π / 4 * cos(π / 2 * t))
 # TODO: check numerical stability
 logistic(t) = 1 / (exp(t) + 2 + exp(-t))
-sigmoid(t) = 2/(π * (exp(t) + exp(-t)))
+sigmoid(t) = 2 / (π * (exp(t) + exp(-t)))
 
 end
 
-
 # based on JuliaImages/edgepad
-function edge_pad(vec::AbstractVector{T}, n::Int) where T
+function edge_pad(vec::AbstractVector{T}, n::Int) where {T}
     res = zeros(T, length(vec) + 2n)
     @inbounds begin
         for idx in 1:n
             res[idx] = vec[1]
             res[end-idx+1] = vec[end]
         end
-        res[n+1:end-n] .= vec 
+        res[n+1:end-n] .= vec
     end
     return res
 end
@@ -68,15 +59,32 @@ Kernel smoother function for piece-wise linear function/waveform via weighted mo
 function smooth end
 
 # forward waveform objects
-function smooth(kernel, wf::Waveform{<:Union{PiecewiseLinear, PiecewiseConstant}}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks), dt=kernel_radius/1e2)
+function smooth(
+    kernel,
+    wf::Waveform{<:Union{PiecewiseLinear,PiecewiseConstant}};
+    kernel_radius::Real = 0.3,
+    edge_pad_size::Int = length(wf.f.clocks),
+    dt = kernel_radius / 1e2,
+)
     return Waveform(smooth(kernel, wf.f; edge_pad_size, kernel_radius, dt), wf.duration)
 end
 
-function smooth(wf::Waveform{<:Union{PiecewiseLinear, PiecewiseConstant}}; kernel_radius::Real=0.3, edge_pad_size::Int=length(wf.f.clocks), dt=kernel_radius/1e2)
+function smooth(
+    wf::Waveform{<:Union{PiecewiseLinear,PiecewiseConstant}};
+    kernel_radius::Real = 0.3,
+    edge_pad_size::Int = length(wf.f.clocks),
+    dt = kernel_radius / 1e2,
+)
     return smooth(Kernels.gaussian, wf; edge_pad_size, kernel_radius, dt)
 end
 
-function smooth(kernel, f::Union{PiecewiseLinear, PiecewiseConstant}; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks), dt=kernel_radius/1e2)
+function smooth(
+    kernel,
+    f::Union{PiecewiseLinear,PiecewiseConstant};
+    kernel_radius::Real = 0.3,
+    edge_pad_size::Int = length(f.clocks),
+    dt = kernel_radius / 1e2,
+)
     clocks = zero(dt):dt:last(f.clocks)
     clocks = edge_pad(clocks, edge_pad_size)
     values = [f(t) for t in clocks]
@@ -84,8 +92,12 @@ function smooth(kernel, f::Union{PiecewiseLinear, PiecewiseConstant}; kernel_rad
     return smooth(kernel, clocks, values, kernel_radius)
 end
 
-smooth(f::Union{PiecewiseLinear, PiecewiseConstant}; kernel_radius::Real=0.3, edge_pad_size::Int=length(f.clocks), dt=kernel_radius/1e2) =
-    smooth(Kernels.gaussian, f; edge_pad_size, kernel_radius)
+smooth(
+    f::Union{PiecewiseLinear,PiecewiseConstant};
+    kernel_radius::Real = 0.3,
+    edge_pad_size::Int = length(f.clocks),
+    dt = kernel_radius / 1e2,
+) = smooth(Kernels.gaussian, f; edge_pad_size, kernel_radius)
 
 """
     smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
@@ -138,11 +150,11 @@ $(
 function smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
     return function smoothed_function(x)
         A = sum(Xi) do x_i
-            kernel(norm(x-x_i, 2)/kernel_radius)
+            return kernel(norm(x - x_i, 2) / kernel_radius)
         end
 
         Ŷ = sum(zip(Xi, Yi)) do (x_i, y_i)
-            kernel(norm(x-x_i, 2)/kernel_radius) * y_i
+            return kernel(norm(x - x_i, 2) / kernel_radius) * y_i
         end
         return Ŷ / A
     end

@@ -52,19 +52,19 @@ function rydberg_density_sum end
 rydberg_density_sum(x) = rydberg_density_sum(identity, x)
 
 struct SubspaceMap
-    d::Dict{Int, Int}
+    d::Dict{Int,Int}
 end
 
 function SubspaceMap(f, subspace::Subspace)
     key = Vector{Int}(undef, length(subspace))
-    val = Vector{Int}(undef, length(subspace))    
+    val = Vector{Int}(undef, length(subspace))
     origin = vec(subspace)
     @inbounds Threads.@threads for idx in 1:length(origin)
         cfg = origin[idx]
         key[idx] = cfg
         val[idx] = to_int64(f(cfg))
     end
-    return SubspaceMap(Dict{Int, Int}(zip(key, val)))
+    return SubspaceMap(Dict{Int,Int}(zip(key, val)))
 end
 
 Base.length(map::SubspaceMap) = length(map.d)
@@ -78,14 +78,14 @@ function to_int64(b::BitVector) # workaround type piracy
     return reinterpret(Int, b.chunks[1])
 end
 
-struct ConfigAmplitude{Reg <: YaoAPI.AbstractRegister}
+struct ConfigAmplitude{Reg<:YaoAPI.AbstractRegister}
     reg::Reg
     range::UnitRange{Int}
 end
 
 ConfigAmplitude(reg::YaoAPI.AbstractRegister{2}) = ConfigAmplitude(reg, 1:size(reg.state, 1))
 
-Base.eltype(it::ConfigAmplitude) = Tuple{Int, datatype(it.reg)}
+Base.eltype(it::ConfigAmplitude) = Tuple{Int,datatype(it.reg)}
 Base.length(it::ConfigAmplitude) = length(it.range)
 
 function Transducers.halve(it::ConfigAmplitude)
@@ -102,7 +102,7 @@ end
 
 function Base.iterate(it::ConfigAmplitude{<:ArrayReg}, idx::Int = first(it.range))
     idx > last(it.range) && return
-    return (idx-1, it.reg.state[idx]), idx + 1
+    return (idx - 1, it.reg.state[idx]), idx + 1
 end
 
 function rydberg_density_sum(f, reg::YaoAPI.AbstractRegister)
@@ -141,9 +141,9 @@ gibbs_loss(reg_or_samples, α::Real) = gibbs_loss(identity, reg_or_samples, α)
 
 function gibbs_loss(f, reg::YaoAPI.AbstractRegister, α::Real)
     expected = ThreadsX.sum(ConfigAmplitude(reg)) do (config, amp)
-        abs2(amp) * exp(α * count_vertices(f(config)))
+        return abs2(amp) * exp(α * count_vertices(f(config)))
     end
-    return -log(expected) / α 
+    return -log(expected) / α
 end
 
 function logsumexp(x::AbstractArray)
@@ -152,12 +152,12 @@ function logsumexp(x::AbstractArray)
 end
 
 function gibbs_loss(f, samples::AbstractVector, α::Real)
-    expect = ThreadsX.map(x->α * count_vertices(f(x)), samples)
-    return -(logsumexp(expect) - log(length(samples)))/α
+    expect = ThreadsX.map(x -> α * count_vertices(f(x)), samples)
+    return -(logsumexp(expect) - log(length(samples))) / α
 end
 
 function gibbs_loss(f, samples::AbstractMatrix, α::Real)
-    -(logsumexp(α .* sum(samples, dims=(2,))) - log(size(samples, 1)))/α
+    return -(logsumexp(α .* sum(samples, dims = (2,))) - log(size(samples, 1))) / α
 end
 
 gibbs_loss(α::Real) = reg -> gibbs_loss(reg, α)
@@ -199,7 +199,7 @@ function to_independent_set!(config::AbstractVector, graph::AbstractGraph)
     N = length(config)
     n = typemax(Int)
     while true
-        n, loc = findmax(map(i->num_mis_violation(config, graph, i), 1:N))
+        n, loc = findmax(map(i -> num_mis_violation(config, graph, i), 1:N))
         if n == 0
             break
         else
@@ -231,7 +231,7 @@ Base.@propagate_inbounds function num_mis_violation(config, graph::AbstractGraph
     ci == 1 || return 0
 
     return count(1:length(config)) do j
-        config[j] == 1 && has_edge(graph, i, j)
+        return config[j] == 1 && has_edge(graph, i, j)
     end
 end
 
@@ -255,25 +255,11 @@ pick the one that has largest [`count_vertices`](@ref).
 - `graph`: problem graph.
 - `ntrials`: number of trials to use, default is `10`.
 """
-function add_random_vertices(
-    config::AbstractVector,
-    graph::AbstractGraph,
-    ntrials::Int = 10)
-
-    return add_random_vertices(
-        Random.GLOBAL_RNG,
-        config,
-        graph,
-        ntrials
-    )
+function add_random_vertices(config::AbstractVector, graph::AbstractGraph, ntrials::Int = 10)
+    return add_random_vertices(Random.GLOBAL_RNG, config, graph, ntrials)
 end
 
-function add_random_vertices(
-        rng::AbstractRNG,
-        config::AbstractVector,
-        graph::AbstractGraph,
-        ntrials::Int = 10
-    )
+function add_random_vertices(rng::AbstractRNG, config::AbstractVector, graph::AbstractGraph, ntrials::Int = 10)
     perm = collect(1:nv(graph))
     nvertices = count_vertices(config)
     origin = config
@@ -293,10 +279,10 @@ function add_random_vertices(
     return maximum_config
 end
 
-add_vertices(config::AbstractVector, graph::AbstractGraph, perm=eachindex(config)) =
+add_vertices(config::AbstractVector, graph::AbstractGraph, perm = eachindex(config)) =
     add_vertices!(copy(config), graph, perm)
 
-function add_vertices!(config::AbstractVector, graph::AbstractGraph, perm=eachindex(config))
+function add_vertices!(config::AbstractVector, graph::AbstractGraph, perm = eachindex(config))
     for (k, c) in zip(perm, config)
         if iszero(c)
             config[k] = 1
@@ -328,14 +314,14 @@ function independent_set_probabilities end
 
 function independent_set_probabilities(reg::YaoAPI.AbstractRegister, graph::AbstractGraph)
     independent_set_probabilities(reg, graph) do config
-        to_independent_set(config, graph)
+        return to_independent_set(config, graph)
     end
 end
 
 function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, graph::AbstractGraph)
     return independent_set_probabilities(f, reg, exact_solve_mis(graph))
 end
-    
+
 function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, mis::Int)
     v2amp = ThreadsX.map(ConfigAmplitude(reg)) do (c, amp)
         return count_vertices(f(c)), amp
@@ -343,7 +329,7 @@ function independent_set_probabilities(f, reg::YaoAPI.AbstractRegister, mis::Int
 
     return ThreadsX.map(0:mis) do k
         ThreadsX.sum(v2amp) do (nvertices, amp)
-            sum_amp(nvertices == k, amp)
+            return sum_amp(nvertices == k, amp)
         end
     end
 end
@@ -352,7 +338,7 @@ function config_probability end
 
 function config_probability(reg::YaoAPI.AbstractRegister, graph::AbstractGraph, independent_set_config)
     config_probability(reg, graph, independent_set_config) do config
-        to_independent_set(config, graph)
+        return to_independent_set(config, graph)
     end
 end
 
@@ -362,8 +348,8 @@ function config_probability(f, reg::YaoAPI.AbstractRegister, graph::AbstractGrap
         return f(c), amp
     end
     return ThreadsX.sum(v2amp) do (b, amp)
-            sum_amp(b == mis_postprocessed, amp)
-    end 
+        return sum_amp(b == mis_postprocessed, amp)
+    end
 end
 
 function sum_amp(condition, amp)
@@ -372,8 +358,7 @@ function sum_amp(condition, amp)
     else
         return zero(real(typeof(amp)))
     end
-end 
-
+end
 
 """
     mis_postprocessing(config, graph::AbstractGraph; ntrials::Int=10)
@@ -390,7 +375,7 @@ which includes a combination of [`to_independent_set`](@ref) and [`add_random_ve
 
 - `ntrials`: number of trials to use.
 """
-function mis_postprocessing(config, graph::AbstractGraph; ntrials::Int=10)
+function mis_postprocessing(config, graph::AbstractGraph; ntrials::Int = 10)
     config = to_independent_set(config, graph)
     config = add_random_vertices(config, graph, ntrials)
     return config
@@ -412,6 +397,6 @@ rydberg_density_sum(mis_postprocessing(graph), reg)
 """
 function mis_postprocessing(graph::AbstractGraph; ntrials::Int = 10)
     return function postprocessing(config)
-        mis_postprocessing(config, graph; ntrials)
+        return mis_postprocessing(config, graph; ntrials)
     end
 end

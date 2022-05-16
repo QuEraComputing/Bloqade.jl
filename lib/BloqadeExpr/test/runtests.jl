@@ -2,7 +2,7 @@ using Test
 using BloqadeExpr
 
 @testset "assertions" begin
-    include("assert.jl") 
+    include("assert.jl")
 end
 
 @testset "interfaces" begin
@@ -18,15 +18,15 @@ end
 end
 
 @testset "linear algebra on linear map" begin
-    include("linalg.jl")    
+    include("linalg.jl")
 end
 
 @testset "matrix construction" begin
-    include("mat.jl")    
+    include("mat.jl")
 end
 
 @testset "space" begin
-    include("space.jl")    
+    include("space.jl")
 end
 
 @testset "units" begin

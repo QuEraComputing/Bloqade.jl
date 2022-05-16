@@ -1,8 +1,9 @@
 YaoBlocks.print_block(io::IO, t::AbstractTerm) = print_expr(io, MIME"text/plain"(), t)
 YaoBlocks.print_block(io::IO, t::XPhase) = print(io, "XPhase(", t.ϕ, ")")
 
-Base.show(io::IO, ::Union{MIME"text/latex", MIME"application/x-latex"}, t::AbstractTerm) = print(io, latexstring(latex_expr(t)))
-Base.show(io::IO, ::Union{MIME"text/latex", MIME"application/x-latex"}, t::Add) = print(io, latexstring(latex_expr(t)))
+Base.show(io::IO, ::Union{MIME"text/latex",MIME"application/x-latex"}, t::AbstractTerm) =
+    print(io, latexstring(latex_expr(t)))
+Base.show(io::IO, ::Union{MIME"text/latex",MIME"application/x-latex"}, t::Add) = print(io, latexstring(latex_expr(t)))
 
 function latex_expr(t::Add)
     tex = latex_expr(t.list[1])
@@ -35,26 +36,26 @@ function latex_expr(t::YaoBlocks.Scale)
 end
 
 function print_expr(io::IO, ::MIME"text/plain", t::RydInteract)
-    C = t.C/2π
+    C = t.C / 2π
     n = ceil(log10(C))
-    C = round(C / 10^(n-1), digits=3)
-    print(io, "∑ 2π ⋅ $(C)e$n/|r_i-r_j|^6 n_i n_j")
+    C = round(C / 10^(n - 1), digits = 3)
+    return print(io, "∑ 2π ⋅ $(C)e$n/|r_i-r_j|^6 n_i n_j")
 end
 
 function latex_expr(t::RydInteract)
-    C = t.C/2π
+    C = t.C / 2π
     n = ceil(log10(C))
-    C = round(C / 10^n, digits=3)
+    C = round(C / 10^n, digits = 3)
     return "\\sum \\frac{2π \\cdot $C\\times 10^{$n}}{|r_i-r_j|^6} n_i n_j"
 end
 
 function pretty_number(x)
     return if isone(x)
         ""
-    elseif isone(x/2π)
+    elseif isone(x / 2π)
         "2π ⋅ "
     else
-        x = round(x/2π, sigdigits=3)
+        x = round(x / 2π, sigdigits = 3)
         "2π ⋅ $x ⋅ "
     end
 end
@@ -80,7 +81,7 @@ function latex_expr(t::SumOfX)
     return tex
 end
 
-function print_expr(io::IO, ::MIME"text/plain", t::Union{SumOfN, SumOfZ})
+function print_expr(io::IO, ::MIME"text/plain", t::Union{SumOfN,SumOfZ})
     op = t isa SumOfN ? "n_i" : "σ^z_i"
     if t.Δ isa Number
         print(io, pretty_number(t.Δ), "∑ $op")
@@ -91,7 +92,7 @@ function print_expr(io::IO, ::MIME"text/plain", t::Union{SumOfN, SumOfZ})
     end
 end
 
-function latex_expr(t::Union{SumOfN, SumOfZ})
+function latex_expr(t::Union{SumOfN,SumOfZ})
     op = t isa SumOfN ? "n_i" : "σ^z_i"
     if t.Δ isa Number
         tex = pretty_number(t.Δ) * "\\sum $op"
@@ -106,42 +107,42 @@ end
 function print_expr(io::IO, ::MIME"text/plain", t::SumOfXPhase)
     @switch (t.Ω, t.ϕ) begin
         @case (Ω::Vector, ϕ::Vector)
-            Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
-            ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
-            print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
+        Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
+        ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
+        print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
         @case (Ω::Vector, ϕ)
-            Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
-            ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits=3) : "ϕ(t)"
-            print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
+        Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
+        ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
+        print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
         @case (Ω, ϕ::Vector)
-            Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅"
-            ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
-            print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
+        Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅"
+        ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
+        print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
         @case (Ω, ϕ)
-            Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅"
-            ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits=3) : "ϕ(t)"
-            print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
+        Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅"
+        ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
+        print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
     end
 end
 
 function latex_expr(t::SumOfXPhase)
     @switch (t.Ω, t.ϕ) begin
         @case (Ω::Vector, ϕ::Vector)
-            Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
-            ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
-            tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
+        Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
+        ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
+        tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
         @case (Ω::Vector, ϕ)
-            Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
-            ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits=3) : "ϕ(t)"
-            tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
+        Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
+        ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
+        tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
         @case (Ω, ϕ::Vector)
-            Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅ "
-            ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
-            tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
+        Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅ "
+        ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
+        tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
         @case (Ω, ϕ)
-            Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅ "
-            ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits=3) : "ϕ(t)"
-            tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
+        Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅ "
+        ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
+        tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
     end
     return tex
 end
@@ -149,7 +150,7 @@ end
 function Base.show(io::IO, ::MIME"text/plain", h::Hamiltonian)
     tab(n) = " "^(n + get(io, :indent, 0))
     println(io, tab(0), "Hamiltonian")
-    println(io, tab(2), "number of dynamic terms: ", count(x->x!==Base.one, h.fs))
+    println(io, tab(2), "number of dynamic terms: ", count(x -> x !== Base.one, h.fs))
     print(io, tab(2), "storage size: ")
-    print(io, Base.format_bytes(sum(sizeof, h.ts)))
+    return print(io, Base.format_bytes(sum(sizeof, h.ts)))
 end

@@ -7,8 +7,7 @@ using LinearAlgebra
 using Interpolations
 using BloqadeExpr: default_unit
 
-export 
-    Waveform,
+export Waveform,
     sample_values,
     sample_clock,
     piecewise_constant,

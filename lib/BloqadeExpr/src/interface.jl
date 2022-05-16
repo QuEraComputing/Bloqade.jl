@@ -74,9 +74,9 @@ nqubits: 4
 └─ 0.05 ⋅ ∑ σ^x_i
 ```
 """
-function rydberg_h(atom_positions; C=2π * 862690, Ω=nothing, ϕ=nothing, Δ=nothing)
+function rydberg_h(atom_positions; C = 2π * 862690, Ω = nothing, ϕ = nothing, Δ = nothing)
     positions = map(atom_positions) do pos
-        (pos..., )
+        return (pos...,)
     end
 
     nsites = length(positions)
@@ -105,18 +105,18 @@ function div_by_two(Ω)
 
     return if Ω isa Vector
         map(Ω) do Ω_i
-            t->Ω_i(t) / 2
+            return t -> Ω_i(t) / 2
         end
     else
-        t->Ω(t)/2
+        t -> Ω(t) / 2
     end
 end
 
-attime(t::Real) = h->attime(h, t)
+attime(t::Real) = h -> attime(h, t)
 
 function attime(h::AbstractBlock, t::Real)
     blks = map(subblocks(h)) do blk
-        attime(blk, t)
+        return attime(blk, t)
     end
     return chsubblocks(h, blks)
 end
@@ -149,7 +149,7 @@ attime(h::PrimitiveBlock, ::Real) = h
 function attime(h::SumOfX, t::Real)
     is_const_param(h.Ω) && return h
     if h.Ω isa Vector
-        SumOfX(h.nsites, map(x->x(t), h.Ω))
+        SumOfX(h.nsites, map(x -> x(t), h.Ω))
     else
         SumOfX(h.nsites, h.Ω(t))
     end
@@ -159,7 +159,7 @@ function attime(h::SumOfXPhase, t::Real)
     if is_const_param(h.Ω)
         Ω = h.Ω
     elseif h.Ω isa Vector
-        Ω = map(x->x(t), h.Ω)
+        Ω = map(x -> x(t), h.Ω)
     else
         Ω = h.Ω(t)
     end
@@ -167,7 +167,7 @@ function attime(h::SumOfXPhase, t::Real)
     if is_const_param(h.ϕ)
         ϕ = h.ϕ
     elseif h.ϕ isa Vector
-        ϕ = map(x->x(t), h.ϕ)
+        ϕ = map(x -> x(t), h.ϕ)
     else
         ϕ = h.ϕ(t)
     end
@@ -175,11 +175,11 @@ function attime(h::SumOfXPhase, t::Real)
     return SumOfXPhase(h.nsites, Ω, ϕ)
 end
 
-function attime(h::Union{SumOfZ, SumOfN}, t::Real)
+function attime(h::Union{SumOfZ,SumOfN}, t::Real)
     if is_const_param(h.Δ)
         Δ = h.Δ
     elseif h.Δ isa Vector
-        Δ = map(x->x(t), h.Δ)
+        Δ = map(x -> x(t), h.Δ)
     else
         Δ = h.Δ(t)
     end

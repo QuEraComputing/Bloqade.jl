@@ -2,6 +2,22 @@
 
 This directory contains a number of examples of the Bloqade package.
 
+## Generate Jupyter notebooks
+
+you can generate the corresponding jupyter notebook from these examples, e.g
+
+```sh
+.ci/run example build 2.adiabatic
+```
+
+will build the jupyter notebook at `build` folder. Then you can open and run
+this jupyter notebook using the `IJulia` package
+
+```julia
+pkg> add IJulia
+julia> using IJulia; IJulia.notebook()
+```
+
 ## Setup
 
 Each example contains its own environment, and one should start

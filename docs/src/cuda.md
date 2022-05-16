@@ -18,7 +18,12 @@ pkg> add CUDA
 ```
 
 This will automatically download all the needed dependencies of
-the CUDA toolkit.
+the CUDA toolkit. This functionality requires CUDA toolkit
+11.6+ and CUSPARSE 11.4+. You can check your version via
+
+```julia
+julia> CUDA.version()
+```
 
 ## Using CUDA
 

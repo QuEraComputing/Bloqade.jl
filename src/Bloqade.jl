@@ -46,7 +46,8 @@ const plt = PythonCall.pynew()
 
 function __init__()
     # copied from PyPlotCall.jl
-    return PythonCall.pycopy!(plt, pyimport("matplotlib.pyplot"))
+    PythonCall.pycopy!(plt, pyimport("matplotlib.pyplot"))
+    return
 end
 
 include("plots/plots.jl")

@@ -1,3 +1,5 @@
+using GarishPrint
+
 abstract type QuEraSchema end
 
 @option struct Lattice <: QuEraSchema
@@ -60,4 +62,8 @@ end
     rabi_frequency_phase_max_slope::Number
     rabi_detuning_max_slope::Number
     n_shots::Number
+end
+
+function Base.show(io::IO, ::MIME"text/plain", t::TaskSpecification)
+    GarishPrint.pprint_struct(t)
 end

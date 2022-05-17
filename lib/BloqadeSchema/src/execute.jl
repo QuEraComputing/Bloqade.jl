@@ -1,9 +1,33 @@
 using Yao
 using Configurations
-using JSON3
+using JSON
+
+function run_task(j::String)
+    # runs a task given the json => result schema object
+    # add result schema to types
+end
+
+function from_json(j::String)
+    t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
+    return from_schema(t)
+end
+
+function from_schema(t::TaskSpecification)
+    atoms = [t.lattice.sites[i] for i in 1:length(t.lattice.sites) if t.lattice.filling[i] == 1]
+
+    rabi_freq_amp = t.effective_hamiltonian.rydberg.rabi_frequency_amplitude.global_value
+    rabi_freq_phase = t.effective_hamiltonian.rydberg.rabi_frequency_phase.global_value
+    detuning_global = t.effective_hamiltonian.rydberg.detuning.global_value
+
+    Ω = BloqadeWaveforms.piecewise_linear(; clocks=rabi_freq_amp.times, values=rabi_freq_amp.values)
+    ϕ = BloqadeWaveforms.piecewise_linear(; clocks=rabi_freq_phase.times, values=rabi_freq_phase.values)
+    Δ = BloqadeWaveforms.piecewise_linear(; clocks=detuning_global.times, values=detuning_global.values)
+
+    return BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
+end
 
 function to_json(h::AbstractBlock, params::SchemaConversionParams)
-    return JSON3.write(BloqadeSchema.to_dict(h, params))
+    return JSON.json(BloqadeSchema.to_dict(h, params))
 end
 
 function to_dict(h::AbstractBlock, params::SchemaConversionParams)
@@ -18,11 +42,11 @@ end
 function assert_hamiltonian_schema(h::AbstractBlock)
     h isa RydInteract || return
     h isa Add || error("expect a Rydberg hamiltonian")
-    isempty(blockfilter(x->isa(x, RydInteract), h)) && error("expect RydInteract term")
+    isempty(blockfilter(x -> isa(x, RydInteract), h)) && error("expect RydInteract term")
 
     for each in subblocks(h)
         if each isa Scale
-            content(each) isa Union{RydInteract, SumOfX, SumOfXPhase} && factor(each) == 1 ||
+            content(each) isa Union{RydInteract,SumOfX,SumOfXPhase} && factor(each) == 1 ||
                 error("only hamiltonian created by rydberg_h is supported")
             content(each) isa SumOfN && factor(each) == -1 || error("expect the prefactor of SumOfN to be -1")
         end

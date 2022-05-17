@@ -40,7 +40,7 @@
 # This is the so-called Rydberg blockade.
 
 # ![RydbergBlockade](../../../assets/RydbergBlockade.png)
- 
+
 # Because of the large energy shift from having two adjacent atoms in the Rydberg state, 
 # evolution from an atomic ground state with local Rabi couplings between ground and Rydberg is restricted to a low-energy subspace of states 
 # where no two adjacent atoms are in the Rydberg state. 
@@ -50,7 +50,6 @@
 # one can consider the atoms to be blockading each other, 
 # and both atoms cannot simultaneously be in the Rydberg state. 
 # In contrast, if two atoms are far away, the two atoms never blockade each other and both atoms can simultaneously be in the Rydberg state.
-
 
 # ## Blockade radius ``R_b``, subspace radius ``R_s``, and unit disk graphs
 
@@ -269,19 +268,19 @@ using Bloqade
 nsites = 12; # 12-site ring
 unit_disk_radius = 6.9 # Distance between nearest-neighbor atoms, in microns; R_min
 
-R = unit_disk_radius/(2*sin(2*pi/(nsites)/2)) # Radius of the circle, using a little trigonometry; it is also the next-nearest neighbor distance, R_max.
-pos = [(R*sin(i*2*pi/(nsites)), R*cos(i*2*pi/(nsites)) ) for i in 1:nsites] # Positions of each atom
+R = unit_disk_radius / (2 * sin(2 * pi / (nsites) / 2)) # Radius of the circle, using a little trigonometry; it is also the next-nearest neighbor distance, R_max.
+pos = [(R * sin(i * 2 * pi / (nsites)), R * cos(i * 2 * pi / (nsites))) for i in 1:nsites] # Positions of each atom
 atoms = AtomList(pos); # Define the atom positions as an AtomList.
 
 blockade_radius = sqrt(unit_disk_radius * R);  # R_b = \sqrt{R_min R_max} 
- 
+
 # The system is driven by a constant Rabi drive, 
 # which couples each atom's ground and Rydberg state. 
 # The Hamiltonian can be defined in Bloqade with:
 
-C6 = 2π * 862690; 
+C6 = 2π * 862690;
 Ω = C6 / blockade_radius^6
-h = rydberg_h(atoms; Ω=Ω);
+h = rydberg_h(atoms; Ω = Ω);
 
 # The system is then initialized into the ground state of all atoms, 
 # which is the lowest energy of the classical Hamiltonian. 
@@ -304,7 +303,7 @@ h = rydberg_h(atoms; Ω=Ω);
 # For example, for the next-nearest-neighbor line, it may be reasonable to choose the subspace radius to be half the blockade radius, 
 # which includes high-energy NNN blockaded states to improve numerical accuracy.
 # See the [subspace](@ref subspace) page for more details.
- 
+
 subspace_radius = unit_disk_radius # R_s
 
 init_state = zero_state(nsites) # Define the initial state in the full space.
@@ -323,11 +322,11 @@ init_state2 = zero_state(space); # Define the initial state in the blockade subs
 
 Tmax = 6.0
 nsteps = 2001
-times = LinRange(0,Tmax,nsteps)
-dt = Tmax/(nsteps-1)
+times = LinRange(0, Tmax, nsteps)
+dt = Tmax / (nsteps - 1)
 
 prob = SchrodingerProblem(init_state, Tmax, h, dt = dt, adaptive = false);
-integrator = init(prob, Vern8()); 
+integrator = init(prob, Vern8());
 
 densities = [] # Time evolve the system in the full space
 for _ in TimeChoiceIterator(integrator, 0.0:dt:Tmax)
@@ -347,22 +346,22 @@ using PythonCall # Use matplotlib to generate plots
 matplotlib = pyimport("matplotlib")
 plt = pyimport("matplotlib.pyplot")
 
-ax  = plt.subplot(1,1,1)
-plt.plot(times,real(densities),"k",label="Full space")
-plt.plot(times,real(densities2),"r--",label="Subspace")
-ax.axis([0,Tmax,0,0.45])
+ax = plt.subplot(1, 1, 1)
+plt.plot(times, real(densities), "k", label = "Full space")
+plt.plot(times, real(densities2), "r--", label = "Subspace")
+ax.axis([0, Tmax, 0, 0.45])
 plt.xlabel("Time (us)")
 plt.ylabel("Rydberg density")
 plt.tight_layout()
 plt.legend()
 
 inset_axes = pyimport("mpl_toolkits.axes_grid1.inset_locator")
-ax2 = inset_axes.inset_axes(ax,width="20%",height="30%",loc="lower right",borderpad=1)
-plt.plot(times,real(densities - densities2))
-plt.axis([0,0.5,-0.001,0.003])
-plt.ylabel("Difference",fontsize=12)
-plt.yticks(LinRange(-0.001,0.003,5),fontsize=12);
-plt.xticks([0,0.2,0.4,0.6],fontsize=12);
+ax2 = inset_axes.inset_axes(ax, width = "20%", height = "30%", loc = "lower right", borderpad = 1)
+plt.plot(times, real(densities - densities2))
+plt.axis([0, 0.5, -0.001, 0.003])
+plt.ylabel("Difference", fontsize = 12)
+plt.yticks(LinRange(-0.001, 0.003, 5), fontsize = 12);
+plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);
 
 # ![RydbergBlockadeSubspace](../../../assets/RydbergBlockadeSubspace.png)
 

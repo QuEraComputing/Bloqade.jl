@@ -31,13 +31,13 @@ function create_subspace_from_mis(n::Int, mis::AbstractVector)
         # copied from bsubspace to use runtime length
         masks, shift_len = group_shift(locs)
         len = 1 << (n - length(locs))
-        BitSubspace(n, len, length(masks), masks, shift_len)
+        return BitSubspace(n, len, length(masks), masks, shift_len)
     end
 
     # NOTE: ThreadsX doesn't support auto init when using union as op
     # need the following PR merged
     # https://github.com/JuliaFolds/InitialValues.jl/pull/60
-    subspace_v = ThreadsX.reduce(union, iterators; init=OnInit(Vector{Int}))
+    subspace_v = ThreadsX.reduce(union, iterators; init = OnInit(Vector{Int}))
     return Subspace(n, subspace_v)
 end
 
@@ -46,6 +46,6 @@ end
 
 Create a blockade approximation subspace from given atom positions and radius.
 """
-function blockade_subspace(atoms::AbstractVector, radius::AbstractFloat=1.0)
+function blockade_subspace(atoms::AbstractVector, radius::AbstractFloat = 1.0)
     return independent_set_subspace(unit_disk_graph(atoms, radius))
 end

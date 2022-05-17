@@ -7,7 +7,7 @@ Calculates the rydberg density at site `i`.
 \\langle n_i \\rangle
 ```
 """
-rydberg_density(reg, i::Int) = real(expect(put(nqubits(reg), i=>Op.n), reg))
+rydberg_density(reg, i::Int) = real(expect(put(nqubits(reg), i => Op.n), reg))
 
 """
     rydberg_density(reg) -> Vector
@@ -35,8 +35,5 @@ here `op` can be `Op.n`, `X` or `Y`.
 rydberg_corr(reg) = rydberg_corr(Op.n, reg)
 
 function rydberg_corr(op, reg)
-    return [
-        expect(chain(nqubits(reg), put(i=>op), put(j=>op)), reg)
-        for i in 1:nqubits(reg), j in 1:nqubits(reg)
-    ]
+    return [expect(chain(nqubits(reg), put(i => op), put(j => op)), reg) for i in 1:nqubits(reg), j in 1:nqubits(reg)]
 end

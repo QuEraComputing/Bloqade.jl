@@ -32,20 +32,23 @@ create an example.
 
 - `-f,--force`: overwrite existing path.
 """
-@cast function create(name::String; force::Bool=false)
+@cast function create(name::String; force::Bool = false)
     example_dir = root_dir("examples", name)
     if !force && ispath(example_dir)
         error("$example_dir already exists")
     end
-    rm(example_dir;force=true, recursive=true)
+    rm(example_dir; force = true, recursive = true)
     mkpath(example_dir)
     Pkg.activate(example_dir)
     excluded_libs = []
-    pkgs = collect_lib(;include_main=true, excluded_libs)
+    pkgs = collect_lib(; include_main = true, excluded_libs)
     Pkg.develop(pkgs)
-    write(joinpath(example_dir, "main.jl"), """
-    # write your Bloqade example with Literate.jl here
-    """)
+    write(
+        joinpath(example_dir, "main.jl"),
+        """
+# write your Bloqade example with Literate.jl here
+""",
+    )
     return
 end
 
@@ -71,7 +74,7 @@ Literate script and copy all other files to the build directory.
 
 - `-e,--eval`: evaluate the Julia code.
 """
-@cast function build(name::String; build_dir::String="build", target::String="notebook", eval::Bool=false)
+@cast function build(name::String; build_dir::String = "build", target::String = "notebook", eval::Bool = false)
     ci_dir = root_dir(".ci")
     example_dir = root_dir("examples", name)
 
@@ -81,8 +84,8 @@ Literate script and copy all other files to the build directory.
 
     if eval
         @info "dev example project" example_dir
-        redirect_stdio(stdout=devnull, stdin=devnull, stderr=devnull) do
-            dev(example_dir)
+        redirect_stdio(stdout = devnull, stdin = devnull, stderr = devnull) do
+            return dev(example_dir)
         end
     end
 
@@ -102,7 +105,7 @@ Literate script and copy all other files to the build directory.
         $setup_env
         Literate.notebook(\"$input_file\", \"$output_dir\"; execute=$eval)
         """
-        cp(example_dir, output_dir; force=true, follow_symlinks=true)
+        cp(example_dir, output_dir; force = true, follow_symlinks = true)
     elseif target == "markdown"
         julia_cmd = """
         using Literate;
@@ -133,7 +136,7 @@ in parallel.
 
 - `-e,--eval`: evaluate the Julia code.
 """
-@cast function buildall(;build_dir::String="build", target::String="markdown", eval::Bool=false)
+@cast function buildall(; build_dir::String = "build", target::String = "markdown", eval::Bool = false)
     ci_dir = root_dir(".ci")
     example_dir = root_dir("examples")
     script = """
@@ -161,9 +164,9 @@ in parallel.
     # then we run the build in one process
     # so that we can share compile results
     foreach_example() do path
-        dev(path)
+        return dev(path)
     end
-    run(`$(Base.julia_exename()) --project=$ci_dir -e $script`)
+    return run(`$(Base.julia_exename()) --project=$ci_dir -e $script`)
 end
 
 end

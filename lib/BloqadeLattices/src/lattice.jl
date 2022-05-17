@@ -6,18 +6,18 @@ abstract type AbstractLattice{D} end
 Returns the space dimension of target lattice.
 e.g. [`ChainLattice`](@ref) is a 1D lattice, hence returns 1.
 """
-dimension(::AbstractLattice{D}) where D = D
+dimension(::AbstractLattice{D}) where {D} = D
 
-function _generate_sites(lattice_vectors, lattice_sites, repeats::Vararg{Int,D}; scale=1.0) where D
+function _generate_sites(lattice_vectors, lattice_sites, repeats::Vararg{Int,D}; scale = 1.0) where {D}
     @assert length(lattice_vectors) == D
     @assert D > 0 && length(lattice_sites) > 0
     @assert all(>=(0), repeats)
-    @assert all(x->length(x)==(D), lattice_vectors)
-    @assert all(x->length(x)==(D), lattice_sites)
+    @assert all(x -> length(x) == (D), lattice_vectors)
+    @assert all(x -> length(x) == (D), lattice_sites)
     T = eltype(first(lattice_vectors))
     locations = NTuple{D,T}[]  # we might want to avoid using `push!` later.
     for ci in CartesianIndices(repeats)
-        baseloc = mapreduce(i->(ci.I[i]-1) .* lattice_vectors[i], (x, y) -> x .+ y, 1:D)
+        baseloc = mapreduce(i -> (ci.I[i] - 1) .* lattice_vectors[i], (x, y) -> x .+ y, 1:D)
         for siteloc in lattice_sites
             push!(locations, (baseloc .+ siteloc) .* scale)
         end
@@ -56,15 +56,15 @@ Returns sites in a Bravais lattice unit cell as a Tuple of D-Tuple, where D is t
 lattice_sites(general_lattice::GeneralLattice) = general_lattice.sites
 
 struct HoneycombLattice <: AbstractLattice{2} end
-lattice_vectors(::HoneycombLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
-lattice_sites(::HoneycombLattice) = ((0.0, 0.0), (0.5, 0.5/sqrt(3)))
+lattice_vectors(::HoneycombLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
+lattice_sites(::HoneycombLattice) = ((0.0, 0.0), (0.5, 0.5 / sqrt(3)))
 
 struct SquareLattice <: AbstractLattice{2} end
 lattice_vectors(::SquareLattice) = ((1.0, 0.0), (0.0, 1.0))
 lattice_sites(::SquareLattice) = ((0.0, 0.0),)
 
 struct TriangularLattice <: AbstractLattice{2} end
-lattice_vectors(::TriangularLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
+lattice_vectors(::TriangularLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
 lattice_sites(::TriangularLattice) = ((0.0, 0.0),)
 
 struct ChainLattice <: AbstractLattice{1} end
@@ -76,8 +76,8 @@ lattice_vectors(::LiebLattice) = ((1.0, 0.0), (0.0, 1.0))
 lattice_sites(::LiebLattice) = ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5))
 
 struct KagomeLattice <: AbstractLattice{2} end
-lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5*sqrt(3)))
-lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25*sqrt(3)), (0.75, 0.25*sqrt(3)))
+lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
+lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25 * sqrt(3)), (0.75, 0.25 * sqrt(3)))
 
 """
     RectangularLattice <: AbstractLattice{2}
@@ -100,7 +100,7 @@ lattice_sites(::RectangularLattice) = ((0.0, 0.0),)
 
 A list of atoms in `D` dimensional space.
 """
-struct AtomList{D, T} <: AbstractVector{NTuple{D, T}}
+struct AtomList{D,T} <: AbstractVector{NTuple{D,T}}
     atoms::Vector{NTuple{D,T}}
 end
 
@@ -117,12 +117,9 @@ Returns an [`AtomList`](@ref) instance by tiling the specified `lattice`.
 The tiling repeat the `sites` of the lattice `m` times along the first dimension,
 `n` times along the second dimension, and so on. `scale` is a real number that re-scales the lattice constant and atom locations.
 """
-function generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale=1.0) where D
+function generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale = 1.0) where {D}
     return AtomList(
-        _generate_sites(
-            (lattice_vectors(lattice)...,),
-            (lattice_sites(lattice)...,), repeats...; scale=scale
-        )
+        _generate_sites((lattice_vectors(lattice)...,), (lattice_sites(lattice)...,), repeats...; scale = scale),
     )
 end
 
@@ -149,9 +146,9 @@ julia> offset_axes(sites, 1.0, 3.0)
  (4.0, 8.0)
 ```
 """
-function offset_axes(sites::AtomList{D, T}, offsets::Vararg{T,D}) where {D, T}
+function offset_axes(sites::AtomList{D,T}, offsets::Vararg{T,D}) where {D,T}
     @assert length(offsets) == D
-    return AtomList(map(x->ntuple(i->x[i]+offsets[i], D), sites.atoms))
+    return AtomList(map(x -> ntuple(i -> x[i] + offsets[i], D), sites.atoms))
 end
 
 """
@@ -176,8 +173,8 @@ julia> rescale_axes(sites, 2.0)
  (6.0, 10.0)
 ```
 """
-function rescale_axes(sites::AtomList{D, T}, scale::Real) where {D, T}
-    return AtomList(map(x->ntuple(i->x[i]*scale, D), sites.atoms))
+function rescale_axes(sites::AtomList{D,T}, scale::Real) where {D,T}
+    return AtomList(map(x -> ntuple(i -> x[i] * scale, D), sites.atoms))
 end
 
 """
@@ -186,9 +183,9 @@ end
 
 Randomly drop out `ratio * number of sites` atoms from `sites`, where `ratio` ∈ [0, 1].
 """
-function random_dropout(sites::AtomList{D, T}, ratio::Real) where {D, T}
+function random_dropout(sites::AtomList{D,T}, ratio::Real) where {D,T}
     (ratio >= 0 && ratio <= 1) || throw(ArgumentError("dropout ratio be in range [0, 1], got `$ratio`."))
-    atoms = sample(1:length(sites), round(Int, length(sites)*(1-ratio)); replace=false)
+    atoms = sample(1:length(sites), round(Int, length(sites) * (1 - ratio)); replace = false)
     return sites[sort!(atoms)]
 end
 
@@ -212,10 +209,10 @@ julia> clip_axes(sites, (-5.0, 5.0), (-5.0, 5.0))
  (3.0, 5.0)
 ```
 """
-function clip_axes(sites::AtomList{D, T}, bounds::Vararg{Tuple{T,T},D}) where {D, T}
+function clip_axes(sites::AtomList{D,T}, bounds::Vararg{Tuple{T,T},D}) where {D,T}
     @assert length(bounds) == D
-    @assert all(x->length(x) == 2, bounds)
-    return AtomList(filter(x->all(i->bounds[i][1] <= x[i] <= bounds[i][2], 1:D), sites.atoms))
+    @assert all(x -> length(x) == 2, bounds)
+    return AtomList(filter(x -> all(i -> bounds[i][1] <= x[i] <= bounds[i][2], 1:D), sites.atoms))
 end
 clip_axes(args::Vararg{T,D}) where {T,D} = ls -> clip_axes(ls, args...)
 offset_axes(args::Vararg{T,D}) where {T,D} = ls -> offset_axes(ls, args...)
@@ -253,12 +250,12 @@ Create a [`MaskedGrid`](@ref) from the sites. It is required by lattice preparat
 Because the grid will sort the sites by rows, we need `atol` (default value is 10 time sit data precision)
 determines up to what level of round off error, two atoms belong to the same row.
 """
-function make_grid(sites::AtomList{D, T}; atol=10*eps(T)) where {D,T}
+function make_grid(sites::AtomList{D,T}; atol = 10 * eps(T)) where {D,T}
     sites = padydim(sites)
     xs = sort!(approximate_unique(getindex.(sites, 1), atol))
     ys = sort!(approximate_unique(getindex.(sites, 2), atol))
-    ixs = map(s->findfirst(==(s[1]), xs), sites)
-    iys = map(s->findfirst(==(s[2]), ys), sites)
+    ixs = map(s -> findfirst(==(s[1]), xs), sites)
+    iys = map(s -> findfirst(==(s[2]), ys), sites)
     m, n = length(xs), length(ys)
     mask = zeros(Bool, m, n)
     for (ix, iy) in zip(ixs, iys)
@@ -268,12 +265,12 @@ function make_grid(sites::AtomList{D, T}; atol=10*eps(T)) where {D,T}
 end
 
 # return `(uxs, ixs)``, where `uxs` is the unique x-coordinates, `ixs` the mapping from the index in `xs` to the index in `uxs`.
-function approximate_unique(xs::AbstractVector{T}, atol) where T
+function approximate_unique(xs::AbstractVector{T}, atol) where {T}
     uxs = T[]
     for x in xs
         found = false
         for ux in uxs
-            if isapprox(x, ux; atol=atol)
+            if isapprox(x, ux; atol = atol)
                 found = true
                 break
             end
@@ -291,11 +288,11 @@ end
 Returns an list of atoms in the `maskedgrid` in order.
 """
 function collect_atoms(mg::MaskedGrid)
-    AtomList(map(ci->(mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask)))
+    return AtomList(map(ci -> (mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask)))
 end
 
 # generating docstrings
-function _gendoc(::Type{LT}) where LT
+function _gendoc(::Type{LT}) where {LT}
     return """    $LT <: AbstractLattice{$(dimension(LT()))}
     $LT()
 

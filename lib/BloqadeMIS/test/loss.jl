@@ -18,16 +18,16 @@ Random.seed!(1234)
     constraint_r = zero_state(test_subspace)
     fullspace_r = zero_state(5)
 
-    for loss_fn in [rydberg_density_sum, x->gibbs_loss(x, 0.3)]
+    for loss_fn in [rydberg_density_sum, x -> gibbs_loss(x, 0.3)]
         @test loss_fn(constraint_r) == 0.0
         @test loss_fn(fullspace_r) == 0.0
-        @test loss_fn(measure(fullspace_r; nshots=10)) == 0.0
-        @test loss_fn(measure(constraint_r; nshots=10)) == 0.0
+        @test loss_fn(measure(fullspace_r; nshots = 10)) == 0.0
+        @test loss_fn(measure(constraint_r; nshots = 10)) == 0.0
     end
 end
 
 # generate random atom positions
-atoms = [(0.0, 1.0), (1.0, 0.), (2.0, 0.0), (1.0, 1.0), (1.0, 2.0), (2.0, 2.0)]
+atoms = [(0.0, 1.0), (1.0, 0.0), (2.0, 0.0), (1.0, 1.0), (1.0, 2.0), (2.0, 2.0)]
 graph = unit_disk_graph(atoms, 1.5)
 config = [1, 1, 1, 0, 1, 1]
 
@@ -49,16 +49,15 @@ to_independent_set!(config, graph)
     @test sum(independent_set_probabilities(mis_postprocessing(graph), r, graph)) ≈ 1
 
     @test independent_set_probabilities(r, graph)[1] ≈ config_probability(r, graph, BitArray([0, 0, 0, 0, 0, 0]))
-        @test independent_set_probabilities(r, graph)[end] ≈ config_probability(r, graph, BitArray([1, 0, 1, 0, 0, 1]))
+    @test independent_set_probabilities(r, graph)[end] ≈ config_probability(r, graph, BitArray([1, 0, 1, 0, 0, 1]))
 end
 
 @testset "mis_postprocessing" begin
     config = [0, 0, 0, 0, 0]
-    @test add_vertices!(config, test_graph, 1:5) == [1,0,1,0,1]
-    @test add_random_vertices(config, test_graph) == [1,0,1,0,1]
-    @test count_vertices(mis_postprocessing(0, test_graph)) > 0        
+    @test add_vertices!(config, test_graph, 1:5) == [1, 0, 1, 0, 1]
+    @test add_random_vertices(config, test_graph) == [1, 0, 1, 0, 1]
+    @test count_vertices(mis_postprocessing(0, test_graph)) > 0
 end
-
 
 @testset "SubspaceMap" begin
     atoms = generate_sites(SquareLattice(), 4, 4) |> random_dropout(0.2)
@@ -74,17 +73,17 @@ end
 
 @testset "exact/sample based loss function" begin
     r = rand_state(5)
-    samples = measure(r; nshots=10000)
+    samples = measure(r; nshots = 10000)
     expected_sampling = samples .|> count_vertices |> mean
     # 2. exact
     expected_exact = r |> rydberg_density_sum
-    @test isapprox(expected_exact, expected_sampling; rtol=1e-1)
+    @test isapprox(expected_exact, expected_sampling; rtol = 1e-1)
 
     ####### gibbs
     Random.seed!(5)
     # 1. sampling
-    expected_sampling = r |> measure(nshots=10000) |> gibbs_loss(0.5)
+    expected_sampling = r |> measure(nshots = 10000) |> gibbs_loss(0.5)
     # 2. exact
     expected_exact = r |> gibbs_loss(0.5)
-    @test isapprox(expected_exact, expected_sampling; rtol=1e-1)
+    @test isapprox(expected_exact, expected_sampling; rtol = 1e-1)
 end

@@ -4,7 +4,7 @@ default_unit(unit, x::Quantity) = uconvert(unit, x).val
 default_unit(unit::typeof(NoUnits), x::Quantity) = uconvert(unit, x)
 function default_unit(unit, xs::Tuple)
     return map(xs) do x
-        default_unit(unit, x)
+        return default_unit(unit, x)
     end
 end
 
@@ -15,7 +15,7 @@ function default_unit(unit, range::AbstractRange)
     return a:b:c
 end
 
-function default_unit(unit, x::AbstractArray{S}) where {T, S <: Quantity{T}}
+function default_unit(unit, x::AbstractArray{S}) where {T,S<:Quantity{T}}
     y = similar(x, T)
     @inbounds for i in eachindex(x)
         y[i] = default_unit(unit, x[i])

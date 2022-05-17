@@ -11,11 +11,24 @@ using StatsBase
 using YaoBlocks
 using Base.Cartesian: @nexprs
 
-export Subspace, SubspaceArrayReg, set_zero_state!,
-    zero_state, rand_state, product_state,
-    @bit_str, state, statevec, relaxedvec, isnormalized,
-    nactive, nqubits, measure, measure!, space,
-    fullspace, most_probable
+export Subspace,
+    SubspaceArrayReg,
+    set_zero_state!,
+    zero_state,
+    rand_state,
+    product_state,
+    @bit_str,
+    state,
+    statevec,
+    relaxedvec,
+    isnormalized,
+    nactive,
+    nqubits,
+    measure,
+    measure!,
+    space,
+    fullspace,
+    most_probable
 
 include("type.jl")
 include("measure.jl")

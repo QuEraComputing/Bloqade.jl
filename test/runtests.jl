@@ -5,10 +5,10 @@ using BloqadeExpr
 using BloqadeLattices
 
 # doctest(BloqadeExpr; manual=false)
-doctest(BloqadeLattices; manual=false)
+doctest(BloqadeLattices; manual = false)
 
 @testset "observables" begin
-    include("observables.jl")    
+    include("observables.jl")
 end
 
 @testset "plots" begin

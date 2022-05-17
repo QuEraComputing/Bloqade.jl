@@ -176,3 +176,16 @@ end
     @test_throws ArgumentError piecewise_linear(clocks=[0,1], values=[1,2,3])
     @test_throws ArgumentError piecewise_linear(clocks=[-1,1], values=[1,2,3])
 end
+
+@testset "piecewise_constant/linear equality" begin
+    @test piecewise_linear(clocks=[0, 3, 5], values=[3, 4, 5]) == piecewise_linear(clocks=[0.0, 3.0, 5], values=[3, 4, 5.0])
+    @test piecewise_linear(clocks=[0, 3, 5], values=[3, 4, 8]) != piecewise_linear(clocks=[0.0, 3.0, 5], values=[3, 4, 5.0])
+
+    @test piecewise_constant(clocks=[0, 3, 5, 6], values=[3, 4, 5]) == piecewise_constant(clocks=[0.0, 3.0, 5, 6], values=[3, 4, 5.0])
+    @test piecewise_constant(clocks=[0, 3, 5, 6], values=[3, 4, 8]) != piecewise_constant(clocks=[0.0, 3.0, 5, 6], values=[3, 4, 5.0])
+end
+
+@testset "waveform equality" begin
+    @test Waveform(piecewise_linear(clocks=[0, 3, 5], values=[3, 4, 5]), 10) == Waveform(piecewise_linear(clocks=[0, 3.0, 5], values=[3, 4, 5]), 10.0)
+    @test Waveform(piecewise_linear(clocks=[0, 3, 5], values=[3, 4, 5]), 10) != Waveform(piecewise_constant(clocks=[0, 3, 5, 6], values=[3, 4, 8]), 10.0)
+end

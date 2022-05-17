@@ -21,6 +21,10 @@ struct Waveform{F, T <: Real}
     end
 end
 
+function Base.:(==)(lhs::Waveform, rhs::Waveform)
+    return lhs.duration == rhs.duration && lhs.f == rhs.f
+end
+
 """
     Waveform(f; duration::Real)
 
@@ -209,6 +213,10 @@ struct PiecewiseLinear{T <: Real, Interp}
     end
 end
 
+function Base.:(==)(lhs::PiecewiseLinear, rhs::PiecewiseLinear)
+    return lhs.clocks == rhs.clocks && lhs.values == rhs.values
+end
+
 function PiecewiseLinear(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
     PiecewiseLinear(default_unit(μs, clocks), default_unit(MHz, values))
 end
@@ -224,6 +232,10 @@ struct PiecewiseConstant{T <: Real}
         length(clocks) == length(values) + 1 || throw(ArgumentError("expect clocks has one more element than values"))
         new{eltype(values)}(clocks, values)
     end
+end
+
+function Base.:(==)(lhs::PiecewiseConstant, rhs::PiecewiseConstant)
+    return lhs.clocks == rhs.clocks && lhs.values == rhs.values
 end
 
 function PiecewiseConstant(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})

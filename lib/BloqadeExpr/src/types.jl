@@ -305,7 +305,7 @@ function Base.:(==)(lhs::SumOfN, rhs::SumOfN)
 end
 
 function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
-    lhs.nsites == rhs.nsites && lhs.Ω.Ω == rhs.Ω.Ω && lhs.ϕ == rhs.ϕ
+    lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ
 end
 
 Base.isreal(::RydInteract) = true

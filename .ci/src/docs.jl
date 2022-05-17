@@ -37,6 +37,7 @@ function pages(; light = false)
             "Working with Units" => "units.md",
             "Maximum Independent Set" => "mis.md",
             "GPU Acceleration" => "cuda.md",
+            "JSON Schema" => "schema.md",
         ],
     ]
 

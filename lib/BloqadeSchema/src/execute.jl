@@ -7,10 +7,10 @@ using BitBasis
 function execute(j::String)
     task = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
     h = from_json(j)
-    return run_task(h, length(content(h[1]).atoms), 3e-6, task.nshots)
+    return JSON.json(Configurations.to_dict(execute(h, length(content(h[1]).atoms), 3e-6, task.nshots)))
 end
 
-function run_task(h::Add, n_atoms::Int, total_time::Float64, nshots::Int)
+function execute(h::Add, n_atoms::Int, total_time::Float64, nshots::Int)
     # Always start off with the zero state
     reg = zero_state(n_atoms)
     problem = SchrodingerProblem(reg, total_time, h)

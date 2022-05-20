@@ -261,18 +261,15 @@ end
     params = BloqadeSchema.SchemaConversionParams(
         rabi_frequency_amplitude_max_slope=10,
         rabi_frequency_phase_max_slope=10,
-        rabi_detuning_max_slope=10, n_shots=100
+        rabi_detuning_max_slope=10, n_shots=3
     )
 
     ir_str = BloqadeSchema.to_json(block, params)
 
-    task_out = BloqadeSchema.execute(ir_str)
-    @test task_out.task_status_code == 200
-    @test task_out.shot_outputs[1].shot_status_code == 200
-    @test task_out.shot_outputs[1].pre_sequence == ones(6)
-    @test length(task_out.shot_outputs[1].post_sequence) == 6
-    
-    print(task_out.shot_outputs[1].post_sequence)
-
+    task_out_str = BloqadeSchema.execute(ir_str)
+    @test task_out_str == string("""{"task_status_code":200,"shot_outputs":[""",
+        """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]},""",
+        """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]},""",
+        """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]}]}""")
 end
 

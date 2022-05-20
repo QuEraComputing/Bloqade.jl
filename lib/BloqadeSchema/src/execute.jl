@@ -4,6 +4,11 @@ using JSON
 using BloqadeODE
 using BitBasis
 
+"""
+    execute(j::String)
+
+Executes a task given as a JSON string in the task specification API format, and returns a JSON string of the result
+"""
 function execute(j::String)
     task = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
     h = from_json(j)

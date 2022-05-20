@@ -64,6 +64,17 @@ end
     n_shots::Number
 end
 
+@option struct ShotOutput <: QuEraSchema
+    shot_status_code::Int32
+    pre_sequence::Vector{Int32}
+    post_sequence::Vector{Int32}
+end
+
+@option struct TaskOutput <: QuEraSchema
+    task_status_code::Int
+    shot_outputs::Vector{ShotOutput}
+end
+
 function Base.show(io::IO, ::MIME"text/plain", t::TaskSpecification)
     GarishPrint.pprint_struct(t)
 end

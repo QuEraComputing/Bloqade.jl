@@ -1,10 +1,45 @@
 using Yao
 using Configurations
 using JSON
+using BloqadeODE
+using BitBasis
 
-function run_task(j::String)
-    # runs a task given the json => result schema object
-    # add result schema to types
+function execute(j::String)
+    task = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
+    h = from_json(j)
+    return run_task(h, length(content(h[1]).atoms), 3e-6, task.nshots)
+end
+
+function run_task(h::Add, n_atoms::Int, total_time::Float64, nshots::Int)
+    # Always start off with the zero state
+    reg = zero_state(n_atoms)
+    problem = SchrodingerProblem(reg, total_time, h)
+    emulate!(problem)
+    bitstrings = reg |> measure(; nshots=nshots)
+    return to_task_output(bitstrings)
+end
+
+function to_task_output(bitstrings::Vector{<:BitBasis.BitStr64})
+    shot_outputs = map(bitstrings) do bs
+        # Assume perfect loading/sorting, so the initial loading is full
+        pre_sequence = ones(length(bitstrings[1]))
+
+        post_sequence = []
+        for i in 1:length(bitstrings[1])
+            append!(post_sequence, Int32(readbit(bs, i)))
+        end
+
+        return ShotOutput(;
+            shot_status_code=200,
+            pre_sequence=pre_sequence,
+            post_sequence=post_sequence
+        )
+    end
+
+    return TaskOutput(;
+        task_status_code=200,
+        shot_outputs=shot_outputs
+    )
 end
 
 function from_json(j::String)

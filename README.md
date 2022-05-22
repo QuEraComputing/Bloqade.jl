@@ -10,7 +10,7 @@ alt="Bloqade Logo" width="400"></img>
 
 Bloqade is a package developed for quantum computation and quantum simulation based on the neutral-atom architecture. Please refer to the [documentation](https://queracomputing.github.io/Bloqade.jl/dev/) page to learn more about Bloqade.
 
-**Bloqade is currently under public release beta. High-level APIs are stable, but please expect some further exploration and rough edges**
+**Bloqade is currently under public release beta. High-level APIs are stable, but please expect some further exploration and rough edges.**
 
 ## Installation
 

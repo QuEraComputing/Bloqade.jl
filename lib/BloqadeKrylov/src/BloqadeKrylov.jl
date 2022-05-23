@@ -15,4 +15,8 @@ export KrylovEvolution, emulate!, emulate_step!
 include("expmv.jl")
 include("emulate.jl")
 
+if VERSION < v"1.7"
+    include("patch.jl")
+end
+
 end

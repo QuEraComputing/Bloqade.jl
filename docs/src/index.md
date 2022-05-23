@@ -72,9 +72,9 @@ The default units for various quantities are:
 | :---:         |    :----:   |
 | Length        |  μm         |
 | Time          |  μs         |
-| ``\Omega``    |  MHz        |
+| ``\Omega``    |  2π * MHz        |
 | ``\phi``      |  rad        |
-| ``\Delta``    |  MHz        |
+| ``\Delta``    |  2π * MHz        |
 
 
 ## A Simple Example

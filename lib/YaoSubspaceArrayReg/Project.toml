@@ -1,6 +1,6 @@
 name = "YaoSubspaceArrayReg"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 BitBasis = "50ba71b6-fa0f-514d-ae9a-0916efc90dcf"

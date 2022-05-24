@@ -1,5 +1,6 @@
 module YaoSubspaceArrayReg
 
+using Adapt
 using YaoAPI
 using Random
 using YaoArrayRegister

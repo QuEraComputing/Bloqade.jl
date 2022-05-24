@@ -31,6 +31,10 @@ YaoArrayRegister.statevec(reg::SubspaceArrayReg) = reg.state
 YaoArrayRegister.relaxedvec(reg::SubspaceArrayReg) = reg.state
 YaoArrayRegister.datatype(reg::SubspaceArrayReg) = eltype(reg.state)
 
+function Adapt.adapt_structure(to, x::SubspaceArrayReg)
+    return SubspaceArrayReg(Adapt.adapt(to, x.state), x.subspace)
+end
+
 """
     zero_state([T=ComplexF64], n::Int, subspace)
 

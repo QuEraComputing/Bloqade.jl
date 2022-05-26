@@ -84,6 +84,7 @@ julia> BloqadeSchema.to_json(block; n_shots=10)
 """
 to_json(h::AbstractBlock; kw...) = to_json(h, SchemaConversionParams(;kw...))
 to_dict(h::AbstractBlock; kw...) = to_dict(h, SchemaConversionParams(;kw...))
+to_schema(h::AbstractBlock; kw...) = to_schema(h, SchemaConversionParams(;kw...))
 
 function to_json(h::AbstractBlock, params::SchemaConversionParams)
     return JSON.json(BloqadeSchema.to_dict(h, params))

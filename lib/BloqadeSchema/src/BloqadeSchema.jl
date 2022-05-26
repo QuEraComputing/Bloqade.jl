@@ -4,6 +4,8 @@ using BloqadeExpr
 using BloqadeWaveforms
 using Configurations
 using Yao
+using JSON
+using BitBasis
 
 export TaskSpecification
 

@@ -10,15 +10,19 @@ duration.
 - `f`: a callable object.
 - `duration`: a real number defines the duration of this waveform; default unit is `μs`.
 """
-struct Waveform{F, T <: Real}
+struct Waveform{F,T<:Real}
     f::F
     duration::T
 
     function Waveform(f, duration)
         duration = default_unit(μs, duration)
         duration ≥ 0 || throw(ArgumentError("duration must be non-negative"))
-        new{typeof(f), typeof(duration)}(f, duration)
+        return new{typeof(f),typeof(duration)}(f, duration)
     end
+end
+
+function Base.:(==)(lhs::Waveform, rhs::Waveform)
+    return lhs.duration == rhs.duration && lhs.f == rhs.f
 end
 
 """
@@ -57,29 +61,29 @@ value (2π ⋅ MHz) │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡠⠞⠁⠀⠀
 Waveform(f; duration::Real) = Waveform(f, duration)
 Base.eltype(wf::Waveform) = typeof(wf.duration)
 
-function Base.getindex(wf::Waveform, slice::Interval{<:Real, Closed, Closed})
-    issubset(slice, 0..wf.duration) || throw(ArgumentError("slice is not in $(wf.duration) range, got $slice"))
+function Base.getindex(wf::Waveform, slice::Interval{<:Real,Closed,Closed})
+    issubset(slice, 0 .. wf.duration) || throw(ArgumentError("slice is not in $(wf.duration) range, got $slice"))
     return Waveform(slice.last - slice.first) do t
-        wf(t + slice.first)
+        return wf(t + slice.first)
     end
 end
 
-function (wf::Waveform)(t::Real, offset::Real=zero(t))
-    t - offset < wf.duration || t - offset ≈ wf.duration || throw(ArgumentError(
-        "t is not in range, expect $(offset) ≤ t ≤ $(wf.duration + offset), got $t")
-    )
+function (wf::Waveform)(t::Real, offset::Real = zero(t))
+    t - offset < wf.duration ||
+        t - offset ≈ wf.duration ||
+        throw(ArgumentError("t is not in range, expect $(offset) ≤ t ≤ $(wf.duration + offset), got $t"))
     return wf.f(t - offset)
 end
 
-function sample_clock(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-3)
+function sample_clock(wf::Waveform; offset::Real = zero(eltype(wf)), dt::Real = 1e-3)
     return offset:dt:wf.duration+offset
 end
 
-function sample_values(wf::Waveform, clocks; offset::Real=zero(eltype(wf)))
+function sample_values(wf::Waveform, clocks; offset::Real = zero(eltype(wf)))
     return [wf(t, offset) for t in clocks]
 end
 
-function sample_values(wf::Waveform; offset::Real=zero(eltype(wf)), dt::Real=1e-3)
+function sample_values(wf::Waveform; offset::Real = zero(eltype(wf)), dt::Real = 1e-3)
     return sample_values(wf, sample_clock(wf; offset, dt))
 end
 
@@ -94,12 +98,13 @@ end
 function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
     clocks = sample_clock(wf)
     plt = lineplot(
-        clocks, _rm_err.(sample_values(wf, clocks)./(2π));
-        title="Waveform{_, $(eltype(wf))}",
+        clocks,
+        _rm_err.(sample_values(wf, clocks) ./ (2π));
+        title = "Waveform{_, $(eltype(wf))}",
         # TODO: decide the unit?
-        xlabel="clock (μs)",
-        ylabel="value (2π ⋅ MHz)",
-        compact=true,
+        xlabel = "clock (μs)",
+        ylabel = "value (2π ⋅ MHz)",
+        compact = true,
     )
     return show(io, mime, plt)
 end
@@ -111,39 +116,38 @@ function _rm_err(x)
 end
 
 function assert_duration_equal(lhs::Waveform, rhs::Waveform)
-    lhs.duration ≈ rhs.duration ||
-        throw(ArgumentError("waveforms durations are different cannot add them"))
+    return lhs.duration ≈ rhs.duration || throw(ArgumentError("waveforms durations are different cannot add them"))
 end
 
 function Base.:+(lhs::Waveform, rhs::Waveform)
     assert_duration_equal(lhs, rhs)
     return Waveform(lhs.duration) do t
-        lhs.f(t) + rhs.f(t)
+        return lhs.f(t) + rhs.f(t)
     end
 end
 
 function Base.:-(lhs::Waveform, rhs::Waveform)
     assert_duration_equal(lhs, rhs)
     return Waveform(lhs.duration) do t
-        lhs.f(t) - rhs.f(t)
+        return lhs.f(t) - rhs.f(t)
     end
 end
 
 function Base.:-(wf::Waveform)
     return Waveform(wf.duration) do t
-        -wf.f(t)
+        return -wf.f(t)
     end
 end
 
 function Base.:*(alpha::Number, wf::Waveform)
     return Waveform(wf.duration) do t
-        alpha * wf.f(t)
+        return alpha * wf.f(t)
     end
 end
 
 function Base.:/(alpha::Number, wf::Waveform)
     return Waveform(wf.duration) do t
-        alpha / wf.f(t)
+        return alpha / wf.f(t)
     end
 end
 
@@ -154,7 +158,7 @@ end
 
 function Base.:/(wf::Waveform, alpha::Number)
     return Waveform(wf.duration) do t
-        wf.f(t) / alpha
+        return wf.f(t) / alpha
     end
 end
 
@@ -166,7 +170,7 @@ Base.broadcastable(x::Waveform) = Ref(x)
 Append other waveforms to `wf` on time axis.
 """
 function append(wf::Waveform, wfs::Waveform...)
-    duration = wf.duration + sum(x->x.duration, wfs)
+    duration = wf.duration + sum(x -> x.duration, wfs)
     offsets = Vector{typeof(duration)}(undef, length(wfs))
 
     clock = wf.duration
@@ -196,7 +200,7 @@ end
 # this is for accessing the clocks and values
 # in pulse smoothen, we may remove this if a more
 # general version of the smoothen is implemented
-struct PiecewiseLinear{T <: Real, Interp}
+struct PiecewiseLinear{T<:Real,Interp}
     clocks::Vector{T}
     values::Vector{T}
     interp::Interp
@@ -205,29 +209,37 @@ struct PiecewiseLinear{T <: Real, Interp}
         assert_clocks(clocks)
         length(clocks) == length(values) || throw(ArgumentError("expect clocks has the same length as values"))
         interp = LinearInterpolation(clocks, values)
-        new{eltype(values), typeof(interp)}(clocks, values, interp)
+        return new{eltype(values),typeof(interp)}(clocks, values, interp)
     end
 end
 
+function Base.:(==)(lhs::PiecewiseLinear, rhs::PiecewiseLinear)
+    return lhs.clocks == rhs.clocks && lhs.values == rhs.values
+end
+
 function PiecewiseLinear(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
-    PiecewiseLinear(default_unit(μs, clocks), default_unit(MHz, values))
+    return PiecewiseLinear(default_unit(μs, clocks), default_unit(MHz, values))
 end
 
 (f::PiecewiseLinear)(t::Real) = f.interp(t)
 
-struct PiecewiseConstant{T <: Real}
+struct PiecewiseConstant{T<:Real}
     clocks::Vector{T}
     values::Vector{T}
 
     function PiecewiseConstant(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
         length(clocks) == length(values) + 1 || throw(ArgumentError("expect clocks has one more element than values"))
-        new{eltype(values)}(clocks, values)
+        return new{eltype(values)}(clocks, values)
     end
 end
 
+function Base.:(==)(lhs::PiecewiseConstant, rhs::PiecewiseConstant)
+    return lhs.clocks == rhs.clocks && lhs.values == rhs.values
+end
+
 function PiecewiseConstant(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
-    PiecewiseConstant(default_unit(μs, clocks), default_unit(MHz, values))
+    return PiecewiseConstant(default_unit(μs, clocks), default_unit(MHz, values))
 end
 
 function (f::PiecewiseConstant)(t::Real)
@@ -272,7 +284,7 @@ julia> piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 2.0, 2.0, 0.0]
 ```
 
 """
-function piecewise_linear(;clocks::Vector, values::Vector)
+function piecewise_linear(; clocks::Vector, values::Vector)
     iszero(first(clocks)) || throw(ArgumentError("the first clock time should be zero"))
     return Waveform(PiecewiseLinear(clocks, values), last(clocks))
 end
@@ -313,10 +325,7 @@ julia> piecewise_constant(clocks=[0.0, 0.2, 0.5], values=[0.0, 1.5, 3.1], durati
                   ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀2⠀ 
 ```
 """
-function piecewise_constant(;
-        clocks::Vector, values::Vector,
-        duration::Number=last(clocks),
-    )
+function piecewise_constant(; clocks::Vector, values::Vector, duration::Number = last(clocks))
     return Waveform(PiecewiseConstant(clocks, values), duration)
 end
 
@@ -356,14 +365,14 @@ julia> linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0)
                   ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀3⠀ 
 ```
 """
-function linear_ramp(;duration, start_value, stop_value)
+function linear_ramp(; duration, start_value, stop_value)
     duration = default_unit(μs, duration)
     start_value = default_unit(MHz, start_value)
     stop_value = default_unit(MHz, stop_value)
 
     return Waveform(duration) do t
-        (stop_value - start_value) / duration * t + start_value
-    end    
+        return (stop_value - start_value) / duration * t + start_value
+    end
 end
 
 """
@@ -376,11 +385,11 @@ Create a constant waveform.
 - `duration::Real`: duration of the whole waveform.
 - `value::Real`: value of the constant waveform.
 """
-function constant(;duration, value)
+function constant(; duration, value)
     duration = default_unit(μs, duration)
     value = default_unit(MHz, value)
     return Waveform(duration) do t
-        value
+        return value
     end
 end
 
@@ -398,10 +407,10 @@ amplitude * sin(2π*t)
 - `duration`: duration of the waveform.
 - `amplitude`: amplitude of the sin waveform.
 """
-function sinusoidal(;duration, amplitude=one(duration))
+function sinusoidal(; duration, amplitude = one(duration))
     duration = default_unit(μs, duration)
     amplitude = default_unit(MHz, amplitude)
     return Waveform(duration) do t
-        amplitude * sin(2π*t)
+        return amplitude * sin(2π * t)
     end
 end

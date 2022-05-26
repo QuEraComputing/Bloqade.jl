@@ -1,4 +1,5 @@
 using Test
+using Adapt
 using Random
 using YaoSubspaceArrayReg
 
@@ -10,12 +11,16 @@ using YaoSubspaceArrayReg
 
     raw_st = rand(ComplexF64, length(subspace_v))
     r = SubspaceArrayReg(raw_st, Subspace(10, subspace_v))
+
+    @test adapt(Array{ComplexF32}, r).state isa Array{ComplexF32}
+
     set_zero_state!(r)
     @test r.state[1] == 1
     @test relaxedvec(r) isa Vector
 
     raw_st = rand(ComplexF64, length(subspace_v))
     r = SubspaceArrayReg(raw_st, Subspace(10, subspace_v))
+
     set_zero_state!(r)
     @test r.state[1] == 1
 
@@ -27,7 +32,7 @@ using YaoSubspaceArrayReg
     @test isnormalized(r)
 
     @test set_zero_state!(rand_state(5)) ≈ zero_state(5)
-    space = Subspace(5, sort(randperm(1<<5)[1:6]))
+    space = Subspace(5, sort(randperm(1 << 5)[1:6]))
     @test_throws DimensionMismatch SubspaceArrayReg(rand(5), space)
 end
 

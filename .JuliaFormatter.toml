@@ -1,0 +1,5 @@
+remove_extra_newlines=true
+always_use_return=true
+import_to_using=true
+always_for_in=true
+margin=120

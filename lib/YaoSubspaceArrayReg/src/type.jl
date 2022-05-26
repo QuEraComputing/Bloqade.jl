@@ -5,16 +5,20 @@
 Type for registers in a subspace. The subspace must be a
 [`Subspace`](@ref).
 """
-struct SubspaceArrayReg{State <: AbstractVector, Space} <: YaoAPI.AbstractRegister{2}
+struct SubspaceArrayReg{State<:AbstractVector,Space} <: YaoAPI.AbstractRegister{2}
     natoms::Int
     state::State
     subspace::Space
 
-    function SubspaceArrayReg(state::State, subspace::Subspace) where {State <: AbstractVector}
+    function SubspaceArrayReg(state::State, subspace::Subspace) where {State<:AbstractVector}
         if length(state) != length(subspace)
-            throw(DimensionMismatch("size of state $(size(state, 1)) does not match size of subspace $(length(subspace))"))
+            throw(
+                DimensionMismatch(
+                    "size of state $(size(state, 1)) does not match size of subspace $(length(subspace))",
+                ),
+            )
         end
-        new{State, typeof(subspace)}(subspace.nqubits, state, subspace)
+        return new{State,typeof(subspace)}(subspace.nqubits, state, subspace)
     end
 end
 
@@ -26,6 +30,10 @@ YaoArrayRegister.state(reg::SubspaceArrayReg) = reg.state
 YaoArrayRegister.statevec(reg::SubspaceArrayReg) = reg.state
 YaoArrayRegister.relaxedvec(reg::SubspaceArrayReg) = reg.state
 YaoArrayRegister.datatype(reg::SubspaceArrayReg) = eltype(reg.state)
+
+function Adapt.adapt_structure(to, x::SubspaceArrayReg)
+    return SubspaceArrayReg(Adapt.adapt(to, x.state), x.subspace)
+end
 
 """
     zero_state([T=ComplexF64], n::Int, subspace)
@@ -40,7 +48,7 @@ Create a `SubspaceArrayReg` in zero state in given subspace.
 """
 YaoArrayRegister.zero_state(subspace::Subspace) = zero_state(ComplexF64, subspace)
 
-function YaoArrayRegister.zero_state(::Type{T}, s::Subspace) where T
+function YaoArrayRegister.zero_state(::Type{T}, s::Subspace) where {T}
     state = zeros(T, length(s))
     state[1] = 1
     return SubspaceArrayReg(state, s)
@@ -53,7 +61,7 @@ Create a random state in the given subspace.
 """
 YaoArrayRegister.rand_state(s::Subspace) = rand_state(ComplexF64, s)
 
-function YaoArrayRegister.rand_state(::Type{T}, s::Subspace) where {T <: Complex}
+function YaoArrayRegister.rand_state(::Type{T}, s::Subspace) where {T<:Complex}
     state = normalize!(rand(T, length(s)))
     return SubspaceArrayReg(state, s)
 end
@@ -64,10 +72,10 @@ end
 Create a product state of given config from `subspace`.
 """
 function YaoArrayRegister.product_state(config::BitStr, s::Subspace)
-    YaoArrayRegister.product_state(ComplexF64, config, s)
+    return YaoArrayRegister.product_state(ComplexF64, config, s)
 end
 
-function YaoArrayRegister.product_state(::Type{T}, c::BitStr, s::Subspace) where T
+function YaoArrayRegister.product_state(::Type{T}, c::BitStr, s::Subspace) where {T}
     c in s.subspace_v || error("$c is not in given subspace")
     state = zeros(T, length(s))
     state[s[c]] = 1
@@ -104,7 +112,7 @@ function set_zero_state!(r::ArrayReg)
     return r
 end
 
-function Base.:*(bra::YaoArrayRegister.AdjointRegister{2, <:SubspaceArrayReg}, ket::SubspaceArrayReg)
+function Base.:*(bra::YaoArrayRegister.AdjointRegister{2,<:SubspaceArrayReg}, ket::SubspaceArrayReg)
     return dot(statevec(parent(bra)), statevec(ket))
 end
 
@@ -163,12 +171,10 @@ function Base.:*(lhs::Number, rhs::SubspaceArrayReg)
 end
 
 function Base.:(==)(lhs::SubspaceArrayReg, rhs::SubspaceArrayReg)
-    lhs.natoms == rhs.natoms &&
-    lhs.subspace == rhs.subspace &&
-    lhs.state == rhs.state
+    return lhs.natoms == rhs.natoms && lhs.subspace == rhs.subspace && lhs.state == rhs.state
 end
 
 function YaoArrayRegister.most_probable(reg::SubspaceArrayReg, n::Int)
-    imax = sortperm(abs2.(reg.state); rev=true)[1:n]
-    YaoArrayRegister.BitStr{nqubits(reg)}.(reg.subspace.subspace_v[imax])
+    imax = sortperm(abs2.(reg.state); rev = true)[1:n]
+    return YaoArrayRegister.BitStr{nqubits(reg)}.(reg.subspace.subspace_v[imax])
 end

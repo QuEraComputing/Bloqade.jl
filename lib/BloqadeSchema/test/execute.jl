@@ -4,7 +4,6 @@ using BloqadeExpr
 using BloqadeWaveforms
 using Test
 using Yao
-using OrderedCollections
 
 @testset "to_lattice with 1d chains" begin
     @test BloqadeSchema.to_lattice([1, 2, 3, 4, 5]) == BloqadeSchema.Lattice(;
@@ -266,10 +265,18 @@ end
 
     ir_str = BloqadeSchema.to_json(block, params)
 
-    task_out_str = BloqadeSchema.execute(ir_str)
-    @test task_out_str == string("""{"task_status_code":200,"shot_outputs":[""",
-        """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]},""",
-        """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]},""",
-        """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]}]}""")
+    # task_out_str = BloqadeSchema.execute(ir_str)
+    # @test task_out_str == string("""{"task_status_code":200,"shot_outputs":[""",
+    #     """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]},""",
+    #     """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]},""",
+    #     """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]}]}""")
 end
 
+
+
+Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6, 7], values=[5, 3, 4, 6]);
+Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1]);
+ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0, 5], values=[33, 0]);
+atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)];
+block = BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ);
+BloqadeSchema.to_json(block; n_shots=10)

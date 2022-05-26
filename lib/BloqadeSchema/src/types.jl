@@ -58,10 +58,10 @@ end
 end
 
 @option struct SchemaConversionParams <: QuEraSchema
-    rabi_frequency_amplitude_max_slope::Number
-    rabi_frequency_phase_max_slope::Number
-    rabi_detuning_max_slope::Number
-    n_shots::Number
+    rabi_frequency_amplitude_max_slope::Float64 = 0.1
+    rabi_frequency_phase_max_slope::Float64 = 0.1
+    rabi_detuning_max_slope::Float64 = 0.1
+    n_shots::Float64
 end
 
 @option struct ShotOutput <: QuEraSchema

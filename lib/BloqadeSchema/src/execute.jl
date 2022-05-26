@@ -1,28 +1,22 @@
-using Yao
-using Configurations
-using JSON
-using BloqadeODE
-using BitBasis
+# """
+#     execute(j::String)
 
-"""
-    execute(j::String)
+# Executes a task given as a JSON string in the task specification API format, and returns a JSON string of the result
+# """
+# function execute(j::String)
+#     task = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
+#     h = from_json(j)
+#     return JSON.json(Configurations.to_dict(execute(h, length(content(h[1]).atoms), 3e-6, task.nshots)))
+# end
 
-Executes a task given as a JSON string in the task specification API format, and returns a JSON string of the result
-"""
-function execute(j::String)
-    task = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
-    h = from_json(j)
-    return JSON.json(Configurations.to_dict(execute(h, length(content(h[1]).atoms), 3e-6, task.nshots)))
-end
-
-function execute(h::Add, n_atoms::Int, total_time::Float64, nshots::Int)
-    # Always start off with the zero state
-    reg = zero_state(n_atoms)
-    problem = SchrodingerProblem(reg, total_time, h)
-    emulate!(problem)
-    bitstrings = reg |> measure(; nshots=nshots)
-    return to_task_output(bitstrings)
-end
+# function execute(h::Add, n_atoms::Int, total_time::Float64, nshots::Int)
+#     # Always start off with the zero state
+#     reg = zero_state(n_atoms)
+#     problem = SchrodingerProblem(reg, total_time, h)
+#     emulate!(problem)
+#     bitstrings = reg |> measure(; nshots=nshots)
+#     return to_task_output(bitstrings)
+# end
 
 function to_task_output(bitstrings::Vector{<:BitBasis.BitStr64})
     shot_outputs = map(bitstrings) do bs
@@ -66,17 +60,37 @@ function from_schema(t::TaskSpecification)
     return BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
 end
 
+"""
+    to_json(h::AbstractBlock; kw...)
+
+Convert a hamiltonian to JSON task specification.
+
+# Examples
+
+```jldoctest
+julia> Ω = BloqadeWaveforms.piecewise_constant(; clocks=[0, 2, 4, 6, 7], values=[5, 3, 4, 6]);
+
+julia> Δ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 0.6, 2.1, 2.2], values=[-10.1, -10.1, 10.1, 10.1]);
+
+julia> ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0, 5], values=[33, 0]);
+
+julia> atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)];
+
+julia> block = BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ);
+
+julia> BloqadeSchema.to_json(block; n_shots=10)
+"{\"nshots\":10,\"lattice\":{\"sites\":[[0.0,0.0],[1.0,3.0],[4.0,2.0],[6.0,3.0],[0.0,5.0],[2.0,5.0]],\"filling\":[1,1,1,1,1,1]},\"effective_hamiltonian\":{\"rydberg\":{\"rabi_frequency_amplitude\":{\"global\":{\"times\":[0.0,-18.0,2.0,-6.0,4.0,-14.0,7.0],\"values\":[5.0,5.0,3.0,3.0,4.0,4.0,6.0]}},\"rabi_frequency_phase\":{\"global\":{\"times\":[0.0,5.0],\"values\":[33.0,0.0]}},\"detuning\":{\"global\":{\"times\":[0.0,0.6,2.1,2.2],\"values\":[-10.1,-10.1,10.1,10.1]}}}}}"
+```
+"""
+to_json(h::AbstractBlock; kw...) = to_json(h, SchemaConversionParams(;kw...))
+to_dict(h::AbstractBlock; kw...) = to_dict(h, SchemaConversionParams(;kw...))
+
 function to_json(h::AbstractBlock, params::SchemaConversionParams)
     return JSON.json(BloqadeSchema.to_dict(h, params))
 end
 
 function to_dict(h::AbstractBlock, params::SchemaConversionParams)
-    return Configurations.to_dict(to_schema(h;
-        rabi_frequency_amplitude_max_slope=params.rabi_frequency_amplitude_max_slope,
-        rabi_frequency_phase_max_slope=params.rabi_frequency_phase_max_slope,
-        rabi_detuning_max_slope=params.rabi_detuning_max_slope,
-        n_shots=params.n_shots
-    ))
+    return Configurations.to_dict(to_schema(h, params))
 end
 
 function assert_hamiltonian_schema(h::AbstractBlock)
@@ -94,9 +108,7 @@ function assert_hamiltonian_schema(h::AbstractBlock)
     return
 end
 
-function to_schema(h::AbstractBlock; rabi_frequency_amplitude_max_slope::Real,
-    rabi_frequency_phase_max_slope::Real, rabi_detuning_max_slope::Real, n_shots::Real
-)
+function to_schema(h::AbstractBlock, params::SchemaConversionParams)
     assert_hamiltonian_schema(h)
     atoms = nothing
     ϕ = nothing
@@ -118,12 +130,12 @@ function to_schema(h::AbstractBlock; rabi_frequency_amplitude_max_slope::Real,
     end
 
     return TaskSpecification(;
-        nshots=n_shots,
+        nshots=params.n_shots,
         lattice=to_lattice(atoms),
         effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ,
-            rabi_frequency_amplitude_max_slope,
-            rabi_frequency_phase_max_slope,
-            rabi_detuning_max_slope
+            params.rabi_frequency_amplitude_max_slope,
+            params.rabi_frequency_phase_max_slope,
+            params.rabi_detuning_max_slope
         )
     )
 

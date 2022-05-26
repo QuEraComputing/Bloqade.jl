@@ -75,6 +75,11 @@ nqubits: 4
 ```
 """
 function rydberg_h(atom_positions; C = 2π * 862690, Ω = nothing, ϕ = nothing, Δ = nothing)
+    return rydberg_h(atom_positions, C, Ω, ϕ, Δ)
+end
+
+# make Python wrapper work
+function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
     positions = map(atom_positions) do pos
         return (pos...,)
     end

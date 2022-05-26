@@ -12,9 +12,12 @@ JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
 [compat]
+BitBasis = "0.7"
 BloqadeExpr = "0.1"
 BloqadeWaveforms = "0.1"
 Configurations = "0.17"
+GarishPrint = "0.5"
+JSON = "0.21"
 Yao = "0.7"
 julia = "1.7"
 

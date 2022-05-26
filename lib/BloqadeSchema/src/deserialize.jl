@@ -17,9 +17,6 @@ function Configurations.from_dict(::Type{RydbergDetuning}, d::Dict{String,<:Any}
             local_value=[from_dict(RydbergDetuningLocal, d["local"][1])]
         )
     else
-        RydbergDetuning(
-            global_value=from_dict(RydbergDetuningGlobal, d["global"]),
-            local_value=nothing,
-        )
+        RydbergDetuning(global_value = from_dict(RydbergDetuningGlobal, d["global"]), local_value = nothing)
     end
 end

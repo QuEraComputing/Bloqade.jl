@@ -27,7 +27,7 @@ function bmask(::Type{T}, itr) where {T<:Integer}
 end
 
 @inline function bmask(::Type{T}, range::UnitRange{Int})::T where {T<:Integer}
-    ((one(T) << (range.stop - range.start + 1)) - one(T)) << (range.start - 1)
+    return ((one(T) << (range.stop - range.start + 1)) - one(T)) << (range.start - 1)
 end
 
 """
@@ -132,16 +132,16 @@ function Base.show(io::IO, ::MIME"text/plain", s::BitSubspace)
     println(io, " "^indent, s.sz_subspace, "-element BitSubspace:")
     if s.sz_subspace < 5
         for k in 1:s.sz_subspace
-            print(io, " "^(indent+1), string(s[k]; base=2, pad=s.n))
+            print(io, " "^(indent + 1), string(s[k]; base = 2, pad = s.n))
             if k != s.sz_subspace
                 println(io)
             end
         end
     else # never print more than 4 elements
-        println(io, " "^(indent+1), string(s[1]; base=2, pad=s.n))
-        println(io, " "^(indent+1), string(s[2]; base=2, pad=s.n))
-        println(io, " "^(indent+1), "⋮")
-        println(io, " "^(indent+1), string(s[end-1]; base=2, pad=s.n))
-        print(io, " "^(indent+1), string(s[end]; base=2, pad=s.n))
+        println(io, " "^(indent + 1), string(s[1]; base = 2, pad = s.n))
+        println(io, " "^(indent + 1), string(s[2]; base = 2, pad = s.n))
+        println(io, " "^(indent + 1), "⋮")
+        println(io, " "^(indent + 1), string(s[end-1]; base = 2, pad = s.n))
+        print(io, " "^(indent + 1), string(s[end]; base = 2, pad = s.n))
     end
 end

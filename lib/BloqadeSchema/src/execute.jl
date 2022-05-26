@@ -138,15 +138,14 @@ function to_schema(h::AbstractBlock, params::SchemaConversionParams)
             params.rabi_detuning_max_slope
         )
     )
-
 end
 
 function to_lattice(atoms::Vector)
     coords = map(atoms) do coord
         length(coord) == 1 && return (coord[1], 0)
-        coord
+        return coord
     end
-    return Lattice(; sites=coords, filling=vec(ones(length(coords), 1)))
+    return Lattice(; sites = coords, filling = vec(ones(length(coords), 1)))
 end
 
 # Check if the waveform is piecewise constant and if so then use the max slope to convert to piecewise linear.
@@ -176,34 +175,31 @@ function get_piecewise_linear_times_and_clocks(w::Maybe{Waveform}, max_slope::Re
     append!(clocks, last(w.f.clocks))
     append!(values, last(w.f.values))
     return (clocks, values)
-
 end
 
-function to_hamiltonian(Ω::Maybe{Waveform}, ϕ::Maybe{Waveform}, Δ::Maybe{Waveform},
-    rabi_frequency_amplitude_max_slope::Real, rabi_frequency_phase_max_slope::Real, rabi_detuning_max_slope::Real
+function to_hamiltonian(
+    Ω::Maybe{Waveform},
+    ϕ::Maybe{Waveform},
+    Δ::Maybe{Waveform},
+    rabi_frequency_amplitude_max_slope::Real,
+    rabi_frequency_phase_max_slope::Real,
+    rabi_detuning_max_slope::Real,
 )
     amp_times, amp_values = get_piecewise_linear_times_and_clocks(Ω, rabi_frequency_amplitude_max_slope)
     phase_times, phase_values = get_piecewise_linear_times_and_clocks(ϕ, rabi_frequency_phase_max_slope)
     detuning_times, detuning_values = get_piecewise_linear_times_and_clocks(Δ, rabi_detuning_max_slope)
 
-    return EffectiveHamiltonian(; rydberg=RydbergHamiltonian(;
-        rabi_frequency_amplitude=RydbergRabiFrequencyAmplitude(;
-            global_value=RydbergRabiFrequencyAmplitudeGlobal(;
-                times=amp_times,
-                values=amp_values
-            )
+    return EffectiveHamiltonian(;
+        rydberg = RydbergHamiltonian(;
+            rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
+                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = amp_times, values = amp_values),
+            ),
+            rabi_frequency_phase = RydbergRabiFrequencyPhase(;
+                global_value = RydbergRabiFrequencyPhaseGlobal(; times = phase_times, values = phase_values),
+            ),
+            detuning = RydbergDetuning(;
+                global_value = RydbergDetuningGlobal(; times = detuning_times, values = detuning_values),
+            ),
         ),
-        rabi_frequency_phase=RydbergRabiFrequencyPhase(;
-            global_value=RydbergRabiFrequencyPhaseGlobal(;
-                times=phase_times,
-                values=phase_values
-            )
-        ),
-        detuning=RydbergDetuning(;
-            global_value=RydbergDetuningGlobal(;
-                times=detuning_times,
-                values=detuning_values
-            )
-        )
-    ))
+    )
 end

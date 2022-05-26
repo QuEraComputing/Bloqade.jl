@@ -1,6 +1,6 @@
 name = "BloqadeSchema"
 uuid = "a64e8dd8-bb5a-11ec-104d-290571fc3a8d"
-version = "0.1.1"
+version = "0.1.2"
 
 [deps]
 BitBasis = "50ba71b6-fa0f-514d-ae9a-0916efc90dcf"
@@ -16,7 +16,7 @@ BloqadeExpr = "0.1"
 BloqadeWaveforms = "0.1"
 Configurations = "0.17"
 Yao = "0.7"
-julia = "1.7"
+julia = "1.6"
 
 [extras]
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"

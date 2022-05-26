@@ -35,9 +35,9 @@ atom2 = generate_sites(ChainLattice(), 2, scale = 3.0)
 atom3 = generate_sites(ChainLattice(), 3, scale = 3.0)
 
 # Let's apply a resonant Rabi driving on each of the system. The Hamiltonians can be simply constructed by: 
-h1 = rydberg_h(atom1; Δ=0, Ω=2π*2)
-h2 = rydberg_h(atom2; Δ=0, Ω=2π*2)
-h3 = rydberg_h(atom3; Δ=0, Ω=2π*2)
+h1 = rydberg_h(atom1; Δ = 0, Ω = 2π * 2)
+h2 = rydberg_h(atom2; Δ = 0, Ω = 2π * 2)
+h3 = rydberg_h(atom3; Δ = 0, Ω = 2π * 2)
 
 # The initial states are chosen such that all atoms start from the ground state:
 reg1 = zero_state(1)
@@ -68,24 +68,24 @@ fig
 # However, we show that this is not the case for systems when atoms are close to each other (which results in strong Rydberg interactions). 
 # Similar to the 1 atom case, we can simulate the dynamics and get the time-dependent dynamics for each atom:
 prob2 = KrylovEvolution(reg2, clocks, h2);
-density2 = zeros(2, length(clocks)); 
+density2 = zeros(2, length(clocks));
 
 for info in prob2
     for i in 1:2
         density2[i, info.step] = rydberg_density(info.reg, i)
     end
 end
-density2 = sum(density2, dims=1);
+density2 = sum(density2, dims = 1);
 
 prob3 = KrylovEvolution(reg3, clocks, h3);
-density3 = zeros(3, length(clocks)); 
+density3 = zeros(3, length(clocks));
 
 for info in prob3
     for i in 1:3
         density3[i, info.step] = rydberg_density(info.reg, i)
     end
 end
-density3 = sum(density3, dims=1);
+density3 = sum(density3, dims = 1);
 
 # Because of the Rydberg blockade, the system will undergo many-body Rabi oscillation with the state 
 # oscillating between the all 0 state and the W state, where the Rabi frequency will be enhanced by ``\sqrt{N}``, 
@@ -99,7 +99,7 @@ ax.plot(clocks, density3[1, :])
 ax.set_xlabel("Time (μs)")
 ax.set_ylabel("Rydberg Probability")
 ax.set_title("Many-body Rabi Oscillation for 1-, 2-, and 3-atom system")
-ax.legend(["1 atom", "2 atoms", "3 atoms"], loc ="lower right")
+ax.legend(["1 atom", "2 atoms", "3 atoms"], loc = "lower right")
 fig
 
 # From this plot, we can see that the total Rydberg density for 2 (3) atom case does not exceed 1. This is because
@@ -118,16 +118,16 @@ fig
 # Rydberg atoms are within the blockade radius, such that the atoms cannot be both excited simultaneously.
 
 nsites = 9
-atoms = generate_sites(ChainLattice(), nsites, scale=5.72)
+atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
 # The waveforms have two parts. For the first part, we use the adiabatic evolution to prepare an ordered Neel state (see [Adiabatic Evolution](@ref) for more details):
 
-Δ1 = piecewise_linear(clocks=[0.0, 0.3, 1.6, 2.2], values=2π*[-10.0, -10.0, 10.0, 10.0]);
-Ω1 = piecewise_linear(clocks=[0.0, 0.05, 1.6, 2.2], values=2π*[0.0, 4.0, 4.0, 0.0]);
+Δ1 = piecewise_linear(clocks = [0.0, 0.3, 1.6, 2.2], values = 2π * [-10.0, -10.0, 10.0, 10.0]);
+Ω1 = piecewise_linear(clocks = [0.0, 0.05, 1.6, 2.2], values = 2π * [0.0, 4.0, 4.0, 0.0]);
 
 # The second part of the waveform has constant values for the parameters, so we can use [`constant`](@ref) to construct:
-Ω2 = constant(duration=2.0, value=2*2π);
-Δ2 = constant(duration=2.0, value=0);
+Ω2 = constant(duration = 2.0, value = 2 * 2π);
+Δ2 = constant(duration = 2.0, value = 0);
 
 # The waveform for the whole evolution can be composed by appending the second part to the first part:
 
@@ -144,8 +144,7 @@ fig
 # Note that the total evolution time is 4.2 μs.
 # We then build the Hamiltonian by importing the defined lattice structure and waveforms: 
 
-h = rydberg_h(atoms; Δ=Δ_tot, Ω=Ω_tot)
-
+h = rydberg_h(atoms; Δ = Δ_tot, Ω = Ω_tot)
 
 # ## Simulate the Quantum Dynamics
 
@@ -164,10 +163,9 @@ entropy = Float64[]
 densities = []
 for _ in TimeChoiceIterator(integrator, 0.0:1e-3:total_time)
     push!(densities, rydberg_density(reg))
-    rho = density_matrix(reg, (1,2,3,4,5)) # calculate the reduced density matrix
+    rho = density_matrix(reg, (1, 2, 3, 4, 5)) # calculate the reduced density matrix
     push!(entropy, von_neumann_entropy(rho)) # compute entropy from the reduced density matrix
 end
-
 
 # ## Plotting the Results
 # We first plot the Rydberg density for each site as a function of time:
@@ -175,8 +173,8 @@ end
 clocks = 0:1e-3:total_time
 D = hcat(densities...)
 
-fig, ax = plt.subplots(figsize = (10,4))
-shw = ax.imshow(real(D), interpolation="nearest", aspect="auto", extent=[0,total_time,0.5,nsites+0.5])
+fig, ax = plt.subplots(figsize = (10, 4))
+shw = ax.imshow(real(D), interpolation = "nearest", aspect = "auto", extent = [0, total_time, 0.5, nsites + 0.5])
 ax.set_xlabel("time (μs)")
 ax.set_ylabel("site")
 ax.set_xticks(0:0.4:total_time)
@@ -189,7 +187,7 @@ fig
 
 # We can also plot the entanglement as a function of time:
 
-fig, ax = plt.subplots(figsize = (10,4))
+fig, ax = plt.subplots(figsize = (10, 4))
 ax.plot(clocks, entropy)
 ax.set_xlabel("time (μs)")
 ax.set_ylabel("entanglement entropy")
@@ -201,12 +199,12 @@ fig
 # we now choose a different initial state, and use the [`KrylovEvolution`](@ref) solver to simulate the dynamics:  
 
 hd = rydberg_h(atoms; Ω = 4π)
-total_time = 1.2; 
+total_time = 1.2;
 clocks = 0.0:1e-2:total_time;
 
 init_d = product_state(bit"100000101")
 prob_d = KrylovEvolution(init_d, clocks, hd)
-density_mat_d = zeros(nsites, length(clocks)) 
+density_mat_d = zeros(nsites, length(clocks))
 
 for info in prob_d
     for i in 1:nsites
@@ -214,8 +212,13 @@ for info in prob_d
     end
 end
 
-fig, ax = plt.subplots(figsize = (10,4))
-shw = ax.imshow(real(density_mat_d), interpolation="nearest", aspect="auto", extent=[0,total_time,0.5,nsites+0.5])
+fig, ax = plt.subplots(figsize = (10, 4))
+shw = ax.imshow(
+    real(density_mat_d),
+    interpolation = "nearest",
+    aspect = "auto",
+    extent = [0, total_time, 0.5, nsites + 0.5],
+)
 ax.set_xlabel("time (μs)")
 ax.set_ylabel("site")
 ax.set_xticks(0:0.2:total_time)

@@ -12,9 +12,14 @@ using Test, Documenter
 end
 
 @testset "lattice" begin
-    for LT in [HoneycombLattice(),
-            SquareLattice(), TriangularLattice(),
-            LiebLattice(), KagomeLattice(), GeneralLattice(((1.0, 0.0), (0.0, 1.0)), [(0.0, 0.0)])]
+    for LT in [
+        HoneycombLattice(),
+        SquareLattice(),
+        TriangularLattice(),
+        LiebLattice(),
+        KagomeLattice(),
+        GeneralLattice(((1.0, 0.0), (0.0, 1.0)), [(0.0, 0.0)]),
+    ]
         @test generate_sites(LT, 5, 5) |> length == length(lattice_sites(LT)) * 25
     end
     lt1 = generate_sites(ChainLattice(), 5)
@@ -35,16 +40,21 @@ end
     l5 = random_dropout(l3, 0.5)
     @test length(l5) == 7
     @test_throws ArgumentError random_dropout(l3, -0.5)
-    
+
     # rescale axes
     sites = AtomList([(0.2, 0.3), (0.4, 0.8)])
     @test (sites |> rescale_axes(2.0)) == [(0.4, 0.6), (0.8, 1.6)]
 end
 
 @testset "neighbors" begin
-    for (lt, i, s1, s2) in [(HoneycombLattice(), 25, 3, 6),
-            (SquareLattice(), 13, 4, 4), (TriangularLattice(), 13, 6, 6),
-            (LiebLattice(), 37, 4, 4), (KagomeLattice(), 37, 4, 4), (GeneralLattice(((1.0, 0.0), (0.0, 1.0)), [(0.0, 0.0)]), 13, 4, 4)]
+    for (lt, i, s1, s2) in [
+        (HoneycombLattice(), 25, 3, 6),
+        (SquareLattice(), 13, 4, 4),
+        (TriangularLattice(), 13, 6, 6),
+        (LiebLattice(), 37, 4, 4),
+        (KagomeLattice(), 37, 4, 4),
+        (GeneralLattice(((1.0, 0.0), (0.0, 1.0)), [(0.0, 0.0)]), 13, 4, 4),
+    ]
         atoms = generate_sites(lt, 5, 5)
         tree = make_kdtree(atoms)
         @show lt
@@ -66,15 +76,15 @@ end
 end
 
 @testset "visualize" begin
-    lt = generate_sites(KagomeLattice(), 5, 5, scale=1.5)
+    lt = generate_sites(KagomeLattice(), 5, 5, scale = 1.5)
     grd = make_grid(lt[2:end-1])
     unitvectors(lattice::AbstractLattice, scale::Real) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
-    @test img_atoms(lt; vectors=unitvectors(KagomeLattice(), 1.5)) isa Compose.Context
+    @test img_atoms(lt; vectors = unitvectors(KagomeLattice(), 1.5)) isa Compose.Context
     # different colors
-    @test img_atoms(lt; colors=nothing) isa Compose.Context
-    @test img_atoms(lt; colors="red") isa Compose.Context
-    @test img_atoms(lt; colors=fill("blue", length(lt))) isa Compose.Context
-    @test img_atoms(lt; colors=ByDensity(randn(length(lt)); vmax=10)) isa Compose.Context
+    @test img_atoms(lt; colors = nothing) isa Compose.Context
+    @test img_atoms(lt; colors = "red") isa Compose.Context
+    @test img_atoms(lt; colors = fill("blue", length(lt))) isa Compose.Context
+    @test img_atoms(lt; colors = ByDensity(randn(length(lt)); vmax = 10)) isa Compose.Context
     @test img_maskedgrid(grd) isa Compose.Context
     @test show(IOBuffer(), MIME"text/html"(), grd) === nothing
     @test show(IOBuffer(), MIME"text/html"(), lt) === nothing

@@ -3,10 +3,10 @@
 
 Returns a `KDTree` instance defined in package [NearestNeighbors](https://github.com/KristofferC/NearestNeighbors.jl) from input `atoms`.
 """
-function make_kdtree(atoms::AtomList{D,T}) where {T, D}
+function make_kdtree(atoms::AtomList{D,T}) where {T,D}
     data = zeros(T, D, length(atoms))
-    for i=1:length(atoms)
-        data[:,i] .= atoms[i]
+    for i in 1:length(atoms)
+        data[:, i] .= atoms[i]
     end
     return KDTree(data)
 end
@@ -21,7 +21,7 @@ struct DistanceGroup
     ptr::Vector{Int}
 end
 function Base.getindex(dg::DistanceGroup, k::Int)
-    if length(dg.ptr) < k+2
+    if length(dg.ptr) < k + 2
         return Int[]
     else
         return dg.siteindices[dg.ptr[k+1]:dg.ptr[k+2]-1]
@@ -37,17 +37,17 @@ function nearest(tree::KDTree, siteindex::Int, nsites::Int)
 end
 
 # Group the `siteindices` by their `distances`. Returns a `DistanceGroup` instance that can be used to index n-th nearest neighbors.
-function group_by_distances(siteindices, distances::AbstractVector{T}, atol) where T
+function group_by_distances(siteindices, distances::AbstractVector{T}, atol) where {T}
     dpre = distances[1]
     ptr = Int[1]
-    for i=2:length(siteindices)
+    for i in 2:length(siteindices)
         di = distances[i]
-        if !isapprox(di, dpre; atol=atol)
+        if !isapprox(di, dpre; atol = atol)
             push!(ptr, i)  # endpoint
             dpre = di
         end
     end
-    push!(ptr, length(siteindices)+1)  # endpoint
+    push!(ptr, length(siteindices) + 1)  # endpoint
     return DistanceGroup(siteindices, ptr)
 end
 
@@ -90,6 +90,6 @@ julia> gn[2]  # second nearest neighbors
  31
 ```
 """
-function grouped_nearest(tree::KDTree, siteindex::Int, nsites::Int; atol=1e-8)
-    group_by_distances(nearest(tree, siteindex, nsites)..., atol)
+function grouped_nearest(tree::KDTree, siteindex::Int, nsites::Int; atol = 1e-8)
+    return group_by_distances(nearest(tree, siteindex, nsites)..., atol)
 end

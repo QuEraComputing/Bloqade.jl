@@ -24,20 +24,19 @@ plt = pyimport("matplotlib.pyplot");
 # unit disk graph on a square lattice with nearest neighbor connections. 
 # The atoms represent vertices on the problem graph, 
 # and all vertices closer than a distance 1.5 are connected by an edge.  
-locs = [(1,-1), (4,0), (1,1), (2,0), (0,0), (2,2), (2,-2), (3,1), (3,-1)];
+locs = [(1, -1), (4, 0), (1, 1), (2, 0), (0, 0), (2, 2), (2, -2), (3, 1), (3, -1)];
 g = unit_disk_graph(locs, 1.5)
-show_graph(g; locs=locs, vertex_colors=["white" for i=1:nv(g)])
+show_graph(g; locs = locs, vertex_colors = ["white" for i in 1:nv(g)])
 
 # We then assign random weights to each vertex for this example problem:
-weights = [rand() for i = 1:nv(g)];
+weights = [rand() for i in 1:nv(g)];
 
 # We can solve the MWIS problem classically for this graph
 # using the [GenericTensorNetworks](https://github.com/QuEraComputing/GenericTensorNetworks.jl) package. 
 # The MWIS is shown in red.
-configs_mapped = GenericTensorNetworks.solve(IndependentSet(g; weights= weights), ConfigsMax())[]
+configs_mapped = GenericTensorNetworks.solve(IndependentSet(g; weights = weights), ConfigsMax())[]
 MIS_config = configs_mapped.c[1]
-show_graph(g; locs = locs, vertex_colors=
-          [iszero(MIS_config[i]) ? "white" : "red" for i=1:nv(g)])
+show_graph(g; locs = locs, vertex_colors = [iszero(MIS_config[i]) ? "white" : "red" for i in 1:nv(g)])
 
 # # Quantum Adiabatic Algorithm to Solve the MWIS Problem
 
@@ -65,7 +64,6 @@ show_graph(g; locs = locs, vertex_colors=
 # the system should follow the instantaneous ground state and ends up in the 
 # solution to the MWIS problem.  
 
-
 # ## Building Pulse Sequences
 # Since we are considering the MWIS problem, we can implement individual
 # atom detuning with, e.g., $\Delta(t)_i = w_i \times \Delta(t)$.  
@@ -73,11 +71,11 @@ show_graph(g; locs = locs, vertex_colors=
 # Let's first build and plot the individual pulse waveforms.
 # We use the following function to build the Hamiltonian and the corresponding waveforms for the adiabatic evolution of the system:
 function build_adiabatic_sweep(graph, Ω_max::Float64, Δ_max::Float64, t_max::Float64, weights::Vector{Float64})
-    Ω = Waveform(t->Ω_max * sin(pi * t/t_max)^2, duration=t_max)
+    Ω = Waveform(t -> Ω_max * sin(pi * t / t_max)^2, duration = t_max)
     Δ = map(1:nv(graph)) do idx
-        Waveform(t->weights[idx] * Δ_max * (2 * t/t_max - 1), duration=t_max)
+        return Waveform(t -> weights[idx] * Δ_max * (2 * t / t_max - 1), duration = t_max)
     end
-    h = SumOfX(nv(graph), Ω)/2 - SumOfN(nv(graph), Δ)
+    h = SumOfX(nv(graph), Ω) / 2 - SumOfN(nv(graph), Δ)
     return h, Ω, Δ
 end
 
@@ -87,10 +85,10 @@ end
 t_max = 1.5
 H, Ω, Δ = build_adiabatic_sweep(g, Ω_max, Δ_max, t_max, weights);
 
-fig, (ax1, ax2) = plt.subplots(ncols=2, figsize=(14, 4))
+fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (14, 4))
 Bloqade.plot!(ax1, Ω)
 ax1.set_ylabel("Ω/2π (MHz)")
-for i = 1:nv(g)
+for i in 1:nv(g)
     Bloqade.plot!(ax2, Δ[i])
 end
 ax2.set_ylabel("Δ/2π (MHz)")
@@ -127,12 +125,12 @@ end
 # We can compute the adiabatic timescale by fitting a Landau-Zener curve to the 
 # MIS probability: 
 using CurveFit
-y = broadcast(log, 1 .- P_MWIS[P_MWIS .> 0.9])
-a, b = linear_fit(t_list[P_MWIS .> 0.9], y)
-T_LZ = -1/b;
+y = broadcast(log, 1 .- P_MWIS[P_MWIS.>0.9])
+a, b = linear_fit(t_list[P_MWIS.>0.9], y)
+T_LZ = -1 / b;
 
 # Finally, we plot the results:
-fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize=(16, 6))
+fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (16, 6))
 ax1.scatter(t_list, P_MWIS)
 ax1.set_ylabel("MWIS Probability")
 ax1.set_xlabel("Time (μs)")

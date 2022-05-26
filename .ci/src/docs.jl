@@ -10,19 +10,19 @@ using ..BloqadeCI: root_dir, dev
 using ..BloqadeCI.Example
 
 function tutorial_pages()
-    tutorials = Pair{String, String}[]
+    tutorials = Pair{String,String}[]
     Example.foreach_example() do path
         name = basename(path)
         mainjl = joinpath(path, "main.jl")
         target = joinpath("tutorials", name, "main.md")
         firstline = readline(mainjl)
         startswith(firstline, "# # ") || error("expecting example script start with # # <title>")
-        push!(tutorials, firstline[5:end]=>target)
+        return push!(tutorials, firstline[5:end] => target)
     end
     return tutorials
 end
 
-function pages(;light=false)
+function pages(; light = false)
     PAGES = [
         "Home" => "index.md",
         "Installation" => "install.md",
@@ -42,27 +42,17 @@ function pages(;light=false)
 
     light || push!(PAGES, "Tutorials" => tutorial_pages())
 
-    append!(PAGES, [
-        "Contributing to Bloqade" => "contrib.md",
-    ])
+    append!(PAGES, ["Contributing to Bloqade" => "contrib.md"])
 
     return PAGES
 end
 
 function render_all_examples()
-    Example.buildall(
-        build_dir=root_dir("docs", "src", "tutorials"),
-        target="markdown",
-        eval=true,
-    )
+    return Example.buildall(build_dir = root_dir("docs", "src", "tutorials"), target = "markdown", eval = true)
 end
 
 function doc_build_script(pages, repo)
-    yao_pkgs = [
-        "Yao", "YaoAPI", "YaoBase",
-        "YaoBlocks", "YaoArrayRegister",
-        "Unitful",
-    ]
+    yao_pkgs = ["Yao", "YaoAPI", "YaoBase", "YaoBlocks", "YaoArrayRegister", "Unitful"]
     using_stmts = ["Documenter", "DocThemeIndigo"]
     non_cuda_pkgs = filter(!isequal("BloqadeCUDA"), readdir(root_dir("lib")))
     push!(non_cuda_pkgs, "Bloqade")
@@ -106,11 +96,8 @@ function dev_examples()
 end
 
 function generate_makejl(light)
-    build_script = doc_build_script(
-        pages(;light),
-        "QuEraComputing/Bloqade.jl"
-    )
-    write(root_dir("docs", "make.jl"), build_script)
+    build_script = doc_build_script(pages(; light), "QuEraComputing/Bloqade.jl")
+    return write(root_dir("docs", "make.jl"), build_script)
 end
 
 function setup_docs(light)
@@ -121,7 +108,7 @@ function setup_docs(light)
     return
 end
 
-@cast function serve(;host::String="0.0.0.0", port::Int=8000, light::Bool=false)
+@cast function serve(; host::String = "0.0.0.0", port::Int = 8000, light::Bool = false)
     # setup environment
     setup_docs(light)
 
@@ -158,13 +145,13 @@ end
 """
 build the docs
 """
-@cast function build(;light::Bool=false)
+@cast function build(; light::Bool = false)
     setup_docs(light)
     docs_dir = root_dir("docs")
     docs_make_jl = root_dir("docs", "make.jl")
     julia_cmd = "using Pkg; Pkg.instantiate()"
     run(`$(Base.julia_exename()) --project=$docs_dir -e $julia_cmd`)
-    run(`$(Base.julia_exename()) --project=$docs_dir $docs_make_jl`)
+    return run(`$(Base.julia_exename()) --project=$docs_dir $docs_make_jl`)
 end
 
 end

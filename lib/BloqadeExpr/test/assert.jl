@@ -12,7 +12,7 @@ using BloqadeExpr: is_time_function, assert_nsites
 end
 
 @testset "assert_nsites" begin
-    @test assert_nsites(5, [1,2,3,4,5], :test) === nothing
+    @test assert_nsites(5, [1, 2, 3, 4, 5], :test) === nothing
     @test assert_nsites(5, 2.0, :test) === nothing
-    @test_throws ArgumentError assert_nsites(4, [1,2,3,4,5], :test)    
+    @test_throws ArgumentError assert_nsites(4, [1, 2, 3, 4, 5], :test)
 end

@@ -1,6 +1,5 @@
 module BloqadeCI
 
-
 include("main.jl")
 include("example.jl")
 include("docs.jl")

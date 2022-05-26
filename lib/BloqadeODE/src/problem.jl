@@ -5,17 +5,17 @@ Type for Schrodinger equation. A `SchrodingerEquation`
 object is a callable object that has method `f(dstate, state, p, t)`
 that fits into a standard ODE problem.
 """
-struct SchrodingerEquation{ExprType, H <: Hamiltonian}
+struct SchrodingerEquation{ExprType,H<:Hamiltonian}
     expr::ExprType
     hamiltonian::H
 end
 
 Adapt.@adapt_structure SchrodingerEquation
 
-function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where L
+function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where {L}
     fill!(dstate, zero(eltype(dstate)))
     for (f, term) in zip(eq.hamiltonian.fs, eq.hamiltonian.ts)
-        mul!(dstate, term, state, -im*f(t), one(t))
+        mul!(dstate, term, state, -im * f(t), one(t))
     end
     return
 end
@@ -24,12 +24,12 @@ function Base.show(io::IO, mime::MIME"text/plain", eq::SchrodingerEquation)
     indent = get(io, :indent, 0)
     tab(indent) = " "^indent
     print(io, tab(indent), "storage size: ")
-    printstyled(io, Base.format_bytes(storage_size(eq.hamiltonian)); color=:yellow)
+    printstyled(io, Base.format_bytes(storage_size(eq.hamiltonian)); color = :yellow)
     println(io)
     println(io, tab(indent), "expression:")
-    show(IOContext(io, :indent=>indent + 2), eq.expr)
+    show(IOContext(io, :indent => indent + 2), eq.expr)
     println(io)
-    println(io)
+    return println(io)
 end
 
 """
@@ -61,7 +61,8 @@ to solve the dynamics.
 For more ODE options, please refer to [Common Solver Options](https://diffeq.sciml.ai/stable/basics/common_solver_opts/).
 The `SchrodingerProblem` type supports most of the standard DiffEq problem interface.
 """
-struct SchrodingerProblem{Reg, EquationType <: ODEFunction, uType, tType, Kwargs} <: SciMLBase.AbstractODEProblem{uType, tType, true}
+struct SchrodingerProblem{Reg,EquationType<:ODEFunction,uType,tType,Kwargs} <:
+       SciMLBase.AbstractODEProblem{uType,tType,true}
     reg::Reg
     f::EquationType
     state::uType # alias of reg.state
@@ -74,10 +75,7 @@ struct SchrodingerProblem{Reg, EquationType <: ODEFunction, uType, tType, Kwargs
     p::Nothing # well make DiffEq happy
 end
 
-function SchrodingerProblem(
-    reg::AbstractRegister, tspan,
-    expr; kw...)
-
+function SchrodingerProblem(reg::AbstractRegister, tspan, expr; kw...)
     nqubits(reg) == nqubits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
     # remove this after ArrayReg start using AbstractVector
     state = statevec(reg)
@@ -90,14 +88,17 @@ function SchrodingerProblem(
     eq = SchrodingerEquation(expr, Hamiltonian(T, expr, space))
     ode_f = ODEFunction(eq)
 
-    default_ode_options = (
-        save_everystep=false, save_start=false,
-        save_on=false, dense=false,
-    )
+    default_ode_options = (save_everystep = false, save_start = false, save_on = false, dense = false)
     kw = pairs(merge(default_ode_options, kw))
 
-    SchrodingerProblem{typeof(reg), typeof(ode_f), typeof(state), typeof(tspan), typeof(kw)}(
-        reg, ode_f, state, copy(state), tspan, kw, nothing
+    return SchrodingerProblem{typeof(reg),typeof(ode_f),typeof(state),typeof(tspan),typeof(kw)}(
+        reg,
+        ode_f,
+        state,
+        copy(state),
+        tspan,
+        kw,
+        nothing,
     )
 end
 
@@ -110,42 +111,41 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::SchrodingerProblem)
 
     println(io, tab(indent), "SchrodingerProblem:")
     # state info
-    println(io, tab(indent+2), "register info:")
-    print(io, tab(indent+4), "type: ")
-    printstyled(io, typeof(prob.reg); color=:green)
+    println(io, tab(indent + 2), "register info:")
+    print(io, tab(indent + 4), "type: ")
+    printstyled(io, typeof(prob.reg); color = :green)
     println(io)
 
-    print(io, tab(indent+4), "storage size: ")
-    printstyled(io, Base.format_bytes(storage_size(prob.reg)); color=:yellow)
+    print(io, tab(indent + 4), "storage size: ")
+    printstyled(io, Base.format_bytes(storage_size(prob.reg)); color = :yellow)
     println(io)
     println(io)
-
 
     # tspan info
-    println(io, tab(indent+2), "time span (μs): ", prob.tspan)
+    println(io, tab(indent + 2), "time span (μs): ", prob.tspan)
     println(io)
 
     # equation info
-    println(io, tab(indent+2), "equation: ")
-    show(IOContext(io, :indent=>indent+4), mime, prob.f.f)
+    println(io, tab(indent + 2), "equation: ")
+    show(IOContext(io, :indent => indent + 4), mime, prob.f.f)
 
     # options
-    isempty(prob.kwargs) || println(io, tab(indent+2), "options:")
+    isempty(prob.kwargs) || println(io, tab(indent + 2), "options:")
     order = [:algo, :dt, :adaptive, :progress]
     for key in order
         if haskey(prob.kwargs, key)
-            println(io, tab(indent+4), key, ": ", repr(prob.kwargs[key]))
+            println(io, tab(indent + 4), key, ": ", repr(prob.kwargs[key]))
         end
     end
 
     for (key, value) in prob.kwargs
-        key in order || println(io, tab(indent+4), key, ": ", repr(value))
+        key in order || println(io, tab(indent + 4), key, ": ", repr(value))
     end
     # println(io)
 end
 
-function DiffEqBase.solve(prob::SchrodingerProblem, args...; sensealg=nothing, initial_state=nothing, kw...)
-    if sensealg === nothing && haskey(prob.kwargs,:sensealg)
+function DiffEqBase.solve(prob::SchrodingerProblem, args...; sensealg = nothing, initial_state = nothing, kw...)
+    if sensealg === nothing && haskey(prob.kwargs, :sensealg)
         sensealg = prob.kwargs[:sensealg]
     end
 

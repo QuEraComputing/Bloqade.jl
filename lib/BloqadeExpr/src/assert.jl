@@ -7,22 +7,19 @@ function assert_has_time_method(fs::Vector, name)
 end
 
 function assert_has_time_method(f, name)
-    is_time_function(f) || throw(ArgumentError("invalid input for $name: method $f(::Real) is not defined"))
+    return is_time_function(f) || throw(ArgumentError("invalid input for $name: method $f(::Real) is not defined"))
 end
 
 function assert_nsites(nsites::Int, p, name)
     p isa AbstractVector || p isa Tuple || return
     nsites == length(p) ||
-        throw(ArgumentError(
-            "nsites does not match size of $name " *
-            "expect $nsites, got $(length(p))"
-    ))
+        throw(ArgumentError("nsites does not match size of $name " * "expect $nsites, got $(length(p))"))
     return
 end
 
 function assert_param(nsites::Int, p, name)
     assert_nsites(nsites, p, name)
-    assert_has_time_method(p, name)
+    return assert_has_time_method(p, name)
 end
 
 # NOTE: is_time_function is only used in constructor
@@ -44,12 +41,12 @@ function is_time_function(f)
 end
 
 function is_const_param(x)
-    x isa Number || x isa Vector{<:Number}
+    return x isa Number || x isa Vector{<:Number}
 end
 
-concrete_subtypes(::Type{T}) where T = concrete_subtypes!([], T)
+concrete_subtypes(::Type{T}) where {T} = concrete_subtypes!([], T)
 
-function concrete_subtypes!(list::Vector{Any}, ::Type{T}) where T
+function concrete_subtypes!(list::Vector{Any}, ::Type{T}) where {T}
     isconcretetype(T) && return push!(list, T)
     for S in subtypes(T)
         isconcretetype(S) && push!(list, S)

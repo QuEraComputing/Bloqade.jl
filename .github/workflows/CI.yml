@@ -34,6 +34,17 @@ jobs:
           - ubuntu-latest
         arch:
           - x64
+        package:
+          - '.'
+          - 'lib/BloqadeExpr'
+          - 'lib/BloqadeKrylov'
+          - 'lib/BloqadeLattices'
+          - 'lib/BloqadeMIS'
+          - 'lib/BloqadeODE'
+          - 'lib/BloqadeQMC'
+          - 'lib/BloqadeSchema'
+          - 'lib/BloqadeWaveforms'
+          - 'lib/YaoSubspaceArrayReg'
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1
@@ -54,7 +65,7 @@ jobs:
         run: .ci/run dev
       - uses: julia-actions/julia-buildpkg@v1
       - name: "run tests"
-        run: .ci/run testall --cpu --coverage
+        run: .ci/run test ${{ matrix.package }} --coverage
 
   finish:
       name: Codecov

@@ -63,7 +63,6 @@ jobs:
             ${{ runner.os }}-
       - name: "develop lib packages"
         run: .ci/run dev ${{ matrix.package }}
-      - uses: julia-actions/julia-buildpkg@v1
       - name: "run tests"
         run: .ci/run test ${{ matrix.package }} --coverage
 

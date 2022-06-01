@@ -1,16 +1,17 @@
 """
-    SubspaceArrayReg{D, State, Space} <: AbstractRegister{D}
+    SubspaceArrayReg{D, T, State, Space} <: AbstractArrayReg{D}
+    SubspaceArrayReg{D}(state, subspace)
     SubspaceArrayReg(state, subspace)
 
 Type for registers in a subspace. The subspace must be a
 [`Subspace`](@ref).
 """
-struct SubspaceArrayReg{D, State<:AbstractVector,Space} <: YaoAPI.AbstractRegister{D}
+struct SubspaceArrayReg{D, T, State<:AbstractVector,Space} <: YaoArrayRegister.AbstractArrayReg{D,T,State}
     natoms::Int
     state::State
     subspace::Space
 
-    function SubspaceArrayReg{D}(state::State, subspace::Subspace) where {State<:AbstractVector, D}
+    function SubspaceArrayReg{D}(state::State, subspace::Subspace) where {T, State<:AbstractVector{T}, D}
         if length(state) != length(subspace)
             throw(
                 DimensionMismatch(
@@ -18,7 +19,7 @@ struct SubspaceArrayReg{D, State<:AbstractVector,Space} <: YaoAPI.AbstractRegist
                 ),
             )
         end
-        return new{D,State,typeof(subspace)}(subspace.nqubits, state, subspace)
+        return new{D,T,State,typeof(subspace)}(subspace.nqubits, state, subspace)
     end
 end
 SubspaceArrayReg(state::AbstractVector, subspace::Subspace) = SubspaceArrayReg{2}(state, subspace)
@@ -127,20 +128,12 @@ function space end
 space(r::SubspaceArrayReg) = r.subspace
 space(r::ArrayReg) = fullspace
 space(r::AdjointRegister) = space(parent(r))
+YaoArrayRegister.basis(r::SubspaceArrayReg{D}) where D = reinterpret(DitStr{D,nqudits(r),eltype(r.subspace.subspace_v)}, r.subspace.subspace_v)
+YaoArrayRegister.chstate(r::SubspaceArrayReg{D}, state) where D = SubspaceArrayReg{D}(state, r.subspace)
+YaoArrayRegister.nbatch(r::SubspaceArrayReg) = YaoArrayRegister.NoBatch()
 
-# arithmatics operations
-# neg
-Base.:-(reg::SubspaceArrayReg{D}) where D = SubspaceArrayReg{D}(-reg.state, reg.subspace)
-
-# +, -
-for op in [:+, :-]
-    @eval function Base.$op(lhs::SubspaceArrayReg{D}, rhs::SubspaceArrayReg{D}) where D
-        @assert lhs.natoms == rhs.natoms
-        @assert length(lhs.subspace) == length(rhs.subspace)
-        return SubspaceArrayReg{D}(($op)(lhs.state, rhs.state), lhs.subspace)
-    end
-end
-
+## Redefine inplace APIs
+# NOTE: non-inplace versions are defined on the abstract type: AbstractArrayReg
 function YaoArrayRegister.regadd!(lhs::SubspaceArrayReg{D}, rhs::SubspaceArrayReg{D}) where D
     @assert lhs.natoms == rhs.natoms
     @assert length(lhs.subspace) == length(rhs.subspace)
@@ -158,17 +151,6 @@ end
 function YaoArrayRegister.regscale!(lhs::SubspaceArrayReg, x)
     lhs.state .*= x
     return lhs
-end
-
-# *, /
-for op in [:*, :/]
-    @eval function Base.$op(lhs::SubspaceArrayReg{D}, rhs::Number) where D
-        return SubspaceArrayReg{D}(($op)(lhs.state, rhs), lhs.subspace)
-    end
-end
-
-function Base.:*(lhs::Number, rhs::SubspaceArrayReg{D}) where D
-    return SubspaceArrayReg{D}(lhs * rhs.state, rhs.subspace)
 end
 
 function Base.:(==)(lhs::SubspaceArrayReg, rhs::SubspaceArrayReg)

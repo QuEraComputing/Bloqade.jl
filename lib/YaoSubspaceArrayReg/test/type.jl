@@ -9,7 +9,7 @@ using YaoSubspaceArrayReg
     raw_st[1] = 1
     r = zero_state(Subspace(10, subspace_v))
     @test state(r) ≈ raw_st
-    @test basis(r) == BitStr{10}.(subspace_v)
+    @test YaoSubspaceArrayReg.basis(r) == BitStr{10}.(subspace_v)
 
     raw_st = rand(ComplexF64, length(subspace_v))
     r = SubspaceArrayReg(raw_st, Subspace(10, subspace_v))

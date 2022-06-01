@@ -1,8 +1,8 @@
-function YaoAPI.instruct!(r::SubspaceArrayReg, op, locs::Tuple, control_locs::Tuple, control_bits::Tuple)
+function YaoAPI.instruct!(r::SubspaceArrayReg{D}, op, locs::Tuple, control_locs::Tuple, control_bits::Tuple) where D
     T = eltype(r.state)
     mask = bmask(control_locs)
     onemask = bmask(Int[control_locs[i] for i = 1:length(control_locs) if control_bits[i] == 1])
-    op = YaoArrayRegister.sort_unitary(_mat(T, op), locs)
+    op = YaoArrayRegister.sort_unitary(Val{D}(), _mat(T, op), locs)
     res = zero(r.state)
     mp = r.subspace.map   # this is slower than regular dict!
     _instruct!(res, r.state, r.subspace.subspace_v, mp, YaoArrayRegister.staticize(op), locs, mask, onemask)
@@ -10,9 +10,9 @@ function YaoAPI.instruct!(r::SubspaceArrayReg, op, locs::Tuple, control_locs::Tu
     return r
 end
 
-function YaoAPI.instruct!(r::SubspaceArrayReg, op, locs::Tuple, ::Tuple{}, ::Tuple{})
+function YaoAPI.instruct!(r::SubspaceArrayReg{D}, op, locs::Tuple, ::Tuple{}, ::Tuple{}) where D
     T = eltype(r.state)
-    op = YaoArrayRegister.sort_unitary(_mat(T, op), locs)
+    op = YaoArrayRegister.sort_unitary(Val{D}(), _mat(T, op), locs)
     res = zero(r.state)
     mp = r.subspace.map   # this is slower than regular dict!
     _instruct!(res, r.state, r.subspace.subspace_v, mp, YaoArrayRegister.staticize(op), locs)
@@ -31,7 +31,7 @@ function YaoAPI.instruct!(r::SubspaceArrayReg, op, locs::Tuple)
 end
 
 function YaoAPI.instruct!(r::SubspaceArrayReg, op, locs::Tuple, control_locs::Tuple, control_bits::Tuple, theta::Number)
-    m = YaoArrayRegister.rot_mat(eltype(r.state), op, theta)
+    m = YaoArrayRegister.parametric_mat(eltype(r.state), op, theta)
     return instruct!(r, m, locs, control_locs, control_bits)
 end
 

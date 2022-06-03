@@ -76,6 +76,7 @@ end
 end
 
 @testset "visualize" begin
+    BloqadeLattices.darktheme!()
     lt = generate_sites(KagomeLattice(), 5, 5, scale = 1.5)
     grd = make_grid(lt[2:end-1])
     unitvectors(lattice::AbstractLattice, scale::Real) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
@@ -90,4 +91,8 @@ end
     @test show(IOBuffer(), MIME"text/html"(), lt) === nothing
     @test show(IOBuffer(), MIME"image/png"(), grd) === nothing
     @test show(IOBuffer(), MIME"image/png"(), lt) === nothing
+
+    BloqadeLattices.lighttheme!()
+    @test img_atoms(lt; colors = nothing) isa Compose.Context
+    @test show(IOBuffer(), MIME"text/html"(), lt) === nothing
 end

@@ -1,4 +1,7 @@
 const DEFAULT_LINE_COLOR = Ref("#000000")
+const DEFAULT_TEXT_COLOR = Ref("#000000")
+const DEFAULT_NODE_COLOR = Ref("#FFFFFF")
+
 struct Rescaler{T}
     xmin::T
     xmax::T
@@ -98,7 +101,7 @@ Atoms within `blockade_radius` will be connected by bonds.
     pad::Float64 = 1.5 
 
     # axes
-    axes_text_color::String = DEFAULT_LINE_COLOR[]
+    axes_text_color::String = DEFAULT_TEXT_COLOR[]
     axes_text_fontsize::Float64 = 11.0
     axes_num_of_xticks = 5
     axes_num_of_yticks = 5
@@ -108,10 +111,10 @@ Atoms within `blockade_radius` will be connected by bonds.
 
     # node
     node_text_fontsize::Float64 = 5.0
-    node_text_color::String = DEFAULT_LINE_COLOR[]
+    node_text_color::String = DEFAULT_TEXT_COLOR[]
     node_stroke_color = DEFAULT_LINE_COLOR[]
     node_stroke_linewidth = 0.03
-    node_fill_color = "white"
+    node_fill_color = DEFAULT_NODE_COLOR[]
     # bond
     bond_color::String = DEFAULT_LINE_COLOR[]
     bond_linewidth::Float64 = 0.03
@@ -211,7 +214,7 @@ Base.@kwdef struct LatticeDisplayConfig
     pad::Float64 = 1.5
 
     # axes
-    axes_text_color::String = DEFAULT_LINE_COLOR[]
+    axes_text_color::String = DEFAULT_LINE_COLOR[]  # NOTE: follow the line color!
     axes_text_fontsize::Float64 = 11.0
     axes_num_of_xticks = 5
     axes_num_of_yticks = 5
@@ -221,10 +224,10 @@ Base.@kwdef struct LatticeDisplayConfig
 
     # node
     node_text_fontsize::Float64 = 5.0
-    node_text_color::String = DEFAULT_LINE_COLOR[]
+    node_text_color::String = DEFAULT_TEXT_COLOR[]
     node_stroke_color = DEFAULT_LINE_COLOR[]
     node_stroke_linewidth = 0.03
-    node_fill_color = "white"
+    node_fill_color = DEFAULT_NODE_COLOR[]
 
     # bond
     bond_color::String = DEFAULT_LINE_COLOR[]
@@ -441,4 +444,16 @@ for (mime, format) in [MIME"image/png" => PNG, MIME"text/html" => SVG]
             return nothing
         end
     end
+end
+
+function darktheme!()
+    DEFAULT_LINE_COLOR[] = "#FFFFFF"
+    DEFAULT_TEXT_COLOR[] = "#FFFFFF"
+    DEFAULT_NODE_COLOR[] = "#000000"
+end
+
+function lighttheme!()
+    DEFAULT_LINE_COLOR[] = "#000000"
+    DEFAULT_TEXT_COLOR[] = "#000000"
+    DEFAULT_NODE_COLOR[] = "#FFFFFF"
 end

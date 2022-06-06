@@ -151,7 +151,7 @@ h = rydberg_h(atoms; Δ = Δ_tot, Ω = Ω_tot)
 # We simulate the quench dynamics of the Rydberg atom array (initially prepared in the ground state). 
 # The initial state can be created by:
 
-reg = zero_state(9);
+reg = zero_state(nsites);
 
 # We can then simulate the time evolution of the quantum state using an ODE solver:
 total_time = 4.2;

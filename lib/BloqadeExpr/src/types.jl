@@ -143,7 +143,7 @@ nqudits: 1
 """
 Base.@kwdef struct SumOfX <: AbstractTerm
     nsites::Int
-    Ω = 1   # NOTE: Why it has any type?
+    Ω = 1
 
     function SumOfX(nsites, Ω)
         assert_param(nsites, Ω, :Ω)

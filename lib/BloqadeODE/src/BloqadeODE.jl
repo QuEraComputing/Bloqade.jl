@@ -1,7 +1,6 @@
 module BloqadeODE
 
 using Adapt
-using YaoBase
 using Reexport
 using SciMLBase
 using DiffEqBase

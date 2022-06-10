@@ -83,6 +83,10 @@ Abstract term for local hamiltonian terms.
 """
 abstract type AbstractTerm <: PrimitiveBlock{2} end
 
+YaoBlocks.unsafe_getindex(::Type{T}, x::AbstractTerm, i::Integer, j::Integer) where {T,N} = YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(x), i, j)
+YaoBlocks.unsafe_getcol(::Type{T}, x::AbstractTerm, j::DitStr{2}) where T = YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(x), j)
+YaoBlocks.ishermitian(::AbstractTerm) = true
+
 """
     struct RydInteract <: AbstractTerm
     RydInteract(;atoms, C=2π * 862690MHz⋅μm^6)

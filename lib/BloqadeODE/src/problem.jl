@@ -102,7 +102,13 @@ function SchrodingerProblem(reg::AbstractRegister, tspan, expr; kw...)
     )
 end
 
-Adapt.@adapt_structure SchrodingerProblem
+function Adapt.adapt_structure(to, x::SchrodingerProblem)
+    d_reg = adapt(to, x.reg)
+    return SchrodingerProblem(
+        d_reg, adapt(to, x.f), d_reg.state,
+        copy(d_reg.state), x.tspan, x.kwargs, x.p
+    )
+end
 
 # multi-line printing
 function Base.show(io::IO, mime::MIME"text/plain", prob::SchrodingerProblem)

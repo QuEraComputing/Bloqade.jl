@@ -104,9 +104,10 @@ end
 
 function Adapt.adapt_structure(to, x::SchrodingerProblem)
     d_reg = adapt(to, x.reg)
+    state = statevec(d_reg)
     return SchrodingerProblem(
-        d_reg, adapt(to, x.f), d_reg.state,
-        copy(d_reg.state), x.tspan, x.kwargs, x.p
+        d_reg, adapt(to, x.f), state,
+        copy(state), x.tspan, x.kwargs, x.p
     )
 end
 

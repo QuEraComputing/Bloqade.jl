@@ -20,6 +20,7 @@ end
         KagomeLattice(),
         GeneralLattice(((1.0, 0.0), (0.0, 1.0)), [(0.0, 0.0)]),
     ]
+        @test BloqadeLattices.dimension(LT) == 2
         @test generate_sites(LT, 5, 5) |> length == length(lattice_sites(LT)) * 25
     end
     lt1 = generate_sites(ChainLattice(), 5)
@@ -40,6 +41,13 @@ end
     l5 = random_dropout(l3, 0.5)
     @test length(l5) == 7
     @test_throws ArgumentError random_dropout(l3, -0.5)
+
+    # Rectangular Lattice Defaults
+    rectangular_lattice = RectangularLattice(1.0)
+    @test lattice_sites(rectangular_lattice) == ((0.0, 0.0),)
+    @test lattice_vectors(rectangular_lattice)[2][2] == rectangular_lattice.aspect_ratio
+
+    # Lattice Dimensions
 
     # rescale axes
     sites = AtomList([(0.2, 0.3), (0.4, 0.8)])

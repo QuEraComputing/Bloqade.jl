@@ -20,36 +20,36 @@ A constant for the [`FullSpace`](@ref).
 const fullspace = FullSpace()
 
 """
-    Subspace{S <: AbstractVector{Int}} <: AbstractSpace
+    Subspace{S <: AbstractVector} <: AbstractSpace
 
 A `Dict`-like object stores the mapping between subspace and full space.
 """
-struct Subspace{S<:AbstractVector{Int}} <: AbstractSpace
+struct Subspace{T, S<:AbstractVector{T}} <: AbstractSpace
     nqubits::Int
-    map::Dict{Int,Int} # fullspace_index => subspace_index
+    map::Dict{T,T} # fullspace_index => subspace_index
     subspace_v::S
 
-    function Subspace(nqubits::Int, map::Dict{Int,Int}, subspace_v)
-        maximum(subspace_v) ≤ 1 << nqubits || throw(ArgumentError("subspace index is too large"))
-        return new{typeof(subspace_v)}(nqubits, map, subspace_v)
+    function Subspace(nqubits::Int, map::Dict{T,T}, subspace_v) where T<:Integer
+        maximum(subspace_v) ≤ one(T) << nqubits || throw(ArgumentError("subspace index is too large"))
+        return new{T,typeof(subspace_v)}(nqubits, map, subspace_v)
     end
 end
 
 """
-    Subspace(nqubits::Int, subspace_v::AbstractVector{Int})
+    Subspace(nqubits::Int, subspace_v::AbstractVector)
 
 Create a Subspace from given list of subspace indices in the corresponding full space.
 """
-function Subspace(nqubits::Int, subspace_v::AbstractVector{Int})
+function Subspace(nqubits::Int, subspace_v::AbstractVector{T}) where T<:Integer
     subspace_v = sort(subspace_v)
-    map = Dict{Int,Int}()
+    map = Dict{T,T}()
     for (subspace_index, fullspace_index) in enumerate(subspace_v)
         map[fullspace_index] = subspace_index
     end
     return Subspace(nqubits, map, subspace_v)
 end
 
-function Base.show(io::IO, ::MIME"text/plain", s::Subspace{S}) where {S}
+function Base.show(io::IO, ::MIME"text/plain", s::Subspace)
     print(io, s.nqubits, "-qubits ", length(s.subspace_v), "-elements ")
     summary(io, s)
     println(io, ":")
@@ -96,7 +96,7 @@ function Base.show(io::IO, ::MIME"text/plain", s::Subspace{S}) where {S}
     end
 end
 
-Base.getindex(s::Subspace, key::Int) = s.map[key]
+Base.getindex(s::Subspace, key::Integer) = s.map[key]
 Base.getindex(s::Subspace, key::BitStr) = s.map[buffer(key)]
 Base.keys(s::Subspace) = keys(s.map)
 Base.values(s::Subspace) = values(s.map)

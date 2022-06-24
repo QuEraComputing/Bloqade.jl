@@ -71,6 +71,17 @@ end
     @test l1 ≈ l2
 end
 
+
+@testset "indepent set subspace with no edges" begin
+    no_edges_warning = "graph has empty edges, creating a subspace contains the entire fullspace, consider using a full space register."
+    no_edges_graph = Graph(5)
+
+    @test_logs (:warn, no_edges_warning) independent_set_subspace(no_edges_graph)
+
+    atoms = generate_sites(RectangularLattice(1.0), 3, 3; scale = 4.5)
+    @test_logs (:warn, no_edges_warning) blockade_subspace(atoms)
+end
+
 @testset "exact/sample based loss function" begin
     r = rand_state(5)
     samples = measure(r; nshots = 10000)

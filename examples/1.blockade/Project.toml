@@ -11,7 +11,6 @@ PythonCall = "6099a3de-0909-46bc-b1f4-468b9a2dfc0d"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 YaoArrayRegister = "e600142f-9330-5003-8abb-0ebd767abc51"
-YaoBase = "a8f54c17-34bc-5a9d-b050-f522fe3f755f"
 YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [extras]

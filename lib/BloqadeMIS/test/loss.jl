@@ -87,3 +87,9 @@ end
     expected_exact = r |> gibbs_loss(0.5)
     @test isapprox(expected_exact, expected_sampling; rtol = 1e-1)
 end
+
+@testset "128 bit" begin
+    s = independent_set_subspace(Int128, Graphs.complete_graph(66))
+    @test length(s) == 67
+    @test s.subspace_v == Int128[one(Int128)<<(i-1) for i=0:66]
+end

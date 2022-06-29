@@ -31,7 +31,6 @@
 
 using Graphs
 using Bloqade
-using Compose
 using Random
 using GenericTensorNetworks
 using Optim

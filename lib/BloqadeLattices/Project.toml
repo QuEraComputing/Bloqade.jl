@@ -3,16 +3,14 @@ uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 version = "0.1.2"
 
 [deps]
-Cairo = "159f3aea-2a34-519c-b102-8c37f9878175"
+LuxorGraphPlot = "1f49bdf2-22a7-4bc4-978b-948dc219fbbc"
 NearestNeighbors = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-Viznet = "52a3aca4-6234-47fd-b74a-806bdf78ede9"
 
 [compat]
-Cairo = "1"
+LuxorGraphPlot = "0.1"
 NearestNeighbors = "0.4"
 StatsBase = "0.33"
-Viznet = "0.3"
 julia = "1.6"
 
 [extras]

@@ -2,78 +2,69 @@ const DEFAULT_LINE_COLOR = Ref("#000000")
 const DEFAULT_TEXT_COLOR = Ref("#000000")
 const DEFAULT_NODE_COLOR = Ref("#FFFFFF")
 
-struct Rescaler{T}
-    xmin::T
-    xmax::T
-    ymin::T
-    ymax::T
-    pad::T
-end
+const CONFIGHELP = """
+### Extra Keyword Arguments
+* `scale::Float64 = 1.0` is the overall scaling
+* `pad::Float64 = 1.0` is the padding space
 
-getscale(r::Rescaler) = min(1 / (r.xmax - r.xmin + 2 * r.pad), 1 / (r.ymax - r.ymin + 2 * r.pad))
+##### axes
+* `axes_text_color::String = DEFAULT_TEXT_COLOR[]`
+* `axes_text_fontsize::Float64 = 11.0`
+* `axes_num_of_xticks = 5`
+* `axes_num_of_yticks = 5`
+* `axes_x_offset::Float64 = 0.1`
+* `axes_y_offset::Float64 = 0.06`
+* `axes_unit::String = "μm"`
 
-function config_plotting(sites)
-    n = length(sites)
-    if n <= 1
-        shortest_distance = 1.0
-    else
-        shortest_distance = Inf
-        for i in 1:n
-            for j in i+1:n
-                shortest_distance = min(sqrt(sum(abs2, sites[i] .- sites[j])), shortest_distance)
-            end
-        end
-    end
+##### node
+* `node_text_fontsize::Float64 = 5.0`
+* `node_text_color::String = DEFAULT_TEXT_COLOR[]`
+* `node_stroke_color = DEFAULT_LINE_COLOR[]`
+* `node_stroke_linewidth = 0.03`
+* `node_fill_color = DEFAULT_NODE_COLOR[]`
 
-    rescaler = get_rescaler(sites, 0.0)
-    xpad = (rescaler.xmax - rescaler.xmin) * 0.2 + shortest_distance
-    ypad = (rescaler.ymax - rescaler.ymin) * 0.2 + shortest_distance
-    pad = max(xpad, ypad)
+##### bond
+* `bond_color::String = DEFAULT_LINE_COLOR[]`
+* `bond_linewidth::Float64 = 0.03`
+# `blockade`
+* `blockade_radius::Float64=0`
+* `blockade_style::String = "none"`
+* `blockade_stroke_color::String = DEFAULT_LINE_COLOR[]`
+* `blockade_fill_color::String = "transparent"`
+* `blockade_fill_opacity::Float64 = 0.5`
+* `blockade_stroke_linewidth = 0.03
+
+##### arrow
+* `arrow_linewidth`
+* `arrow_color`
+* `arrow_head_length`
+"""
+
+
+function config_plotting(sites, pad)
     axes_x_offset = 0.5 * pad
     axes_y_offset = 0.4 * pad
-    scale = shortest_distance
-    axes_num_of_yticks = ceil(Int, min((rescaler.ymax - rescaler.ymin + 1e-5) / shortest_distance, 5))
-    axes_num_of_xticks = ceil(Int, min((rescaler.xmax - rescaler.xmin + 1e-5) / shortest_distance, 5))
+    xmin = minimum(first, sites)
+    xmax = maximum(first, sites)
+    ymin = minimum(last, sites)
+    ymax = maximum(last, sites)
+    axes_num_of_yticks = ceil(Int, min((ymax - ymin + 1e-5), 5))
+    axes_num_of_xticks = ceil(Int, min((xmax - xmin + 1e-5), 5))
     return (
-        pad = pad,
         axes_x_offset = axes_x_offset,
         axes_y_offset = axes_y_offset,
-        scale = scale,
         axes_num_of_xticks = axes_num_of_xticks,
         axes_num_of_yticks = axes_num_of_yticks,
     )
 end
 
-function (r::Rescaler{T})(x; dims = (1, 2)) where {T}
-    xmin, ymin, xmax, ymax, pad = r.xmin, r.ymin, r.xmax, r.ymax, r.pad
-    scale = getscale(r)
-    if dims == (1, 2)
-        return (x[1] - xmin + pad, ymax + pad - x[2]) .* scale
-    elseif dims == 1
-        return (x - xmin + pad) * scale
-    elseif dims == 2
-        return (ymax + pad - x) * scale
-    else
-        throw(ArgumentError("dims should be (1,2), 1 or 2."))
-    end
-end
-
-function get_rescaler(atoms::AbstractVector{<:Tuple}, pad)
-    xmin = minimum(x -> x[1], atoms)
-    ymin = minimum(x -> x[2], atoms)
-    xmax = maximum(x -> x[1], atoms)
-    ymax = maximum(x -> x[2], atoms)
-    return Rescaler(promote(xmin, xmax, ymin, ymax, pad)...)
-end
-
 """
     img_atoms(atoms::AtomList;
         colors=[DEFAULT_LINE_COLOR[], ...],
-        blockade_radius=0,
         texts=["1", "2", ...],
         vectors = [],
-        format=SVG,
-        io=nothing,
+        format=:svg,
+        filename=nothing,
         kwargs...
         )
 
@@ -83,78 +74,38 @@ You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the ima
 If you want to write this image to the disk without displaying it in a frontend, please try
 
 ```julia
-julia> using Compose
-
-julia> open("test.png", "w") do f
-            img_atoms(generate_sites(SquareLattice(), 5, 5); io=f, format=Compose.PNG)
-       end
+julia> img_atoms(generate_sites(SquareLattice(), 5, 5); filename="test.png")
 ```
 
-The `format` keyword argument can also be `Compose.SVG` or `Compose.PDF`.
-Atoms within `blockade_radius` will be connected by bonds.
+The `format` keyword argument can be `:svg`, `:pdf` or `:png`.
+Atoms within `blockade_radius` will be connected by edges.
 
-# Other Keyword Arguments
-    # overall scaling
-    scale::Float64 = 1.0
-
-    # padding space
-    pad::Float64 = 1.5 
-
-    # axes
-    axes_text_color::String = DEFAULT_TEXT_COLOR[]
-    axes_text_fontsize::Float64 = 11.0
-    axes_num_of_xticks = 5
-    axes_num_of_yticks = 5
-    axes_x_offset::Float64 = 0.1
-    axes_y_offset::Float64 = 0.06
-    axes_unit::String = "μm"
-
-    # node
-    node_text_fontsize::Float64 = 5.0
-    node_text_color::String = DEFAULT_TEXT_COLOR[]
-    node_stroke_color = DEFAULT_LINE_COLOR[]
-    node_stroke_linewidth = 0.03
-    node_fill_color = DEFAULT_NODE_COLOR[]
-    # bond
-    bond_color::String = DEFAULT_LINE_COLOR[]
-    bond_linewidth::Float64 = 0.03
-    # blockade
-    blockade_style::String = "none"
-    blockade_stroke_color::String = DEFAULT_LINE_COLOR[]
-    blockade_fill_color::String = "transparent"
-    blockade_fill_opacity::Float64 = 0.5
-    blockade_stroke_linewidth = 0.03
-    # image size in cm
-    image_size::Float64 = 12
+$CONFIGHELP
 """
 function img_atoms(
     atoms::AtomList{2};
     colors = nothing,
-    blockade_radius = 0,
     texts = nothing,
     vectors = [],
-    format = SVG,
-    io = nothing,
+    format = :svg,
+    filename = nothing,
+    pad=1.0,
+    scale=1.0,
     kwargs...,
 )
     if length(atoms) == 0
-        dx, dy = 12cm, 12cm
-        img = Compose.compose(context())
+        LuxorGraphPlot._draw(f, 100, 100; format, filename)
     else
-        img, (dx, dy) = viz_atoms(
-            atoms;
-            colors = colors,
-            vectors = vectors,
-            blockade_radius = blockade_radius,
-            texts = texts,
-            config = LatticeDisplayConfig(; config_plotting(atoms)..., kwargs...),
-        )
-    end
-    if io === nothing
-        Compose.set_default_graphic_size(dx, dy)
-        return img
-    else
-        return format(io, dx, dy)(img)
+        canvas = LuxorGraphPlot.config_canvas(atoms, pad)
+        unit = 60 * scale
+        Dx, Dy = (canvas.xspan+2*pad)*unit, (canvas.yspan+2*pad)*unit
+        config = LatticeDisplayConfig(; pad, config_plotting(atoms, pad)..., kwargs...)
+        LuxorGraphPlot._draw(Dx, Dy; format, filename) do
+            _viz_atoms(map(loc->(loc[1]+canvas.offsetx, loc[2]+canvas.offsety), atoms), _edges(atoms, config.blockade_radius),
+                colors, vectors, texts, config)
+            _viz_axes(; canvas..., axes_num_of_xticks=config.axes_num_of_xticks, axes_num_of_yticks=config.axes_num_of_yticks,
+                axes_text_fontsize=config.axes_text_fontsize, axes_text_color=config.axes_text_color, axes_unit=config.axes_unit)
+        end
     end
 end
 img_atoms(atoms::AtomList{1}; kwargs...) = img_atoms(padydim(atoms); kwargs...)
@@ -170,64 +121,38 @@ function _edges(atoms, blockade_radius)
     return edges
 end
 
-function fit_image(rescaler::Rescaler, image_size, imgs...)
-    X = rescaler.xmax - rescaler.xmin + 2 * rescaler.pad
-    Y = rescaler.ymax - rescaler.ymin + 2 * rescaler.pad
-    img_rescale = image_size / max(X, Y) * cm
-    if Y < X
-        return Compose.compose(context(0, 0, 1.0, X / Y), imgs...), (X * img_rescale, Y * img_rescale)
-    else
-        return Compose.compose(context(0, 0, Y / X, 1.0), imgs...), (X * img_rescale, Y * img_rescale)
-    end
-end
-
-# Returns a 2-tuple of (image::Context, size)
-function viz_atoms(al::AtomList; colors, vectors, blockade_radius, texts, config)
-    atoms = padydim(al).atoms
-    rescaler = get_rescaler(atoms, config.pad)
-    img = _viz_atoms(
-        rescaler.(atoms),
-        _edges(atoms, blockade_radius),
-        colors,
-        [rescaler.(v) for v in vectors],
-        texts,
-        config,
-        blockade_radius,
-        getscale(rescaler),
-    )
-    img_axes = _viz_axes(rescaler, config)
-    return fit_image(rescaler, config.image_size, img, img_axes)
-end
-
 _LinRange(x, y, n) = n > 1 ? LinRange(x, y, n) : (x + y) / 2
-function _viz_axes(rescaler, config)
-    xs = _LinRange(rescaler.xmin, rescaler.xmax, config.axes_num_of_xticks)
-    ys = _LinRange(rescaler.ymin, rescaler.ymax, config.axes_num_of_yticks)
-    xlocs = [rescaler((x, rescaler.ymin) .- (0.0, config.axes_y_offset)) for x in xs]
-    ylocs = [rescaler((rescaler.xmin, y) .- (config.axes_x_offset, 0.0)) for y in ys]
-    return _axes!([xs..., ys...], [xlocs..., ylocs...], config, getscale(rescaler))
+function _viz_axes(; offsetx, xspan, offsety, yspan, axes_num_of_xticks, axes_num_of_yticks, axes_text_fontsize, axes_text_color, axes_unit)
+    xs = _LinRange(offsetx, offsetx+xspan, axes_num_of_xticks)
+    ys = _LinRange(offsety, offsety+yspan, axes_num_of_yticks)
+    xys = [xs..., ys...]
+    locs = [[(x, offsety) for x in xs]..., [(offsety, y) for y in ys]...]
+    for (x, loc) in zip(xys, locs)
+        LuxorGraphPlot.draw_text(LuxorGraphPlot.Point(loc), "$(round(x; digits=2))$(axes_unit)"; color=axes_text_color, fontsize=axes_text_fontsize)
+    end
 end
 
 Base.@kwdef struct LatticeDisplayConfig
     # line, node and text
     scale::Float64 = 1.0
-    pad::Float64 = 1.5
+    pad::Float64 = 1.0
 
     # axes
     axes_text_color::String = DEFAULT_LINE_COLOR[]  # NOTE: follow the line color!
     axes_text_fontsize::Float64 = 11.0
-    axes_num_of_xticks = 5
-    axes_num_of_yticks = 5
+    axes_num_of_xticks::Int = 5
+    axes_num_of_yticks::Int = 5
     axes_x_offset::Float64 = 0.1
     axes_y_offset::Float64 = 0.06
     axes_unit::String = "μm"
 
     # node
+    node_size::Float64 = 0.15
     node_text_fontsize::Float64 = 5.0
     node_text_color::String = DEFAULT_TEXT_COLOR[]
-    node_stroke_color = DEFAULT_LINE_COLOR[]
-    node_stroke_linewidth = 0.03
-    node_fill_color = DEFAULT_NODE_COLOR[]
+    node_stroke_color::String = DEFAULT_LINE_COLOR[]
+    node_stroke_linewidth::Float64 = 0.03
+    node_fill_color::String = DEFAULT_NODE_COLOR[]
 
     # bond
     bond_color::String = DEFAULT_LINE_COLOR[]
@@ -238,70 +163,36 @@ Base.@kwdef struct LatticeDisplayConfig
     blockade_stroke_color::String = DEFAULT_LINE_COLOR[]
     blockade_fill_color::String = "transparent"
     blockade_fill_opacity::Float64 = 0.5
-    blockade_stroke_linewidth = 0.03
+    blockade_stroke_linewidth::Float64 = 0.03
+    blockade_radius::Float64 = 0.0
 
-    # image size in cm
-    image_size::Float64 = 12
+    # arrow
+    arrow_linewidth::Float64=1.0
+    arrow_head_length::Float64=6.0
+    arrow_color::String="black"
 end
 
-function _viz_atoms(locs, edges, colors, vectors, texts, config, blockade_radius, rescale)
-    radi = (config.blockade_style == "half" ? blockade_radius / 2 : blockade_radius) * rescale
-    rescale = rescale * config.image_size * config.scale * 1.6
-    _node_style(fill_color) = compose(
-        context(),
-        Viznet.nodestyle(:default, r = 0.15cm * rescale),
-        Compose.stroke(config.node_stroke_color),
-        fill(fill_color),
-        linewidth(config.node_stroke_linewidth * cm * rescale),
-    )
-    node_styles = [_node_style(color) for color in resolve_colors(colors, locs, config)]
-    if texts !== nothing
-        @assert length(locs) == length(texts)
+function _viz_atoms(locs, edges, colors, vectors, texts, config)
+    # show the arrows
+    LuxorGraphPlot.Luxor.sethue(config.arrow_color)
+    LuxorGraphPlot.Luxor.setline(config.arrow_linewidth)
+    for v in vectors
+        Luxor.arrow(Point(v[1]), Point(v[2]), arrowheadlength=config.arrow_head_length)
     end
-    edge_style =
-        Viznet.bondstyle(:default, Compose.stroke(config.bond_color), linewidth(config.bond_linewidth * cm * rescale))
-    # can only use black due to a bug in Compose display (head is always black!).
-    vec_style = Viznet.bondstyle(
-        :default,
-        Compose.stroke("black"),
-        Compose.arrow(),
-        linewidth(config.bond_linewidth * cm * rescale),
-    )
-    blockade_radius_style = Viznet.nodestyle(
-        :circle,
-        Compose.stroke(config.blockade_stroke_color),
-        Compose.strokedash([0.5mm * rescale, 0.5mm * rescale]),
-        Compose.linewidth(config.blockade_stroke_linewidth * cm * rescale),
-        Compose.fill(config.blockade_fill_color),
-        Compose.fillopacity(config.blockade_fill_opacity);
-        r = radi,
-    )
-    text_style =
-        Viznet.textstyle(:default, fontsize(config.node_text_fontsize * pt * rescale), fill(config.node_text_color))
-    img0 = Viznet.canvas() do
-        for v in vectors
-            vec_style >> (v[1], v[2])
-        end
+
+    # show the graph
+    graphconfig = LuxorGraphPlot.GraphDisplayConfig(; vertex_stroke_color=config.node_stroke_color, vertex_line_width=config.node_stroke_linewidth,
+        vertex_size=config.node_size,
+        vertex_text_color=config.node_text_color, fontsize=config.node_text_fontsize,
+        edge_color=config.bond_color, edge_line_width=config.bond_linewidth)
+    LuxorGraphPlot._show_graph(locs, edges, colors, nothing, nothing, nothing, nothing, nothing, texts, graphconfig)
+
+    # show the blockade
+    if config.blockade_style != "none"
+        blockadeconfig = LuxorGraphPlot.GraphDisplayConfig(; vertex_stroke_color=config.blockade_stroke_color, vertex_line_width=config.blockade_stroke_linewidth,
+        vertex_color=blockade_fill_color, vertex_size=radi, line_style="dashed", fill_opacity=config.blockade_fill_opacity)
+        LuxorGraphPlot._show_graph(locs, Tuple{Int,Int}[], nothing, nothing, nothing, nothing, nothing, nothing, texts, blockadeconfig)
     end
-    img1 = Viznet.canvas() do
-        for (i, node) in enumerate(locs)
-            node_styles[i] >> node
-            if config.node_text_color !== "transparent"
-                text_style >> (node, texts === nothing ? "$i" : texts[i])
-            end
-        end
-        for (i, j) in edges
-            edge_style >> (locs[i], locs[j])
-        end
-    end
-    img2 = Viznet.canvas() do
-        if config.blockade_style != "none"
-            for (i, node) in enumerate(locs)
-                blockade_radius_style >> node
-            end
-        end
-    end
-    return Compose.compose(context(), img0, img1, img2)
 end
 
 struct ByDensity
@@ -346,20 +237,10 @@ function resolve_colors(colors::ByDensity, locs, config)
     end
 end
 
-function _axes!(xs, locs, config, rescale)
-    rescale = rescale * config.image_size * config.scale * 1.6
-    text_style = Viznet.textstyle(:default, fontsize((config.axes_text_fontsize) * pt), fill(config.axes_text_color))
-    Viznet.canvas() do
-        for (x, loc) in zip(xs, locs)
-            text_style >> (loc, "$(round(x; digits=2))$(config.axes_unit)")
-        end
-    end
-end
-
 """
     img_maskedgrid(maskedgrid::MaskedGrid;
-        format=SVG,
-        io=nothing,
+        format=:svg,
+        filename=nothing,
         colors=[DEFAULT_LINE_COLOR[], ...],
         texts=["1", "2", ...],
         vectors=[],
@@ -371,11 +252,13 @@ Draw a `maskedgrid` with colors specified by `colors` and texts specified by `te
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 
 See also the docstring of [`img_atoms`](@ref) for explanations of other keyword arguments.
+
+$CONFIGHELP
 """
 function img_maskedgrid(
     maskedgrid::MaskedGrid;
-    format = SVG,
-    io = nothing,
+    format = :svg,
+    filename = nothing,
     colors = nothing,
     texts = nothing,
     vectors = [],
@@ -390,13 +273,18 @@ function img_maskedgrid(
         vectors,
         texts,
         blockade_radius,
-        config = LatticeDisplayConfig(; config_plotting(atoms)..., kwargs...),
+        config = LatticeDisplayConfig(; config_plotting(atoms, pad)..., kwargs...),
     )
-    if io === nothing
-        Compose.set_default_graphic_size(dx, dy)
-        return img
+    if length(locations) == 0
+        _draw(f, 100, 100; format, filename)
     else
-        return format(io, dx, dy)(img)
+        config = LuxorGraphPlot.autoconfig(locations; pad, kwargs...)
+        Dx, Dy = (config.xspan+2*config.pad)*config.unit, (config.yspan+2*config.pad)*config.unit
+        _draw(Dx, Dy; format, filename) do
+            _show_graph(map(loc->(loc[1]+config.offsetx, loc[2]+config.offsety), locations), edges,
+            vertex_colors, vertex_stroke_colors, vertex_text_colors, vertex_sizes, vertex_shapes, edge_colors, texts, config)
+            f()
+        end
     end
 end
 
@@ -432,15 +320,15 @@ function _viz_grid(xs, ys, line_style, ymax)
     end
 end
 
-for (mime, format) in [MIME"image/png" => PNG, MIME"text/html" => SVG]
+for (mime, format) in [MIME"image/png" => :png, MIME"text/html" => :svg]
     @eval begin
-        function Base.show(io::IO, ::$mime, maskedgrid::MaskedGrid)
-            img_maskedgrid(maskedgrid; format = $format, io = io)
+        function Base.show(io::IO, m::$mime, maskedgrid::MaskedGrid)
+            Base.show(io, m, img_maskedgrid(maskedgrid; format = $(QuoteNode(format))))
             return nothing
         end
 
-        function Base.show(io::IO, ::$mime, list::AtomList)
-            img_atoms(list; format = $format, io = io)
+        function Base.show(io::IO, m::$mime, list::AtomList)
+            Base.show(io, m, img_atoms(list; format = $(QuoteNode(format))))
             return nothing
         end
     end

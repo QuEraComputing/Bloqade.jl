@@ -52,7 +52,7 @@ function render_all_examples()
 end
 
 function doc_build_script(pages, repo)
-    yao_pkgs = ["Yao", "YaoAPI", "YaoBase", "YaoBlocks", "YaoArrayRegister", "Unitful"]
+    yao_pkgs = ["Yao", "YaoAPI", "YaoBlocks", "YaoArrayRegister", "Unitful"]
     using_stmts = ["Documenter", "DocThemeIndigo"]
     non_cuda_pkgs = filter(!isequal("BloqadeCUDA"), readdir(root_dir("lib")))
     push!(non_cuda_pkgs, "Bloqade")

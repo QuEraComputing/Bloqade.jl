@@ -5,6 +5,8 @@ module BloqadeLattices
 using NearestNeighbors
 using StatsBase
 using LuxorGraphPlot
+using LuxorGraphPlot: Point
+using LuxorGraphPlot.Luxor: Colors
 
 export # types
     AbstractLattice,

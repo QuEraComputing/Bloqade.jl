@@ -1,8 +1,8 @@
 # # Simulation of lattice gauge theory with Rydberg atoms
 # ## Introduction
-# In previous examples, we have shown how to prepared $Z_2$ ordered ground state for the Rydberg system, and the quantum scar phenomenon, which is the oscillation between two ordered patterns of Rydberg densities. We note that these are achieved by tuning the detuning and Rabi frequency of the lasers that address all the atoms simulatenously. 
+# In previous examples, we have shown how to prepare $Z_2$ ordered ground state for the Rydberg system, and discussed the quantum scar phenomenon, which is the oscillation between two ordered patterns of Rydberg densities. We note that these are achieved by tuning the detuning and the Rabi frequency of the lasers that address all the atoms simulatenously. 
 
-# In this tutorial, we shall simulate the dynamics of latticee gauge theory (LGT) with a 1D Rydberg atom chain. It turns out that the $Z_2$ ground state of the Rydberg chain corresponds to the "string" state of the studied LGT, and the quantum scar is nothing but the string-inversion mechanism in the context of gauge theory. More interestingly, by locally addressing certain atoms, we can creat defects in the chain and simulate the propagation of particle-antiparticle pairs. This tutorial is inspired by the paper [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041). 
+# In this tutorial, we shall simulate the dynamics of lattice gauge theory (LGT) with a 1D Rydberg atom chain. In the context of gauge theory, it turns out that the $Z_2$ ground state and the quantum scar of the Rydberg chain correspond to the "string" state and the string-inversion mechanism of the studied LGT respectively. More interestingly, by locally addressing certain atoms, we can create defects in the chain and simulate the propagation of particle-antiparticle pairs. This tutorial is inspired by the paper: [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041). 
 
 
 # We first import the required packages 
@@ -16,21 +16,22 @@ using Plots
 plt = pyimport("matplotlib.pyplot");
 
 
-# # Mapping between the Rydberg system and the LGT
+# ## Mapping between the Rydberg system and the LGT
 
-# In this tutorial, we are interested in the so-called quantum link model (QLM) formulatino of the LGT. In this formalism, depending on the configurations of the even and odd sites, the bonds between them could be interpretted as a particle $q$, an antipartile $\bar{q}$ or a vacuum state. More specifically, the bond between an odd and an even sites corresponds to an antiparticle if both atoms are in the ground states, otherwise it is interpretted as a vacuum state. On the other hand, the bond between an even and an odd sites corresponds to a particle if both atoms are in the ground states, otherwise it is interpretted as a vacuum. Further, the Rydberg states at the odd (even) sites are interpretted as electric fields pointing to the left (right), whereas the ground states at the odd (even) sites are electric field pointing to the right (left). The mapping is summarized in the figure below (source: [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041).  
+# In this tutorial, we are interested in the so-called quantum link model (QLM) formulation of the LGT. In this formalism, depending on the configurations of the even and odd sites, the bonds between them could be interpretted as a particle $q$, an antiparticle $\bar{q}$ or a vacuum state. More specifically, the bond between an odd and an even sites corresponds to an antiparticle if both atoms are in the ground states, otherwise it is interpretted as a vacuum state. On the other hand, the bond between an even and an odd sites corresponds to a particle if both atoms are in the ground states, otherwise it is interpreted as a vacuum. Further, the Rydberg states at the odd (even) sites are interpretted as electric fields pointing to the left (right), whereas the ground states at the odd (even) sites are electric field pointing to the right (left). The electric fields correspond to the red and blue arrows in the following figure, which summarizes the mappings described above. (source: [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041)) For more details on the LGT and its mapping to the Rydberg system, the readers are encouraged to referred to the paper cited above.
 
 # ![mapping](../../../assets/LGT_mapping.png)
 
+# ## Preparing the initial state for the LGT dynamics
 
-# The LGT dynamics starts from the "anti-string" state with all electric fields pointing to the right. This is nothing but the $Z_2$ ordered state in the language of Rydberg system, and we have seen how to prepare it in previous tutorials. Here, we are interested in a 1D lattice with 21 atoms. The neighboring atoms are separated by $5.5μm$ such that they are blockaded throughout the dynamics.  
+# The LGT dynamics starts from the "anti-string" state with all electric fields pointing to the right. This is nothing but the $Z_2$ ordered state in the language of Rydberg system, and we have seen how to prepare it in previous tutorials. Here, we are interested in a 1D lattice with 21 atoms. The neighboring atoms are separated by $5.5μm$ such that they are blockaded throughout the dynamics (the typical value of the Rabi frequency is $10\pi$MHz throughout the dynamics, which corresponds to blockade radius $R_b\approx7.46μm$. See below).  
 
 a = 5.5;
 N = 21;
 atoms = generate_sites(ChainLattice(), N, scale=a);
 subspace = blockade_subspace(atoms, a); 
 
-# In order to prepare the anti-string state of the LGT, we use piecewise linear waveforms for both detuning and the Rabi frequency. The waveforms will last for $3.5μs$. 
+# In order to prepare the anti-string state of the LGT, we use piecewise linear waveforms for both the detuning and the Rabi frequency. The waveforms will last for $3.5μs$. 
 
 total_time = 3.5; 
 Ωmax = 2π * 5;
@@ -51,7 +52,7 @@ ax2.grid()
 fig1
 
 
-# For later purposes, we define the function `Get_Ryd_density` which simulates the dynamics for a given set of detuning and Rabi frequency $(Δ, Ω)$, and returns the final state and the Rydberg density. 
+# In order to simulate the gauge theory dynamics, we define the function `Get_Ryd_density` which takes in a given set of detuning and Rabi frequency $(Δ, Ω)$, and returns the final state and the Rydberg density. 
 
 function Get_Ryd_density(Δ, Ω; dt=1e-3)
     h = rydberg_h(atoms; Δ=Δ, Ω=Ω)
@@ -74,18 +75,20 @@ end;
 reg1, dens1 = Get_Ryd_density(Δ1, Ω1) ;
 fig2, ax = plt.subplots(figsize = (10, 4)) ;
 ax.bar(1:N, dens1[end]) ;
+ax.set_xlabel("site index")
+ax.set_ylabel("Average Rydberg densities")
 fig2 
 
 # Recall the mapping between the Rydberg chain and the LGT illustrated above, we see that the final state is an approximation of the anti-string state of the LGT, or a $Z_2$ ordered state of the Rydberg chain. It is not perfectly $Z_2$ ordered where the discrepancy is more promonient at the center compared to the edge of the chain. But as we will see later, the prepared state is sufficient for demonstrating the dynamics of the interested LGT. 
 
-# # Propagation of particle-antiparticle pairs
+# ## Propagation of particle-antiparticle pairs
 
-# Up to now, what we have done is simply reproducing the results from previous tutorials. Next, we will prepare defects in the anti-string state, which are links with right-pointing electric fields. The domain walls between anti-string and string states will host particles, whereas those between string and anti-string states will host anti-particles. These can be seen via the mapping between Rydberg system and LGT illustrated above. Interestingly, the particle and antiparticle always come in pairs, and their time evolution exhibits light cones, in which the string-antistring oscillation is out-of-phase compared to that outside of the light cone. This is illustrated below (source: [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041)).
+# In order to simulate the particle-antiparticle dynamics of the interested LGT, next, we prepare defects in the anti-string state, which are links with right-pointing electric fields. The domain walls between anti-string and string states will host particles, whereas those between string and anti-string states will host anti-particles. These can be seen via the mapping between Rydberg system and LGT illustrated above. Interestingly, the particle and antiparticle always come in pairs, and their time evolution exhibits light cones, in which the string-antistring oscillation is out-of-phase compared to that outside of the light cone. This is illustrated below (source: [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041)).
 
 
 # ![propagation](../../../assets/LGT_particle_antiparticle_propagation.png)
 
-# ## Site-dependent waveforms
+# ### Site-dependent waveforms
 
 # To realize the defects, we will apply a $\pi$-pulse to the target atoms for transitioning them from the Rydberg state to the ground state. 
 
@@ -136,9 +139,11 @@ fig3
 reg2, dens2 = Get_Ryd_density(Δ2, Ω2_single_defect)
 reg3, dens3 = Get_Ryd_density(Δ2, Ω2_two_defects)
 
-fig4, (ax1, ax2) = plt.subplots(nrows = 2, figsize = (10, 4))
+fig4, (ax1, ax2) = plt.subplots(nrows = 2, figsize = (10, 4), frameon=false)
 ax1.bar(1:N, dens2[end])
 ax2.bar(1:N, dens3[end])
+fig4.supxlabel("site index")
+fig4.supylabel("Average Rydberg densities", x=0.06)
 fig4
 
 
@@ -176,7 +181,7 @@ ax2.legend(["Rabi frequency for other sites"], loc="center left")
 
 fig5
 
-# ## Simulation particle-antiparticle pairs in LGT dynamics 
+# ### Simulation particle-antiparticle pairs in LGT dynamics 
 
 # With the waveforms defined, we can run the simulation to evolve the Rydberg chains with defects and collect the final Rydberg densities.
 densities_single_defect = Get_Ryd_density(Δ3, Ω3_single_defect)[2];

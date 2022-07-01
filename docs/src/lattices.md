@@ -41,7 +41,7 @@ chain = ChainLattice()
 BloqadeLattices.DEFAULT_BACKGROUND_COLOR[] = "#FFFFFF"
 
 # to show the lattice vectors (rescaled a bit to shrink the head).
-unitvectors(lattice::AbstractLattice{2}, scale=0.9) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
+unitvectors(lattice::AbstractLattice{2}) = [((0.0, 0.0), v) for v in lattice_vectors(lattice)]
 
 Bloqade.plot(generate_sites(chain, 10); vectors=[((0.0, 0.0), (0.9, 0.0))], bond_linewidth=0.015)
 ```

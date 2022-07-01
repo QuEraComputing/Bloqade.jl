@@ -1,9 +1,11 @@
 const DEFAULT_LINE_COLOR = Ref("#000000")
 const DEFAULT_TEXT_COLOR = Ref("#000000")
 const DEFAULT_NODE_COLOR = Ref("transparent")
+const DEFAULT_BACKGROUND_COLOR = Ref("transparent")
 
 const CONFIGHELP = """
 ### Extra Keyword Arguments
+* `background_color = DEFAULT_BACKGROUND_COLOR[]`
 * `scale::Float64 = 1` is a multiplicative factor to rescale the atom distance for better visualization
 * `xpad::Float64 = 2.5` is the padding space in x axis
 * `ypad::Float64 = 1.5` is the padding space in y axis
@@ -128,6 +130,7 @@ function img_atoms(
     Dx, Dy = ((xmax-xmin)+2*auto.xpad)*config.scale*config.unit, ((ymax-ymin)+2*auto.ypad)*config.scale*config.unit
     transform(loc) = config.scale .* (loc[1]-xmin+auto.xpad, loc[2]-ymin+auto.ypad)
     LuxorGraphPlot._draw(Dx, Dy; format, filename) do
+        LuxorGraphPlot.background(config.background_color)
         _viz_atoms(transform.(atoms), _edges(atoms, config.blockade_radius),
             colors, map(ab->transform.(ab), vectors), texts, config)
         _viz_axes(; transform, xmin, ymin, xmax, ymax,
@@ -169,6 +172,7 @@ end
 
 Base.@kwdef struct LatticeDisplayConfig
     # line, node and text
+    background_color = DEFAULT_BACKGROUND_COLOR[]
     scale::Float64 = 1.0
     xpad::Float64 = 2.5
     ypad::Float64 = 1.5
@@ -311,6 +315,7 @@ function img_maskedgrid(
     Dx, Dy = ((xmax-xmin)+2*auto.xpad)*config.scale*config.unit, ((ymax-ymin)+2*auto.ypad)*config.scale*config.unit
     transform(loc) = config.scale .* (loc[1]-xmin+auto.xpad, loc[2]-ymin+auto.ypad)
     LuxorGraphPlot._draw(Dx, Dy; format, filename) do
+        LuxorGraphPlot.background(config.background_color)
         # show the grid
         _viz_grid(maskedgrid.xs, maskedgrid.ys; transform, unit=config.unit, auto.xpad, auto.ypad, xmin, ymin,
             xmax, ymax,

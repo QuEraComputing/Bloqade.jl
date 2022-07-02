@@ -12,7 +12,6 @@ using PythonCall
 using StatsBase
 using Distributed
 using BitBasis
-using Plots
 plt = pyimport("matplotlib.pyplot");
 
 

@@ -52,9 +52,9 @@ ax2.grid()
 fig1
 
 
-# In order to simulate the gauge theory dynamics, we define the function `Get_Ryd_density` which takes in a given set of detuning and Rabi frequency $(Δ, Ω)$, and returns the final state and the Rydberg density. 
+# In order to simulate the gauge theory dynamics, we define the function `get_average_rydberg_densities` which takes in a given set of detuning and Rabi frequency $(Δ, Ω)$, and returns the final state and the Rydberg density. 
 
-function Get_Ryd_density(Δ, Ω; dt=1e-3)
+function get_average_rydberg_densities(Δ, Ω; dt=1e-3)
     h = rydberg_h(atoms; Δ=Δ, Ω=Ω)
     reg = zero_state(subspace)
 
@@ -67,12 +67,12 @@ function Get_Ryd_density(Δ, Ω; dt=1e-3)
         push!(densities, rydberg_density(reg)) 
     end
 
-    return reg, densities
+    return densities
 end;
 
 # We can confirm that the waveforms produce the desired anti-string state of the LGT, by simulating the dynamics governed by the waveforms, followed by plotting the density profile, as shown below
 
-reg1, dens1 = Get_Ryd_density(Δ1, Ω1) ;
+dens1 = get_average_rydberg_densities(Δ1, Ω1) ;
 fig2, ax = plt.subplots(figsize = (10, 4)) ;
 ax.bar(1:N, dens1[end]) ;
 ax.set_xlabel("site index")
@@ -136,8 +136,8 @@ fig3
 
 # We can confirm that the waveforms produce the desired domain walls for the LGT states, by simulating the dynamics governed by the waveforms, followed by plotting their density profiles. 
 
-reg2, dens2 = Get_Ryd_density(Δ2, Ω2_single_defect)
-reg3, dens3 = Get_Ryd_density(Δ2, Ω2_two_defects)
+dens2 = get_average_rydberg_densities(Δ2, Ω2_single_defect)
+dens3 = get_average_rydberg_densities(Δ2, Ω2_two_defects)
 
 fig4, (ax1, ax2) = plt.subplots(nrows = 2, figsize = (10, 4), frameon=false)
 ax1.bar(1:N, dens2[end])
@@ -184,8 +184,8 @@ fig5
 # ### Simulation particle-antiparticle pairs in LGT dynamics 
 
 # With the waveforms defined, we can run the simulation to evolve the Rydberg chains with defects and collect the final Rydberg densities.
-densities_single_defect = Get_Ryd_density(Δ3, Ω3_single_defect)[2];
-densities_two_defects = Get_Ryd_density(Δ3, Ω3_two_defects)[2];
+densities_single_defect = get_average_rydberg_densities(Δ3, Ω3_single_defect);
+densities_two_defects = get_average_rydberg_densities(Δ3, Ω3_two_defects);
 
 D_single_defect = hcat(densities_single_defect...);
 D_two_defects = hcat(densities_two_defects...);
@@ -201,12 +201,16 @@ clocks = clocks[ind0: end];
 
 # Then we plot the Rydberg density as a function of time, where the two panels correspond to the cases with single and two defects respectively
 yticks = range(clocks[1], stop=clocks[end], length=10);
-yticks = [string(ytick)[1:3] for ytick in yticks];
-
-h1 = heatmap(real(transpose(D_single_defect)), legend=:none, xlabel="sites", ylabel="time (μs)", yticks=(range(1, length(clocks), length=10), yticks));
-h2 = heatmap(real(transpose(D_two_defects)), legend=:none, xlabel="sites", yticks=(range(1, length(clocks), length=10), yticks));
-l = @layout[grid(1,2) a{0.05w}]
-p = plot([h1, h2]..., heatmap((0:0.01:1).*ones(101,1), legend=:none, xticks=:none, yticks=(1:10:101, string.(0:0.1:1))), layout=l)
+yticks = [string(ytick)[1:4] for ytick in yticks][end:-1:1];
+fig6, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 8), sharey=true)
+ax1.imshow(transpose(D_single_defect)[end:-1:1,:], aspect="auto", interpolation="none")
+ax1.set_xlabel("sites")
+ax1.set_ylabel("time (μs)")
+ax1.set_yticks(range(1, stop = length(clocks), length=10), yticks)
+im = ax2.imshow(transpose(D_two_defects)[end:-1:1,:], aspect="auto", interpolation="none")
+ax2.set_xlabel("sites")
+fig6.colorbar(im, ax=[ax1, ax2])
+fig6 
 
 # From the left panel, we can observe a light-cone-shaped region originating from the particle-antiparticle pair in the vacuum. At the right panel, we show the interference of two light cones, which produces an additional change of periodicity corresponding to the elastic scattering. When the particle or antiparticle reaches the boundary of the chain, it will be scattered back as observed. For more details, the interested readers are referred to the paper [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041). 
 

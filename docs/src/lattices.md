@@ -38,10 +38,10 @@ chain = ChainLattice()
 
 ```@example quick-start
 # to make the plot look good in both light and dark backgrounds.
-BloqadeLattices.DEFAULT_LINE_COLOR[] = "#0085FF"
+BloqadeLattices.DEFAULT_BACKGROUND_COLOR[] = "#FFFFFF"
 
 # to show the lattice vectors (rescaled a bit to shrink the head).
-unitvectors(lattice::AbstractLattice{2}, scale=0.9) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
+unitvectors(lattice::AbstractLattice{2}) = [((0.0, 0.0), v) for v in lattice_vectors(lattice)]
 
 Bloqade.plot(generate_sites(chain, 10); vectors=[((0.0, 0.0), (0.9, 0.0))], bond_linewidth=0.015)
 ```

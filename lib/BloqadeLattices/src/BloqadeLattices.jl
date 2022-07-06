@@ -2,11 +2,11 @@
 
 module BloqadeLattices
 
-using Cairo
 using NearestNeighbors
-using Viznet: Viznet
-using Viznet.Compose
 using StatsBase
+using LuxorGraphPlot
+using LuxorGraphPlot: Point
+using LuxorGraphPlot.Luxor: Colors
 
 export # types
     AbstractLattice,

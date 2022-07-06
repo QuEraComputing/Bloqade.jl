@@ -1,6 +1,6 @@
 using BloqadeLattices
-using Viznet.Compose
 using Test, Documenter
+using LuxorGraphPlot
 
 @testset "AtomList" begin
     al = AtomList([(0.1, 0.2), (0.3, 0.4), (0.1, 0.8)])
@@ -84,18 +84,23 @@ end
 end
 
 @testset "visualize" begin
+    BloqadeLattices.darktheme!()
     lt = generate_sites(KagomeLattice(), 5, 5, scale = 1.5)
     grd = make_grid(lt[2:end-1])
     unitvectors(lattice::AbstractLattice, scale::Real) = [((0.0, 0.0), v .* scale) for v in lattice_vectors(lattice)]
-    @test img_atoms(lt; vectors = unitvectors(KagomeLattice(), 1.5)) isa Compose.Context
+    @test img_atoms(lt; vectors = unitvectors(KagomeLattice(), 1.5)) isa LuxorGraphPlot.Drawing
     # different colors
-    @test img_atoms(lt; colors = nothing) isa Compose.Context
-    @test img_atoms(lt; colors = "red") isa Compose.Context
-    @test img_atoms(lt; colors = fill("blue", length(lt))) isa Compose.Context
-    @test img_atoms(lt; colors = ByDensity(randn(length(lt)); vmax = 10)) isa Compose.Context
-    @test img_maskedgrid(grd) isa Compose.Context
-    @test show(IOBuffer(), MIME"text/html"(), grd) === nothing
-    @test show(IOBuffer(), MIME"text/html"(), lt) === nothing
+    @test img_atoms(lt; colors = nothing) isa LuxorGraphPlot.Drawing
+    @test img_atoms(lt; node_fill_color = "red") isa LuxorGraphPlot.Drawing
+    @test img_atoms(lt; colors = fill("blue", length(lt))) isa LuxorGraphPlot.Drawing
+    @test img_atoms(lt; colors = ByDensity(randn(length(lt)); vmax = 10)) isa LuxorGraphPlot.Drawing
+    @test img_maskedgrid(grd) isa LuxorGraphPlot.Drawing
+    @test show(IOBuffer(), MIME"image/svg+xml"(), grd) === nothing
+    @test show(IOBuffer(), MIME"image/svg+xml"(), lt) === nothing
     @test show(IOBuffer(), MIME"image/png"(), grd) === nothing
     @test show(IOBuffer(), MIME"image/png"(), lt) === nothing
+
+    BloqadeLattices.lighttheme!()
+    @test img_atoms(lt; colors = nothing) isa LuxorGraphPlot.Drawing
+    @test show(IOBuffer(), MIME"image/svg+xml"(), lt) === nothing
 end

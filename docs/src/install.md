@@ -14,7 +14,7 @@ The Bloqade team has implemented 2 dedicated AMIs that can be acquired using AWS
 
 
 ### Bloqade AMI with Julia (base image)
-The Bloqade AMI containts:
+The Bloqade AMI contains:
 - The latest Julia installation using juliaup '1.5.1' which Julia '1.5.1'  for more information please refer to [Juliaup](https://github.com/JuliaLang/juliaup) 
 - The latest version of Bloqade 
 
@@ -29,7 +29,7 @@ In addition to the content of our base image, this image further contains
 
 ### Bloqade AMI
 To use the AMI 
-- (Locate tha AMIs at market place while selecting the image to start your EC2)"we will add the image ids and arns once all sealed with aws"
+- (Locate the AMIs at AWS Marketplace while selecting the image to start your EC2) "we will add the image ids and arns once all sealed with aws"
 - Bloqade.jl/
 - follow the [tutorials](https://queracomputing.github.io/Bloqade.jl/dev/) 
 
@@ -63,14 +63,16 @@ pkg> add BloqadeExpr#master
 
 ## Component Packages
 
+- BloqadeCUDA: CUDA.jl patches for CUDA-based accelerators.
 - BloqadeExpr: the interface and expression definition.
-- BloqadeLattices: the lattices definition.
 - BloqadeKrylov: the Krylov-based solver.
+- BloqadeLattices: the lattices definition.
+- BloqadeMIS: tools for maximum-independent set.
 - BloqadeODE: DiffEq wrapper.
+- BloqadeQMC: simulation based on quantum Monte Carlo.
+- BloqadeSchema: JSON schema support for Bloqade.
 - BloqadeWaveforms: waveform definitions.
 - YaoSubspaceArrayReg: the subspace array register for subspace simulation.
-- BloqadeCUDA: CUDA.jl patches for CUDA-based accelerators.
-- BloqadeMIS: tools for maximum-independent set.
 
 ## Developing Bloqade
 

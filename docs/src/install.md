@@ -7,19 +7,19 @@ to install the latest stable version of this package:
 pkg> add Bloqade
 ```
 ## Using Bloqade Optimized AMIs from AWS Marketplace
-Bloqade team has implemented 2 dedicated AMIs that can be aquired using AWS Marketplace
+The Bloqade team has implemented 2 dedicated AMIs that can be acquired using AWS Marketplace
 
 - Bloqade AMI with Julia
 - Bloqade Optimized Deep Learning AMI with CUDA and Julia
 
 
 ### Bloqade AMI with Julia (base image)
-Bloqade Ami Containts the following:
-- Latest Julia installation using juliaup '1.5.1' which Julia '1.5.1'  for more information please refer to [Juliaup](https://github.com/JuliaLang/juliaup) 
-- Latest version of Bloqade 
+The Bloqade AMI containts:
+- The latest Julia installation using juliaup '1.5.1' which Julia '1.5.1'  for more information please refer to [Juliaup](https://github.com/JuliaLang/juliaup) 
+- The latest version of Bloqade 
 
 ### Bloqade Optimized Deep Learning AMI with CUDA and Julia
-In addition of the content of our base image  this image contains the following
+In addition to the content of our base image, this image further contains
 - NVIDIA CUDA, cuDNN, NCCL, GPU Drivers, Intel MKL-DNN, Docker, NVIDIA-Docker and EFA support
 - Block devices
  /dev/sda1=snap-03d72fbeb983a4663:60:true:gp2
@@ -28,8 +28,8 @@ In addition of the content of our base image  this image contains the following
 
 
 ### Bloqade AMI
-To use the ami 
-- (Locate tha amis at market place while selecting the image to start your EC2)"we will add the image ids and arns once all sealed with aws"
+To use the AMI 
+- (Locate tha AMIs at market place while selecting the image to start your EC2)"we will add the image ids and arns once all sealed with aws"
 - Bloqade.jl/
 - follow the [tutorials](https://queracomputing.github.io/Bloqade.jl/dev/) 
 
@@ -42,7 +42,7 @@ results in a binary to accelerate its loading/compilation
 time. This is useful when you have lots of interactive
 programming needs with Bloqade.
 
-To build system image for your environment, please use
+To build a system image for your environment, please use
 the [PackageCompiler](https://julialang.github.io/PackageCompiler.jl/dev/)
 or use the Julia VSCode plugin's [build system image feature](https://www.julia-vscode.org/docs/stable/userguide/compilesysimage/)
 
@@ -61,7 +61,7 @@ Bloqade package, just add `#master` after the package name, e.g.:
 pkg> add BloqadeExpr#master
 ```
 
-## Conponent Packages
+## Component Packages
 
 - BloqadeExpr: the interface and expression definition.
 - BloqadeLattices: the lattices definition.
@@ -87,12 +87,11 @@ cd Bloqade
 .ci/run dev
 ```
 
-How this works? `.ci/run dev` command actually calls the `Pkg.develop`
+How do this work? The `.ci/run dev` command actually calls the `Pkg.develop`
 command from Julia's package manager. Because we want to use the local
-changes of the package,
-one will need to `dev` the corresponding package to make the changes
-happen in your current environment, e.g one will need to `dev` the
-`lib/BloqadeExpr` package to apply changes in `BloqadeExpr` module.
+changes of the package, one will need to `dev` the corresponding package to 
+make the changes happen in your current environment, e.g one will need to `dev` 
+the `lib/BloqadeExpr` package to apply changes in `BloqadeExpr` module.
 
 We also provide a convenient tool to setup this more automatically by
 looking up dependencies in `lib` in one's `Project.toml` file,

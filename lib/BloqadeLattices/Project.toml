@@ -1,6 +1,6 @@
 name = "BloqadeLattices"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
-version = "0.1.2"
+version = "0.1.3"
 
 [deps]
 LuxorGraphPlot = "1f49bdf2-22a7-4bc4-978b-948dc219fbbc"

@@ -6,6 +6,32 @@ to install the latest stable version of this package:
 ```julia
 pkg> add Bloqade
 ```
+## Using Bloqade Optimized AMIs from AWS Marketplace
+Bloqade team has implemented 2 dedicated AMIs that can be aquired using AWS Marketplace
+
+- Bloqade AMI with Julia
+- Bloqade Optimized Deep Learning AMI with CUDA and Julia
+
+
+### Bloqade AMI with Julia (base image)
+Bloqade Ami Containts the following:
+- Latest Julia installation using juliaup '1.5.1' which Julia '1.5.1'  for more information please refer to [Juliaup](https://github.com/JuliaLang/juliaup) 
+- Latest version of Bloqade 
+
+### Bloqade Optimized Deep Learning AMI with CUDA and Julia
+In addition of the content of our base image  this image contains the following
+- NVIDIA CUDA, cuDNN, NCCL, GPU Drivers, Intel MKL-DNN, Docker, NVIDIA-Docker and EFA support
+- Block devices
+ /dev/sda1=snap-03d72fbeb983a4663:60:true:gp2
+ /dev/sdb=ephemeral0
+ /dev/sdc=ephemeral1
+
+
+### Bloqade AMI
+To use the ami 
+- (Locate tha amis at market place while selecting the image to start your EC2)"we will add the image ids and arns once all sealed with aws"
+- Bloqade.jl/
+- follow the [tutorials](https://queracomputing.github.io/Bloqade.jl/dev/) 
 
 ## Build System Image to Accelerate Start-up Time
 

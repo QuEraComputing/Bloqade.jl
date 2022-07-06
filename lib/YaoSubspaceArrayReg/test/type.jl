@@ -1,6 +1,7 @@
 using Test
 using Adapt
 using Random
+using YaoArrayRegister: ArrayReg
 using YaoSubspaceArrayReg
 
 @testset "zero_state" begin
@@ -75,4 +76,11 @@ end
     @test (a / 0.5).state ≈ a.state / 0.5
     @test (a + b).state ≈ a.state + b.state
     @test (a - b).state ≈ a.state - b.state
+end
+
+@testset "ArrayReg(::SubspaceArrayReg)" begin
+    subspace_v = [0, 1, 4, 8]
+    space = Subspace(10, subspace_v)
+    r = rand_state(space)
+    @test ArrayReg(r).state[subspace_v.+1] ≈ r.state
 end

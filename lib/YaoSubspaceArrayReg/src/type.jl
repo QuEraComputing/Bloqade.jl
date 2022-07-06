@@ -26,6 +26,14 @@ SubspaceArrayReg(state::AbstractVector, subspace::Subspace) = SubspaceArrayReg{2
 
 Base.copy(reg::SubspaceArrayReg{D}) where D = SubspaceArrayReg{D}(copy(reg.state), copy(reg.subspace))
 
+function YaoArrayRegister.ArrayReg(reg::SubspaceArrayReg{D}) where D
+    fullspace_st = nqudits(reg)
+    st = similar(reg.state, 2^nqudits(reg))
+    fill!(st, zero(eltype(st)))
+    st[reg.subspace.subspace_v.+1] .= reg.state
+    return ArrayReg{D}(reshape(st, length(st), 1))
+end
+
 YaoAPI.nqudits(reg::SubspaceArrayReg) = reg.natoms
 YaoAPI.nactive(reg::SubspaceArrayReg) = reg.natoms
 YaoArrayRegister.state(reg::SubspaceArrayReg) = reg.state

@@ -9,15 +9,12 @@
 
 using Bloqade
 using PythonCall
-using StatsBase
-using Distributed
-using BitBasis
 plt = pyimport("matplotlib.pyplot");
 
 
 # ## Mapping between the Rydberg system and the LGT
 
-# In this tutorial, we are interested in the so-called quantum link model (QLM) formulation of the LGT. In this formalism, depending on the configurations of the even and odd sites, the bonds between them could be interpretted as a particle $q$, an antiparticle $\bar{q}$ or a vacuum state. More specifically, the bond between an odd and an even sites corresponds to an antiparticle if both atoms are in the ground states, otherwise it is interpretted as a vacuum state. On the other hand, the bond between an even and an odd sites corresponds to a particle if both atoms are in the ground states, otherwise it is interpreted as a vacuum. Further, the Rydberg states at the odd (even) sites are interpretted as electric fields pointing to the left (right), whereas the ground states at the odd (even) sites are electric field pointing to the right (left). The electric fields correspond to the red and blue arrows in the following figure, which summarizes the mappings described above (source: [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041)).  For more details on the LGT and its mapping to the Rydberg system, the readers are encouraged to referred to the paper cited above.
+# In this tutorial, we are interested in the so-called quantum link model (QLM) formulation of the LGT. In this formalism, depending on the configurations of the even and odd sites, the bonds between them could be interpretted as a particle $q$, an antiparticle $\bar{q}$ or a vacuum state. More specifically, the bond between an odd and an even sites corresponds to an antiparticle if both atoms are in the ground states, otherwise it is interpretted as a vacuum state. On the other hand, the bond between an even and an odd sites corresponds to a particle if both atoms are in the ground states, otherwise it is interpreted as a vacuum. Further, the Rydberg states at the odd (even) sites are interpretted as electric fields pointing to the left (right), whereas the ground states at the odd (even) sites are electric field pointing to the right (left). The electric fields correspond to the red and blue arrows in the following figure, which summarizes the mappings described above (source: [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041)). For more details on the LGT and its mapping to the Rydberg system, the readers are encouraged to read the paper cited above.
 
 # ![mapping](../../../assets/LGT_mapping.png)
 
@@ -57,7 +54,7 @@ function get_average_rydberg_densities(Δ, Ω; dt=1e-3)
     h = rydberg_h(atoms; Δ=Δ, Ω=Ω)
     reg = zero_state(subspace)
 
-    duration = Δ.duration
+    duration = Ω.duration
     prob = SchrodingerProblem(reg, duration, h, progress=true);
     integrator = init(prob, Vern8());
     densities = []
@@ -89,54 +86,54 @@ fig2
 
 # ### Site-dependent waveforms
 
-# To realize the defects, we will apply a $\pi$-pulse to the target atoms for transitioning them from the Rydberg state to the ground state. 
+# To realize the defects, we turn off the detuning for the target atoms while maintaining the same Rabi frequency for all the atoms. This effectively applies a $\pi$-pulse to the target atoms for transitioning them from the Rydberg state to the ground state. 
 
-Ωq = Ωmax; 
-tq = pi/Ωq; 
+Δq = 0.0; 
+tq = π/Ωmax; 
 
-# The waveform for the Rabi frequency for creating one and two defects are defined as following
+# The waveforms of the detunings for creating one and two defects are defined as following
 
-Ω2_single_defect = map(1:length(atoms)) do idx
+Δ2_single_defect = map(1:length(atoms)) do idx
     if idx == floor(Int, N/2)+1
-        append(Ω1, constant(duration=tq, value=Ωq))
+        append(Δ1, constant(duration=tq, value=Δq))
     else
-        append(Ω1, constant(duration=tq, value=0))
+        append(Δ1, constant(duration=tq, value=Δmax))
     end
 end ; 
 
-Ω2_two_defects = map(1:length(atoms)) do idx 
+Δ2_two_defects = map(1:length(atoms)) do idx
     if idx == floor(Int, N/3) || idx == floor(Int, N-N/3)+1
-        append(Ω1, constant(duration=tq, value=Ωq))
+        append(Δ1, constant(duration=tq, value=Δq))
     else
-        append(Ω1, constant(duration=tq, value=0))
+        append(Δ1, constant(duration=tq, value=Δmax))
     end
 end ; 
 
-# We append to a constant waveform with zero amplitude to the detuning  such that it has the same duration as the Rabi frequencies.
+# We append to a constant waveform with the same amplitude to the Rabi frequency such that it has the same duration as the detunings.
 
-Δ2 = append(Δ1, constant(duration=tq, value=0)); 
+Ω2 = append(Ω1, constant(duration=tq, value=Ωmax)); 
 
-# As an example, for the case with a single defect, we show the Rabi frequency for the central site, which is the defect, and other sites separately below. 
+# As an example, for the case with a single defect, we show the detuning for the central site, which is the defect, and those for other sites separately below. 
 
 fig3, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
 for idx in 1 : length(atoms)
     if idx == floor(Int, N/2)+1
-        Bloqade.plot!(ax1, Ω2_single_defect[idx])
+        Bloqade.plot!(ax1, Δ2_single_defect[idx])
     else
-        Bloqade.plot!(ax2, Ω2_single_defect[idx])
+        Bloqade.plot!(ax2, Δ2_single_defect[idx])
     end
 end
 ax1.grid()
 ax2.grid()
-ax1.set_title("Rabi frequency for the central site")
-ax2.set_title("Rabi frequency for other sites")
+ax1.set_title("Detuning for the central site")
+ax2.set_title("Detunings for other sites")
 
 fig3
 
 # We can confirm that the waveforms produce the desired domain walls for the LGT states, by simulating the dynamics governed by the waveforms, followed by plotting their density profiles. 
 
-dens2 = get_average_rydberg_densities(Δ2, Ω2_single_defect)
-dens3 = get_average_rydberg_densities(Δ2, Ω2_two_defects)
+dens2 = get_average_rydberg_densities(Δ2_single_defect, Ω2)
+dens3 = get_average_rydberg_densities(Δ2_two_defects, Ω2)
 
 fig4, (ax1, ax2) = plt.subplots(nrows = 2, figsize = (10, 4), frameon=false)
 ax1.bar(1:N, dens2[end])
@@ -146,45 +143,45 @@ fig4.supylabel("Average Rydberg densities", x=0.06)
 fig4
 
 
-# Again, we see that the Rydberg density at the defects are not exactly zero, but the prepared states, as we shall below, serve as good initial states to study the propagation of particle-antiparticle pairs in LGT. 
+# Again, we see that the Rydberg density at the defects are not exactly zero, but the prepared states, as we shall see below, serve as good initial states to study the propagation of particle-antiparticle pairs in LGT. 
 
 # We define the very last piece in the Rabi frequency and detuning that govern the time evolution of the Rydberg chain with defects. 
-Ωq2 = Ωmax ; 
-tq2 = 40/Ωq2 ; 
 
-Ω3_single_defect = map(1:length(atoms)) do idx
-    append(Ω2_single_defect[idx], constant(duration=tq2, value=Ωq2))
+Δq2 = -π ;
+tq2 = 40/Ωmax ; 
+
+Δ3_single_defect = map(1:length(atoms)) do idx
+    append(Δ2_single_defect[idx], constant(duration=tq2, value=Δq2))
 end       
-Ω3_two_defects = map(1:length(atoms)) do idx
-    append(Ω2_two_defects[idx], constant(duration=tq2, value=Ωq2))
+Δ3_two_defects = map(1:length(atoms)) do idx
+    append(Δ2_two_defects[idx], constant(duration=tq2, value=Δq2))
 end       
 
-Δ3 = append(Δ2, constant(duration=tq2, value=-π));
+Ω3 = append(Ω2, constant(duration=tq2, value=Ωmax));
 
-
-# Again, as an example, for the case with a single defect, we show the Rabi frequency for the central site, which is the defect, and other sites separately below. 
+# Again, as an example, for the case with a single defect, we show the detuning for the central site, which is the defect, and those for other sites separately below. 
 
 fig5, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
 for idx in 1 : length(atoms)
     if idx == floor(Int, N/2)+1
-        Bloqade.plot!(ax1, Ω3_single_defect[idx])
+        Bloqade.plot!(ax1, Δ3_single_defect[idx])
     else
-        Bloqade.plot!(ax2, Ω3_single_defect[idx])
+        Bloqade.plot!(ax2, Δ3_single_defect[idx])
     end
 end
-Bloqade.plot!(ax1, Δ3)
+Bloqade.plot!(ax1, Ω3)
 ax1.grid()
 ax2.grid()
-ax1.legend(["Rabi frequency for the central site", "Detuning for all sites"])
-ax2.legend(["Rabi frequency for other sites"], loc="center left")
+ax1.legend(["Detuning for the central site", "Rabi frequency for all sites"])
+ax2.legend(["Detunings for other sites"], loc="center left")
 
 fig5
 
 # ### Simulation particle-antiparticle pairs in LGT dynamics 
 
 # With the waveforms defined, we can run the simulation to evolve the Rydberg chains with defects and collect the final Rydberg densities.
-densities_single_defect = get_average_rydberg_densities(Δ3, Ω3_single_defect);
-densities_two_defects = get_average_rydberg_densities(Δ3, Ω3_two_defects);
+densities_single_defect = get_average_rydberg_densities(Δ3_single_defect, Ω3);
+densities_two_defects = get_average_rydberg_densities(Δ3_two_defects, Ω3);
 
 D_single_defect = hcat(densities_single_defect...);
 D_two_defects = hcat(densities_two_defects...);
@@ -195,7 +192,7 @@ ind0 = 3550;
 D_single_defect = D_single_defect[:, ind0:end];
 D_two_defects = D_two_defects[:, ind0:end];
 
-clocks = 0:1e-3:Δ3.duration;
+clocks = 0:1e-3:Ω3.duration;
 clocks = clocks[ind0: end];
 
 # Then we plot the Rydberg density as a function of time, where the two panels correspond to the cases with single and two defects respectively

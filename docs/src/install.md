@@ -10,12 +10,12 @@ pkg> add Bloqade
 The Bloqade team has implemented 2 dedicated AMIs that can be acquired using AWS Marketplace
 
 - Bloqade AMI with Julia
-- Bloqade Optimized Deep Learning AMI with CUDA and Julia
+- Bloqade Optimized Deep Learning AMI with CUDA
 
 
 ### Bloqade AMI with Julia (base image)
 The Bloqade AMI contains:
-- The latest Julia installation using juliaup '1.5.1' which Julia '1.5.1'  for more information please refer to [Juliaup](https://github.com/JuliaLang/juliaup) 
+- The latest Julia installation using `juliaup add release` which setup the latest Julia release. For more information please refer to [Juliaup](https://github.com/JuliaLang/juliaup) 
 - The latest version of Bloqade 
 
 ### Bloqade Optimized Deep Learning AMI with CUDA and Julia
@@ -27,7 +27,7 @@ In addition to the content of our base image, this image further contains
  /dev/sdc=ephemeral1
 
 
-### Bloqade AMI
+### Bloqade AMI(coming soon on AWS Marketplace!)
 To use the AMI 
 - (Locate the AMIs at AWS Marketplace while selecting the image to start your EC2) "we will add the image ids and arns once all sealed with aws"
 - Bloqade.jl/
@@ -89,7 +89,7 @@ cd Bloqade
 .ci/run dev
 ```
 
-How do this work? The `.ci/run dev` command actually calls the `Pkg.develop`
+How does this work? The `.ci/run dev` command actually calls the `Pkg.develop`
 command from Julia's package manager. Because we want to use the local
 changes of the package, one will need to `dev` the corresponding package to 
 make the changes happen in your current environment, e.g one will need to `dev` 

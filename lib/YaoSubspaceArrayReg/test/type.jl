@@ -36,7 +36,7 @@ using YaoSubspaceArrayReg
     @test isnormalized(r)
 
     @test set_zero_state!(rand_state(5)) ≈ zero_state(5)
-    space = Subspace(5, sort(randperm(1 << 5 - 1)[1:6]))
+    space = Subspace(5, sort(randperm(1 << 5)[1:6] .- 1))
     @test_throws DimensionMismatch SubspaceArrayReg(rand(5), space)
 end
 

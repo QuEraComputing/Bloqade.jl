@@ -31,6 +31,8 @@ struct Subspace{T, S<:AbstractVector{T}} <: AbstractSpace
 
     function Subspace(nqubits::Int, map::Dict{T,T}, subspace_v) where T<:Integer
         # NOTE: the indices in `subspace_v` is in range 0:1<<nqubits-1
+        @show maximum(subspace_v)
+        @show (one(T) << nqubits-1)
         maximum(subspace_v) ≤ (one(T) << nqubits-1) || throw(ArgumentError("subspace index is too large"))
         return new{T,typeof(subspace_v)}(nqubits, map, subspace_v)
     end

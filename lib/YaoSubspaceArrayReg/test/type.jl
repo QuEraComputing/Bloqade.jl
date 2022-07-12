@@ -11,7 +11,7 @@ using YaoSubspaceArrayReg
     raw_st[1] = 1
     @show subspace_v
     @show maximum(subspace_v)
-    @show one(T) << nqubits-1
+    @show 1 << nqubits-1
     r = zero_state(Subspace(10, subspace_v))
     @test state(r) ≈ raw_st
     @test YaoSubspaceArrayReg.basis(r) == YaoSubspaceArrayReg.BitStr{10}.(subspace_v)

@@ -1,8 +1,9 @@
 using Test
 using Adapt
 using Random
-using YaoArrayRegister: ArrayReg
+using YaoArrayRegister: ArrayReg, probs
 using YaoSubspaceArrayReg
+
 
 @testset "zero_state" begin
     subspace_v = [0, 1, 4, 8]
@@ -83,4 +84,10 @@ end
     space = Subspace(10, subspace_v)
     r = rand_state(space)
     @test ArrayReg(r).state[subspace_v.+1] ≈ r.state
+end
+
+@testset "probs(::SubspaceArrayReg)" begin
+    subspace_v = [0, 1, 4, 8]
+    space = Subspace(10, subspace_v)
+    @test sum(probs(rand_state(space))) ≈ 1.0
 end

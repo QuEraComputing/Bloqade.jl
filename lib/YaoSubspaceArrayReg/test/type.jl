@@ -1,8 +1,9 @@
 using Test
 using Adapt
 using Random
-using YaoArrayRegister: ArrayReg
+using YaoArrayRegister: ArrayReg, probs
 using YaoSubspaceArrayReg
+
 
 @testset "zero_state" begin
     subspace_v = [0, 1, 4, 8]
@@ -35,7 +36,7 @@ using YaoSubspaceArrayReg
     @test isnormalized(r)
 
     @test set_zero_state!(rand_state(5)) ≈ zero_state(5)
-    space = Subspace(5, sort(randperm(1 << 5)[1:6]))
+    space = Subspace(5, sort(randperm(1 << 5)[1:6] .- 1))
     @test_throws DimensionMismatch SubspaceArrayReg(rand(5), space)
 end
 
@@ -83,4 +84,10 @@ end
     space = Subspace(10, subspace_v)
     r = rand_state(space)
     @test ArrayReg(r).state[subspace_v.+1] ≈ r.state
+end
+
+@testset "probs(::SubspaceArrayReg)" begin
+    subspace_v = [0, 1, 4, 8]
+    space = Subspace(10, subspace_v)
+    @test sum(probs(rand_state(space))) ≈ 1.0
 end

@@ -103,6 +103,10 @@ function Base.isapprox(x::SubspaceArrayReg, y::SubspaceArrayReg; kwargs...)
     return nlevel(x) == nlevel(y) && x.natoms == x.natoms && isapprox(x.state, y.state; kwargs...) && (x.subspace == y.subspace)
 end
 
+function YaoArrayRegister.probs(r::SubspaceArrayReg)
+    return abs2.(r.state)
+end
+
 """
     set_zero_state!(register)
 

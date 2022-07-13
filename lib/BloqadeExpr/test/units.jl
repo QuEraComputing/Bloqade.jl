@@ -16,21 +16,11 @@ using BloqadeExpr:default_unit
     @test h.C ≈ 0.1092
 end
 
-#test for a value::Quantity
-value = 5
-value_m = 5m
-@which default_unit(μm, value_m)
-@test default_unit(μm, value_m) == value*10^6
+unitless_values = [5, 0:0.1:1, [1,2,3]]
+unit_values = [5m, 0cm:0.1cm:1cm, [1mm,2mm,3mm]]
+conversion_exponent = [6, 4, 3]
 
-#test for a range::AbstractRange
-range = 0:0.1:1
-range_cm = 0cm:0.1cm:1cm
-@test default_unit(µm, range_cm) == range*10^4
-
-#test for a vector::AbstractArray{S} where S<:Quantity
-vector = [1,2,3]
-vector_mm = [1mm,2mm,3mm]
-@test default_unit(μm, vector_mm) == vector*10^3 
-
-
-
+#test for a value::Quantity, range::AbstractRange and vector::AbstractArray{S} where S<:Quantity
+@testset "basic unit conversion tests" for i in 1:3
+    @test default_unit(μm, unit_values[i]) == unitless_values[i]*10^conversion_exponent[i]
+end

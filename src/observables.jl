@@ -62,7 +62,7 @@ function get_average_rydberg_densities(atoms, reg; C = 2π * 862690, Ω = nothin
 
     # Get the duration for the evolution
     if isnothing(Ω) && isnothing(ϕ) && isnothing(Δ)
-        error("At least one of Ω, ϕ or Δ needs to be specified for determining the duration of the evolution.")
+        error("At least one of Ω, ϕ or Δ is needed for determining the duration of the evolution.")
     end
 
     allwaveforms = [Ω, ϕ, Δ]
@@ -71,7 +71,7 @@ function get_average_rydberg_densities(atoms, reg; C = 2π * 862690, Ω = nothin
     duration = allwaveforms[1].duration
     for i = 2 : length(allwaveforms)
         if allwaveforms[i].duration != duration
-            error("The durations of waveforms are not consisteng.")
+            error("The durations of waveforms are not consistent.")
         end
     end
 

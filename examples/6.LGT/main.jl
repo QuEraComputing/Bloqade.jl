@@ -14,13 +14,32 @@ plt = pyimport("matplotlib.pyplot");
 
 # ## Mapping between the Rydberg system and the LGT
 
-# In this tutorial, we are interested in the so-called quantum link model (QLM) formulation of the LGT. In this formalism, depending on the configurations of the even and odd sites, the bonds between them could be interpretted as a particle $q$, an antiparticle $\bar{q}$ or a vacuum state. More specifically, the bond between an odd and an even sites corresponds to an antiparticle if both atoms are in the ground states, otherwise it is interpretted as a vacuum state. On the other hand, the bond between an even and an odd sites corresponds to a particle if both atoms are in the ground states, otherwise it is interpreted as a vacuum. Further, the Rydberg states at the odd (even) sites are interpretted as electric fields pointing to the left (right), whereas the ground states at the odd (even) sites are electric field pointing to the right (left). The electric fields correspond to the red and blue arrows in the following figure, which summarizes the mappings described above (source: [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041)). For more details on the LGT and its mapping to the Rydberg system, the readers are encouraged to read the paper cited above.
+# In this tutorial, we are interested in the so-called quantum link model (QLM) formulation
+# of the LGT. In this formalism, depending on the configurations of the even and odd sites,
+# the bonds between them could be interpretted as a particle $q$, an antiparticle $\bar{q}$
+# or a vacuum state. More specifically, the bond between an odd and an even sites corresponds
+# to an antiparticle if both atoms are in the ground states, otherwise it is interpretted as
+# a vacuum state. On the other hand, the bond between an even and an odd sites corresponds
+# to a particle if both atoms are in the ground states, otherwise it is interpreted as a vacuum.
+# Further, the Rydberg states at the odd (even) sites are interpretted as electric fields
+# pointing to the left (right), whereas the ground states at the odd (even) sites are electric
+# field pointing to the right (left). The electric fields correspond to the red and blue arrows
+# in the following figure, which summarizes the mappings described above
+# (source: [Federica M. Surace, et al.](https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041)).
+# For more details on the LGT and its mapping to the Rydberg system, the readers are encouraged to
+# read the paper cited above.
 
 # ![mapping](../../../assets/LGT_mapping.png)
 
 # ## Preparing the initial state for the LGT dynamics
 
-# The LGT dynamics starts from the "anti-string" state with all electric fields pointing to the right. This is nothing but the $Z_2$ ordered state in the language of Rydberg system, and we have seen how to prepare it in previous tutorials. Here, we are interested in a 1D lattice with 21 atoms. The neighboring atoms are separated by $5.5μm$ such that they are blockaded throughout the dynamics (the typical value of the Rabi frequency is $10\pi$ MHz throughout the dynamics, which corresponds to blockade radius $R_b\approx7.46μm$. See below).  
+# The LGT dynamics starts from the "anti-string" state with all electric fields pointing
+# to the right. This is nothing but the $Z_2$ ordered state in the language of Rydberg
+# system, and we have seen how to prepare it in previous tutorials. Here, we are interested
+# in a 1D lattice with 21 atoms. The neighboring atoms are separated by $5.5μm$ such that
+# they are blockaded throughout the dynamics (the typical value of the Rabi frequency is
+# $10\pi$ MHz throughout the dynamics, which corresponds to blockade radius $R_b\approx7.46μm$.
+# See below).  
 
 a = 5.5;
 N = 21;
@@ -48,7 +67,9 @@ ax2.grid()
 fig1
 
 
-# In order to simulate the gauge theory dynamics, we define the function `get_average_rydberg_densities` which takes in a given set of detuning and Rabi frequency $(Δ, Ω)$, and returns the final state and the Rydberg density. 
+# In order to simulate the gauge theory dynamics, we define the function
+# `get_average_rydberg_densities` which takes in a given set of detuning
+# and Rabi frequency $(Δ, Ω)$, and returns the final state and the Rydberg density. 
 
 function get_average_rydberg_densities(Δ, Ω; dt=1e-3)
     h = rydberg_h(atoms; Δ=Δ, Ω=Ω)

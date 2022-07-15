@@ -6,28 +6,52 @@ to install the latest stable version of this package:
 ```julia
 pkg> add Bloqade
 ```
-## Using Bloqade Optimized AMIs from AWS Marketplace
+
+
+## Try the Latest Version of Bloqade
+
+Some users may want to try the latest version of Bloqade
+for bug fixes, new features, etc. One can use `git` to clone the
+repo to try the latest version of the entire package. This
+requires one to setup the local project environment via `dev`.
+Please refer to the page [Contributing to Bloqade](@ref) for more information.
+
+If you only want to try the latest version of a specific
+Bloqade package, just add `#master` after the package name, e.g.:
+
+```julia
+pkg> add BloqadeExpr#master
+```
+
+## Using Bloqade with AWS EC2 services
+
+### Create an EC2 instance on AWS
+
+Check the [AWS EC2 tutorial](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html)
+
+### Using Bloqade Optimized AMIs from AWS Marketplace
 The Bloqade team has implemented 2 dedicated AMIs that can be acquired using AWS Marketplace
 
 - Bloqade AMI with Julia
 - Bloqade Optimized Deep Learning AMI with CUDA
 
-
-### Bloqade AMI with Julia (base image)
+#### Bloqade AMI with Julia (base image)
 The Bloqade AMI contains:
 - The latest Julia installation using `juliaup add release` which setup the latest Julia release. For more information please refer to [Juliaup](https://github.com/JuliaLang/juliaup) 
 - The latest version of Bloqade 
 
-### Bloqade Optimized Deep Learning AMI with CUDA and Julia
+#### Bloqade Optimized Deep Learning AMI with CUDA and Julia
 In addition to the content of our base image, this image further contains
 - NVIDIA CUDA, cuDNN, NCCL, GPU Drivers, Intel MKL-DNN, Docker, NVIDIA-Docker and EFA support
 - Block devices
- /dev/sda1=snap-03d72fbeb983a4663:60:true:gp2
- /dev/sdb=ephemeral0
- /dev/sdc=ephemeral1
 
+```
+/dev/sda1=snap-03d72fbeb983a4663:60:true:gp2
+/dev/sdb=ephemeral0
+/dev/sdc=ephemeral1
+```
 
-### Bloqade AMI(coming soon on AWS Marketplace!)
+#### Bloqade AMI(coming soon on AWS Marketplace!)
 To use the AMI 
 - (Locate the AMIs at AWS Marketplace while selecting the image to start your EC2) "we will add the image ids and arns once all sealed with aws"
 - Bloqade.jl/
@@ -46,20 +70,6 @@ To build a system image for your environment, please use
 the [PackageCompiler](https://julialang.github.io/PackageCompiler.jl/dev/)
 or use the Julia VSCode plugin's [build system image feature](https://www.julia-vscode.org/docs/stable/userguide/compilesysimage/)
 
-## Try the Latest Version of Bloqade
-
-Some users may want to try the latest version of Bloqade
-for bug fixes, new features, etc. One can use `git` to clone the
-repo to try the latest version of the entire package. This
-requires one to setup the local project environment via `dev`.
-Please refer to the page [Contributing to Bloqade](@ref) for more information.
-
-If you only want to try the latest version of a specific
-Bloqade package, just add `#master` after the package name, e.g.:
-
-```julia
-pkg> add BloqadeExpr#master
-```
 
 ## Component Packages
 

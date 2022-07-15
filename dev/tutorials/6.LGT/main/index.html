@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Simulation of lattice gauge theory with Rydberg atoms · Bloqade.jl</title><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://QuEraComputing.github.io/Bloqade.jl/tutorials/6.LGT/main/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/indigo.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../../"><img class="docs-light-only" src="../../../assets/logo.svg" alt="Bloqade.jl logo"/><img class="docs-dark-only" src="../../../assets/logo-dark.svg" alt="Bloqade.jl logo"/></a><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><a class="tocitem" href="../../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../../registers/">Registers and Observables</a></li><li><a class="tocitem" href="../../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../../../units/">Working with Units</a></li><li><a class="tocitem" href="../../../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../../../cuda/">GPU Acceleration</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../1.blockade/main/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../2.adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../../3.quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../../4.MIS/main/">The Maximum Independent Set Problem</a></li><li><a class="tocitem" href="../../5.MWIS/main/">Maximum Weight Independent Set</a></li><li class="is-active"><a class="tocitem" href>Simulation of lattice gauge theory with Rydberg atoms</a><ul class="internal"><li><a class="tocitem" href="#Introduction"><span>Introduction</span></a></li><li><a class="tocitem" href="#Mapping-between-the-Rydberg-system-and-the-LGT"><span>Mapping between the Rydberg system and the LGT</span></a></li><li><a class="tocitem" href="#Preparing-the-initial-state-for-the-LGT-dynamics"><span>Preparing the initial state for the LGT dynamics</span></a></li><li><a class="tocitem" href="#Propagation-of-particle-antiparticle-pairs"><span>Propagation of particle-antiparticle pairs</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../../../contrib/">Contributing to Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>Simulation of lattice gauge theory with Rydberg atoms</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Simulation of lattice gauge theory with Rydberg atoms</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/QuEraComputing/Bloqade.jl/blob/master/examples/6.LGT/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Simulation-of-lattice-gauge-theory-with-Rydberg-atoms"><a class="docs-heading-anchor" href="#Simulation-of-lattice-gauge-theory-with-Rydberg-atoms">Simulation of lattice gauge theory with Rydberg atoms</a><a id="Simulation-of-lattice-gauge-theory-with-Rydberg-atoms-1"></a><a class="docs-heading-anchor-permalink" href="#Simulation-of-lattice-gauge-theory-with-Rydberg-atoms" title="Permalink"></a></h1><h2 id="Introduction"><a class="docs-heading-anchor" href="#Introduction">Introduction</a><a id="Introduction-1"></a><a class="docs-heading-anchor-permalink" href="#Introduction" title="Permalink"></a></h2><p>In previous examples, we have shown how to prepare <span>$Z_2$</span> ordered ground state for the Rydberg system, and discussed the quantum scar phenomenon, which is the oscillation between two ordered patterns of Rydberg densities. We note that these are achieved by tuning the detuning and the Rabi frequency of the lasers that address all the atoms simulatenously.</p><p>In this tutorial, we shall simulate the dynamics of lattice gauge theory (LGT) with a 1D Rydberg atom chain. In the context of gauge theory, it turns out that the <span>$Z_2$</span> ground state and the quantum scar of the Rydberg chain correspond to the &quot;string&quot; state and the string-inversion mechanism of the studied LGT respectively. More interestingly, by locally addressing certain atoms, we can create defects in the chain and simulate the propagation of particle-antiparticle pairs. This tutorial is inspired by the paper: <a href="https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041">Federica M. Surace, et al.</a>.</p><p>We first import the required packages</p><pre><code class="language-julia hljs">using Bloqade
+using PythonCall
+plt = pyimport(&quot;matplotlib.pyplot&quot;);</code></pre><h2 id="Mapping-between-the-Rydberg-system-and-the-LGT"><a class="docs-heading-anchor" href="#Mapping-between-the-Rydberg-system-and-the-LGT">Mapping between the Rydberg system and the LGT</a><a id="Mapping-between-the-Rydberg-system-and-the-LGT-1"></a><a class="docs-heading-anchor-permalink" href="#Mapping-between-the-Rydberg-system-and-the-LGT" title="Permalink"></a></h2><p>In this tutorial, we are interested in the so-called quantum link model (QLM) formulation of the LGT. In this formalism, depending on the configurations of the even and odd sites, the bonds between them could be interpretted as a particle <span>$q$</span>, an antiparticle <span>$\bar{q}$</span> or a vacuum state. More specifically, the bond between an odd and an even sites corresponds to an antiparticle if both atoms are in the ground states, otherwise it is interpretted as a vacuum state. On the other hand, the bond between an even and an odd sites corresponds to a particle if both atoms are in the ground states, otherwise it is interpreted as a vacuum. Further, the Rydberg states at the odd (even) sites are interpretted as electric fields pointing to the left (right), whereas the ground states at the odd (even) sites are electric field pointing to the right (left). The electric fields correspond to the red and blue arrows in the following figure, which summarizes the mappings described above (source: <a href="https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041">Federica M. Surace, et al.</a>). For more details on the LGT and its mapping to the Rydberg system, the readers are encouraged to read the paper cited above.</p><p><img src="../../../assets/LGT_mapping.png" alt="mapping"/></p><h2 id="Preparing-the-initial-state-for-the-LGT-dynamics"><a class="docs-heading-anchor" href="#Preparing-the-initial-state-for-the-LGT-dynamics">Preparing the initial state for the LGT dynamics</a><a id="Preparing-the-initial-state-for-the-LGT-dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#Preparing-the-initial-state-for-the-LGT-dynamics" title="Permalink"></a></h2><p>The LGT dynamics starts from the &quot;anti-string&quot; state with all electric fields pointing to the right. This is nothing but the <span>$Z_2$</span> ordered state in the language of Rydberg system, and we have seen how to prepare it in previous tutorials. Here, we are interested in a 1D lattice with 21 atoms. The neighboring atoms are separated by <span>$5.5μm$</span> such that they are blockaded throughout the dynamics (the typical value of the Rabi frequency is <span>$10\pi$</span> MHz throughout the dynamics, which corresponds to blockade radius <span>$R_b\approx7.46μm$</span>. See below).</p><pre><code class="language-julia hljs">a = 5.5;
+N = 21;
+atoms = generate_sites(ChainLattice(), N, scale=a);
+subspace = blockade_subspace(atoms, a);</code></pre><p>In order to prepare the anti-string state of the LGT, we use piecewise linear waveforms for both the detuning and the Rabi frequency. The waveforms will last for <span>$3.5μs$</span>.</p><pre><code class="language-julia hljs">total_time = 3.5;
+Ωmax = 2π * 5;
+Δmin = -2π * 10;
+Δmax = 2π * 10;
+
+Δ1 = piecewise_linear(clocks = [0.0, 0.2, total_time], values = [Δmin, Δmin, Δmax]);
+Ω1 = piecewise_linear(clocks = [0.0, 0.2, total_time], values = [0.0, Ωmax, Ωmax]);</code></pre><p>The waveforms for the detuning and the Rabi frequency are shown below</p><pre><code class="language-julia hljs">fig1, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+Bloqade.plot!(ax1, Ω1)
+Bloqade.plot!(ax2, Δ1)
+ax1.set_ylabel(&quot;Ω1/2π (MHz)&quot;)
+ax2.set_ylabel(&quot;Δ1/2π (MHz)&quot;)
+ax1.grid()
+ax2.grid()
+fig1</code></pre><p><img src="../2832177536.svg" alt/></p><p>In order to simulate the gauge theory dynamics, we define the function <code>get_average_rydberg_densities</code> which takes in a given set of detuning and Rabi frequency <span>$(Δ, Ω)$</span>, and returns the final state and the Rydberg density.</p><pre><code class="language-julia hljs">function get_average_rydberg_densities(Δ, Ω; dt=1e-3)
+    h = rydberg_h(atoms; Δ=Δ, Ω=Ω)
+    reg = zero_state(subspace)
+
+    duration = Ω.duration
+    prob = SchrodingerProblem(reg, duration, h, progress=true);
+    integrator = init(prob, Vern8());
+    densities = []
+    for _ in TimeChoiceIterator(integrator, 0.0:dt:duration)
+        normalize!(reg)
+        push!(densities, rydberg_density(reg))
+    end
+
+    return densities
+end;</code></pre><p>We can confirm that the waveforms produce the desired anti-string state of the LGT, by simulating the dynamics governed by the waveforms, followed by plotting the density profile, as shown below</p><pre><code class="language-julia hljs">dens1 = get_average_rydberg_densities(Δ1, Ω1) ;
+fig2, ax = plt.subplots(figsize = (10, 4)) ;
+ax.bar(1:N, dens1[end]) ;
+ax.set_xlabel(&quot;site index&quot;)
+ax.set_ylabel(&quot;Average Rydberg densities&quot;)
+fig2</code></pre><p><img src="../183523249.svg" alt/></p><p>Recall the mapping between the Rydberg chain and the LGT illustrated above, we see that the final state is an approximation of the anti-string state of the LGT, or a <span>$Z_2$</span> ordered state of the Rydberg chain. It is not perfectly <span>$Z_2$</span> ordered where the discrepancy is more promonient at the center compared to the edge of the chain. But as we will see later, the prepared state is sufficient for demonstrating the dynamics of the interested LGT.</p><h2 id="Propagation-of-particle-antiparticle-pairs"><a class="docs-heading-anchor" href="#Propagation-of-particle-antiparticle-pairs">Propagation of particle-antiparticle pairs</a><a id="Propagation-of-particle-antiparticle-pairs-1"></a><a class="docs-heading-anchor-permalink" href="#Propagation-of-particle-antiparticle-pairs" title="Permalink"></a></h2><p>In order to simulate the particle-antiparticle dynamics of the interested LGT, next, we prepare defects in the anti-string state, which are links with right-pointing electric fields. The domain walls between anti-string and string states will host particles, whereas those between string and anti-string states will host anti-particles. These can be seen via the mapping between Rydberg system and LGT illustrated above. Interestingly, the particle and antiparticle always come in pairs, and their time evolution exhibits light cones, in which the string-antistring oscillation is out-of-phase compared to that outside of the light cone. This is illustrated below (source: <a href="https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041">Federica M. Surace, et al.</a>).</p><p><img src="../../../assets/LGT_particle_antiparticle_propagation.png" alt="propagation"/></p><h3 id="Site-dependent-waveforms"><a class="docs-heading-anchor" href="#Site-dependent-waveforms">Site-dependent waveforms</a><a id="Site-dependent-waveforms-1"></a><a class="docs-heading-anchor-permalink" href="#Site-dependent-waveforms" title="Permalink"></a></h3><p>To realize the defects, we turn off the detuning for the target atoms while maintaining the same Rabi frequency for all the atoms. This effectively applies a <span>$\pi$</span>-pulse to the target atoms for transitioning them from the Rydberg state to the ground state.</p><pre><code class="language-julia hljs">Δq = 0.0;
+tq = π/Ωmax;</code></pre><p>The waveforms of the detunings for creating one and two defects are defined as following</p><pre><code class="language-julia hljs">Δ2_single_defect = map(1:length(atoms)) do idx
+    if idx == floor(Int, N/2)+1
+        append(Δ1, constant(duration=tq, value=Δq))
+    else
+        append(Δ1, constant(duration=tq, value=Δmax))
+    end
+end ;
+
+Δ2_two_defects = map(1:length(atoms)) do idx
+    if idx == floor(Int, N/3) || idx == floor(Int, N-N/3)+1
+        append(Δ1, constant(duration=tq, value=Δq))
+    else
+        append(Δ1, constant(duration=tq, value=Δmax))
+    end
+end ;</code></pre><p>We append to a constant waveform with the same amplitude to the Rabi frequency such that it has the same duration as the detunings.</p><pre><code class="language-julia hljs">Ω2 = append(Ω1, constant(duration=tq, value=Ωmax));</code></pre><p>As an example, for the case with a single defect, we show the detuning for the central site, which is the defect, and those for other sites separately below.</p><pre><code class="language-julia hljs">fig3, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+for idx in 1 : length(atoms)
+    if idx == floor(Int, N/2)+1
+        Bloqade.plot!(ax1, Δ2_single_defect[idx])
+    else
+        Bloqade.plot!(ax2, Δ2_single_defect[idx])
+    end
+end
+ax1.grid()
+ax2.grid()
+ax1.set_title(&quot;Detuning for the central site&quot;)
+ax2.set_title(&quot;Detunings for other sites&quot;)
+
+fig3</code></pre><p><img src="../3367182838.svg" alt/></p><p>We can confirm that the waveforms produce the desired domain walls for the LGT states, by simulating the dynamics governed by the waveforms, followed by plotting their density profiles.</p><pre><code class="language-julia hljs">dens2 = get_average_rydberg_densities(Δ2_single_defect, Ω2)
+dens3 = get_average_rydberg_densities(Δ2_two_defects, Ω2)
+
+fig4, (ax1, ax2) = plt.subplots(nrows = 2, figsize = (10, 4), frameon=false)
+ax1.bar(1:N, dens2[end])
+ax2.bar(1:N, dens3[end])
+fig4.supxlabel(&quot;site index&quot;)
+fig4.supylabel(&quot;Average Rydberg densities&quot;, x=0.06)
+fig4</code></pre><p><img src="../1830870229.svg" alt/></p><p>Again, we see that the Rydberg density at the defects are not exactly zero, but the prepared states, as we shall see below, serve as good initial states to study the propagation of particle-antiparticle pairs in LGT.</p><p>We define the very last piece in the Rabi frequency and detuning that govern the time evolution of the Rydberg chain with defects.</p><pre><code class="language-julia hljs">Δq2 = -π ;
+tq2 = 40/Ωmax ;
+
+Δ3_single_defect = map(1:length(atoms)) do idx
+    append(Δ2_single_defect[idx], constant(duration=tq2, value=Δq2))
+end
+Δ3_two_defects = map(1:length(atoms)) do idx
+    append(Δ2_two_defects[idx], constant(duration=tq2, value=Δq2))
+end
+
+Ω3 = append(Ω2, constant(duration=tq2, value=Ωmax));</code></pre><p>Again, as an example, for the case with a single defect, we show the detuning for the central site, which is the defect, and those for other sites separately below.</p><pre><code class="language-julia hljs">fig5, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+for idx in 1 : length(atoms)
+    if idx == floor(Int, N/2)+1
+        Bloqade.plot!(ax1, Δ3_single_defect[idx])
+    else
+        Bloqade.plot!(ax2, Δ3_single_defect[idx])
+    end
+end
+Bloqade.plot!(ax1, Ω3)
+ax1.grid()
+ax2.grid()
+ax1.legend([&quot;Detuning for the central site&quot;, &quot;Rabi frequency for all sites&quot;])
+ax2.legend([&quot;Detunings for other sites&quot;], loc=&quot;center left&quot;)
+
+fig5</code></pre><p><img src="../2714021713.svg" alt/></p><h3 id="Simulation-particle-antiparticle-pairs-in-LGT-dynamics"><a class="docs-heading-anchor" href="#Simulation-particle-antiparticle-pairs-in-LGT-dynamics">Simulation particle-antiparticle pairs in LGT dynamics</a><a id="Simulation-particle-antiparticle-pairs-in-LGT-dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#Simulation-particle-antiparticle-pairs-in-LGT-dynamics" title="Permalink"></a></h3><p>With the waveforms defined, we can run the simulation to evolve the Rydberg chains with defects and collect the final Rydberg densities.</p><pre><code class="language-julia hljs">densities_single_defect = get_average_rydberg_densities(Δ3_single_defect, Ω3);
+densities_two_defects = get_average_rydberg_densities(Δ3_two_defects, Ω3);
+
+D_single_defect = hcat(densities_single_defect...);
+D_two_defects = hcat(densities_two_defects...);</code></pre><p>To better visualize the propagation of particle-antiparticle pairs, we shall only show the Rydberg densities starting from the time point when the ground state of the defect chain is prepared.</p><pre><code class="language-julia hljs">ind0 = 3550;
+D_single_defect = D_single_defect[:, ind0:end];
+D_two_defects = D_two_defects[:, ind0:end];
+
+clocks = 0:1e-3:Ω3.duration;
+clocks = clocks[ind0: end];</code></pre><p>Then we plot the Rydberg density as a function of time, where the two panels correspond to the cases with single and two defects respectively</p><pre><code class="language-julia hljs">yticks = range(clocks[1], stop=clocks[end], length=10);
+yticks = [string(ytick)[1:4] for ytick in yticks][end:-1:1];
+fig6, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 8), sharey=true)
+ax1.imshow(transpose(D_single_defect)[end:-1:1,:], aspect=&quot;auto&quot;, interpolation=&quot;none&quot;)
+ax1.set_xlabel(&quot;sites&quot;)
+ax1.set_ylabel(&quot;time (μs)&quot;)
+ax1.set_yticks(range(1, stop = length(clocks), length=10), yticks)
+im = ax2.imshow(transpose(D_two_defects)[end:-1:1,:], aspect=&quot;auto&quot;, interpolation=&quot;none&quot;)
+ax2.set_xlabel(&quot;sites&quot;)
+fig6.colorbar(im, ax=[ax1, ax2])
+fig6</code></pre><p><img src="../4154231307.svg" alt/></p><p>From the left panel, we can observe a light-cone-shaped region originating from the particle-antiparticle pair in the vacuum. At the right panel, we show the interference of two light cones, which produces an additional change of periodicity corresponding to the elastic scattering. When the particle or antiparticle reaches the boundary of the chain, it will be scattered back as observed. For more details, the interested readers are referred to the paper <a href="https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041">Federica M. Surace, et al.</a>.</p><p>In summary, we have shown that the ground state and the dynamics of certain LGT can be simulated by a 1D chain of Rydberg atoms. More interestingly, defects can be introduced by locally addressing certain atoms in the chain, and with that we can simulate the propagation of particle-antiparticle pairs in the LGT dynamics.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../5.MWIS/main/">« Maximum Weight Independent Set</a><a class="docs-footer-nextpage" href="../../../contrib/">Contributing to Bloqade »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.21 on <span class="colophon-date" title="Friday 15 July 2022 19:36">Friday 15 July 2022</span>. Using Julia version 1.7.3.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

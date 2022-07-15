@@ -40,10 +40,9 @@ end
 
 
 """
-    get_average_rydberg_densities(atoms, Δ, Ω, ϕ; dt=1e-3)
+    get_average_rydberg_densities(atoms, reg; [C=2π * 862690 * MHz*µm^6], Ω[, ϕ, Δ], [dt=1e-3 * μs])
 
 Return average Rydberg densities throughout an evolution
-
 
 # Arguments
 

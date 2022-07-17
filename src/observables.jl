@@ -58,7 +58,7 @@ Return average Rydberg densities throughout an evolution
 - `Δ`: optional, default unit is `MHz`, detuning parameter, see [`SumOfN`](@ref).
 - `dt`: optional, default unit is `μs`, time step for the evolution
 """
-function get_average_rydberg_densities(atoms, reg; C = 2π * 862690, Ω = nothing, ϕ = nothing, Δ = nothing, dt=1e-3)
+function get_average_rydberg_densities(atoms, reg::AbstractRegister; C::Real = 2π * 862690, Ω = nothing, ϕ = nothing, Δ = nothing, dt::Real=1e-3)
 
     # Get the duration for the evolution
     if isnothing(Ω) && isnothing(ϕ) && isnothing(Δ)

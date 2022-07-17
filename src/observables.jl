@@ -42,7 +42,7 @@ end
 """
     get_average_rydberg_densities(atoms, reg; [C=2π * 862690 * MHz*µm^6], Ω[, ϕ, Δ], [dt=1e-3 * μs])
 
-Return average Rydberg densities throughout an evolution
+Return average Rydberg densities throughout an evolution.
 
 # Arguments
 
@@ -56,7 +56,8 @@ Return average Rydberg densities throughout an evolution
 - `Ω`: optional, default unit is `MHz`, Rabi frequencies, divided by 2, see also [`SumOfX`](@ref).
 - `ϕ`: optional, does not have unit, the phase, see [`SumOfXPhase`](@ref).
 - `Δ`: optional, default unit is `MHz`, detuning parameter, see [`SumOfN`](@ref).
-- `dt`: optional, default unit is `μs`, time step for the evolution
+- `dt`: optional, default unit is `μs`, time step for the evolution.
+- `solver`: optional, default solver is `Vern8()`, the solver for the SchrodingerProblem, see [`SchrodingerProblem`](@ref).
 """
 function get_average_rydberg_densities(atoms, reg::AbstractRegister; C::Real = 2π * 862690, Ω = nothing, ϕ = nothing, Δ = nothing, dt::Real=1e-3, solver = Vern8())
 

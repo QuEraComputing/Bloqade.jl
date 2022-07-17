@@ -58,16 +58,18 @@ Return average Rydberg densities throughout an evolution
 - `Δ`: optional, default unit is `MHz`, detuning parameter, see [`SumOfN`](@ref).
 - `dt`: optional, default unit is `μs`, time step for the evolution
 """
-function get_average_rydberg_densities(atoms, reg::AbstractRegister; C::Real = 2π * 862690, Ω = nothing, ϕ = nothing, Δ = nothing, dt::Real=1e-3)
+function get_average_rydberg_densities(atoms, reg::AbstractRegister; C::Real = 2π * 862690, Ω = nothing, ϕ = nothing, Δ = nothing, dt::Real=1e-3, solver = Vern8())
 
-    # Get the duration for the evolution
     if isnothing(Ω) && isnothing(ϕ) && isnothing(Δ)
         error("At least one of Ω, ϕ or Δ is needed for determining the duration of the evolution.")
     end
 
-    allwaveforms = [Ω, ϕ, Δ]
-    allwaveforms = allwaveforms[allwaveforms.!=nothing]
-    allwaveforms = reduce(vcat, allwaveforms)
+    # To get the duration of the evolution, first we collect all the waveforms
+    allwaveforms = [Ω, ϕ, Δ] 
+    allwaveforms = allwaveforms[allwaveforms.!=nothing] # Get rid of the non-specified (Ω, ϕ, Δ)
+    allwaveforms = reduce(vcat, allwaveforms) # We flatten the list such that `allwaveforms` is a list of nonzero waveforms 
+
+    # The duration of the evolution is well-defined if and only if the durations of all waveforms are the same
     duration = allwaveforms[1].duration
     for i = 2 : length(allwaveforms)
         if allwaveforms[i].duration != duration
@@ -78,7 +80,7 @@ function get_average_rydberg_densities(atoms, reg::AbstractRegister; C::Real = 2
     # Start the evolution 
     h = rydberg_h(atoms, C=C, Δ=Δ, Ω=Ω, ϕ=ϕ)
     prob = SchrodingerProblem(reg, duration, h, progress=true);
-    integrator = init(prob, Vern8());
+    integrator = init(prob, solver);
     densities = []
     for _ in TimeChoiceIterator(integrator, 0.0:dt:duration)
         normalize!(reg) 

@@ -127,6 +127,11 @@ end
 ```
 `prob.reg` is the register storing the final state after the time evolution.
 
+## Benchmarks
+
+![](https://github.com/yardstiq/bloqade_benchmarks/blob/main/chain.png?raw=true)
+
+
 ## Have Suggestions or Interested in Contributing?
 
 - [file an issue](https://github.com/QuEraComputing/Bloqade.jl/issues) to report a bug or request a feature.

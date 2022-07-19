@@ -60,7 +60,6 @@ Return average Rydberg densities throughout an evolution.
 - `solver`: optional, default solver is `Vern8()`, the solver for the SchrodingerProblem, see [`SchrodingerProblem`](@ref).
 """
 function get_average_rydberg_densities(atoms, reg::AbstractRegister; C::Real = 2π * 862690, Ω = nothing, ϕ = nothing, Δ = nothing, dt::Real=1e-3, solver = Vern8())
-
     if isnothing(Ω) && isnothing(ϕ) && isnothing(Δ)
         error("At least one of Ω, ϕ or Δ is needed for determining the duration of the evolution.")
     end
@@ -69,6 +68,7 @@ function get_average_rydberg_densities(atoms, reg::AbstractRegister; C::Real = 2
     allwaveforms = [Ω, ϕ, Δ] 
     allwaveforms = allwaveforms[allwaveforms.!=nothing] # Get rid of the non-specified (Ω, ϕ, Δ)
     allwaveforms = reduce(vcat, allwaveforms) # We flatten the list such that `allwaveforms` is a list of nonzero waveforms 
+    allwaveforms = isa(allwaveforms, Waveform) ? [allwaveforms] : allwaveforms
 
     # The duration of the evolution is well-defined if and only if the durations of all waveforms are the same
     duration = allwaveforms[1].duration
@@ -88,5 +88,5 @@ function get_average_rydberg_densities(atoms, reg::AbstractRegister; C::Real = 2
         push!(densities, rydberg_density(reg)) 
     end
 
-    return densities    
+    return densities
 end

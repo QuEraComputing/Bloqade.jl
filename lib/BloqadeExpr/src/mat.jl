@@ -53,15 +53,21 @@ end
 # NOTE: CachedBlock is not yet implemented.
 
 function _cunmat(
-    subspace_v,
+    subspace_v::AbstractVector{TI},
     map,
     cbits::NTuple{C,Int},
     cvals::NTuple{C,Int},
     U0::AbstractMatrix{T},
     locs::NTuple{M,Int},
-) where {T,C,M}
+) where {TI,T,C,M}
     U = staticize(all(diff(collect(locs)) .> 0) ? U0 : reorder(U0, collect(locs) |> sortperm))
-    ctest = YaoBlocks.controller(cbits, cvals)
+    # ctest = YaoBlocks.controller(TI, cbits, cvals)
+    # NOTE: remove the following lines after the update of BitBasis!
+    do_mask = bmask(TI, cbits...)
+    target =
+        length(cvals) == 0 ? zero(TI) :
+        mapreduce(xy -> (xy[2] == 1 ? one(TI) << TI(xy[1] - 1) : zero(TI)), |, zip(cbits, cvals))
+    ctest = b -> ismatch(b, do_mask, target)
     return _main_loop(subspace_v, map, U, ctest, locs)
 end
 

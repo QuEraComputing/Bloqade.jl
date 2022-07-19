@@ -273,3 +273,20 @@ end
     #     """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]},""",
     #     """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]}]}""")
 end
+
+@testset "to_task_output" begin
+    bitstrings = [bit"010", bit"110", bit"111"]
+    bitstrings_as_vectors = [Vector{Int32}([0,1,0]),
+                             Vector{Int32}([0,1,1]),
+                             Vector{Int32}([1,1,1])]
+    
+    task_output = BloqadeSchema.to_task_output(bitstrings)
+
+    @test task_output.task_status_code == 200
+
+    for (shot, bitstring_as_vector) in collect(zip(task_output.shot_outputs, bitstrings_as_vectors))
+        @test shot.shot_status_code == 200
+        @test shot.pre_sequence == Vector{Int32}([1,1,1])
+        @test shot.post_sequence == bitstring_as_vector
+    end
+end

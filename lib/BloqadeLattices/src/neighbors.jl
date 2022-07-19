@@ -60,12 +60,7 @@ Returns a [`DistanceGroup`](@ref) instance.
 ```jldoctest; setup=:(using BloqadeLattices)
 julia> atoms = generate_sites(HoneycombLattice(), 5, 5);
 
-julia> tree = make_kdtree(atoms)
-NearestNeighbors.KDTree{StaticArrays.SVector{2, Float64}, Distances.Euclidean, Float64}
-  Number of points: 50
-  Dimensions: 2
-  Metric: Distances.Euclidean(0.0)
-  Reordered: true
+julia> tree = make_kdtree(atoms);
 
 julia> gn = grouped_nearest(tree, 23, 20)
 DistanceGroup([23, 14, 22, 24, 15, 13, 21, 25, 33, 31, 12, 16, 32, 4, 6, 34, 26, 17, 5, 41], [1, 2, 5, 11, 14, 18, 21])

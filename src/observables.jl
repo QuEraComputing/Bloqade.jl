@@ -74,7 +74,7 @@ function get_average_rydberg_densities(atoms, reg::AbstractRegister; C::Real = 2
     duration = allwaveforms[1].duration
     for i = 2 : length(allwaveforms)
         if allwaveforms[i].duration != duration
-            error("The durations of waveforms are not consistent.")
+            error("The durations of waveforms are not consistent.") 
         end
     end
 

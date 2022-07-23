@@ -60,10 +60,8 @@ To use the AMI
 - follow the [tutorials](https://queracomputing.github.io/Bloqade.jl/dev/). 
   
   
-_disclaimer 1: deploying Bloqade on AWS EC2 instances will incur a cost on the user that will depend on the AWS resources utilized.  
-  
-_disclaimer 1: deploying Bloqade on AWS EC2 instances will incur a cost on the user that will depend on the AWS resources utilized.  
-_disclaimer 2: support on deploying Bloqade on AWS can be obtained via AWS Support. This is a one-on-one support channel that is staffed 24x7x365 with experienced support engineers. To learn more follow [this link](https://aws.amazon.com/premiumsupport/).  
+- disclaimer 1: deploying Bloqade on AWS EC2 instances will incur a cost on the user that will depend on the AWS resources utilized.  
+- disclaimer 2: support on deploying Bloqade on AWS can be obtained via AWS Support. This is a one-on-one support channel that is staffed 24x7x365 with experienced support engineers. To learn more, follow [this link](https://aws.amazon.com/premiumsupport/).  
   
 ## Build System Image to Accelerate Start-up Time
 

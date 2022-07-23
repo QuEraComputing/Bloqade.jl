@@ -25,7 +25,7 @@ pkg> add BloqadeExpr#master
 
 ## Using Bloqade with AWS EC2 services
 
-Bloqade is an open source solution for Hamiltonian simulation and can be deployed on any personal computer. Yet, some users might benefit from the extra performance offered by large computational resources from different providers. To address that, Bloqade is also available at the Amazon Web Services (AWS) Market Place, and prepared to run on AWS EC2 instances via Amazon Machine Images. To deploy Bloqade on AWS EC2 instances, follow the steps below.
+Bloqade is an open source solution for Hamiltonian simulation and can be deployed on any personal computer. Yet, some users might benefit from the extra performance offered by large computational resources from different providers. To address that, Bloqade is also available at the Amazon Web Services (AWS) Marketplace, and prepared to run on AWS EC2 instances via Amazon Machine Images. To deploy Bloqade on AWS EC2 instances, follow the steps below.
 
 ### Create an EC2 instance on AWS
 
@@ -53,7 +53,7 @@ In addition to the content of our base image, this image further contains
 /dev/sdc=ephemeral1
 ```
 
-#### Bloqade AMI(coming soon on AWS Marketplace!)
+#### Bloqade AMI (coming soon on AWS Marketplace!)
 To use the AMI 
 - (Locate the AMIs at AWS Marketplace while selecting the image to start your EC2) "we will add the image ids and arns once all sealed with aws"
 - Bloqade.jl/

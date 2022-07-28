@@ -7,6 +7,25 @@ to install the latest stable version of this package:
 pkg> add Bloqade
 ```
 
+## Low-latency Usage of Bloqade component packages
+
+The Bloqade project contains multiple packages. For development on top of the functionality,
+(especially for those who do not need the ODE solvers), We recommend you to use the corresponding
+component packages. The following is a list of component packages and what they do (WIP = work-in-progress)
+
+- BloqadeExpr: Expressions and API definitions for Bloqade.
+- BloqadeKrylov: Krylov-subspace based emulation.
+- BloqadeLattices: objects, functions for lattices.
+- BloqadeMIS: tools for working with maximum-independent sets in Rydberg system.
+- BloqadeODE: ODE-based emulation.
+- BloqadePython: WIP, python wrapper for the Bloqade package.
+- BloqadeQMC: WIP, Stochastic Series Expansion for Rydberg system.
+- BloqadeSchema: WIP, the schema for creating a task for Bloqade and QuEra machine.
+- BloqadeWaveforms: the waveform objects.
+- YaoSubspaceArrayReg: register object and functions in a subspace.
+
+All the non-WIP packages are registered in the General registry, thus you can add them
+as your dependency by directly running `pkg> add <component package>` in your Julia REPL.
 
 ## Try the Latest Version of Bloqade
 
@@ -76,19 +95,6 @@ To build a system image for your environment, please use
 the [PackageCompiler](https://julialang.github.io/PackageCompiler.jl/dev/)
 or use the Julia VSCode plugin's [build system image feature](https://www.julia-vscode.org/docs/stable/userguide/compilesysimage/)
 
-
-## Component Packages
-
-- BloqadeCUDA: CUDA.jl patches for CUDA-based accelerators.
-- BloqadeExpr: the interface and expression definition.
-- BloqadeKrylov: the Krylov-based solver.
-- BloqadeLattices: the lattices definition.
-- BloqadeMIS: tools for maximum-independent set.
-- BloqadeODE: DiffEq wrapper.
-- BloqadeQMC: simulation based on quantum Monte Carlo.
-- BloqadeSchema: JSON schema support for Bloqade.
-- BloqadeWaveforms: waveform definitions.
-- YaoSubspaceArrayReg: the subspace array register for subspace simulation.
 
 ## Developing Bloqade
 

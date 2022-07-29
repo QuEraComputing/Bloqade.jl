@@ -7,7 +7,7 @@ to install the latest stable version of this package:
 pkg> add Bloqade
 ```
 
-## Low-latency Usage of Bloqade component packages
+## Low-latency Usage of Bloqade Component Packages
 
 The Bloqade project contains multiple packages. For development on top of the functionality,
 (especially for those who do not need the ODE solvers), We recommend you to use the corresponding

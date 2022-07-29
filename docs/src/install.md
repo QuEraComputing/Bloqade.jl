@@ -10,7 +10,7 @@ pkg> add Bloqade
 ## Low-latency Usage of Bloqade Component Packages
 
 The Bloqade project contains multiple packages. For development on top of the functionality,
-(especially for those who do not need the ODE solvers), We recommend you to use the corresponding
+(especially for those who do not need the ODE solvers), we recommend you to use the corresponding
 component packages. The following is a list of component packages and what they do (WIP = work-in-progress)
 
 - BloqadeExpr: Expressions and API definitions for Bloqade.

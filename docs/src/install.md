@@ -24,7 +24,7 @@ component packages. The following is a list of component packages and what they 
 - BloqadeWaveforms: the waveform objects.
 - YaoSubspaceArrayReg: register object and functions in a subspace.
 
-All the non-WIP packages are registered in the General registry, thus you can add them
+All the non-WIP packages are registered in the General registry. Thus, you can add them
 as your dependency by directly running `pkg> add <component package>` in your Julia REPL.
 
 ## Try the Latest Version of Bloqade

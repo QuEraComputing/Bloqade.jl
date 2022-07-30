@@ -15,6 +15,10 @@ LocalPreferences.toml
 .CondaPkg
 JuliaSysimage.so
 .DS_Store
+
+# python wrapper
 /python/poetry.lock
 /python/build
 /python/dist
+/python/setup.py
+/python/.pytest_cache

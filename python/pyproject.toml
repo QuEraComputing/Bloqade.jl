@@ -18,6 +18,7 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Topic :: Scientific/Engineering :: Physics",
 ]
+include = ['juliapkg.json']
 
 [tool.poetry.dependencies]
 python = "^3.8"

@@ -25,6 +25,7 @@ python = "^3.8"
 juliacall = "^0.9.3"
 juliapkg = "^0.1.5"
 matplotlib = "3.5.1"
+toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

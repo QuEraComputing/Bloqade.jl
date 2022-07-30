@@ -1,7 +1,6 @@
 import platform
 from typing import List
 import juliacall
-from numpy import typename
 pyconvert_ptr = juliacall.Main.seval('pyconvert')
 
 class JLType(object):

@@ -19,19 +19,17 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Physics",
 ]
 include = ['juliapkg.json']
+build = "build.py"
 
 [tool.poetry.dependencies]
 python = "^3.8"
 juliacall = "^0.9.3"
 juliapkg = "^0.1.5"
 matplotlib = "3.5.1"
-toml = "^0.10.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.0", "toml >= 0.10"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry_bumpversion.file."bloqade/__init__.py"]

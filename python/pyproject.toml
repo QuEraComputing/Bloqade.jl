@@ -1,10 +1,11 @@
 [tool.poetry]
 name = "bloqade"
-version = "0.1.1"
+version = "0.1.2"
 description = "The Python wrapper for Bloqade.jl"
-authors = ["Roger-luo <rogerluo.rl18@gmail.com>"]
+authors = ["Roger-luo <rogerluo.rl18@gmail.com>", "QuEra Computing Inc. <info@quera.com>"]
 license = "Apache-2.0"
 readme = "README.md"
+keywords=['quantum', 'rydberg', 'atom']
 documentation = "https://queracomputing.github.io/Bloqade.jl/stable/"
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -30,3 +31,5 @@ pytest = "^5.2"
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry_bumpversion.file."bloqade/__init__.py"]

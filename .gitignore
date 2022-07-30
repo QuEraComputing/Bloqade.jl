@@ -16,3 +16,5 @@ LocalPreferences.toml
 JuliaSysimage.so
 .DS_Store
 /python/poetry.lock
+/python/build
+/python/dist

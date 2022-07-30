@@ -1,4 +1,5 @@
-__version__ = '0.1.1'
+__version__ = '0.1.2'
+
 import juliacall
 import numpy as np
 juliacall.Main.seval('using Bloqade')

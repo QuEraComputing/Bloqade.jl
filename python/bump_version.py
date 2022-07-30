@@ -19,7 +19,7 @@ def write_version_file(version):
         f.write('__version__ = "{}"\n'.format(version))
 
 @click.command()
-@click.option('--version', help='Version number to use.')
+@click.option('--version', '-v', required=True, help='Version number to use.')
 def bump_version(version):
     update_project_toml(version)
     write_version_file(version)

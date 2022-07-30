@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bloqade"
-version = "0.1.4"
+version = "0.1.5"
 description = "The Python wrapper for Bloqade.jl"
 authors = ["Roger-luo <rogerluo.rl18@gmail.com>", "QuEra Computing Inc. <info@quera.com>"]
 license = "Apache-2.0"

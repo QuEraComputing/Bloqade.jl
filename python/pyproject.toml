@@ -1,9 +1,22 @@
 [tool.poetry]
 name = "bloqade"
-version = "0.1.0"
+version = "0.1.1"
 description = "The Python wrapper for Bloqade.jl"
 authors = ["Roger-luo <rogerluo.rl18@gmail.com>"]
 license = "Apache-2.0"
+readme = "README.md"
+documentation = "https://queracomputing.github.io/Bloqade.jl/stable/"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: Apache Software License",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"

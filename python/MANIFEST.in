@@ -1,0 +1,4 @@
+include README.md
+include LICENSE.md
+include docs/*.txt
+include bloqade/*.jl

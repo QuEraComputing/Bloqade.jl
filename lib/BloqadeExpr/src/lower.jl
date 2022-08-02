@@ -42,7 +42,8 @@ end
 
 function emit_dynamic_terms(ex::SumOfXPhase)
     @switch (ex.Ω, ex.ϕ) begin
-        @case (::Number, ::Number) || (::Vector{<:Number}, ::Vector{<:Number})
+        @case (::Number, ::Number) || (::Vector{<:Number}, ::Vector{<:Number}) ||
+            (::Number, ::Vector{<:Number}) || (::Vector{<:Number}, ::Number)
         return Any[one=>ex]
 
         # Ω time-dependent

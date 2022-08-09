@@ -22,3 +22,4 @@ JuliaSysimage.so
 /python/dist
 /python/setup.py
 /python/.pytest_cache
+/python/.venv

@@ -39,7 +39,7 @@ export BinaryQMCState, BinaryGroundState, BinaryThermalState,
         num_single_site, num_two_site_diag, autocorrelation, correlation_time, jackknife, bootstrap, mean_and_stderr,
         Lattice, OneDLattice, BravaisLattice, PolyLattice,
         Triangle, Rectangle, Kagome, Ruby, Custom, lattice_bond_spins, distance_matrix,
-        ProbabilityAlias, ProbabilityHeap, ProbabilityVector, probability_vector
+        ProbabilityAlias, probability_vector
 
 export AbstractRunStats, NoStats, RunStats, RunStatsHistogram, Diagnostics
 export NoTransitionMatrix, TransitionMatrix, PositionDependentTransitionMatrix, CombinedTransitionMatrix

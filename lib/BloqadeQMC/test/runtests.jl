@@ -1,4 +1,4 @@
-using Test, QMC
+using Test, BloqadeQMC
 using Statistics
 
 @testset "Probability Vectors" begin

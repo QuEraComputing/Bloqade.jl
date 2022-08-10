@@ -1,4 +1,4 @@
-using QMC
+using BloqadeQMC
 using LinearAlgebra
 using JSON
 

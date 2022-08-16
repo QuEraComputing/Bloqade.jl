@@ -26,6 +26,13 @@ function YaoAPI.mat(::Type{T}, h::AbstractTerm, space::Subspace) where {T}
     return YaoAPI.mat(T, blocks, space)
 end
 
+function YaoAPI.mat(::Type{T}, h::RydbergHamiltonian, space::FullSpace = fullspace) where {T}
+    return YaoAPI.mat(T,h.Terms)
+end
+
+function YaoAPI.mat(::Type{T}, h::RydbergHamiltonian, space::Subspace) where {T}
+    return YaoAPI.mat(T,h.Terms,space)
+end
 # fallback
 YaoBlocks.mat(::Type{T}, x::AbstractBlock, s::Subspace) where {T} = _toregular_matrix(mat(T, x))[s, s]
 _toregular_matrix(x::AbstractMatrix) = x

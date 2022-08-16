@@ -281,13 +281,50 @@ end
 
 SumOfZ(n::Int) = SumOfZ(n, 1)
 
-RabiTypes = Union{SumOfX,SumOfXPhase}
-struct RydbergHamiltonian{RabiType <: RabiTypes} <: AbstractTerm
-    RydbergTerm::RydInteract
-    RabiTerm::RabiType
-    DetuningTerm::SumOfN
+
+# this subtype is a bit fishy here
+# There are some places where this 
+# helps overload some functions but 
+# for clarity it might make sense to 
+# to make this a unique type.
+struct RydbergHamiltonian <: AbstractTerm
+    Terms::AbstractBlock
+    C::Real
+    function RydbergHamiltonian(atom_positions, C, Ω, ϕ, Δ)
+        positions = map(atom_positions) do pos
+            return (pos...,)
+        end
+    
+        nsites = length(positions)
+        term = RydInteract(positions, C)
+
+        C = term.C
+    
+        Ω = div_by_two(Ω)
+    
+        if !isnothing(Ω) && !isnothing(ϕ)
+            term += SumOfXPhase(nsites, Ω, ϕ)
+        elseif !isnothing(Ω) && isnothing(ϕ)
+            term += SumOfX(nsites, Ω)
+        end
+    
+        if !isnothing(Δ)
+            term -= SumOfN(nsites, Δ)
+        end
+
+        return new(YaoBlocks.Optimise.simplify(term),C)
+    end
 end
 
+
+
+function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where {T,N}
+    return YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(h.Terms), i, j)
+end
+
+function YaoBlocks.unsafe_getcol(::Type{T}, h::RydbergHamiltonian, j::DitStr{2}) where T
+    YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(h.Terms), j)
+end
 
 YaoAPI.nqudits(::XPhase) = 1
 YaoAPI.nqudits(::PdPhase) = 1
@@ -297,7 +334,8 @@ YaoAPI.nqudits(h::SumOfX) = h.nsites
 YaoAPI.nqudits(h::SumOfXPhase) = h.nsites
 YaoAPI.nqudits(h::SumOfZ) = h.nsites
 YaoAPI.nqudits(h::SumOfN) = h.nsites
-YaoAPI.nqudits(h::RydbergHamiltonian) = h.RydbergTerm.nsites
+@inline YaoAPI.nqudits(h::RydbergHamiltonian) = nqudits(h.Terms)
+
 
 function Base.:(==)(lhs::RydInteract, rhs::RydInteract)
     return lhs.C == rhs.C && lhs.atoms == rhs.atoms
@@ -319,8 +357,8 @@ function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
     return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ
 end
 
-function Base.:(==)(lhs::RydbergHamiltonian{<:RabiTypes}, rhs::RydbergHamiltonian{<:RabiTypes})
-    return lhs.RydbergTerm == rhs.RydbergTerm && lhs.RabiTerm == rhs.RabiTerm && lhs.DetuningTerm == rhs.DetuningTerm
+function Base.:(==)(lhs::RydbergHamiltonian, rhs::RydbergHamiltonian)
+    return lhs.C == rhs.C && lhs.Terms == rhs.Terms
 end
 
 Base.isreal(::RydInteract) = true
@@ -328,10 +366,9 @@ Base.isreal(::SumOfN) = true
 Base.isreal(::SumOfX) = true
 Base.isreal(::SumOfZ) = true
 Base.isreal(::SumOfXPhase) = false
-Base.isreal(::RydbergHamiltonian{SumOfX}) = true
-Base.isreal(::RydbergHamiltonian{SumOfXPhase}) = false
 Base.isreal(h::Add) = all(isreal, subblocks(h))
 Base.isreal(h::Scale) = isreal(factor(h)) && isreal(content(h))
+Base.isreal(h::RydbergHamiltonian) = Base.isreal(h.Terms)
 
 storage_size(x) = sizeof(x)
 function storage_size(h::Hamiltonian)

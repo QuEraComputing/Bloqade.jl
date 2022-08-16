@@ -129,6 +129,8 @@ function emit_dynamic_terms(ex::SumOfXPhase)
     end
 end
 
+emit_dynamic_terms(h::RydbergHamiltonian) = emit_dynamic_terms(h.Terms)
+
 """
     Hamiltonian(::Type{Tv}, expr[, space=fullspace])
 
@@ -201,6 +203,8 @@ function YaoBlocks.Optimise.to_basictypes(ex::RydInteract)
     term === nothing && return Add(nsites)
     return term
 end
+
+
 
 function emit_lowered(h)
     return YaoBlocks.Optimise.simplify(h; rules = [YaoBlocks.Optimise.to_basictypes])

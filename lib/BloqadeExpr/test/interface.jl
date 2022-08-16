@@ -2,19 +2,20 @@ using Test
 using BloqadeExpr
 using YaoBlocks.Optimise
 
+
 @testset "rydberg_h" begin
     positions = [(1, 2), (2, 3)]
     h = RydInteract(; atoms = positions) + SumOfX(; nsites = 2, Ω = 0.5)
-    @test rydberg_h(positions; Ω = 1.0) == Optimise.simplify(h)
+    @test rydberg_h(positions; Ω = 1.0).Terms == Optimise.simplify(h)
 
     h = RydInteract(; atoms = positions) + SumOfX(; nsites = 2, Ω = 0.5) - SumOfN(; nsites = 2, Δ = 0.2)
-    @test rydberg_h(positions; Ω = 1.0, Δ = 0.2) == Optimise.simplify(h)
+    @test rydberg_h(positions; Ω = 1.0, Δ = 0.2).Terms == Optimise.simplify(h)
 
     h = RydInteract(; atoms = positions) + SumOfXPhase(; nsites = 2, Ω = 0.5, ϕ = 0.1) - SumOfN(; nsites = 2, Δ = 0.2)
-    @test rydberg_h(positions; Ω = 1.0, ϕ = 0.1, Δ = 0.2) == Optimise.simplify(h)
+    @test rydberg_h(positions; Ω = 1.0, ϕ = 0.1, Δ = 0.2).Terms == Optimise.simplify(h)
 
     h = RydInteract(; atoms = positions) + SumOfX(; nsites = 2, Ω = [2.0, 1.0])
-    @test rydberg_h(positions; Ω = [4.0, 2.0]) == Optimise.simplify(h)
+    @test rydberg_h(positions; Ω = [4.0, 2.0]).Terms == Optimise.simplify(h)
 end
 
 @testset "attime" begin

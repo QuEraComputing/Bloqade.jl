@@ -62,9 +62,9 @@ More specifically, here are the steps to program neutral-atom quantum computers 
 - specify atom positions (see [Lattices](@ref))
 - program waveforms of Hamiltonian parameters (see [Waveforms](@ref))  
 - create the Hamiltonian (see [Hamiltonians](@ref))
-- specify the initial state (see [Registers and Observables](@ref))
+- specify the initial state (see [Registers and Observables](@ref observables))
 - emulation (see [Emulation](@ref emulation))
-- measurements & observables (see [Registers and Observables](@ref)).
+- measurements & observables (see [Registers and Observables](@ref observables)).
 
 The default units for various quantities are: 
 

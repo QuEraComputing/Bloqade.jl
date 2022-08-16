@@ -147,6 +147,20 @@ function latex_expr(t::SumOfXPhase)
     return tex
 end
 
+function print_expr(io::IO, ::MIME"text/plain", h::RydbergHamiltonian)
+    term = h.RydbergTerm
+
+    if h.RabiTerm.Ω != 0
+        term += h.RabiTerm
+    end
+
+    if h.DetuningTerm.Δ != 0
+        term -= h.DetuningTerm
+    end
+
+    print(io,latex_expr(term))
+end
+
 function Base.show(io::IO, ::MIME"text/plain", h::Hamiltonian)
     tab(n) = " "^(n + get(io, :indent, 0))
     println(io, tab(0), "Hamiltonian")

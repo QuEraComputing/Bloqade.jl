@@ -85,21 +85,26 @@ function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
     end
 
     nsites = length(positions)
-    term = RydInteract(positions, C)
+    rydbergterm = RydInteract(positions, C)
 
     Ω = div_by_two(Ω)
 
     if !isnothing(Ω) && !isnothing(ϕ)
-        term += SumOfXPhase(nsites, Ω, ϕ)
+        rabiterm = SumOfXPhase(nsites, Ω, ϕ)
     elseif !isnothing(Ω) && isnothing(ϕ)
-        term += SumOfX(nsites, Ω)
+        rabiterm = SumOfX(nsites, Ω)
+    else
+        rabiterm = SumOfX(nsites, 0)
     end
 
     if !isnothing(Δ)
-        term -= SumOfN(nsites, Δ)
+        detuningterm = SumOfN(nsites, Δ)
+    else
+        detuningterm = SumOfN(nsites, 0)
     end
-
-    return YaoBlocks.Optimise.simplify(term)
+    
+    return RydbergHamiltonian(rydbergterm,rabiterm,detuningterm)
+    # return YaoBlocks.Optimise.simplify(rydbergterm+rabiterm-detuningterm)
 end
 
 function div_by_two(Ω)

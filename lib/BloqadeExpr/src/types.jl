@@ -281,6 +281,14 @@ end
 
 SumOfZ(n::Int) = SumOfZ(n, 1)
 
+RabiTypes = Union{SumOfX,SumOfXPhase}
+struct RydbergHamiltonian{RabiType <: RabiTypes} <: AbstractTerm
+    RydbergTerm::RydInteract
+    RabiTerm::RabiType
+    DetuningTerm::SumOfN
+end
+
+
 YaoAPI.nqudits(::XPhase) = 1
 YaoAPI.nqudits(::PdPhase) = 1
 YaoAPI.nqudits(::PuPhase) = 1
@@ -289,6 +297,7 @@ YaoAPI.nqudits(h::SumOfX) = h.nsites
 YaoAPI.nqudits(h::SumOfXPhase) = h.nsites
 YaoAPI.nqudits(h::SumOfZ) = h.nsites
 YaoAPI.nqudits(h::SumOfN) = h.nsites
+YaoAPI.nqudits(h::RydbergHamiltonian) = h.RydbergTerm.nsites
 
 function Base.:(==)(lhs::RydInteract, rhs::RydInteract)
     return lhs.C == rhs.C && lhs.atoms == rhs.atoms
@@ -310,11 +319,17 @@ function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
     return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ
 end
 
+function Base.:(==)(lhs::RydbergHamiltonian{<:RabiTypes}, rhs::RydbergHamiltonian{<:RabiTypes})
+    return lhs.RydbergTerm == rhs.RydbergTerm && lhs.RabiTerm == rhs.RabiTerm && lhs.DetuningTerm == rhs.DetuningTerm
+end
+
 Base.isreal(::RydInteract) = true
 Base.isreal(::SumOfN) = true
 Base.isreal(::SumOfX) = true
 Base.isreal(::SumOfZ) = true
 Base.isreal(::SumOfXPhase) = false
+Base.isreal(::RydbergHamiltonian{SumOfX}) = true
+Base.isreal(::RydbergHamiltonian{SumOfXPhase}) = false
 Base.isreal(h::Add) = all(isreal, subblocks(h))
 Base.isreal(h::Scale) = isreal(factor(h)) && isreal(content(h))
 
@@ -325,3 +340,4 @@ end
 function storage_size(H::SparseMatrixCSC)
     return sizeof(H.colptr) + sizeof(H.rowval) + sizeof(H.nzval)
 end
+

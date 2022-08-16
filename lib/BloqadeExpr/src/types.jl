@@ -282,48 +282,27 @@ end
 SumOfZ(n::Int) = SumOfZ(n, 1)
 
 
-# this subtype is a bit fishy here
-# There are some places where this 
-# helps overload some functions but 
-# for clarity it might make sense to 
-# to make this a unique type.
-struct RydbergHamiltonian <: AbstractTerm
-    Terms::AbstractBlock
-    C::Real
-    function RydbergHamiltonian(atom_positions, C, Ω, ϕ, Δ)
-        positions = map(atom_positions) do pos
-            return (pos...,)
-        end
-    
-        nsites = length(positions)
-        term = RydInteract(positions, C)
+RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
+DetuningTypes = Union{Nothing,SumOfN}
 
-        C = term.C
-    
-        Ω = div_by_two(Ω)
-    
-        if !isnothing(Ω) && !isnothing(ϕ)
-            term += SumOfXPhase(nsites, Ω, ϕ)
-        elseif !isnothing(Ω) && isnothing(ϕ)
-            term += SumOfX(nsites, Ω)
-        end
-    
-        if !isnothing(Δ)
-            term -= SumOfN(nsites, Δ)
-        end
-
-        return new(YaoBlocks.Optimise.simplify(term),C)
-    end
+struct RydbergHamiltonian{RabiType <: RabiTypes, DetuningType <: DetuningTypes} <: AbstractTerm
+    rydberg_term::RydInteract
+    rabi_term::RabiType
+    detuning_term::DetuningType
 end
 
+@inline add_terms(h::RydbergHamiltonian{Nothing,Nothing}) = YaoBlocks.Optimise.simplify(h.rydberg_term)
+@inline add_terms(h::RydbergHamiltonian{Nothing,SumOfN}) = YaoBlocks.Optimise.simplify(h.rydberg_term - h.detuning_term)
+@inline add_terms(h::RydbergHamiltonian{<:Union{SumOfX,SumOfXPhase},Nothing}) = YaoBlocks.Optimise.simplify(h.rydberg_term + h.rabi_term)
+@inline add_terms(h::RydbergHamiltonian) = YaoBlocks.Optimise.simplify(h.rydberg_term + h.rabi_term - h.detuning_term)
 
 
 function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where {T,N}
-    return YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(h.Terms), i, j)
+    return YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(add_terms(h)), i, j)
 end
 
 function YaoBlocks.unsafe_getcol(::Type{T}, h::RydbergHamiltonian, j::DitStr{2}) where T
-    YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(h.Terms), j)
+    YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(add_terms(h)), j)
 end
 
 YaoAPI.nqudits(::XPhase) = 1
@@ -334,7 +313,7 @@ YaoAPI.nqudits(h::SumOfX) = h.nsites
 YaoAPI.nqudits(h::SumOfXPhase) = h.nsites
 YaoAPI.nqudits(h::SumOfZ) = h.nsites
 YaoAPI.nqudits(h::SumOfN) = h.nsites
-@inline YaoAPI.nqudits(h::RydbergHamiltonian) = nqudits(h.Terms)
+@inline YaoAPI.nqudits(h::RydbergHamiltonian) = nqudits(h.rydberg_term)
 
 
 function Base.:(==)(lhs::RydInteract, rhs::RydInteract)
@@ -358,7 +337,7 @@ function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
 end
 
 function Base.:(==)(lhs::RydbergHamiltonian, rhs::RydbergHamiltonian)
-    return lhs.C == rhs.C && lhs.Terms == rhs.Terms
+    return lhs.rydberg_term == rhs.rydberg_term && lhs.rabi_term == rhs.rabi_term && lhs.detuning_term == rhs.detuning_term
 end
 
 Base.isreal(::RydInteract) = true
@@ -368,7 +347,11 @@ Base.isreal(::SumOfZ) = true
 Base.isreal(::SumOfXPhase) = false
 Base.isreal(h::Add) = all(isreal, subblocks(h))
 Base.isreal(h::Scale) = isreal(factor(h)) && isreal(content(h))
-Base.isreal(h::RydbergHamiltonian) = Base.isreal(h.Terms)
+Base.isreal(h::RydbergHamiltonian{<:Union{Nothing,SumOfX},<:Union{Nothing,SumOfN}}) = true
+Base.isreal(h::RydbergHamiltonian{SumOfXPhase,<:Union{Nothing,SumOfN}}) = false
+
+
+
 
 storage_size(x) = sizeof(x)
 function storage_size(h::Hamiltonian)

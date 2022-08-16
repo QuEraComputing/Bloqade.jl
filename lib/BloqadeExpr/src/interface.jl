@@ -78,7 +78,32 @@ function rydberg_h(atom_positions; C = 2π * 862690, Ω = nothing, ϕ = nothing,
     return rydberg_h(atom_positions, C, Ω, ϕ, Δ)
 end
 
-rydberg_h(atom_positions, C, Ω, ϕ, Δ) = RydbergHamiltonian(atom_positions, C, Ω, ϕ, Δ)
+function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
+    positions = map(atom_positions) do pos
+        return (pos...,)
+    end
+
+    nsites = length(positions)
+    rydberg_term = RydInteract(positions, C)
+
+    Ω = div_by_two(Ω)
+
+    if !isnothing(Ω) && !isnothing(ϕ)
+        rabi_term = SumOfXPhase(nsites, Ω, ϕ)
+    elseif !isnothing(Ω) && isnothing(ϕ)
+        rabi_term = SumOfX(nsites, Ω)
+    else
+        rabi_term = nothing
+    end
+
+    if !isnothing(Δ)
+        detuning_term = SumOfN(nsites, Δ)
+    else
+        detuning_term = nothing
+    end
+
+    return RydbergHamiltonian(rydberg_term,rabi_term,detuning_term)
+end
 
 function div_by_two(Ω)
     isnothing(Ω) && return
@@ -171,5 +196,5 @@ end
 
 
 function attime(h::RydbergHamiltonian, t::Real)
-    return attime(h.Terms,t)
+    return attime(add_terms(h),t)
 end

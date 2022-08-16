@@ -149,11 +149,11 @@ end
 
 
 function latex_expr(h::RydbergHamiltonian)
-    return latex_expr(h.Terms)
+    return latex_expr(add_terms(h))
 end
 
 function print_expr(io::IO, ::MIME"text/plain", h::RydbergHamiltonian)
-    print(io,latex_expr(h.Terms))
+    print(io,latex_expr(add_terms(h)))
 end
 
 function Base.show(io::IO, ::MIME"text/plain", h::Hamiltonian)

@@ -129,7 +129,7 @@ function emit_dynamic_terms(ex::SumOfXPhase)
     end
 end
 
-emit_dynamic_terms(h::RydbergHamiltonian) = emit_dynamic_terms(h.Terms)
+emit_dynamic_terms(h::RydbergHamiltonian) = emit_dynamic_terms(add_terms(h))
 
 """
     Hamiltonian(::Type{Tv}, expr[, space=fullspace])

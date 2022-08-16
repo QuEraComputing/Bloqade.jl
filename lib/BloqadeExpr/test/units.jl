@@ -15,7 +15,7 @@ using Unitful: kHz, µHz, Hz, MHz, µm, m, mm, cm
     h = RydInteract(atoms = [(1,), (2,), (3,), (4)], C = 109.2kHz * µm^6)
     @test h.C ≈ 0.1092
     h = rydberg_h([(1,), (2,)], C = 109.2kHz * µm^6)
-    @test h.C ≈ 0.1092
+    @test h.rydberg_term.C ≈ 0.1092
 end
 
 unitless_values = [5, 0:0.1:1, [1,2,3]]

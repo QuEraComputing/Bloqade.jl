@@ -60,6 +60,25 @@ function from_schema(t::TaskSpecification)
     return BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
 end
 
+to_json(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_json(h, SchemaConversionParams(;kw...))
+to_dict(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_dict(h, SchemaConversionParams(;kw...))
+to_schema(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_schema(h, SchemaConversionParams(;kw...))
+
+function to_json(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
+    return JSON.json(BloqadeSchema.to_dict(h, params))
+end
+
+function to_dict(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
+    return Configurations.to_dict(to_schema(h, params))
+end
+
+
+
+function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
+    return to_schema(BloqadeExpr.add_terms(h),params)
+end
+
+
 """
     to_json(h::AbstractBlock; kw...)
 

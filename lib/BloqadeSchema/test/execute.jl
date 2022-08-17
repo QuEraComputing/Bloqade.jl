@@ -57,7 +57,7 @@ end
     h = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
 
     @test BloqadeSchema.to_schema(
-        BloqadeExpr.add_terms(h);
+        h;
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
         rabi_detuning_max_slope = 10,
@@ -97,7 +97,7 @@ end
     h = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
 
     @test BloqadeSchema.to_schema(
-        BloqadeExpr.add_terms(h);
+        h;
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
         rabi_detuning_max_slope = 10,
@@ -138,7 +138,7 @@ end
     h = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω)
 
     @test BloqadeSchema.to_schema(
-        BloqadeExpr.add_terms(h);
+        h;
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
         rabi_detuning_max_slope = 10,
@@ -204,7 +204,7 @@ end
         n_shots = 100,
     )
 
-    @test BloqadeSchema.to_json(BloqadeExpr.add_terms(h), params) ==
+    @test BloqadeSchema.to_json(h, params) ==
           "{\"nshots\":100,\"lattice\":{\"sites\":[[0.0,0.0],[1.0,3.0],[4.0,2.0],[6.0,3.0],[0.0,5.0],[2.0,5.0]],\"filling\":[1,1,1,1,1,1]},\"effective_hamiltonian\":{\"rydberg\":{\"rabi_frequency_amplitude\":{\"global\":{\"times\":[0.0,1.8,2.0,3.9,4.0,5.8,6.0],\"values\":[5.0,5.0,3.0,3.0,4.0,4.0,6.0]}},\"rabi_frequency_phase\":{\"global\":{\"times\":[0.0,5.0],\"values\":[33.0,0.0]}},\"detuning\":{\"global\":{\"times\":[0.0,0.6,2.1,2.2],\"values\":[-10.1,-10.1,10.1,10.1]}}}}}"
 end
 
@@ -222,9 +222,9 @@ end
         n_shots = 100,
     )
 
-    d = BloqadeSchema.to_dict(BloqadeExpr.add_terms(h), params)
+    d = BloqadeSchema.to_dict(h, params)
     @test Configurations.from_dict(BloqadeSchema.TaskSpecification, d) == BloqadeSchema.to_schema(
-        BloqadeExpr.add_terms(h);
+        h;
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
         rabi_detuning_max_slope = 10,
@@ -266,7 +266,7 @@ end
         rabi_detuning_max_slope=10, n_shots=3
     )
 
-    ir_str = BloqadeSchema.to_json(BloqadeExpr.add_terms(h), params)
+    ir_str = BloqadeSchema.to_json(h, params)
 
     # task_out_str = BloqadeSchema.execute(ir_str)
     # @test task_out_str == string("""{"task_status_code":200,"shot_outputs":[""",

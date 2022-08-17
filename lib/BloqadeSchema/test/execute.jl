@@ -244,13 +244,13 @@ end
         rabi_frequency_phase_max_slope=10,
         rabi_detuning_max_slope=10, n_shots=100
     )
-    block = BloqadeExpr.add_terms(h)
-    block2 = BloqadeSchema.from_json(BloqadeSchema.to_json(block, params))
 
-    @test block |> attime(0.1) == block2 |> attime(0.1)
-    @test block |> attime(1) == block2 |> attime(1)
-    @test block |> attime(1.33) == block2 |> attime(1.33)
-    @test block |> attime(2) == block2 |> attime(2)
+    h2 = BloqadeSchema.from_json(BloqadeSchema.to_json(h, params))
+
+    @test h |> attime(0.1) == h2 |> attime(0.1)
+    @test h |> attime(1) == h2 |> attime(1)
+    @test h |> attime(1.33) == h2 |> attime(1.33)
+    @test h |> attime(2) == h2 |> attime(2)
 end
 
 @testset "execute json task" begin

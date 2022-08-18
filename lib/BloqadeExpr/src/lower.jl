@@ -204,6 +204,28 @@ function YaoBlocks.Optimise.to_basictypes(ex::RydInteract)
     return term
 end
 
+function YaoBlocks.Optimise.to_basictypes(h::RydbergHamiltonian{Nothing,Nothing})
+    return YaoBlocks.Optimise.to_basictypes(h.rydberg_term)
+end
+
+function YaoBlocks.Optimise.to_basictypes(h::RydbergHamiltonian{Nothing,SumOfN})
+    rydberg_terms = YaoBlocks.Optimise.to_basictypes(h.rydberg_term)
+    detuning_terms = YaoBlocks.Optimise.to_basictypes(h.detuning_term)
+    return rydberg_terms - detuning_terms
+end
+
+function YaoBlocks.Optimise.to_basictypes(h::RydbergHamiltonian{<:Union{SumOfX,SumOfXPhase},Nothing})
+    rydberg_terms = YaoBlocks.Optimise.to_basictypes(h.rydberg_term)
+    rabi_terms = YaoBlocks.Optimise.to_basictypes(h.rabi_term)
+    return rydberg_terms + rabi_terms
+end
+
+function YaoBlocks.Optimise.to_basictypes(h::RydbergHamiltonian)
+    rydberg_terms = YaoBlocks.Optimise.to_basictypes(h.rydberg_term)
+    rabi_terms = YaoBlocks.Optimise.to_basictypes(h.rabi_term)
+    detuning_terms = YaoBlocks.Optimise.to_basictypes(h.detuning_term)
+    return rydberg_terms + rabi_terms - detuning_terms
+end
 
 
 function emit_lowered(h)

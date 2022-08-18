@@ -72,11 +72,69 @@ function to_dict(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionPara
     return Configurations.to_dict(to_schema(h, params))
 end
 
+parse_parameter(x::Real) = throw(Base.NotImplementedError("not implemented"))
+parse_parameter(x::Vector{<:Real}) = throw(Base.NotImplementedError("not implemented")) 
+parse_parameter(x::Vector) = throw(Base.NotImplementedError("not implemented")) 
+parse_parameter(x::BloqadeExpr.DivByTwo) = x.f
+parse_parameter(x::Waveform) = x
 
+function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{Nothing,Nothing})
+    ϕ = nothing
+    Ω = nothing
+    Δ = nothing
+    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
+end
+
+function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{SumOfX,Nothing})
+    ϕ = nothing
+    Ω = parse_parameter(h.rabi_term.Ω)
+    Δ = nothing
+    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
+end
+
+function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{SumOfXPhase,Nothing})
+    ϕ = parse_parameter(h.detuning_term.ϕ)
+    Ω = parse_parameter(h.rabi_term.Ω)
+    Δ = nothing
+    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
+end
+
+function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{Nothing,SumOfN})
+    ϕ = nothing
+    Ω = nothing
+    Δ = h.detuning_term.Δ
+    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
+end
+
+function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{SumOfX,SumOfN})
+    ϕ = nothing
+    Ω = parse_parameter(h.rabi_term.Ω)
+    Δ = parse_parameter(h.detuning_term.Δ)
+    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
+end
+
+function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{SumOfXPhase,SumOfN})
+    ϕ = parse_parameter(h.rabi_term.ϕ)
+    Ω = parse_parameter(h.rabi_term.Ω)
+    Δ = parse_parameter(h.detuning_term.Δ)
+    
+    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
+end
 
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    return to_schema(BloqadeExpr.add_terms(h),params)
+    atoms,ϕ,Ω,Δ = parse_rydberg_params(h)
+
+    return TaskSpecification(;
+        nshots=params.n_shots,
+        lattice=to_lattice(atoms),
+        effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ,
+            params.rabi_frequency_amplitude_max_slope,
+            params.rabi_frequency_phase_max_slope,
+            params.rabi_detuning_max_slope
+        )
+    )
 end
+
 
 
 """

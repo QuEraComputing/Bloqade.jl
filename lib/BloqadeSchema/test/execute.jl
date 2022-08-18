@@ -56,8 +56,7 @@ end
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
     h = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
 
-    @test BloqadeSchema.to_schema(
-        h;
+    @test BloqadeSchema.to_schema(h;
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
         rabi_detuning_max_slope = 10,

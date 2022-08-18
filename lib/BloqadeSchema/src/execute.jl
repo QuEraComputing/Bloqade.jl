@@ -74,7 +74,6 @@ end
 
 parse_parameter(x::Real) = throw(Base.NotImplementedError("not implemented"))
 parse_parameter(x::Vector{<:Real}) = throw(Base.NotImplementedError("not implemented")) 
-parse_parameter(x::Vector) = throw(Base.NotImplementedError("not implemented")) 
 parse_parameter(x::BloqadeExpr.DivByTwo) = x.f
 parse_parameter(x::Waveform) = x
 

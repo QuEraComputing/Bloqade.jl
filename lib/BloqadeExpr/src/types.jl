@@ -281,6 +281,16 @@ end
 
 SumOfZ(n::Int) = SumOfZ(n, 1)
 
+struct DivByTwo{F}
+    f::F
+    function DivByTwo(f)
+        assert_has_time_method(f,:f)
+        return new{typeof(f)}(f)
+    end
+end
+
+@inline (Func::DivByTwo)(t::Real) = Func.f(t)/2
+
 
 RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
 DetuningTypes = Union{Nothing,SumOfN}
@@ -295,43 +305,6 @@ end
 @inline add_terms(h::RydbergHamiltonian{Nothing,SumOfN}) = YaoBlocks.Optimise.simplify(h.rydberg_term - h.detuning_term)
 @inline add_terms(h::RydbergHamiltonian{<:Union{SumOfX,SumOfXPhase},Nothing}) = YaoBlocks.Optimise.simplify(h.rydberg_term + h.rabi_term)
 @inline add_terms(h::RydbergHamiltonian) = YaoBlocks.Optimise.simplify(h.rydberg_term + h.rabi_term - h.detuning_term)
-
-
-get_rydberg_params(h::RydbergHamiltonian{Nothing,Nothing}) = (C=h.rydberg_term.C,
-                                                              atoms=h.rydberg_term.atoms,
-                                                              ϕ=nothing,
-                                                              Ω=nothing,
-                                                              Δ=nothing)
-
-get_rydberg_params(h::RydbergHamiltonian{Nothing,SumOfN}) = (C=h.rydberg_term.C,
-                                                             atoms=h.rydberg_term.atoms,
-                                                             ϕ=nothing,
-                                                             Ω=nothing,
-                                                             Δ=h.detuning_term.Δ)
-
-get_rydberg_params(h::RydbergHamiltonian{SumOfX,SumOfN}) = (C=h.rydberg_term.C,
-                                                            atoms=h.rydberg_term.atoms,
-                                                            ϕ=nothing,
-                                                            Ω=h.rabi_term.Ω,
-                                                            Δ=h.detuning_term.Δ)
-    
-get_rydberg_params(h::RydbergHamiltonian{SumOfX,Nothing}) = (C=h.rydberg_term.C,
-                                                             atoms=h.rydberg_term.atoms,
-                                                             ϕ=nothing,
-                                                             Ω=h.rabi_term.Ω,
-                                                             Δ=nothing)
-    
-get_rydberg_params(h::RydbergHamiltonian{SumOfXPhase,Nothing}) = (C=h.rydberg_term.C,
-                                                                  atoms=h.rydberg_term.atoms,
-                                                                  ϕ=h.rabi_term.ϕ,
-                                                                  Ω=h.rabi_term.Ω,
-                                                                  Δ=nothing)
-
-get_rydberg_params(h::RydbergHamiltonian{SumOfXPhase,SumOfN}) = (C=h.rydberg_term.C,
-                                                                 atoms=h.rydberg_term.atoms,
-                                                                 ϕ=h.rabi_term.ϕ,
-                                                                 Ω=h.rabi_term.Ω,
-                                                                 Δ=h.detuning_term.Δ)
 
 function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where {T,N}
     return YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(add_terms(h)), i, j)

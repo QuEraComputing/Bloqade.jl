@@ -113,10 +113,10 @@ function div_by_two(Ω)
 
     return if Ω isa Vector
         map(Ω) do Ω_i
-            return t -> Ω_i(t) / 2
+            return DivByTwo(Ω_i)
         end
     else
-        t -> Ω(t) / 2
+        DivByTwo(Ω)
     end
 end
 

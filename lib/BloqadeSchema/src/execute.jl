@@ -122,9 +122,9 @@ function to_schema(h::AbstractBlock, params::SchemaConversionParams)
             atoms = block.atoms
         elseif block isa SumOfXPhase
             ϕ = block.ϕ
-            Ω = block.Ω.Ω
+            Ω = block.Ω.f
         elseif block isa SumOfX
-            Ω = block.Ω.Ω
+            Ω = block.Ω.f
         elseif block isa SumOfN
             Δ = block.Δ
         end

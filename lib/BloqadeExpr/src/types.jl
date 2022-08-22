@@ -292,26 +292,36 @@ end
 @inline (Func::DivByTwo)(t::Real) = Func.f(t)/2
 
 
-RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
-DetuningTypes = Union{Nothing,SumOfN}
+const RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
+const DetuningTypes = Union{Nothing,SumOfN}
 
-struct RydbergHamiltonian{RabiType <: RabiTypes, DetuningType <: DetuningTypes} <: AbstractTerm
+struct RydbergHamiltonian <: AbstractTerm
     rydberg_term::RydInteract
-    rabi_term::RabiType
-    detuning_term::DetuningType
+    rabi_term::RabiTypes
+    detuning_term::DetuningTypes
 end
 
-@inline add_terms(h::RydbergHamiltonian{Nothing,Nothing}) = YaoBlocks.Optimise.simplify(h.rydberg_term)
-@inline add_terms(h::RydbergHamiltonian{Nothing,SumOfN}) = YaoBlocks.Optimise.simplify(h.rydberg_term - h.detuning_term)
-@inline add_terms(h::RydbergHamiltonian{<:Union{SumOfX,SumOfXPhase},Nothing}) = YaoBlocks.Optimise.simplify(h.rydberg_term + h.rabi_term)
-@inline add_terms(h::RydbergHamiltonian) = YaoBlocks.Optimise.simplify(h.rydberg_term + h.rabi_term - h.detuning_term)
+function add_terms(h::RydbergHamiltonian)
+    terms = h.rydberg_term
+
+    if typeof(h.rabi_term) <: Union{SumOfX,SumOfXPhase}
+        terms += h.rabi_term
+    end
+    
+    if h.detuning_term isa SumOfN
+        terms -= h.detuning_term
+    end
+    
+    return YaoBlocks.Optimise.simplify(terms)
+
+end
 
 function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where {T,N}
-    return YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(add_terms(h)), i, j)
+    return YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(h), i, j)
 end
 
 function YaoBlocks.unsafe_getcol(::Type{T}, h::RydbergHamiltonian, j::DitStr{2}) where T
-    YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(add_terms(h)), j)
+    YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(h), j)
 end
 
 YaoAPI.nqudits(::XPhase) = 1
@@ -356,9 +366,7 @@ Base.isreal(::SumOfZ) = true
 Base.isreal(::SumOfXPhase) = false
 Base.isreal(h::Add) = all(isreal, subblocks(h))
 Base.isreal(h::Scale) = isreal(factor(h)) && isreal(content(h))
-Base.isreal(h::RydbergHamiltonian{<:Union{Nothing,SumOfX},<:Union{Nothing,SumOfN}}) = true
-Base.isreal(h::RydbergHamiltonian{SumOfXPhase,<:Union{Nothing,SumOfN}}) = false
-
+Base.isreal(h::RydbergHamiltonian) = !(h.rabi_term isa SumOfXPhase)
 
 
 

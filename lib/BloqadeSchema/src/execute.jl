@@ -72,56 +72,32 @@ function to_dict(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionPara
     return Configurations.to_dict(to_schema(h, params))
 end
 
-parse_parameter(x::Real) = throw(Base.NotImplementedError("not implemented"))
-parse_parameter(x::Vector{<:Real}) = throw(Base.NotImplementedError("not implemented")) 
-parse_parameter(x::BloqadeExpr.DivByTwo) = x.f
-parse_parameter(x::Waveform) = x
+parse_parameter(x::Real, params::SchemaConversionParams) = throw(Base.NotImplementedError("not implemented"))
+parse_parameter(x::Vector{<:Real}, params::SchemaConversionParams) = throw(Base.NotImplementedError("not implemented")) 
+parse_parameter(x::BloqadeExpr.DivByTwo, params::SchemaConversionParams) = x.f
+parse_parameter(x::Waveform, params::SchemaConversionParams) = x
 
-function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{Nothing,Nothing})
+function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
     ϕ = nothing
     Ω = nothing
     Δ = nothing
-    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
-end
 
-function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{SumOfX,Nothing})
-    ϕ = nothing
-    Ω = parse_parameter(h.rabi_term.Ω)
-    Δ = nothing
-    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
-end
+    if h.rabi_term isa BloqadeExpr.SumOfX
+        Ω = parse_parameter(h.rabi_term.Ω, params)
+    elseif h.rabi_term isa BloqadeExpr.SumOfXPhase
+        Ω = parse_parameter(h.rabi_term.Ω, params)
+        ϕ = parse_parameter(h.rabi_term.ϕ, params)
+    end
 
-function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{SumOfXPhase,Nothing})
-    ϕ = parse_parameter(h.detuning_term.ϕ)
-    Ω = parse_parameter(h.rabi_term.Ω)
-    Δ = nothing
-    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
-end
+    if h.detuning_term isa BloqadeExpr.SumOfN
+        Δ = parse_parameter(h.detuning_term.Δ, params)
+    end
 
-function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{Nothing,SumOfN})
-    ϕ = nothing
-    Ω = nothing
-    Δ = h.detuning_term.Δ
-    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
-end
-
-function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{SumOfX,SumOfN})
-    ϕ = nothing
-    Ω = parse_parameter(h.rabi_term.Ω)
-    Δ = parse_parameter(h.detuning_term.Δ)
-    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
-end
-
-function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian{SumOfXPhase,SumOfN})
-    ϕ = parse_parameter(h.rabi_term.ϕ)
-    Ω = parse_parameter(h.rabi_term.Ω)
-    Δ = parse_parameter(h.detuning_term.Δ)
-    
     return (h.rydberg_term.atoms,ϕ,Ω,Δ)
 end
 
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    atoms,ϕ,Ω,Δ = parse_rydberg_params(h)
+    atoms,ϕ,Ω,Δ = parse_rydberg_params(h,params)
 
     return TaskSpecification(;
         nshots=params.n_shots,

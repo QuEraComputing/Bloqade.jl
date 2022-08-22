@@ -11,7 +11,7 @@ function descretize_waveform(wf::Waveform{PiecewiseLinear{T,Interp},T};
     c = wf.f.clocks
     v = wf.f.values
 
-    for i in 1:length(c)-1
+    @inbounds for i in 1:length(c)-1
 
         lb = c[i]
         ub = c[i+1]

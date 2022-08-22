@@ -32,7 +32,7 @@ _toregular_matrix(x::AbstractMatrix) = x
 _toregular_matrix(x::Union{PermMatrix,IMatrix}) = SparseMatrixCSC(x)
 YaoBlocks.mat(x::AbstractBlock, s::Subspace) = mat(promote_type(ComplexF64, YaoBlocks.parameters_eltype(x)), x, s)
 
-YaoBlocks.mat(::Type{T}, d::TrivialGate{N}, s::Subspace) where {T,N} = IMatrix{length(s),T}()
+YaoBlocks.mat(::Type{T}, d::TrivialGate{N}, s::Subspace) where {T,N} = IMatrix{T}(length(s))
 YaoBlocks.mat(::Type{T}, pb::PutBlock{N,C}, s::Subspace) where {T,N,C} =
     _cunmat(s.subspace_v, s.map, (), (), mat(T, pb.content), pb.locs)
 YaoBlocks.mat(::Type{T}, c::Subroutine{D,<:AbstractBlock}, s::Subspace) where {D,T} =

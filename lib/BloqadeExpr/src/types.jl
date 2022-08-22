@@ -292,8 +292,8 @@ end
 @inline (Func::DivByTwo)(t::Real) = Func.f(t)/2
 
 
-RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
-DetuningTypes = Union{Nothing,SumOfN}
+const RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
+const DetuningTypes = Union{Nothing,SumOfN}
 
 struct RydbergHamiltonian{RabiType <: RabiTypes, DetuningType <: DetuningTypes} <: AbstractTerm
     rydberg_term::RydInteract

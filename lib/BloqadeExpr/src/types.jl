@@ -295,7 +295,7 @@ end
 const RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
 const DetuningTypes = Union{Nothing,SumOfN}
 
-struct RydbergHamiltonian{RabiType <: RabiTypes, DetuningType <: DetuningTypes} <: AbstractTerm
+struct RydbergHamiltonian <: AbstractTerm
     rydberg_term::RydInteract
     rabi_term::RabiType
     detuning_term::DetuningType

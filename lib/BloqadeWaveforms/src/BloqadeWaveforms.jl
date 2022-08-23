@@ -17,7 +17,7 @@ export Waveform,
     constant,
     sinusoidal,
     append,
-    descretize_waveform,
+    descretize,
     ..,
     # smooth
     smooth,

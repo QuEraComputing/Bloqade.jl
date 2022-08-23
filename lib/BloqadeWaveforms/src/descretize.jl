@@ -2,16 +2,16 @@
 
 
 
-function descretize_waveform(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
-    max_value::Real=Inf, 
-    max_slope::Real=Inf, 
-    min_step::Real=0, 
-    tol::Float64 = 1.0e-3) where {T<:Real,Interp}
+function descretize(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
+    max_value::Real=Inf64, 
+    max_slope::Real=Inf64, 
+    min_step::Real=0.0, 
+    tol::Real = 1.0e-5) where {T<:Real,Interp}
 
     c = wf.f.clocks
     v = wf.f.values
 
-    for i in 1:length(c)-1
+    @inbounds for i in 1:length(c)-1
 
         lb = c[i]
         ub = c[i+1]
@@ -40,11 +40,11 @@ function descretize_waveform(wf::Waveform{PiecewiseLinear{T,Interp},T};
 
 end
 
-function descretize_waveform(wf::Waveform{PiecewiseConstant{T},T}; 
-    max_value::Real=Inf, 
-    max_slope::Real=Inf, 
-    min_step::Real=0, 
-    tol::Float64 = 1.0e-3) where {T<:Real}
+function descretize(wf::Waveform{PiecewiseConstant{T},T}; 
+    max_value::Real=Inf64, 
+    max_slope::Real=Inf64, 
+    min_step::Real=0.0, 
+    tol::Real = 1.0e-5) where {T<:Real}
 
     c = wf.f.clocks
     v = wf.f.values
@@ -57,7 +57,7 @@ function descretize_waveform(wf::Waveform{PiecewiseConstant{T},T};
 
     itol = tol / (length(v) - 1) # distribute error over each step
 
-    for i in 1:length(v)-1
+    @inbounds for i in 1:length(v)-1
         t0 = c[i+1]        
         Δv = v[i+1]-v[i]
         Δt = 4*itol/abs(Δv) # let error determine step size, error is equal to area between step and line functions
@@ -86,17 +86,17 @@ function descretize_waveform(wf::Waveform{PiecewiseConstant{T},T};
 
 end
 
-function descretize_waveform(wf::Waveform; 
-    max_value::Real=Inf, 
-    max_slope::Real=Inf, 
-    min_step::Real=0, 
-    tol::Float64 = 1.0e-5)
+function descretize(wf::Waveform; 
+    max_value::Real=Inf64, 
+    max_slope::Real=Inf64, 
+    min_step::Real=0.0, 
+    tol::Real = 1.0e-5)
     
     # TODO:
     # need to optimize stack and intervals
 
-    stack = Tuple{Float64,Float64}[(0.0,wf.duration)]
-    intervals = Tuple{Float64,Float64,Float64,Float64}[]
+    stack = NTuple{2,Float64}[(0.0,wf.duration)]
+    intervals = NTuple{4,Float64}[]
     wf_wrapper = t -> sample_values(wf,t)
     while !isempty(stack)
         lb,ub = pop!(stack)

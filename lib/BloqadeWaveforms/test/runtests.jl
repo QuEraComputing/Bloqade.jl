@@ -7,3 +7,7 @@ end
 @testset "smooth" begin
     include("smooth.jl")
 end
+
+@testset "descretize" begin
+    include("descretize.jl")
+end

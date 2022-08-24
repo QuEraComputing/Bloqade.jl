@@ -40,8 +40,8 @@ end
 
 function print_expr(io::IO, ::MIME"text/plain", t::RydInteract)
     C = t.C / 2π
-    n = ceil(log10(C))
-    C = round(C / 10^(n - 1), digits = 3)
+    n = ceil(log10(C))-1
+    C = round(C / 10^n, digits = 3)
     return print(io, "∑ 2π ⋅ $(C)e$n/|r_i-r_j|^6 n_i n_j")
 end
 

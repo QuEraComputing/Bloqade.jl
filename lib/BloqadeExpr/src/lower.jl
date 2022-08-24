@@ -205,17 +205,8 @@ function YaoBlocks.Optimise.to_basictypes(ex::RydInteract)
 end
 
 function YaoBlocks.Optimise.to_basictypes(h::RydbergHamiltonian)
-    terms = YaoBlocks.Optimise.to_basictypes(h.rydberg_term)
-
-    if typeof(h.rabi_term) <: Union{SumOfX,SumOfXPhase}
-        terms += YaoBlocks.Optimise.to_basictypes(h.rabi_term)
-    end
-
-    if h.detuning_term isa SumOfN
-        terms -= YaoBlocks.Optimise.to_basictypes(h.detuning_term)
-    end
-
-    return terms
+   
+    return YaoBlocks.Optimise.simplify(add_terms(h); rules=[YaoBlocks.Optimise.to_basictypes])
 end
 
 

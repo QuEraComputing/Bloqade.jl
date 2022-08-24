@@ -5,6 +5,7 @@ using Intervals
 using UnicodePlots
 using LinearAlgebra
 using Interpolations
+using QuadGK: quadgk
 using BloqadeExpr: default_unit
 
 export Waveform,
@@ -16,6 +17,7 @@ export Waveform,
     constant,
     sinusoidal,
     append,
+    descretize,
     ..,
     # smooth
     smooth,
@@ -23,5 +25,6 @@ export Waveform,
 
 include("waveform.jl")
 include("smooth.jl")
+include("descretize.jl")
 
 end

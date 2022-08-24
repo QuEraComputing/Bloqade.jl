@@ -78,28 +78,31 @@ function rydberg_h(atom_positions; C = 2π * 862690, Ω = nothing, ϕ = nothing,
     return rydberg_h(atom_positions, C, Ω, ϕ, Δ)
 end
 
-# make Python wrapper work
 function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
     positions = map(atom_positions) do pos
         return (pos...,)
     end
 
     nsites = length(positions)
-    term = RydInteract(positions, C)
+    rydberg_term = RydInteract(positions, C)
 
     Ω = div_by_two(Ω)
 
     if !isnothing(Ω) && !isnothing(ϕ)
-        term += SumOfXPhase(nsites, Ω, ϕ)
+        rabi_term = SumOfXPhase(nsites, Ω, ϕ)
     elseif !isnothing(Ω) && isnothing(ϕ)
-        term += SumOfX(nsites, Ω)
+        rabi_term = SumOfX(nsites, Ω)
+    else
+        rabi_term = nothing
     end
 
     if !isnothing(Δ)
-        term -= SumOfN(nsites, Δ)
+        detuning_term = SumOfN(nsites, Δ)
+    else
+        detuning_term = nothing
     end
 
-    return YaoBlocks.Optimise.simplify(term)
+    return RydbergHamiltonian(rydberg_term,rabi_term,detuning_term)
 end
 
 function div_by_two(Ω)
@@ -110,10 +113,10 @@ function div_by_two(Ω)
 
     return if Ω isa Vector
         map(Ω) do Ω_i
-            return t -> Ω_i(t) / 2
+            return DivByTwo(Ω_i)
         end
     else
-        t -> Ω(t) / 2
+        DivByTwo(Ω)
     end
 end
 
@@ -189,4 +192,9 @@ function attime(h::Union{SumOfZ,SumOfN}, t::Real)
         Δ = h.Δ(t)
     end
     return typeof(h)(h.nsites, Δ)
+end
+
+
+function attime(h::RydbergHamiltonian, t::Real)
+    return attime(add_terms(h),t)
 end

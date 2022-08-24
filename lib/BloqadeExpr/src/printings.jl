@@ -1,7 +1,10 @@
 YaoBlocks.print_block(io::IO, t::AbstractTerm) = print_expr(io, MIME"text/plain"(), t)
+YaoBlocks.print_block(io::IO, t::RydbergHamiltonian) = print_expr(io, MIME"text/plain"(), t)
 YaoBlocks.print_block(io::IO, t::XPhase) = print(io, "XPhase(", t.ϕ, ")")
 
 Base.show(io::IO, ::Union{MIME"text/latex",MIME"application/x-latex"}, t::AbstractTerm) =
+    print(io, latexstring(latex_expr(t)))
+Base.show(io::IO, ::Union{MIME"text/latex",MIME"application/x-latex"}, t::RydbergHamiltonian) =
     print(io, latexstring(latex_expr(t)))
 Base.show(io::IO, ::Union{MIME"text/latex",MIME"application/x-latex"}, t::Add) = print(io, latexstring(latex_expr(t)))
 
@@ -145,6 +148,14 @@ function latex_expr(t::SumOfXPhase)
         tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
     end
     return tex
+end
+
+function latex_expr(h::RydbergHamiltonian)
+    return latex_expr(add_terms(h))
+end
+
+function print_expr(io::IO, ::MIME"text/plain", h::RydbergHamiltonian)
+    print(io,add_terms(h))
 end
 
 function Base.show(io::IO, ::MIME"text/plain", h::Hamiltonian)

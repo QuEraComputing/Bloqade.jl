@@ -3,7 +3,7 @@ using Statistics
 
 @testset "Probability Vectors" begin
     @testset "Small Vector of size $n" for n in 1:10
-        p = rand(1:10, n)
+        p = float.(rand(1:10, n))
         mean_ = p' * collect(1:size(p,1)) / sum(p)
         var_ = (p' * (collect(1:size(p,1)) .^ 2) / sum(p)) - mean_^2
 

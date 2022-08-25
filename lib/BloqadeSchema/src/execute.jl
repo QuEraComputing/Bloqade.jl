@@ -1,3 +1,182 @@
+
+
+
+function get_rydberg_params(h::BloqadeExpr.RydbergHamiltonian)
+    # extracts parameters from RydbergHamiltonian
+    ϕ = nothing
+    Ω = nothing
+    Δ = nothing
+
+    if h.rabi_term isa BloqadeExpr.SumOfX
+        Ω = h.rabi_term.Ω.f
+    elseif h.rabi_term isa BloqadeExpr.SumOfXPhase
+        Ω = h.rabi_term.Ω.f
+        ϕ = h.rabi_term.ϕ
+    end
+
+    if h.detuning_term isa BloqadeExpr.SumOfN
+        Δ = h.detuning_term.Δ
+    end
+
+    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
+end
+
+# parsing individual fields
+# we split them up because each 
+# field has different constraints. 
+
+function parse_static_rydberg_Ω(param::Real,duration::Real,max_slope::Real,min_step::Real)
+    step = max(min_step,abs(param/max_slope))
+
+    clocks = Float64[0.0,step,duration-step,duration]
+    values = Float64[0.0,param,param,0.0]
+    waveform = piecewise_linear(;clocks,values)
+
+    return (1.0,waveform)
+end
+
+function parse_static_rydberg_Ω(::Nothing,duration::Real,max_slope::Real,min_step::Real)
+
+    clocks = Float64[0.0,duration]
+    values = Float64[0.0,0.0]
+    waveform = piecewise_linear(;clocks,values)
+
+    return (1.0,waveform)
+end
+
+function parse_static_rydberg_Ω(::Vector{<:Real},duration::Real,max_slope::Real,min_step::Real)
+    throw(ErrorException("Rabi field must be global drive."))
+end
+
+function parse_dynamic_rydberg_Ω(param::Waveform{F,T};duration=nothing) where {F,T<:Real}
+    duration = (duration ≡ nothing ? param.duration : duration)
+    
+    if !(duration ≡ nothing) && param.duration != duration
+        throw(ErrorException("Waveform durations do not match."))
+    end
+
+    if !isapprox(param(0.0), 0.0;atol=eps(),rtol=eps()) || !isapprox(param(duration),0.0;atol=eps(),rtol=eps())
+        throw(ErrorException("Rabi Drive must start and end with value 0."))
+    end
+
+    return (1.0,param,duration)
+end
+
+function parse_dynamic_rydberg_Ω(::Vector{Waveform{F,T}};duration=nothing) where {F,T<:Real}
+    throw(ErrorException("Rabi field must be global drive."))
+end
+
+parse_static_rydberg_Δ(param::Real,duration::Real,max_slope::Real,min_step::Real) = (1.0,piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[param,param]))
+parse_static_rydberg_Δ(::Nothing,duration::Real,max_slope::Real,min_step::Real) = (1.0,piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[0.0,0.0]))
+parse_static_rydberg_Δ(param::Vector{<:Real},duration::Real,max_slope::Real,min_step::Real) = (Float64[val for val in param],piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[1,1]))
+
+function parse_dynamic_rydberg_Δ(param::Waveform{F,T};duration=nothing) where {F,T<:Real}
+    duration = (duration ≡ nothing ? param.duration : duration)
+    
+    if !(duration ≡ nothing) && param.duration != duration
+        throw(ErrorException("Waveform durations do not match."))
+    end
+
+    return (1.0,param,duration)
+end
+
+function parse_dynamic_rydberg_Δ(param::Vector{Waveform{F,T}};duration=nothing) where {F,T<:Real}
+    durations = [f.duration for f in param]
+    
+    duration = (duration ≡ nothing ? durations[1] : duration)
+
+    if !(duration ≡ nothing) && !all(duration .== durations)
+        throw(ErrorException("Waveform durations do not match."))
+    end
+
+    clock_samples = LinRange(0,duration,100)
+    
+    value_samples = zeros(length(param),length(clock_samples))
+
+    for (i,f) in enumerate(param)
+        for (j,clock) in enumerate(clock_samples)
+            value_samples[i,j] = f(clock)
+        end
+    end
+    # use SVD to determine if the waveforms are independent or not. 
+    # if the there are more one nonzero singular value then there must be
+    # multiple functions within the vector.
+    u,s,vt = svd(value_samples)
+
+    if any(s[2:end] .> s[1]*eps())
+        throw(ErrorException("Waveform."))
+    end 
+    
+    # use U vector to get the scal
+    Amplitude = (u * Diagonal(s))[:,1]
+    Amplitude ./= Amplitude[1]
+
+    return (Amplitude,param[1],duration)
+    
+end
+# ϕ has a combination of both Ω and Δ constraints. 
+# e.g. has to be global, but can begin and end on non-zero values.
+
+parse_static_rydberg_ϕ(param::Real,duration::Real,max_slope::Real,min_step::Real) = parse_static_rydberg_Δ(param,duration,max_slope,min_step)
+parse_static_rydberg_ϕ(param::Nothing,duration::Real,max_slope::Real,min_step::Real) = parse_static_rydberg_Δ(param,duration,max_slope,min_step)
+parse_static_rydberg_ϕ(param::Vector{<:Real},duration::Real,max_slope::Real,min_step::Real) = parse_static_rydberg_Ω(param,duration,max_slope,min_step)
+parse_dynamic_rydberg_ϕ(param::Waveform{F,T};duration=nothing) where {F,T<:Real} = parse_dynamic_rydberg_Δ(param;duration)
+parse_dynamic_rydberg_ϕ(param::Vector{Waveform{F,T}};duration=nothing) where {F,T<:Real} = parse_dynamic_rydberg_Ω(param;duration)
+
+
+const ConstantParam = Union{Real,Nothing,Vector{<:Real}}
+const DynamicParam = Union{Waveform{F,T} where {F,T<:Real},Vector{Waveform{F,T} where F} where T<:Real} 
+
+# no dynamic parameeters must throw error because `duration` can't be determined
+function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::ConstantParam) 
+    throw(ErrorException("Schema requires at least one Waveform field."))
+end
+# one dynamic argument
+function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::ConstantParam) end
+function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::ConstantParam) end
+function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::DynamicParam) end
+# two dynamic arguments
+function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::ConstantParam) end
+function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::DynamicParam) end
+function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::DynamicParam) end
+# three dynamic arguments
+function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::DynamicParam) end
+
+parse_analog_rydberg_fields(ϕ,Ω,Δ) = throw(UndefVarError("Unable to parse Rydberg coefficients for Schema conversion, please use Real/Nothing for constant coefficients and Waveforms dynamic coefficients."))
+# function will extract parameters, check of waveforms are compatible with IR
+# then descretize waveforms and return them to be parsed into 
+# effective Hamiltonian. 
+function parse_analog_rydberg_params(h,params)
+    atoms,ϕ,Ω,Δ = get_rydberg_params(h)
+    # dispatch based on types
+    ϕ,Ω,Δ,Δ_i = parse_analog_rydberg_fields(ϕ,Ω,Δ)
+
+    ϕ = BloqadeWaveforms.discretize(ϕ;
+        max_value=params.rabi_frequency_phase_max_value,
+        max_slope=params.rabi_frequency_phase_max_slope,
+        min_step=params.rabi_frequency_phase_min_step,
+        tol=params.waveform_tolerance,
+    )
+    
+    Ω = BloqadeWaveforms.discretize(Ω;
+        max_value=params.rabi_frequency_amplitude_max_value,
+        max_slope=params.rabi_frequency_amplitude_max_slope,
+        min_step=params.rabi_frequency_amplitude_min_step,
+        tol=params.waveform_tolerance,
+    )
+
+    Δ = BloqadeWaveforms.discretize(Δ;
+        max_value=params.rabi_detuning_max_value,
+        max_slope=params.rabi_detuning_max_slope,
+        min_step=params.rabi_detuning_min_step,
+        tol=params.waveform_tolerance,
+    )
+    return (atoms,Ω,ϕ,Δ,Δ_i)
+end
+
+
+
+
 # """
 #     execute(j::String)
 
@@ -52,62 +231,19 @@ function from_schema(t::TaskSpecification)
     rabi_freq_amp = t.effective_hamiltonian.rydberg.rabi_frequency_amplitude.global_value
     rabi_freq_phase = t.effective_hamiltonian.rydberg.rabi_frequency_phase.global_value
     detuning_global = t.effective_hamiltonian.rydberg.detuning.global_value
+    detuning_local = t.effective_hamiltonian.rydberg.detuning.local_value
 
     Ω = BloqadeWaveforms.piecewise_linear(; clocks=rabi_freq_amp.times, values=rabi_freq_amp.values)
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks=rabi_freq_phase.times, values=rabi_freq_phase.values)
     Δ = BloqadeWaveforms.piecewise_linear(; clocks=detuning_global.times, values=detuning_global.values)
 
-    return BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
-end
-
-to_json(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_json(h, SchemaConversionParams(;kw...))
-to_dict(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_dict(h, SchemaConversionParams(;kw...))
-to_schema(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_schema(h, SchemaConversionParams(;kw...))
-
-function to_json(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    return JSON.json(BloqadeSchema.to_dict(h, params))
-end
-
-function to_dict(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    return Configurations.to_dict(to_schema(h, params))
-end
-
-parse_parameter(x::Real, params::SchemaConversionParams) = throw(Base.NotImplementedError("not implemented"))
-parse_parameter(x::Vector{<:Real}, params::SchemaConversionParams) = throw(Base.NotImplementedError("not implemented")) 
-parse_parameter(x::BloqadeExpr.DivByTwo, params::SchemaConversionParams) = x.f
-parse_parameter(x::Waveform, params::SchemaConversionParams) = x
-
-function parse_rydberg_params(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    ϕ = nothing
-    Ω = nothing
-    Δ = nothing
-
-    if h.rabi_term isa BloqadeExpr.SumOfX
-        Ω = parse_parameter(h.rabi_term.Ω, params)
-    elseif h.rabi_term isa BloqadeExpr.SumOfXPhase
-        Ω = parse_parameter(h.rabi_term.Ω, params)
-        ϕ = parse_parameter(h.rabi_term.ϕ, params)
+    if !isnothing(detuning_local)
+        Δ_i = [δ_i*Δ for δ_i in detuning_local]
+    else
+        Δ_i = Δ
     end
 
-    if h.detuning_term isa BloqadeExpr.SumOfN
-        Δ = parse_parameter(h.detuning_term.Δ, params)
-    end
-
-    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
-end
-
-function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    atoms,ϕ,Ω,Δ = parse_rydberg_params(h,params)
-
-    return TaskSpecification(;
-        nshots=params.n_shots,
-        lattice=to_lattice(atoms),
-        effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ,
-            params.rabi_frequency_amplitude_max_slope,
-            params.rabi_frequency_phase_max_slope,
-            params.rabi_detuning_max_slope
-        )
-    )
+    return BloqadeExpr.rydberg_h(atoms; Δ=Δ_i, Ω=Ω, ϕ=ϕ)
 end
 
 
@@ -134,64 +270,28 @@ julia> BloqadeSchema.to_json(block; n_shots=10)
 "{\"nshots\":10,\"lattice\":{\"sites\":[[0.0,0.0],[1.0,3.0],[4.0,2.0],[6.0,3.0],[0.0,5.0],[2.0,5.0]],\"filling\":[1,1,1,1,1,1]},\"effective_hamiltonian\":{\"rydberg\":{\"rabi_frequency_amplitude\":{\"global\":{\"times\":[0.0,-18.0,2.0,-6.0,4.0,-14.0,7.0],\"values\":[5.0,5.0,3.0,3.0,4.0,4.0,6.0]}},\"rabi_frequency_phase\":{\"global\":{\"times\":[0.0,5.0],\"values\":[33.0,0.0]}},\"detuning\":{\"global\":{\"times\":[0.0,0.6,2.1,2.2],\"values\":[-10.1,-10.1,10.1,10.1]}}}}}"
 ```
 """
-to_json(h::AbstractBlock; kw...) = to_json(h, SchemaConversionParams(;kw...))
-to_dict(h::AbstractBlock; kw...) = to_dict(h, SchemaConversionParams(;kw...))
-to_schema(h::AbstractBlock; kw...) = to_schema(h, SchemaConversionParams(;kw...))
+to_json(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_json(h, SchemaConversionParams(;kw...))
+to_dict(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_dict(h, SchemaConversionParams(;kw...))
+to_schema(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_schema(h, SchemaConversionParams(;kw...))
 
-function to_json(h::AbstractBlock, params::SchemaConversionParams)
+function to_json(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
     return JSON.json(BloqadeSchema.to_dict(h, params))
 end
 
-function to_dict(h::AbstractBlock, params::SchemaConversionParams)
+function to_dict(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
     return Configurations.to_dict(to_schema(h, params))
 end
 
-function assert_hamiltonian_schema(h::AbstractBlock)
-    h isa RydInteract || return
-    h isa Add || error("expect a Rydberg hamiltonian")
-    isempty(blockfilter(x -> isa(x, RydInteract), h)) && error("expect RydInteract term")
-
-    for each in subblocks(h)
-        if each isa Scale
-            content(each) isa Union{RydInteract,SumOfX,SumOfXPhase} && factor(each) == 1 ||
-                error("only hamiltonian created by rydberg_h is supported")
-            content(each) isa SumOfN && factor(each) == -1 || error("expect the prefactor of SumOfN to be -1")
-        end
-    end
-    return
-end
-
-function to_schema(h::AbstractBlock, params::SchemaConversionParams)
-    assert_hamiltonian_schema(h)
-    atoms = nothing
-    ϕ = nothing
-    Ω = nothing
-    Δ = nothing
-
-    for each in subblocks(h)
-        block = content(each)
-        if block isa RydInteract
-            atoms = block.atoms
-        elseif block isa SumOfXPhase
-            ϕ = block.ϕ
-            Ω = block.Ω.f
-        elseif block isa SumOfX
-            Ω = block.Ω.f
-        elseif block isa SumOfN
-            Δ = block.Δ
-        end
-    end
+function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
+    atoms,ϕ,Ω,Δ,Δ_i = parse_analog_rydberg_params(h,params)
 
     return TaskSpecification(;
         nshots=params.n_shots,
         lattice=to_lattice(atoms),
-        effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ,
-            params.rabi_frequency_amplitude_max_slope,
-            params.rabi_frequency_phase_max_slope,
-            params.rabi_detuning_max_slope
-        )
+        effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ, Δ_i)
     )
 end
+
 
 function to_lattice(atoms::Vector)
     coords = map(atoms) do coord
@@ -201,46 +301,34 @@ function to_lattice(atoms::Vector)
     return Lattice(; sites = coords, filling = vec(ones(length(coords), 1)))
 end
 
-# Check if the waveform is piecewise constant and if so then use the max slope to convert to piecewise linear.
-# Given a piecewise constant function with clocks [t1, t2, t3] and values [v1, v2, v3], this creates 
-# clocks [t1, t2-((v2-v1)/max_slope), t2, v3-((v3-v2)/max_slope), v3] and values [v1, v1, v2, v2, v3]
-# If the waveform is empty or nothing, returns clocks [0] and values [0]
-function get_piecewise_linear_times_and_clocks(w::Maybe{Waveform}, max_slope::Real)
-    # if nothing or empty
-    (isnothing(w) || isempty(w.f.clocks)) && return ([0], [0])
 
-    # if not piecewise constant, return clocks and values directly
-    !isa(w.f, BloqadeWaveforms.PiecewiseConstant) && return (w.f.clocks, w.f.values)
 
-    clocks = Real[]
-    values = Real[]
-    for i in 1:(length(w.f.values)-1)
-        rise = abs(w.f.values[i+1] - w.f.values[i])
-        run_t = rise / max_slope
+function to_hamiltonian(
+    Ω::Waveform{PiecewiseLinear{T},T},
+    ϕ::Waveform{PiecewiseLinear{T},T},
+    Δ::Waveform{PiecewiseLinear{T},T},
+    Δ_i::Vector{<:Real}) where {T<:Real}
 
-        append!(clocks, w.f.clocks[i])
-        append!(values, w.f.values[i])
-
-        run_t != 0 && append!(clocks, w.f.clocks[i+1] - run_t)
-        run_t != 0 && append!(values, w.f.values[i])
-    end
-
-    append!(clocks, last(w.f.clocks))
-    append!(values, last(w.f.values))
-    return (clocks, values)
+    return EffectiveHamiltonian(;
+        rydberg = RydbergHamiltonian(;
+            rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
+                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = amp_times, values = amp_values),
+            ),
+            rabi_frequency_phase = RydbergRabiFrequencyPhase(;
+                global_value = RydbergRabiFrequencyPhaseGlobal(; times = phase_times, values = phase_values),
+            ),
+            detuning = RydbergDetuning(;
+                global_value = RydbergDetuningGlobal(; times = detuning_times, values = detuning_values),
+            ),
+        ),
+    )
 end
 
 function to_hamiltonian(
-    Ω::Maybe{Waveform},
-    ϕ::Maybe{Waveform},
-    Δ::Maybe{Waveform},
-    rabi_frequency_amplitude_max_slope::Real,
-    rabi_frequency_phase_max_slope::Real,
-    rabi_detuning_max_slope::Real,
-)
-    amp_times, amp_values = get_piecewise_linear_times_and_clocks(Ω, rabi_frequency_amplitude_max_slope)
-    phase_times, phase_values = get_piecewise_linear_times_and_clocks(ϕ, rabi_frequency_phase_max_slope)
-    detuning_times, detuning_values = get_piecewise_linear_times_and_clocks(Δ, rabi_detuning_max_slope)
+    Ω::Waveform{PiecewiseLinear{T},T},
+    ϕ::Waveform{PiecewiseLinear{T},T},
+    Δ::Waveform{PiecewiseLinear{T},T},
+    Δ_i::Real) where {T<:Real}
 
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;

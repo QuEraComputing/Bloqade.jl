@@ -6,6 +6,7 @@ using Configurations
 using Yao
 using JSON
 using BitBasis
+using LinearAlgebra; svd
 
 export TaskSpecification
 

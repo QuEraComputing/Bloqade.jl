@@ -25,6 +25,6 @@ export Waveform,
 
 include("waveform.jl")
 include("smooth.jl")
-include("descretize.jl")
+include("discretize.jl")
 
 end

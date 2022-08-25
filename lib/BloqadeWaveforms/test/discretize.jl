@@ -4,27 +4,27 @@ using QuadGK: quadgk
 
 @testset "piecewise linear waveforms" begin
     wf = piecewise_linear(clocks = [0.0, 2.0, 3.0, 4.0], values = [0.0, 3.0, 1.1, 2.2])
-    new_wf = descretize(wf)
+    new_wf = discretize(wf)
     @test wf == new_wf
 
-    @test_throws ErrorException descretize(wf;max_value=1.0)
-    @test_throws ErrorException descretize(wf;min_step = 10.0)
-    @test_throws ErrorException descretize(wf;max_slope = 0.1)
+    @test_throws ErrorException discretize(wf;max_value=1.0)
+    @test_throws ErrorException discretize(wf;min_step = 10.0)
+    @test_throws ErrorException discretize(wf;max_slope = 0.1)
 
 end
 
 @testset "piecewise constant waveforms" begin
     wf = piecewise_constant(clocks = [0.0, 2.0, 3.0, 4.0], values = [0.0, 2.0, 1.0])
 
-    new_wf = descretize(wf,tol=1e-3) # no constraints
+    new_wf = discretize(wf,tol=1e-3) # no constraints
     @test new_wf == piecewise_linear(
         clocks=[0.0,1.9995,2.0005,2.999,3.001,4.0],
         values=[0.0,0.0,2.0,2.0,1.0,1.0]
         )
 
-        @test_throws ErrorException descretize(wf;max_value=0.5)
-        @test_throws ErrorException descretize(wf;min_step = 1.0)
-        @test_throws ErrorException descretize(wf;max_slope = 1.0)
+        @test_throws ErrorException discretize(wf;max_value=0.5)
+        @test_throws ErrorException discretize(wf;min_step = 1.0)
+        @test_throws ErrorException discretize(wf;max_slope = 1.0)
 
 end
 
@@ -33,7 +33,7 @@ end
     tol=1e-3
     for (f,duration) in f_list
         wf = Waveform(f,duration)
-        new_wf = descretize(wf;tol=tol)
+        new_wf = discretize(wf;tol=tol)
 
         error,_ = quadgk(t->abs.(wf(t).-new_wf(t)),0,wf.duration)
 
@@ -42,9 +42,9 @@ end
 
     wf = Waveform(t->t^2,2)
 
-    @test_throws ErrorException descretize(wf;max_slope = 2.0)
-    @test_throws ErrorException descretize(wf;min_step = 0.1)
-    @test_throws ErrorException descretize(wf;max_value=3)
+    @test_throws ErrorException discretize(wf;max_slope = 2.0)
+    @test_throws ErrorException discretize(wf;min_step = 0.1)
+    @test_throws ErrorException discretize(wf;max_value=3)
 
 
 

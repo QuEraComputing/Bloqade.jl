@@ -1,7 +1,5 @@
 module BloqadeQMC
 
-using ProgressMeter
-
 using Measurements
 using Statistics
 import Statistics: var, mean
@@ -26,8 +24,6 @@ import Base: rand, show, pop!, push!, append!, isempty, empty!, count
 
 using BinningAnalysis
 import BinningAnalysis: varN, std_error
-
-using Plots
 
 export BinaryQMCState, BinaryGroundState, BinaryThermalState,
         Hamiltonian, AbstractIsing, AbstractTFIM, TFIM, AbstractLTFIM, LTFIM, GeneralLTFIM, AbstractRydberg, Rydberg,

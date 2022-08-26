@@ -1,5 +1,6 @@
 module BloqadeSchema
 
+using Unitful: Quantity, NoUnits, μs, s, MHz, Hz, rad, uconvert
 using BloqadeExpr
 using BloqadeWaveforms
 using Configurations

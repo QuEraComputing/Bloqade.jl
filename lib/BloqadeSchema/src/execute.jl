@@ -104,14 +104,15 @@ function parse_dynamic_rydberg_Δ(param::Vector{Waveform{F,T}};duration=nothing)
     u,s,vt = svd(value_samples)
 
     if any(s[2:end] .> s[1]*eps())
-        throw(ErrorException("Waveform."))
+        throw(ErrorException("Local detuning waveforms cannot be decomposed into a product: Δ(i)⋅Δ(t)."))
     end 
     
     # use U vector to get the scal
     Amplitude = (u * Diagonal(s))[:,1]
-    Amplitude ./= Amplitude[1]
+    i = argmax(Amplitude)
+    Amplitude ./= Amplitude[i]
 
-    return (Amplitude,param[1],duration)
+    return (Amplitude,param[i],duration)
     
 end
 # ϕ has a combination of both Ω and Δ constraints. 
@@ -128,50 +129,80 @@ const ConstantParam = Union{Real,Nothing,Vector{<:Real}}
 const DynamicParam = Union{Waveform{F,T} where {F,T<:Real},Vector{Waveform{F,T} where F} where T<:Real} 
 
 # no dynamic parameeters must throw error because `duration` can't be determined
-function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::ConstantParam) 
+function parse_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::ConstantParam) 
     throw(ErrorException("Schema requires at least one Waveform field."))
 end
 # one dynamic argument
-function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::ConstantParam) end
-function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::ConstantParam) end
-function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::DynamicParam) end
+function parse_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::ConstantParam) end
+function parse_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::ConstantParam) end
+function parse_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::DynamicParam) end
 # two dynamic arguments
-function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::ConstantParam) end
-function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::DynamicParam) end
-function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::DynamicParam) end
+function parse_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::ConstantParam) end
+function parse_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::DynamicParam) end
+function parse_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::DynamicParam) end
 # three dynamic arguments
-function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::DynamicParam) end
+function parse_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::DynamicParam) end
 
-parse_analog_rydberg_fields(ϕ,Ω,Δ) = throw(UndefVarError("Unable to parse Rydberg coefficients for Schema conversion, please use Real/Nothing for constant coefficients and Waveforms dynamic coefficients."))
+parse_rydberg_fields(ϕ,Ω,Δ) = throw(UndefVarError("Unable to parse Rydberg coefficients for Schema conversion, please use Real/Nothing for constant coefficients and Waveforms dynamic coefficients."))
 # function will extract parameters, check of waveforms are compatible with IR
 # then descretize waveforms and return them to be parsed into 
 # effective Hamiltonian. 
+
+@inline convert_units(value::Real,from,to) = uconvert(to,Quantity(value,from))
+
+
 function parse_analog_rydberg_params(h,params)
     atoms,ϕ,Ω,Δ = get_rydberg_params(h)
     # dispatch based on types
-    ϕ,Ω,Δ,Δ_i = parse_analog_rydberg_fields(ϕ,Ω,Δ)
+    ϕ,Ω,Δ,Δi = parse_rydberg_fields(ϕ,Ω,Δ)
+
+    convert_time = x::Real -> convert_units(x,μs,s).val
+    convert_rabi_amp = x::Real -> convert_units(x,rad*MHz,rad/s).val
+    convert_rabi_phase = x::Real -> convert_units(x,rad,rad).val
+    convert_detuning_local = x::Real -> convert_units(x,NoUnits,NoUnits).val
+
+    # params are already unitful
+    min_step = uconvert(μs,params.rabi_time_min_step).val
+    
+
+    max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_phase_max_slope).val
 
     ϕ = BloqadeWaveforms.discretize(ϕ;
-        max_value=params.rabi_frequency_phase_max_value,
-        max_slope=params.rabi_frequency_phase_max_slope,
-        min_step=params.rabi_frequency_phase_min_step,
-        tol=params.waveform_tolerance,
-    )
-    
-    Ω = BloqadeWaveforms.discretize(Ω;
-        max_value=params.rabi_frequency_amplitude_max_value,
-        max_slope=params.rabi_frequency_amplitude_max_slope,
-        min_step=params.rabi_frequency_amplitude_min_step,
+        max_slope=max_slope,
+        min_step=min_step,
         tol=params.waveform_tolerance,
     )
 
-    Δ = BloqadeWaveforms.discretize(Δ;
-        max_value=params.rabi_detuning_max_value,
-        max_slope=params.rabi_detuning_max_slope,
-        min_step=params.rabi_detuning_min_step,
+    ϕ_clocks = [convert_time(clock) for clock in ϕ.f.clocks]
+    ϕ_values = [convert_rabi_phase(value) for value in ϕ.f.values]
+    ϕ_ir = piecewise_linear(;ϕ_clocks,ϕ_values)
+
+    max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_amplitude_max_slope).val
+    
+    Ω = BloqadeWaveforms.discretize(Ω;
+        max_slope=max_slope,
+        min_step=min_step,
         tol=params.waveform_tolerance,
     )
-    return (atoms,Ω,ϕ,Δ,Δ_i)
+
+    Ω_clocks = [convert_time(clock) for clock in Ω.f.clocks]
+    Ω_values = [convert_rabi_amp(value) for value in Ω.f.values]
+    Ω_ir = piecewise_linear(;Ω_clocks,Ω_values)
+
+    max_slope = uconvert(rad*MHz/μs,params.rabi_detuning_max_slope).val
+
+    Δ = BloqadeWaveforms.discretize(Δ;
+        max_slope=max_slope,
+        min_step=min_step,
+        tol=params.waveform_tolerance,
+    )
+
+    Δ_clocks = [convert_time(clock) for clock in Δ.f.clocks]
+    Δ_values = [convert_rabi_amp(value) for value in Δ.f.values]
+    Δ_ir = piecewise_linear(;Δ_clocks,Δ_values)
+    Δi_ir = [convert_detuning_local(δ) for δ in Δi]
+
+    return (atoms,Ω_ir,ϕ_ir,Δ_ir,Δi_ir)
 end
 
 
@@ -304,9 +335,9 @@ end
 
 
 function to_hamiltonian(
-    Ω::Waveform{PiecewiseLinear{T},T},
-    ϕ::Waveform{PiecewiseLinear{T},T},
-    Δ::Waveform{PiecewiseLinear{T},T},
+    Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
+    ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
+    Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
     Δ_i::Vector{<:Real}) where {T<:Real}
 
     return EffectiveHamiltonian(;
@@ -325,9 +356,9 @@ function to_hamiltonian(
 end
 
 function to_hamiltonian(
-    Ω::Waveform{PiecewiseLinear{T},T},
-    ϕ::Waveform{PiecewiseLinear{T},T},
-    Δ::Waveform{PiecewiseLinear{T},T},
+    Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
+    ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
+    Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
     Δ_i::Real) where {T<:Real}
 
     return EffectiveHamiltonian(;

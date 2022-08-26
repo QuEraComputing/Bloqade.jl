@@ -58,9 +58,52 @@ end
 end
 
 @option struct SchemaConversionParams <: QuEraSchema
-    rabi_frequency_amplitude_max_slope::Float64 = 0.1
-    rabi_frequency_phase_max_slope::Float64 = 0.1
-    rabi_detuning_max_slope::Float64 = 0.1
+    """
+    Rabi Amplitude minimum value : 0 rad/s
+    Rabi Amplitude maximum value : 25.0e6 rad/s
+    Rabi Amplitude resolution : 400 rad/s
+    Rabi Amplitude maximum slope : 2.5e14 (rad/s) / s
+    
+    Rabi Phase minimum value : -99 rad
+    Rabi Phase maximum value : 99 rad
+    Rabi Phase resolution : 0.5e-6 rad
+    Rabi Phase maximum slope : 62.0e6 rad/s
+    
+    Detuning Amplitude minimum value : -125.0e6 rad/s
+    Detuning Amplitude maximum value : 125.0e6 rad/s
+    Detuning Amplitude resolution : 0.2 rad/s
+    Detuning Amplitude maximum slope : 2.5e15 (rad/s) / s
+
+    Local Detuning Scale Factor minimum value : 0
+    Local Detuning Scale Factor maximum value : 1
+    Local Detuning Scale Factor resolution : 0.01
+    
+    Time resolution : 1e-9 s
+    Time step minimum : 1e-8 s
+    """
+    rabi_frequency_amplitude_maximum::Quantity = Quantity(0,rad/s)
+    rabi_frequency_amplitude_minimum::Quantity = Quantity(25.0e6,rad/s)
+    rabi_frequency_amplitude_resolution::Quantity = Quantity(400.0,rad/s)
+    rabi_frequency_amplitude_max_slope::Quantity = Quantity(2.5e14,rad/s^2)
+
+    rabi_frequency_phase_maximum::Quantity = Quantity(-99.0,rad)
+    rabi_frequency_phase_minimum::Quantity = Quantity(99.0,rad)
+    rabi_frequency_phase_resolution::Quantity = Quantity(0.5e-6,rad)
+    rabi_frequency_phase_max_slope::Quantity = Quantity(62.0e6,rad/s)
+
+    rabi_detuning_maximum::Quantity = Quantity(125.0e6,rad/s)
+    rabi_detuning_minimum::Quantity = Quantity(-125.0e6,rad/s)
+    rabi_detuning_resolution::Quantity = Quantity(0.2,rad/s)
+    rabi_detuning_max_slope::Quantity = Quantity(2.5e15,rad/s^2)
+    rabi_detuning_local_minimum::Quantity = Quantity(0.0,NoUnits)
+    rabi_detuning_local_maximum::Quantity = Quantity(1.0,NoUnits)
+    rabi_detuning_local_resolution::Quantity = Quantity(0.01,NoUnits)
+
+    rabi_time_resolution::Quantity = Quantity(1.0e-9,s)
+    rabi_time_min_step::Quantity = Quantity(1.0e-8,s)
+    rabi_time_maximum_values::Quantity = Quantity(4.0e-6,s)
+    
+    waveform_tolerance::Float64 = 1.0e-3
     n_shots::Int
 end
 

@@ -44,11 +44,12 @@ end
     # local drive test
     new_Amps,new_wf,duration = BloqadeSchema.parse_dynamic_rydberg_Δ(wfs) 
     new_values = sample_values(new_wf)
-    values = sample_values(wf)
 
     @test duration == new_wf.duration
-    @test all(values*Amps[1] .≈ new_values)
-    @test all(Amps/Amps[1] .≈ new_Amps)
+    for (i,wf_i) in enumerate(wfs)
+        values = sample_values(wf_i)
+        @test all(values .≈ new_Amps[i] .* new_values)
+    end
 
     # global drive test
     @test BloqadeSchema.parse_dynamic_rydberg_Δ(wf;duration=duration) == (1.0,wf,duration)

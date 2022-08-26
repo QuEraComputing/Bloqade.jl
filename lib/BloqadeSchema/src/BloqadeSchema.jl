@@ -14,6 +14,7 @@ export TaskSpecification
 include("types.jl")
 include("serialize.jl")
 include("deserialize.jl")
+include("parse.jl")
 include("execute.jl")
 
 end

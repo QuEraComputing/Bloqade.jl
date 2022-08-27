@@ -58,7 +58,7 @@ function parse_dynamic_rydberg_Ω(param::Waveform{F,T};duration=nothing) where {
         throw(ErrorException("Rabi Drive must start and end with value 0."))
     end
 
-    return (1.0,param,duration)
+    return (param,duration)
 end
 
 function parse_dynamic_rydberg_Ω(::Vector{Waveform{F,T}};duration=nothing) where {F,T<:Real}
@@ -108,7 +108,7 @@ function parse_dynamic_rydberg_Δ(param::Vector{Waveform{F,T}};duration=nothing)
     
     # use U vector to get the scal
     Amplitude = (u * Diagonal(s))[:,1]
-    i = argmax(Amplitude)
+    i = argmax(abs.(Amplitude))
     Amplitude ./= Amplitude[i]
 
     return (Amplitude,param[i],duration)
@@ -117,17 +117,37 @@ end
 
 # ϕ has a combination of both Ω and Δ constraints. 
 # e.g. has to be global, but can begin and end on non-zero values.
-parse_static_rydberg_ϕ(param::Real,duration::Real,max_slope::Real,min_step::Real) = parse_static_rydberg_Δ(param,duration,max_slope,min_step)
-parse_static_rydberg_ϕ(param::Nothing,duration::Real,max_slope::Real,min_step::Real) = parse_static_rydberg_Δ(param,duration,max_slope,min_step)
+function parse_static_rydberg_ϕ(param::Real,duration::Real,max_slope::Real,min_step::Real)
+    _,ϕ = parse_static_rydberg_Δ(param,duration,max_slope,min_step)
+    return ϕ
+end
+
+function parse_static_rydberg_ϕ(param::Nothing,duration::Real,max_slope::Real,min_step::Real)
+    _,ϕ = parse_static_rydberg_Δ(param,duration,max_slope,min_step)
+    return ϕ
+end
+
+function parse_dynamic_rydberg_ϕ(param::Waveform{F,T};duration=nothing) where {F,T<:Real}
+    _,ϕ,duration = parse_dynamic_rydberg_Δ(param;duration)
+    return (ϕ,duration)
+end
+
 parse_static_rydberg_ϕ(param::Vector{<:Real},duration::Real,max_slope::Real,min_step::Real) = parse_static_rydberg_Ω(param,duration,max_slope,min_step)
-parse_dynamic_rydberg_ϕ(param::Waveform{F,T};duration=nothing) where {F,T<:Real} = parse_dynamic_rydberg_Δ(param;duration)
 parse_dynamic_rydberg_ϕ(param::Vector{Waveform{F,T}};duration=nothing) where {F,T<:Real} = parse_dynamic_rydberg_Ω(param;duration)
 
 
-const ConstantParam = Union{Real,Nothing,Vector{<:Real}}
-const DynamicParam = Union{Waveform{F,T} where {F,T<:Real},Vector{Waveform{F,T} where F} where T<:Real} 
+@inline convert_units(value::Real,from,to) = uconvert(to,Quantity(value,from)).val
+convert_time(x::Real) = convert_units(x,μs,s)
+convert_rabi_amp(x::Real) = convert_units(x,rad*MHz,rad/s)
+convert_rabi_phase(x::Real) = convert_units(x,rad,rad)
 
-@inline convert_units(value::Real,from,to) = uconvert(to,Quantity(value,from))
+function get_constraints(params)
+    min_step = convert_units(params.rabi_time_min_step,s,μs)
+    ϕ_max_slope = convert_units(params.rabi_frequency_phase_max_slope,rad/s,rad/μs)
+    Ω_max_slope = convert_units(params.rabi_frequency_amplitude_max_slope,rad/s^2,rad*MHz/μs)
+    Δ_max_slope = convert_units(params.rabi_detuning_max_slope,rad/s^2,rad*MHz/μs)
+    return (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope)
+end
 
 # no dynamic parameeters must throw error because `duration` can't be determined
 function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::ConstantParam,params) 
@@ -136,15 +156,7 @@ end
 
 # one dynamic argument
 function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::ConstantParam,params) 
-    convert_time = x::Real -> convert_units(x,μs,s).val
-    convert_rabi_amp = x::Real -> convert_units(x,rad*MHz,rad/s).val
-    convert_rabi_phase = x::Real -> convert_units(x,rad,rad).val
-
-    # params are already unitful
-    min_step = uconvert(μs,params.rabi_time_min_step).val
-    ϕ_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_phase_max_slope).val
-    Ω_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_amplitude_max_slope).val
-    Δ_max_slope = uconvert(rad*MHz/μs,params.rabi_detuning_max_slope).val
+    (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope) = get_constraints(params)
 
     ϕ,duration = parse_dynamic_rydberg_ϕ(ϕ)
     Ω = parse_static_rydberg_Ω(Ω,duration,Ω_max_slope,min_step)
@@ -174,15 +186,7 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::Cons
 end
 
 function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::ConstantParam,params)
-    convert_time = x::Real -> convert_units(x,μs,s).val
-    convert_rabi_amp = x::Real -> convert_units(x,rad*MHz,rad/s).val
-    convert_rabi_phase = x::Real -> convert_units(x,rad,rad).val
-
-    # params are already unitful
-    min_step = uconvert(μs,params.rabi_time_min_step).val
-    ϕ_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_phase_max_slope).val
-    Ω_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_amplitude_max_slope).val
-    Δ_max_slope = uconvert(rad*MHz/μs,params.rabi_detuning_max_slope).val
+    (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope) = get_constraints(params)
 
     Ω,duration = parse_dynamic_rydberg_ϕ(Ω)
     ϕ = parse_static_rydberg_ϕ(ϕ,duration,ϕ_max_slope,min_step)
@@ -212,15 +216,7 @@ function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::Cons
 end
 
 function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::DynamicParam,params) 
-    convert_time = x::Real -> convert_units(x,μs,s).val
-    convert_rabi_amp = x::Real -> convert_units(x,rad*MHz,rad/s).val
-    convert_rabi_phase = x::Real -> convert_units(x,rad,rad).val
-
-    # params are already unitful
-    min_step = uconvert(μs,params.rabi_time_min_step).val
-    ϕ_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_phase_max_slope).val
-    Ω_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_amplitude_max_slope).val
-    Δ_max_slope = uconvert(rad*MHz/μs,params.rabi_detuning_max_slope).val
+    (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope) = get_constraints(params)
 
     Δ_local,Δ,duration = parse_dynamic_rydberg_Δ(Δ)
     ϕ = parse_static_rydberg_ϕ(ϕ,duration,ϕ_max_slope,min_step)
@@ -251,15 +247,7 @@ end
 
 # two dynamic arguments
 function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::ConstantParam,params) 
-    convert_time = x::Real -> convert_units(x,μs,s).val
-    convert_rabi_amp = x::Real -> convert_units(x,rad*MHz,rad/s).val
-    convert_rabi_phase = x::Real -> convert_units(x,rad,rad).val
-
-    # params are already unitful
-    min_step = uconvert(μs,params.rabi_time_min_step).val
-    ϕ_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_phase_max_slope).val
-    Ω_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_amplitude_max_slope).val
-    Δ_max_slope = uconvert(rad*MHz/μs,params.rabi_detuning_max_slope).val
+    (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope) = get_constraints(params)
 
     ϕ,duration = parse_dynamic_rydberg_ϕ(ϕ)
     Ω,duration = parse_dynamic_rydberg_Ω(Ω;duration)
@@ -295,15 +283,7 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::Const
 end
 
 function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::DynamicParam,params) 
-    convert_time = x::Real -> convert_units(x,μs,s).val
-    convert_rabi_amp = x::Real -> convert_units(x,rad*MHz,rad/s).val
-    convert_rabi_phase = x::Real -> convert_units(x,rad,rad).val
-
-    # params are already unitful
-    min_step = uconvert(μs,params.rabi_time_min_step).val
-    ϕ_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_phase_max_slope).val
-    Ω_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_amplitude_max_slope).val
-    Δ_max_slope = uconvert(rad*MHz/μs,params.rabi_detuning_max_slope).val
+    (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope) = get_constraints(params)
 
     ϕ,duration = parse_dynamic_rydberg_ϕ(ϕ)
     Δ_local,Δ,duration = parse_dynamic_rydberg_Δ(Δ;duration)
@@ -339,15 +319,7 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::Dyna
 end
 
 function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::DynamicParam,params) 
-    convert_time = x::Real -> convert_units(x,μs,s).val
-    convert_rabi_amp = x::Real -> convert_units(x,rad*MHz,rad/s).val
-    convert_rabi_phase = x::Real -> convert_units(x,rad,rad).val
-
-    # params are already unitful
-    min_step = uconvert(μs,params.rabi_time_min_step).val
-    ϕ_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_phase_max_slope).val
-    Ω_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_amplitude_max_slope).val
-    Δ_max_slope = uconvert(rad*MHz/μs,params.rabi_detuning_max_slope).val
+    (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope) = get_constraints(params)
 
     Ω,duration = parse_dynamic_rydberg_Ω(Ω)
     Δ_local,Δ,duration = parse_dynamic_rydberg_Δ(Δ;duration)
@@ -384,15 +356,7 @@ end
 
 # three dynamic arguments
 function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::DynamicParam,params) 
-    convert_time = x::Real -> convert_units(x,μs,s).val
-    convert_rabi_amp = x::Real -> convert_units(x,rad*MHz,rad/s).val
-    convert_rabi_phase = x::Real -> convert_units(x,rad,rad).val
-
-    # params are already unitful
-    min_step = uconvert(μs,params.rabi_time_min_step).val
-    ϕ_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_phase_max_slope).val
-    Ω_max_slope = uconvert(rad*MHz/μs,params.rabi_frequency_amplitude_max_slope).val
-    Δ_max_slope = uconvert(rad*MHz/μs,params.rabi_detuning_max_slope).val
+    (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope) = get_constraints(params)
 
     ϕ,duration = parse_dynamic_rydberg_Ω(ϕ)
     Ω,duration = parse_dynamic_rydberg_Ω(Ω;duration)

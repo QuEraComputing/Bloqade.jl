@@ -130,31 +130,32 @@ end
 
 
 function to_hamiltonian(
-    Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
-    ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
-    Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
-    Δ_i::Vector{<:Real}) where {T<:Real}
+    Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
+    ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
+    Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
+    Δ_i::Vector{<:Real}) where {T<:Real,Interp}
 
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;
             rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
-                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = amp_times, values = amp_values),
+                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = Ω.f.clocks, values = Ω.f.values),
             ),
             rabi_frequency_phase = RydbergRabiFrequencyPhase(;
-                global_value = RydbergRabiFrequencyPhaseGlobal(; times = phase_times, values = phase_values),
+                global_value = RydbergRabiFrequencyPhaseGlobal(; times = ϕ.f.clocks, values = ϕ.f.values),
             ),
             detuning = RydbergDetuning(;
-                global_value = RydbergDetuningGlobal(; times = detuning_times, values = detuning_values),
+                global_value = RydbergDetuningGlobal(; times = Δ.f.clocks, values = Δ.f.values),
+                local_value = RydbergDetuningLocal(; times = Δ.f.clocks, values = Δ.f.values, lattice_site_coefficients=Δ_i)
             ),
         ),
     )
 end
 
 function to_hamiltonian(
-    Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
-    ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
-    Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T},T},
-    Δ_i::Real) where {T<:Real}
+    Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
+    ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
+    Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
+    Δ_i::Real) where {T<:Real,Interp}
 
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;

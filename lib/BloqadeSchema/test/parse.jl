@@ -13,7 +13,7 @@ using BloqadeSchema
     # local drive test
     @test_throws ErrorException new_Amps,new_wf,duration = BloqadeSchema.parse_dynamic_rydberg_Ω(wfs) 
     # global drive test
-    @test BloqadeSchema.parse_dynamic_rydberg_Ω(wf;duration=duration) == (1.0,wf,duration)
+    @test BloqadeSchema.parse_dynamic_rydberg_Ω(wf;duration=duration) == (wf,duration)
 
 end
 
@@ -23,13 +23,44 @@ end
     min_step = 0.01
     Amps = [1,2,3,4]
     # local constant test
-    @test_throws ErrorException new_Amps,new_wf = BloqadeSchema.parse_static_rydberg_Ω(Amps,duration,max_slope,min_step) 
+    @test_throws ErrorException new_wf = BloqadeSchema.parse_static_rydberg_Ω(Amps,duration,max_slope,min_step) 
     # global constant test
     wf = 1.0
-    @test BloqadeSchema.parse_static_rydberg_Ω(wf,duration,max_slope,min_step) == (
-        1.0,
-        piecewise_linear(;clocks=Float64[0.0,0.1,duration-0.1,duration],values=Float64[0.0,wf,wf,0.0])
+    @test BloqadeSchema.parse_static_rydberg_Ω(wf,duration,max_slope,min_step) == piecewise_linear(;
+        clocks=Float64[0.0,0.1,duration-0.1,duration],
+        values=Float64[0.0,wf,wf,0.0]
     )
+    
+
+end
+
+@testset "BloqadeSchema.parse_dynamic_rydberg_ϕ" begin
+
+    wf = Waveform(t->sin(2π*t)^2,2)
+    Amps = [0.1*i for i in 1:10]
+    wfs = [a*wf for a in Amps]
+    duration = wf.duration
+    # local drive test
+    @test_throws ErrorException new_Amps,new_wf,duration = BloqadeSchema.parse_dynamic_rydberg_ϕ(wfs) 
+    # global drive test
+    @test BloqadeSchema.parse_dynamic_rydberg_ϕ(wf;duration=duration) == (wf,duration)
+
+end
+
+@testset "BloqadeSchema.parse_static_rydberg_ϕ" begin
+    duration = 4
+    max_slope = 10.0
+    min_step = 0.01
+    Amps = [1,2,3,4]
+    # local constant test
+    @test_throws ErrorException new_wf = BloqadeSchema.parse_static_rydberg_ϕ(Amps,duration,max_slope,min_step) 
+    # global constant test
+    wf = 1.0
+    @test BloqadeSchema.parse_static_rydberg_ϕ(wf,duration,max_slope,min_step) == piecewise_linear(;
+        clocks=Float64[0.0,duration],
+        values=Float64[wf,wf]
+    )
+    
 
 end
 

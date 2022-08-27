@@ -6,9 +6,9 @@ using Test
     include("execute.jl")
 end
 
-# @testset "parse" begin
-#     include("parse.jl")
-# end
+@testset "parse" begin
+    include("parse.jl")
+end
 
 # @testset "serialize" begin
 #     include("serialize.jl")

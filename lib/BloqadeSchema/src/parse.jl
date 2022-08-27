@@ -7,9 +7,9 @@ function get_rydberg_params(h::BloqadeExpr.RydbergHamiltonian)
     Δ = nothing
 
     if h.rabi_term isa BloqadeExpr.SumOfX
-        Ω = h.rabi_term.Ω.f
+        Ω = h.rabi_term.Ω.f # Ω is an instance of DivByTwo which has field f which is the function being divided by 2. 
     elseif h.rabi_term isa BloqadeExpr.SumOfXPhase
-        Ω = h.rabi_term.Ω.f
+        Ω = h.rabi_term.Ω.f 
         ϕ = h.rabi_term.ϕ
     end
 
@@ -358,7 +358,7 @@ end
 function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::DynamicParam,params) 
     (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope) = get_constraints(params)
 
-    ϕ,duration = parse_dynamic_rydberg_Ω(ϕ)
+    ϕ,duration = parse_dynamic_rydberg_ϕ(ϕ)
     Ω,duration = parse_dynamic_rydberg_Ω(Ω;duration)
     Δ_local,Δ,duration = parse_dynamic_rydberg_Δ(Δ;duration)
     
@@ -406,6 +406,10 @@ function parse_analog_rydberg_params(h,params)
     atoms,ϕ,Ω,Δ = get_rydberg_params(h)
     # dispatch based on types because there are too many cases 
     # and each case requires a lot of code.
+
+    atoms = map(atoms) do pos 
+                return (convert_units(pos[1],μm,m),convert_units(pos[2],μm,m))
+            end
     ϕ,Ω,Δ,Δ_local = parse_analog_rydberg_fields(ϕ,Ω,Δ,params)
 
     return (atoms,ϕ,Ω,Δ,Δ_local)

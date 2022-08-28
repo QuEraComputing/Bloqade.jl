@@ -52,7 +52,8 @@ function bootstrap(f::Function, xs::Vector...; nboot::Int=500)
     for b in 1:nboot
         idx = rand(1:N, N)
         xs_b = [mean(@views x[idx]) for x in xs]
-        
+
+        temp_f = f(xs_b...)
         #check the function outputs a single scalar (Float64)
         if length(temp_f) > 1
             error("function provided to 'bootstrap' is invalid, it should return a single value")

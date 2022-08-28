@@ -137,9 +137,13 @@ parse_dynamic_rydberg_ϕ(param::Vector{Waveform{F,T}};duration=nothing) where {F
 
 
 @inline convert_units(value::Real,from,to) = uconvert(to,Quantity(value,from)).val
-convert_time(x::Real) = convert_units(x,μs,s)
-convert_rabi_amp(x::Real) = convert_units(x,rad*MHz,rad/s)
-convert_rabi_phase(x::Real) = convert_units(x,rad,rad)
+function convert_units(x::AbstractArray{S},from,to) where {S<:Real}
+    y = similar(x)
+    @inbounds for i in eachindex(x)
+        y[i] = convert_units(x[i],from,to)
+    end
+    return y
+end
 
 function get_constraints(params)
     min_step = convert_units(params.rabi_time_min_step,s,μs)
@@ -169,18 +173,18 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::Cons
     )
 
     ϕ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in ϕ.f.clocks],
-        values=[convert_rabi_phase(value) for value in ϕ.f.values]
+        clocks=convert_units(ϕ.f.clocks,μs,s),
+        values=convert_units(ϕ.f.values,rad,rad)
     )
 
     Ω = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Ω.f.clocks],
-        values=[convert_rabi_amp(value) for value in Ω.f.values]
+        clocks=convert_units(Ω.f.clocks,μs,s),
+        values=convert_units(Ω.f.values,rad*MHz,rad/s)
     )
 
     Δ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Δ.f.clocks],
-        values=[convert_rabi_amp(value) for value in Δ.f.values]
+        clocks=convert_units(Δ.f.clocks,μs,s),
+        values=convert_units(Δ.f.values,rad*MHz,rad/s)
     )
     return (ϕ,Ω,Δ,Δ_local)
 end
@@ -199,18 +203,18 @@ function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::Cons
     )
 
     ϕ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in ϕ.f.clocks],
-        values=[convert_rabi_phase(value) for value in ϕ.f.values]
+        clocks=convert_units(ϕ.f.clocks,μs,s),
+        values=convert_units(ϕ.f.values,rad,rad)
     )
 
     Ω = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Ω.f.clocks],
-        values=[convert_rabi_amp(value) for value in Ω.f.values]
+        clocks=convert_units(Ω.f.clocks,μs,s),
+        values=convert_units(Ω.f.values,rad*MHz,rad/s)
     )
 
     Δ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Δ.f.clocks],
-        values=[convert_rabi_amp(value) for value in Δ.f.values]
+        clocks=convert_units(Δ.f.clocks,μs,s),
+        values=convert_units(Δ.f.values,rad*MHz,rad/s)
     )
     return (ϕ,Ω,Δ,Δ_local)
 end
@@ -229,18 +233,18 @@ function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::Dyn
     )
 
     ϕ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in ϕ.f.clocks],
-        values=[convert_rabi_phase(value) for value in ϕ.f.values]
+        clocks=convert_units(ϕ.f.clocks,μs,s),
+        values=convert_units(ϕ.f.values,rad,rad)
     )
 
     Ω = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Ω.f.clocks],
-        values=[convert_rabi_amp(value) for value in Ω.f.values]
+        clocks=convert_units(Ω.f.clocks,μs,s),
+        values=convert_units(Ω.f.values,rad*MHz,rad/s)
     )
 
     Δ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Δ.f.clocks],
-        values=[convert_rabi_amp(value) for value in Δ.f.values]
+        clocks=convert_units(Δ.f.clocks,μs,s),
+        values=convert_units(Δ.f.values,rad*MHz,rad/s)
     )
     return (ϕ,Ω,Δ,Δ_local)
 end
@@ -266,18 +270,18 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::Const
     )
 
     ϕ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in ϕ.f.clocks],
-        values=[convert_rabi_phase(value) for value in ϕ.f.values]
+        clocks=convert_units(ϕ.f.clocks,μs,s),
+        values=convert_units(ϕ.f.values,rad,rad)
     )
 
     Ω = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Ω.f.clocks],
-        values=[convert_rabi_amp(value) for value in Ω.f.values]
+        clocks=convert_units(Ω.f.clocks,μs,s),
+        values=convert_units(Ω.f.values,rad*MHz,rad/s)
     )
 
     Δ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Δ.f.clocks],
-        values=[convert_rabi_amp(value) for value in Δ.f.values]
+        clocks=convert_units(Δ.f.clocks,μs,s),
+        values=convert_units(Δ.f.values,rad*MHz,rad/s)
     )
     return (ϕ,Ω,Δ,Δ_local)
 end
@@ -302,18 +306,18 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::Dyna
     )
 
     ϕ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in ϕ.f.clocks],
-        values=[convert_rabi_phase(value) for value in ϕ.f.values]
+        clocks=convert_units(ϕ.f.clocks,μs,s),
+        values=convert_units(ϕ.f.values,rad,rad)
     )
 
     Ω = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Ω.f.clocks],
-        values=[convert_rabi_amp(value) for value in Ω.f.values]
+        clocks=convert_units(Ω.f.clocks,μs,s),
+        values=convert_units(Ω.f.values,rad*MHz,rad/s)
     )
 
     Δ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Δ.f.clocks],
-        values=[convert_rabi_amp(value) for value in Δ.f.values]
+        clocks=convert_units(Δ.f.clocks,μs,s),
+        values=convert_units(Δ.f.values,rad*MHz,rad/s)
     )
     return (ϕ,Ω,Δ,Δ_local)
 end
@@ -338,18 +342,18 @@ function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::DynamicParam,Δ::Dyna
     )
 
     ϕ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in ϕ.f.clocks],
-        values=[convert_rabi_phase(value) for value in ϕ.f.values]
+        clocks=convert_units(ϕ.f.clocks,μs,s),
+        values=convert_units(ϕ.f.values,rad,rad)
     )
 
     Ω = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Ω.f.clocks],
-        values=[convert_rabi_amp(value) for value in Ω.f.values]
+        clocks=convert_units(Ω.f.clocks,μs,s),
+        values=convert_units(Ω.f.values,rad*MHz,rad/s)
     )
 
     Δ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Δ.f.clocks],
-        values=[convert_rabi_amp(value) for value in Δ.f.values]
+        clocks=convert_units(Δ.f.clocks,μs,s),
+        values=convert_units(Δ.f.values,rad*MHz,rad/s)
     )
     return (ϕ,Ω,Δ,Δ_local)
 end
@@ -381,18 +385,18 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::Dynam
     )
 
     ϕ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in ϕ.f.clocks],
-        values=[convert_rabi_phase(value) for value in ϕ.f.values]
+        clocks=convert_units(ϕ.f.clocks,μs,s),
+        values=convert_units(ϕ.f.values,rad,rad)
     )
 
     Ω = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Ω.f.clocks],
-        values=[convert_rabi_amp(value) for value in Ω.f.values]
+        clocks=convert_units(Ω.f.clocks,μs,s),
+        values=convert_units(Ω.f.values,rad*MHz,rad/s)
     )
 
     Δ = piecewise_linear(;
-        clocks=[convert_time(clock) for clock in Δ.f.clocks],
-        values=[convert_rabi_amp(value) for value in Δ.f.values]
+        clocks=convert_units(Δ.f.clocks,μs,s),
+        values=convert_units(Δ.f.values,rad*MHz,rad/s)
     )
     return (ϕ,Ω,Δ,Δ_local)
 end

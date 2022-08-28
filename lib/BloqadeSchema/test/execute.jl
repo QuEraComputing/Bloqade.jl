@@ -10,6 +10,7 @@ using JSON
     T = 2.0
     atoms = [(i,0) for i in 1:10]
     Δ = Waveform(t->cos(2π*t/T),T)
+    # Δi=Δ
     Amps = rand(length(atoms))
     Δi = [a*Δ for a in Amps]
 
@@ -20,6 +21,8 @@ using JSON
     H = rydberg_h(atoms;Ω=Ω,Δ=Δi,ϕ=ϕ)
 
     h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1)
-    JSON.print(JSON.parse(h), 4)
+    H2 = BloqadeSchema.from_json(h)
+
+    println(H2)
 end
 

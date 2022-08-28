@@ -36,6 +36,15 @@ jackknife(xs::Vector...) = jackknife(identity, xs...)
 
 
 function bootstrap(f::Function, xs::Vector...; nboot::Int=500)
+    
+    #check that all the vectors in xs are of equal length
+    num_vectors = length(xs)
+    vector_lengths = [length(xs[i]) for i in 1:length(xs)]
+    equal_length = all(vector_lengths[1] .== vector_lengths)
+    if equal_length == false
+        error("the vectors provided to 'bootstrap' are of different lengths")
+    end
+
     N = length(xs[1])
 
     f_B = zeros(nboot)
@@ -43,6 +52,12 @@ function bootstrap(f::Function, xs::Vector...; nboot::Int=500)
     for b in 1:nboot
         idx = rand(1:N, N)
         xs_b = [mean(@views x[idx]) for x in xs]
+        
+        #check the function outputs a single scalar (Float64)
+        if length(temp_f) > 1
+            error("function provided to 'bootstrap' is invalid, it should return a single value")
+        end
+
         f_B[b] = f(xs_b...)
     end
 

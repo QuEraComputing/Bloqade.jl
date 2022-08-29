@@ -9,7 +9,7 @@ using JSON
 using BitBasis
 using LinearAlgebra; svd
 
-export TaskSpecification
+export TaskSpecification,to_json,from_json
 
 include("types.jl")
 include("serialize.jl")

@@ -88,7 +88,8 @@ function parse_dynamic_rydberg_Δ(param::Vector{Waveform{F,T}};duration=nothing)
         throw(ErrorException("Waveform durations do not match."))
     end
 
-    clock_samples = LinRange(0,duration,100)
+    # clock_samples = LinRange(0,duration,100)
+    clock_samples = sort(duration .* rand(100))
     
     value_samples = zeros(length(param),length(clock_samples))
 
@@ -101,8 +102,7 @@ function parse_dynamic_rydberg_Δ(param::Vector{Waveform{F,T}};duration=nothing)
     # if the there are more one nonzero singular value then there must be
     # multiple functions within the vector.
     u,s,vt = svd(value_samples)
-
-    if any(s[2:end] .> s[1]*eps())
+    if any(s[2:end] .> s[1]*length(s)*eps(eltype(s)))
         throw(ErrorException("Local detuning waveforms cannot be decomposed into a product: Δ(i)⋅Δ(t)."))
     end 
     

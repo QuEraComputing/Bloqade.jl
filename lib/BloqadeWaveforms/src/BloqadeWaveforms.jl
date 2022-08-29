@@ -6,6 +6,7 @@ using UnicodePlots
 using LinearAlgebra
 using Interpolations
 using QuadGK: quadgk
+using Optim: optimize,Brent
 using BloqadeExpr: default_unit
 
 export Waveform,
@@ -18,6 +19,7 @@ export Waveform,
     sinusoidal,
     append,
     discretize,
+    isapprox,
     ..,
     # smooth
     smooth,

@@ -25,6 +25,25 @@ function Base.:(==)(lhs::Waveform, rhs::Waveform)
     return lhs.duration == rhs.duration && lhs.f == rhs.f
 end
 
+function Base.isapprox(lhs::Waveform,rhs::Waveform;atol::Real=eps(),rtol::Real=sqrt(eps()))
+    if lhs != rhs
+        assert_duration_equal(lhs,rhs)
+        neg_abs_diff = t-> -abs.(lhs(t)-rhs(t))
+
+        res = optimize(neg_abs_diff,0,lhs.duration,Brent())
+        max_diff = -minimum(res)
+
+        area,area_error = quadgk(neg_abs_diff,0,lhs.duration)
+
+        if area_error > atol + rtol*max_diff
+            throw(ErrorException("integral error too large to determine approximation"))
+        end
+        return -area < atol + rtol*max_diff
+    else
+        return true
+    end
+end
+
 """
     Waveform(f; duration::Real)
 

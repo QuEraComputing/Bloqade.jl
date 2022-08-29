@@ -35,9 +35,8 @@ end
         wf = Waveform(f,duration)
         new_wf = discretize(wf;tol=tol)
 
-        error,_ = quadgk(t->abs.(wf(t).-new_wf(t)),0,wf.duration)
 
-        @test error < tol
+        @test isapprox(wf,new_wf,atol=tol,rtol=0)
     end
 
     wf = Waveform(t->t^2,2)

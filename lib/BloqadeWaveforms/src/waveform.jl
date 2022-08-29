@@ -25,26 +25,30 @@ function Base.:(==)(lhs::Waveform, rhs::Waveform)
     return lhs.duration == rhs.duration && lhs.f == rhs.f
 end
 
-function Base.isapprox(lhs::Waveform,rhs::Waveform;atol::Real=eps(),rtol::Real=sqrt(eps()))
+
+function pnorm(x::Waveform;p::Real=1)
+    if isfinite(p) # p-norm 
+        kernel = t->abs.(x(t)) .^ p
+        area,area_error = quadgk(kernel,0,x.duration)
+        return area^(1/p)
+    elseif isinf(p) # infinite norm
+        kernel = t -> -abs.(x(t))
+        res = optimize(kernel,0,x.duration,Brent())
+        return -minimum(res)
+    else
+        throw(OverflowError("argument ord must be finite real valued or infinity."))
+    end
+end
+
+function Base.isapprox(lhs::Waveform,rhs::Waveform;atol::Real=0,rtol::Real = (atol>0 ? 0 : √eps()),p=1)
     if lhs != rhs
-        assert_duration_equal(lhs,rhs)
-        neg_abs_diff = t-> -abs.(lhs(t)-rhs(t))
-
-        res = optimize(neg_abs_diff,0,lhs.duration,Brent())
-        max_diff = -minimum(res)
-
-        area,area_error = quadgk(neg_abs_diff,0,lhs.duration)
-
-        area_bound = atol + rtol*(lhs.duration*max_diff)
-
-        if area_error > area_bound
-            throw(ErrorException("area integral error too large to determine closeness of waveforms"))
-        end
-        return -area < area_bound
+            return pnorm(lhs-rhs;p) < max(atol,rtol*max(pnorm(lhs;p),pnorm(rhs;p)))
     else
         return true
     end
 end
+
+
 
 """
     Waveform(f; duration::Real)

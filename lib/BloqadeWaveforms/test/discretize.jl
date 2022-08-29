@@ -36,7 +36,7 @@ end
         new_wf = discretize(wf;tol=tol)
 
 
-        @test isapprox(wf,new_wf,atol=tol,rtol=0)
+        @test isapprox(wf,new_wf,atol=tol,p=1)
     end
 
     wf = Waveform(t->t^2,2)

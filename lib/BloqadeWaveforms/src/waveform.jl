@@ -35,10 +35,12 @@ function Base.isapprox(lhs::Waveform,rhs::Waveform;atol::Real=eps(),rtol::Real=s
 
         area,area_error = quadgk(neg_abs_diff,0,lhs.duration)
 
-        if area_error > atol + rtol*max_diff
-            throw(ErrorException("integral error too large to determine approximation"))
+        area_bound = atol + rtol*(lhs.duration*max_diff)
+
+        if area_error > area_bound
+            throw(ErrorException("area integral error too large to determine closeness of waveforms"))
         end
-        return -area < atol + rtol*max_diff
+        return -area < area_bound
     else
         return true
     end

@@ -26,7 +26,8 @@ function Base.:(==)(lhs::Waveform, rhs::Waveform)
 end
 
 
-function pnorm(x::Waveform;p::Real=1)
+
+function LinearAlgebra.norm(x::Waveform;p::Real=1)
     if isfinite(p) # p-norm 
         kernel = t->abs.(x(t)) .^ p
         area,area_error = quadgk(kernel,0,x.duration)
@@ -40,15 +41,13 @@ function pnorm(x::Waveform;p::Real=1)
     end
 end
 
-function Base.isapprox(lhs::Waveform,rhs::Waveform;atol::Real=0,rtol::Real = (atol>0 ? 0 : √eps()),p=1)
+function Base.isapprox(lhs::Waveform,rhs::Waveform;atol::Real=0,rtol::Real = (atol>0 ? 0 : √eps()),p::Real=1)
     if lhs != rhs
-            return pnorm(lhs-rhs;p) < max(atol,rtol*max(pnorm(lhs;p),pnorm(rhs;p)))
+            return BloqadeWaveforms.norm(lhs-rhs;p) < max(atol,rtol*max(BloqadeWaveforms.norm(lhs;p),BloqadeWaveforms.norm(rhs;p)))
     else
         return true
     end
 end
-
-
 
 """
     Waveform(f; duration::Real)

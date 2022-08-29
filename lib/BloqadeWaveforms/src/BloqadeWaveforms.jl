@@ -19,6 +19,7 @@ export Waveform,
     sinusoidal,
     append,
     discretize,
+    norm,
     ..,
     # smooth
     smooth,

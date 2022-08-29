@@ -107,11 +107,11 @@ function parse_dynamic_rydberg_Δ(param::Vector{Waveform{F,T}};duration=nothing)
     end 
     
     # use U vector to get the scal
-    Amplitude = (u * Diagonal(s))[:,1]
-    i = argmax(abs.(Amplitude))
-    Amplitude ./= Amplitude[i]
+    amplitude = (u * Diagonal(s))[:,1]
+    i = argmax(abs.(amplitude))
+    amplitude ./= amplitude[i]
 
-    return (Amplitude,param[i],duration)
+    return (amplitude,param[i],duration)
     
 end
 

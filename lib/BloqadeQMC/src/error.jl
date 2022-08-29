@@ -63,7 +63,7 @@ function bootstrap(f::Function, xs::Vector...; nboot::Int=500)
     end
 
     μ = mean(f_B)
-    σ2 = (N / (N - 1)) * (mean(abs2, f_B) - μ^2)
+    σ2 = (nboot / (nboot - 1)) * (mean(abs2, f_B) - μ^2)
     σ = σ2 < 0 ? 0.0 : sqrt(σ2)
 
     f_ = f([mean(x) for x in xs]...)

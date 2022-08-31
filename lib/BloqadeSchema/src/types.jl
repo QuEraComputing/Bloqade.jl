@@ -108,7 +108,7 @@ end
 
     rabi_time_resolution::Float64 = 1.0e-9
     rabi_time_min_step::Float64 = 1.0e-8
-    rabi_time_maximum_values::Float64 = 4.0e-6
+    rabi_time_maximum_value::Float64 = 4.0e-6
     
     waveform_tolerance::Float64 = 1.0e-3
     n_shots::Int = 1

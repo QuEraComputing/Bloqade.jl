@@ -32,19 +32,20 @@ function convert_units(x::AbstractArray{S},from,to) where {S<:Real}
     return y
 end
 
-function get_constraints(params::TaskSpecification)
+function get_constraints(params)
     min_step = convert_units(params.rabi_time_min_step,s,μs)
+    max_time = convert_units(params.rabi_time_maximum_value,s,μs)
     ϕ_max_slope = convert_units(params.rabi_frequency_phase_max_slope,rad/s,rad/μs)
     Ω_max_slope = convert_units(params.rabi_frequency_amplitude_max_slope,rad/s^2,rad*MHz/μs)
     Δ_max_slope = convert_units(params.rabi_detuning_max_slope,rad/s^2,rad*MHz/μs)
-    return (min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope)
+    return (min_step,max_time,ϕ_max_slope,Ω_max_slope,Δ_max_slope)
 end
 
 # parsing individual fields
 # we split them up because each 
 # field has different constraints. 
 
-function parse_static_rydberg_Ω(Ω::ConstantParam,duration::Real,params::TaskSpecification)
+function parse_static_rydberg_Ω(Ω::ConstantParam,duration::Real,params)
     if isnothing(Ω) || Ω == 0
         return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[0.0,0.0])
     elseif isreal(Ω)
@@ -94,9 +95,9 @@ function parse_static_rydberg_ϕ(ϕ::ConstantParam,duration::Real)
     end
 end
 
-function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params::TaskSpecification;duration=nothing)
+function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params;duration=nothing)
     if Ω isa Waveform
-        min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope = get_constraints(params)
+        min_step,max_time,ϕ_max_slope,Ω_max_slope,Δ_max_slope = get_constraints(params)
 
         duration = (duration ≡ nothing ? Ω.duration : duration)
     
@@ -105,14 +106,16 @@ function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params::TaskSpecification;dur
         end
     
         if Ω.duration < min_step
-            throw(ErrorException("Waveform durations must be larger than minimum step."))
+            throw(ErrorException("Waveform Ω duration must be larger than minimum step, $(min_step) μs."))
+        end
+
+        if Ω.duration > max_time
+            throw(ErrorException("Waveform Ω duration must be shorter than maximum time, $(max_time) μs."))
         end
 
         if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=eps()) || !isapprox(Ω(duration),0.0;atol=eps(),rtol=eps())
             throw(ErrorException("Rabi Drive must start and end with value 0."))
         end
-
-        
 
         Ω = BloqadeWaveforms.discretize(Ω;
             max_slope=Ω_max_slope,
@@ -122,14 +125,44 @@ function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params::TaskSpecification;dur
 
         return Ω,duration
     else
-        throw(ErrorException("Rabi field must be global drive."))
+        throw(ErrorException("Rabi field amplitude must be global drive."))
     end
 end
 
-parse_dynamic_rydberg_ϕ(ϕ::DynamicParam,params::TaskSpecification;duration=nothing) where {F,T<:Real} = parse_dynamic_rydberg_Ω(ϕ,params;duration)
+function parse_dynamic_rydberg_ϕ(ϕ::DynamicParam,params;duration=nothing)
+    if ϕ isa Waveform
+        min_step,max_time,ϕ_max_slope,Ω_max_slope,Δ_max_slope = get_constraints(params)
 
-function parse_dynamic_rydberg_Δ(Δ::DynamicParam,param::TaskSpecification;duration=nothing)
-    min_step,ϕ_max_slope,Ω_max_slope,Δ_max_slope = get_constraints(params)
+        duration = (duration ≡ nothing ? ϕ.duration : duration)
+    
+        if !(duration ≡ nothing) && ϕ.duration != duration
+            throw(ErrorException("Waveform durations do not match."))
+        end
+    
+        if ϕ.duration < min_step
+            throw(ErrorException("Waveform ϕ duration must be larger than minimum step, $(min_step) μs."))
+        end
+
+        if ϕ.duration > max_time
+            throw(ErrorException("Waveform ϕ duration must be shorter than maximum time, $(max_time) μs."))
+        end
+
+        ϕ = BloqadeWaveforms.discretize(ϕ;
+            max_slope=ϕ_max_slope,
+            min_step=min_step,
+            tol=params.waveform_tolerance,
+        )
+
+        return ϕ,duration
+    else
+        throw(ErrorException("Rabi field phase must be global drive."))
+    end
+        
+end
+
+
+function parse_dynamic_rydberg_Δ(Δ::DynamicParam,params;duration=nothing)
+    min_step,max_time,ϕ_max_slope,Ω_max_slope,Δ_max_slope = get_constraints(params)
 
     if Δ isa Waveform
         duration = (duration ≡ nothing ? Δ.duration : duration)
@@ -139,7 +172,11 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,param::TaskSpecification;dura
         end
 
         if Δ.duration < min_step
-            throw(ErrorException("Waveform durations must be larger than minimum step."))
+            throw(ErrorException("Waveform Δ duration must be larger than minimum step, $(min_step) μs."))
+        end
+
+        if Δ.duration > max_time
+            throw(ErrorException("Waveform Δ duration must be shorter than maximum time, $(max_time) μs."))
         end
 
         Δ = BloqadeWaveforms.discretize(Δ;
@@ -147,6 +184,7 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,param::TaskSpecification;dura
             min_step=min_step,
             tol=params.waveform_tolerance,
         )
+
         return (1.0,nothing,Δ,duration)
     else
         durations = [f.duration for f in Δ]
@@ -158,24 +196,29 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,param::TaskSpecification;dura
         end
       
         if durations[1] < min_step
-            throw(ErrorException("Waveform duration must be larger than minimum step."))
+            throw(ErrorException("Waveform Δ duration must be larger than minimum step, $(min_step) μs."))
         end
 
-        nsteps = duration÷min_step
-        clock_samples = LinRange(0,duration,nsteps)
-        Δti = zeros(length(clock_samples),length(param))
+        if durations[1] > max_time
+            throw(ErrorException("Waveform Δ duration must be shorter than maximum time, $(max_time) μs."))
+        end
+
+
+        nsteps = Int(duration÷min_step)
+        clocks = collect(LinRange(0.0,duration,nsteps))
+        Δti = zeros(length(clocks),length(Δ))
     
-        for (i,clock) in enumerate(clock_samples)
-            for (j,f) in enumerate(param)
+        for (i,clock) in enumerate(clocks)
+            for (j,f) in enumerate(Δ)
                 Δti[i,j] = f(clock)
             end
         end
         
         # project out uniform amplitude waveforms
-        ones_norm = ones(length(param),1)/sqrt(length(param))
+        ones_norm = ones(length(Δ),1)./sqrt(length(Δ))
         Δt = (Δti*ones_norm)*transpose(ones_norm)
         δti = Δti - Δt
-    
+
         # use SVD to decompose the non-uniform waveforms
         # if there are more than one singular value larger than 0 the remaining pattern
         # can't be described as a local detuning mask times a single time-dependent function.
@@ -186,13 +229,13 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,param::TaskSpecification;dura
         end 
     
         # now take one column since they are all the same.
-        Δt = Δt[:,0]
+        Δt = Δt[:,1]
         # get the function values by multiplying s into u.
         # because there is only one non-zero singular value we 
         # just take the first column of u. 
-        δt = s[1] .* u[:,0]
+        δt = s[1] .* u[:,1]
         # there are the local lattice site amplitudes.
-        amps = v_T[:,0]
+        amps = v_T[:,1]
         
         # the lattice amplitudes must be within 0 and 1.
         amps_min = minimum(amps)
@@ -208,12 +251,12 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,param::TaskSpecification;dura
 
         # get waveforms
         Δ = piecewise_linear(;
-            clocks = clock_samples,
+            clocks = clocks,
             values = Δt
         )
 
         δ = piecewise_linear(;
-            clocks = clock_samples,
+            clocks = clocks,
             values = δt
         )
 
@@ -228,7 +271,7 @@ function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::Con
 end
 
 # one dynamic argument
-function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::ConstantParam,params::TaskSpecification) 
+function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::ConstantParam,Δ::ConstantParam,params) 
 
     ϕ,duration = parse_dynamic_rydberg_ϕ(ϕ,params)
     Ω = parse_static_rydberg_Ω(Ω,duration,params)
@@ -299,7 +342,7 @@ parse_analog_rydberg_fields(ϕ,Ω,Δ) = throw(UndefVarError("Unable to parse Ryd
 # then descretize waveforms and return them to be parsed into 
 # effective Hamiltonian. 
 
-function parse_analog_rydberg_params(h,params)
+function parse_analog_rydberg_params(h,params::SchemaConversionParams)
     atoms,ϕ,Ω,Δ = get_rydberg_params(h)
     # dispatch based on types because there are too many cases 
     # and each case requires a lot of code.
@@ -309,6 +352,6 @@ function parse_analog_rydberg_params(h,params)
             end
     ϕ,Ω,Δ,δ,Δ_local = parse_analog_rydberg_fields(ϕ,Ω,Δ,params)
 
-    return (atoms,ϕ,Ω,Δ,Δ_local)
+    return (atoms,ϕ,Ω,Δ,δ,Δ_local)
 end
 

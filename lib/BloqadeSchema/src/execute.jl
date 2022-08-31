@@ -75,9 +75,13 @@ function from_schema(t::TaskSpecification)
         clocks=convert_units(detuning_global.times,s,μs),
         values=convert_units(detuning_global.values,rad/s,rad*MHz)
     )
-
     if !isnothing(detuning_local)
-        Δ_i = [δ_i*Δ for (i,δ_i) in enumerate(detuning_local.lattice_site_coefficients) if t.lattice.filling[i] == 1]
+        δ = BloqadeWaveforms.piecewise_linear(;
+            clocks=convert_units(detuning_local.times,s,μs),
+            values=convert_units(detuning_local.values,rad/s,rad*MHz)
+        )
+        
+        Δ_i = [Δ+δ_i*δ for (i,δ_i) in enumerate(detuning_local.lattice_site_coefficients) if t.lattice.filling[i] == 1]
     else
         Δ_i = Δ
     end
@@ -139,15 +143,17 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionPa
         values=convert_units(Δ.f.values,rad*MHz,rad/s)
     )
 
-    δ = piecewise_linear(;
-        clocks=convert_units(δ.f.clocks,μs,s),
-        values=convert_units(δ.f.values,rad*MHz,rad/s)
-    )
+    if !isnothing(δ)
+        δ = piecewise_linear(;
+            clocks=convert_units(δ.f.clocks,μs,s),
+            values=convert_units(δ.f.values,rad*MHz,rad/s)
+        )
+    end
 
     return TaskSpecification(;
         nshots=params.n_shots,
         lattice=to_lattice(atoms),
-        effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ, Δi)
+        effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ, δ, Δi)
     )
 end
 
@@ -166,6 +172,7 @@ function to_hamiltonian(
     Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
     ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
     Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
+    δ::Maybe{Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T}},
     Δ_i::Vector{<:Real}) where {T<:Real,Interp}
 
     return EffectiveHamiltonian(;
@@ -178,7 +185,7 @@ function to_hamiltonian(
             ),
             detuning = RydbergDetuning(;
                 global_value = RydbergDetuningGlobal(; times = Δ.f.clocks, values = Δ.f.values),
-                local_value = RydbergDetuningLocal(; times = Δ.f.clocks, values = Δ.f.values, lattice_site_coefficients=Δ_i)
+                local_value = RydbergDetuningLocal(; times = δ.f.clocks, values = δ.f.values, lattice_site_coefficients=Δ_i)
             ),
         ),
     )
@@ -188,6 +195,7 @@ function to_hamiltonian(
     Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
     ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
     Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
+    δ::Maybe{Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T}},
     Δ_i::Real) where {T<:Real,Interp}
 
     return EffectiveHamiltonian(;
@@ -200,7 +208,7 @@ function to_hamiltonian(
             ),
             detuning = RydbergDetuning(;
                 global_value = RydbergDetuningGlobal(; times = Δ.f.clocks, values = Δ.f.values),
-                # local_value = RydbergDetuningLocal(; times = Δ.f.clocks, values = Δ.f.values, lattice_site_coefficients=Δ_i)
+                # local_value = RydbergDetuningLocal(; times = δ.f.clocks, values = δ.f.values, lattice_site_coefficients=Δ_i)
             ),
         ),
     )

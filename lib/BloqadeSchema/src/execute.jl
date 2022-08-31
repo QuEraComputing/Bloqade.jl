@@ -122,7 +122,27 @@ function to_dict(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionPara
 end
 
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    atoms,ϕ,Ω,Δ,Δi = parse_analog_rydberg_params(h,params)
+    atoms,ϕ,Ω,Δ,δ,Δi = parse_analog_rydberg_params(h,params)
+
+    ϕ = piecewise_linear(;
+        clocks=convert_units(ϕ.f.clocks,μs,s),
+        values=convert_units(ϕ.f.values,rad,rad)
+    )
+
+    Ω = piecewise_linear(;
+        clocks=convert_units(Ω.f.clocks,μs,s),
+        values=convert_units(Ω.f.values,rad*MHz,rad/s)
+    )
+
+    Δ = piecewise_linear(;
+        clocks=convert_units(Δ.f.clocks,μs,s),
+        values=convert_units(Δ.f.values,rad*MHz,rad/s)
+    )
+
+    δ = piecewise_linear(;
+        clocks=convert_units(δ.f.clocks,μs,s),
+        values=convert_units(δ.f.values,rad*MHz,rad/s)
+    )
 
     return TaskSpecification(;
         nshots=params.n_shots,

@@ -112,6 +112,8 @@ end
     
     waveform_tolerance::Float64 = 1.0e-3
     n_shots::Int = 1
+
+    warn::Bool = false
 end
 
 @option struct ShotOutput <: QuEraSchema

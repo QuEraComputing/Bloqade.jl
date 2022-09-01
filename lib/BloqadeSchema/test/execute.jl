@@ -6,21 +6,20 @@ using JSON
 
 
 @testset "to_schema" begin
-    T = 1
-    s = T/10
+    T = 4
     atoms = [(i,0) for i in 1:10]
-    Δ = Waveform(t->cos(2π*t/T),T)
-    Δi=Δ
-    # amps = rand(length(atoms))
-    # Δi = [1.0*Δ for a in amps]
 
-    Ω = Waveform(t->sin(2π*t/T)^2,T)
-    ϕ = piecewise_linear(;clocks=[0,T/2-s,T/2+s,T],values=[0.0,0.0,π,π])
-
-    H = rydberg_h(atoms;Ω=Ω,Δ=Δi,ϕ=ϕ)
-
-    h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1)
-    H_json = BloqadeSchema.from_json(h)
+    values = [1.0,nothing,Waveform(t->sin(2π*t/T)^2,T/2)]
+    for Ω in values
+        for ϕ in values
+            for Δ in values
+                if any((f isa BloqadeSchema.DynamicParam) for f in [ϕ,Ω,Δ])
+                    H = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
+                    h = BloqadeSchema.to_json(H,waveform_tolerance=1e-2,warn=true)
+                end
+            end
+        end
+    end
 
 end
 

@@ -1,4 +1,20 @@
 
+function mult_by_two(Ω)
+    isnothing(Ω) && return
+    if BloqadeExpr.is_const_param(Ω)
+        return Ω .* 2
+    end
+
+    return if Ω isa Vector
+        map(Ω) do Ω_i
+            return Ω_i.f
+        end
+    else
+        Ω.f
+    end
+
+end
+
 
 function get_rydberg_params(h::BloqadeExpr.RydbergHamiltonian)
     # extracts parameters from RydbergHamiltonian
@@ -7,9 +23,9 @@ function get_rydberg_params(h::BloqadeExpr.RydbergHamiltonian)
     Δ = nothing
 
     if h.rabi_term isa BloqadeExpr.SumOfX
-        Ω = h.rabi_term.Ω.f # Ω is an instance of DivByTwo which has field f which is the function being divided by 2. 
+        Ω = mult_by_two(h.rabi_term.Ω)
     elseif h.rabi_term isa BloqadeExpr.SumOfXPhase
-        Ω = h.rabi_term.Ω.f 
+        Ω = mult_by_two(h.rabi_term.Ω)
         ϕ = h.rabi_term.ϕ
     end
 
@@ -20,7 +36,26 @@ function get_rydberg_params(h::BloqadeExpr.RydbergHamiltonian)
     return (h.rydberg_term.atoms,ϕ,Ω,Δ)
 end
 
-
+function discretize_with_warn(wf::Waveform,warn::Bool,max_slope::Real,min_step::Real,tol::Real)
+    try
+        new_wf = BloqadeWaveforms.discretize(wf,
+            max_slope=max_slope,
+            min_step=min_step,
+            tol=tol,
+        )
+        return new_wf
+    catch e
+        if e isa ErrorException && warn
+            @warn e.msg
+            new_wf = BloqadeWaveforms.discretize(wf,
+                tol=tol,
+            )
+            return new_wf
+        else
+            throw(e)
+        end
+    end
+end
 
 
 @inline convert_units(value::Real,from,to) = uconvert(to,Quantity(value,from)).val
@@ -45,6 +80,8 @@ end
 # parsing individual fields
 # we split them up because each 
 # field has different constraints. 
+
+error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : throw(ErrorException(msg)))
 
 function parse_static_rydberg_Ω(Ω::ConstantParam,duration::Real,params)
     if isnothing(Ω) || Ω == 0
@@ -103,30 +140,30 @@ function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params;duration=nothing)
         duration = (duration ≡ nothing ? Ω.duration : duration)
     
         if !(duration ≡ nothing) && Ω.duration != duration
-            throw(ErrorException("Waveform durations do not match."))
+            error_or_warn(params.warn,"Waveform Ω(t) duration does not match other Waveforms.")
         end
     
         if Ω.duration < min_step
-            throw(ErrorException("Waveform Ω duration must be larger than minimum step, $(min_step) μs."))
+            if params.warn
+
+            else
+                error_or_warn(params.warn,"Waveform Ω(t) duration must be larger than minimum step, $(min_step) μs.")
+            end
         end
 
         if Ω.duration > max_time
-            throw(ErrorException("Waveform Ω duration must be shorter than maximum time, $(max_time) μs."))
+            error_or_warn(params.warn,"Waveform Ω(t) duration must be shorter than maximum time, $(max_time) μs.")
         end
 
         if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=eps()) || !isapprox(Ω(duration),0.0;atol=eps(),rtol=eps())
-            throw(ErrorException("Rabi Drive must start and end with value 0."))
+            error_or_warn(params.warn,"Rabi Drive must start and end with value 0.")
         end
 
-        Ω = BloqadeWaveforms.discretize(Ω;
-            max_slope=Ω_max_slope,
-            min_step=min_step,
-            tol=params.waveform_tolerance,
-        )
+        Ω = discretize_with_warn(Ω,params.warn,Ω_max_slope,min_step,params.waveform_tolerance)
 
         return Ω,duration
     else
-        throw(ErrorException("Rabi field amplitude must be global drive."))
+        throw(ErrorException("Rabi field amplitude Ω(t) must be global drive."))
     end
 end
 
@@ -137,26 +174,22 @@ function parse_dynamic_rydberg_ϕ(ϕ::DynamicParam,params;duration=nothing)
         duration = (duration ≡ nothing ? ϕ.duration : duration)
     
         if !(duration ≡ nothing) && ϕ.duration != duration
-            throw(ErrorException("Waveform durations do not match."))
+            error_or_warn(params.warn,"Waveform ϕ(t) duration does not match other Waveforms.")
         end
     
         if ϕ.duration < min_step
-            throw(ErrorException("Waveform ϕ duration must be larger than minimum step, $(min_step) μs."))
+            error_or_warn(params.warn,"Waveform ϕ(t) duration must be larger than minimum step, $(min_step) μs.")
         end
 
         if ϕ.duration > max_time
-            throw(ErrorException("Waveform ϕ duration must be shorter than maximum time, $(max_time) μs."))
+            error_or_warn(params.warn,"Waveform ϕ(t) duration must be shorter than maximum time, $(max_time) μs.")
         end
 
-        ϕ = BloqadeWaveforms.discretize(ϕ;
-            max_slope=ϕ_max_slope,
-            min_step=min_step,
-            tol=params.waveform_tolerance,
-        )
+        ϕ = discretize_with_warn(ϕ,params.warn,ϕ_max_slope,min_step,params.waveform_tolerance)
 
         return ϕ,duration
     else
-        throw(ErrorException("Rabi field phase must be global drive."))
+        throw(ErrorException("Rabi field phase ϕ(t) must be global drive."))
     end
         
 end
@@ -169,22 +202,18 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,params;duration=nothing)
         duration = (duration ≡ nothing ? Δ.duration : duration)
     
         if !(duration ≡ nothing) && Δ.duration != duration
-            throw(ErrorException("Waveform durations do not match."))
+            error_or_warn(params.warn,"Waveform Δ(t) duration does not match other Waveforms.")
         end
 
         if Δ.duration < min_step
-            throw(ErrorException("Waveform Δ duration must be larger than minimum step, $(min_step) μs."))
+            error_or_warn(params.warn,"Waveform Δ(t) duration must be larger than minimum step, $(min_step) μs.")
         end
 
         if Δ.duration > max_time
-            throw(ErrorException("Waveform Δ duration must be shorter than maximum time, $(max_time) μs."))
+            error_or_warn(params.warn,"Waveform Δ(t) duration must be shorter than maximum time, $(max_time) μs.")
         end
 
-        Δ = BloqadeWaveforms.discretize(Δ;
-            max_slope=Δ_max_slope,
-            min_step=min_step,
-            tol=params.waveform_tolerance,
-        )
+        Δ = discretize_with_warn(Δ,params.warn,Δ_max_slope,min_step,params.waveform_tolerance)
 
         return (1.0,nothing,Δ,duration)
     else
@@ -193,15 +222,16 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,params;duration=nothing)
         duration = (duration ≡ nothing ? durations[1] : duration)
     
         if !(duration ≡ nothing) && !all(duration .== durations)
-            throw(ErrorException("Waveform durations do not match."))
+            error_or_warn(params.warn,"Waveform Δ(i,t) duration does not match other Waveforms.")
         end
+        
       
         if durations[1] < min_step
-            throw(ErrorException("Waveform Δ duration must be larger than minimum step, $(min_step) μs."))
+            error_or_warn(params.warn,"Waveform Δ(i,t) duration must be larger than minimum step, $(min_step) μs.")
         end
 
         if durations[1] > max_time
-            throw(ErrorException("Waveform Δ duration must be shorter than maximum time, $(max_time) μs."))
+            error_or_warn(params.warn,"Waveform Δ(i,t) duration must be shorter than maximum time, $(max_time) μs.")
         end
 
 

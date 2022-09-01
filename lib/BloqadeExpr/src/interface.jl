@@ -87,11 +87,14 @@ function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
     rydberg_term = RydInteract(positions, C)
 
     Ω = div_by_two(Ω)
-
+ 
     if !isnothing(Ω) && !isnothing(ϕ)
         rabi_term = SumOfXPhase(nsites, Ω, ϕ)
     elseif !isnothing(Ω) && isnothing(ϕ)
         rabi_term = SumOfX(nsites, Ω)
+    elseif isnothing(Ω) && !isnothing(ϕ)
+        @warn "Rydberg Hamiltonian contains non-zero rabi phase ϕ with no rabi amplitude Ω."
+        rabi_term = SumOfXPhase(nsites, 0, ϕ)
     else
         rabi_term = nothing
     end

@@ -1,0 +1,24 @@
+[build-system]
+requires = [ "poetry-core>=1.0.0", "toml >= 0.10",]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "bloqade"
+version = "0.1.9"
+description = "The Python wrapper for Bloqade.jl"
+authors = [ "Roger-luo <rogerluo.rl18@gmail.com>", "QuEra Computing Inc. <info@quera.com>",]
+license = "Apache-2.0"
+readme = "README.md"
+keywords = [ "quantum", "rydberg", "atom",]
+documentation = "https://queracomputing.github.io/Bloqade.jl/stable/"
+classifiers = [ "Development Status :: 4 - Beta", "License :: OSI Approved :: Apache Software License", "Intended Audience :: Developers", "Intended Audience :: Education", "Intended Audience :: Science/Research", "Programming Language :: Python", "Programming Language :: Python :: 3", "Topic :: Scientific/Engineering", "Topic :: Scientific/Engineering :: Physics",]
+include = [ "juliapkg.json",]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+juliacall = "^0.9.3"
+juliapkg = "^0.1.5"
+matplotlib = "3.5.1"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"

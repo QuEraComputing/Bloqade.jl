@@ -281,6 +281,49 @@ end
 
 SumOfZ(n::Int) = SumOfZ(n, 1)
 
+struct DivByTwo{F}
+    f::F
+    function DivByTwo(f)
+        assert_has_time_method(f,:f)
+        return new{typeof(f)}(f)
+    end
+end
+
+@inline (Func::DivByTwo)(t::Real) = Func.f(t)/2
+
+
+const RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
+const DetuningTypes = Union{Nothing,SumOfN}
+
+struct RydbergHamiltonian <: AbstractTerm
+    rydberg_term::RydInteract
+    rabi_term::RabiTypes
+    detuning_term::DetuningTypes
+end
+
+function add_terms(h::RydbergHamiltonian)
+    terms = h.rydberg_term
+
+    if typeof(h.rabi_term) <: Union{SumOfX,SumOfXPhase}
+        terms += h.rabi_term
+    end
+    
+    if h.detuning_term isa SumOfN
+        terms -= h.detuning_term
+    end
+    
+    return YaoBlocks.Optimise.simplify(terms)
+
+end
+
+function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where {T,N}
+    return YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(h), i, j)
+end
+
+function YaoBlocks.unsafe_getcol(::Type{T}, h::RydbergHamiltonian, j::DitStr{2}) where T
+    YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(h), j)
+end
+
 YaoAPI.nqudits(::XPhase) = 1
 YaoAPI.nqudits(::PdPhase) = 1
 YaoAPI.nqudits(::PuPhase) = 1
@@ -289,6 +332,8 @@ YaoAPI.nqudits(h::SumOfX) = h.nsites
 YaoAPI.nqudits(h::SumOfXPhase) = h.nsites
 YaoAPI.nqudits(h::SumOfZ) = h.nsites
 YaoAPI.nqudits(h::SumOfN) = h.nsites
+@inline YaoAPI.nqudits(h::RydbergHamiltonian) = nqudits(h.rydberg_term)
+
 
 function Base.:(==)(lhs::RydInteract, rhs::RydInteract)
     return lhs.C == rhs.C && lhs.atoms == rhs.atoms
@@ -310,6 +355,10 @@ function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
     return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ
 end
 
+function Base.:(==)(lhs::RydbergHamiltonian, rhs::RydbergHamiltonian)
+    return lhs.rydberg_term == rhs.rydberg_term && lhs.rabi_term == rhs.rabi_term && lhs.detuning_term == rhs.detuning_term
+end
+
 Base.isreal(::RydInteract) = true
 Base.isreal(::SumOfN) = true
 Base.isreal(::SumOfX) = true
@@ -317,6 +366,9 @@ Base.isreal(::SumOfZ) = true
 Base.isreal(::SumOfXPhase) = false
 Base.isreal(h::Add) = all(isreal, subblocks(h))
 Base.isreal(h::Scale) = isreal(factor(h)) && isreal(content(h))
+Base.isreal(h::RydbergHamiltonian) = !(h.rabi_term isa SumOfXPhase)
+
+
 
 storage_size(x) = sizeof(x)
 function storage_size(h::Hamiltonian)
@@ -325,3 +377,4 @@ end
 function storage_size(H::SparseMatrixCSC)
     return sizeof(H.colptr) + sizeof(H.rowval) + sizeof(H.nzval)
 end
+

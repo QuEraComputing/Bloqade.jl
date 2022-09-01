@@ -30,7 +30,8 @@ struct Subspace{T, S<:AbstractVector{T}} <: AbstractSpace
     subspace_v::S
 
     function Subspace(nqubits::Int, map::Dict{T,T}, subspace_v) where T<:Integer
-        maximum(subspace_v) ≤ one(T) << nqubits || throw(ArgumentError("subspace index is too large"))
+        # NOTE: the indices in `subspace_v` is in range 0:1<<nqubits-1
+        maximum(subspace_v) ≤ (one(T) << nqubits-1) || throw(ArgumentError("subspace index is too large"))
         return new{T,typeof(subspace_v)}(nqubits, map, subspace_v)
     end
 end

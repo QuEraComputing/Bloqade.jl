@@ -1,7 +1,10 @@
 YaoBlocks.print_block(io::IO, t::AbstractTerm) = print_expr(io, MIME"text/plain"(), t)
+YaoBlocks.print_block(io::IO, t::RydbergHamiltonian) = print_expr(io, MIME"text/plain"(), t)
 YaoBlocks.print_block(io::IO, t::XPhase) = print(io, "XPhase(", t.ϕ, ")")
 
 Base.show(io::IO, ::Union{MIME"text/latex",MIME"application/x-latex"}, t::AbstractTerm) =
+    print(io, latexstring(latex_expr(t)))
+Base.show(io::IO, ::Union{MIME"text/latex",MIME"application/x-latex"}, t::RydbergHamiltonian) =
     print(io, latexstring(latex_expr(t)))
 Base.show(io::IO, ::Union{MIME"text/latex",MIME"application/x-latex"}, t::Add) = print(io, latexstring(latex_expr(t)))
 
@@ -37,8 +40,8 @@ end
 
 function print_expr(io::IO, ::MIME"text/plain", t::RydInteract)
     C = t.C / 2π
-    n = ceil(log10(C))
-    C = round(C / 10^(n - 1), digits = 3)
+    n = ceil(log10(C))-1
+    C = round(C / 10^n, digits = 3)
     return print(io, "∑ 2π ⋅ $(C)e$n/|r_i-r_j|^6 n_i n_j")
 end
 
@@ -145,6 +148,14 @@ function latex_expr(t::SumOfXPhase)
         tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
     end
     return tex
+end
+
+function latex_expr(h::RydbergHamiltonian)
+    return latex_expr(add_terms(h))
+end
+
+function print_expr(io::IO, ::MIME"text/plain", h::RydbergHamiltonian)
+    print(io,add_terms(h))
 end
 
 function Base.show(io::IO, ::MIME"text/plain", h::Hamiltonian)

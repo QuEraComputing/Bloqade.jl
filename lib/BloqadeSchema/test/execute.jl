@@ -54,9 +54,10 @@ end
     Δ = BloqadeWaveforms.piecewise_linear(; clocks = [0.0, 0.6, 2.1, 2.2], values = [-10.1, -10.1, 10.1, 10.1])
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks = [0, 5], values = [33, 0])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
-    block = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
+    h = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
+
     @test BloqadeSchema.to_schema(
-        block;
+        BloqadeExpr.add_terms(h);
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
         rabi_detuning_max_slope = 10,
@@ -92,11 +93,11 @@ end
     Δ = BloqadeWaveforms.piecewise_linear(; clocks = [0.0, 0.6, 2.1, 2.2], values = [-10.1, -10.1, 10.1, 10.1])
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks = [0, 5], values = [33, 0])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
-
-    block = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
+    
+    h = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
 
     @test BloqadeSchema.to_schema(
-        block;
+        BloqadeExpr.add_terms(h);
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
         rabi_detuning_max_slope = 10,
@@ -134,10 +135,10 @@ end
     Δ = BloqadeWaveforms.piecewise_linear(; clocks = [0.0, 0.6, 2.1, 2.2], values = [-10.1, -10.1, 10.1, 10.1])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
 
-    block = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω)
+    h = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω)
 
     @test BloqadeSchema.to_schema(
-        block;
+        BloqadeExpr.add_terms(h);
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
         rabi_detuning_max_slope = 10,
@@ -195,7 +196,7 @@ end
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks = [0, 5], values = [33, 0])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
 
-    block = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
+    h = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
     params = BloqadeSchema.SchemaConversionParams(
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
@@ -203,7 +204,7 @@ end
         n_shots = 100,
     )
 
-    @test BloqadeSchema.to_json(block, params) ==
+    @test BloqadeSchema.to_json(BloqadeExpr.add_terms(h), params) ==
           "{\"nshots\":100,\"lattice\":{\"sites\":[[0.0,0.0],[1.0,3.0],[4.0,2.0],[6.0,3.0],[0.0,5.0],[2.0,5.0]],\"filling\":[1,1,1,1,1,1]},\"effective_hamiltonian\":{\"rydberg\":{\"rabi_frequency_amplitude\":{\"global\":{\"times\":[0.0,1.8,2.0,3.9,4.0,5.8,6.0],\"values\":[5.0,5.0,3.0,3.0,4.0,4.0,6.0]}},\"rabi_frequency_phase\":{\"global\":{\"times\":[0.0,5.0],\"values\":[33.0,0.0]}},\"detuning\":{\"global\":{\"times\":[0.0,0.6,2.1,2.2],\"values\":[-10.1,-10.1,10.1,10.1]}}}}}"
 end
 
@@ -213,7 +214,7 @@ end
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks = [0, 5], values = [33, 0])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
 
-    block = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
+    h = BloqadeExpr.rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
     params = BloqadeSchema.SchemaConversionParams(
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
@@ -221,9 +222,9 @@ end
         n_shots = 100,
     )
 
-    d = BloqadeSchema.to_dict(block, params)
+    d = BloqadeSchema.to_dict(BloqadeExpr.add_terms(h), params)
     @test Configurations.from_dict(BloqadeSchema.TaskSpecification, d) == BloqadeSchema.to_schema(
-        block;
+        BloqadeExpr.add_terms(h);
         rabi_frequency_amplitude_max_slope = 10,
         rabi_frequency_phase_max_slope = 10,
         rabi_detuning_max_slope = 10,
@@ -237,13 +238,13 @@ end
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 5], values=[33.0, 0])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
 
-    block = BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
+    h = BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
     params = BloqadeSchema.SchemaConversionParams(
         rabi_frequency_amplitude_max_slope=10,
         rabi_frequency_phase_max_slope=10,
         rabi_detuning_max_slope=10, n_shots=100
     )
-
+    block = BloqadeExpr.add_terms(h)
     block2 = BloqadeSchema.from_json(BloqadeSchema.to_json(block, params))
 
     @test block |> attime(0.1) == block2 |> attime(0.1)
@@ -258,18 +259,35 @@ end
     ϕ = BloqadeWaveforms.piecewise_linear(; clocks=[0.0, 5], values=[33.0, 0])
     atoms = [(0, 0), (1, 3), (4, 2), (6, 3), (0, 5), (2, 5)]
 
-    block = BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
+    h = BloqadeExpr.rydberg_h(atoms; Δ=Δ, Ω=Ω, ϕ=ϕ)
     params = BloqadeSchema.SchemaConversionParams(
         rabi_frequency_amplitude_max_slope=10,
         rabi_frequency_phase_max_slope=10,
         rabi_detuning_max_slope=10, n_shots=3
     )
 
-    ir_str = BloqadeSchema.to_json(block, params)
+    ir_str = BloqadeSchema.to_json(BloqadeExpr.add_terms(h), params)
 
     # task_out_str = BloqadeSchema.execute(ir_str)
     # @test task_out_str == string("""{"task_status_code":200,"shot_outputs":[""",
     #     """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]},""",
     #     """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]},""",
     #     """{"shot_status_code":200,"pre_sequence":[1,1,1,1,1,1],"post_sequence":[0,0,0,0,0,0]}]}""")
+end
+
+@testset "to_task_output" begin
+    bitstrings = [bit"010", bit"110", bit"111"]
+    bitstrings_as_vectors = [Vector{Int32}([0,1,0]),
+                             Vector{Int32}([0,1,1]),
+                             Vector{Int32}([1,1,1])]
+    
+    task_output = BloqadeSchema.to_task_output(bitstrings)
+
+    @test task_output.task_status_code == 200
+
+    for (shot, bitstring_as_vector) in collect(zip(task_output.shot_outputs, bitstrings_as_vectors))
+        @test shot.shot_status_code == 200
+        @test shot.pre_sequence == Vector{Int32}([1,1,1])
+        @test shot.post_sequence == bitstring_as_vector
+    end
 end

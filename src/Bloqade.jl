@@ -39,7 +39,7 @@ using Reexport
     grouped_nearest,
     collect_atoms
 
-export rydberg_density, rydberg_corr, bitstring_hist, bitstring_hist!
+export rydberg_density, rydberg_corr, bitstring_hist, bitstring_hist!, get_average_rydberg_densities
 
 using PythonCall
 const plt = PythonCall.pynew()

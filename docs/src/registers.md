@@ -95,6 +95,10 @@ nn_corr = rydberg_corr(Op.n, reg)
 
 It is worth mentioning that besides `Op.n`, other single-site operators including the Pauli operators `X`, `Y` and `Z` can also be used. 
 
+To directly obtain the time-dependent Rydberg density under Hamiltonian evolution, we can use the highly-wrapped function [`get_average_rydberg_densities`](@ref)
+```@docs
+get_average_rydberg_densities
+```
 
 ## Create General Observables using Operator Expressions
 

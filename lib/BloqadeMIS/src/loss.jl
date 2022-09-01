@@ -219,6 +219,10 @@ function to_independent_set(config::Integer, graph::AbstractGraph)
     return to_independent_set!(bitarray(config, nv(graph)), graph)
 end
 
+function to_independent_set(config::AbstractVector{<:Integer}, graph::AbstractGraph)
+    return to_independent_set!(copy(config), graph)
+end
+
 """
     num_mis_violation(config, graph::AbstractGraph, i::Int)
 

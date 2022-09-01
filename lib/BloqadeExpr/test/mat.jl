@@ -30,3 +30,9 @@ end
 @testset "XPhase = PdPhase + PuPhase" begin
     @test mat(XPhase(1.0)) ≈ mat(PdPhase(1.0)) + mat(PuPhase(1.0))
 end
+
+@testset "Int128" begin
+    h = rydberg_h([(rand(2) .* 10...,) for i=1:66], 0.2, 0.3, 0.3, 0.6)
+    s = Subspace(127, rand(Int128, 100) .>> 1)
+    @test mat(h, s) isa SparseMatrixCSC
+end

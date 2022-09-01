@@ -11,7 +11,7 @@ using BloqadeExpr: emit_dynamic_terms, emit_lowered, Hamiltonian, to_matrix, XPh
 end
 
 atoms = [(1, 1), (1, 2), (1, 3)]
-params = [nothing, 1.0, 2.0, sin, [sin for _ in 1:3], cos]
+params = [nothing, 1.0, 2.0, [0.1 for _ in 1:3], sin, [sin for _ in 1:3], cos]
 @testset "emit_dynamic_terms" begin
     @testset "Ω=$Ω" for Ω in params
         @testset "Δ=$Δ" for Δ in params

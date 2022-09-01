@@ -24,6 +24,7 @@ end
 
 
 @inline convert_units(value::Real,from,to) = uconvert(to,Quantity(value,from)).val
+
 function convert_units(x::AbstractArray{S},from,to) where {S<:Real}
     y = similar(x)
     @inbounds for i in eachindex(x)
@@ -204,7 +205,7 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,params;duration=nothing)
         end
 
 
-        nsteps = Int(duration÷min_step)
+        nsteps = Int(durations[1]÷min_step)
         clocks = collect(LinRange(0.0,duration,nsteps))
         Δti = zeros(length(clocks),length(Δ))
     
@@ -342,7 +343,7 @@ parse_analog_rydberg_fields(ϕ,Ω,Δ) = throw(UndefVarError("Unable to parse Ryd
 # then descretize waveforms and return them to be parsed into 
 # effective Hamiltonian. 
 
-function parse_analog_rydberg_params(h,params::SchemaConversionParams)
+function parse_analog_rydberg_params(h::BloqadeExpr.RydbergHamiltonian,params::SchemaConversionParams)
     atoms,ϕ,Ω,Δ = get_rydberg_params(h)
     # dispatch based on types because there are too many cases 
     # and each case requires a lot of code.

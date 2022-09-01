@@ -7,7 +7,7 @@ using Configurations
 using Yao
 using JSON
 using BitBasis
-using LinearAlgebra; svd
+using LinearAlgebra: svd
 
 export TaskSpecification,to_json,from_json
 

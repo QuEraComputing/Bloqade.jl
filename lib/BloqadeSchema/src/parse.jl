@@ -49,7 +49,7 @@ end
 function parse_static_rydberg_Ω(Ω::ConstantParam,duration::Real,params)
     if isnothing(Ω) || Ω == 0
         return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[0.0,0.0])
-    elseif isreal(Ω)
+    elseif Ω isa Real
         constraints = get_constraints(params)
         min_step = constraints[1]
         max_slope = constraints[2]
@@ -69,7 +69,7 @@ end
 function parse_static_rydberg_Δ(Δ::ConstantParam,duration::Real)
     if isnothing(Δ)
         return (1.0,nothing,piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[0.0,0.0]))
-    elseif isreal(Δ)
+    elseif Δ isa Real
        return (1.0,nothing,piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[Δ,Δ]))
     else
         Δi = Float64[val for val in Δ]
@@ -87,9 +87,9 @@ function parse_static_rydberg_Δ(Δ::ConstantParam,duration::Real)
 end
 
 function parse_static_rydberg_ϕ(ϕ::ConstantParam,duration::Real)
-    if isnothing(Δ)
+    if isnothing(ϕ)
         return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[0.0,0.0])
-    elseif isreal(Δ)
+    elseif ϕ isa Real
        return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[ϕ,ϕ])
     else
         throw(ErrorException("Rabi field phase must be global drive.")) 
@@ -293,7 +293,7 @@ end
 
 function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::DynamicParam,params) 
 
-    Δ_local,δ,Δ,duration = parse_dynamic_rydberg_Δ(Δ,params;duration)
+    Δ_local,δ,Δ,duration = parse_dynamic_rydberg_Δ(Δ,params)
     ϕ = parse_static_rydberg_ϕ(ϕ,duration)
     Ω = parse_static_rydberg_Ω(Ω,duration,params)
 

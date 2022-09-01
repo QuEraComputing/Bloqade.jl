@@ -2,7 +2,7 @@
 
 
 
-function descretize(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
+function discretize(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
     max_value::Real=Inf64, 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
@@ -40,7 +40,7 @@ function descretize(wf::Waveform{PiecewiseLinear{T,Interp},T};
 
 end
 
-function descretize(wf::Waveform{PiecewiseConstant{T},T}; 
+function discretize(wf::Waveform{PiecewiseConstant{T},T}; 
     max_value::Real=Inf64, 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
@@ -87,7 +87,7 @@ function descretize(wf::Waveform{PiecewiseConstant{T},T};
 end
 
 """
-    descretize(waveform;[max_vale=Inf64,max_slope=Inf64,min_step=0.0])
+    discretize(waveform;[max_vale=Inf64,max_slope=Inf64,min_step=0.0])
 
 Function which takes a waveform and translates it to a linear interpolation subject to some constraints. The function returns a piecewise linear waveform. if the Waveform is piecewise linear only the constraints will be checked. 
 
@@ -101,7 +101,7 @@ Function which takes a waveform and translates it to a linear interpolation subj
 - `max_slope`: Maximum possible slope used in interpolation
 - `tol`: tolerance of interpolation, this is a bound to the area between the linear interpolation and the waveform.
 """
-function descretize(wf::Waveform; 
+function discretize(wf::Waveform; 
     max_value::Real=Inf64, 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 

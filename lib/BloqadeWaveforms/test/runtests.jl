@@ -9,5 +9,5 @@ end
 end
 
 @testset "descretize" begin
-    include("descretize.jl")
+    include("discretize.jl")
 end

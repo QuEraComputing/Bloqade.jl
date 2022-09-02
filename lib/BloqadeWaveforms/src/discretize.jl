@@ -63,12 +63,14 @@ function discretize(wf::Waveform{PiecewiseConstant{T},T};
         Δt = 4*itol/abs(Δv) # let error determine step size, error is equal to area between step and line functions
         slope = Δv/Δt
         
-        if Δt < min_step || abs(slope) > max_slope
-            throw(ErrorException("Descretization cannot obtain requested tolerance given the step size and slope constraints."))
+        if abs(slope) > max_slope
+            throw(ErrorException("Discretization cannot obtain requested tolerance given the slope constraint."))
+        elseif Δt < min_step
+            throw(ErrorException("Discretization cannot obtain requested tolerance given the step size constraint."))
         end
 
         if t0-Δt/2 < clocks[end]
-            throw(ErrorException("Distance between steps in waveform are too small for requested descretization tolerance."))
+            throw(ErrorException("Distance between steps in waveform are too small for requested discretization tolerance."))
         end
 
         push!(values,v[i])
@@ -93,7 +95,7 @@ Function which takes a waveform and translates it to a linear interpolation subj
 
 # Arguments
 
-- `waveform`: ['Waveform'](@ref)  to be descretized.
+- `waveform`: ['Waveform'](@ref)  to be discretized.
 
 # Keyword Arguments
 
@@ -137,9 +139,11 @@ function discretize(wf::Waveform;
 
             next_slope = 2*max(abs(f_mid - f_lb),abs(f_ub - f_mid))/interval
             
-            if interval < 2*min_step || next_slope > max_slope
-                # can't satisfy constraint. stop refining grid
-                throw(ErrorException("Descretization cannot obtain requested tolerance given the step size and slope constraints."))
+
+            if next_slope > max_slope
+                throw(ErrorException("Discretization cannot obtain requested tolerance given the slope constraint."))
+            elseif interval < 2*min_step
+                    throw(ErrorException("Discretization cannot obtain requested tolerance given the step size constraint."))
             else
                 push!(stack,(mid,ub))
                 push!(stack,(lb,mid))

@@ -64,7 +64,7 @@ function discretize(wf::Waveform{PiecewiseConstant{T},T};
         slope = Δv/Δt
         
         if abs(slope) > max_slope
-            throw(ErrorException("Descretization cannot obtain requested tolerance given the slope constraint."))
+            throw(ErrorException("Discretization cannot obtain requested tolerance given the slope constraint."))
         elseif Δt < min_step
             throw(ErrorException("Descretization cannot obtain requested tolerance given the step size constraint."))
         end

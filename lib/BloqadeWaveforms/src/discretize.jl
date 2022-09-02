@@ -70,7 +70,7 @@ function discretize(wf::Waveform{PiecewiseConstant{T},T};
         end
 
         if t0-Δt/2 < clocks[end]
-            throw(ErrorException("Distance between steps in waveform are too small for requested descretization tolerance."))
+            throw(ErrorException("Distance between steps in waveform are too small for requested discretization tolerance."))
         end
 
         push!(values,v[i])
@@ -95,7 +95,7 @@ Function which takes a waveform and translates it to a linear interpolation subj
 
 # Arguments
 
-- `waveform`: ['Waveform'](@ref)  to be descretized.
+- `waveform`: ['Waveform'](@ref)  to be discretized.
 
 # Keyword Arguments
 

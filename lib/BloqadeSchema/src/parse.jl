@@ -379,7 +379,7 @@ function parse_analog_rydberg_params(h::BloqadeExpr.RydbergHamiltonian,params::S
     # and each case requires a lot of code.
 
     atoms = map(atoms) do pos 
-                return (convert_units(pos[1],μm,m),convert_units(pos[2],μm,m))
+                return convert_units.(pos,μm,m)
             end
     ϕ,Ω,Δ,δ,Δ_local = parse_analog_rydberg_fields(ϕ,Ω,Δ,params)
 

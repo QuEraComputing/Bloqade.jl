@@ -139,10 +139,11 @@ function discretize(wf::Waveform;
 
             next_slope = 2*max(abs(f_mid - f_lb),abs(f_ub - f_mid))/interval
             
-            if interval < 2*min_step
+
+            if next_slope > max_slope
                 throw(ErrorException("Descretization cannot obtain requested tolerance given the slope constraint."))
-            elseif next_slope > max_slope
-                throw(ErrorException("Descretization cannot obtain requested tolerance given the step size constraint."))
+            elseif interval < 2*min_step
+                    throw(ErrorException("Descretization cannot obtain requested tolerance given the step size constraint."))
             else
                 push!(stack,(mid,ub))
                 push!(stack,(lb,mid))

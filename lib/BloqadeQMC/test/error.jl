@@ -1,10 +1,8 @@
-using Test
+using Test, BloqadeQMC
 using Statistics: mean, std
 using Measurements: value, uncertainty
-# using BloqadeQMC: jackknife
+using BloqadeQMC: jackknife
 using Jackknife: estimate, variance, bias
-
-include("../src/error.jl")
 
 @testset "simple numerical tests for jackknife" begin
     x = [3,2,11,7,6]

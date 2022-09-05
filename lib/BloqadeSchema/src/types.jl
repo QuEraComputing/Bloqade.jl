@@ -88,6 +88,9 @@ end
     Time resolution : 1e-9 s
     Time step minimum : 1e-8 s
     """
+    
+    atom_position_resolution::Float64 = 0.1e-6
+
     rabi_frequency_amplitude_maximum::Float64 = 0.0
     rabi_frequency_amplitude_minimum::Float64 = 25.0e6
     rabi_frequency_amplitude_resolution::Float64 = 400.0
@@ -114,6 +117,7 @@ end
     n_shots::Int = 1
 
     warn::Bool = false
+    discretize::Bool = true
 end
 
 @option struct ShotOutput <: QuEraSchema

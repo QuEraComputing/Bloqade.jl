@@ -3,25 +3,29 @@
 
 
 
-# """
-#     execute(j::String)
+"""
+    execute(j::String)
 
-# Executes a task given as a JSON string in the task specification API format, and returns a JSON string of the result
-# """
-# function execute(j::String)
-#     task = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
-#     h = from_json(j)
-#     return JSON.json(Configurations.to_dict(execute(h, length(content(h[1]).atoms), 3e-6, task.nshots)))
-# end
+Executes a task given as a JSON string in the task specification API format, and returns a JSON string of the result
+"""
 
-# function execute(h::Add, n_atoms::Int, total_time::Float64, nshots::Int)
-#     # Always start off with the zero state
-#     reg = zero_state(n_atoms)
-#     problem = SchrodingerProblem(reg, total_time, h)
-#     emulate!(problem)
-#     bitstrings = reg |> measure(; nshots=nshots)
-#     return to_task_output(bitstrings)
-# end
+function execute(j::String)
+    task = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
+    h = from_schema(task)
+        
+    atoms,ϕ,Ω,Δ = get_rydberg_params(h)
+    total_time = ϕ.duration
+    n_atoms = length(atoms)
+
+    reg = zero_state(n_atoms)
+    problem = SchrodingerProblem(reg, total_time, h)
+    BloqadeExpr.emulate!(problem)
+    bitstrings = reg |> measure(; nshots=task.nshots)
+
+    return JSON.json(Configurations.to_dict(to_task_output(bitstrings)))
+end
+
+
 
 function to_task_output(bitstrings::Vector{<:BitBasis.BitStr64})
     shot_outputs = map(bitstrings) do bs

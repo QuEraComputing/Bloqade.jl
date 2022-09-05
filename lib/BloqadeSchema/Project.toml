@@ -5,6 +5,7 @@ version = "0.1.5"
 [deps]
 BitBasis = "50ba71b6-fa0f-514d-ae9a-0916efc90dcf"
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
+BloqadeODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
 BloqadeWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
 Configurations = "5218b696-f38b-4ac9-8b61-a12ec717816d"
 GarishPrint = "b0ab02a7-8576-43f7-aa76-eaa7c3897c54"

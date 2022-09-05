@@ -23,3 +23,17 @@ using JSON
 
 end
 
+
+@testset "execute" begin
+    Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
+    Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
+    
+    atoms = 5.0 * [i for i in 1:10]
+    
+    H = rydberg_h(atoms,Ω=Ω,Δ=Δ)
+    j = to_json(H,n_shots=10)
+
+    r = execute(j)
+    JSON.print(JSON.parse(r),4)
+
+end

@@ -119,26 +119,27 @@ In addition to the content of our base image, this image further contains
 #### SSH Access
 
 - On step 7, a key-pair login may be created for ssh access, if the user does not posses one previously.
-- In this case, it is recommended to access Key pair (login) and click “Create key-pair”. Following the instructions, one may download a ````.pem```` file which can be added to the user’s ````~/.ssh```` folder. 
-- Run the following command chmod ````400 <yourkey>````
+- In this case, it is recommended to access Key pair (login) and click “Create key-pair”. Following the instructions, one may download a `.pem` file which can be added to the user’s `~/.ssh` folder. 
+- Run the following command chmod `400 <yourkey>`
 - Following this process, a Defaul SSH protocol for sign in and security can be used.)
-    * Do so by accessing ````vim config```` on your shell and typing the following
+    * Do so by accessing `vim config` on your shell and typing the following
  <img width="612" alt="image" src="https://user-images.githubusercontent.com/99290010/188179655-dc6e8cbe-bdd0-462b-8d6a-dbd9cfccda7f.png">
 You can find your DNS name  by clicking your instance on the list of running instances in the dashboard, clicking “Connect” and copying the “Public DNS” in the SSH Client tab
 
-Then exit vim and type ````SSH AWS````
+Then exit vim and type `SSH AWS`
 
 #### Other packages
-- Bloqade runs in Julia but if you need to install extra Python packages for your uses, we recommend installing ````conda```` to manage virtual environments and install packages via ````conda install <package>````
+- Bloqade runs in Julia but if you need to install extra Python packages for your uses, we recommend installing `conda` to manage virtual environments and install packages via `conda install <package>`
 - To install it via command line, follow 
 
-````
+```sh
 mkdir -p ~/miniconda3
 wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
 bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
 rm -rf ~/miniconda3/miniconda.sh
-````
-You will need to exit out (````Ctrl-D````) of the AWS SSH ran re-log back in (```` ssh AWS````) to get ````conda```` activated.
+```
+
+You will need to exit out (`Ctrl-D`) of the AWS SSH ran re-log back in (`ssh AWS`) to get `conda` activated.
 
 <!---```
 #/dev/sda1=snap-03d72fbeb983a4663:60:true:gp2

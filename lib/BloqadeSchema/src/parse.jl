@@ -1,4 +1,6 @@
 
+error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : error(msg))
+
 function mult_by_two(Ω)
     isnothing(Ω) && return
     if BloqadeExpr.is_const_param(Ω)
@@ -52,13 +54,16 @@ function discretize_with_warn(wf::Waveform,warn::Bool,max_slope::Real,min_step::
             )
             return new_wf
         else
-            throw(e)
+            rethrow(e)
         end
     end
 end
 
 
-@inline convert_units(value::Real,from,to) = uconvert(to,Quantity(value,from)).val
+
+@inline function convert_units(value::Real,from,to)
+    val = uconvert(to,Quantity(value,from)).val
+end
 
 function convert_units(x::AbstractArray{S},from,to) where {S<:Real}
     y = similar(x)
@@ -77,29 +82,50 @@ function get_constraints(params)
     return (min_step,max_time,ϕ_max_slope,Ω_max_slope,Δ_max_slope)
 end
 
+function set_resolution(x::Real,res::Real)
+    @assert res > 0
+    return round(Int(round(x / res)) * res,sigdigits=15)
+end
+
+
+
+function check_resolution(res::Float64,x::Float64)
+    # checks of x is integer multiple of res
+    # if it is return false otherwise return true
+    x == 0 && return true
+
+    x_div_res = (abs(x) / res)
+    return isapprox(round(x_div_res,sigdigits=15),x_div_res)
+end
+
+
+    
+
 # parsing individual fields
 # we split them up because each 
 # field has different constraints. 
 
-error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : throw(ErrorException(msg)))
 
 function parse_static_rydberg_Ω(Ω::ConstantParam,duration::Real,params)
-    if isnothing(Ω) || Ω == 0
+    if isnothing(Ω) || iszero(Ω)
         return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[0.0,0.0])
     elseif Ω isa Real
-        constraints = get_constraints(params)
-        min_step = constraints[1]
-        max_slope = constraints[2]
+        # constraints = get_constraints(params)
+        # min_step = constraints[1]
+        # max_slope = constraints[2]
 
-        step = max(min_step,abs(Ω/max_slope))
+        # step = max(min_step,abs(Ω/max_slope))
 
-        clocks = Float64[0.0,step,duration-step,duration]
-        values = Float64[0.0,Ω,Ω,0.0]
-        waveform = piecewise_linear(;clocks,values)
+        # clocks = Float64[0.0,step,duration-step,duration]
+        # values = Float64[0.0,Ω,Ω,0.0]
+        # waveform = piecewise_linear(;clocks,values)
     
-        return waveform
+        # return waveform
+
+        error_or_warn(params.warn,"Rabi frequency drive Ω(t) must start and end with value 0.")
+        return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[Ω,Ω])
     else
-        throw(ErrorException("Rabi field amplitude must be global drive."))
+        error("Rabi field amplitude must be global drive.")
     end
 end
 
@@ -129,7 +155,7 @@ function parse_static_rydberg_ϕ(ϕ::ConstantParam,duration::Real)
     elseif ϕ isa Real
        return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[ϕ,ϕ])
     else
-        throw(ErrorException("Rabi field phase must be global drive.")) 
+        error("Rabi field phase must be global drive.")
     end
 end
 
@@ -156,14 +182,14 @@ function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params;duration=nothing)
         end
 
         if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=eps()) || !isapprox(Ω(duration),0.0;atol=eps(),rtol=eps())
-            error_or_warn(params.warn,"Rabi Drive must start and end with value 0.")
+            error_or_warn(params.warn,"Rabi frequency drive Ω(t) must start and end with value 0.")
         end
 
         Ω = discretize_with_warn(Ω,params.warn,Ω_max_slope,min_step,params.waveform_tolerance)
 
         return Ω,duration
     else
-        throw(ErrorException("Rabi field amplitude Ω(t) must be global drive."))
+        error("Rabi field amplitude Ω(t) must be global drive.")
     end
 end
 
@@ -189,7 +215,7 @@ function parse_dynamic_rydberg_ϕ(ϕ::DynamicParam,params;duration=nothing)
 
         return ϕ,duration
     else
-        throw(ErrorException("Rabi field phase ϕ(t) must be global drive."))
+        error("Rabi field phase ϕ(t) must be global drive.")
     end
         
 end
@@ -256,7 +282,7 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,params;duration=nothing)
         u,s,v_T = svd(δti)
     
         if any(s[2:end] .> s[1]*length(s)*eps())
-            throw(ErrorException("Local detuning waveforms cannot be decomposed into a product: Δ(i,t) = Δ(t)+ Δ_i⋅δ(t)."))
+            error("Local detuning waveforms cannot be decomposed into a product: Δ(i,t) = Δ(t)+ Δ_i⋅δ(t).")
         end 
     
         # now take one column since they are all the same.
@@ -298,7 +324,7 @@ end
 
 # no dynamic parameeters must throw error because `duration` can't be determined
 function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::ConstantParam,params) 
-    throw(ErrorException("Schema requires at least one Waveform field."))
+    error("Schema requires at least one Waveform field.")
 end
 
 # one dynamic argument
@@ -368,7 +394,7 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::Dynam
     return (ϕ,Ω,Δ,δ,Δ_local)
 end
 
-parse_analog_rydberg_fields(ϕ,Ω,Δ) = throw(UndefVarError("Unable to parse Rydberg coefficients for Schema conversion, please use Real/Nothing for constant coefficients and Waveforms dynamic coefficients."))
+parse_analog_rydberg_fields(ϕ,Ω,Δ) = error("Unable to parse Rydberg coefficients for Schema conversion, please use Real/Nothing for constant coefficients and Waveforms dynamic coefficients.")
 # function will extract parameters, check of waveforms are compatible with IR
 # then descretize waveforms and return them to be parsed into 
 # effective Hamiltonian. 

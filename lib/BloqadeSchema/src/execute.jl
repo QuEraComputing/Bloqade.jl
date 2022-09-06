@@ -78,7 +78,7 @@ function from_schema(t::TaskSpecification)
     atoms = (site for (i,site) in enumerate(t.lattice.sites) if t.lattice.filling[i] == 1)
 
     atoms = map(atoms) do pos 
-        return (convert_units(pos[1],m,μm),convert_units(pos[2],m,μm))
+        return convert_units.(pos,m,μm)
     end
 
     rabi_freq_amp = t.effective_hamiltonian.rydberg.rabi_frequency_amplitude.global_value
@@ -148,29 +148,70 @@ function to_dict(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionPara
     return Configurations.to_dict(to_schema(h, params))
 end
 
+
+
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
     atoms,ϕ,Ω,Δ,δ,Δi = parse_analog_rydberg_params(h,params)
+    
 
-    ϕ = piecewise_linear(;
-        clocks=convert_units(ϕ.f.clocks,μs,s),
-        values=convert_units(ϕ.f.values,rad,rad)
+    ϕ_clocks = convert_units(ϕ.f.clocks,μs,s) 
+    ϕ_values = convert_units(ϕ.f.values,rad,rad)
+    Ω_clocks = convert_units(Ω.f.clocks,μs,s)
+    Ω_values = convert_units(Ω.f.values,rad*MHz,rad/s)
+    Δ_clocks = convert_units(Δ.f.clocks,μs,s)
+    Δ_values = convert_units(Δ.f.values,rad*MHz,rad/s)
+
+    if params.discretize
+        atoms = map(atoms) do pos
+            return set_resolution.(pos,params.atom_position_resolution)
+        end
+        
+        ϕ_clocks = set_resolution.(ϕ_clocks, params.rabi_time_resolution) 
+        ϕ_values = set_resolution.(ϕ_values, params.rabi_frequency_phase_resolution)
+
+        Ω_clocks = set_resolution.(Ω_clocks, params.rabi_time_resolution)
+        Ω_values = set_resolution.(Ω_values, params.rabi_frequency_amplitude_resolution)
+
+        Δ_clocks = set_resolution.(Δ_clocks, params.rabi_time_resolution) 
+        Δ_values = set_resolution.(Δ_values, params.rabi_detuning_resolution)
+
+    end
+
+
+
+    ϕ =(
+        clocks=ϕ_clocks,
+        values=ϕ_values
     )
 
-    Ω = piecewise_linear(;
-        clocks=convert_units(Ω.f.clocks,μs,s),
-        values=convert_units(Ω.f.values,rad*MHz,rad/s)
+
+    Ω = (
+        clocks=Ω_clocks,
+        values=Ω_values
     )
 
-    Δ = piecewise_linear(;
-        clocks=convert_units(Δ.f.clocks,μs,s),
-        values=convert_units(Δ.f.values,rad*MHz,rad/s)
+
+    Δ = (
+        clocks=Δ_clocks,
+        values=Δ_values
     )
 
     if !isnothing(δ)
-        δ = piecewise_linear(;
-            clocks=convert_units(δ.f.clocks,μs,s),
-            values=convert_units(δ.f.values,rad*MHz,rad/s)
+        δ_clocks = convert_units(δ.f.clocks,μs,s)
+        δ_values = convert_units(δ.f.values,rad*MHz,rad/s)
+        
+        if params.discretize
+            δ_clocks = set_resolution.(δ_clocks, params.rabi_time_resolution)
+            δ_values = set_resolution.(δ_values, params.rabi_detuning_local_resolution)
+            Δi = set_resolution.(Δi, params.rabi_detuning_local_resolution)
+        end
+        
+        δ = (
+            clocks=δ_clocks,
+            values=δ_values
         )
+    else
+
     end
 
     return TaskSpecification(;
@@ -192,46 +233,46 @@ end
 
 
 function to_hamiltonian(
-    Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
-    ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
-    Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
-    δ::Maybe{Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T}},
-    Δ_i::Vector{<:Real}) where {T<:Real,Interp}
+    Ω::NamedTuple,
+    ϕ::NamedTuple,
+    Δ::NamedTuple,
+    δ::NamedTuple,
+    Δ_i::Vector{<:Real}) 
 
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;
             rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
-                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = Ω.f.clocks, values = Ω.f.values),
+                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = Ω.clocks, values = Ω.values),
             ),
             rabi_frequency_phase = RydbergRabiFrequencyPhase(;
-                global_value = RydbergRabiFrequencyPhaseGlobal(; times = ϕ.f.clocks, values = ϕ.f.values),
+                global_value = RydbergRabiFrequencyPhaseGlobal(; times = ϕ.clocks, values = ϕ.values),
             ),
             detuning = RydbergDetuning(;
-                global_value = RydbergDetuningGlobal(; times = Δ.f.clocks, values = Δ.f.values),
-                local_value = RydbergDetuningLocal(; times = δ.f.clocks, values = δ.f.values, lattice_site_coefficients=Δ_i)
+                global_value = RydbergDetuningGlobal(; times = Δ.clocks, values = Δ.values),
+                local_value = RydbergDetuningLocal(; times = δ.clocks, values = δ.values, lattice_site_coefficients=Δ_i)
             ),
         ),
     )
 end
 
 function to_hamiltonian(
-    Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
-    ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
-    Δ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T},
-    δ::Maybe{Waveform{BloqadeWaveforms.PiecewiseLinear{T,Interp},T}},
-    Δ_i::Real) where {T<:Real,Interp}
+    Ω::NamedTuple,
+    ϕ::NamedTuple,
+    Δ::NamedTuple,
+    δ::Nothing,
+    Δ_i::Real)
 
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;
             rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
-                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = Ω.f.clocks, values = Ω.f.values),
+                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = Ω.clocks, values = Ω.values),
             ),
             rabi_frequency_phase = RydbergRabiFrequencyPhase(;
-                global_value = RydbergRabiFrequencyPhaseGlobal(; times = ϕ.f.clocks, values = ϕ.f.values),
+                global_value = RydbergRabiFrequencyPhaseGlobal(; times = ϕ.clocks, values = ϕ.values),
             ),
             detuning = RydbergDetuning(;
-                global_value = RydbergDetuningGlobal(; times = Δ.f.clocks, values = Δ.f.values),
-                # local_value = RydbergDetuningLocal(; times = δ.f.clocks, values = δ.f.values, lattice_site_coefficients=Δ_i)
+                global_value = RydbergDetuningGlobal(; times = Δ.clocks, values = Δ.values),
+                # local_value = RydbergDetuningLocal(; times = δ.clocks, values = δ.values, lattice_site_coefficients=Δ_i)
             ),
         ),
     )

@@ -25,6 +25,19 @@ using Unitful: μs, s, MHz, rad
 
 end
 
+@testset "set_resolution" begin
+
+    examples = [
+        (1,10.123,10.0),
+        (0.1,10.1256,10.1),
+        (0.01,10.1256,10.13),
+    ]
+    for (δ,val,res) in examples
+        @test BloqadeSchema.set_resolution(val,δ) == res
+    end
+
+end
+
 @testset "parse_dynamic_rydberg_Ω" begin
 
 

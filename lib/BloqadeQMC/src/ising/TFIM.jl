@@ -24,8 +24,8 @@ const ISING_OP_SIZE = 5
 ###############################################################################
 
 # TFIM ops:
-#  (1,2,1,0,i) is an off-diagonal site operator h*sigma^x_i
-#  (1,1,1,0,i) is a diagonal site operator h
+#  (1,-2,i,0,i) is an off-diagonal site operator h*sigma^x_i
+#  (1,1,i,0,i) is a diagonal site operator h
 #  (0,0,0,0,0) is the identity operator I - NOT USED IN THE PROJECTOR CASE
 #  (2,1,w,i,j) is a diagonal bond operator J(sigma^z_i sigma^z_j)
 @inline getoperatorlocality(::Type{<:AbstractIsing}, op::NTuple{ISING_OP_SIZE, Int}) = @inbounds op[1]

@@ -38,12 +38,7 @@ jackknife(xs::Vector...) = jackknife(identity, xs...)
 function bootstrap(f::Function, xs::Vector...; nboot::Int=500)
     
     #check that all the vectors in xs are of equal length
-    num_vectors = length(xs)
-    vector_lengths = [length(xs[i]) for i in 1:length(xs)]
-    equal_length = all(vector_lengths[1] .== vector_lengths)
-    if equal_length == false
-        error("the vectors provided to 'bootstrap' are of different lengths")
-    end
+    all(isequal(length(xs[1])), length.(xs)) || error("the vectors provided to 'bootstrap' are of different lengths")
 
     N = length(xs[1])
 

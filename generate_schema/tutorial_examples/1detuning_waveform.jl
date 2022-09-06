@@ -3,7 +3,6 @@ using Bloqade
 using JSON
 
 
-
 # preparing states with 1 detuning pattern. For more details, see https://queracomputing.github.io/Bloqade.jl/dev/tutorials/4.LGT/main/
 
 a = 5.5;
@@ -35,7 +34,7 @@ end ;
 H = rydberg_h(atoms; Δ = Δ2_single_defect, Ω = Ω2)
 h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1, warn=true)
 
-open("generate_schema/1detuning_waveform.json","w") do f
+open("generate_schema/tutorial_examples/1detuning_waveform.json","w") do f
     JSON.print(f, h)
 end
 

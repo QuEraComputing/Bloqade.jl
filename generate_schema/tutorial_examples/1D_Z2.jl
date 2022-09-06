@@ -22,6 +22,6 @@ H = rydberg_h(atoms; Δ, Ω)
 h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1,warn=true)
 
 
-open("generate_schema/1D_Z2.json","w") do f
+open("generate_schema/tutorial_examples/1D_Z2.json","w") do f
     JSON.print(f, h)
 end

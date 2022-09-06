@@ -3,9 +3,6 @@ using Bloqade
 using JSON
 
 
-
-
-
 # preparing 2D checkboard phase. For more details, see https://queracomputing.github.io/Bloqade.jl/dev/tutorials/2.adiabatic/main/
 
 nx, ny = 3, 3
@@ -22,6 +19,6 @@ U = 2π * 15.0
 H = rydberg_h(atoms; Δ, Ω)
 h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1, warn=true)
 
-open("generate_schema/2D_checkboard.json","w") do f
+open("generate_schema/tutorial_examples/2D_checkboard.json","w") do f
     JSON.print(f, h)
 end

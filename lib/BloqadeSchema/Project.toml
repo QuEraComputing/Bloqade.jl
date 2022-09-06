@@ -11,6 +11,7 @@ Configurations = "5218b696-f38b-4ac9-8b61-a12ec717816d"
 GarishPrint = "b0ab02a7-8576-43f7-aa76-eaa7c3897c54"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 

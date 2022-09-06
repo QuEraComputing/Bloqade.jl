@@ -31,9 +31,12 @@ end
     atoms = 5.0 * [i for i in 1:10]
     
     H = rydberg_h(atoms,Ω=Ω,Δ=Δ)
-    j = to_json(H,n_shots=10)
-
-    r = execute(j)
-    JSON.print(JSON.parse(r),4)
+    task_string = to_json(H,n_shots=10)
+    task_dict = BloqadeSchema.to_dict(H,n_shots=10)
+    task = BloqadeSchema.to_schema(H,n_shots=10)
+    
+    r_string = execute(task_string)
+    r_dict = execute(task_dict)
+    r_task = execute(task)
 
 end

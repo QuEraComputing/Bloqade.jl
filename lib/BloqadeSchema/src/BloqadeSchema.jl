@@ -9,6 +9,7 @@ using Yao
 using JSON
 using BitBasis
 using LinearAlgebra: svd
+using OrderedCollections: OrderedDict
 
 export TaskSpecification,to_json,from_json,execute
 

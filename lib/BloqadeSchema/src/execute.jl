@@ -10,7 +10,28 @@ Executes a task given as a JSON string in the task specification API format, and
 """
 
 function execute(j::String)
-    task = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
+    execute(JSON.parse(j))
+end
+
+"""
+    execute(j::Dict)
+
+Executes a task given as a Dict in the task specification API format, and returns a JSON string of the result
+"""
+function execute(dict::OrderedDict{key,value}) where {key,value}
+    execute(Configurations.from_dict(BloqadeSchema.TaskSpecification,dict))
+end
+
+function execute(dict::Dict{key,value}) where {key,value}
+    execute(Configurations.from_dict(BloqadeSchema.TaskSpecification,dict))
+end
+
+"""
+    execute(j::TaskSpecification)
+
+Executes a task given as a TaskSpecification object in the task specification API format, and returns a JSON string of the result
+"""
+function execute(task::TaskSpecification)
     h = from_schema(task)
         
     atoms,ϕ,Ω,Δ = get_rydberg_params(h)
@@ -24,6 +45,7 @@ function execute(j::String)
 
     return JSON.json(Configurations.to_dict(to_task_output(bitstrings)))
 end
+
 
 
 

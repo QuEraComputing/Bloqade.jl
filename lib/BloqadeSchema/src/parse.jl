@@ -54,7 +54,7 @@ function discretize_with_warn(wf::Waveform,warn::Bool,max_slope::Real,min_step::
             )
             return new_wf
         else
-            error(e.msg)
+            rethrow(e)
         end
     end
 end

@@ -1,5 +1,5 @@
 
-error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : throw(ErrorException(msg)))
+error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : error(msg))
 
 function mult_by_two(Ω)
     isnothing(Ω) && return
@@ -54,23 +54,18 @@ function discretize_with_warn(wf::Waveform,warn::Bool,max_slope::Real,min_step::
             )
             return new_wf
         else
-            throw(e)
+            error(e.msg)
         end
     end
 end
 
 
 
-@inline function convert_units(value::Real,from,to;res=nothing)
+@inline function convert_units(value::Real,from,to)
     val = uconvert(to,Quantity(value,from)).val
-    if isnothing(res) 
-        return val
-    else
-        return val ÷ res
-    end
 end
 
-function convert_units(x::AbstractArray{S},from,to;res=nothing) where {S<:Real}
+function convert_units(x::AbstractArray{S},from,to) where {S<:Real}
     y = similar(x)
     @inbounds for i in eachindex(x)
         y[i] = convert_units(x[i],from,to)
@@ -160,7 +155,7 @@ function parse_static_rydberg_ϕ(ϕ::ConstantParam,duration::Real)
     elseif ϕ isa Real
        return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[ϕ,ϕ])
     else
-        throw(ErrorException("Rabi field phase must be global drive.")) 
+        error("Rabi field phase must be global drive.")
     end
 end
 
@@ -194,7 +189,7 @@ function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params;duration=nothing)
 
         return Ω,duration
     else
-        throw(ErrorException("Rabi field amplitude Ω(t) must be global drive."))
+        error("Rabi field amplitude Ω(t) must be global drive.")
     end
 end
 
@@ -220,7 +215,7 @@ function parse_dynamic_rydberg_ϕ(ϕ::DynamicParam,params;duration=nothing)
 
         return ϕ,duration
     else
-        throw(ErrorException("Rabi field phase ϕ(t) must be global drive."))
+        error("Rabi field phase ϕ(t) must be global drive.")
     end
         
 end
@@ -287,7 +282,7 @@ function parse_dynamic_rydberg_Δ(Δ::DynamicParam,params;duration=nothing)
         u,s,v_T = svd(δti)
     
         if any(s[2:end] .> s[1]*length(s)*eps())
-            throw(ErrorException("Local detuning waveforms cannot be decomposed into a product: Δ(i,t) = Δ(t)+ Δ_i⋅δ(t)."))
+            error("Local detuning waveforms cannot be decomposed into a product: Δ(i,t) = Δ(t)+ Δ_i⋅δ(t).")
         end 
     
         # now take one column since they are all the same.
@@ -329,7 +324,7 @@ end
 
 # no dynamic parameeters must throw error because `duration` can't be determined
 function parse_analog_rydberg_fields(ϕ::ConstantParam,Ω::ConstantParam,Δ::ConstantParam,params) 
-    throw(ErrorException("Schema requires at least one Waveform field."))
+    error("Schema requires at least one Waveform field.")
 end
 
 # one dynamic argument
@@ -399,7 +394,7 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::Dynam
     return (ϕ,Ω,Δ,δ,Δ_local)
 end
 
-parse_analog_rydberg_fields(ϕ,Ω,Δ) = throw(UndefVarError("Unable to parse Rydberg coefficients for Schema conversion, please use Real/Nothing for constant coefficients and Waveforms dynamic coefficients."))
+parse_analog_rydberg_fields(ϕ,Ω,Δ) = error("Unable to parse Rydberg coefficients for Schema conversion, please use Real/Nothing for constant coefficients and Waveforms dynamic coefficients.")
 # function will extract parameters, check of waveforms are compatible with IR
 # then descretize waveforms and return them to be parsed into 
 # effective Hamiltonian. 

@@ -213,7 +213,7 @@ function to_hamiltonian(
     Ω::NamedTuple,
     ϕ::NamedTuple,
     Δ::NamedTuple,
-    δ::Maybe{NamedTuple},
+    δ::NamedTuple,
     Δ_i::Vector{<:Real}) 
 
     return EffectiveHamiltonian(;
@@ -236,8 +236,8 @@ function to_hamiltonian(
     Ω::NamedTuple,
     ϕ::NamedTuple,
     Δ::NamedTuple,
-    δ::Maybe{NamedTuple},
-    Δ_i::Real) where {T<:Real,Interp}
+    δ::Nothing,
+    Δ_i::Real)
 
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;

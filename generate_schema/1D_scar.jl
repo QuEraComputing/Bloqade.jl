@@ -18,9 +18,11 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 Δ_tot = append(Δ1, Δ2);
 
 H = rydberg_h(atoms; Δ = Δ_tot, Ω = Ω_tot)
-h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1)
+h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1, warn=true)
 
 open("generate_schema/1D_scar.json","w") do f
     JSON.print(f, h)
 end
+
+
 

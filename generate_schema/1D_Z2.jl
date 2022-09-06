@@ -3,6 +3,7 @@ using Bloqade
 using JSON
 
 
+
 # preparing 1D Z2 phase. For more details, see https://queracomputing.github.io/Bloqade.jl/dev/tutorials/2.adiabatic/main/
 
 total_time = 3.0;
@@ -18,7 +19,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
 
 H = rydberg_h(atoms; Δ, Ω)
-h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1)
+h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1,warn=true)
 
 
 open("generate_schema/1D_Z2.json","w") do f

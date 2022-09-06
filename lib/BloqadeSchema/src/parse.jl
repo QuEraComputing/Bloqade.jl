@@ -73,7 +73,7 @@ end
 function convert_units(x::AbstractArray{S},from,to;res=nothing) where {S<:Real}
     y = similar(x)
     @inbounds for i in eachindex(x)
-        y[i] = convert_units(x[i],from,to;res=res)
+        y[i] = convert_units(x[i],from,to)
     end
     return y
 end
@@ -112,7 +112,7 @@ end
 
 
 function parse_static_rydberg_Ω(Ω::ConstantParam,duration::Real,params)
-    if isnothing(Ω) || Ω == 0
+    if isnothing(Ω) || iszero(Ω)
         return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[0.0,0.0])
     elseif Ω isa Real
         # constraints = get_constraints(params)
@@ -130,7 +130,7 @@ function parse_static_rydberg_Ω(Ω::ConstantParam,duration::Real,params)
         error_or_warn(params.warn,"Rabi frequency drive Ω(t) must start and end with value 0.")
         return piecewise_linear(;clocks=Float64[0.0,duration],values=Float64[Ω,Ω])
     else
-        throw(ErrorException("Rabi field amplitude must be global drive."))
+        error("Rabi field amplitude must be global drive.")
     end
 end
 

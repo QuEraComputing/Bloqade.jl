@@ -14,15 +14,13 @@ using JSON
     params = BloqadeSchema.SchemaConversionParams()
 
 check_atom_res(x) = all(BloqadeSchema.check_resolution.(params.atom_position_resolution,x))
-    check_clock_res = x->all(BloqadeSchema.check_resolution.(params.rabi_time_resolution,x))
-    check_Δ_res = x->all(BloqadeSchema.check_resolution.(params.rabi_detuning_resolution,x))
-    check_Δi_res = x->all(BloqadeSchema.check_resolution.(params.rabi_detuning_local_resolution,x))
-    check_ϕ_res = x->all(BloqadeSchema.check_resolution.(params.rabi_frequency_phase_resolution,x))
-    check_Ω_res = x->all(BloqadeSchema.check_resolution.(params.rabi_frequency_amplitude_resolution,x))
+    check_clock_res(x) = all(BloqadeSchema.check_resolution.(params.rabi_time_resolution,x))
+    check_Δ_res(x) = all(BloqadeSchema.check_resolution.(params.rabi_detuning_resolution,x))
+    check_Δi_res(x) = all(BloqadeSchema.check_resolution.(params.rabi_detuning_local_resolution,x))
+    check_ϕ_res(x) = all(BloqadeSchema.check_resolution.(params.rabi_frequency_phase_resolution,x))
+    check_Ω_res(x) = all(BloqadeSchema.check_resolution.(params.rabi_frequency_amplitude_resolution,x))
 
-    for Ω in values
-        for ϕ in values
-            for Δ in values
+    for Ω in values, ϕ in values, Δ in values
                 if any((f isa BloqadeSchema.DynamicParam) for f in [ϕ,Ω,Δ])
                     H = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
                     j = BloqadeSchema.to_json(H,waveform_tolerance=1e-2,warn=true,discretize=true)

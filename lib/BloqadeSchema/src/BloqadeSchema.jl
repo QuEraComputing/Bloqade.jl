@@ -3,13 +3,14 @@ module BloqadeSchema
 using Unitful: Quantity, NoUnits, m, μm, μs, s, MHz, Hz, rad, uconvert
 using BloqadeExpr
 using BloqadeWaveforms
+using BloqadeODE: SchrodingerProblem
 using Configurations
 using Yao
 using JSON
 using BitBasis
 using LinearAlgebra: svd
 
-export TaskSpecification,to_json,from_json
+export TaskSpecification,to_json,from_json,execute
 
 include("types.jl")
 include("serialize.jl")

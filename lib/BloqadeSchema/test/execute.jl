@@ -23,3 +23,20 @@ using JSON
 
 end
 
+
+@testset "execute" begin
+    Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
+    Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
+    
+    atoms = 5.0 * [i for i in 1:10]
+    
+    H = rydberg_h(atoms,Ω=Ω,Δ=Δ)
+    task_string = to_json(H,n_shots=10)
+    task_dict = BloqadeSchema.to_dict(H,n_shots=10)
+    task = BloqadeSchema.to_schema(H,n_shots=10)
+    
+    r_string = execute(task_string)
+    r_dict = execute(task_dict)
+    r_task = execute(task)
+
+end

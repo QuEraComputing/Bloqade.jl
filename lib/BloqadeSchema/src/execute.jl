@@ -18,7 +18,7 @@ end
 
 Executes a task given as a Dict in the task specification API format, and returns a JSON string of the result
 """
-function execute(dict::OrderedDict{key,value}) where {key,value}
+function execute(dict::AbstractDict{String})
     execute(Configurations.from_dict(BloqadeSchema.TaskSpecification,dict))
 end
 

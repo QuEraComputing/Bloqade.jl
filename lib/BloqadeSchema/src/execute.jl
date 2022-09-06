@@ -22,9 +22,6 @@ function execute(dict::AbstractDict{String})
     execute(Configurations.from_dict(BloqadeSchema.TaskSpecification,dict))
 end
 
-function execute(dict::Dict{key,value}) where {key,value}
-    execute(Configurations.from_dict(BloqadeSchema.TaskSpecification,dict))
-end
 
 """
     execute(j::TaskSpecification)

@@ -13,7 +13,7 @@ using JSON
     values = [1.0,constant(;duration=T,value=1.0),Waveform(t->sin(2π*t/T)^2,T)]
     params = BloqadeSchema.SchemaConversionParams()
 
-    check_atom_res = x->all(BloqadeSchema.check_resolution.(params.atom_position_resolution,x))
+check_atom_res(x) = all(BloqadeSchema.check_resolution.(params.atom_position_resolution,x))
     check_clock_res = x->all(BloqadeSchema.check_resolution.(params.rabi_time_resolution,x))
     check_Δ_res = x->all(BloqadeSchema.check_resolution.(params.rabi_detuning_resolution,x))
     check_Δi_res = x->all(BloqadeSchema.check_resolution.(params.rabi_detuning_local_resolution,x))

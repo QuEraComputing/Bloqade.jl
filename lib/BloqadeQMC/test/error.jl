@@ -4,7 +4,6 @@ using Random
 using RandomNumbers
 using Measurements
 using BloqadeQMC: bootstrap
-using Bootstrap: BasicSampling
 
 rng = Xorshifts.Xoroshiro128Plus(1234)
 

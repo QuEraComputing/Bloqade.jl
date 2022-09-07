@@ -189,7 +189,6 @@ function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params;duration=nothing)
             error_or_warn(params.warn,"Rabi frequency drive Ω(t) must start and end with value 0.")
         end
 
-        println(Ω_max_slope,"\t\t",min_step,"\t\t",params.waveform_tolerance)
         Ω = discretize_with_warn(Ω,params.warn,Ω_max_slope,min_step,params.waveform_tolerance)
 
         return Ω,duration

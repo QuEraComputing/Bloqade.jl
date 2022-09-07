@@ -29,14 +29,15 @@ function piecewise_linear_interpolate(wf::Waveform{PiecewiseLinear{T,Interp},T};
         slope = (f_ub-f_lb)/(ub-lb)
         interval = ub-lb
 
-        if interval < min_step
-            error("Waveform step smaller than constraint.")
-        end
+
 
         if abs(slope) > max_slope
             error("Waveform slope larger than constraint.")
         end
-        
+
+        if interval < min_step
+            error("Waveform step smaller than constraint.")
+        end
     end
 
     return wf
@@ -96,7 +97,7 @@ function piecewise_linear_interpolate(wf::Waveform{PiecewiseConstant{T},T};
         push!(clocks,t0+Δt/2)
 
     end
-    
+
     push!(values,v[end])
     push!(clocks,c[end])
 

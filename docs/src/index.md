@@ -134,4 +134,5 @@ end
 
 ## Have Suggestions or Interested in Contributing?
 
-- [file an issue](https://github.com/QuEraComputing/Bloqade.jl/issues) to report a bug or request a feature.
+- [File an issue](https://github.com/QuEraComputing/Bloqade.jl/issues) to report a bug or request a feature.
+- Check out the [Contributing to Bloqade](@ref) guide if you'd like to make your own changes and make a [Pull Request](https://github.com/QuEraComputing/Bloqade.jl/pulls) when you'd like your work to be reviewed

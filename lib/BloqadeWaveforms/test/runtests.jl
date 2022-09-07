@@ -8,6 +8,6 @@ end
     include("smooth.jl")
 end
 
-@testset "descretize" begin
-    include("discretize.jl")
+@testset "interpolate" begin
+    include("interpolate.jl")
 end

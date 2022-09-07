@@ -2,7 +2,7 @@
 
 
 
-function discretize(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
+function piecewise_linear_interpolate(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
     max_value::Real=Inf64, 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
@@ -40,7 +40,7 @@ function discretize(wf::Waveform{PiecewiseLinear{T,Interp},T};
 
 end
 
-function discretize(wf::Waveform{PiecewiseConstant{T},T}; 
+function piecewise_linear_interpolate(wf::Waveform{PiecewiseConstant{T},T}; 
     max_value::Real=Inf64, 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
@@ -59,6 +59,8 @@ function discretize(wf::Waveform{PiecewiseConstant{T},T};
 
     @inbounds for i in 1:length(v)-1
         t0 = c[i+1]        
+        v[i+1] ≈ v[i] && continue # ignore steps which are small
+
         Δv = v[i+1]-v[i]
         Δt = 4*itol/abs(Δv) # let error determine step size, error is equal to area between step and line functions
         slope = Δv/Δt
@@ -89,7 +91,7 @@ function discretize(wf::Waveform{PiecewiseConstant{T},T};
 end
 
 """
-    discretize(waveform;[max_vale=Inf64,max_slope=Inf64,min_step=0.0])
+    piecewise_linear_interpolate(waveform;[max_vale=Inf64,max_slope=Inf64,min_step=0.0])
 
 Function which takes a waveform and translates it to a linear interpolation subject to some constraints. The function returns a piecewise linear waveform. if the Waveform is piecewise linear only the constraints will be checked. 
 
@@ -103,7 +105,7 @@ Function which takes a waveform and translates it to a linear interpolation subj
 - `max_slope`: Maximum possible slope used in interpolation
 - `tol`: tolerance of interpolation, this is a bound to the area between the linear interpolation and the waveform.
 """
-function discretize(wf::Waveform; 
+function piecewise_linear_interpolate(wf::Waveform; 
     max_value::Real=Inf64, 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 

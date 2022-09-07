@@ -18,7 +18,7 @@ export Waveform,
     constant,
     sinusoidal,
     append,
-    discretize,
+    piecewise_linear_interpolate,
     norm,
     ..,
     # smooth
@@ -27,6 +27,6 @@ export Waveform,
 
 include("waveform.jl")
 include("smooth.jl")
-include("discretize.jl")
+include("interpolate.jl")
 
 end

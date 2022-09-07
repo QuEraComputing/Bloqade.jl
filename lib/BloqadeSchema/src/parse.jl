@@ -50,9 +50,16 @@ function discretize_with_warn(wf::Waveform,warn::Bool,max_slope::Real,min_step::
     catch e
         if e isa ErrorException && warn
             @warn e.msg
-            new_wf = BloqadeWaveforms.piecewise_linear_interpolate(wf,
-                tol=tol,
-            )
+            new_wf = if tol > 0
+                BloqadeWaveforms.piecewise_linear_interpolate(wf,
+                    tol=tol,
+                )
+            else
+                BloqadeWaveforms.piecewise_linear_interpolate(wf,
+                    max_slope=max_slope,
+                    min_step=min_step
+                )
+            end
             return new_wf
         else
             rethrow(e)
@@ -182,6 +189,7 @@ function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params;duration=nothing)
             error_or_warn(params.warn,"Rabi frequency drive Ω(t) must start and end with value 0.")
         end
 
+        println(Ω_max_slope,"\t\t",min_step,"\t\t",params.waveform_tolerance)
         Ω = discretize_with_warn(Ω,params.warn,Ω_max_slope,min_step,params.waveform_tolerance)
 
         return Ω,duration

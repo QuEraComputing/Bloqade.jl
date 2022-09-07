@@ -15,8 +15,8 @@ warn_msg = "negative tolerance provided, taking absolute value."
     
     slope_msg = "Waveform slope larger than constraint."
     step_msg = "Waveform step smaller than constraint."
-
-    @test_warn warn_msg piecewise_linear_interpolate(wf;tol=-1e-5)
+    # test_log instead of test_warn for julia 1.6
+    @test_logs (:warn,warn_msg) piecewise_linear_interpolate(wf;tol=-1e-5)
     @test_throws ErrorException piecewise_linear_interpolate(wf;tol=0)
     @test_throws ErrorException piecewise_linear_interpolate(wf;min_step = 10.0)
     @test_throws ErrorException piecewise_linear_interpolate(wf;max_slope = 0.1)
@@ -34,7 +34,7 @@ end
         values=[0.0,0.0,2.0,2.0,1.0,1.0]
         )
 
-    @test_warn warn_msg piecewise_linear_interpolate(wf;tol=-1e-5)
+    @test_logs (:warn,warn_msg) piecewise_linear_interpolate(wf;tol=-1e-5)
     @test_throws ErrorException piecewise_linear_interpolate(wf;tol=0)
     @test_throws ErrorException piecewise_linear_interpolate(wf;min_step = 1.0)
     @test_throws ErrorException piecewise_linear_interpolate(wf;max_slope = 1.0)
@@ -58,7 +58,7 @@ end
 
     wf = Waveform(t->t^2,2)
 
-    @test_warn warn_msg piecewise_linear_interpolate(wf;tol=-1e-5)
+    @test_logs (:warn,warn_msg) piecewise_linear_interpolate(wf;tol=-1e-5)
     @test_throws ErrorException piecewise_linear_interpolate(wf;max_slope = 2.0)
     @test_throws ErrorException piecewise_linear_interpolate(wf;min_step = 0.1)
     @test_throws ErrorException piecewise_linear_interpolate(wf;tol=0)

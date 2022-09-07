@@ -1,6 +1,7 @@
 
 error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : error(msg))
 
+
 function mult_by_two(Ω)
     isnothing(Ω) && return
     if BloqadeExpr.is_const_param(Ω)
@@ -40,7 +41,7 @@ end
 
 function discretize_with_warn(wf::Waveform,warn::Bool,max_slope::Real,min_step::Real,tol::Real)
     try
-        new_wf = BloqadeWaveforms.discretize(wf,
+        new_wf = BloqadeWaveforms.piecewise_linear_interpolate(wf,
             max_slope=max_slope,
             min_step=min_step,
             tol=tol,
@@ -49,7 +50,7 @@ function discretize_with_warn(wf::Waveform,warn::Bool,max_slope::Real,min_step::
     catch e
         if e isa ErrorException && warn
             @warn e.msg
-            new_wf = BloqadeWaveforms.discretize(wf,
+            new_wf = BloqadeWaveforms.piecewise_linear_interpolate(wf,
                 tol=tol,
             )
             return new_wf
@@ -170,11 +171,7 @@ function parse_dynamic_rydberg_Ω(Ω::DynamicParam,params;duration=nothing)
         end
     
         if Ω.duration < min_step
-            if params.warn
-
-            else
                 error_or_warn(params.warn,"Waveform Ω(t) duration must be larger than minimum step, $(min_step) μs.")
-            end
         end
 
         if Ω.duration > max_time

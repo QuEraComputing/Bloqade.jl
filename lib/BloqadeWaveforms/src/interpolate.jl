@@ -2,11 +2,19 @@
 
 
 
-function discretize(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
-    max_value::Real=Inf64, 
+function piecewise_linear_interpolate(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
     tol::Real = 1.0e-5) where {T<:Real,Interp}
+
+    if tol < 0
+        @warn "negative tolerance provided, taking absolute value."
+        tol *= -1
+    end
+
+    if tol == 0 && ( max_slope == Inf64 || min_step == 0)
+        error("Interpolation requires either a tolerance constraint or a slope and step constraint.")
+    end
 
     c = wf.f.clocks
     v = wf.f.values
@@ -22,55 +30,65 @@ function discretize(wf::Waveform{PiecewiseLinear{T,Interp},T};
         interval = ub-lb
 
 
-        if abs(f_lb) > max_value || abs(f_ub) > max_value
-            throw(ErrorException("Waveform exceeds maximum value."))
+
+        if abs(slope) > max_slope
+            error("Waveform slope larger than constraint.")
         end
 
         if interval < min_step
-            throw(ErrorException("Waveform step smaller than constraint."))
+            error("Waveform step smaller than constraint.")
         end
-
-        if abs(slope) > max_slope
-            throw(ErrorException("Waveform slope larger than constraint."))
-        end
-        
     end
 
     return wf
 
 end
 
-function discretize(wf::Waveform{PiecewiseConstant{T},T}; 
-    max_value::Real=Inf64, 
+function piecewise_linear_interpolate(wf::Waveform{PiecewiseConstant{T},T}; 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
     tol::Real = 1.0e-5) where {T<:Real}
+
+    if tol < 0
+        @warn "negative tolerance provided, taking absolute value."
+        tol *= -1
+    end
+
+    if tol == 0 && ( max_slope == Inf64 || min_step == 0)
+        error("Interpolation requires either a tolerance constraint or a slope and step constraint.")
+    end
 
     c = wf.f.clocks
     v = wf.f.values
     clocks = Float64[c[1]]
     values = Float64[v[1]]
 
-    if any(abs(ele)>max_value for ele in v)
-        throw(ErrorException("Waveform exceeds maximum value."))
-    end
 
     itol = tol / (length(v) - 1) # distribute error over each step
 
     @inbounds for i in 1:length(v)-1
         t0 = c[i+1]        
+        v[i+1] ≈ v[i] && continue # ignore steps which are small
+
         Δv = v[i+1]-v[i]
-        Δt = 4*itol/abs(Δv) # let error determine step size, error is equal to area between step and line functions
+
+        Δt = if itol > 0
+            # let error determine step size, error is equal to area between step and line functions
+            4*itol/abs(Δv) 
+        else
+            # let max_slope / min_step determine step size to minimize error
+            max(min_step,abs(Δv)/max_slope)
+        end
         slope = Δv/Δt
         
         if abs(slope) > max_slope
-            throw(ErrorException("Discretization cannot obtain requested tolerance given the slope constraint."))
+            error("Requested tolerance for interpolation violates the slope constraint.")
         elseif Δt < min_step
-            throw(ErrorException("Discretization cannot obtain requested tolerance given the step size constraint."))
+            error("Requested tolerance for interpolation violates the step size constraint.")
         end
 
         if t0-Δt/2 < clocks[end]
-            throw(ErrorException("Distance between steps in waveform are too small for requested discretization tolerance."))
+            error("Distance between steps in piecewise constant waveform are too small to convert to piecewise linear.")
         end
 
         push!(values,v[i])
@@ -79,7 +97,7 @@ function discretize(wf::Waveform{PiecewiseConstant{T},T};
         push!(clocks,t0+Δt/2)
 
     end
-    
+
     push!(values,v[end])
     push!(clocks,c[end])
 
@@ -89,7 +107,7 @@ function discretize(wf::Waveform{PiecewiseConstant{T},T};
 end
 
 """
-    discretize(waveform;[max_vale=Inf64,max_slope=Inf64,min_step=0.0])
+    piecewise_linear_interpolate(waveform;[max_vale=Inf64,max_slope=Inf64,min_step=0.0])
 
 Function which takes a waveform and translates it to a linear interpolation subject to some constraints. The function returns a piecewise linear waveform. if the Waveform is piecewise linear only the constraints will be checked. 
 
@@ -98,20 +116,24 @@ Function which takes a waveform and translates it to a linear interpolation subj
 - `waveform`: ['Waveform'](@ref)  to be discretized.
 
 # Keyword Arguments
-
-- `max_value`: Maximium absoluate value waveform can take
+- `min_step`: minimum possible step used in interpolation
 - `max_slope`: Maximum possible slope used in interpolation
 - `tol`: tolerance of interpolation, this is a bound to the area between the linear interpolation and the waveform.
 """
-function discretize(wf::Waveform; 
-    max_value::Real=Inf64, 
+function piecewise_linear_interpolate(wf::Waveform; 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
     tol::Real = 1.0e-5)
     
-    # TODO:
-    # need to optimize stack and intervals
+    if tol < 0
+        @warn "negative tolerance provided, taking absolute value."
+        tol *= -1
+    end
 
+    if tol == 0 && ( max_slope == Inf64 || min_step == 0)
+        error("Interpolation requires either a tolerance constraint or a slope and step constraint.")
+    end
+    
     stack = NTuple{2,Float64}[(0.0,wf.duration)]
     intervals = NTuple{4,Float64}[]
     wf_wrapper = t -> sample_values(wf,t)
@@ -121,10 +143,6 @@ function discretize(wf::Waveform;
         interval = (ub-lb)
         f_lb = wf(lb)
         f_ub = wf(ub)
-
-        if abs(f_lb) > max_value || abs(f_ub) > max_value
-            throw(ErrorException("Waveform exceeds maximum value."))
-        end
 
         slope = (f_ub-f_lb)/interval
 
@@ -138,12 +156,12 @@ function discretize(wf::Waveform;
             f_mid = wf(mid)
 
             next_slope = 2*max(abs(f_mid - f_lb),abs(f_ub - f_mid))/interval
-            
-
-            if next_slope > max_slope
-                throw(ErrorException("Discretization cannot obtain requested tolerance given the slope constraint."))
+            # only throw error if tolerance is non-zero
+            # if tolerance is 0 simply stop adding to stack
+            if next_slope > max_slope 
+                tol > 0 && error("Requested tolerance for interpolation violates the slope constraint.")
             elseif interval < 2*min_step
-                    throw(ErrorException("Discretization cannot obtain requested tolerance given the step size constraint."))
+                tol > 0 && error("Requested tolerance for interpolation violates the step size constraint.")
             else
                 push!(stack,(mid,ub))
                 push!(stack,(lb,mid))

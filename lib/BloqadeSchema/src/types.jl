@@ -64,6 +64,80 @@ end
     effective_hamiltonian::EffectiveHamiltonian
 end
 
+
+# copying structure from device API 
+
+@option struct LatticeAreaCapabilities <: QuEraSchema 
+    width::Float64
+    length::Float64
+end
+
+@option struct LatticeGeometryCapabilities <: QuEraSchema 
+    spacingRadialMin::Float64
+    spacingVerticalMin::Float64
+    positionResolution::Float64
+    numberSitesMax::Int
+end
+
+@option struct LatticeCapabilities <: QuEraSchema 
+    area::LatticeAreaCapabilities
+    geometry::LatticeGeometryCapabilities
+end
+
+# non snake case is from API
+@option struct RydbergGlobalCapabilities <: QuEraSchema 
+    rabiFrequencyMin::Float64
+    rabiFrequencyMax::Float64
+    rabiFrequencyResolution::Float64
+    rabiFrequencySlewRateMax::Float64
+    detuningMin::Float64
+    detuningMax::Float64
+    detuningResolution::Float64
+    detuningSlewRateMax::Float64
+    phaseMin::Float64
+    phaseMax::Float64
+    phaseResolution::Float64
+    phaseSlewRateMax::Float64
+    timeMin::Float64
+    timeMax::Float64
+    timeResolution::Float64
+    timeDeltaMin::Float64
+end
+
+@option struct RydbergLocalCapabilities <: QuEraSchema 
+    detuningMin::Float64
+    detuningMax::Float64
+    commonDetuningResolution::Float64
+    localDetuningResolution::Float64
+    detuningSlewRateMax::Float64
+    numberLocalDetuningSites::Int
+    spacingRadialMin::Float64
+    timeResolution::Float64
+    timeDeltaMin::Float64
+end
+
+@option struct RydbergCapabilities <: QuEraSchema 
+    c6Coefficient::Float64
+    global::RydbergGlobalCapabilities
+    local::RydbergLocalCapabilities
+end
+
+@option struct TaskCapabilities <: QuEraSchema 
+    numberQubitsMax::Int
+    numberShotsMin::Int 
+    numberShotsMax::Int
+end
+
+@option struct DeviceCapabilities <: QuEraSchema
+    task::TaskCapabilities
+    lattice::LatticeCapabilities
+    rydberg::RydbergCapabilities
+end
+
+
+
+
+
 @option struct SchemaConversionParams <: QuEraSchema
     """
     Rabi Amplitude minimum value : 0 rad/s
@@ -119,6 +193,9 @@ end
     warn::Bool = false
     discretize::Bool = true
 end
+
+
+
 
 @option struct ShotOutput <: QuEraSchema
     shot_status_code::Int32

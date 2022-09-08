@@ -19,9 +19,9 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
 
 H = rydberg_h(atoms; Δ, Ω)
-h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1,warn=true)
+h = to_json(H,waveform_tolerance=1e-1,warn=true)
 
 
-open("generate_schema/tutorial_examples/1D_Z2.json","w") do f
+open("lib/BloqadeSchema/schema_examples/tutorial_examples/1D_Z2.json","w") do f
     JSON.print(f, h)
 end

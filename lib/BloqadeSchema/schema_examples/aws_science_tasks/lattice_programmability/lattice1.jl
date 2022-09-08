@@ -12,9 +12,9 @@ T=1
 Δi=Δ
 Ω = Waveform(t->sin(2π*t/T)^2,T)
 H = rydberg_h(atoms;Ω=Ω,Δ=Δi)
-h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1)
+h = to_json(H,waveform_tolerance=1e-1)
 
 
-open("generate_schema/aws_science_tasks/lattice_programmability/lattice1.json","w") do f
+open("lib/BloqadeSchema/schema_examples/aws_science_tasks/lattice_programmability/lattice1.json","w") do f
     JSON.print(f, h)
 end

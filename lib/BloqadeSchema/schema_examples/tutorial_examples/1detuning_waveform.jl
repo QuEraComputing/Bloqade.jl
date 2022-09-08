@@ -32,9 +32,9 @@ end ;
 Ω2 = append(Ω1, constant(duration=tq, value=Ωmax));
 
 H = rydberg_h(atoms; Δ = Δ2_single_defect, Ω = Ω2)
-h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1, warn=true)
+h = to_json(H,waveform_tolerance=1e-1, warn=true)
 
-open("generate_schema/tutorial_examples/1detuning_waveform.json","w") do f
+open("lib/BloqadeSchema/schema_examples/tutorial_examples/1detuning_waveform.json","w") do f
     JSON.print(f, h)
 end
 

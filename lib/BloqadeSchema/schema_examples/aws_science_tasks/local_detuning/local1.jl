@@ -31,8 +31,8 @@ end ;
 Ωt = piecewise_linear(clocks = [0.0, 0.2, total_time], values = [0.0, Ωmax, Ωmax]);
 
 H = rydberg_h(atoms; Δ = Δt , Ω = Ωt)
-h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1, warn=true)
+h = to_json(H,waveform_tolerance=1e-1, warn=true)
 
-open("generate_schema/aws_science_tasks/local_detuning/local1.json","w") do f
+open("lib/BloqadeSchema/schema_examples/aws_science_tasks/local_detuning/local1.json","w") do f
     JSON.print(f, h)
 end

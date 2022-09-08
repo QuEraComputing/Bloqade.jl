@@ -18,9 +18,9 @@ H = rydberg_h(atoms;Ω=Ω, Δ = Δ)
 # the run results from machine should be the same as the following Hamiltonian 
 # H = rydberg_h(atoms;Ω=Ω, Δ = Δ)
 
-h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1,warn=true)
+h = to_json(H,waveform_tolerance=1e-1,warn=true)
 
-open("generate_schema/aws_science_tasks/global_rydberg/global4.json","w") do f
+open("lib/BloqadeSchema/schema_examples/aws_science_tasks/global_rydberg/global4.json","w") do f
     JSON.print(f, h)
 end
 

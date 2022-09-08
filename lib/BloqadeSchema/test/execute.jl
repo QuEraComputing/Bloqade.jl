@@ -10,7 +10,13 @@ using JSON
     atoms = [(π*i,0) for i in 1:10]
 
     # values = [1.0,nothing,Waveform(t->sin(2π*t/T)^2,T/2)]
-    values = [1.0,constant(;duration=T,value=1.0),Waveform(t->sin(2π*t/T)^2,T)]
+
+    wf1 = Waveform(t->sin(π*t/T)^2,T)
+    wf2 = Waveform(t->cos(π*t/T),T)
+    wfs_mixed = [(i%2==0 ? 1 : 0.1)*wf1 + wf2 for i in 1:length(atoms)]
+    wfs_same = [i*wf1+wf2 for i in 1:length(atoms)]
+    scalar_values = [1.0,nothing,constant(;duration=T,value=1.0),wf1]
+    all_values = [1.0,nothing,constant(;duration=T,value=1.0),wf1,wfs_mixed,wfs_same]
     params = BloqadeSchema.SchemaConversionParams()
 
     check_atom_res(x) = all(BloqadeSchema.check_resolution.(params.atom_position_resolution,x))
@@ -20,7 +26,7 @@ using JSON
     check_ϕ_res(x) = all(BloqadeSchema.check_resolution.(params.rabi_frequency_phase_resolution,x))
     check_Ω_res(x) = all(BloqadeSchema.check_resolution.(params.rabi_frequency_amplitude_resolution,x))
 
-    for Ω in values, ϕ in values, Δ in values
+    for Ω in scalar_values, ϕ in scalar_values, Δ in all_values
         if any((f isa BloqadeSchema.DynamicParam) for f in [ϕ,Ω,Δ])
             H = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
             j = BloqadeSchema.to_json(H,waveform_tolerance=1e-2,warn=true,discretize=true)

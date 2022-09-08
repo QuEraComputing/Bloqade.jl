@@ -19,7 +19,7 @@ Below are some common use cases.
 
 ## Setup Documentation
 
-If you're editing the documentation, you can use the `serve` command:
+If you are editing the documentation, you can use the `serve` command:
 
 ```sh
 .ci/run doc serve
@@ -40,7 +40,7 @@ which will run the build:
 Due to the "ancient" technology used by Documenter,
 it cannot render single page while editing, which
 causes the `doc serve` command to be very slow
-when you're editing. We provide a light-weight build setup
+when you are editing. We provide a light-weight build setup
 to workaround this by removing all literate examples
 from the documentation. You can enable this by:
 
@@ -88,7 +88,7 @@ Build a single example at `build/my_example` to jupyter notebook:
 
 ### Run Unit Tests
 
-If you're developing unit tests or would like to verify that changes made to any of Bloqade's code have not broken existing functionality, you can run unit tests for a specific sub-package like so:
+If you are developing unit tests or would like to verify that changes made to any of Bloqade's code have not broken existing functionality, you can run unit tests for a specific sub-package like so:
 ```sh
 .ci/run test path_to_sub_package
 ```

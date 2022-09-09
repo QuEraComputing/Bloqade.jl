@@ -17,6 +17,6 @@ h = to_json(H,waveform_tolerance=1e-1,warn=true)
 
 
 open("lib/BloqadeSchema/schema_examples/aws_science_tasks/global_rydberg/global1.json","w") do f
-    JSON.print(f, h)
+    JSON.print(f, JSON.parse(h))
 end
 

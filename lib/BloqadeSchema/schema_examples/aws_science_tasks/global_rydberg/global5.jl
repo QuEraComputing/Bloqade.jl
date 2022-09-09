@@ -21,7 +21,7 @@ h = to_json(H,waveform_tolerance=1e-1,warn=true)
 
 
 open("lib/BloqadeSchema/schema_examples/aws_science_tasks/global_rydberg/global5.json","w") do f
-    JSON.print(f, h)
+    JSON.print(f, JSON.parse(h))
 end
 
 
@@ -42,7 +42,7 @@ h = to_json(H,waveform_tolerance=1e-1,warn=true)
 
 
 open("lib/BloqadeSchema/schema_examples/aws_science_tasks/global_rydberg/global5.json","w") do f
-    JSON.print(f, h)
+    JSON.print(f, JSON.parse(h))
 end
 
 # task 3
@@ -59,5 +59,5 @@ h = to_json(H,waveform_tolerance=1e-1,warn=true)
 
 
 open("lib/BloqadeSchema/schema_examples/aws_science_tasks/global_rydberg/global5.json","w") do f
-    JSON.print(f, h)
+    JSON.print(f, JSON.parse(h))
 end

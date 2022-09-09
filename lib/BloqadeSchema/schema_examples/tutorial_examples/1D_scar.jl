@@ -21,7 +21,7 @@ H = rydberg_h(atoms; Δ = Δ_tot, Ω = Ω_tot)
 h = to_json(H,waveform_tolerance=1e-1, warn=true)
 
 open("lib/BloqadeSchema/schema_examples/tutorial_examples/1D_scar.json","w") do f
-    JSON.print(f, h)
+    JSON.print(f, JSON.parse(h))
 end
 
 

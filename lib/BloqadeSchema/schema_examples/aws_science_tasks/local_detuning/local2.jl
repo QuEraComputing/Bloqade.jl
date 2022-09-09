@@ -27,11 +27,12 @@ epsilon =0.01
     end
 end ;
 
+Δt = Vector{Waveform}(Δt)
 H = rydberg_h(atoms; Δ = Δt, Ω = Ωt)
 h = to_json(H, waveform_tolerance=1e-1, warn=true)
 
 open("lib/BloqadeSchema/schema_examples/aws_science_tasks/local_detuning/local2.json","w") do f
-    JSON.print(f, h)
+    JSON.print(f, JSON.parse(h))
 end
 
 

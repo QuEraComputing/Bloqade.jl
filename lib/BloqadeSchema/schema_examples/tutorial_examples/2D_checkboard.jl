@@ -20,5 +20,5 @@ H = rydberg_h(atoms; Δ, Ω)
 h = to_json(H,waveform_tolerance=1e-1, warn=true)
 
 open("lib/BloqadeSchema/schema_examples/tutorial_examples/2D_checkboard.json","w") do f
-    JSON.print(f, h)
+    JSON.print(f, JSON.parse(h))
 end

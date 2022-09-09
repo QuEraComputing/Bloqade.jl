@@ -4,8 +4,8 @@ using GarishPrint
 const ConstantParam = Union{Real,Nothing,Vector{<:Real}}
 const DynamicParam = Union{
         Waveform{F,T} where {F,T<:Real},
-        Vector{Waveform},
-        Vector{Waveform{F} where F} where T<:Real,
+        Vector{Waveform{F,T} where {F,T<:Real}},
+        Vector{Waveform{F,T} where F} where T<:Real,
         Vector{Waveform{F,T}} where {F,T<:Real}
     }
 

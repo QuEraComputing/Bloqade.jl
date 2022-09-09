@@ -56,7 +56,7 @@ end
 # with Yao
 
 """
-    XPhase{T} <: PrimitiveBlock{2}
+    XPhase{T, D, name} <: PrimitiveBlock{D}
 
 XPhase operator.
 
@@ -64,31 +64,58 @@ XPhase operator.
 e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|
 ```
 """
-struct XPhase{T} <: PrimitiveBlock{2}
+struct XPhase{T, D, name} <: PrimitiveBlock{D}
     ϕ::T
+end
+function XPhase(ϕ::T; nlevel = 2, name = :rydberg) where T
+    (name === :rydberg && nlevel in (2, 3)) && return XPhase{T, nlevel, :rydberg}(ϕ)
+    (name === :hyperfine && nlevel == 3) && return XPhase{T, nlevel, :rydberg}(ϕ)
+    (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
+    throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
 end
 
-struct PuPhase{T} <: PrimitiveBlock{2}
+# struct XPhaseRydberg{T, D} <: PrimitiveBlock{D}
+#     ϕ::T
+# end
+
+# struct XPhaseHyperine{T, D} <: PrimitiveBlock{D}
+#     ϕ::T
+# end
+
+struct PuPhase{T, D, name} <: PrimitiveBlock{D}
     ϕ::T
+end
+function PuPhase(ϕ::T; nlevel = 2, name = :rydberg) where T 
+    (name === :rydberg && nlevel in (2, 3)) && return PuPhase{T, nlevel, :rydberg}(ϕ)
+    (name === :hyperfine && nlevel == 3) && return PuPhase{T, nlevel, :rydberg}(ϕ)
+    (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
+    throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
 end
 
-struct PdPhase{T} <: PrimitiveBlock{2}
+struct PdPhase{T, D, name} <: PrimitiveBlock{D}
     ϕ::T
 end
+function PdPhase(ϕ::T; nlevel = 2, name = :rydberg) where T 
+    (name === :rydberg && nlevel in (2, 3)) && return PdPhase{T, nlevel, :rydberg}(ϕ)
+    (name === :hyperfine && nlevel == 3) && return PdPhase{T, nlevel, :rydberg}(ϕ)
+    (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
+    throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
+end
+
 
 """
-    AbstractTerm <: PrimitiveBlock{2}
+    AbstractTerm{D} <: PrimitiveBlock{D}
 
-Abstract term for local hamiltonian terms.
+Abstract term for local hamiltonian terms on D-level system.
 """
-abstract type AbstractTerm <: PrimitiveBlock{2} end
+abstract type AbstractTerm{D} <: PrimitiveBlock{D} end
 
 YaoBlocks.unsafe_getindex(::Type{T}, x::AbstractTerm, i::Integer, j::Integer) where {T,N} = YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(x), i, j)
 YaoBlocks.unsafe_getcol(::Type{T}, x::AbstractTerm, j::DitStr{2}) where T = YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(x), j)
 YaoBlocks.ishermitian(::AbstractTerm) = true
 
 """
-    struct RydInteract <: AbstractTerm
+    struct RydInteract{D} <: AbstractTerm{D}
     RydInteract(;atoms, C=2π * 862690MHz⋅μm^6)
 
 Type for Rydberg interactive term.
@@ -104,14 +131,15 @@ Type for Rydberg interactive term.
 - `atoms`: a list of atom positions, must be type `RydAtom`, default unit is `μm`.
 - `C`: the interaction strength, default unit is `MHz⋅μm^6`. default value is `2π * 862690 * MHz*µm^6`.
 """
-Base.@kwdef struct RydInteract <: AbstractTerm
+Base.@kwdef struct RydInteract{D} <: AbstractTerm{D}
     atoms::Vector
     C::Real = 2π * 862690
 
-    function RydInteract(atoms, C)
-        return new(atoms, default_unit(MHz * µm^6, C))
+    function RydInteract{D}(atoms, C) where D
+        return new{D}(atoms, default_unit(MHz * µm^6, C))
     end
 end
+RydInteract(atoms, C; nlevel = 2) = RydInteract{nlevel}(atoms, C)
 
 """
     struct SumOfX <: AbstractTerm
@@ -141,18 +169,24 @@ nqudits: 1
 \\sum_i Ω σ^x_i
 ```
 """
-Base.@kwdef struct SumOfX <: AbstractTerm
+Base.@kwdef struct SumOfX{D, name} <: AbstractTerm{D}
     nsites::Int
     Ω = 1
 
-    function SumOfX(nsites, Ω)
+    function SumOfX{D, name}(nsites::Int, Ω) where {D, name}
         assert_param(nsites, Ω, :Ω)
         Ω = default_unit(MHz, Ω)
-        return new(nsites, Ω)
+        return new{D, name}(nsites, Ω)
     end
 end
+function SumOfX(nsites::Int, Ω; nlevel = 2, name = :rydberg) 
+    (name === :rydberg && nlevel in (2, 3)) && return SumOfX{nlevel, name}(nsites, Ω)
+    (name === :hyperfine && nlevel == 3) && return SumOfX{nlevel, name}(nsites, Ω)
+    (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
+    throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
+end
 
-SumOfX(n::Int) = SumOfX(n, 1)
+SumOfX(n::Int; nlevel = 2, name = :rydberg) = SumOfX(n, 1; nlevel = nlevel, name = name)
 
 """
     struct SumOfXPhase <: AbstractTerm
@@ -184,19 +218,25 @@ But may provide extra speed up.
 \\sum_i Ω ⋅ (e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|)
 ```
 """
-Base.@kwdef struct SumOfXPhase <: AbstractTerm
+Base.@kwdef struct SumOfXPhase{D, name} <: AbstractTerm{D}
     nsites::Int
     Ω = 1
     ϕ::Any
 
-    function SumOfXPhase(nsites, Ω, ϕ)
+    function SumOfXPhase{D, name}(nsites, Ω, ϕ) where {D, name}
         assert_param(nsites, Ω, :Ω)
         assert_param(nsites, ϕ, :ϕ)
 
         Ω = default_unit(MHz, Ω)
         ϕ = default_unit(NoUnits, ϕ)
-        return new(nsites, Ω, ϕ)
+        return new{D, name}(nsites, Ω, ϕ)
     end
+end
+function SumOfXPhase(nsites::Int, Ω, ϕ; nlevel = 2, name = :rydberg) 
+    (name === :rydberg && nlevel in (2, 3)) && return SumOfXPhase{nlevel, name}(nsites, Ω, ϕ)
+    (name === :hyperfine && nlevel == 3) && return SumOfXPhase{nlevel, name}(nsites, Ω, ϕ)
+    (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
+    throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
 end
 
 """
@@ -229,17 +269,23 @@ But may provide extra speed up.
 \\sum_i Δ ⋅ n_i
 ```
 """
-Base.@kwdef struct SumOfN <: AbstractTerm
+Base.@kwdef struct SumOfN{D, name} <: AbstractTerm{D}
     nsites::Int
     Δ = 1
 
-    function SumOfN(nsites, Δ)
+    function SumOfN{D, name}(nsites, Δ) where {D, name}
         assert_param(nsites, Δ, :Δ)
-        return new(nsites, default_unit(MHz, Δ))
+        return new{D, name}(nsites, default_unit(MHz, Δ))
     end
 end
 
-SumOfN(n::Int) = SumOfN(n, 1)
+function SumOfN(nsites::Int, Δ; nlevel = 2, name = :rydberg) 
+    (name === :rydberg && nlevel in (2, 3)) && return SumOfN{nlevel, name}(nsites, Δ)
+    (name === :hyperfine && nlevel == 3) && return SumOfN{nlevel, name}(nsites, Δ)
+    (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
+    throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
+end
+SumOfN(n::Int; nlevel = 2, name = :rydberg) = SumOfN(n, 1; nlevel = nlevel, name = name)
 
 """
     struct SumOfZ <: AbstractTerm
@@ -269,17 +315,23 @@ nqudits: 1
 \\sum_i Δ ⋅ σ^z_i
 ```
 """
-Base.@kwdef struct SumOfZ <: AbstractTerm
+Base.@kwdef struct SumOfZ{D, name} <: AbstractTerm{D}
     nsites::Int
     Δ = 1
 
-    function SumOfZ(nsites, Δ)
+    function SumOfZ{D, name}(nsites, Δ) where {D, name}
         assert_param(nsites, Δ, :Δ)
-        return new(nsites, default_unit(MHz, Δ))
+        return new{D, name}(nsites, default_unit(MHz, Δ))
     end
 end
 
-SumOfZ(n::Int) = SumOfZ(n, 1)
+function SumOfZ(nsites::Int, Δ; nlevel = 2, name = :rydberg) 
+    (name === :rydberg && nlevel in (2, 3)) && return SumOfZ{nlevel, name}(nsites, Δ)
+    (name === :hyperfine && nlevel == 3) && return SumOfZ{nlevel, name}(nsites, Δ)
+    (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
+    throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
+end
+SumOfZ(n::Int; nlevel = 2, name = :rydberg) = SumOfZ(n, 1; nlevel = nlevel, name = name)
 
 struct DivByTwo{F}
     f::F
@@ -295,8 +347,8 @@ end
 const RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
 const DetuningTypes = Union{Nothing,SumOfN}
 
-struct RydbergHamiltonian <: AbstractTerm
-    rydberg_term::RydInteract
+struct RydbergHamiltonian{D} <: AbstractTerm{D}
+    rydberg_term::RydInteract{D}
     rabi_term::RabiTypes
     detuning_term::DetuningTypes
 end

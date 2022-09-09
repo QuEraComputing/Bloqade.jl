@@ -398,7 +398,7 @@ function parse_analog_rydberg_fields(ϕ::DynamicParam,Ω::DynamicParam,Δ::Dynam
     return (ϕ,Ω,Δ,δ,Δ_local)
 end
 
-parse_analog_rydberg_fields(ϕ,Ω,Δ) = error("Unable to parse Rydberg coefficients for Schema conversion, please use Real/Nothing for constant coefficients and Waveforms dynamic coefficients.")
+parse_analog_rydberg_fields(_,_,_,_) = error("Unable to parse Rydberg coefficients for Schema conversion, please use Real/Nothing for constant coefficients and Waveforms dynamic coefficients.")
 # function will extract parameters, check of waveforms are compatible with IR
 # then descretize waveforms and return them to be parsed into 
 # effective Hamiltonian. 

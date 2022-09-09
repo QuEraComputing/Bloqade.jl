@@ -17,10 +17,10 @@ epsilon =0.01
 # Δ = piecewise_constant(clocks=[0.0, epsilon, T+ epsilon , T+2*epsilon], values= 2π*[0.0, -20, 0])
 
 H = rydberg_h(atoms;Ω=Ω, Δ = Δ)
-h = BloqadeSchema.to_json(H,waveform_tolerance=1e-1,warn=true)
+h = to_json(H,waveform_tolerance=1e-1,warn=true)
 
 
-open("generate_schema/aws_science_tasks/global_rydberg/global3.json","w") do f
+open("lib/BloqadeSchema/schema_examples/aws_science_tasks/global_rydberg/global3.json","w") do f
     JSON.print(f, h)
 end
 

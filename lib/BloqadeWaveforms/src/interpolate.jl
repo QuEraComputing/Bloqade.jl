@@ -148,8 +148,9 @@ function piecewise_linear_interpolate(wf::Waveform;
 
         lin_f = t -> slope .* (t .- lb) .+ f_lb
 
-        area,_ = quadgk(t -> abs.(lin_f(t) .- wf_wrapper(t)),lb,ub)
-        error_bound = tol*max(tol,interval)
+        area,_ = quadgk(t -> abs.(lin_f(t) .- wf_wrapper(t)),lb,ub,atol=eps())
+
+        error_bound = max(tol*max(tol,interval),eps())
 
         if area*wf.duration > error_bound
             mid = (ub+lb)/2
@@ -160,8 +161,10 @@ function piecewise_linear_interpolate(wf::Waveform;
             # if tolerance is 0 simply stop adding to stack
             if next_slope > max_slope 
                 tol > 0 && error("Requested tolerance for interpolation violates the slope constraint.")
+                push!(intervals,(lb,ub,f_lb,slope))
             elseif interval < 2*min_step
                 tol > 0 && error("Requested tolerance for interpolation violates the step size constraint.")
+                push!(intervals,(lb,ub,f_lb,slope))
             else
                 push!(stack,(mid,ub))
                 push!(stack,(lb,mid))

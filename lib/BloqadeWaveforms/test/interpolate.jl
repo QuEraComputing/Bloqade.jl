@@ -66,3 +66,9 @@ end
 
 
 end
+
+@testset "constraint terminated" begin
+    wf = Waveform(t->t^2,1)
+    new_wf = piecewise_linear_interpolate(wf,tol=0,max_slope=100,min_step=1e-5)
+    @test norm(wf - new_wf) < 1e-3
+end

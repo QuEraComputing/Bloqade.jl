@@ -5,12 +5,14 @@
 # in a duration that doesn't neatly fit into the
 # time resolution of the device. In which case 
 # this is reqiured to check the error.
-function norm_diff_durations(A,B)
+function norm_diff_durations(A::Waveform,B::Waveform)
 
     (A,B) = ( A.duration > B.duration ? (A,B) : (B,A))
     A = if A.duration > B.duration
         T_diff = A.duration - B.duration
         append(A,constant(;duration=T_diff,value=0))
+    else
+        A
     end
     return norm(A-B)
 end
@@ -185,9 +187,10 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     check_global(Ω,:Ω)
     warn_duration(time_res,Ω,:Ω)
 
-    Ω = if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=√eps()) || !isapprox(Ω(duration),0.0;atol=eps(),rtol=√eps())
+    Ω = if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=√eps()) || !isapprox(Ω(Ω.duration),0.0;atol=eps(),rtol=√eps())
         @info "During hardware transform: Ω start and/or end values are not 0. adding ramp(s) to fix endpoints."
-        pin_waveform_edges(Ω,max_slope,0,0)
+        Ω
+        # pin_waveform_edges(Ω,max_slope,0,0)
     end
 
     Ωt = if Ω isa PiecewiseLinearWaveform
@@ -198,7 +201,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
 
     elseif Ω isa Waveform
         
-        Ω_interp = piecewise_linear_interpolate(Ω,max_slope=max_slope,min_step=min_step)
+        Ω_interp = piecewise_linear_interpolate(Ω,max_slope=max_slope,min_step=min_step,tol=0)
         piecewise_linear(;
             clocks=set_resolution.(Ω_interp.f.clocks,time_res),
             values=set_resolution.(Ω_interp.f.values,rabi_res)
@@ -213,6 +216,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     phase_res = device_capabilities.rydberg.global_value.phaseResolution
     max_slope = device_capabilities.rydberg.global_value.phaseSlewRateMax
+
     check_global(ϕ,:ϕ)
     check_waveform(ϕ,:ϕ)
     warn_duration(time_res,ϕ,:ϕ)
@@ -225,7 +229,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     elseif ϕ isa Waveform
         # arbitrary waveform must transform
         
-        ϕ_interp = piecewise_linear_interpolate(ϕ,max_slope=max_slope,min_step=min_step)
+        ϕ_interp = piecewise_linear_interpolate(ϕ,max_slope=max_slope,min_step=min_step,tol=0)
         piecewise_linear(;
             clocks=set_resolution.(ϕ_interp.f.clocks,time_res),
             values=set_resolution.(ϕ_interp.f.values,phase_res)
@@ -261,7 +265,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
     elseif Δ isa Waveform
         # arbitrary waveform must transform
         
-        Δ_interp = piecewise_linear_interpolate(Δ,max_slope=max_slope,min_step=min_step)
+        Δ_interp = piecewise_linear_interpolate(Δ,max_slope=max_slope,min_step=min_step,tol=0)
         Δt = piecewise_linear(;
             clocks=set_resolution.(Δ_interp.f.clocks,time_res),
             values=set_resolution.(Δ_interp.f.values,detune_res)

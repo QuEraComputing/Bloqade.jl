@@ -128,7 +128,7 @@ val capabilitiesStore = mapOf(
 
 @option mutable struct LatticeAreaCapabilities <: QuEraSchema 
     width::Float64
-    length::Float64
+    height::Float64
 end
 
 @option mutable struct LatticeGeometryCapabilities <: QuEraSchema 

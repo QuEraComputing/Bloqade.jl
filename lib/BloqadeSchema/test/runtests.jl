@@ -4,14 +4,14 @@ using Test
 
 
 # TODO: add tests
-@testset "parse" begin
-    include("parse.jl")
-end
+# @testset "parse" begin
+#     include("parse.jl")
+# end
 
 # TODO: add tests
-@testset "transform" begin
-    include("transform.jl")
-end
+# @testset "transform" begin
+#     include("transform.jl")
+# end
 
 # TODO: add tests 
 @testset "validate" begin

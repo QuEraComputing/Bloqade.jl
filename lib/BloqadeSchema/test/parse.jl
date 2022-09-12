@@ -1,68 +1,29 @@
 using Test
+# using BloqadeWaveforms
+using BloqadeExpr
+using BloqadeSchema:
+    get_rydberg_params,
+    schema_parse_ϕ,
+    schema_parse_Ω,
+    schema_parse_Δ
+
 using BloqadeWaveforms
-using BloqadeSchema: 
-    parse_dynamic_rydberg_Ω,
-    parse_dynamic_rydberg_Δ,
-    parse_dynamic_rydberg_ϕ,
-    parse_static_rydberg_Ω,
-    parse_static_rydberg_Δ,
-    parse_static_rydberg_ϕ,
-    convert_units,
-    TaskSpecification
 
-using Unitful: μs, s, MHz, rad 
-    
 
-@testset "convert_units" begin
-    T = 1 # seconds
-    T_list = [i for i in 1:10]
-    pair = (1,2)
-    pair_list = [(i,j) for i in 1:5 for j in 1:5]
-    @test 1e6 ≈ convert_units(T,s,μs)
-    @test (1e6 .* T_list) ≈ convert_units(T_list,s,μs)
-    @test all((1e6 .* pair ).≈ convert_units.(pair,s,μs))
-    # @test all([1e6.*p for p in pair_list] .≈ convert_units.(pair_list,s,μs))
+@testset "schema_parsing" begin
+    atoms = [(i,i) for i in 1:10]
 
-end
+    values = [1,t->t^2,rand(10),[t->rand()*t for i in 1:10]]
 
-@testset "set_resolution" begin
+    for ϕ in values, Ω in values, Δ in values
+        h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
+        @test (atoms,ϕ,Ω,Δ) == BloqadeSchema.get_rydberg_params(h)
 
-    examples = [
-        (1,10.123,10.0),
-        (0.1,10.1256,10.1),
-        (0.01,10.1256,10.13),
-    ]
-    for (δ,val,res) in examples
-        @test BloqadeSchema.set_resolution(val,δ) == res
     end
 
-end
-
-@testset "parse_dynamic_rydberg_Ω" begin
-
-
-
-end
-
-@testset "parse_static_rydberg_Ω" begin
-  
-
-end
-
-@testset "parse_dynamic_rydberg_ϕ" begin
-
-end
-
-@testset "parse_static_rydberg_ϕ" begin
-   
-
-end
-
-
-@testset "parse_dynamic_rydberg_Δ" begin
-
-end
-
-@testset "parse_static_rydberg_Δ" begin
+    wf = piecewise_linear(;clocks=[0,2,3,4],values=[1,2,3,4])
+    @test schema_parse_ϕ(wf) == wf
+    @test schema_parse_Ω(wf) == wf
+    @test schema_parse_Δ(wf) == (wf,nothing,1.0)
 
 end

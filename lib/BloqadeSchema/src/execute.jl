@@ -1,5 +1,18 @@
 
 
+@inline function convert_units(value::Real,from,to)
+
+    val = uconvert(to,Quantity(value,from)).val
+    return round(val;sigdigits=15) 
+end
+
+function convert_units(x::AbstractArray{S},from,to) where {S<:Real}
+    y = similar(x)
+    @inbounds for i in eachindex(x)
+        y[i] = convert_units(x[i],from,to)
+    end
+    return y
+end
 
 
 
@@ -136,48 +149,53 @@ julia> BloqadeSchema.to_json(block; n_shots=10)
 "{\"nshots\":10,\"lattice\":{\"sites\":[[0.0,0.0],[1.0,3.0],[4.0,2.0],[6.0,3.0],[0.0,5.0],[2.0,5.0]],\"filling\":[1,1,1,1,1,1]},\"effective_hamiltonian\":{\"rydberg\":{\"rabi_frequency_amplitude\":{\"global\":{\"times\":[0.0,-18.0,2.0,-6.0,4.0,-14.0,7.0],\"values\":[5.0,5.0,3.0,3.0,4.0,4.0,6.0]}},\"rabi_frequency_phase\":{\"global\":{\"times\":[0.0,5.0],\"values\":[33.0,0.0]}},\"detuning\":{\"global\":{\"times\":[0.0,0.6,2.1,2.2],\"values\":[-10.1,-10.1,10.1,10.1]}}}}}"
 ```
 """
-to_json(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_json(h, SchemaConversionParams(;kw...))
-to_dict(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_dict(h, SchemaConversionParams(;kw...))
-to_schema(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_schema(h, SchemaConversionParams(;kw...))
+to_json(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_json(h,SchemaTranslateParams(;kw...))
+to_dict(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_dict(h,SchemaTranslateParams(;kw...))
+to_schema(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_schema(h,SchemaTranslateParams(;kw...))
 
-function to_json(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    return JSON.json(BloqadeSchema.to_dict(h, params))
+function to_json(h::BloqadeExpr.RydbergHamiltonian,params::SchemaTranslationParams)
+    return JSON.json(BloqadeSchema.to_dict(h,params))
 end
 
-function to_dict(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    return Configurations.to_dict(to_schema(h, params))
+function to_dict(h::BloqadeExpr.RydbergHamiltonian,params::SchemaTranslationParams)
+    return Configurations.to_dict(to_schema(h,params))
 end
 
 
 
-function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionParams)
-    atoms,ϕ,Ω,Δ,δ,Δi = parse_analog_rydberg_params(h,params)
+function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationParams)
+    ϕ,Ω,Δ,info = hardware_transform_parse(h;params.C)
+
+    # extract Detuning mask
+    Δ = info.Δ_mask.Δ
+    δ = info.Δ_mask.δ
+    Δi = info.Δ_mask.Δi
+
+    if params.transform_info
+        @info "Hardware transform report: ∫dt |ϕ(t)-ϕ_hw(t)| = $info.ϕ"
+        @info "Hardware transform report: ∫dt |Ω(t)-Ω_hw(t)| = $info.Ω"
+        @info "Hardware transform report: ∫dt |Δ(t)-Δ_hw(t)| = $info.Δ"
+    end
+
+    # validate components to save conversions
+    validate_lattice(H.rydberg_term.atoms,params.warn,params.device_capabilities.lattice)
+    rydberg_capabilities = get_rydberg_capabilities(;device_capabilities=params.device_capabilities)
+
+    validate_ϕ(ϕ,warn,rydberg_capabilities.ϕ)
+    validate_Ω(Ω,warn,rydberg_capabilities.Ω)
+    validate_Δ(Δ,warn,rydberg_capabilities.Δ)
+    validate_δ(δ,Δi,warn,rydberg_capabilities.δ)
+        
+    atoms = map(atoms) do pos 
+        return convert_units.(pos,μm,m)
+    end
     
-
     ϕ_clocks = convert_units(ϕ.f.clocks,μs,s) 
     ϕ_values = convert_units(ϕ.f.values,rad,rad)
     Ω_clocks = convert_units(Ω.f.clocks,μs,s)
     Ω_values = convert_units(Ω.f.values,rad*MHz,rad/s)
     Δ_clocks = convert_units(Δ.f.clocks,μs,s)
     Δ_values = convert_units(Δ.f.values,rad*MHz,rad/s)
-
-    if params.discretize
-        atoms = map(atoms) do pos
-            return set_resolution.(pos,params.atom_position_resolution)
-        end
-        
-        ϕ_clocks = set_resolution.(ϕ_clocks, params.rabi_time_resolution) 
-        ϕ_values = set_resolution.(ϕ_values, params.rabi_frequency_phase_resolution)
-
-        Ω_clocks = set_resolution.(Ω_clocks, params.rabi_time_resolution)
-        Ω_values = set_resolution.(Ω_values, params.rabi_frequency_amplitude_resolution)
-
-        Δ_clocks = set_resolution.(Δ_clocks, params.rabi_time_resolution) 
-        Δ_values = set_resolution.(Δ_values, params.rabi_detuning_resolution)
-
-    end
-
-
 
     ϕ =(
         clocks=ϕ_clocks,
@@ -199,12 +217,6 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaConversionPa
     if !isnothing(δ)
         δ_clocks = convert_units(δ.f.clocks,μs,s)
         δ_values = convert_units(δ.f.values,rad*MHz,rad/s)
-        
-        if params.discretize
-            δ_clocks = set_resolution.(δ_clocks, params.rabi_time_resolution)
-            δ_values = set_resolution.(δ_values, params.rabi_detuning_local_resolution)
-            Δi = set_resolution.(Δi, params.rabi_detuning_local_resolution)
-        end
         
         δ = (
             clocks=δ_clocks,

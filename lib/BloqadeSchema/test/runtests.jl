@@ -8,9 +8,13 @@ using Test
     include("parse.jl")
 end
 
-@testset "execute" begin
-    include("execute.jl")
+@testset "transform" begin
+    include("transform.jl")
 end
+
+# @testset "execute" begin
+#     include("execute.jl")
+# end
 
 # @testset "serialize" begin
 #     include("serialize.jl")

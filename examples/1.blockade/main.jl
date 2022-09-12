@@ -12,7 +12,7 @@
 # ```
 
 # where ``\hat n_j=|r_j\rangle\langle r_j|`` is the number operator on the ``j``th site, 
-# which is one if the atom is in the Rydberg state ``| r_j \rangle``, and zero if the atom is in the ground state ``| g_j \rangle``. 
+# which is `1` if the atom is in the Rydberg state ``| r_j \rangle``, and zero if the atom is in the ground state ``| g_j \rangle``. 
 # The coefficient ``C_6 = 2\pi\times 862690 \text{ MHz μm}^6`` is the interaction strength; 
 # characteristically, this interaction has a strength ``C_6 \approx 2\pi\times 4`` MHz for two atoms separated by ``7.74`` μm,
 # a similar scale to the Rabi frequency coupling the ground and the Rydberg state. 

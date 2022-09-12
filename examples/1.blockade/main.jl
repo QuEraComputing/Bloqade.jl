@@ -4,8 +4,8 @@
 # By including a term in the effective Hamiltonian which adds an interaction between adjacent atoms in the Rydberg states, 
 # one can construct gates and nontrivial dynamics that create entanglement and correlation across the system.
 
-# The Rydberg interaction is a Van der Waals interaction, where there is an energy shift if two adjacent atoms are both in the Rydberg state. 
-# The Van der Waals interaction is
+# The Rydberg interaction is a van der Waals interaction, where there is an energy shift if two adjacent atoms are both in the Rydberg state. 
+# The van der Waals interaction is
 
 # ```math
 # V_{jk} = \frac{C_6}{|\overrightarrow{\mathbf{r}_j} - \overrightarrow{\mathbf{r}_k}|^6}\hat n_j \hat n_k,

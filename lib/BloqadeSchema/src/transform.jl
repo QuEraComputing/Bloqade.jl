@@ -121,7 +121,7 @@ function pin_waveform_edges(wf::Waveform,
 end
 # TODO: move this to BloqadeWaveforms
 # does the SVD method to decompose local drives into an outer produce of masks and functions.
-function find_local_masks(values::Array{T,2},name;ntrunc=1,assert_truncation=false) where T
+function find_local_masks(values::Array{T,2};name::Symbol=:(),ntrunc::Int=1, assert_truncation::Bool=false) where T
     
     (l,w) = size(values)
     
@@ -138,8 +138,9 @@ function find_local_masks(values::Array{T,2},name;ntrunc=1,assert_truncation=fal
         # can't be described as a local detuning mask times a single time-dependent function.
         # here we truncate the waveform only keeping the first singular value.
         u,s,v_T = svd(values)
-        contained_weight = sum(s[:ntrunc])
-        remaining_weight = sum(s[ntrunc+1:end])
+        contained_weight = sum(s[1:ntrunc])
+        
+        remaining_weight = sum(s[(ntrunc+1):end])
 
         if remaining_weight > eps()*length(s)*contained_weight
             error_or_warn(assert_truncation,"Cannot decompose waveform $name into product of masks and scalar functions.")
@@ -147,9 +148,12 @@ function find_local_masks(values::Array{T,2},name;ntrunc=1,assert_truncation=fal
 
         for i in 1:ntrunc
 
-            if all(u[:,i] .< 0) # make u all positive
+            mask = if all(u[:,i] .<= 0) # make u all positive
                 u[:,i] .*= -1
-                mask = - s[i] .* v_T[:,i]
+                (-s[i] .* v_T[:,i])
+
+            else
+                s[i] .* v_T[:,i]
             end
 
             min = minimum(mask)
@@ -275,7 +279,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
             values[:,j] = δ(clocks)
         end
 
-        ((δ_values,Δi),(Δ_values,_)) = find_local_masks(values,:Δ)
+        ((δ_values,Δi),(Δ_values,_)) = find_local_masks(values;name=:Δ)
 
         Δ_values = set_resolution.(Δ_values,detune_res)
         δ_values = set_resolution.(δ_values,common_detune_res)

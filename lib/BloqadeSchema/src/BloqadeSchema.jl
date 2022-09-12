@@ -2,7 +2,8 @@ module BloqadeSchema
 
 using Unitful: Quantity, NoUnits, m, μm, μs, s, MHz, Hz, rad, uconvert
 using BloqadeExpr
-using BloqadeWaveforms: Waveform,PiecewiseConstant,PiecewiseLinear,piecewise_linear_interpolate
+using BloqadeWaveforms
+using BloqadeWaveforms: PiecewiseConstant,PiecewiseLinear
 using BloqadeODE: SchrodingerProblem
 using Roots:find_zero,Brent
 using Configurations

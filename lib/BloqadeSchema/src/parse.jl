@@ -56,7 +56,7 @@ function schema_parse_Δ(Δ)
 
         clocks = Δ[1].f.clocks
         map(Δ) do ele
-            clocks == Δ.f.clocks || error("Cannot convert Hamiltonian to schema, all piecewise linear Waveform(s) must have same clocks.")
+            clocks == ele.f.clocks || error("Cannot convert Hamiltonian to schema, all piecewise linear Waveform(s) must have same clocks.")
         end
         Δti = zeros(length(clocks),length(Δ))
     
@@ -64,11 +64,11 @@ function schema_parse_Δ(Δ)
             Δti[:,j] .= δ.f.values # copy values to Δti
         end
         
-        ((δ_values,Δi),(Δ_values,_)) = find_local_masks(Δti,:Δ;assert_truncation=true)
+        ((δ_values,Δi),(Δ_values,_)) = find_local_masks(Δti;name=:Δ,assert_truncation=true)
         
-        δ_values = round(δ_values;sigdigits=14)
-        Δ_values = round(Δ_values;sigdigits=14)
-        Δi = round(Δi;sigdigits=14)
+        δ_values = round.(δ_values;sigdigits=14)
+        Δ_values = round.(Δ_values;sigdigits=14)
+        Δi = round.(Δi;sigdigits=14)
         
         
         # get waveforms

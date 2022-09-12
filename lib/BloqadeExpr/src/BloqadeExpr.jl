@@ -15,6 +15,7 @@ using Base.Cartesian: @nexprs
 using YaoBlocks: ChainBlock, PutBlock, TrivialGate, Subroutine, Scale, Daggered, Add, ControlBlock, TimeEvolution
 
 export rydberg_h,
+    rydberg_h_3,
     FullSpace,
     Subspace,
     fullspace,

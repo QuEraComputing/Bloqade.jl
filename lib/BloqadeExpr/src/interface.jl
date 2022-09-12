@@ -108,6 +108,71 @@ function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
     return RydbergHamiltonian(rydberg_term,rabi_term,detuning_term)
 end
 
+function rydberg_h_3(atom_positions; 
+        C = 2π * 862690, Ω_hf = nothing, ϕ_hf = nothing, Δ_hf = nothing, 
+        Ω_r = nothing, ϕ_r = nothing, Δ_r = nothing)
+    return rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
+end
+
+function rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
+    positions = map(atom_positions) do pos
+        return (pos...,)
+    end
+
+    nsites = length(positions)
+    rydberg_term = RydInteract(positions, C; nlevel = 3)
+
+    Ω_hf = div_by_two(Ω_hf)
+ 
+    if !isnothing(Ω_hf) && !isnothing(ϕ_hf)
+        rabi_term_hf = SumOfXPhase(nsites, Ω_hf, ϕ; nlevel = 3, name = :hyperfine)
+    elseif !isnothing(Ω_hf) && isnothing(ϕ_hf)
+        rabi_term_hf = SumOfX(nsites, Ω_hf; nlevel = 3, name = :hyperfine)
+    elseif isnothing(Ω_hf) && !isnothing(ϕ_hf)
+        @warn "Rydberg Hamiltonian contains non-zero rabi phase ϕ_hf with no rabi amplitude Ω_hf."
+        rabi_term_hf = SumOfXPhase(nsites, 0, ϕ; nlevel = 3, name = :hyperfine)
+    else
+        rabi_term_hf = nothing
+    end
+    if !isnothing(Ω_r) && !isnothing(ϕ_r)
+        rabi_term_r =+ SumOfXPhase(nsites, Ω_r, ϕ; nlevel = 3, name = :rydberg)
+    elseif !isnothing(Ω_r) && isnothing(ϕ_r)
+        rabi_term_r =+ SumOfX(nsites, Ω_r; nlevel = 3, name = :rydberg)
+    elseif isnothing(Ω_r) && !isnothing(ϕ_r)
+        @warn "Rydberg Hamiltonian contains non-zero rabi phase ϕ_r with no rabi amplitude Ω_r."
+        rabi_term_r =+ SumOfXPhase(nsites, 0, ϕ; nlevel = 3, name = :rydberg)
+    else
+        rabi_term_r = nothing
+    end
+    if isnothing(rabi_term_hf) 
+        rabi_term = rabi_term_r
+    elseif isnothing(rabi_term_r)
+        rabi_term = rabi_term_hf
+    else
+        rabi_term = rabi_term_hf + rabi_term_r
+    end
+
+    if !isnothing(Δ_hf)
+        detuning_term = SumOfN(nsites, Δ_hf; nlevel = 3, name = :hyperfine)
+        if !isnothing(Δ_r)
+            detuning_term += SumOfN(nsites, Δ_hf + Δ_r; nlevel = 3, name = :rydberg)
+        else
+            detuning_term += SumOfN(nsites, Δ_hf; nlevel = 3, name = :rydberg)
+        end
+    elseif !isnothing(Δ_r)
+        detuning_term = SumOfN(nsites, Δ_r; nlevel = 3, name = :rydberg)
+    else
+        detuning_term = nothing
+    end
+
+    rh3 = rydberg_term
+    for t in (rabi_term, detuning_term)
+        !isnothing(t) && (rh3 += t) 
+    end
+
+    return rh3
+end
+
 function div_by_two(Ω)
     isnothing(Ω) && return
     if is_const_param(Ω)

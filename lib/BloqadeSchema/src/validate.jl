@@ -1,134 +1,165 @@
 
-get_device_capabilities(kw...) = DeviceCapabilities(kw...)
+error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : error(msg))
 
-function validate_lattice(positions,lattice_capabilities::LatticeCapabilities) end
+# checks of x is integer multiple of res
+# if it is return false otherwise return true
+function check_resolution(res::Float64,x::Float64)
+    x == 0 && return true
 
-function get_field_capabilities(field::Symbol,rydberg::RydbergCapabilities)
+    x_div_res = (abs(x) / res)
+    return isapprox(round(x_div_res,sigdigits=15),x_div_res)
+end
 
-    if field == :Ω
-        return (
-            min_time_step = rydberg.global.timeDeltaMin,
-            time_resolution = rydberg.global.timeResolution,
-            max_time = rydberg.global.timeMax,
-            max_value = rydberg.global.rabiFrequencyMax,
-            min_value = rydberg.global.rabiFrequencyMin,
-            max_slope = rydberg.global.rabiFrequencySlewRateMax,
-            value_resolution = rydberg.global.rabiFrequencyResolution
-            )
-    elseif field == :ϕ
-        return (
-            min_time_step = rydberg.global.timeDeltaMin,
-            time_resolution = rydberg.global.timeResolution,
-            max_time = rydberg.global.timeMax,
-            max_value = rydberg.global.phaseMax,
-            min_value = rydberg.global.phaseMin,
-            # max_slope = rydberg.global.phaseSlewRateMax,
-            value_resolution = rydberg.global.phaseResolution
-            )
-    elseif field == :Δ
-        return (
-            min_time_step = rydberg.global.timeDeltaMin,
-            time_resolution = rydberg.global.timeResolution,
-            max_time = rydberg.global.timeMax,
-            max_value = rydberg.global.detuningMax,
-            min_value = rydberg.global.detuningMin,
-            max_slope = rydberg.global.detuningSlewRateMax,
-            value_resolution = rydberg.global.detuningResolution
-        )
-    else
-        error("Symbol $(field) not recognized. Must be :Ω, :ϕ, or :Δ.")
+# TODO: implement this test based on validation in TaskManager
+function validate_lattice(positions,warn::Bool,C::DeviceCapabilities) end
+
+# Waveform Validations all waveforms must be piecewise linear
+
+# helper functions to generate messages
+message(::typeof(>)) = "exceeds maximum"
+message(::typeof(<)) = "below minimum"
+message(::typeof(==)) = "is not equal to"
+
+function validate_Ω(wf,warn,expected)
+    
+    max_time = wf.duration
+    max_value = maximum(wf.f.values)
+    min_value = minimum(wf.f.values)
+    min_step  = minimum(diff(wf.f.clocks))
+    max_slope = maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks))
+    start_value = wf.f.values[1]
+    end_value = wf.f.values[end]
+
+    tests = [
+        ("duration",max_time,>,expected.max_time,"μs"),
+        ("minimum step",min_step,<,expected.min_step,"μs"),
+        ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHs/μs"),
+        ("minimum value",min_value,<,expected.min_value,"rad⋅MHs"),
+        ("maximum value",max_value,>,expected.max_value,"rad⋅MHs"),
+        ("start value",start_value,==,0.0,"rad⋅MHs"),
+        ("end value",end_value,==,0.0,"rad⋅MHs"),
+    ]
+
+    for (name,given,op,expected,units) in tests
+        op(given,expected) && error_or_warn(warn,"Ω(t) $name with value $given $units $message(op) value of $expected $units")
+    end
+
+    map(wf.f.clocks) do clock
+        check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Ω(t) clock $clock μs is not consistent with resolution $expected.time_resolution μs.")
+    end
+
+    map(wf.f.values) do value
+        check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Ω(t) value $value rad⋅MHz is not consistent with resolution $expected.value_resolution rad⋅MHz.")
     end
 
 end
 
+function validate_Δ(wf,warn,expected)
+    
+    max_time = wf.duration
+    max_value = maximum(wf.f.values)
+    min_value = minimum(wf.f.values)
+    min_step  = minimum(diff(wf.f.clocks))
+    max_slope = maximum(abs.(diff(wf.f.values))./diff(Ω.f.clocks))
 
 
+    tests = [
+        ("duration",max_time,>,expected.max_time,"μs"),
+        ("minimum step",min_step,<,expected.min_step,"μs"),
+        ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
+        ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
+        ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
+    ]
 
-
-function validate_Ω(wf::Waveform{PiecewiseLinear{T,Interp},T},field::Symbol,rydberg::RydbergCapabilities) where {T<:Real,Interp}
-    capabilities = get_field_capabilities(:Ω,rydberg)
-
-
-    # validate duration
-    # validate min_step
-    # validate max slope
-    # validate min value
-    # validate max value
-    # validate begin value
-    # validate end value
-end
-validate_Ω(::Nothing,::RydbergCapabilities) = nothing
-validate_Ω(::Any,::RydbergCapabilities) = error("Schema only supports piecewise linear and constant waveforms for Rydberg fields.")
-
-
-function validate_Δ(wf::Waveform{PiecewiseLinear{T,Interp},T},field::Symbol,rydberg::RydbergCapabilities) where {T<:Real,Interp}
-    capabilities = get_field_capabilities(:Δ,rydberg)
-
-    # validate duration
-    # validate min_step
-    # validate max slope
-    # validate min value
-    # validate max value
-
-end
-validate_Δ(::Nothing,::RydbergCapabilities) = nothing
-validate_Δ(::Any,::RydbergCapabilities) = error("Schema only supports piecewise linear and constant waveforms for Rydberg fields.")
-
-
-function validate_ϕ(wf::Waveform{PiecewiseConstant{T},T}) where {T<:Real} 
-    capabilities = get_field_capabilities(:ϕ,rydberg)
-
-    # validate duration
-    # validate min_step
-    # validate min value
-    # validate max value
-end
-validate_ϕ(::Nothing,::RydbergCapabilities) = nothing
-validate_ϕ(::Any,::RydbergCapabilities) = error("Schema only supports piecewise linear and constant waveforms for Rydberg fields.")
-
-
-function mult_by_two(Ω)
-    isnothing(Ω) && return
-    if BloqadeExpr.is_const_param(Ω)
-        return Ω .* 2
+    for (name,given,op,expected,units) in tests
+        op(given,expected) && error_or_warn(warn,"Δ(t) $name with value $given $units $message(op) value of $expected $units")
     end
 
-    return if Ω isa Vector
-        map(Ω) do Ω_i
-            return Ω_i.f
-        end
-    else
-        Ω.f
+    map(wf.f.clocks) do clock
+        check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Δ(t) clock $clock μs is not consistent with resolution $expected.time_resolution μs.")
+    end
+
+    map(wf.f.values) do value
+        check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Δ(t) value $value rad⋅MHz is not consistent with resolution $expected.value_resolution rad⋅MHz.")
     end
 
 end
 
-function validate_waveform(::Nothing;kw...) end
+function validate_ϕ(wf,warn,expected)
 
-function validate(H::BloqadeExpr.RydbergHamiltonian;kw...)
-    device_capabilities = get_device_capabilities(kw...)
+    max_time = wf.duration
+    max_value = maximum(wf.f.values)
+    min_value = minimum(wf.f.values)
+    min_step  = minimum(diff(wf.f.clocks))
+    max_slope = maximum(abs.(diff(wf.f.values))./diff(Ω.f.clocks))
 
-    ϕ = nothing
-    Ω = nothing
-    Δ = nothing
 
+    tests = [
+        ("duration",max_time,>,expected.max_time,"μs"),
+        ("minimum step",min_step,<,expected.min_step,"μs"),
+        ("maximum slope",max_slope,>,expected.max_slope,"rad/μs"),
+        ("minimum value",min_value,<,expected.min_value,"rad"),
+        ("maximum value",max_value,>,expected.max_value,"rad"),
+    ]
 
-    validate_lattice(H.rydberg_term.atoms,device_capabilities.lattice)
-
-    if H.rabi_term isa BloqadeExpr.SumOfX
-        Ω = mult_by_two(H.rabi_term.Ω)  
-    elseif H.rabi_term isa BloqadeExpr.SumOfXPhase
-        Ω = mult_by_two(H.rabi_term.Ω)
-        ϕ = H.rabi_term.ϕ
-
+    for (name,given,op,expected,units) in tests
+        op(given,expected) && error_or_warn(warn,"ϕ(t) $name with value $given $units $message(op) value of $expected $units")
     end
 
-    if H.detuning_term isa BloqadeExpr.SumOfN
-        Δ = H.detuning_term.Δ
+    map(wf.f.clocks) do clock
+        check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"ϕ(t) clock $clock μs is not consistent with resolution $expected.time_resolution μs.")
     end
 
-    validate_Ω(Ω,device_capabilities.rydberg)
-    validate_ϕ(ϕ,device_capabilities.rydberg)
-    validate_Δ(Δ,device_capabilities.rydberg)
+    map(wf.f.values) do value
+        check_resolution(expected.value_resolution,value) && error_or_warn(warn,"ϕ(t) value $value rad is not consistent with resolution $expected.value_resolution rad.")
+    end
+end
+
+function validate_δ(wf,Δi,warn,expected)
+
+    max_time = wf.duration
+    max_value = maximum(wf.f.values)
+    min_value = minimum(wf.f.values)
+    min_step  = minimum(diff(wf.f.clocks))
+    max_slope = maximum(abs.(diff(wf.f.values))./diff(Ω.f.clocks))
+
+
+    tests = [
+        ("duration",max_time,>,expected.max_time,"μs"),
+        ("minimum step",min_step,<,expected.min_step,"μs"),
+        ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
+        ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
+        ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
+    ]
+
+    for (name,given,op,expected,units) in tests
+        op(given,expected) && error_or_warn(warn,"δ(t) $name with value $given $units $message(op) value of $expected $units")
+    end
+
+    map(wf.f.clocks) do clock
+        check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"δ(t) clock $clock μs is not consistent with resolution $expected.time_resolution μs.")
+    end
+
+    map(wf.f.values) do value
+        check_resolution(expected.value_resolution,value) && error_or_warn(warn,"δ(t) value $value rad⋅MHz is not consistent with resolution $expected.value_resolution rad.")
+    end
+
+    map(Δi) do value
+        check_resolution(expected.local_mask_resolution,value) && error_or_warn(warn,"Δi value $value  is not consistent with resolution $expected.local_mask_resolution.")
+    end
+
+end
+
+# public API exposed here
+function validate(H::BloqadeExpr.RydbergHamiltonian;warn::Bool=false,device_capabilities::DeviceCapabilities=get_device_capabilities())
+    (atoms,ϕ,Ω,Δ,δ,Δi) = schema_parse_rydberg_fields(H)
+
+    validate_lattice(H.rydberg_term.atoms,warn,device_capabilities.lattice)
+    rydberg_capabilities = get_rydberg_capabilities(;device_capabilities=device_capabilities)
+
+    validate_ϕ(ϕ,warn,rydberg_capabilities.ϕ)
+    validate_Ω(Ω,warn,rydberg_capabilities.Ω)
+    validate_Δ(Δ,warn,rydberg_capabilities.Δ)
+    validate_δ(δ,Δi,warn,rydberg_capabilities.δ)
 
 end

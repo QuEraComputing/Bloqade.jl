@@ -1,6 +1,6 @@
 using GarishPrint
 
-const PiecewiseLinearWaveform = Waveform{PiecewiseLinear{T,I},T} where {T<:Real,I}
+const PiecewiseLinearWaveform = Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T} where {T<:Real,I}
 
 
 abstract type QuEraSchema end

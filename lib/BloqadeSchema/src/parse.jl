@@ -39,8 +39,8 @@ function get_rydberg_params(h::BloqadeExpr.RydbergHamiltonian)
 end
 
 
-schema_parse_ϕ(ϕ::Waveform{PiecewiseLinear{T,I},T}) where {T<:Real,I} = ϕ
-schema_parse_Ω(Ω::Waveform{PiecewiseLinear{T,I},T}) where {T<:Real,I} = Ω
+schema_parse_ϕ(ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T}) where {T<:Real,I} = ϕ
+schema_parse_Ω(Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T}) where {T<:Real,I} = Ω
 
 schema_parse_ϕ(_) = error("Cannot convert Hamiltonian to schema, ϕ(t) must be piecewise linear Waveform.")
 schema_parse_Ω(_) = error("Cannot convert Hamiltonian to schema, Ω(t) must be piecewise linear Waveform.")

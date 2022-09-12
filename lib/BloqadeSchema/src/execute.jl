@@ -164,7 +164,7 @@ end
 
 
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationParams)
-    ϕ,Ω,Δ,info = hardware_transform_parse(h;params.C)
+    ϕ,Ω,Δ,info = hardware_transform_parse(h;params.device_capabilities)
 
     # extract Detuning mask
     Δ = info.Δ_mask.Δ
@@ -181,10 +181,10 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
     validate_lattice(H.rydberg_term.atoms,params.warn,params.device_capabilities.lattice)
     rydberg_capabilities = get_rydberg_capabilities(;device_capabilities=params.device_capabilities)
 
-    validate_ϕ(ϕ,warn,rydberg_capabilities.ϕ)
-    validate_Ω(Ω,warn,rydberg_capabilities.Ω)
-    validate_Δ(Δ,warn,rydberg_capabilities.Δ)
-    validate_δ(δ,Δi,warn,rydberg_capabilities.δ)
+    validate_ϕ(ϕ,params.warn,rydberg_capabilities.ϕ)
+    validate_Ω(Ω,params.warn,rydberg_capabilities.Ω)
+    validate_Δ(Δ,params.warn,rydberg_capabilities.Δ)
+    validate_δ(δ,Δi,params.warn,rydberg_capabilities.δ)
         
     atoms = map(atoms) do pos 
         return convert_units.(pos,μm,m)

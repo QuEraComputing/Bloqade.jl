@@ -1,4 +1,5 @@
 
+
 error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : error(msg))
 
 # checks of x is integer multiple of res
@@ -20,6 +21,7 @@ message(::typeof(>)) = "exceeds maximum"
 message(::typeof(<)) = "below minimum"
 message(::typeof(==)) = "is not equal to"
 
+# TODO: add explicit typing, wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T} where {T<:Real,I}
 function validate_Ω(wf,warn,expected)
     
     max_time = wf.duration
@@ -36,8 +38,8 @@ function validate_Ω(wf,warn,expected)
         ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHs/μs"),
         ("minimum value",min_value,<,expected.min_value,"rad⋅MHs"),
         ("maximum value",max_value,>,expected.max_value,"rad⋅MHs"),
-        ("start value",start_value,==,0.0,"rad⋅MHs"),
-        ("end value",end_value,==,0.0,"rad⋅MHs"),
+        ("start value",start_value,!=,0.0,"rad⋅MHs"),
+        ("end value",end_value,!=,0.0,"rad⋅MHs"),
     ]
 
     for (name,given,op,expected,units) in tests
@@ -149,6 +151,7 @@ function validate_δ(wf,Δi,warn,expected)
     end
 
 end
+
 
 # public API exposed here
 function validate(H::BloqadeExpr.RydbergHamiltonian;warn::Bool=false,device_capabilities::DeviceCapabilities=get_device_capabilities())

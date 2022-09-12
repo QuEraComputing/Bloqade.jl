@@ -4,7 +4,7 @@
 # By including a term in the effective Hamiltonian which adds an interaction between adjacent atoms in the Rydberg states, 
 # one can construct gates and nontrivial dynamics that create entanglement and correlation across the system.
 
-# The Rydberg interaction is a van der Waals interaction, where there is an energy shift if two adjacent atoms are both in the Rydberg state. 
+# The Rydberg interaction is a Van der Waals interaction, where there is an energy shift if two adjacent atoms are both in the Rydberg state. 
 # The Van der Waals interaction is
 
 # ```math
@@ -12,7 +12,7 @@
 # ```
 
 # where ``\hat n_j=|r_j\rangle\langle r_j|`` is the number operator on the ``j``th site, 
-# which is 1 if the atom is in the Rydberg state ``| r_j \rangle``, and zero if the atom is in the ground state ``| g_j \rangle``. 
+# which is one if the atom is in the Rydberg state ``| r_j \rangle``, and zero if the atom is in the ground state ``| g_j \rangle``. 
 # The coefficient ``C_6 = 2\pi\times 862690 \text{ MHz μm}^6`` is the interaction strength; 
 # characteristically, this interaction has a strength ``C_6 \approx 2\pi\times 4`` MHz for two atoms separated by ``7.74`` μm,
 # a similar scale to the Rabi frequency coupling the ground and the Rydberg state. 
@@ -366,11 +366,11 @@ plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);
 # ![RydbergBlockadeSubspace](../../../assets/RydbergBlockadeSubspace.png)
 
 # Data for this evolution is shown above, 
-# where exact evolution in the full space is shown in black, 
-# and the truncated evolution in the subspace is shown by red dashed. 
+# where exact evolution in the full space is shown by the black line, 
+# and the truncated evolution in the subspace is shown by the red dashed line. 
 # It is clear that even though the Hilbert space is ``12\times`` smaller, 
 # the dynamics are faithfully reproduced, 
 # up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, 
 # similar to the high frequency oscillations of the 2-atom conditional blockade example above. 
-# However, at longer times, this subspace approximation fails to reproduce the full space (shown by divergence between black and red dashed), 
+# However, at longer times, this subspace approximation fails to reproduce the full space (shown by divergence between the black and red dashed lines), 
 # as the perturbative effects become relevant over longer timescales.

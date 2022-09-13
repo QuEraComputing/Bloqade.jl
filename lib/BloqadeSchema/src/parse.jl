@@ -58,6 +58,7 @@ function schema_parse_Δ(Δ)
         map(Δ) do ele
             clocks == ele.f.clocks || error("Cannot convert Hamiltonian to schema, all piecewise linear Waveform(s) must have same clocks.")
         end
+
         Δti = zeros(length(clocks),length(Δ))
     
         for (j,δ) in enumerate(Δ)

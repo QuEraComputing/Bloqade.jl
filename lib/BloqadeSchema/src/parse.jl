@@ -39,20 +39,20 @@ function get_rydberg_params(h::BloqadeExpr.RydbergHamiltonian)
     return (h.rydberg_term.atoms,ϕ,Ω,Δ)
 end
 
-function discretize_with_warn(wf::Waveform,warn::Bool,max_slope::Real,min_step::Real,tol::Real)
+function discretize_with_warn(wf::Waveform,warn::Bool,max_slope::Real,min_step::Real,atol::Real)
     try
         new_wf = BloqadeWaveforms.piecewise_linear_interpolate(wf,
             max_slope=max_slope,
             min_step=min_step,
-            tol=tol,
+            atol=atol,
         )
         return new_wf
     catch e
         if e isa ErrorException && warn
             @warn e.msg
-            new_wf = if tol > 0
+            new_wf = if atol > 0
                 BloqadeWaveforms.piecewise_linear_interpolate(wf,
-                    tol=tol,
+                    atol=atol,
                 )
             else
                 BloqadeWaveforms.piecewise_linear_interpolate(wf,

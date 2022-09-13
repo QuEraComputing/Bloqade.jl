@@ -92,7 +92,7 @@ function pin_waveform_edges(wf::Waveform,
         )
 
         end_wf = linear_ramp(;
-            duration=duration-t_end,
+            duration=t_end,
             start_value=wf(t_end),
             stop_value=end_value
         )
@@ -110,7 +110,7 @@ function pin_waveform_edges(wf::Waveform,
     elseif t_end < duration
         start_wf = Waveform(wf.f,duration - t_end)
 
-        end_wf = linear_ramp(;duration=duration-t_end,
+        end_wf = linear_ramp(;duration=t_end,
             start_value=wf(t_end),
             stop_value=end_value
         )
@@ -125,7 +125,7 @@ function pin_waveform_edges(wf::Waveform,
 end
 # TODO: move this to BloqadeWaveforms
 # does the SVD method to decompose local drives into an outer produce of masks and functions.
-function find_local_masks(values::Array{T,2};name::Symbol=:(),ntrunc::Int=1, assert_truncation::Bool=false) where T
+function find_local_masks(values::Array{T,2};name::Symbol=:Waveform,ntrunc::Int=1, assert_truncation::Bool=false) where T
     
     (l,w) = size(values)
     
@@ -147,7 +147,7 @@ function find_local_masks(values::Array{T,2};name::Symbol=:(),ntrunc::Int=1, ass
         remaining_weight = sum(s[(ntrunc+1):end])
 
         if remaining_weight > eps()*length(s)*contained_weight
-            error_or_warn(assert_truncation,"Cannot decompose waveform $name into product of masks and scalar functions.")
+            error_or_warn(assert_truncation,"Cannot decompose $name into product of masks and scalar functions.")
         end
 
         for i in 1:ntrunc
@@ -189,8 +189,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
 
     Ω = if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=√eps()) || !isapprox(Ω(Ω.duration),0.0;atol=eps(),rtol=√eps())
         @info "During hardware transform: Ω start and/or end values are not 0. adding ramp(s) to fix endpoints."
-        Ω
-        # pin_waveform_edges(Ω,max_slope,0,0)
+        pin_waveform_edges(Ω,max_slope,0,0)
     end
 
     Ωt = if Ω isa PiecewiseLinearWaveform
@@ -201,7 +200,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
 
     elseif Ω isa Waveform
         
-        Ω_interp = piecewise_linear_interpolate(Ω,max_slope=max_slope,min_step=min_step,tol=0)
+        Ω_interp = piecewise_linear_interpolate(Ω,max_slope=max_slope,min_step=min_step,atol=0)
         piecewise_linear(;
             clocks=set_resolution.(Ω_interp.f.clocks,time_res),
             values=set_resolution.(Ω_interp.f.values,rabi_res)
@@ -229,7 +228,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     elseif ϕ isa Waveform
         # arbitrary waveform must transform
         
-        ϕ_interp = piecewise_linear_interpolate(ϕ,max_slope=max_slope,min_step=min_step,tol=0)
+        ϕ_interp = piecewise_linear_interpolate(ϕ,max_slope=max_slope,min_step=min_step,atol=0)
         piecewise_linear(;
             clocks=set_resolution.(ϕ_interp.f.clocks,time_res),
             values=set_resolution.(ϕ_interp.f.values,phase_res)
@@ -265,7 +264,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
     elseif Δ isa Waveform
         # arbitrary waveform must transform
         
-        Δ_interp = piecewise_linear_interpolate(Δ,max_slope=max_slope,min_step=min_step,tol=0)
+        Δ_interp = piecewise_linear_interpolate(Δ,max_slope=max_slope,min_step=min_step,atol=0)
         Δt = piecewise_linear(;
             clocks=set_resolution.(Δ_interp.f.clocks,time_res),
             values=set_resolution.(Δ_interp.f.values,detune_res)
@@ -314,12 +313,12 @@ function hardware_transform_parse(H::BloqadeExpr.RydbergHamiltonian;device_capab
     Δ,Δ_error,Δ_mask = hardware_transform_Δ(Δ,device_capabilities)
     info = (ϕ=ϕ_error,Ω=Ω_error,Δ=Δ_error,Δ_mask=Δ_mask)
 
-    return (ϕ,Ω,Δ,info)
+    return (atoms,ϕ,Ω,Δ,info)
 end
 
 # public API exposed here: 
 function hardware_transform(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
-    ϕ,Ω,Δ,info = hardware_transform_parse(H;device_capabilities=device_capabilities)
+    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(H;device_capabilities=device_capabilities)
     hardware_H = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
 
     return hardware_H,info

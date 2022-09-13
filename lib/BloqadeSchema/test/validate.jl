@@ -11,9 +11,11 @@ using BloqadeExpr
     h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
 
 
-    h_hardware,info = hardware_transform(h) 
+    # h_hardware,info = hardware_transform(h) 
 
 
-    validate(h_hardware;warn=true)
+    # validate(h_hardware;warn=true)
+
+    j = to_json(h;warn=true)
 end
 

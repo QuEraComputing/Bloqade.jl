@@ -149,9 +149,9 @@ julia> BloqadeSchema.to_json(block; n_shots=10)
 "{\"nshots\":10,\"lattice\":{\"sites\":[[0.0,0.0],[1.0,3.0],[4.0,2.0],[6.0,3.0],[0.0,5.0],[2.0,5.0]],\"filling\":[1,1,1,1,1,1]},\"effective_hamiltonian\":{\"rydberg\":{\"rabi_frequency_amplitude\":{\"global\":{\"times\":[0.0,-18.0,2.0,-6.0,4.0,-14.0,7.0],\"values\":[5.0,5.0,3.0,3.0,4.0,4.0,6.0]}},\"rabi_frequency_phase\":{\"global\":{\"times\":[0.0,5.0],\"values\":[33.0,0.0]}},\"detuning\":{\"global\":{\"times\":[0.0,0.6,2.1,2.2],\"values\":[-10.1,-10.1,10.1,10.1]}}}}}"
 ```
 """
-to_json(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_json(h,SchemaTranslateParams(;kw...))
-to_dict(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_dict(h,SchemaTranslateParams(;kw...))
-to_schema(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_schema(h,SchemaTranslateParams(;kw...))
+to_json(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_json(h,SchemaTranslationParams(;kw...))
+to_dict(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_dict(h,SchemaTranslationParams(;kw...))
+to_schema(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_schema(h,SchemaTranslationParams(;kw...))
 
 function to_json(h::BloqadeExpr.RydbergHamiltonian,params::SchemaTranslationParams)
     return JSON.json(BloqadeSchema.to_dict(h,params))
@@ -164,7 +164,7 @@ end
 
 
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationParams)
-    ϕ,Ω,Δ,info = hardware_transform_parse(h;params.device_capabilities)
+    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h;params.device_capabilities)
 
     # extract Detuning mask
     Δ = info.Δ_mask.Δ
@@ -172,20 +172,24 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
     Δi = info.Δ_mask.Δi
 
     if params.transform_info
-        @info "Hardware transform report: ∫dt |ϕ(t)-ϕ_hw(t)| = $info.ϕ"
-        @info "Hardware transform report: ∫dt |Ω(t)-Ω_hw(t)| = $info.Ω"
-        @info "Hardware transform report: ∫dt |Δ(t)-Δ_hw(t)| = $info.Δ"
+        ϕ_err = info.ϕ
+        Ω_err = info.Ω
+        Δ_err = info.Δ
+        @info "Hardware transform report: ∫dt |ϕ(t)-ϕ_hw(t)| = $ϕ_err"
+        @info "Hardware transform report: ∫dt |Ω(t)-Ω_hw(t)| = $Ω_err"
+        @info "Hardware transform report: ∫dt |Δ(t)-Δ_hw(t)| = $Δ_err"
     end
 
     # validate components to save conversions
-    validate_lattice(H.rydberg_term.atoms,params.warn,params.device_capabilities.lattice)
+    validate_lattice(atoms,params.warn,params.device_capabilities)
     rydberg_capabilities = get_rydberg_capabilities(;device_capabilities=params.device_capabilities)
 
     validate_ϕ(ϕ,params.warn,rydberg_capabilities.ϕ)
     validate_Ω(Ω,params.warn,rydberg_capabilities.Ω)
     validate_Δ(Δ,params.warn,rydberg_capabilities.Δ)
-    validate_δ(δ,Δi,params.warn,rydberg_capabilities.δ)
-        
+    if !isnothing(δ)
+        validate_δ(δ,Δi,warn,rydberg_capabilities.δ)
+    end        
     atoms = map(atoms) do pos 
         return convert_units.(pos,μm,m)
     end

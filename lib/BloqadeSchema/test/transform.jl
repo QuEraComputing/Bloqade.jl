@@ -59,11 +59,12 @@ end
 
     values = Δ_values * Δ_mask .+ δ_values * δ_mask
 
-    ((parsed_Δ_values,parsed_Δ_mask),(parsed_δ_values,parsed_δ_mask)) = BloqadeSchema.find_local_masks(values)
-    @test parsed_Δ_values ≈ Δ_values
-    @test parsed_Δ_mask ≈ Δ_mask
-    @test parsed_δ_values ≈ δ_values
-    @test parsed_δ_mask ≈ δ_mask
+    ((parsed_δ_values,parsed_δ_mask),(parsed_Δ_values,parsed_Δ_mask)) = BloqadeSchema.find_local_masks(values)
+
+    @test parsed_Δ_values ≈ reshape(Δ_values,(100,))
+    @test parsed_Δ_mask ≈ reshape(Δ_mask,(10,))
+    @test parsed_δ_values ≈ reshape(δ_values,(100,))
+    @test parsed_δ_mask ≈ reshape(δ_mask,(10,))
 end
 
 # global test cases:

@@ -5,14 +5,14 @@
 function piecewise_linear_interpolate(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
-    tol::Real = 1.0e-5) where {T<:Real,Interp}
+    atol::Real = 1.0e-5) where {T<:Real,Interp}
 
-    if tol < 0
+    if atol < 0
         @warn "negative tolerance provided, taking absolute value."
-        tol *= -1
+        atol *= -1
     end
 
-    if tol == 0 && ( max_slope == Inf64 || min_step == 0)
+    if atol == 0 && ( max_slope == Inf64 || min_step == 0)
         error("Interpolation requires either a tolerance constraint or a slope and step constraint.")
     end
 
@@ -47,14 +47,14 @@ end
 function piecewise_linear_interpolate(wf::Waveform{PiecewiseConstant{T},T}; 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
-    tol::Real = 1.0e-5) where {T<:Real}
+    atol::Real = 1.0e-5) where {T<:Real}
 
-    if tol < 0
+    if atol < 0
         @warn "negative tolerance provided, taking absolute value."
-        tol *= -1
+        atol *= -1
     end
 
-    if tol == 0 && ( max_slope == Inf64 || min_step == 0)
+    if atol == 0 && ( max_slope == Inf64 || min_step == 0)
         error("Interpolation requires either a tolerance constraint or a slope and step constraint.")
     end
 
@@ -64,7 +64,7 @@ function piecewise_linear_interpolate(wf::Waveform{PiecewiseConstant{T},T};
     values = Float64[v[1]]
 
 
-    itol = tol / (length(v) - 1) # distribute error over each step
+    itol = atol / (length(v) - 1) # distribute error over each step
 
     @inbounds for i in 1:length(v)-1
         t0 = c[i+1]        
@@ -118,19 +118,19 @@ Function which takes a waveform and translates it to a linear interpolation subj
 # Keyword Arguments
 - `min_step`: minimum possible step used in interpolation
 - `max_slope`: Maximum possible slope used in interpolation
-- `tol`: tolerance of interpolation, this is a bound to the area between the linear interpolation and the waveform.
+- `atol`: tolerance of interpolation, this is a bound to the area between the linear interpolation and the waveform.
 """
 function piecewise_linear_interpolate(wf::Waveform; 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 
-    tol::Real = 1.0e-5)
+    atol::Real = 1.0e-5)
     
-    if tol < 0
+    if atol < 0
         @warn "negative tolerance provided, taking absolute value."
-        tol *= -1
+        atol *= -1
     end
 
-    if tol == 0 && ( max_slope == Inf64 || min_step == 0)
+    if atol == 0 && ( max_slope == Inf64 || min_step == 0)
         error("Interpolation requires either a tolerance constraint or a slope and step constraint.")
     end
     
@@ -150,7 +150,7 @@ function piecewise_linear_interpolate(wf::Waveform;
 
         area,_ = quadgk(t -> abs.(lin_f(t) .- wf_wrapper(t)),lb,ub,atol=eps())
 
-        error_bound = max(tol*max(tol,interval),eps())
+        error_bound = max(atol*max(atol,interval),eps())
 
         if area*wf.duration > error_bound
             mid = (ub+lb)/2
@@ -160,10 +160,10 @@ function piecewise_linear_interpolate(wf::Waveform;
             # only throw error if tolerance is non-zero
             # if tolerance is 0 simply stop adding to stack
             if next_slope > max_slope 
-                tol > 0 && error("Requested tolerance for interpolation violates the slope constraint.")
+                atol > 0 && error("Requested tolerance for interpolation violates the slope constraint.")
                 push!(intervals,(lb,ub,f_lb,slope))
             elseif interval < 2*min_step
-                tol > 0 && error("Requested tolerance for interpolation violates the step size constraint.")
+                atol > 0 && error("Requested tolerance for interpolation violates the step size constraint.")
                 push!(intervals,(lb,ub,f_lb,slope))
             else
                 push!(stack,(mid,ub))

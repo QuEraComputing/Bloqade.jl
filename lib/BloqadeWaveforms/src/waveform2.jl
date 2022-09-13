@@ -22,16 +22,12 @@ struct BinaryOp <: AbstractPulseShape
     rhs
 end
 
-struct Smooth <: AbstractPulseShape
-    shape
-    kernel::Symbol
-    edge_pad_size::Int
-end
+abstract type AbstractWaveform end
 
 """
 an object add a duration to the shape
 """
-struct Duration
+struct Waveform <: AbstractWaveform
     shape
     duration
 end
@@ -39,20 +35,22 @@ end
 """
 compose duration together
 """
-struct Piecewise
-    waveforms::Vector{Duration}
+struct Piecewise <: AbstractWaveform
+    waveforms::Vector{Waveform}
+end
+
+struct Smooth <: AbstractWaveform
+    # must be piecewise(linear/constant)
+    waveform::Vector{Piecewise}
+    kernel::Symbol
+    edge_pad_size::Int
 end
 
 # TODO: check this with Harry, if this should be named as "pulse"
 # or it should be named as "channel", or something better
-struct Pulse
-    
-end
 
-struct Global
-    waveforms
-    glob_waveform
+# attach the waveform 
+struct Pulse # or WaveformList?
+    waveforms::Vector{Any} # atom label => AbstractWaveform
+    glob # global channel
 end
-
-constant(1.0, duration=2.5)
-linear([1.0, 2.0, 3.0], [2.0, 3.0, 1.0])

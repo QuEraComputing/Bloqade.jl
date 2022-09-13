@@ -122,6 +122,10 @@ function from_schema(t::TaskSpecification)
         Δ_i = Δ
     end
 
+    all(norm.(Δ) .< eps()) && Δ = nothing
+    norm(Ω) < eps() && Ω = nothing
+    norm(ϕ) < eps() && ϕ = nothing
+
     return BloqadeExpr.rydberg_h(atoms; Δ=Δ_i, Ω=Ω, ϕ=ϕ)
 end
 

@@ -19,9 +19,9 @@ end
 end
 
 # TODO: rework tests for execute.
-# @testset "execute" begin
-#     include("execute.jl")
-# end
+@testset "execute" begin
+    include("execute.jl")
+end
 
 # @testset "serialize" begin
 #     include("serialize.jl")

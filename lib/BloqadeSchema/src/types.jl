@@ -248,57 +248,57 @@ get_device_capabilities() = DeviceCapabilities(
     )
 )
 # leave as SI units, needed for rounding purposes
-# get_device_capabilities_SI() = DeviceCapabilities(
-#     task=TaskCapabilities(
-#         numberQubitsMax = 256,
-#         numberShotsMin = 1,
-#         numberShotsMax = 10000,
-#     ),
-#     lattice=LatticeCapabilities(
-#         area=LatticeAreaCapabilities(
-#             width = 100e-6,
-#             height = 100e-6
-#         ),
-#         geometry=LatticeGeometryCapabilities(
-#             spacingRadialMin = 4e-6,
-#             spacingVerticalMin = 2.5e-6,
-#             positionResolution = 0.1e-6,
-#             numberSitesMax = 256,
-#         )
-#     ),
-#     rydberg=RydbergCapabilities(
-#         c6Coefficient = 5.420e-24,
-#         global_value=RydbergGlobalCapabilities(
-#             rabiFrequencyMin = 0.0,
-#             rabiFrequencyMax = 25.0e6,
-#             rabiFrequencyResolution = 400.0,
-#             rabiFrequencySlewRateMax = 2.5e14,
-#             detuningMin = -125.0e6,
-#             detuningMax = 125.0e6,
-#             detuningResolution = 0.2,
-#             detuningSlewRateMax = 2.5e15,
-#             phaseMin = -99.0,
-#             phaseMax = 99.0,
-#             phaseResolution = 0.5e-6,
-#             phaseSlewRateMax = 62.0e6,
-#             timeMin = 0.0,
-#             timeMax = 4e-6,
-#             timeResolution = 1e-9,
-#             timeDeltaMin = 10e-9
-#         ),
-#         local_value=RydbergLocalCapabilities(
-#             detuningMin = 0.0,
-#             detuningMax = 125.0e6,
-#             commonDetuningResolution = 2e3,
-#             localDetuningResolution = 0.01,
-#             detuningSlewRateMax = 1.25e15,
-#             numberLocalDetuningSites = 256,
-#             spacingRadialMin = 4e-6,
-#             timeResolution = 1e-9,
-#             timeDeltaMin = 10e-9
-#         )
-#     )
-# )
+get_device_capabilities_SI() = DeviceCapabilities(
+    task=TaskCapabilities(
+        numberQubitsMax = 256,
+        numberShotsMin = 1,
+        numberShotsMax = 10000,
+    ),
+    lattice=LatticeCapabilities(
+        area=LatticeAreaCapabilities(
+            width = 100e-6,
+            height = 100e-6
+        ),
+        geometry=LatticeGeometryCapabilities(
+            spacingRadialMin = 4e-6,
+            spacingVerticalMin = 2.5e-6,
+            positionResolution = 0.1e-6,
+            numberSitesMax = 256,
+        )
+    ),
+    rydberg=RydbergCapabilities(
+        c6Coefficient = 5.420e-24,
+        global_value=RydbergGlobalCapabilities(
+            rabiFrequencyMin = 0.0,
+            rabiFrequencyMax = 25.0e6,
+            rabiFrequencyResolution = 400.0,
+            rabiFrequencySlewRateMax = 2.5e14,
+            detuningMin = -125.0e6,
+            detuningMax = 125.0e6,
+            detuningResolution = 0.2,
+            detuningSlewRateMax = 2.5e15,
+            phaseMin = -99.0,
+            phaseMax = 99.0,
+            phaseResolution = 0.5e-6,
+            phaseSlewRateMax = 62.0e6,
+            timeMin = 0.0,
+            timeMax = 4e-6,
+            timeResolution = 1e-9,
+            timeDeltaMin = 10e-9
+        ),
+        local_value=RydbergLocalCapabilities(
+            detuningMin = 0.0,
+            detuningMax = 125.0e6,
+            commonDetuningResolution = 2e3,
+            localDetuningResolution = 0.01,
+            detuningSlewRateMax = 1.25e15,
+            numberLocalDetuningSites = 256,
+            spacingRadialMin = 4e-6,
+            timeResolution = 1e-9,
+            timeDeltaMin = 10e-9
+        )
+    )
+)
 
 
 function get_rydberg_capabilities(;device_capabilities::DeviceCapabilities=get_device_capabilities())

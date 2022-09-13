@@ -43,8 +43,7 @@ function validate_Ω(wf,warn,expected)
     ]
 
     for (name,given,op,expected,units) in tests
-        msg = message(op)
-        op(given,expected) && error_or_warn(warn,"Ω(t) $name with value $given $units $msg value of $expected $units")
+        op(given,expected) && error_or_warn(warn,"Ω(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
     map(wf.f.clocks) do clock
@@ -77,7 +76,7 @@ function validate_Δ(wf,warn,expected)
     ]
 
     for (name,given,op,expected,units) in tests
-        op(given,expected) && error_or_warn(warn,"Δ(t) $name with value $given $units $msg value of $expected $units")
+        op(given,expected) && error_or_warn(warn,"Δ(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
     map(wf.f.clocks) do clock
@@ -110,7 +109,7 @@ function validate_ϕ(wf,warn,expected)
     ]
 
     for (name,given,op,expected,units) in tests
-        op(given,expected) && error_or_warn(warn,"ϕ(t) $name with value $given $units $msg value of $expected $units")
+        op(given,expected) && error_or_warn(warn,"ϕ(t) $name with value $given $units $(message(p)) value of $expected $units")
     end
 
     map(wf.f.clocks) do clock
@@ -130,7 +129,7 @@ function validate_δ(wf,Δi,warn,expected)
     max_value = maximum(wf.f.values)
     min_value = minimum(wf.f.values)
     min_time_step  = minimum(diff(wf.f.clocks))
-    max_slope = maximum(abs.(diff(wf.f.values))./diff(Ω.f.clocks))
+    max_slope = maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks))
 
 
     tests = [
@@ -142,7 +141,7 @@ function validate_δ(wf,Δi,warn,expected)
     ]
 
     for (name,given,op,expected,units) in tests
-        op(given,expected) && error_or_warn(warn,"δ(t) $name with value $given $units $msg value of $expected $units")
+        op(given,expected) && error_or_warn(warn,"δ(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
     map(wf.f.clocks) do clock

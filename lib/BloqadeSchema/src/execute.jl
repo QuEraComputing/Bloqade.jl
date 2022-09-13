@@ -188,8 +188,8 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
     validate_Ω(Ω,params.warn,rydberg_capabilities.Ω)
     validate_Δ(Δ,params.warn,rydberg_capabilities.Δ)
     if !isnothing(δ)
-        validate_δ(δ,Δi,warn,rydberg_capabilities.δ)
-    end        
+        validate_δ(δ,Δi,params.warn,rydberg_capabilities.δ)
+    end
     atoms = map(atoms) do pos 
         return convert_units.(pos,μm,m)
     end

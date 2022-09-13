@@ -12,6 +12,7 @@ using BitBasis
 using LinearAlgebra: svd
 
 export get_device_capabilities,
+    get_device_capabilities_SI,
     hardware_transform,
     validate,
     to_json,

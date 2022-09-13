@@ -48,6 +48,23 @@ end
     @test new_wf(0.0) == begin_value
     @test new_wf(1.0) == end_value
 
+    wf = Waveform(t->t^2,1)
+    max_slope = 100
+    begin_value = 0.0
+    end_value = 0.0
+    new_wf = BloqadeSchema.pin_waveform_edges(wf,max_slope,begin_value,end_value)
+    @test new_wf(0.0) == begin_value
+    @test new_wf(1.0) == end_value
+
+    
+    wf = Waveform(t->1-t^2,1)
+    max_slope = 100
+    begin_value = 0.0
+    end_value = 0.0
+    new_wf = BloqadeSchema.pin_waveform_edges(wf,max_slope,begin_value,end_value)
+    @test new_wf(0.0) == begin_value
+    @test new_wf(1.0) == end_value
+
 end
 
 @testset "find_local_masks" begin
@@ -75,7 +92,23 @@ end
 end
 
 @testset "hardware_transform_Ω" begin
+    device_capabilities = get_device_capabilities()
+
+    wf = Waveform(t->1+t^2,1)
+    new_wf,error = BloqadeSchema.hardware_transform_Ω(wf,device_capabilities)
+    @test new_wf(0.0) == 0
+    @test new_wf(1.0) == 0
+
+    wf = Waveform(t->t^2,1)
+    new_wf,error = BloqadeSchema.hardware_transform_Ω(wf,device_capabilities)
+    @test new_wf(0.0) == 0
+    @test new_wf(1.0) == 0
+
     
+    wf = Waveform(t->1-t^2,1)
+    new_wf,error = BloqadeSchema.hardware_transform_Ω(wf,device_capabilities)
+    @test new_wf(0.0) == 0
+    @test new_wf(1.0) == 0
 end
 
 # local test case

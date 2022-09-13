@@ -30,18 +30,20 @@ end
 
 # checks argument to make sure it is a waveform or a container of waveforms.
 function check_waveform(field,name)
-    field isa Waveform && return 
-
-    (isnothing(field) || field isa Number || is_time_function(field)) && error("Failed to transform $name to hardware, $name must be a Waveform.\n If $name is constant or zero use `BloqadeWaveforms.constant`.")
+    field isa Waveform{F,T} where {F,T<:Real} && return 
+        
     field isa Vector{<:Number} && error("Failed to transform $name to hardware, $name must be a vector Waveforms.\n If $name contains constant values use `BloqadeWaveforms.constant`.")
     if field isa Vector 
-        any( !(ele isa Waveform) for ele in field) && error("Failed to transform $name to hardware, $name must be a Waveform.")
+        any( !(ele isa Waveform{F,T} where {F,T<:Real}) for ele in field) && error("Failed to transform $name to hardware, $name must be a Waveform.")
 
         duration = field[1].duration
 
         any(duration!=ele.duration for ele in field) && error("Failed to transform $name to hardware, all Waveforms must have the same duration.")
-        
+        return
+
     end
+    (isnothing(field) || field isa Number || BloqadeExpr.is_time_function(field)) && error("Failed to transform $name to hardware, $name must be a Waveform.\n If $name is constant or zero use `BloqadeWaveforms.constant`.")
+
 end
 # warns user if the duration of the waveform will be rounded by the time resolution.
 function warn_duration(time_res,field,name)
@@ -190,6 +192,8 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     Ω = if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=√eps()) || !isapprox(Ω(Ω.duration),0.0;atol=eps(),rtol=√eps())
         @info "During hardware transform: Ω start and/or end values are not 0. adding ramp(s) to fix endpoints."
         pin_waveform_edges(Ω,max_slope,0,0)
+    else
+        Ω
     end
 
     Ωt = if Ω isa PiecewiseLinearWaveform
@@ -198,7 +202,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
             values=set_resolution.(Ω.f.values,rabi_res)
         )
 
-    elseif Ω isa Waveform
+    elseif Ω isa Waveform{F,T} where {F,T<:Real}
         
         Ω_interp = piecewise_linear_interpolate(Ω,max_slope=max_slope,min_step=min_step,atol=0)
         piecewise_linear(;
@@ -225,7 +229,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
             clocks=set_resolution.(ϕ.f.clocks,time_res),
             values=set_resolution.(ϕ.f.values,phase_res)
         )        
-    elseif ϕ isa Waveform
+    elseif ϕ isa Waveform{F,T} where {F,T<:Real}
         # arbitrary waveform must transform
         
         ϕ_interp = piecewise_linear_interpolate(ϕ,max_slope=max_slope,min_step=min_step,atol=0)
@@ -261,7 +265,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
         
         return Δt,norm_diff_durations(Δ,Δt),Δ_mask
 
-    elseif Δ isa Waveform
+    elseif Δ isa Waveform{F,T} where {F,T<:Real}
         # arbitrary waveform must transform
         
         Δ_interp = piecewise_linear_interpolate(Δ,max_slope=max_slope,min_step=min_step,atol=0)
@@ -273,15 +277,15 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
 
         return Δt,norm_diff_durations(Δ,Δt),Δ_mask
     elseif Δ isa Vector
-        
-        nsteps = Int(Δ[1].duration÷min_step)
+        duration = Δ[1].duration
+        nsteps = Int(duration÷min_step)
         clocks = collect(LinRange(0.0,duration,nsteps))
         clocks = set_resolution.(clocks,time_res)
 
         values = zeros(length(clocks),length(Δ))
 
         @inbounds for (j,δ) in enumerate(Δ)
-            values[:,j] = δ(clocks)
+            values[:,j] = δ.(clocks)
         end
 
         ((δ_values,Δi),(Δ_values,_)) = find_local_masks(values;name=:Δ)
@@ -295,9 +299,8 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
             δ=piecewise_linear(;clocks=clocks,values=Δ_values),
             Δi=Δi
         )
-
-        error = [norm_diff_durations(Δ[i],Δt+δi*δ) for (i,δi) in enumerate(Δi)]
         Δt = [piecewise_linear(;clocks=clocks,values=Δ_values+δi.*δ_values) for δi in Δi]
+        error = [norm_diff_durations(δ,δt) for (δ,δt) in zip(Δ,Δt)]
 
         return Δt,error,Δ_mask
     end

@@ -1,0 +1,1 @@
+{"nshots":1,"lattice":{"sites":[[0.0,0.0]],"filling":[1]},"effective_hamiltonian":{"rydberg":{"detuning":{"global":{"values":[0.0,0.0],"times":[0.0,2.02e-6]}},"rabi_frequency_phase":{"global":{"values":[0.0,0.0],"times":[0.0,2.02e-6]}},"rabi_frequency_amplitude":{"global":{"values":[0.0,0.0,1.88496e7,1.88496e7,0.0,0.0],"times":[0.0,5.0e-9,1.5e-8,2.005e-6,2.015e-6,2.02e-6]}}}}}

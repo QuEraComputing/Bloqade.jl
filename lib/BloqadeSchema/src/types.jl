@@ -1,6 +1,17 @@
 using GarishPrint
 
+<<<<<<< HEAD
 const PiecewiseLinearWaveform = Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T} where {T<:Real,I}
+=======
+
+const ConstantParam = Union{Real,Nothing,Vector{<:Real}}
+const DynamicParam = Union{
+        Waveform{F,T} where {F,T<:Real},
+        Vector{Waveform{F,T} where {F,T<:Real}},
+        Vector{Waveform{F,T} where F} where T<:Real,
+        Vector{Waveform{F,T}} where {F,T<:Real}
+    }
+>>>>>>> master
 
 
 abstract type QuEraSchema end

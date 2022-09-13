@@ -129,7 +129,7 @@ val capabilitiesStore = mapOf(
 
 @option mutable struct LatticeAreaCapabilities <: QuEraSchema 
     width::Float64
-    length::Float64
+    height::Float64
 end
 
 @option mutable struct LatticeGeometryCapabilities <: QuEraSchema 
@@ -333,7 +333,7 @@ function get_rydberg_capabilities(;device_capabilities::DeviceCapabilities=get_d
         δ = (
             min_time_step = device_capabilities.rydberg.local_value.timeDeltaMin,
             time_resolution = device_capabilities.rydberg.local_value.timeResolution,
-            max_time = device_capabilities.rydberg.local_value.timeMax,
+            max_time = device_capabilities.rydberg.global_value.timeMax,
             max_value = device_capabilities.rydberg.local_value.detuningMax,
             min_value = device_capabilities.rydberg.local_value.detuningMin,
             max_slope = device_capabilities.rydberg.local_value.detuningSlewRateMax,

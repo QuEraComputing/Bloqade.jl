@@ -5,12 +5,14 @@
 # in a duration that doesn't neatly fit into the
 # time resolution of the device. In which case 
 # this is reqiured to check the error.
-function norm_diff_durations(A,B)
+function norm_diff_durations(A::Waveform,B::Waveform)
 
     (A,B) = ( A.duration > B.duration ? (A,B) : (B,A))
     A = if A.duration > B.duration
         T_diff = A.duration - B.duration
         append(A,constant(;duration=T_diff,value=0))
+    else
+        A
     end
     return norm(A-B)
 end
@@ -90,7 +92,7 @@ function pin_waveform_edges(wf::Waveform,
         )
 
         end_wf = linear_ramp(;
-            duration=duration-t_end,
+            duration=t_end,
             start_value=wf(t_end),
             stop_value=end_value
         )
@@ -108,7 +110,7 @@ function pin_waveform_edges(wf::Waveform,
     elseif t_end < duration
         start_wf = Waveform(wf.f,duration - t_end)
 
-        end_wf = linear_ramp(;duration=duration-t_end,
+        end_wf = linear_ramp(;duration=t_end,
             start_value=wf(t_end),
             stop_value=end_value
         )
@@ -123,7 +125,7 @@ function pin_waveform_edges(wf::Waveform,
 end
 # TODO: move this to BloqadeWaveforms
 # does the SVD method to decompose local drives into an outer produce of masks and functions.
-function find_local_masks(values::Array{T,2};name::Symbol=:(),ntrunc::Int=1, assert_truncation::Bool=false) where T
+function find_local_masks(values::Array{T,2};name::Symbol=:Waveform,ntrunc::Int=1, assert_truncation::Bool=false) where T
     
     (l,w) = size(values)
     
@@ -145,7 +147,7 @@ function find_local_masks(values::Array{T,2};name::Symbol=:(),ntrunc::Int=1, ass
         remaining_weight = sum(s[(ntrunc+1):end])
 
         if remaining_weight > eps()*length(s)*contained_weight
-            error_or_warn(assert_truncation,"Cannot decompose waveform $name into product of masks and scalar functions.")
+            error_or_warn(assert_truncation,"Cannot decompose $name into product of masks and scalar functions.")
         end
 
         for i in 1:ntrunc
@@ -185,7 +187,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     check_global(Ω,:Ω)
     warn_duration(time_res,Ω,:Ω)
 
-    Ω = if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=√eps()) || !isapprox(Ω(duration),0.0;atol=eps(),rtol=√eps())
+    Ω = if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=√eps()) || !isapprox(Ω(Ω.duration),0.0;atol=eps(),rtol=√eps())
         @info "During hardware transform: Ω start and/or end values are not 0. adding ramp(s) to fix endpoints."
         pin_waveform_edges(Ω,max_slope,0,0)
     end
@@ -198,7 +200,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
 
     elseif Ω isa Waveform
         
-        Ω_interp = piecewise_linear_interpolate(Ω,max_slope=max_slope,min_step=min_step)
+        Ω_interp = piecewise_linear_interpolate(Ω,max_slope=max_slope,min_step=min_step,atol=0)
         piecewise_linear(;
             clocks=set_resolution.(Ω_interp.f.clocks,time_res),
             values=set_resolution.(Ω_interp.f.values,rabi_res)
@@ -213,6 +215,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     phase_res = device_capabilities.rydberg.global_value.phaseResolution
     max_slope = device_capabilities.rydberg.global_value.phaseSlewRateMax
+
     check_global(ϕ,:ϕ)
     check_waveform(ϕ,:ϕ)
     warn_duration(time_res,ϕ,:ϕ)
@@ -225,7 +228,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     elseif ϕ isa Waveform
         # arbitrary waveform must transform
         
-        ϕ_interp = piecewise_linear_interpolate(ϕ,max_slope=max_slope,min_step=min_step)
+        ϕ_interp = piecewise_linear_interpolate(ϕ,max_slope=max_slope,min_step=min_step,atol=0)
         piecewise_linear(;
             clocks=set_resolution.(ϕ_interp.f.clocks,time_res),
             values=set_resolution.(ϕ_interp.f.values,phase_res)
@@ -261,7 +264,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
     elseif Δ isa Waveform
         # arbitrary waveform must transform
         
-        Δ_interp = piecewise_linear_interpolate(Δ,max_slope=max_slope,min_step=min_step)
+        Δ_interp = piecewise_linear_interpolate(Δ,max_slope=max_slope,min_step=min_step,atol=0)
         Δt = piecewise_linear(;
             clocks=set_resolution.(Δ_interp.f.clocks,time_res),
             values=set_resolution.(Δ_interp.f.values,detune_res)
@@ -310,12 +313,12 @@ function hardware_transform_parse(H::BloqadeExpr.RydbergHamiltonian;device_capab
     Δ,Δ_error,Δ_mask = hardware_transform_Δ(Δ,device_capabilities)
     info = (ϕ=ϕ_error,Ω=Ω_error,Δ=Δ_error,Δ_mask=Δ_mask)
 
-    return (ϕ,Ω,Δ,info)
+    return (atoms,ϕ,Ω,Δ,info)
 end
 
 # public API exposed here: 
 function hardware_transform(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
-    ϕ,Ω,Δ,info = hardware_transform_parse(H;device_capabilities=device_capabilities)
+    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(H;device_capabilities=device_capabilities)
     hardware_H = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
 
     return hardware_H,info

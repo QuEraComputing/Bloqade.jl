@@ -47,13 +47,11 @@ function validate_Ω(wf,warn,expected)
     end
 
     map(wf.f.clocks) do clock
-        res = expected.time_resolution
-        !check_resolution(res,clock) && error_or_warn(warn,"Ω(t) clock $clock μs is not consistent with resolution $res μs.")
+        !check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Ω(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     map(wf.f.values) do value
-        res = expected.value_resolution
-        !check_resolution(res,value) && error_or_warn(warn,"Ω(t) value $value rad⋅MHz is not consistent with resolution $res rad⋅MHz.")
+        !check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Ω(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
     end
 
 end
@@ -80,13 +78,11 @@ function validate_Δ(wf,warn,expected)
     end
 
     map(wf.f.clocks) do clock
-        res = expected.time_resolution
-        !check_resolution(res,clock) && error_or_warn(warn,"Δ(t) clock $clock μs is not consistent with resolution $res μs.")
+        !check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     map(wf.f.values) do value
-        res = expected.value_resolution
-        !check_resolution(res,value) && error_or_warn(warn,"Δ(t) value $value rad⋅MHz is not consistent with resolution $res rad⋅MHz.")
+        !check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
     end
 
 end
@@ -113,13 +109,11 @@ function validate_ϕ(wf,warn,expected)
     end
 
     map(wf.f.clocks) do clock
-        res = expected.time_resolution
-        !check_resolution(res,clock) && error_or_warn(warn,"ϕ(t) clock $clock μs is not consistent with resolution $res μs.")
+        !check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"ϕ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     map(wf.f.values) do value
-        res = expected.value_resolution
-        !check_resolution(res,value) && error_or_warn(warn,"ϕ(t) value $value rad is not consistent with resolution $res rad.")
+        !check_resolution(expected.value_resolution,value) && error_or_warn(warn,"ϕ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
     end
 end
 
@@ -145,22 +139,18 @@ function validate_δ(wf,Δi,warn,expected)
     end
 
     map(wf.f.clocks) do clock
-        res = expected.time_resolution
-        !check_resolution(res,clock) && error_or_warn(warn,"δ(t) clock $clock μs is not consistent with resolution $res μs.")
+        !check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     map(wf.f.values) do value
-        res = expected.value_resolution
-        !check_resolution(res,value) && error_or_warn(warn,"δ(t) value $value rad⋅MHz is not consistent with resolution $res rad.")
+        !check_resolution(expected.value_resolution,value) && error_or_warn(warn,"δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
     end
 
     map(Δi) do value
-        res = expected.local_mask_resolution
-        !check_resolution(res,value) && error_or_warn(warn,"Δi value $value  is not consistent with resolution $res.")
+        !check_resolution(expected.local_mask_resolution,value) && error_or_warn(warn,"Δi value $value  is not consistent with resolution $(expected.local_mask_resolution).")
     end
 
 end
-
 
 # public API exposed here
 function validate(H::BloqadeExpr.RydbergHamiltonian;warn::Bool=false,device_capabilities::DeviceCapabilities=get_device_capabilities())
@@ -172,6 +162,7 @@ function validate(H::BloqadeExpr.RydbergHamiltonian;warn::Bool=false,device_capa
     validate_ϕ(ϕ,warn,rydberg_capabilities.ϕ)
     validate_Ω(Ω,warn,rydberg_capabilities.Ω)
     validate_Δ(Δ,warn,rydberg_capabilities.Δ)
+
     if !isnothing(δ)
         validate_δ(δ,Δi,warn,rydberg_capabilities.δ)
     end

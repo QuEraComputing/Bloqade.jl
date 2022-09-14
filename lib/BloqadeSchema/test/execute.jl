@@ -7,7 +7,7 @@ using Configurations
 
 
 @testset "to_schema" begin
-    T = 2
+    T = 0.5
     atoms = [(π*i,0) for i in 1:10]
 
     # values = [1.0,nothing,Waveform(t->sin(2π*t/T)^2,T/2)]
@@ -17,7 +17,7 @@ using Configurations
     wfs_mixed = [(i%2==0 ? 1 : 0.1)*wf1 + wf2 for i in 1:length(atoms)]
     wfs_same = [i*wf1+wf2 for i in 1:length(atoms)]
     scalar_values = [constant(;duration=T,value=1.0),wf1]
-    all_values = [constant(;duration=T,value=1.0),wf1,wfs_mixed,wfs_same]
+    # all_values = [constant(;duration=T,value=1.0),wf1,wfs_mixed,wfs_same]
     params = get_device_capabilities_SI()
 
     check_atom_res(x) = all(BloqadeSchema.check_resolution.(params.lattice.geometry.positionResolution,x))
@@ -28,7 +28,7 @@ using Configurations
     check_ϕ_res(x) = all(BloqadeSchema.check_resolution.(params.rydberg.global_value.phaseResolution,x))
     check_Ω_res(x) = all(BloqadeSchema.check_resolution.(params.rydberg.global_value.rabiFrequencyResolution,x))
 
-    for Ω in scalar_values, ϕ in scalar_values, Δ in all_values
+    for Ω in scalar_values, ϕ in scalar_values, Δ in scalar_values
         H = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
         j = BloqadeSchema.to_json(H,warn=true)
         t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
@@ -48,11 +48,11 @@ using Configurations
         @test check_Ω_res(rabi_freq_amp.values)
         @test check_Δ_res(detuning_global.values)
 
-        if !isnothing(detuning_local)
-            @test check_clock_res(detuning_local.times)
-            @test check_δ_res(detuning_local.values)
-            @test check_Δi_res(detuning_local.lattice_site_coefficients)                  
-        end
+        # if !isnothing(detuning_local)
+        #     @test check_clock_res(detuning_local.times)
+        #     @test check_δ_res(detuning_local.values)
+        #     @test check_Δi_res(detuning_local.lattice_site_coefficients)                  
+        # end
 
 
     end

@@ -3,9 +3,7 @@ using Test
 using BloqadeExpr
 using BloqadeSchema:
     get_rydberg_params,
-    schema_parse_ϕ,
-    schema_parse_Ω,
-    schema_parse_Δ
+    schema_parse_field
 
 using BloqadeWaveforms
 
@@ -23,6 +21,15 @@ using BloqadeWaveforms
     end
 end
 
+@testset "schema_parse_field" begin
+    wf = piecewise_linear(;clocks=[0,2,3,4],values=[1,2,3,4])
+    @test schema_parse_field(:wf,wf) == wf
+    
+    wf = Waveform(t->t^2,1)
+    @test_throws ErrorException schema_parse_field(:wf,wf)
+end
+
+"""
 @testset "schema_parse_ϕ" begin
     wf = piecewise_linear(;clocks=[0,2,3,4],values=[1,2,3,4])
     @test schema_parse_ϕ(wf) == wf
@@ -39,8 +46,9 @@ end
     clocks = Float64[0,1,2,3]
     Δ_values = Float64[1,0,0,-1]
     δ_values = Float64[1,0,0,1]
-    Δi = Float64[0.0,0.2,0.4,1.0]
-
+    Δi = rand(10,)
+    Δi = (Δi .- minimum(Δi))./(maximum(Δi)-minimum(Δi))
+    Δi = set_resolution.(Δi,0.001)
     Δ = piecewise_linear(;clocks=clocks,values=Δ_values)
     δ = piecewise_linear(;clocks=clocks,values=δ_values)
     @test (Δ,nothing,1.0) == schema_parse_Δ(Δ)
@@ -51,8 +59,9 @@ end
 
     # @test (Δ,δ,Δi) == schema_parse_Δ(local_Δ)
     (parsed_Δ,parsed_δ,parsed_Δi) = schema_parse_Δ(local_Δ)
-
-    @test parsed_Δ ≈ Δ
-    @test parsed_δ ≈ δ
-    @test parsed_Δi ≈ Δi
+    println(Δ.f.values.-parsed_Δ.f.values)
+    @test parsed_Δ == Δ
+    @test parsed_δ == δ
+    @test parsed_Δi == Δi
 end
+"""

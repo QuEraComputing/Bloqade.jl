@@ -39,6 +39,12 @@ function get_rydberg_params(h::BloqadeExpr.RydbergHamiltonian)
 end
 
 
+schema_parse_field(::Symbol,field::PiecewiseLinearWaveform) = field
+schema_parse_field(name::Symbol,::Any) = error("Cannot convert Hamiltonian to schema, $name must be piecewise linear Waveform.")
+
+
+
+"""
 schema_parse_ϕ(ϕ::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T}) where {T<:Real,I} = ϕ
 schema_parse_Ω(Ω::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T}) where {T<:Real,I} = Ω
 
@@ -67,8 +73,8 @@ function schema_parse_Δ(Δ)
         
         ((δ_values,Δi),(Δ_values,_)) = find_local_masks(Δti;name=:Δ,assert_truncation=true)
         
-        δ_values = round.(δ_values;sigdigits=14)
-        Δ_values = round.(Δ_values;sigdigits=14)
+        δ_values = round.(δ_values;sigdigits=13)
+        Δ_values = round.(Δ_values;sigdigits=13)
         Δi = round.(Δi;sigdigits=14)
         
         
@@ -88,7 +94,7 @@ function schema_parse_Δ(Δ)
         error("Cannot convert Hamiltonian to schema, Δ(t) must be a single or collection of piecewise linear Waveform(s).")
     end
 end
-
+"""
 # pass fail function. 
 # certain criteria is required to pass
 # 1. all waveforms must be PWL
@@ -96,10 +102,10 @@ end
 #    with SVD such that the waveform is Δ(i,t) = Δ(t) + Δ_i * δ(t)
 function schema_parse_rydberg_fields(H::BloqadeExpr.RydbergHamiltonian)
     atoms,ϕ,Ω,Δ = get_rydberg_params(H)
-    ϕ = schema_parse_ϕ(ϕ)
-    Ω = schema_parse_Ω(Ω)
-    Δ,δ,Δi = schema_parse_Δ(Δ)
-    return (atoms,ϕ,Ω,Δ,δ,Δi)
+    ϕ = schema_parse_field(:ϕ,ϕ)
+    Ω = schema_parse_field(:Ω,Ω)
+    Δ = schema_parse_field(:Δ,Δ)
+    return (atoms,ϕ,Ω,Δ,nothing,1.0)
 end
     
 

@@ -6,15 +6,17 @@
 # time resolution of the device. In which case 
 # this is reqiured to check the error.
 function norm_diff_durations(A::Waveform,B::Waveform)
+    A.duration==B.duration && return norm(A-B)
 
-    (A,B) = ( A.duration > B.duration ? (A,B) : (B,A))
-    A = if A.duration > B.duration
+    if A.duration > B.duration
         T_diff = A.duration - B.duration
-        append(A,constant(;duration=T_diff,value=0))
+        B = append(B,constant(;duration=T_diff,value=0))
+        return norm(A-B)
     else
-        A
+        T_diff = B.duration - B.duration
+        A = append(A,constant(;duration=T_diff,value=0))
+        return norm(A-B)
     end
-    return norm(A-B)
 end
 
 # simple function, round number to the nearest multiple of `res`
@@ -25,7 +27,7 @@ end
 
 # throws error for none-scalar fields
 function  check_global(field,name) 
-    field isa Vector && error("Failed to transform $name to hardware, $name must be global drive.")
+    field isa AbstractArray && error("Failed to transform $name to hardware, $name must be global drive.")
 end
 
 # checks argument to make sure it is a waveform or a container of waveforms.
@@ -253,7 +255,9 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
     max_slope = device_capabilities.rydberg.global_value.phaseSlewRateMax
 
     check_waveform(Δ,:Δ)
+    check_global(Δ,:Δ)
     warn_duration(time_res,Δ,:Δ)
+    
 
 
     if Δ isa PiecewiseLinearWaveform
@@ -277,8 +281,11 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
 
         return Δt,norm_diff_durations(Δ,Δt),Δ_mask
     elseif Δ isa Vector
+        throw(NotImplementedError("Not implemented."))
+
+        """
         duration = Δ[1].duration
-        nsteps = Int(duration÷min_step)
+        nsteps = Int((duration+duration%min_step)÷min_step)
         clocks = collect(LinRange(0.0,duration,nsteps))
         clocks = set_resolution.(clocks,time_res)
 
@@ -303,6 +310,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
         error = [norm_diff_durations(δ,δt) for (δ,δt) in zip(Δ,Δt)]
 
         return Δt,error,Δ_mask
+        """
     end
 
 

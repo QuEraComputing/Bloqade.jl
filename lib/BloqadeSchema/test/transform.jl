@@ -1,5 +1,7 @@
 
-
+using BloqadeSchema
+using Configurations
+using Test
 using BloqadeSchema
 using Unitful: μs, s, MHz, rad 
     
@@ -12,7 +14,6 @@ using Unitful: μs, s, MHz, rad
     @test 1e6 ≈ BloqadeSchema.convert_units(T,s,μs)
     @test (1e6 .* T_list) ≈ BloqadeSchema.convert_units(T_list,s,μs)
     @test all((1e6 .* pair ).≈ BloqadeSchema.convert_units.(pair,s,μs))
-    # @test all([1e6.*p for p in pair_list] .≈ convert_units.(pair_list,s,μs))
 
 end
 
@@ -30,12 +31,28 @@ end
 end
 
 @testset "norm_diff_durations" begin
-    
+    A = constant(;duration=2,value=1)
+    for x in [0.1,1,1.5]
+        B = constant(;duration=x,value=1)
+        @test 2-x ≈ BloqadeSchema.norm_diff_durations(A,B)
+    end
 end
 
 
 # test for all warning and error functions
 @testset "warning and errors" begin
+    for value in [nothing,1.0,rand(10),t->t^2]
+        @test_throws ErrorException BloqadeSchema.check_waveform(value,:test)
+    end
+    
+    wf = Waveform(t->t^2,π)
+    wfs = [i*wf for i in rand(10)]
+
+    @test_throws ErrorException BloqadeSchema.check_global(wfs,:test)
+
+    time_res = 1.0e-3
+    @test_logs (:info,"waveform test duration will be rounded during hardware transformation.") BloqadeSchema.warn_duration(time_res,wf,:test)
+    @test_logs (:info,"waveform test duration will be rounded during hardware transformation.") BloqadeSchema.warn_duration(time_res,wfs,:test)
 
 end
 
@@ -88,7 +105,14 @@ end
 # 1. arbitrary waveform, check error. This includes boundary conditions for Ω.
 # 2. piecewise linear waveform, check that the result doesn't change
 @testset "hardware_transform_ϕ" begin
-    
+    device_capabilities = get_device_capabilities()
+
+    wf = Waveform(t->1+t^2,1)
+    wf_1,error_1 = BloqadeSchema.hardware_transform_Δ(wf,device_capabilities)
+    wf_2,error_2 = BloqadeSchema.hardware_transform_Δ(wf_1,device_capabilities)
+
+    @test wf_1 == wf_2
+    @test error_2 < error_1
 end
 
 @testset "hardware_transform_Ω" begin
@@ -115,5 +139,12 @@ end
 # for piecewise linear waveforms Δ and δ, Δi that satisfy resolution 
 # conditions check that this function can return a waveform that passes '≈' test. 
 @testset "hardware_transform_Δ" begin
-    
+    device_capabilities = get_device_capabilities()
+
+    wf = Waveform(t->1+t^2,1)
+    wf_1,error_1 = BloqadeSchema.hardware_transform_Δ(wf,device_capabilities)
+    wf_2,error_2 = BloqadeSchema.hardware_transform_Δ(wf_1,device_capabilities)
+
+    @test wf_1 == wf_2
+    @test error_2 < error_1
 end

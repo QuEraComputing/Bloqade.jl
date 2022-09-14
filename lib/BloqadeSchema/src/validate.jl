@@ -27,8 +27,8 @@ function validate_Ω(wf,warn,expected)
     max_time = wf.duration
     max_value = maximum(wf.f.values)
     min_value = minimum(wf.f.values)
-    min_time_step  = minimum(diff(wf.f.clocks))
-    max_slope = maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks))
+    min_time_step  = round(minimum(diff(wf.f.clocks));sigdigits=14)
+    max_slope = round(maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks));sigdigits=14)
     start_value = wf.f.values[1]
     end_value = wf.f.values[end]
 
@@ -61,8 +61,8 @@ function validate_Δ(wf,warn,expected)
     max_time = wf.duration
     max_value = maximum(wf.f.values)
     min_value = minimum(wf.f.values)
-    min_time_step  = minimum(diff(wf.f.clocks))
-    max_slope = maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks))
+    min_time_step  = round(minimum(diff(wf.f.clocks));sigdigits=14)
+    max_slope = round(maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks));sigdigits=14)
 
 
     tests = [
@@ -92,8 +92,8 @@ function validate_ϕ(wf,warn,expected)
     max_time = wf.duration
     max_value = maximum(wf.f.values)
     min_value = minimum(wf.f.values)
-    min_time_step  = minimum(diff(wf.f.clocks))
-    max_slope = maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks))
+    min_time_step  = round(minimum(diff(wf.f.clocks));sigdigits=14)
+    max_slope = round(maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks));sigdigits=14)
 
 
     tests = [
@@ -122,8 +122,8 @@ function validate_δ(wf,Δi,warn,expected)
     max_time = wf.duration
     max_value = maximum(wf.f.values)
     min_value = minimum(wf.f.values)
-    min_time_step  = minimum(diff(wf.f.clocks))
-    max_slope = maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks))
+    min_time_step  = round(minimum(diff(wf.f.clocks));sigdigits=14)
+    max_slope = round(maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks));sigdigits=14)
 
 
     tests = [

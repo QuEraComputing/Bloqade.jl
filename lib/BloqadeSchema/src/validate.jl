@@ -35,11 +35,12 @@ function validate_Ω(wf,warn,expected)
     tests = [
         ("duration",max_time,>,expected.max_time,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
-        ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHs/μs"),
-        ("minimum value",min_value,<,expected.min_value,"rad⋅MHs"),
-        ("maximum value",max_value,>,expected.max_value,"rad⋅MHs"),
-        ("start value",start_value,!=,0.0,"rad⋅MHs"),
-        ("end value",end_value,!=,0.0,"rad⋅MHs"),
+        ("minimum step",min_time_step,>,max_time,"μs"),
+        ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
+        ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
+        ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
+        ("start value",start_value,!=,0.0,"rad⋅MHz"),
+        ("end value",end_value,!=,0.0,"rad⋅MHz"),
     ]
 
     for (name,given,op,expected,units) in tests
@@ -68,6 +69,7 @@ function validate_Δ(wf,warn,expected)
     tests = [
         ("duration",max_time,>,expected.max_time,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
+        ("minimum step",min_time_step,>,max_time,"μs"),
         ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
         ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
         ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
@@ -94,18 +96,21 @@ function validate_ϕ(wf,warn,expected)
     min_value = minimum(wf.f.values)
     min_time_step  = round(minimum(diff(wf.f.clocks));sigdigits=14)
     max_slope = round(maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks));sigdigits=14)
+    start_value = wf.f.values[1]
 
 
     tests = [
         ("duration",max_time,>,expected.max_time,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
+        ("minimum step",min_time_step,>,max_time,"μs"),
         ("maximum slope",max_slope,>,expected.max_slope,"rad/μs"),
         ("minimum value",min_value,<,expected.min_value,"rad"),
         ("maximum value",max_value,>,expected.max_value,"rad"),
+        ("start value",start_value,!=,0.0,"rad"),
     ]
 
     for (name,given,op,expected,units) in tests
-        op(given,expected) && error_or_warn(warn,"ϕ(t) $name with value $given $units $(message(p)) value of $expected $units")
+        op(given,expected) && error_or_warn(warn,"ϕ(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
     map(wf.f.clocks) do clock
@@ -129,6 +134,7 @@ function validate_δ(wf,Δi,warn,expected)
     tests = [
         ("duration",max_time,>,expected.max_time,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
+        ("minimum step",min_time_step,>,max_time,"μs"),
         ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
         ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
         ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),

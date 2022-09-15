@@ -190,45 +190,26 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
     if !isnothing(δ)
         validate_δ(δ,Δi,params.warn,rydberg_capabilities.δ)
     end
-    atoms = map(atoms) do pos 
-        return convert_units.(pos,μm,m)
-    end
-    
-    ϕ_clocks = convert_units(ϕ.f.clocks,μs,s) 
-    ϕ_values = convert_units(ϕ.f.values,rad,rad)
-    Ω_clocks = convert_units(Ω.f.clocks,μs,s)
-    Ω_values = convert_units(Ω.f.values,rad*MHz,rad/s)
-    Δ_clocks = convert_units(Δ.f.clocks,μs,s)
-    Δ_values = convert_units(Δ.f.values,rad*MHz,rad/s)
 
     ϕ =(
-        clocks=ϕ_clocks,
-        values=ϕ_values
+        clocks=ϕ.f.clocks,
+        values=ϕ.f.values
     )
-
 
     Ω = (
-        clocks=Ω_clocks,
-        values=Ω_values
+        clocks=Ω.f.clocks,
+        values=Ω.f.values
     )
-
 
     Δ = (
-        clocks=Δ_clocks,
-        values=Δ_values
+        clocks=Δ.f.clocks,
+        values=Δ.f.values
     )
 
-    if !isnothing(δ)
-        δ_clocks = convert_units(δ.f.clocks,μs,s)
-        δ_values = convert_units(δ.f.values,rad*MHz,rad/s)
-        
-        δ = (
-            clocks=δ_clocks,
-            values=δ_values
-        )
-    else
-
-    end
+    δ = !isnothing(δ) && (
+        clocks=δ.f.clocks,
+        values=δ.f.values
+    )
 
     return TaskSpecification(;
         nshots=params.n_shots,
@@ -240,8 +221,8 @@ end
 
 function to_lattice(atoms::Vector)
     coords = map(atoms) do coord
-        length(coord) == 1 && return (coord[1], 0)
-        return coord
+        length(coord) == 1 && return convert_units.((coord[1], 0),μm,m)
+        return convert_units.(coord,μm,m)
     end
     return Lattice(; sites = coords, filling = vec(ones(length(coords), 1)))
 end
@@ -258,14 +239,27 @@ function to_hamiltonian(
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;
             rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
-                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = Ω.clocks, values = Ω.values),
+                global_value = RydbergRabiFrequencyAmplitudeGlobal(; 
+                    times = convert_units.(Ω.clocks,μs,s), 
+                    values = convert_units.(Ω.values,rad*MHz,rad/s)
+                ),
             ),
             rabi_frequency_phase = RydbergRabiFrequencyPhase(;
-                global_value = RydbergRabiFrequencyPhaseGlobal(; times = ϕ.clocks, values = ϕ.values),
+                global_value = RydbergRabiFrequencyPhaseGlobal(; 
+                    times = convert_units.(ϕ.clocks,μs,s),
+                    values = convert_units.(ϕ.values,rad,rad)
+                ),
             ),
             detuning = RydbergDetuning(;
-                global_value = RydbergDetuningGlobal(; times = Δ.clocks, values = Δ.values),
-                local_value = RydbergDetuningLocal(; times = δ.clocks, values = δ.values, lattice_site_coefficients=Δ_i)
+                global_value = RydbergDetuningGlobal(; 
+                    times = convert_units.(Δ.clocks,μs,s), 
+                    values = convert_units.(Δ.values,rad*MHz,rad/s)
+                ),
+                local_value = RydbergDetuningLocal(; 
+                    times = convert_units.(δ.clocks,μs,s), 
+                    values = convert_units.(δ.values,rad*MHz,rad/s), 
+                    lattice_site_coefficients=Δ_i
+                )
             ),
         ),
     )
@@ -281,14 +275,22 @@ function to_hamiltonian(
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;
             rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
-                global_value = RydbergRabiFrequencyAmplitudeGlobal(; times = Ω.clocks, values = Ω.values),
+                global_value = RydbergRabiFrequencyAmplitudeGlobal(; 
+                    times = convert_units.(Ω.clocks,μs,s), 
+                    values = convert_units.(Ω.values,rad*MHz,rad/s)
+                ),
             ),
             rabi_frequency_phase = RydbergRabiFrequencyPhase(;
-                global_value = RydbergRabiFrequencyPhaseGlobal(; times = ϕ.clocks, values = ϕ.values),
+                global_value = RydbergRabiFrequencyPhaseGlobal(; 
+                    times = convert_units.(ϕ.clocks,μs,s),
+                    values = convert_units.(ϕ.values,rad,rad)
+                ),
             ),
             detuning = RydbergDetuning(;
-                global_value = RydbergDetuningGlobal(; times = Δ.clocks, values = Δ.values),
-                # local_value = RydbergDetuningLocal(; times = δ.clocks, values = δ.values, lattice_site_coefficients=Δ_i)
+                global_value = RydbergDetuningGlobal(; 
+                    times = convert_units.(Δ.clocks,μs,s), 
+                    values = convert_units.(Δ.values,rad*MHz,rad/s)
+                )
             ),
         ),
     )

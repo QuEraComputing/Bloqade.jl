@@ -249,7 +249,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     
-    detune_res = device_capabilities.rydberg.global_value.phaseResolution
+    detune_res = device_capabilities.rydberg.global_value.detuningResolution
     local_res = device_capabilities.rydberg.local_value.localDetuningResolution
     common_detune_res = device_capabilities.rydberg.local_value.commonDetuningResolution
     max_slope = device_capabilities.rydberg.global_value.phaseSlewRateMax

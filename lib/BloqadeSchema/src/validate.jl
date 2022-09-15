@@ -5,10 +5,10 @@ error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : error(msg))
 # checks of x is integer multiple of res
 # if it is return false otherwise return true
 function check_resolution(res::Float64,x::Float64)
-    x == 0 && return true
+    x == 0 && return false
 
     x_div_res = (abs(x) / res)
-    return isapprox(round(x_div_res,sigdigits=15),x_div_res)
+    return !isapprox(round(x_div_res),x_div_res)
 end
 
 # TODO: implement this test based on validation in TaskManager
@@ -48,11 +48,11 @@ function validate_Ω(wf,warn,expected)
     end
 
     map(wf.f.clocks) do clock
-        !check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Ω(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
+        check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Ω(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     map(wf.f.values) do value
-        !check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Ω(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
+        check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Ω(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
     end
 
 end
@@ -80,11 +80,11 @@ function validate_Δ(wf,warn,expected)
     end
 
     map(wf.f.clocks) do clock
-        !check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
+        check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     map(wf.f.values) do value
-        !check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
+        check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
     end
 
 end
@@ -114,11 +114,11 @@ function validate_ϕ(wf,warn,expected)
     end
 
     map(wf.f.clocks) do clock
-        !check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"ϕ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
+        check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"ϕ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     map(wf.f.values) do value
-        !check_resolution(expected.value_resolution,value) && error_or_warn(warn,"ϕ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
+        check_resolution(expected.value_resolution,value) && error_or_warn(warn,"ϕ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
     end
 end
 
@@ -145,15 +145,15 @@ function validate_δ(wf,Δi,warn,expected)
     end
 
     map(wf.f.clocks) do clock
-        !check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
+        check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     map(wf.f.values) do value
-        !check_resolution(expected.value_resolution,value) && error_or_warn(warn,"δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
+        check_resolution(expected.value_resolution,value) && error_or_warn(warn,"δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
     end
 
     map(Δi) do value
-        !check_resolution(expected.local_mask_resolution,value) && error_or_warn(warn,"Δi value $value  is not consistent with resolution $(expected.local_mask_resolution).")
+        check_resolution(expected.local_mask_resolution,value) && error_or_warn(warn,"Δi value $value  is not consistent with resolution $(expected.local_mask_resolution).")
     end
 
 end

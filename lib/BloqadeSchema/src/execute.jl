@@ -187,9 +187,14 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
     validate_ϕ(ϕ,params.warn,rydberg_capabilities.ϕ)
     validate_Ω(Ω,params.warn,rydberg_capabilities.Ω)
     validate_Δ(Δ,params.warn,rydberg_capabilities.Δ)
+
     if !isnothing(δ)
         validate_δ(δ,Δi,params.warn,rydberg_capabilities.δ)
     end
+
+    
+    pos_resolution = params.device_capabilities.lattice.geometry.positionResolution
+    atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
 
     ϕ =(
         clocks=ϕ.f.clocks,
@@ -206,10 +211,12 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
         values=Δ.f.values
     )
 
-    δ = !isnothing(δ) && (
-        clocks=δ.f.clocks,
-        values=δ.f.values
-    )
+    δ = if !isnothing(δ) 
+        (
+            clocks=δ.f.clocks,
+            values=δ.f.values
+        )
+    end
 
     return TaskSpecification(;
         nshots=params.n_shots,

@@ -20,17 +20,18 @@ using Configurations
     # all_values = [constant(;duration=T,value=1.0),wf1,wfs_mixed,wfs_same]
     params = get_device_capabilities_SI()
 
-    check_atom_res(x) = all(BloqadeSchema.check_resolution.(params.lattice.geometry.positionResolution,x))
-    check_clock_res(x) = all(BloqadeSchema.check_resolution.(params.rydberg.global_value.timeResolution,x))
-    check_Δ_res(x) = all(BloqadeSchema.check_resolution.(params.rydberg.global_value.detuningResolution,x))
-    check_δ_res(x) = all(BloqadeSchema.check_resolution.(params.rydberg.local_value.commonDetuningResolution,x))
-    check_Δi_res(x) = all(BloqadeSchema.check_resolution.(params.rydberg.local_value.localDetuningResolution,x))
-    check_ϕ_res(x) = all(BloqadeSchema.check_resolution.(params.rydberg.global_value.phaseResolution,x))
-    check_Ω_res(x) = all(BloqadeSchema.check_resolution.(params.rydberg.global_value.rabiFrequencyResolution,x))
+    check_atom_res(x) = !any(BloqadeSchema.check_resolution.(params.lattice.geometry.positionResolution,x))
+    check_clock_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.timeResolution,x))
+    check_Δ_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.detuningResolution,x))
+    check_δ_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.local_value.commonDetuningResolution,x))
+    check_Δi_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.local_value.localDetuningResolution,x))
+    check_ϕ_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.phaseResolution,x))
+    check_Ω_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.rabiFrequencyResolution,x))
 
     for Ω in scalar_values, ϕ in scalar_values, Δ in scalar_values
         H = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
         j = BloqadeSchema.to_json(H,warn=true)
+
         t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
 
         sites = [site for (i,site) in enumerate(t.lattice.sites) if t.lattice.filling[i] == 1]
@@ -40,6 +41,7 @@ using Configurations
         detuning_global = t.effective_hamiltonian.rydberg.detuning.global_value
         detuning_local = t.effective_hamiltonian.rydberg.detuning.local_value
 
+        pos_res = params.lattice.geometry.positionResolution
         @test all(check_atom_res(s) for s in sites)
         @test check_clock_res(rabi_freq_phase.times)
         @test check_clock_res(rabi_freq_amp.times)
@@ -48,11 +50,11 @@ using Configurations
         @test check_Ω_res(rabi_freq_amp.values)
         @test check_Δ_res(detuning_global.values)
 
-        # if !isnothing(detuning_local)
-        #     @test check_clock_res(detuning_local.times)
-        #     @test check_δ_res(detuning_local.values)
-        #     @test check_Δi_res(detuning_local.lattice_site_coefficients)                  
-        # end
+        if !isnothing(detuning_local)
+            @test check_clock_res(detuning_local.times)
+            @test check_δ_res(detuning_local.values)
+            @test check_Δi_res(detuning_local.lattice_site_coefficients)                  
+        end
 
 
     end
@@ -60,20 +62,20 @@ using Configurations
 end
 
 
-# @testset "execute" begin
-#     # Test if code will run without failing
-#     Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
-#     Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
-#     ϕ = constant(;duration=3,value=0)
-#     atoms = 5.0 * [i for i in 1:10]
+@testset "execute" begin
+    # Test if code will run without failing
+    Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
+    Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
+    ϕ = constant(;duration=3,value=0)
+    atoms = 5.0 * [i for i in 1:10]
     
-#     H = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
-#     task_string = to_json(H,n_shots=10,warn=true)
-#     task_dict = BloqadeSchema.to_dict(H,n_shots=10,warn=true)
-#     task = BloqadeSchema.to_schema(H,n_shots=10,warn=true)
+    H = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
+    task_string = to_json(H,n_shots=10,warn=true)
+    task_dict = BloqadeSchema.to_dict(H,n_shots=10,warn=true)
+    task = BloqadeSchema.to_schema(H,n_shots=10,warn=true)
     
-#     r_string = execute(task_string)
-#     r_dict = execute(task_dict)
-#     r_task = execute(task)
+    r_string = execute(task_string)
+    r_dict = execute(task_dict)
+    r_task = execute(task)
 
-# end
+end

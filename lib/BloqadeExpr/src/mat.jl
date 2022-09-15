@@ -5,28 +5,50 @@ function YaoAPI.mat(::Type{T}, h::AbstractBlock, space::FullSpace) where {T}
 end
 
 function YaoAPI.mat(::Type{T}, h::XPhase{P, 2}) where {T, P}
-    return PermMatrix([2, 1], [exp(h.ϕ * im), exp(-h.ϕ * im)])
+    return PermMatrix([2, 1], T[exp(h.ϕ * im), exp(-h.ϕ * im)])
 end
 function YaoAPI.mat(::Type{T}, h::XPhase{P, 3, name}) where {T, P, name}
-    name === :rydberg && return PermMatrix([1, 3, 2], [1, exp(h.ϕ * im), exp(-h.ϕ * im)])
-    name === :hyperfine && return PermMatrix([2, 1, 3], [exp(h.ϕ * im), exp(-h.ϕ * im), 1])
+    name === :rydberg && return PermMatrix([1, 3, 2], T[0, exp(h.ϕ * im), exp(-h.ϕ * im)])
+    name === :hyperfine && return PermMatrix([2, 1, 3], T[exp(h.ϕ * im), exp(-h.ϕ * im), 0])
 end
 
 function YaoAPI.mat(::Type{T}, h::PuPhase{P, 2}) where {T, P}
-    return sparse([1], [2], [exp(h.ϕ * im)], 2, 2)
+    return sparse([1], [2], T[exp(h.ϕ * im)], 2, 2)
 end
 function YaoAPI.mat(::Type{T}, h::PuPhase{P, 3, name}) where {T, P, name}
-    name === :rydberg && return sparse([2], [3], [exp(h.ϕ * im)], 3, 3)
-    name === :hyperfine && return sparse([1], [2], [exp(h.ϕ * im)], 3, 3)
+    name === :rydberg && return sparse([2], [3], T[exp(h.ϕ * im)], 3, 3)
+    name === :hyperfine && return sparse([1], [2], T[exp(h.ϕ * im)], 3, 3)
 end
 
 function YaoAPI.mat(::Type{T}, h::PdPhase{P, 2}) where {T, P}
-    return sparse([2], [1], [exp(-h.ϕ * im)], 2, 2)
+    return sparse([2], [1], T[exp(-h.ϕ * im)], 2, 2)
 end
 function YaoAPI.mat(::Type{T}, h::PdPhase{P, 3, name}) where {T, P, name}
-    name === :rydberg && return sparse([3], [2], [exp(-h.ϕ * im)], 3, 3)
-    name === :hyperfine && return sparse([2], [1], [exp(-h.ϕ * im)], 3, 3)
+    name === :rydberg && return sparse([3], [2], T[exp(-h.ϕ * im)], 3, 3)
+    name === :hyperfine && return sparse([2], [1], T[exp(-h.ϕ * im)], 3, 3)
 end
+
+function YaoAPI.mat(::Type{T}, ::Type{X3{name}}) where {T, name}
+    name === :rydberg && return PermMatrix([1, 3, 2], T[0, 1, 1])
+    name === :hyperfine && return PermMatrix([2, 1, 3], T[1, 1, 0])
+end
+function YaoAPI.mat(::Type{T}, ::Type{Z3{name}}) where {T, name}
+    name === :rydberg && return Diagonal(T[0, 1, -1])
+    name === :hyperfine && return Diagonal(T[1, -1, 0])
+end
+function YaoAPI.mat(::Type{T}, ::Type{N3{name}}) where {T, name}
+    name === :rydberg && return sparse([3], [3], T[1], 3, 3)
+    name === :hyperfine && return sparse([2], [2], T[1], 3, 3)
+end
+function YaoAPI.mat(::Type{T}, ::Type{Pu3{name}}) where {T, name}
+    name === :rydberg && return sparse([3], [2], T[1], 3, 3)
+    name === :hyperfine && return sparse([2], [1], T[1], 3, 3)
+end
+function YaoAPI.mat(::Type{T}, ::Type{Pd3{name}}) where {T, name}
+    name === :rydberg && return sparse([2], [3], T[1], 3, 3)
+    name === :hyperfine && return sparse([1], [2], T[1], 3, 3)
+end
+
 
 function YaoAPI.mat(::Type{T}, h::AbstractTerm{D}, space::FullSpace = fullspace) where {T, D}
     blocks = YaoBlocks.Optimise.simplify(h; rules = [YaoBlocks.Optimise.to_basictypes])

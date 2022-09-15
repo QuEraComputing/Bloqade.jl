@@ -74,14 +74,6 @@ function XPhase(ϕ::T; nlevel = 2, name = :rydberg) where T
     throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
 end
 
-# struct XPhaseRydberg{T, D} <: PrimitiveBlock{D}
-#     ϕ::T
-# end
-
-# struct XPhaseHyperine{T, D} <: PrimitiveBlock{D}
-#     ϕ::T
-# end
-
 struct PuPhase{T, D, name} <: PrimitiveBlock{D}
     ϕ::T
 end
@@ -101,6 +93,17 @@ function PdPhase(ϕ::T; nlevel = 2, name = :rydberg) where T
     (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
     throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
 end
+
+struct X3{name} <: YaoBlocks.ConstantGate{1, 3} end
+X3(name) = X3{name}()
+struct Z3{name} <: YaoBlocks.ConstantGate{1, 3} end
+Z3(name) = Z3{name}()
+struct N3{name} <: YaoBlocks.ConstantGate{1, 3} end
+N3(name) = N3{name}()
+struct Pu3{name} <: YaoBlocks.ConstantGate{1, 3} end
+Pu3(name) = Pu3{name}()
+struct Pd3{name} <: YaoBlocks.ConstantGate{1, 3} end
+Pd3(name) = Pd3{name}()
 
 
 """
@@ -429,4 +432,3 @@ end
 function storage_size(H::SparseMatrixCSC)
     return sizeof(H.colptr) + sizeof(H.rowval) + sizeof(H.nzval)
 end
-

@@ -14,20 +14,25 @@ end
 
 emit_dynamic_terms(ex::RydInteract) = Any[one=>ex,]
 
-function emit_dynamic_terms(ex::SumOfX)
+function emit_dynamic_terms(ex::SumOfX{D, name}) where {D, name}
+    op = (D == 2 ? X : X3(:name))
     return if ex.Ω isa Number || ex.Ω isa Vector{<:Number}
         Any[one=>ex,]
     elseif ex.Ω isa Vector && is_time_function(ex.Ω)
-        Any[Ω => put(ex.nsites, i => X) for (i, Ω) in enumerate(ex.Ω)]
+        Any[Ω => put(ex.nsites, i => op) for (i, Ω) in enumerate(ex.Ω)]
     elseif is_time_function(ex.Ω)
-        Any[ex.Ω=>sum(put(ex.nsites, i => X) for i in 1:ex.nsites)]
+        Any[ex.Ω=>sum(put(ex.nsites, i => op) for i in 1:ex.nsites)]
     else
         error("unexpected type for Ω: $(typeof(ex.Ω))")
     end
 end
 
-function emit_dynamic_terms(ex::Union{SumOfN,SumOfZ})
-    op = ex isa SumOfN ? ConstGate.P1 : Z
+function emit_dynamic_terms(ex::Union{SumOfN{D, name},SumOfZ{D, name}}) where {D, name}
+    op = if D == 2
+        ex isa SumOfN ? ConstGate.P1 : Z
+    else
+        ex isa SumOfN ? N3(name) : Z3(name)
+    end
 
     return if ex.Δ isa Number || ex.Δ isa Vector{<:Number}
         Any[one=>ex]
@@ -40,7 +45,7 @@ function emit_dynamic_terms(ex::Union{SumOfN,SumOfZ})
     end
 end
 
-function emit_dynamic_terms(ex::SumOfXPhase)
+function emit_dynamic_terms(ex::SumOfXPhase{D, name}) where {D, name}
     @switch (ex.Ω, ex.ϕ) begin
         @case (::Number, ::Number) || (::Vector{<:Number}, ::Vector{<:Number}) ||
             (::Number, ::Vector{<:Number}) || (::Vector{<:Number}, ::Number)
@@ -49,82 +54,82 @@ function emit_dynamic_terms(ex::SumOfXPhase)
         # Ω time-dependent
         @case (Ω::Vector, ϕ::Number)
         return map(enumerate(Ω)) do (i, Ω_i)
-            return Ω_i => put(ex.nsites, i => XPhase(ϕ))
+            return Ω_i => put(ex.nsites, i => XPhase(ϕ; nlevel = D, name = name))
         end
         @case (Ω, ϕ::Number)
-        return Any[Ω=>SumOfXPhase(ex.nsites, one(ϕ), ϕ)]
+        return Any[Ω=>SumOfXPhase(ex.nsites, one(ϕ), ϕ; nlevel = D, name = name)]
 
         @case (Ω::Vector, ϕ::Vector{<:Number})
         return map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-            return Ω_i => put(ex.nsites, i => XPhase(ϕ_i))
+            return Ω_i => put(ex.nsites, i => XPhase(ϕ_i; nlevel = D, name = name))
         end
         @case (Ω, ϕ::Vector{<:Number})
-        return Any[Ω=>SumOfXPhase(ex.nsites, one(eltype(ϕ)), ϕ)]
+        return Any[Ω=>SumOfXPhase(ex.nsites, one(eltype(ϕ)), ϕ; nlevel = D, name = name)]
 
         # ϕ time-dependent
         @case (Ω::Number, ϕ::Vector)
         lhs = map(enumerate(ϕ)) do (i, ϕ_i)
-            return (t -> exp(ϕ_i(t) * im)) => put(ex.nsites, i => (Ω * ConstGate.Pu))
+            return (t -> exp(ϕ_i(t) * im)) => put(ex.nsites, i => (Ω * (D == 2 ? ConstGate.Pu : Pu3(name))))
         end
 
         rhs = map(enumerate(ϕ)) do (i, ϕ_i)
-            return (t -> exp(-ϕ_i(t) * im)) => put(ex.nsites, i => (Ω * ConstGate.Pd))
+            return (t -> exp(-ϕ_i(t) * im)) => put(ex.nsites, i => (Ω * (D == 2 ? ConstGate.Pd : Pd3(name))))
         end
         return vcat(lhs, rhs)
 
         @case (Ω::Number, ϕ)
         return [
-            (t -> exp(ϕ(t) * im)) => sum(put(ex.nsites, i => (Ω * ConstGate.Pu)) for i in 1:ex.nsites),
-            (t -> exp(-ϕ(t) * im)) => sum(put(ex.nsites, i => (Ω * ConstGate.Pd)) for i in 1:ex.nsites),
+            (t -> exp(ϕ(t) * im)) => sum(put(ex.nsites, i => (D == 2 ? ConstGate.Pu : Pu3(name))) for i in 1:ex.nsites),
+            (t -> exp(-ϕ(t) * im)) => sum(put(ex.nsites, i => (Ω * (D == 2 ? ConstGate.Pd : Pd3(name)))) for i in 1:ex.nsites),
         ]
 
         @case (Ω::Vector{<:Number}, ϕ::Vector)
         lhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-            return (t -> exp(ϕ_i(t) * im)) => put(ex.nsites, i => (Ω_i * ConstGate.Pu))
+            return (t -> exp(ϕ_i(t) * im)) => put(ex.nsites, i => (Ω_i * (D == 2 ? ConstGate.Pu : Pu3(name))))
         end
 
         rhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-            return (t -> exp(-ϕ_i(t) * im)) => put(ex.nsites, i => (Ω_i * ConstGate.Pd))
+            return (t -> exp(-ϕ_i(t) * im)) => put(ex.nsites, i => (Ω_i * (D == 2 ? ConstGate.Pd : Pd3(name))))
         end
         return vcat(lhs, rhs)
         @case (Ω::Vector{<:Number}, ϕ)
         return [
-            (t -> exp(ϕ(t) * im)) => sum(put(ex.nsites, i => (Ω_i * ConstGate.Pu)) for (i, Ω_i) in enumerate(Ω)),
-            (t -> exp(-ϕ(t) * im)) => sum(put(ex.nsites, i => (Ω_i * ConstGate.Pd)) for (i, Ω_i) in enumerate(Ω)),
+            (t -> exp(ϕ(t) * im)) => sum(put(ex.nsites, i => (Ω_i * (D == 2 ? ConstGate.Pu : Pu3(name)))) for (i, Ω_i) in enumerate(Ω)),
+            (t -> exp(-ϕ(t) * im)) => sum(put(ex.nsites, i => (Ω_i * (D == 2 ? ConstGate.Pd : Pd3(name)))) for (i, Ω_i) in enumerate(Ω)),
         ]
 
         # both time-dependent
         @case (Ω::Vector, ϕ::Vector)
         lhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-            return (t -> Ω_i(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i => ConstGate.Pu)
+            return (t -> Ω_i(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i => (D == 2 ? ConstGate.Pu : Pu3(name)))
         end
 
         rhs = map(enumerate(zip(Ω, ϕ))) do (i, (Ω_i, ϕ_i))
-            return (t -> Ω_i(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i => ConstGate.Pd)
+            return (t -> Ω_i(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i => (D == 2 ? ConstGate.Pd : Pd3(name)))
         end
         return vcat(lhs, rhs)
         @case (Ω::Vector, ϕ)
         lhs = map(enumerate(Ω)) do (i, Ω_i)
-            return (t -> Ω_i(t) * exp(ϕ(t) * im)) => put(ex.nsites, i => ConstGate.Pu)
+            return (t -> Ω_i(t) * exp(ϕ(t) * im)) => put(ex.nsites, i => (D == 2 ? ConstGate.Pu : Pu3(name)))
         end
 
         rhs = map(enumerate(Ω)) do (i, Ω_i)
-            return (t -> Ω_i(t) * exp(-ϕ(t) * im)) => put(ex.nsites, i => ConstGate.Pd)
+            return (t -> Ω_i(t) * exp(-ϕ(t) * im)) => put(ex.nsites, i => (D == 2 ? ConstGate.Pd : Pd3(name)))
         end
         return vcat(lhs, rhs)
         @case (Ω, ϕ::Vector)
         lhs = map(enumerate(ϕ)) do (i, ϕ_i)
-            return (t -> Ω(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i => ConstGate.Pu)
+            return (t -> Ω(t) * exp(ϕ_i(t) * im)) => put(ex.nsites, i => (D == 2 ? ConstGate.Pu : Pu3(name)))
         end
 
         rhs = map(enumerate(ϕ)) do (i, ϕ_i)
-            return (t -> Ω(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i => ConstGate.Pd)
+            return (t -> Ω(t) * exp(-ϕ_i(t) * im)) => put(ex.nsites, i => (D == 2 ? ConstGate.Pd : Pd3(name)))
         end
         return vcat(lhs, rhs)
         @case (Ω, ϕ)
         return [
-            (t -> Ω(t) * exp(ϕ(t) * im)) => sum(put(ex.nsites, i => ConstGate.Pu) for i in 1:ex.nsites),
-            (t -> Ω(t) * exp(-ϕ(t) * im)) => sum(put(ex.nsites, i => ConstGate.Pd) for i in 1:ex.nsites),
+            (t -> Ω(t) * exp(ϕ(t) * im)) => sum(put(ex.nsites, i => (D == 2 ? ConstGate.Pu : Pu3(name))) for i in 1:ex.nsites),
+            (t -> Ω(t) * exp(-ϕ(t) * im)) => sum(put(ex.nsites, i => (D == 2 ? ConstGate.Pd : Pd3(name))) for i in 1:ex.nsites),
         ]
     end
 end
@@ -152,18 +157,23 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fulls
     return Hamiltonian((fs...,), (ts...,))
 end
 
-function YaoBlocks.Optimise.to_basictypes(h::SumOfX)
+function YaoBlocks.Optimise.to_basictypes(h::SumOfX{D, name}) where {D, name}
     is_const_param(h.Ω) || throw(ArgumentError("expect constant hamiltonian"))
+    op = (D == 2) ? X : X3(name)
     return if h.Ω isa Vector
-        sum(h.Ω[i] * put(h.nsites, i => X) for i in 1:h.nsites)
+        sum(h.Ω[i] * put(h.nsites, i => op) for i in 1:h.nsites)
     else
-        h.Ω * sum(put(h.nsites, i => X) for i in 1:h.nsites)
+        h.Ω * sum(put(h.nsites, i => op) for i in 1:h.nsites)
     end
 end
 
-function YaoBlocks.Optimise.to_basictypes(h::Union{SumOfN,SumOfZ})
+function YaoBlocks.Optimise.to_basictypes(h::Union{SumOfN{D, name}, SumOfZ{D, name}}) where {D, name}
     is_const_param(h.Δ) || throw(ArgumentError("expect constant hamiltonian"))
-    op = h isa SumOfN ? ConstGate.P1 : Z
+    op = if D == 2
+        h isa SumOfN ? ConstGate.P1 : Z
+    else 
+        h isa SumOfN ? N3(name) : Z3(name)
+    end
     return if h.Δ isa Vector
         sum(h.Δ[i] * put(h.nsites, i => op) for i in 1:h.nsites)
     else
@@ -171,28 +181,29 @@ function YaoBlocks.Optimise.to_basictypes(h::Union{SumOfN,SumOfZ})
     end
 end
 
-function YaoBlocks.Optimise.to_basictypes(h::SumOfXPhase)
+function YaoBlocks.Optimise.to_basictypes(h::SumOfXPhase{D, name}) where {D, name}
     is_const_param(h.Ω) || throw(ArgumentError("expect constant hamiltonian"))
     is_const_param(h.ϕ) || throw(ArgumentError("expect constant hamiltonian"))
     return @switch (h.Ω, h.ϕ) begin
         @case (::Vector, ::Vector)
-        sum(h.Ω[i] * put(h.nsites, i => XPhase(h.ϕ[i])) for i in 1:h.nsites)
+        sum(h.Ω[i] * put(h.nsites, i => XPhase(h.ϕ[i]; nlevel = D, name = name)) for i in 1:h.nsites)
         @case (Ω::Vector, ϕ)
-        sum(Ω_i * put(h.nsites, i => XPhase(ϕ)) for (i, Ω_i) in enumerate(Ω))
+        sum(Ω_i * put(h.nsites, i => XPhase(ϕ; nlevel = D, name = name)) for (i, Ω_i) in enumerate(Ω))
         @case (Ω, ϕ::Vector)
-        sum(Ω * put(h.nsites, i => XPhase(ϕ_i)) for (i, ϕ_i) in enumerate(ϕ))
+        sum(Ω * put(h.nsites, i => XPhase(ϕ_i; nlevel = D, name = name)) for (i, ϕ_i) in enumerate(ϕ))
         @case (Ω, ϕ)
-        sum(Ω * put(h.nsites, i => XPhase(ϕ)) for i in 1:h.nsites)
+        sum(Ω * put(h.nsites, i => XPhase(ϕ; nlevel = D, name = name)) for i in 1:h.nsites)
     end
 end
 
-function YaoBlocks.Optimise.to_basictypes(ex::RydInteract)
+function YaoBlocks.Optimise.to_basictypes(ex::RydInteract{D}) where D
     nsites = length(ex.atoms)
 
     term = nothing
+    op = (D == 2 ? ConstGate.P1 : N3(:rydberg))
     for i in 1:nsites, j in 1:i-1
         x, y = ex.atoms[i], ex.atoms[j]
-        h = ex.C / distance(x, y)^6 * kron(nsites, i => ConstGate.P1, j => ConstGate.P1)
+        h = ex.C / distance(x, y)^6 * kron(nsites, i => op, j => op)
 
         if isnothing(term)
             term = h

@@ -85,8 +85,26 @@ function pin_waveform_edges(wf::Waveform,
     else
         duration
     end
-        
-    if t_begin > 0 && t_end < duration
+
+    # not the best solution but will 
+    if t_begin > t_end
+        t_begin = duration/2
+        t_end = duration/2
+
+        start_wf = linear_ramp(;
+            duration=t_begin,
+            start_value=begin_value,
+            stop_value=wf(t_begin)
+        )
+
+        end_wf = linear_ramp(;
+            duration=t_end,
+            start_value=wf(t_end),
+            stop_value=end_value
+        )
+
+        return append(start_wf,end_wf)        
+    elseif t_begin > 0 && t_end < duration
         mid_wf = Waveform(t->wf.f(t.+t_begin),duration - t_begin - t_end)
 
         start_wf = linear_ramp(;
@@ -124,62 +142,62 @@ function pin_waveform_edges(wf::Waveform,
         return wf      
     end
 
-    return new_wf
-
 end
+
 # TODO: move this to BloqadeWaveforms
 # does the SVD method to decompose local drives into an outer produce of masks and functions.
-function find_local_masks(values::Array{T,2};name::Symbol=:Waveform,ntrunc::Int=1, assert_truncation::Bool=false) where T
+# function find_local_masks(values::Array{T,2};name::Symbol=:Waveform,ntrunc::Int=1, assert_truncation::Bool=false) where T
     
-    (l,w) = size(values)
+#     (l,w) = size(values)
     
-    # project out uniform amplitude waveforms
-    ones_norm = ones(w,1)./sqrt(w)
-    avg = (values*ones_norm)*transpose(ones_norm)
-    results = []
-    values = values - avg
-    avg = avg[:,1]
+#     # project out uniform amplitude waveforms
+#     ones_norm = ones(w,1)./sqrt(w)
+#     avg = (values*ones_norm)*transpose(ones_norm)
+#     results = []
+#     values = values - avg
+#     avg = avg[:,1]
 
-    if ntrunc > 0
-        # use SVD to decompose the non-uniform waveforms
-        # if there are more than one singular value larger than 0 the remaining pattern
-        # can't be described as a local detuning mask times a single time-dependent function.
-        # here we truncate the waveform only keeping the first singular value.
-        u,s,v_T = svd(values)
-        contained_weight = sum(s[1:ntrunc])
+#     if ntrunc > 0
+#         # use SVD to decompose the non-uniform waveforms
+#         # if there are more than one singular value larger than 0 the remaining pattern
+#         # can't be described as a local detuning mask times a single time-dependent function.
+#         # here we truncate the waveform only keeping the first singular value.
+#         u,s,v_T = svd(values)
+#         contained_weight = sum(s[1:ntrunc])
         
-        remaining_weight = sum(s[(ntrunc+1):end])
+#         remaining_weight = sum(s[(ntrunc+1):end])
 
-        if remaining_weight > eps()*length(s)*contained_weight
-            error_or_warn(assert_truncation,"Cannot decompose $name into product of masks and scalar functions.")
-        end
+#         if remaining_weight > eps()*length(s)*contained_weight
+#             error_or_warn(assert_truncation,"Cannot decompose $name into product of masks and scalar functions.")
+#         end
 
-        for i in 1:ntrunc
+#         for i in 1:ntrunc
 
-            mask = if all(u[:,i] .<= 0) # make u all positive
-                u[:,i] .*= -1
-                (-s[i] .* v_T[:,i])
+#             mask = if all(u[:,i] .<= 0) # make u all positive
+#                 u[:,i] .*= -1
+#                 (-s[i] .* v_T[:,i])
 
-            else
-                s[i] .* v_T[:,i]
-            end
+#             else
+#                 s[i] .* v_T[:,i]
+#             end
 
-            min = minimum(mask)
-            max = maximum(mask)
+#             min = minimum(mask)
+#             max = maximum(mask)
 
-            mask = (mask .- min) ./ (max - min)
+#             mask = (mask .- min) ./ (max - min)
 
-            f = u[:,i] .* (max - min)
-            avg .+= u[:,i] .* min
+#             f = u[:,i] .* (max - min)
+#             avg .+= u[:,i] .* min
 
-            push!(results,(f,mask))
-        end
-    end
+#             push!(results,(f,mask))
+#         end
+#     end
 
-    push!(results,(avg,ones(w)))
-    return results
+#     push!(results,(avg,ones(w)))
+#     return results
 
-end
+# end
+
 
 function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     time_res = device_capabilities.rydberg.global_value.timeResolution

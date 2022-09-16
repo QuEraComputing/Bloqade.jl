@@ -3,6 +3,7 @@ using BloqadeSchema
 using Configurations
 using Test
 using BloqadeSchema
+using BloqadeWaveforms
 using Unitful: μs, s, MHz, rad 
     
 
@@ -84,22 +85,22 @@ end
 
 end
 
-@testset "find_local_masks" begin
-    Δ_values = 1 .- 2 .* rand(100,1)
-    Δ_mask = ones(1,10)
-    δ_values = rand(100,1)
-    δ_mask = rand(1,10)
-    δ_mask = (δ_mask .- minimum(δ_mask))/(maximum(δ_mask) .- minimum(δ_mask))
+# @testset "find_local_masks" begin
+#     Δ_values = 1 .- 2 .* rand(100,1)
+#     Δ_mask = ones(1,10)
+#     δ_values = rand(100,1)
+#     δ_mask = rand(1,10)
+#     δ_mask = (δ_mask .- minimum(δ_mask))/(maximum(δ_mask) .- minimum(δ_mask))
 
-    values = Δ_values * Δ_mask .+ δ_values * δ_mask
+#     values = Δ_values * Δ_mask .+ δ_values * δ_mask
 
-    ((parsed_δ_values,parsed_δ_mask),(parsed_Δ_values,parsed_Δ_mask)) = BloqadeSchema.find_local_masks(values)
+#     ((parsed_δ_values,parsed_δ_mask),(parsed_Δ_values,parsed_Δ_mask)) = BloqadeSchema.find_local_masks(values)
 
-    @test parsed_Δ_values ≈ reshape(Δ_values,(100,))
-    @test parsed_Δ_mask ≈ reshape(Δ_mask,(10,))
-    @test parsed_δ_values ≈ reshape(δ_values,(100,))
-    @test parsed_δ_mask ≈ reshape(δ_mask,(10,))
-end
+#     @test parsed_Δ_values ≈ reshape(Δ_values,(100,))
+#     @test parsed_Δ_mask ≈ reshape(Δ_mask,(10,))
+#     @test parsed_δ_values ≈ reshape(δ_values,(100,))
+#     @test parsed_δ_mask ≈ reshape(δ_mask,(10,))
+# end
 
 # global test cases:
 # 1. arbitrary waveform, check error. This includes boundary conditions for Ω.
@@ -112,7 +113,7 @@ end
     wf_2,error_2 = BloqadeSchema.hardware_transform_Δ(wf_1,device_capabilities)
 
     @test wf_1 == wf_2
-    @test error_2 < error_1
+    @test error_2 == 0
 end
 
 @testset "hardware_transform_Ω" begin
@@ -146,5 +147,5 @@ end
     wf_2,error_2 = BloqadeSchema.hardware_transform_Δ(wf_1,device_capabilities)
 
     @test wf_1 == wf_2
-    @test error_2 < error_1
+    @test error_2 == 0
 end

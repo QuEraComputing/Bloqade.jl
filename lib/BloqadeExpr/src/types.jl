@@ -68,8 +68,8 @@ struct XPhase{T, D, name} <: PrimitiveBlock{D}
     ϕ::T
 end
 function XPhase(ϕ::T; nlevel = 2, name = :rydberg) where T
-    (name === :rydberg && nlevel in (2, 3)) && return XPhase{T, nlevel, :rydberg}(ϕ)
-    (name === :hyperfine && nlevel == 3) && return XPhase{T, nlevel, :rydberg}(ϕ)
+    (name === :rydberg && nlevel in (2, 3)) && return XPhase{T, nlevel, name}(ϕ)
+    (name === :hyperfine && nlevel == 3) && return XPhase{T, nlevel, name}(ϕ)
     (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
     throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
 end
@@ -78,8 +78,8 @@ struct PuPhase{T, D, name} <: PrimitiveBlock{D}
     ϕ::T
 end
 function PuPhase(ϕ::T; nlevel = 2, name = :rydberg) where T 
-    (name === :rydberg && nlevel in (2, 3)) && return PuPhase{T, nlevel, :rydberg}(ϕ)
-    (name === :hyperfine && nlevel == 3) && return PuPhase{T, nlevel, :rydberg}(ϕ)
+    (name === :rydberg && nlevel in (2, 3)) && return PuPhase{T, nlevel, name}(ϕ)
+    (name === :hyperfine && nlevel == 3) && return PuPhase{T, nlevel, name}(ϕ)
     (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
     throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
 end
@@ -88,8 +88,8 @@ struct PdPhase{T, D, name} <: PrimitiveBlock{D}
     ϕ::T
 end
 function PdPhase(ϕ::T; nlevel = 2, name = :rydberg) where T 
-    (name === :rydberg && nlevel in (2, 3)) && return PdPhase{T, nlevel, :rydberg}(ϕ)
-    (name === :hyperfine && nlevel == 3) && return PdPhase{T, nlevel, :rydberg}(ϕ)
+    (name === :rydberg && nlevel in (2, 3)) && return PdPhase{T, nlevel, name}(ϕ)
+    (name === :hyperfine && nlevel == 3) && return PdPhase{T, nlevel, name}(ϕ)
     (name === :hyperfine && nlevel == 2) && throw(ArgumentError("There is no hyperfine operator when `nlevel = 2"))
     throw(ArgumentError("`nlevel` should be 2 or 2 and `name` should be one of `:rydberg` and `:hyperfine`"))
 end

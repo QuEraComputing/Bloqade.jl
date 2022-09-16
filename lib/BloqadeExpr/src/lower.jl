@@ -211,7 +211,7 @@ function YaoBlocks.Optimise.to_basictypes(ex::RydInteract{D}) where D
             term += h
         end
     end
-    term === nothing && return Add(nsites)
+    term === nothing && return Add(nsites; nlevel = D)
     return term
 end
 

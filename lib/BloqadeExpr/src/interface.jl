@@ -123,27 +123,29 @@ function rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
     rydberg_term = RydInteract(positions, C; nlevel = 3)
 
     Ω_hf = div_by_two(Ω_hf)
- 
     if !isnothing(Ω_hf) && !isnothing(ϕ_hf)
-        rabi_term_hf = SumOfXPhase(nsites, Ω_hf, ϕ; nlevel = 3, name = :hyperfine)
+        rabi_term_hf = SumOfXPhase(nsites, Ω_hf, ϕ_hf; nlevel = 3, name = :hyperfine)
     elseif !isnothing(Ω_hf) && isnothing(ϕ_hf)
         rabi_term_hf = SumOfX(nsites, Ω_hf; nlevel = 3, name = :hyperfine)
     elseif isnothing(Ω_hf) && !isnothing(ϕ_hf)
         @warn "Rydberg Hamiltonian contains non-zero rabi phase ϕ_hf with no rabi amplitude Ω_hf."
-        rabi_term_hf = SumOfXPhase(nsites, 0, ϕ; nlevel = 3, name = :hyperfine)
+        rabi_term_hf = SumOfXPhase(nsites, 0, ϕ_hf; nlevel = 3, name = :hyperfine)
     else
         rabi_term_hf = nothing
     end
+    
+    Ω_r = div_by_two(Ω_r)
     if !isnothing(Ω_r) && !isnothing(ϕ_r)
-        rabi_term_r =+ SumOfXPhase(nsites, Ω_r, ϕ; nlevel = 3, name = :rydberg)
+        rabi_term_r =+ SumOfXPhase(nsites, Ω_r, ϕ_r; nlevel = 3, name = :rydberg)
     elseif !isnothing(Ω_r) && isnothing(ϕ_r)
         rabi_term_r =+ SumOfX(nsites, Ω_r; nlevel = 3, name = :rydberg)
     elseif isnothing(Ω_r) && !isnothing(ϕ_r)
         @warn "Rydberg Hamiltonian contains non-zero rabi phase ϕ_r with no rabi amplitude Ω_r."
-        rabi_term_r =+ SumOfXPhase(nsites, 0, ϕ; nlevel = 3, name = :rydberg)
+        rabi_term_r =+ SumOfXPhase(nsites, 0, ϕ_r; nlevel = 3, name = :rydberg)
     else
         rabi_term_r = nothing
     end
+
     if isnothing(rabi_term_hf) 
         rabi_term = rabi_term_r
     elseif isnothing(rabi_term_r)
@@ -164,6 +166,8 @@ function rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
     else
         detuning_term = nothing
     end
+
+    !isnothing(detuning_term) && (detuning_term = -detuning_term)
 
     rh3 = rydberg_term
     for t in (rabi_term, detuning_term)

@@ -38,18 +38,20 @@ function latex_expr(t::YaoBlocks.Scale)
     end
 end
 
-function print_expr(io::IO, ::MIME"text/plain", t::RydInteract)
+function print_expr(io::IO, ::MIME"text/plain", t::RydInteract{D}) where D
     C = t.C / 2π
     n = ceil(log10(C))-1
     C = round(C / 10^n, digits = 3)
-    return print(io, "∑ 2π ⋅ $(C)e$n/|r_i-r_j|^6 n_i n_j")
+    str_op = (D == 2 ? "n_i n_j" : "n^r_i n^r_j")
+    return print(io, "∑ 2π ⋅ $(C)e$n/|r_i-r_j|^6 ", str_op)
 end
 
 function latex_expr(t::RydInteract)
     C = t.C / 2π
     n = ceil(log10(C))
     C = round(C / 10^n, digits = 3)
-    return "\\sum \\frac{2π \\cdot $C\\times 10^{$n}}{|r_i-r_j|^6} n_i n_j"
+    str_op = (D == 2 ? "n_i n_j" : "n^r_i n^r_j")
+    return "\\sum \\frac{2π \\cdot $C\\times 10^{$n}}{|r_i-r_j|^6} " * str_op
 end
 
 function pretty_number(x)
@@ -63,29 +65,35 @@ function pretty_number(x)
     end
 end
 
-function print_expr(io::IO, ::MIME"text/plain", t::SumOfX)
+function print_expr(io::IO, ::MIME"text/plain", t::SumOfX{D, name}) where {D, name}
+    op = (D == 2 ? "σ^x_i" : (name == :rydberg ? "σ^{x,r}_i" : "σ^{x,hf}_i"))
     if t.Ω isa Number
-        print(io, pretty_number(t.Ω), "∑ σ^x_i")
+        print(io, pretty_number(t.Ω), "∑ ", op)
     elseif t.Ω isa Vector
-        print(io, "∑ Ω_i ⋅ σ^x")
+        print(io, "∑ Ω_i ⋅ ", op)
     else
-        print(io, "Ω(t) ⋅ ∑ σ^x_i")
+        print(io, "Ω(t) ⋅ ∑ ", op)
     end
 end
 
 function latex_expr(t::SumOfX)
+    op = (D == 2 ? "σ^x_i" : (name == :rydberg ? "σ^{x,r}_i" : "σ^{x,hf}_i"))
     if t.Ω isa Number
-        tex = pretty_number(t.Ω) * "\\sum σ^x_i"
+        tex = pretty_number(t.Ω) * "\\sum " * op
     elseif t.Ω isa Vector
-        tex = "\\sum Ω_i ⋅ σ^x"
+        tex = "\\sum Ω_i ⋅ " * op
     else
-        tex = "Ω(t) ⋅ \\sum σ^x_i"
+        tex = "Ω(t) ⋅ \\sum " * op
     end
     return tex
 end
 
-function print_expr(io::IO, ::MIME"text/plain", t::Union{SumOfN,SumOfZ})
-    op = t isa SumOfN ? "n_i" : "σ^z_i"
+function print_expr(io::IO, ::MIME"text/plain", t::Union{SumOfN{D, name}, SumOfZ{D, name}}) where {D, name}
+    op = if t isa SumOfN
+        (D == 2 ? "n_i" : (name === :rydberg ? "n^r_i" : "n^{hf}_i"))
+    else
+        (D == 2 ? "σ^z_i" : (name === :rydberg ? "σ^{z,r}_i" : "σ^{z,hf}_i"))
+    end
     if t.Δ isa Number
         print(io, pretty_number(t.Δ), "∑ $op")
     elseif t.Δ isa Vector
@@ -96,7 +104,11 @@ function print_expr(io::IO, ::MIME"text/plain", t::Union{SumOfN,SumOfZ})
 end
 
 function latex_expr(t::Union{SumOfN,SumOfZ})
-    op = t isa SumOfN ? "n_i" : "σ^z_i"
+    op = if t isa SumOfN
+        (D == 2 ? "n_i" : (name === :rydberg ? "n^r_i" : "n^{hf}_i"))
+    else
+        (D == 2 ? "σ^z_i" : (name === :rydberg ? "σ^{z,r}_i" : "σ^{z,hf}_i"))
+    end
     if t.Δ isa Number
         tex = pretty_number(t.Δ) * "\\sum $op"
     elseif t.Δ isa Vector
@@ -107,45 +119,129 @@ function latex_expr(t::Union{SumOfN,SumOfZ})
     return tex
 end
 
-function print_expr(io::IO, ::MIME"text/plain", t::SumOfXPhase)
-    @switch (t.Ω, t.ϕ) begin
-        @case (Ω::Vector, ϕ::Vector)
-        Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
-        ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
-        print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
-        @case (Ω::Vector, ϕ)
-        Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
-        ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
-        print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
-        @case (Ω, ϕ::Vector)
-        Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅"
-        ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
-        print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
-        @case (Ω, ϕ)
-        Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅"
-        ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
-        print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
+function print_expr(io::IO, ::MIME"text/plain", t::SumOfXPhase{D, name}) where {D, name}
+    if D == 2
+        @switch (t.Ω, t.ϕ) begin
+            @case (Ω::Vector, ϕ::Vector)
+            Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
+            ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
+            print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
+            @case (Ω::Vector, ϕ)
+            Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
+            ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
+            print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
+            @case (Ω, ϕ::Vector)
+            Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅"
+            ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
+            print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
+            @case (Ω, ϕ)
+            Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅"
+            ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
+            print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
+        end
+    elseif D == 3
+        if name === :rydberg
+            @switch (t.Ω, t.ϕ) begin
+                @case (Ω::Vector, ϕ::Vector)
+                Ω = is_const_param(Ω) ? "Ω^r_i" : "Ω^r(t)_i"
+                ϕ = is_const_param(ϕ) ? "ϕ^r_i" : "ϕ^r(t)_i"
+                print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |1⟩⟨r| + e^{-$ϕ ⋅ im} |r⟩⟨1|)")
+                @case (Ω::Vector, ϕ)
+                Ω = is_const_param(Ω) ? "Ω^r_i" : "Ω^r(t)_i"
+                ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ^r(t)"
+                print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |1⟩⟨r| + e^{-$ϕ ⋅ im} |r⟩⟨1|)")
+                @case (Ω, ϕ::Vector)
+                Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω^r(t) ⋅"
+                ϕ = is_const_param(ϕ) ? "ϕ^r_i" : "ϕ^r(t)_i"
+                print(io, Ω, "∑ e^{$ϕ ⋅ im} |1⟩⟨r| + e^{-$ϕ ⋅ im} |r⟩⟨1|")
+                @case (Ω, ϕ)
+                Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω^r(t) ⋅"
+                ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ^r(t)"
+                print(io, Ω, "∑ e^{$ϕ ⋅ im} |1⟩⟨r| + e^{-$ϕ ⋅ im} |r⟩⟨1|")
+            end
+        else
+            @switch (t.Ω, t.ϕ) begin
+                @case (Ω::Vector, ϕ::Vector)
+                Ω = is_const_param(Ω) ? "Ω^{hf}_i" : "Ω^{hf}(t)_i"
+                ϕ = is_const_param(ϕ) ? "ϕ^{hf}_i" : "ϕ^{hf}(t)_i"
+                print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
+                @case (Ω::Vector, ϕ)
+                Ω = is_const_param(Ω) ? "Ω^{hf}_i" : "Ω^{hf}(t)_i"
+                ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ^{hf}(t)"
+                print(io, "∑ $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)")
+                @case (Ω, ϕ::Vector)
+                Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω^{hf}(t) ⋅"
+                ϕ = is_const_param(ϕ) ? "ϕ^{hf}_i" : "ϕ^{hf}(t)_i"
+                print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
+                @case (Ω, ϕ)
+                Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω^{hf}(t) ⋅"
+                ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ^{hf}(t)"
+                print(io, Ω, "∑ e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|")
+            end
+        end
     end
 end
 
-function latex_expr(t::SumOfXPhase)
-    @switch (t.Ω, t.ϕ) begin
-        @case (Ω::Vector, ϕ::Vector)
-        Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
-        ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
-        tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
-        @case (Ω::Vector, ϕ)
-        Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
-        ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
-        tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
-        @case (Ω, ϕ::Vector)
-        Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅ "
-        ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
-        tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
-        @case (Ω, ϕ)
-        Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅ "
-        ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
-        tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
+function latex_expr(t::SumOfXPhase{D, name}) where {D, name}
+    if D == 2
+        @switch (t.Ω, t.ϕ) begin
+            @case (Ω::Vector, ϕ::Vector)
+            Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
+            ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
+            tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
+            @case (Ω::Vector, ϕ)
+            Ω = is_const_param(Ω) ? "Ω_i" : "Ω(t)_i"
+            ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
+            tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
+            @case (Ω, ϕ::Vector)
+            Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅ "
+            ϕ = is_const_param(ϕ) ? "ϕ_i" : "ϕ(t)_i"
+            tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
+            @case (Ω, ϕ)
+            Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω(t) ⋅ "
+            ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ(t)"
+            tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
+        end
+    elseif D == 3
+        if name === :rydberg
+            @switch (t.Ω, t.ϕ) begin
+                @case (Ω::Vector, ϕ::Vector)
+                Ω = is_const_param(Ω) ? "Ω^r_i" : "Ω^r(t)_i"
+                ϕ = is_const_param(ϕ) ? "ϕ^r_i" : "ϕ^r(t)_i"
+                tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |1⟩⟨r| + e^{-$ϕ ⋅ im} |r⟩⟨1|)"
+                @case (Ω::Vector, ϕ)
+                Ω = is_const_param(Ω) ? "Ω^r_i" : "Ω^r(t)_i"
+                ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ^r(t)"
+                tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |1⟩⟨r| + e^{-$ϕ ⋅ im} |r⟩⟨1|)"
+                @case (Ω, ϕ::Vector)
+                Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω^r(t) ⋅ "
+                ϕ = is_const_param(ϕ) ? "ϕ^r_i" : "ϕ^r(t)_i"
+                tex = Ω * "\\sum e^{$ϕ ⋅ im} |1⟩⟨r| + e^{-$ϕ ⋅ im} |r⟩⟨1|"
+                @case (Ω, ϕ)
+                Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω^r(t) ⋅ "
+                ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ^r(t)"
+                tex = Ω * "\\sum e^{$ϕ ⋅ im} |1⟩⟨r| + e^{-$ϕ ⋅ im} |r⟩⟨1|"
+            end
+        else
+            @switch (t.Ω, t.ϕ) begin
+                @case (Ω::Vector, ϕ::Vector)
+                Ω = is_const_param(Ω) ? "Ω^{hf}_i" : "Ω^{hf}(t)_i"
+                ϕ = is_const_param(ϕ) ? "ϕ^{hf}_i" : "ϕ^{hf}(t)_i"
+                tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
+                @case (Ω::Vector, ϕ)
+                Ω = is_const_param(Ω) ? "Ω^{hf}_i" : "Ω^{hf}(t)_i"
+                ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ^{hf}(t)"
+                tex = "\\sum $Ω ⋅ (e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|)"
+                @case (Ω, ϕ::Vector)
+                Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω^{hf}(t) ⋅ "
+                ϕ = is_const_param(ϕ) ? "ϕ^{hf}_i" : "ϕ^{hf}(t)_i"
+                tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
+                @case (Ω, ϕ)
+                Ω = is_const_param(Ω) ? pretty_number(Ω) : "Ω^{hf}(t) ⋅ "
+                ϕ = is_const_param(ϕ) ? round(ϕ, sigdigits = 3) : "ϕ^{hf}(t)"
+                tex = Ω * "\\sum e^{$ϕ ⋅ im} |0⟩⟨1| + e^{-$ϕ ⋅ im} |1⟩⟨0|"
+            end
+        end
     end
     return tex
 end

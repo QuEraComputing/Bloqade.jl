@@ -34,6 +34,7 @@ function validate_Ω(wf,warn,expected)
 
     tests = [
         ("duration",max_time,>,expected.max_time,"μs"),
+        ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,>,max_time,"μs"),
         ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
@@ -42,6 +43,7 @@ function validate_Ω(wf,warn,expected)
         ("start value",start_value,!=,0.0,"rad⋅MHz"),
         ("end value",end_value,!=,0.0,"rad⋅MHz"),
     ]
+    #("duration", max_time, < expected.min_time_step, "μs")
 
     for (name,given,op,expected,units) in tests
         op(given,expected) && error_or_warn(warn,"Ω(t) $name with value $given $units $(message(op)) value of $expected $units")
@@ -68,8 +70,8 @@ function validate_Δ(wf,warn,expected)
 
     tests = [
         ("duration",max_time,>,expected.max_time,"μs"),
+        ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
-        ("minimum step",min_time_step,>,max_time,"μs"),
         ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
         ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
         ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
@@ -101,6 +103,7 @@ function validate_ϕ(wf,warn,expected)
 
     tests = [
         ("duration",max_time,>,expected.max_time,"μs"),
+        ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,>,max_time,"μs"),
         ("maximum slope",max_slope,>,expected.max_slope,"rad/μs"),
@@ -133,6 +136,7 @@ function validate_δ(wf,Δi,warn,expected)
 
     tests = [
         ("duration",max_time,>,expected.max_time,"μs"),
+        ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,>,max_time,"μs"),
         ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),

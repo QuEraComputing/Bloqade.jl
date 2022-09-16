@@ -1,9 +1,7 @@
 using Test 
 using Unitful
 using BloqadeWaveforms:
-    piecewise_linear,
-    piecewise_linear_interpolate,
-    Waveform
+    piecewise_linear
 using BloqadeSchema:
     error_or_warn,
     check_resolution,
@@ -16,12 +14,6 @@ using BloqadeSchema:
     validate
 using BloqadeExpr:
     rydberg_h
-
-
-T = 0.5
-wf = Waveform(t->sin(π*t/T)^2,T)
-piecewise_linear_interpolate(wf;min_step=0.4, max_slope=1.0e25, atol=0)
-
 
 @testset "error_or_warn" begin
 

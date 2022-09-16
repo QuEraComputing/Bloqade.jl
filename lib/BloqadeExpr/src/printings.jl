@@ -46,7 +46,7 @@ function print_expr(io::IO, ::MIME"text/plain", t::RydInteract{D}) where D
     return print(io, "∑ 2π ⋅ $(C)e$n/|r_i-r_j|^6 ", str_op)
 end
 
-function latex_expr(t::RydInteract)
+function latex_expr(t::RydInteract{D}) where D
     C = t.C / 2π
     n = ceil(log10(C))
     C = round(C / 10^n, digits = 3)
@@ -76,7 +76,7 @@ function print_expr(io::IO, ::MIME"text/plain", t::SumOfX{D, name}) where {D, na
     end
 end
 
-function latex_expr(t::SumOfX)
+function latex_expr(t::SumOfX{D, name}) where {D, name}
     op = (D == 2 ? "σ^x_i" : (name == :rydberg ? "σ^{x,r}_i" : "σ^{x,hf}_i"))
     if t.Ω isa Number
         tex = pretty_number(t.Ω) * "\\sum " * op
@@ -103,7 +103,7 @@ function print_expr(io::IO, ::MIME"text/plain", t::Union{SumOfN{D, name}, SumOfZ
     end
 end
 
-function latex_expr(t::Union{SumOfN,SumOfZ})
+function latex_expr(t::Union{SumOfN{D, name},SumOfZ{D, name}}) where {D, name}
     op = if t isa SumOfN
         (D == 2 ? "n_i" : (name === :rydberg ? "n^r_i" : "n^{hf}_i"))
     else

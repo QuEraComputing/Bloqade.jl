@@ -17,8 +17,8 @@ params = [nothing, 1.0, 2.0, [0.1 for _ in 1:3], sin, [sin for _ in 1:3], cos]
         @testset "Δ=$Δ" for Δ in params
             @testset "ϕ=$ϕ" for ϕ in params
                 h = rydberg_h(atoms; Ω, Δ, ϕ)
-                H = Hamiltonian(Float64, h)
-                @test to_matrix(H(0.1)) ≈ mat(Float64, h |> attime(0.1))
+                H = Hamiltonian(ComplexF64, h)
+                @test to_matrix(H(0.1)) ≈ mat(ComplexF64, h |> attime(0.1))
             end
         end
     end

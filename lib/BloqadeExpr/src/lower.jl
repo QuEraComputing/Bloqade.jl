@@ -79,7 +79,7 @@ function emit_dynamic_terms(ex::SumOfXPhase{D, name}) where {D, name}
 
         @case (Ω::Number, ϕ)
         return [
-            (t -> exp(ϕ(t) * im)) => sum(put(ex.nsites, i => (D == 2 ? ConstGate.Pu : Pu3(name))) for i in 1:ex.nsites),
+            (t -> exp(ϕ(t) * im)) => sum(put(ex.nsites, i => (Ω * (D == 2 ? ConstGate.Pu : Pu3(name)))) for i in 1:ex.nsites),
             (t -> exp(-ϕ(t) * im)) => sum(put(ex.nsites, i => (Ω * (D == 2 ? ConstGate.Pd : Pd3(name)))) for i in 1:ex.nsites),
         ]
 

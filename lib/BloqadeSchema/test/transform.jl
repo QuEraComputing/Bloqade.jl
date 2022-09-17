@@ -85,6 +85,14 @@ end
 
 end
 
+
+@testset "clip_waveform" begin
+    wf = piecewise_linear(;clocks=[0,1,2,3,4,5,6],values=[0,2,2,0,-2,-2,0])
+    @test BloqadeSchema.clip_waveform(wf,-1,1) == piecewise_linear(;
+        clocks=[0,1,2,3,4,5,6],
+        values=[0,1,1,0,-1,-1,0])
+end
+
 # @testset "find_local_masks" begin
 #     Δ_values = 1 .- 2 .* rand(100,1)
 #     Δ_mask = ones(1,10)

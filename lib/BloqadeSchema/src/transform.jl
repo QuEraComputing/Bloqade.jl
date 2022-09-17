@@ -201,13 +201,20 @@ end
 #     return results
 
 # end
-
+function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},min_value::T,max_value::T) where {T<:Real,I}
+    @assert min_value < max_value
+    return piecewise_linear(;clocks=wf.f.clocks,values=map(wf.f.values) do value
+        return min(max_value,max(min_value,value))
+    end)
+end
 
 function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     rabi_res = device_capabilities.rydberg.global_value.rabiFrequencyResolution
     max_slope = device_capabilities.rydberg.global_value.rabiFrequencySlewRateMax
+    max_value = device_capabilities.rydberg.global_value.rabiFrequencyMax
+    min_value = device_capabilities.rydberg.global_value.rabiFrequencyMin
 
     check_waveform(Ω,:Ω)
     check_global(Ω,:Ω)
@@ -235,6 +242,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
         )
     end
 
+    Ωt = clip_waveform(Ωt,min_value,max_value)
     return Ωt,norm_diff_durations(Ω,Ωt)
 end
 
@@ -243,6 +251,8 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     phase_res = device_capabilities.rydberg.global_value.phaseResolution
     max_slope = device_capabilities.rydberg.global_value.phaseSlewRateMax
+    max_value = device_capabilities.rydberg.global_value.phaseMax
+    min_value = device_capabilities.rydberg.global_value.phaseMin
 
     check_global(ϕ,:ϕ)
     check_waveform(ϕ,:ϕ)
@@ -263,6 +273,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
         )
     end
 
+    ϕt = clip_waveform(ϕt,min_value,max_value)
     return ϕt,norm_diff_durations(ϕ,ϕt)
 end
 
@@ -274,7 +285,10 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
     detune_res = device_capabilities.rydberg.global_value.detuningResolution
     local_res = device_capabilities.rydberg.local_value.localDetuningResolution
     common_detune_res = device_capabilities.rydberg.local_value.commonDetuningResolution
-    max_slope = device_capabilities.rydberg.global_value.phaseSlewRateMax
+    max_slope = device_capabilities.rydberg.global_value.detuningSlewRateMax
+    max_value = device_capabilities.rydberg.global_value.detuningMax
+    min_value = device_capabilities.rydberg.global_value.detuningMin
+
 
     check_waveform(Δ,:Δ)
     check_global(Δ,:Δ)
@@ -299,6 +313,8 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
             clocks=set_resolution.(Δ_interp.f.clocks,time_res),
             values=set_resolution.(Δ_interp.f.values,detune_res)
         )
+
+        Δt = clip_waveform(Δt,min_value,max_value)
         Δ_mask = (Δ=Δt,δ=nothing,Δi=1.0)
 
         return Δt,norm_diff_durations(Δ,Δt),Δ_mask

@@ -22,7 +22,7 @@ end
 # simple function, round number to the nearest multiple of `res`
 function set_resolution(x::Real,res::Real)
     @assert res > 0
-    return round(Int(round(x / res)) * res,sigdigits=15)
+    return round(Int(round(x / res)) * res,sigdigits=14)
 end
 
 # throws error for none-scalar fields
@@ -36,11 +36,15 @@ function check_waveform(field,name)
         
     field isa Vector{<:Number} && error("Failed to transform $name to hardware, $name must be a vector Waveforms.\n If $name contains constant values use `BloqadeWaveforms.constant`.")
     if field isa Vector 
-        any( !(ele isa Waveform{F,T} where {F,T<:Real}) for ele in field) && error("Failed to transform $name to hardware, $name must be a Waveform.")
+        foreach(field) do ele
+            !(ele isa Waveform{F,T} where {F,T<:Real})  && error("Failed to transform $name to hardware, $name must be a Waveform.")
+        end
 
         duration = field[1].duration
+        foreach(field) do ele
+            duration != ele.duration && error("Failed to transform $name to hardware, all Waveforms must have the same duration.")
+        end
 
-        any(duration!=ele.duration for ele in field) && error("Failed to transform $name to hardware, all Waveforms must have the same duration.")
         return
 
     end

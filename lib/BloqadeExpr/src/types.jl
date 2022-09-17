@@ -352,8 +352,8 @@ const DetuningTypes{D} = Union{Nothing,SumOfN{D, name}} where {D, name}
 
 struct RydbergHamiltonian{D} <: AbstractTerm{D}
     rydberg_term::RydInteract{D}
-    rabi_term::RabiTypes
-    detuning_term::DetuningTypes
+    rabi_term::RabiTypes{D}
+    detuning_term::DetuningTypes{D}
 end
 
 function add_terms(h::RydbergHamiltonian)

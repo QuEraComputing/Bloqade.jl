@@ -157,7 +157,7 @@ function rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
     if !isnothing(Δ_hf)
         detuning_term = SumOfN(nsites, Δ_hf; nlevel = 3, name = :hyperfine)
         if !isnothing(Δ_r)
-            detuning_term += SumOfN(nsites, Δ_hf + Δ_r; nlevel = 3, name = :rydberg)
+            detuning_term += SumOfN(nsites, add_params(Δ_hf, Δ_r); nlevel = 3, name = :rydberg)
         else
             detuning_term += SumOfN(nsites, Δ_hf; nlevel = 3, name = :rydberg)
         end
@@ -175,6 +175,30 @@ function rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
     end
 
     return rh3
+end
+
+function add_params(a, b)
+    if a isa Vector && b isa Vector
+        return add_param.(a, b)
+    elseif a isa Vector && !(b isa Vector)
+        return add_param.(a, fill(b, length(a)))
+    elseif !(a isa Vector) && b isa Vector
+        return add_param.(fill(a, length(b)), b)
+    else
+        return add_param(a, b)
+    end
+end
+
+function add_param(a, b)
+    if is_const_param(a) && is_const_param(b)
+        return a + b
+    elseif is_time_function(a) && is_const_param(b)
+        return x -> a(x) + b
+    elseif is_const_param(a) && is_time_function(b)
+        return x -> a + b(x)
+    else
+        return x -> a(x) + b(x)
+    end
 end
 
 function div_by_two(Ω)
@@ -226,16 +250,16 @@ nqudits: 4
 ```
 """
 attime(h::PrimitiveBlock, ::Real) = h
-function attime(h::SumOfX, t::Real)
+function attime(h::SumOfX{D, name}, t::Real) where {D, name}
     is_const_param(h.Ω) && return h
     if h.Ω isa Vector
-        SumOfX(h.nsites, map(x -> x(t), h.Ω))
+        SumOfX(h.nsites, map(x -> x(t), h.Ω); nlevel = D, name = name)
     else
-        SumOfX(h.nsites, h.Ω(t))
+        SumOfX(h.nsites, h.Ω(t); nlevel = D, name = name)
     end
 end
 
-function attime(h::SumOfXPhase, t::Real)
+function attime(h::SumOfXPhase{D, name}, t::Real) where {D, name}
     if is_const_param(h.Ω)
         Ω = h.Ω
     elseif h.Ω isa Vector
@@ -252,7 +276,7 @@ function attime(h::SumOfXPhase, t::Real)
         ϕ = h.ϕ(t)
     end
 
-    return SumOfXPhase(h.nsites, Ω, ϕ)
+    return SumOfXPhase(h.nsites, Ω, ϕ; nlevel = D, name = name)
 end
 
 function attime(h::Union{SumOfZ,SumOfN}, t::Real)

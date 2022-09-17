@@ -20,16 +20,20 @@ end
 
 @testset "rydberg_h_3" begin
     atom = [(0.0, 0.0)]
-    Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r = rand(6)
-    h = rydberg_h_3(atom; Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
-    m = zeros(ComplexF64, 3, 3)
-    m[1, 2] = Ω_hf/2*exp(im*ϕ_hf)
-    m[2, 1] = Ω_hf/2*exp(-im*ϕ_hf)
-    m[2, 2] = -Δ_hf
-    m[2, 3] = Ω_r/2*exp(im*ϕ_r)
-    m[3, 2] = Ω_r/2*exp(-im*ϕ_r)
-    m[3, 3] = -Δ_hf - Δ_r
-    @test BloqadeExpr.mat(h) ≈ m
+    params = [0.0, pi/2, nothing]
+    n_to_0(x) = isnothing(x) ? 0.0 : x
+    for Ω_hf in params, ϕ_hf in params, Δ_hf in params, Ω_r in params, ϕ_r in params, Δ_r in params
+        h = rydberg_h_3(atom; Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
+        m = zeros(ComplexF64, 3, 3)
+        Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r = n_to_0.([Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r])
+        m[1, 2] = Ω_hf/2*exp(im*ϕ_hf)
+        m[2, 1] = Ω_hf/2*exp(-im*ϕ_hf)
+        m[2, 2] = -Δ_hf
+        m[2, 3] = Ω_r/2*exp(im*ϕ_r)
+        m[3, 2] = Ω_r/2*exp(-im*ϕ_r)
+        m[3, 3] = -Δ_hf - Δ_r
+        @test BloqadeExpr.mat(h) ≈ m
+    end
 end
 
 @testset "attime" begin

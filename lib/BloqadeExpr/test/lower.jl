@@ -12,7 +12,7 @@ end
 
 atoms = [(1, 1), (1, 2), (1, 3)]
 params = [nothing, 1.0, 2.0, [0.1 for _ in 1:3], sin, [sin for _ in 1:3], cos]
-@testset "emit_dynamic_terms" begin
+@testset "emit_dynamic_terms (2-level)" begin
     @testset "Ω=$Ω" for Ω in params
         @testset "Δ=$Δ" for Δ in params
             @testset "ϕ=$ϕ" for ϕ in params
@@ -22,4 +22,18 @@ params = [nothing, 1.0, 2.0, [0.1 for _ in 1:3], sin, [sin for _ in 1:3], cos]
             end
         end
     end
-end
+end;
+
+atoms = [(1, 1), (1, 2), (1, 3)]
+params = [nothing, 1.0, [0.1 for _ in 1:3], sin, [sin for _ in 1:3]]
+@testset "emit_dynamic_terms (3-level)" begin
+    @testset "Ω_hf=$Ω_hf, Δ_hf=$Δ_hf, ϕ_hf=$ϕ_hf" for Ω_hf in params, Δ_hf in params, ϕ_hf in params
+        @testset "Ω_r=$Ω_r, Δ_r=$Δ_r, ϕ_r=$ϕ_r" for Ω_r in params, Δ_r in params, ϕ_r in params
+            Ω_r, Δ_r, ϕ_r = ones(3)
+            Ω_hf=nothing; Δ_hf=[0.1, 0.1, 0.1]; ϕ_hf=nothing
+            h = rydberg_h_3(atoms; Ω_hf, Δ_hf, ϕ_hf, Ω_r, Δ_r, ϕ_r)
+            H = Hamiltonian(ComplexF64, h)
+            @test to_matrix(H(0.1)) ≈ mat(ComplexF64, h |> attime(0.1))
+        end
+    end
+end;

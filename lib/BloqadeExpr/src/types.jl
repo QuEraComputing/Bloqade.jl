@@ -58,7 +58,7 @@ end
 """
     XPhase{T, D, name} <: PrimitiveBlock{D}
 
-XPhase operator.
+XPhase operator where `D` is the number of levels.
 
 ```math
 e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|
@@ -347,8 +347,8 @@ end
 @inline (Func::DivByTwo)(t::Real) = Func.f(t)/2
 
 
-const RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
-const DetuningTypes = Union{Nothing,SumOfN}
+const RabiTypes{D} = Union{Nothing,SumOfX{D, name},SumOfXPhase{D, name}} where {D, name}
+const DetuningTypes{D} = Union{Nothing,SumOfN{D, name}} where {D, name}
 
 struct RydbergHamiltonian{D} <: AbstractTerm{D}
     rydberg_term::RydInteract{D}

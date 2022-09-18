@@ -49,11 +49,11 @@ function validate_Ω(wf,warn,expected)
         op(given,expected) && error_or_warn(warn,"Ω(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
-    map(wf.f.clocks) do clock
+    foreach(wf.f.clocks) do clock
         check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Ω(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
-    map(wf.f.values) do value
+    foreach(wf.f.values) do value
         check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Ω(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
     end
 
@@ -81,11 +81,11 @@ function validate_Δ(wf,warn,expected)
         op(given,expected) && error_or_warn(warn,"Δ(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
-    map(wf.f.clocks) do clock
+    foreach(wf.f.clocks) do clock
         check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"Δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
-    map(wf.f.values) do value
+    foreach(wf.f.values) do value
         check_resolution(expected.value_resolution,value) && error_or_warn(warn,"Δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
     end
 
@@ -116,11 +116,11 @@ function validate_ϕ(wf,warn,expected)
         op(given,expected) && error_or_warn(warn,"ϕ(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
-    map(wf.f.clocks) do clock
+    foreach(wf.f.clocks) do clock
         check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"ϕ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
-    map(wf.f.values) do value
+    foreach(wf.f.values) do value
         check_resolution(expected.value_resolution,value) && error_or_warn(warn,"ϕ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
     end
 end
@@ -148,15 +148,15 @@ function validate_δ(wf,Δi,warn,expected)
         op(given,expected) && error_or_warn(warn,"δ(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
-    map(wf.f.clocks) do clock
+    foreach(wf.f.clocks) do clock
         check_resolution(expected.time_resolution,clock) && error_or_warn(warn,"δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
-    map(wf.f.values) do value
+    foreach(wf.f.values) do value
         check_resolution(expected.value_resolution,value) && error_or_warn(warn,"δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
     end
 
-    map(Δi) do value
+    foreach(Δi) do value
         check_resolution(expected.local_mask_resolution,value) && error_or_warn(warn,"Δi value $value  is not consistent with resolution $(expected.local_mask_resolution).")
     end
 

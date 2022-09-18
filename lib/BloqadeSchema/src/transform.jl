@@ -203,9 +203,18 @@ end
 # end
 function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},min_value::T,max_value::T) where {T<:Real,I}
     @assert min_value < max_value
+
+    for value in wf.f.values
+        if value > max_value || value < min_value
+            @info "Waveform falling outside of hardware bounds, clipping values to maximum/minimum."
+            break
+        end
+    end
+
     return piecewise_linear(;clocks=wf.f.clocks,values=map(wf.f.values) do value
-        return min(max_value,max(min_value,value))
-    end)
+            return min(max_value,max(min_value,value))
+        end
+    )
 end
 
 function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)

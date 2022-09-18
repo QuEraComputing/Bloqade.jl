@@ -206,7 +206,7 @@ function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},nam
 
     for value in wf.f.values
         if value > max_value || value < min_value
-            @info "Waveform $name falling outside of hardware bounds, clipping values to maximum/minimum."
+            @info "During hardware transform: $name(t) falls outside of hardware bounds, clipping to maximum/minimum."
             break
         end
     end
@@ -230,7 +230,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     warn_duration(time_res,Ω,:Ω)
 
     Ω = if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=√eps()) || !isapprox(Ω(Ω.duration),0.0;atol=eps(),rtol=√eps())
-        @info "During hardware transform: Ω start and/or end values are not 0. adding ramp(s) to fix endpoints."
+        @info "During hardware transform: Ω(t) start and/or end values are not 0. adding ramp(s) to fix endpoints."
         pin_waveform_edges(Ω,max_slope,0,0)
     else
         Ω
@@ -363,20 +363,26 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
 
 end
 
-function hardware_transform_parse(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
+function hardware_transform_parse(H::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
     (atoms,ϕ,Ω,Δ) = get_rydberg_params(H)
 
     ϕ,ϕ_error = hardware_transform_ϕ(ϕ,device_capabilities)
     Ω,Ω_error = hardware_transform_Ω(Ω,device_capabilities)
     Δ,Δ_error,Δ_mask = hardware_transform_Δ(Δ,device_capabilities)
-    info = (ϕ=ϕ_error,Ω=Ω_error,Δ=Δ_error,Δ_mask=Δ_mask)
 
-    return (atoms,ϕ,Ω,Δ,info)
+    pos_resolution = params.device_capabilities.lattice.geometry.positionResolution
+    new_atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
+
+    mse_atoms = sum(√sum((a .- b) .^ 2) for (a,b) in zip(new_atoms,atoms))/length(atoms)
+
+    info = (ϕ=ϕ_error,Ω=Ω_error,Δ=Δ_error,Δ_mask=Δ_mask,mse_atoms=mse_atoms)
+
+    return (new_atoms,ϕ,Ω,Δ,info)
 end
 
 # public API exposed here: 
 function hardware_transform(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
-    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(H;device_capabilities=device_capabilities)
+    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(H,device_capabilities)
     hardware_H = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
 
     return hardware_H,info

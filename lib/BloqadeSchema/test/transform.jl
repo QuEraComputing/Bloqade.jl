@@ -88,11 +88,11 @@ end
 
 @testset "clip_waveform" begin
     wf = piecewise_linear(;clocks=[0,1,2,3,4,5,6],values=[0,2,2,0,-2,-2,0])
-    @test BloqadeSchema.clip_waveform(wf,-1,1) == piecewise_linear(;
+    @test BloqadeSchema.clip_waveform(wf,:wf,-1,1) == piecewise_linear(;
         clocks=[0,1,2,3,4,5,6],
         values=[0,1,1,0,-1,-1,0])
 
-    @test_logs (:info,"Waveform falling outside of hardware bounds, clipping values to maximum/minimum.") BloqadeSchema.clip_waveform(wf,-1,1)
+    @test_logs (:info,"During hardware transform: wf(t) falls outside of hardware bounds, clipping to maximum/minimum.") BloqadeSchema.clip_waveform(wf,:wf,-1,1)
 end
 
 # @testset "find_local_masks" begin

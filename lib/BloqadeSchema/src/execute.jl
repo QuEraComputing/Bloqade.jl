@@ -164,7 +164,7 @@ end
 
 
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationParams)
-    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h;params.device_capabilities)
+    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h,params.device_capabilities)
 
     # extract Detuning mask
     Δ = info.Δ_mask.Δ
@@ -172,29 +172,14 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
     Δi = info.Δ_mask.Δi
 
     if params.transform_info
-        ϕ_err = info.ϕ
-        Ω_err = info.Ω
-        Δ_err = info.Δ
-        @info "Hardware transform report: ∫dt |ϕ(t)-ϕ_hw(t)| = $ϕ_err"
-        @info "Hardware transform report: ∫dt |Ω(t)-Ω_hw(t)| = $Ω_err"
-        @info "Hardware transform report: ∫dt |Δ(t)-Δ_hw(t)| = $Δ_err"
+
+        @info "Hardware transform report: after linear interpolation ∫dt |ϕ(t)-ϕ_hw(t)| = $(info.ϕ) rad⋅μs"
+        @info "Hardware transform report: after linear interpolation ∫dt |Ω(t)-Ω_hw(t)| = $(info.Ω) rad"
+        @info "Hardware transform report: after linear interpolation ∫dt |Δ(t)-Δ_hw(t)| = $(info.Δ) rad"
+        @info "Hardware transform report: mean deviation after rounding positions $(info.mse_atoms) μm"
     end
 
-    # validate components to save conversions
-    validate_lattice(atoms,params.warn,params.device_capabilities)
-    rydberg_capabilities = get_rydberg_capabilities(;device_capabilities=params.device_capabilities)
-
-    validate_ϕ(ϕ,params.warn,rydberg_capabilities.ϕ)
-    validate_Ω(Ω,params.warn,rydberg_capabilities.Ω)
-    validate_Δ(Δ,params.warn,rydberg_capabilities.Δ)
-
-    if !isnothing(δ)
-        validate_δ(δ,Δi,params.warn,rydberg_capabilities.δ)
-    end
-
-    
-    pos_resolution = params.device_capabilities.lattice.geometry.positionResolution
-    atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
+    validate_analog_fields(atoms,ϕ,Ω,Δ,δ,Δi,params.warn,params.device_capabilities)
 
     ϕ =(
         clocks=ϕ.f.clocks,

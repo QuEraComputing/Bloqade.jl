@@ -162,19 +162,42 @@ function validate_δ(wf,Δi,warn,expected)
 
 end
 
-# public API exposed here
-function validate(H::BloqadeExpr.RydbergHamiltonian;warn::Bool=false,device_capabilities::DeviceCapabilities=get_device_capabilities())
-    (atoms,ϕ,Ω,Δ,δ,Δi) = schema_parse_rydberg_fields(H)
+function check_durations(ϕ,Ω,Δ,δ,warn)
+    durations = Dict(:Δ=>Δ.duration,:Ω=>Ω.duration,:ϕ=>ϕ.duration)
 
-    validate_lattice(H.rydberg_term.atoms,warn,device_capabilities)
+    if !isnothing(δ)
+        durations[:δ] = δ.duration
+    end
+
+    for (f1,d1) in durations
+        for (f2,d2) in durations
+           d1!=d2 && error_or_warn(warn,"$f1(t) duration of $d1 μs is not equal to $f2(t) duration of $d2 μs")
+        end
+    end
+end
+
+function validate_analog_fields(atoms,ϕ,Ω,Δ,δ,Δi,warn::Bool,device_capabilities::DeviceCapabilities)
+    
+    validate_lattice(atoms,warn,device_capabilities)
     rydberg_capabilities = get_rydberg_capabilities(;device_capabilities=device_capabilities)
 
     validate_ϕ(ϕ,warn,rydberg_capabilities.ϕ)
     validate_Ω(Ω,warn,rydberg_capabilities.Ω)
     validate_Δ(Δ,warn,rydberg_capabilities.Δ)
-
+    
     if !isnothing(δ)
         validate_δ(δ,Δi,warn,rydberg_capabilities.δ)
     end
+
+    check_durations(ϕ,Ω,Δ,δ,warn)
+
+
+end
+
+# public API exposed here
+function validate(H::BloqadeExpr.RydbergHamiltonian;warn::Bool=false,device_capabilities::DeviceCapabilities=get_device_capabilities())
+    (atoms,ϕ,Ω,Δ,δ,Δi) = schema_parse_rydberg_fields(H)
+
+    validate_analog_fields(atoms,ϕ,Ω,Δ,δ,Δi,warn,device_capabilities)
 
 end

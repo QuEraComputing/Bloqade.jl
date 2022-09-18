@@ -8,6 +8,7 @@ using BloqadeSchema:
     message,
     get_rydberg_capabilities,
     get_device_capabilities,
+    check_durations,
     validate_Ω,
     validate_Δ,
     validate_ϕ,
@@ -185,6 +186,17 @@ end
     ϕ = piecewise_linear(;clocks=[0.0, 0.1, 0.2, 0.3], values=[0.0, 10*resolution, 11.4*resolution, 0.0])
     @test_throws ErrorException validate_ϕ(ϕ, warn, rydberg_capabilities.ϕ)
 
+end
+
+@testset "check_durations" begin
+    δ = Waveform(t->t,3)
+    Δ = Waveform(t->t,3)
+    ϕ = Waveform(t->t,3)
+    Ω = Waveform(t->t,4)
+
+    @test_throws ErrorException check_durations(ϕ,Ω,Δ,δ,false)
+    @test_throws ErrorException check_durations(ϕ,Ω,Δ,nothing,false)
+    
 end
 
 @testset "validate" begin

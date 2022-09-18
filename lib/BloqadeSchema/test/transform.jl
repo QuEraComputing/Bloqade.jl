@@ -1,5 +1,6 @@
 
 using BloqadeSchema
+using BloqadeExpr
 using Configurations
 using Test
 using BloqadeSchema
@@ -158,4 +159,32 @@ end
 
     @test wf_1 == wf_2
     @test error_2 == 0
+end
+
+
+@testset "hardware_transform_parse" begin
+
+    atoms = [(1.14,4.0),(2.2,1),(5,3.37),(10,5.35)]
+    dc = get_device_capabilities()
+    Δ = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0],values=[1.0,0.0,0.0,-1.0])
+    Ω = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0],values=[0.0,1.0,1.0,0.0])
+    ϕ = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0],values=[0.0,1,-1,0.0])
+    H = rydberg_h(atoms,Δ=Δ,ϕ=ϕ,Ω=Ω)
+
+    Δ_mask = (Δ=Δ,δ=nothing,Δi=1.0)
+
+    (new_atoms,new_ϕ,new_Ω,new_Δ,info) = BloqadeSchema.hardware_transform_parse(H,dc)
+
+    mse_atoms = (0.04+0.0+0.03+0.05)/4.0
+
+    @test new_atoms == [(1.1,4.0),(2.2,1.0),(5.0,3.4),(10.0,5.3)]
+    @test Δ == new_Δ
+    @test Ω == new_Ω
+    @test ϕ == new_ϕ
+    @test info.Δ == 0
+    @test info.Ω == 0
+    @test info.ϕ == 0
+    @test info.mse_atoms ≈ mse_atoms # up to rouding errors
+    @test info.Δ_mask == Δ_mask
+
 end

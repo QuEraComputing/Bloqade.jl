@@ -370,7 +370,7 @@ function hardware_transform_parse(H::BloqadeExpr.RydbergHamiltonian,device_capab
     Ω,Ω_error = hardware_transform_Ω(Ω,device_capabilities)
     Δ,Δ_error,Δ_mask = hardware_transform_Δ(Δ,device_capabilities)
 
-    pos_resolution = params.device_capabilities.lattice.geometry.positionResolution
+    pos_resolution = device_capabilities.lattice.geometry.positionResolution
     new_atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
 
     mse_atoms = sum(√sum((a .- b) .^ 2) for (a,b) in zip(new_atoms,atoms))/length(atoms)

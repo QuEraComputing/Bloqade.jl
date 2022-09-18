@@ -201,12 +201,12 @@ end
 #     return results
 
 # end
-function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},min_value::T,max_value::T) where {T<:Real,I}
+function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},name,min_value::T,max_value::T) where {T<:Real,I}
     @assert min_value < max_value
 
     for value in wf.f.values
         if value > max_value || value < min_value
-            @info "Waveform falling outside of hardware bounds, clipping values to maximum/minimum."
+            @info "Waveform $name falling outside of hardware bounds, clipping values to maximum/minimum."
             break
         end
     end
@@ -251,7 +251,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
         )
     end
 
-    Ωt = clip_waveform(Ωt,min_value,max_value)
+    Ωt = clip_waveform(Ωt,:Ω,min_value,max_value)
     return Ωt,norm_diff_durations(Ω,Ωt)
 end
 
@@ -282,7 +282,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
         )
     end
 
-    ϕt = clip_waveform(ϕt,min_value,max_value)
+    ϕt = clip_waveform(ϕt,:ϕ,min_value,max_value)
     return ϕt,norm_diff_durations(ϕ,ϕt)
 end
 
@@ -311,7 +311,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
             values=set_resolution.(Δ.f.values,detune_res)
         )
         Δ_mask = (Δ=Δt,δ=nothing,Δi=1.0)
-        
+        Δt = clip_waveform(Δt,:Δ,min_value,max_value)
         return Δt,norm_diff_durations(Δ,Δt),Δ_mask
 
     elseif Δ isa Waveform{F,T} where {F,T<:Real}
@@ -323,7 +323,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
             values=set_resolution.(Δ_interp.f.values,detune_res)
         )
 
-        Δt = clip_waveform(Δt,min_value,max_value)
+        Δt = clip_waveform(Δt,:Δ,min_value,max_value)
         Δ_mask = (Δ=Δt,δ=nothing,Δi=1.0)
 
         return Δt,norm_diff_durations(Δ,Δt),Δ_mask

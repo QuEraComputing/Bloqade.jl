@@ -2,10 +2,18 @@
 
 If you are interested in contributing to this package,
 please consider going through this guide to help make your
-developing workflow smooth.
+development workflow as smooth as possible.
 
-Contributing to the documentation is always a good start to get yourself familiar
+Contributing to documentation and unit tests are always great ways to get yourself familiar
 with the community and workflows.
+
+## CLI Tool
+
+There is a CLI tool in this repository at `.ci/run` that can help
+you simplify your workflow substantially. You can run `.ci/run -h` in your
+terminal to see the help message. or run `.ci/run <command> -h`
+to see the help message of each command.
+Below are some common use cases.
 
 ## Documentation
 
@@ -18,7 +26,7 @@ If you are editing the documentation, you can use the `serve` command:
 ```
 
 to serve the documentation locally, and it will automatically update
-the served webpage while you editing. 
+the served webpage while you are editing. 
 
 If you wish to just build the documentation, you can use `build` command,
 which will run the build:
@@ -55,18 +63,11 @@ to run the following command:
 pkg> dev lib/BloqadeExpr lib/BloqadeKrylov lib/BloqadeLattices lib/BloqadeMIS lib/BloqadeODE lib/BloqadeWaveforms
 ```
 
-This can be done automatically using the CLI tool introduced
-in the following.
+This can be done automatically using the CLI tool via:
 
-## Components
-
-## The CLI Tool
-
-There is a CLI tool in this repository at `.ci/run` that can help
-you simplify the workflow substantially. You can run `.ci/run -h` in your
-terminal to see the help message. or run `.ci/run <command> -h`
-to see the help message of each command.
-Here are some common examples of it.
+```sh
+.ci/run dev
+```
 
 ### Create New Examples
 
@@ -83,4 +84,15 @@ Build a single example at `build/my_example` to jupyter notebook:
 
 ```sh
 .ci/run example build my_example
+```
+
+### Run Unit Tests
+
+If you are developing unit tests or would like to verify that changes made to any of Bloqade's code have not broken existing functionality, you can run unit tests for a specific sub-package like so:
+```sh
+.ci/run test path_to_sub_package
+```
+You can also run ALL tests for the package using 
+```sh
+.ci/run testall
 ```

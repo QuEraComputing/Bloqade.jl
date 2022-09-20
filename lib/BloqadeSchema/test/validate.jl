@@ -1,6 +1,7 @@
 using Test 
 using Unitful
 using BloqadeWaveforms:
+    Waveform
     piecewise_linear
 using BloqadeSchema:
     error_or_warn,
@@ -16,14 +17,6 @@ using BloqadeSchema:
 using BloqadeExpr:
     rydberg_h
 
-@testset "error_or_warn" begin
-
-    exception_msg = "This is an exception!"
-    @test_throws ErrorException error_or_warn(false, exception_msg)
-
-    warning_msg = "This is a warning!"
-    @test_logs (:warn, warning_msg) error_or_warn(true, warning_msg)
-end
 
 @testset "check_resolution" begin
     # check if x is integer multiple of res,
@@ -194,8 +187,15 @@ end
     ϕ = Waveform(t->t,3)
     Ω = Waveform(t->t,4)
 
-    @test_throws ErrorException check_durations(ϕ,Ω,Δ,δ,false)
-    @test_throws ErrorException check_durations(ϕ,Ω,Δ,nothing,false)
+    @test check_durations(ϕ,Ω,Δ,δ) == Set([
+        "Ω(t) duration of 4 μs is not equal to δ(t) duration of 3 μs",
+        "Ω(t) duration of 4 μs is not equal to Δ(t) duration of 3 μs",
+        "Ω(t) duration of 4 μs is not equal to ϕ(t) duration of 3 μs",
+    ])
+    @test check_durations(ϕ,Ω,Δ,nothing) == Set([
+        "Ω(t) duration of 4 μs is not equal to Δ(t) duration of 3 μs",
+        "Ω(t) duration of 4 μs is not equal to ϕ(t) duration of 3 μs",
+    ])
     
 end
 

@@ -44,7 +44,7 @@ function validate_Ω(wf,expected)
         ("end value",end_value,!=,0.0,"rad⋅MHz"),
     ]
     #("duration", max_time, < expected.min_time_step, "μs")
-    messages = String[]
+    messages = Set([])
 
     for (name,given,op,expected,units) in tests
         op(given,expected) && push!(messages,"Ω(t) $name with value $given $units $(message(op)) value of $expected $units")
@@ -80,7 +80,7 @@ function validate_Δ(wf,expected)
         ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
     ]
 
-    messages = String[]
+    messages = Set([])
 
     for (name,given,op,expected,units) in tests
         op(given,expected) && push!(messages,"Δ(t) $name with value $given $units $(message(op)) value of $expected $units")
@@ -119,7 +119,7 @@ function validate_ϕ(wf,expected)
         ("start value",start_value,!=,0.0,"rad"),
     ]
 
-    messages = String[]
+    messages = Set([])
 
     for (name,given,op,expected,units) in tests
         op(given,expected) && push!(messages,"ϕ(t) $name with value $given $units $(message(op)) value of $expected $units")
@@ -155,7 +155,7 @@ function validate_δ(wf,Δi,expected)
         ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
     ]
 
-    messages = String[]
+    messages = Set([])
 
     for (name,given,op,expected,units) in tests
         op(given,expected) && push!(messages,"δ(t) $name with value $given $units $(message(op)) value of $expected $units")
@@ -176,8 +176,10 @@ function validate_δ(wf,Δi,expected)
     return messages
 end
 
-function check_durations(ϕ,Ω,Δ,δ,warn)
+function check_durations(ϕ,Ω,Δ,δ)
     durations = Dict(:Δ=>Δ.duration,:Ω=>Ω.duration,:ϕ=>ϕ.duration)
+    
+    messages = Set([])
 
     if !isnothing(δ)
         durations[:δ] = δ.duration
@@ -188,6 +190,7 @@ function check_durations(ϕ,Ω,Δ,δ,warn)
            d1!=d2 && push!(messages,"$f1(t) duration of $d1 μs is not equal to $f2(t) duration of $d2 μs")
         end
     end
+    return messages
 end
 
 function validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,warn::Bool,device_capabilities::DeviceCapabilities)

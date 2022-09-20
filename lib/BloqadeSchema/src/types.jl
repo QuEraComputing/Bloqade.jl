@@ -65,34 +65,34 @@ end
 
 # copying structure from device API 
 
-# see https://github.com/QuEra-QCS/TaskManager/blob/main/api-impl/src/main/kotlin/com/queraqcs/api/impl/services/CapabilitiesStore.kt
+# see https://github.com/QuEra-QCS/TaskManager/blob/0be1d6f86bce8267b8a6d10f91019791eb24366e/api-impl/src/main/kotlin/com/queraqcs/ahs/services/v1/qpu/StubQpuCapabilitiesService.kt
 """
-val capabilitiesStore = mapOf(
+private val capabilitiesByQpuId = mapOf(
     "qpu1-mock" to VersionedCapabilities(
-        version = "0.1",
+        version = "0.2",
         DeviceCapabilities(
             TaskCapabilities(
-                numberQubitsMax = 256,
                 numberShotsMin = 1,
-                numberShotsMax = 10_000,
+                numberShotsMax = 1000,
             ),
             LatticeCapabilities(
+                numberQubitsMax = 100,
                 LatticeAreaCapabilities(
-                    width = 100e-6,
+                    width = 56e-6,
                     height = 100e-6,
                 ),
                 LatticeGeometryCapabilities(
                     spacingRadialMin = 4e-6,
                     spacingVerticalMin = 2.5e-6,
                     positionResolution = 0.1e-6,
-                    numberSitesMax = 256,
+                    numberSitesMax = 100,
                 ),
             ),
             RydbergCapabilities(
                 c6Coefficient = 5.420e-24,
                 RydbergGlobalCapabilities(
                     rabiFrequencyMin = 0.0,
-                    rabiFrequencyMax = 25.0e6,
+                    rabiFrequencyMax = 6.30e6,
                     rabiFrequencyResolution = 400.0,
                     rabiFrequencySlewRateMax = 2.5e14,
                     detuningMin = -125.0e6,
@@ -102,23 +102,11 @@ val capabilitiesStore = mapOf(
                     phaseMin = -99.0,
                     phaseMax = 99.0,
                     phaseResolution = 0.5e-6,
-                    phaseSlewRateMax = 62.0e6,
                     timeMin = 0.0,
                     timeMax = 4e-6,
                     timeResolution = 1e-9,
                     timeDeltaMin = 10e-9,
-                ),
-                RydbergLocalCapabilities(
-                    detuningMin = 0.0,
-                    detuningMax = 125.0e6,
-                    commonDetuningResolution = 2e3,
-                    localDetuningResolution = 0.01,
-                    detuningSlewRateMax = 1.25e15,
-                    numberLocalDetuningSites = 256,
-                    spacingRadialMin = 4e-6,
-                    timeResolution = 1e-9,
-                    timeDeltaMin = 10e-9,
-                ),
+                )
             ),
         ),
     ),
@@ -198,27 +186,28 @@ end
 # manually convert to default units
 get_device_capabilities() = DeviceCapabilities(
     task=TaskCapabilities(
-        numberQubitsMax = 256,
+        numberQubitsMax = 100,
         numberShotsMin = 1,
-        numberShotsMax = 10000,
+        numberShotsMax = 1000,
     ),
     lattice=LatticeCapabilities(
         area=LatticeAreaCapabilities(
-            width = convert_units(100e-6,m,μm),
+            width = convert_units(56e-6,m,μm),
             height = convert_units(100e-6,m,μm)
         ),
         geometry=LatticeGeometryCapabilities(
             spacingRadialMin = convert_units(4e-6,m,μm),
             spacingVerticalMin = convert_units(2.5e-6,m,μm),
             positionResolution = convert_units(0.1e-6,m,μm),
-            numberSitesMax = 256,
+            numberSitesMax = 100,
         )
     ),
     rydberg=RydbergCapabilities(
         c6Coefficient = convert_units(5.420e-24,rad*m^6/s,rad*μm^6/μs),
         global_value=RydbergGlobalCapabilities(
             rabiFrequencyMin = convert_units(0.0,rad/s,rad*MHz),
-            rabiFrequencyMax = convert_units(25.0e6,rad/s,rad*MHz),
+            # rabiFrequencyMax = convert_units(25.0e6,rad/s,rad*MHz),
+            rabiFrequencyMax = convert_units(6.3e6,rad/s,rad*MHz),
             rabiFrequencyResolution = convert_units(400.0,rad/s,rad*MHz),
             rabiFrequencySlewRateMax = convert_units(2.5e14,rad/s^2,rad*MHz/μs),
             detuningMin = convert_units(-125.0e6,rad/s,rad*MHz),
@@ -250,27 +239,27 @@ get_device_capabilities() = DeviceCapabilities(
 # leave as SI units, needed for rounding purposes
 get_device_capabilities_SI() = DeviceCapabilities(
     task=TaskCapabilities(
-        numberQubitsMax = 256,
+        numberQubitsMax = 100,
         numberShotsMin = 1,
         numberShotsMax = 10000,
     ),
     lattice=LatticeCapabilities(
         area=LatticeAreaCapabilities(
-            width = 100e-6,
+            width = 56e-6,
             height = 100e-6
         ),
         geometry=LatticeGeometryCapabilities(
             spacingRadialMin = 4e-6,
             spacingVerticalMin = 2.5e-6,
             positionResolution = 0.1e-6,
-            numberSitesMax = 256,
+            numberSitesMax = 100,
         )
     ),
     rydberg=RydbergCapabilities(
         c6Coefficient = 5.420e-24,
         global_value=RydbergGlobalCapabilities(
             rabiFrequencyMin = 0.0,
-            rabiFrequencyMax = 25.0e6,
+            rabiFrequencyMax = 6.3e6,
             rabiFrequencyResolution = 400.0,
             rabiFrequencySlewRateMax = 2.5e14,
             detuningMin = -125.0e6,

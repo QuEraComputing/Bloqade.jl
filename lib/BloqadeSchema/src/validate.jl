@@ -190,7 +190,7 @@ function check_durations(ϕ,Ω,Δ,δ,warn)
     end
 end
 
-function validate_analog_fields(atoms,ϕ,Ω,Δ,δ,Δi,warn::Bool,device_capabilities::DeviceCapabilities)
+function validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,warn::Bool,device_capabilities::DeviceCapabilities)
     
     lattice_messages = validate_lattice(atoms,warn,device_capabilities)
     rydberg_capabilities = get_rydberg_capabilities(;device_capabilities=device_capabilities)

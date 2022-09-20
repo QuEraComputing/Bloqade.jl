@@ -241,7 +241,7 @@ get_device_capabilities_SI() = DeviceCapabilities(
     task=TaskCapabilities(
         numberQubitsMax = 100,
         numberShotsMin = 1,
-        numberShotsMax = 10000,
+        numberShotsMax = 1000,
     ),
     lattice=LatticeCapabilities(
         area=LatticeAreaCapabilities(
@@ -336,8 +336,6 @@ end
 
 @option struct SchemaTranslationParams <: QuEraSchema
     n_shots::Int = 1
-    warn::Bool=true
-    transform_info::Bool=true
     device_capabilities::DeviceCapabilities = get_device_capabilities()
 end
 

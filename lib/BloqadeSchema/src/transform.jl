@@ -59,7 +59,7 @@ function warn_duration(time_res,field,name)
         field.duration
     end
     if !(set_resolution(duration,time_res) ≈ duration)
-        @info "waveform $name duration will be rounded during hardware transformation."
+        @debug "waveform $name duration will be rounded during hardware transformation."
     end
 end
 
@@ -73,7 +73,7 @@ function pin_waveform_edges(wf::Waveform,
     duration = wf.duration
 
 
-
+    # 
     t_begin = if !isapprox(wf(0.0), begin_value;atol=eps(),rtol=√eps())
         ramp_up =  (sign(wf(0.0)-begin_value)*max_slope)
         lin_ramp_begin = Waveform(t -> ramp_up .* t .+ begin_value, duration)
@@ -206,7 +206,7 @@ function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},nam
 
     for value in wf.f.values
         if value > max_value || value < min_value
-            @info "During hardware transform: $name(t) falls outside of hardware bounds, clipping to maximum/minimum."
+            @debug "During hardware transform: $name(t) falls outside of hardware bounds, clipping to maximum/minimum."
             break
         end
     end
@@ -229,12 +229,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     check_global(Ω,:Ω)
     warn_duration(time_res,Ω,:Ω)
 
-    Ω = if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=√eps()) || !isapprox(Ω(Ω.duration),0.0;atol=eps(),rtol=√eps())
-        @info "During hardware transform: Ω(t) start and/or end values are not 0. adding ramp(s) to fix endpoints."
-        pin_waveform_edges(Ω,max_slope,0,0)
-    else
-        Ω
-    end
+    Ω = pin_waveform_edges(Ω,max_slope,0,0)
 
     Ωt = if Ω isa PiecewiseLinearWaveform
         piecewise_linear(;
@@ -363,8 +358,8 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
 
 end
 
-function hardware_transform_parse(H::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
-    (atoms,ϕ,Ω,Δ) = get_rydberg_params(H)
+function hardware_transform_parse(h::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
+    (atoms,ϕ,Ω,Δ) = get_rydberg_params(h)
 
     ϕ,ϕ_error = hardware_transform_ϕ(ϕ,device_capabilities)
     Ω,Ω_error = hardware_transform_Ω(Ω,device_capabilities)
@@ -381,9 +376,9 @@ function hardware_transform_parse(H::BloqadeExpr.RydbergHamiltonian,device_capab
 end
 
 # public API exposed here: 
-function hardware_transform(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
-    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(H,device_capabilities)
-    hardware_H = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
+function hardware_transform(h::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
+    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h,device_capabilities)
+    hardware_h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
 
-    return hardware_H,info
+    return hardware_h,info
 end

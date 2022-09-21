@@ -41,12 +41,12 @@ function YaoAPI.mat(::Type{T}, ::Type{N3{name}}) where {T, name}
     name === :hyperfine && return sparse([2], [2], T[1], 3, 3)
 end
 function YaoAPI.mat(::Type{T}, ::Type{Pu3{name}}) where {T, name}
-    name === :rydberg && return sparse([3], [2], T[1], 3, 3)
-    name === :hyperfine && return sparse([2], [1], T[1], 3, 3)
-end
-function YaoAPI.mat(::Type{T}, ::Type{Pd3{name}}) where {T, name}
     name === :rydberg && return sparse([2], [3], T[1], 3, 3)
     name === :hyperfine && return sparse([1], [2], T[1], 3, 3)
+end
+function YaoAPI.mat(::Type{T}, ::Type{Pd3{name}}) where {T, name}
+    name === :rydberg && return sparse([3], [2], T[1], 3, 3)
+    name === :hyperfine && return sparse([2], [1], T[1], 3, 3)
 end
 
 

@@ -4,6 +4,7 @@ using YaoBlocks
 using BloqadeExpr
 using Yao
 using SparseArrays
+using BloqadeExpr: Pu3, Pd3
 
 @testset "mat" begin
     ss = Subspace(10, sort(randperm(1023)[1:100]))
@@ -56,4 +57,9 @@ end
 
     SXPhase_r = mat(SumOfXPhase(2, 1, [0, 0]; nlevel = 3))
     @test SX_r ≈ SXPhase_r
+    
+    ϕ = rand()*2π
+    @test mat(PuPhase(ϕ; nlevel = 3)) + mat(PdPhase(ϕ; nlevel = 3)) ≈ mat(XPhase(ϕ; nlevel = 3))
+    @test mat(PuPhase(ϕ; nlevel = 3, name = :hyperfine)) + mat(PdPhase(ϕ; nlevel = 3, name = :hyperfine)) ≈ mat(XPhase(ϕ; nlevel = 3, name = :hyperfine))
+    @test sum(mat.([Pu3(:rydberg), Pd3(:rydberg), Pu3(:hyperfine), Pd3(:hyperfine)])) ≈ [0 1 0; 1 0 1; 0 1 0]
 end

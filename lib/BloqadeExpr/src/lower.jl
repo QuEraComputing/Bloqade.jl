@@ -15,7 +15,7 @@ end
 emit_dynamic_terms(ex::RydInteract) = Any[one=>ex,]
 
 function emit_dynamic_terms(ex::SumOfX{D, name}) where {D, name}
-    op = (D == 2 ? X : X3(:name))
+    op = (D == 2 ? X : X3(name))
     return if ex.Ω isa Number || ex.Ω isa Vector{<:Number}
         Any[one=>ex,]
     elseif ex.Ω isa Vector && is_time_function(ex.Ω)

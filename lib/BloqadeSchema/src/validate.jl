@@ -16,10 +16,10 @@ validate_lattice(positions,warn::Bool,::DeviceCapabilities) = String[]
 
 # Waveform Validations all waveforms must be piecewise linear
 
-# helper functions to generate messages
+# helper functions to generate violations
 message(::typeof(>)) = "exceeds maximum"
 message(::typeof(<)) = "below minimum"
-message(::typeof(!=)) = "is not equal to"
+message(::typeof(!=)) = "is not equal to the"
 
 # TODO: add explicit typing, wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T} where {T<:Real,I}
 function validate_Ω(wf,expected)
@@ -44,21 +44,21 @@ function validate_Ω(wf,expected)
         ("end value",end_value,!=,0.0,"rad⋅MHz"),
     ]
     #("duration", max_time, < expected.min_time_step, "μs")
-    messages = Set([])
+    violations = Set([])
 
     for (name,given,op,expected,units) in tests
-        op(given,expected) && push!(messages,"Ω(t) $name with value $given $units $(message(op)) value of $expected $units")
+        op(given,expected) && push!(violations,"Ω(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
     foreach(wf.f.clocks) do clock
-        check_resolution(expected.time_resolution,clock) && push!(messages,"Ω(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
+        check_resolution(expected.time_resolution,clock) && push!(violations,"Ω(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     foreach(wf.f.values) do value
-        check_resolution(expected.value_resolution,value) && push!(messages,"Ω(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
+        check_resolution(expected.value_resolution,value) && push!(violations,"Ω(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
     end
 
-    return messages
+    return violations
 
 end
 
@@ -80,21 +80,21 @@ function validate_Δ(wf,expected)
         ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
     ]
 
-    messages = Set([])
+    violations = Set([])
 
     for (name,given,op,expected,units) in tests
-        op(given,expected) && push!(messages,"Δ(t) $name with value $given $units $(message(op)) value of $expected $units")
+        op(given,expected) && push!(violations,"Δ(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
     foreach(wf.f.clocks) do clock
-        check_resolution(expected.time_resolution,clock) && push!(messages,"Δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
+        check_resolution(expected.time_resolution,clock) && push!(violations,"Δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     foreach(wf.f.values) do value
-        check_resolution(expected.value_resolution,value) && push!(messages,"Δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
+        check_resolution(expected.value_resolution,value) && push!(violations,"Δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
     end
 
-    return messages
+    return violations
 
 end
 
@@ -112,28 +112,27 @@ function validate_ϕ(wf,expected)
         ("duration",max_time,>,expected.max_time,"μs"),
         ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
-        ("minimum step",min_time_step,>,max_time,"μs"),
         ("maximum slope",max_slope,>,expected.max_slope,"rad/μs"),
         ("minimum value",min_value,<,expected.min_value,"rad"),
         ("maximum value",max_value,>,expected.max_value,"rad"),
         ("start value",start_value,!=,0.0,"rad"),
     ]
 
-    messages = Set([])
+    violations = Set([])
 
     for (name,given,op,expected,units) in tests
-        op(given,expected) && push!(messages,"ϕ(t) $name with value $given $units $(message(op)) value of $expected $units")
+        op(given,expected) && push!(violations,"ϕ(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
     foreach(wf.f.clocks) do clock
-        check_resolution(expected.time_resolution,clock) && push!(messages,"ϕ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
+        check_resolution(expected.time_resolution,clock) && push!(violations,"ϕ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     foreach(wf.f.values) do value
-        check_resolution(expected.value_resolution,value) && push!(messages,"ϕ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
+        check_resolution(expected.value_resolution,value) && push!(violations,"ϕ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
     end
 
-    return messages
+    return violations
 end
 
 function validate_δ(wf,Δi,expected)
@@ -155,31 +154,31 @@ function validate_δ(wf,Δi,expected)
         ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
     ]
 
-    messages = Set([])
+    violations = Set([])
 
     for (name,given,op,expected,units) in tests
-        op(given,expected) && push!(messages,"δ(t) $name with value $given $units $(message(op)) value of $expected $units")
+        op(given,expected) && push!(violations,"δ(t) $name with value $given $units $(message(op)) value of $expected $units")
     end
 
     foreach(wf.f.clocks) do clock
-        check_resolution(expected.time_resolution,clock) && push!(messages,"δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
+        check_resolution(expected.time_resolution,clock) && push!(violations,"δ(t) clock $clock μs is not consistent with resolution $(expected.time_resolution) μs.")
     end
 
     foreach(wf.f.values) do value
-        check_resolution(expected.value_resolution,value) && push!(messages,"δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
+        check_resolution(expected.value_resolution,value) && push!(violations,"δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad.")
     end
 
     foreach(Δi) do value
-        check_resolution(expected.local_mask_resolution,value) && push!(messages,"Δi value $value  is not consistent with resolution $(expected.local_mask_resolution).")
+        check_resolution(expected.local_mask_resolution,value) && push!(violations,"Δi value $value  is not consistent with resolution $(expected.local_mask_resolution).")
     end
 
-    return messages
+    return violations
 end
 
 function check_durations(ϕ,Ω,Δ,δ)
     durations = Dict(:Δ=>Δ.duration,:Ω=>Ω.duration,:ϕ=>ϕ.duration)
     
-    messages = Set([])
+    invalid = Set([])
 
     if !isnothing(δ)
         durations[:δ] = δ.duration
@@ -187,26 +186,46 @@ function check_durations(ϕ,Ω,Δ,δ)
 
     for (f1,d1) in durations
         for (f2,d2) in durations
-           d1!=d2 && push!(messages,"$f1(t) duration of $d1 μs is not equal to $f2(t) duration of $d2 μs")
+           d1!=d2 && push!(invalid,Set([f1=>d1,f2=>d2]))
         end
     end
-    return messages
+
+    violations = Set([])
+
+    for ((f1,d1),(f2,d2)) in invalid
+        if d2>d1
+            push!(violations,"$f2(t) duration of $d2 μs is greater than $f1(t) duration of $d1 μs")
+        else
+            push!(violations,"$f1(t) duration of $d1 μs is greater than $f2(t) duration of $d2 μs")
+        end
+    end
+
+    return violations
 end
+
+# struct ValidationViolations <: BloqadeSchema
+#     lattice_violations::Set
+#     misc_violations::Set
+#     Δ_violations::Set
+#     Ω_violations::Set
+#     ϕ_violations::Set
+#     δ_violations::Set
+# end
 
 function validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,warn::Bool,device_capabilities::DeviceCapabilities)
     
-    lattice_messages = validate_lattice(atoms,warn,device_capabilities)
+    lattice_violations = validate_lattice(atoms,warn,device_capabilities)
     rydberg_capabilities = get_rydberg_capabilities(;device_capabilities=device_capabilities)
 
-    Δ_messages = validate_ϕ(ϕ,rydberg_capabilities.ϕ)
-    Ω_messages = validate_Ω(Ω,rydberg_capabilities.Ω)
-    ϕ_messages = validate_Δ(Δ,rydberg_capabilities.Δ)
+    ϕ_violations = validate_ϕ(ϕ,rydberg_capabilities.ϕ)
+    Ω_violations = validate_Ω(Ω,rydberg_capabilities.Ω)
+    Δ_violations = validate_Δ(Δ,rydberg_capabilities.Δ)
     
-    δ_messages = if !isnothing(δ)
+    δ_violations = if !isnothing(δ)
         validate_δ(δ,Δi,rydberg_capabilities.δ)
     end
 
-    misc_messages = check_durations(ϕ,Ω,Δ,δ,warn)
+    misc_violations = check_durations(ϕ,Ω,Δ,δ,warn)
 
     return 
 end

@@ -171,15 +171,16 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
     δ = info.Δ_mask.δ
     Δi = info.Δ_mask.Δi
 
-    if params.transform_info
+    @debug "Hardware transform report: after linear interpolation ∫dt |ϕ(t)-ϕ_hw(t)| = $(info.ϕ) rad⋅μs"
+    @debug "Hardware transform report: after linear interpolation ∫dt |Ω(t)-Ω_hw(t)| = $(info.Ω) rad"
+    @debug "Hardware transform report: after linear interpolation ∫dt |Δ(t)-Δ_hw(t)| = $(info.Δ) rad"
+    @debug "Hardware transform report: mean deviation after rounding positions $(info.mse_atoms) μm"
 
-        @debug "Hardware transform report: after linear interpolation ∫dt |ϕ(t)-ϕ_hw(t)| = $(info.ϕ) rad⋅μs"
-        @debug "Hardware transform report: after linear interpolation ∫dt |Ω(t)-Ω_hw(t)| = $(info.Ω) rad"
-        @debug "Hardware transform report: after linear interpolation ∫dt |Δ(t)-Δ_hw(t)| = $(info.Δ) rad"
-        @debug "Hardware transform report: mean deviation after rounding positions $(info.mse_atoms) μm"
+    violations = validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,params.device_capabilities)
+
+    if length(violations) > 0
+        throw(ValidationException())
     end
-
-    validate_analog_fields(atoms,ϕ,Ω,Δ,δ,Δi,params.warn,params.device_capabilities)
 
     ϕ =(
         clocks=ϕ.f.clocks,

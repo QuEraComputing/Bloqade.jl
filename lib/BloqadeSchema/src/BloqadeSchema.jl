@@ -22,7 +22,10 @@ export get_device_capabilities,
     from_json,
     from_dict,
     from_schema,
-    execute
+    execute,
+    TaskSpecification,
+    TaskOutput,
+    ValidationViolations
 
 include("types.jl")
 include("serialize.jl")

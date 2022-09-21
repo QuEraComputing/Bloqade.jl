@@ -12,7 +12,7 @@ function check_resolution(res::Float64,x::Float64)
 end
 
 # TODO: implement this test based on validation in TaskManager
-validate_lattice(positions,warn::Bool,::DeviceCapabilities) = String[]
+validate_lattice(positions,::DeviceCapabilities) = Set([])
 
 # Waveform Validations all waveforms must be piecewise linear
 
@@ -202,18 +202,9 @@ function check_durations(ϕ,Ω,Δ,δ)
     return violations
 end
 
-# struct ValidationViolations <: BloqadeSchema
-#     lattice_violations::Set
-#     misc_violations::Set
-#     Δ_violations::Set
-#     Ω_violations::Set
-#     ϕ_violations::Set
-#     δ_violations::Set
-# end
-
-function validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,warn::Bool,device_capabilities::DeviceCapabilities)
+function validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,device_capabilities::DeviceCapabilities)
     
-    lattice_violations = validate_lattice(atoms,warn,device_capabilities)
+    lattice_violations = validate_lattice(atoms,device_capabilities)
     rydberg_capabilities = get_rydberg_capabilities(;device_capabilities=device_capabilities)
 
     ϕ_violations = validate_ϕ(ϕ,rydberg_capabilities.ϕ)
@@ -222,17 +213,25 @@ function validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,warn::Bool,device_capabili
     
     δ_violations = if !isnothing(δ)
         validate_δ(δ,Δi,rydberg_capabilities.δ)
+    else
+        Set([])
     end
 
-    misc_violations = check_durations(ϕ,Ω,Δ,δ,warn)
+    misc_violations = check_durations(ϕ,Ω,Δ,δ)
 
-    return 
+    return ValidationViolations(;lattice_violations=lattice_violations,
+        misc_violations=misc_violations,
+        Δ_violations=Δ_violations,
+        δ_violations=δ_violations,
+        Ω_violations=Ω_violations,
+        ϕ_violations=ϕ_violations
+    )
 end
 
 # public API exposed here
-function validate(H::BloqadeExpr.RydbergHamiltonian;warn::Bool=false,device_capabilities::DeviceCapabilities=get_device_capabilities())
+function validate(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
     (atoms,ϕ,Ω,Δ,δ,Δi) = schema_parse_rydberg_fields(H)
 
-    validate_analog_fields(atoms,ϕ,Ω,Δ,δ,Δi,warn,device_capabilities)
+    return validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,device_capabilities)
 
 end

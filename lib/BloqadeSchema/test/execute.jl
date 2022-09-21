@@ -4,6 +4,8 @@ using BloqadeExpr
 using BloqadeSchema
 using JSON
 using Configurations
+using Unitful: μs, s, MHz, rad 
+using Logging
 
 
 
@@ -18,7 +20,8 @@ using Configurations
 
 end
 
-@testset "to_schema" begin
+@testset "to_schema"  begin
+    
     T = 0.5
     atoms = [(π*i,0) for i in 1:10]
 
@@ -28,7 +31,7 @@ end
     wf2 = Waveform(t->cos(π*t/T),T)
     wfs_mixed = [(i%2==0 ? 1 : 0.1)*wf1 + wf2 for i in 1:length(atoms)]
     wfs_same = [i*wf1+wf2 for i in 1:length(atoms)]
-    scalar_values = [constant(;duration=T,value=1.0),wf1]
+    scalar_values = [constant(;duration=T,value=1.0),wf1,wf2]
     # all_values = [constant(;duration=T,value=1.0),wf1,wfs_mixed,wfs_same]
     params = get_device_capabilities_SI()
 
@@ -41,8 +44,8 @@ end
     check_Ω_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.rabiFrequencyResolution,x))
 
     for Ω in scalar_values, ϕ in scalar_values, Δ in scalar_values
-        H = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
-        j = BloqadeSchema.to_json(H,warn=true)
+        h = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
+        j = BloqadeSchema.to_json(h)
 
         t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
 
@@ -67,8 +70,6 @@ end
             @test check_δ_res(detuning_local.values)
             @test check_Δi_res(detuning_local.lattice_site_coefficients)                  
         end
-
-
     end
 
 end
@@ -81,13 +82,13 @@ end
     ϕ = constant(;duration=3,value=0)
     atoms = 5.0 * [i for i in 1:10]
     
-    H = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
-    task_string = to_json(H,n_shots=10,warn=true)
-    task_dict = BloqadeSchema.to_dict(H,n_shots=10,warn=true)
-    task = BloqadeSchema.to_schema(H,n_shots=10,warn=true)
+    h = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
+    task_string = to_json(h,n_shots=10)
+    task_dict = BloqadeSchema.to_dict(h,n_shots=10)
+    task = BloqadeSchema.to_schema(h,n_shots=10)
     
-    r_string = execute(task_string)
-    r_dict = execute(task_dict)
-    r_task = execute(task)
+    @test execute(task_string) isa String
+    @test execute(task_dict) isa String
+    @test execute(task) isa String
 
 end

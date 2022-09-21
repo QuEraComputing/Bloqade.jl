@@ -65,7 +65,7 @@ end
 
 # TODO: move this to BloqadeWaveforms
 # function inserts ramps at the beginning and end to set correct initial and final values
-function pin_waveform_edges(wf::Waveform,
+function pin_waveform_edges(wf::Waveform,name,
     max_slope::Real,
     begin_value::Real,
     end_value::Real)
@@ -75,6 +75,7 @@ function pin_waveform_edges(wf::Waveform,
 
 
     t_begin = if !isapprox(wf(0.0), begin_value;atol=eps(),rtol=√eps())
+        @debug "During hardware transform: $name(t) start value is not $start_value. adding ramp(s) to fix endpoints."
         ramp_up =  (sign(wf(0.0)-begin_value)*max_slope)
         lin_ramp_begin = Waveform(t -> ramp_up .* t .+ begin_value, duration)
         find_zero(wf-lin_ramp_begin,(0.0,duration))
@@ -83,6 +84,7 @@ function pin_waveform_edges(wf::Waveform,
     end
 
     t_end = if !isapprox(wf(duration), end_value;atol=eps(),rtol=√eps())
+        @debug "During hardware transform: $name(t) end value is not $end_value. adding ramp(s) to fix endpoints."
         ramp_down = (sign(end_value-wf(duration))*max_slope)
         lin_ramp_end = Waveform(t -> ramp_down .* (t.-duration) .+ end_value, duration)
         find_zero(wf-lin_ramp_end,(0.0,duration))
@@ -206,7 +208,7 @@ function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},nam
 
     for value in wf.f.values
         if value > max_value || value < min_value
-            @info "During hardware transform: $name(t) falls outside of hardware bounds, clipping to maximum/minimum."
+            @debug "During hardware transform: $name(t) falls outside of hardware bounds, clipping to maximum/minimum."
             break
         end
     end
@@ -229,12 +231,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     check_global(Ω,:Ω)
     warn_duration(time_res,Ω,:Ω)
 
-    Ω = if !isapprox(Ω(0.0), 0.0;atol=eps(),rtol=√eps()) || !isapprox(Ω(Ω.duration),0.0;atol=eps(),rtol=√eps())
-        @info "During hardware transform: Ω(t) start and/or end values are not 0. adding ramp(s) to fix endpoints."
-        pin_waveform_edges(Ω,max_slope,0,0)
-    else
-        Ω
-    end
+    Ω = pin_waveform_edges(Ω,:Ω,max_slope,0,0)
 
     Ωt = if Ω isa PiecewiseLinearWaveform
         piecewise_linear(;
@@ -266,6 +263,8 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     check_global(ϕ,:ϕ)
     check_waveform(ϕ,:ϕ)
     warn_duration(time_res,ϕ,:ϕ)
+
+    ϕ = pin_waveform_edges(ϕ,:ϕ,max_slope,0.0,ϕ(ϕ.duration))
 
     ϕt = if ϕ isa PiecewiseLinearWaveform
         piecewise_linear(;

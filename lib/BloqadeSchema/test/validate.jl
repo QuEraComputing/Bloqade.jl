@@ -32,7 +32,7 @@ end
 
     @test message(>) == "exceeds maximum"
     @test message(<) == "below minimum"
-    @test message(!=) == "is not equal to"
+    @test message(!=) == "is not equal to the"
 
 end
 
@@ -265,6 +265,9 @@ end
     ϕ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,-1,-1])
     atoms = 5.0 * [i for i in 1:10]
     H = rydberg_h(atoms, Ω=Ω, Δ=Δ, ϕ=ϕ)
-    @test_nowarn validate(H)
+    violations = validate(H)
+    @test length(violations)==0
+    
+    show(stdout, MIME"text/plain"(),violations)
 
 end

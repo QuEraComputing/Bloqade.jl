@@ -5,8 +5,6 @@ using Configurations
 using Test
 using BloqadeSchema
 using BloqadeWaveforms
-using Unitful: μs, s, MHz, rad 
-    
 
 
 @testset "set_resolution" begin

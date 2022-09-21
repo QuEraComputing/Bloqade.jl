@@ -53,6 +53,16 @@ end
 end
 
 @testset "pin_waveform_edges" begin
+    wf = constant(;duration=1.0,value=1.0)
+    max_slope = 10
+    begin_value = 0.0
+    end_value = 0.0
+    target_wf = piecewise_linear(;clocks=[0.0,0.1,0.9,1],values=[0.0,1.0,1.0,0.0])
+    new_wf =  BloqadeSchema.pin_waveform_edges(wf,:wf,max_slope,begin_value,end_value)
+    
+    # removing this until issue with append is fixed. 
+    @test new_wf ≈ target_wf broken=true
+
     wf = Waveform(t->1+t^2,1)
     max_slope = 100
     begin_value = 0.5
@@ -195,9 +205,9 @@ end
     @test Δ == new_Δ
     @test Ω == new_Ω
     @test ϕ == new_ϕ
-    @test info.Δ == 0
-    @test info.Ω == 0
-    @test info.ϕ == 0
+    @test info.Δ_error == 0
+    @test info.Ω_error == 0
+    @test info.ϕ_error == 0
     @test info.mse_atoms ≈ mse_atoms # up to rouding errors
     @test info.Δ_mask == Δ_mask
 

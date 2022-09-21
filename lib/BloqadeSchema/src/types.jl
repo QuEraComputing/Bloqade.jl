@@ -339,6 +339,13 @@ end
     device_capabilities::DeviceCapabilities = get_device_capabilities()
 end
 
+@Base.kwdef struct HardwareTransformInfo <: QuEraSchema
+    ϕ_error
+    Ω_error
+    Δ_error
+    Δ_mask
+    mse_atoms
+end
 
 
 

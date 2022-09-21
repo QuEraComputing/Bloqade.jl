@@ -125,6 +125,7 @@ function pin_waveform_edges(wf::Waveform,name,
             stop_value=end_value
         )
 
+
         return append(start_wf,mid_wf,end_wf)
     elseif t_begin > 0 
         end_wf = wf[t_begin..duration]
@@ -374,7 +375,7 @@ function hardware_transform_parse(h::BloqadeExpr.RydbergHamiltonian,device_capab
 
     mse_atoms = sum(√sum((a .- b) .^ 2) for (a,b) in zip(new_atoms,atoms))/length(atoms)
 
-    info = (ϕ=ϕ_error,Ω=Ω_error,Δ=Δ_error,Δ_mask=Δ_mask,mse_atoms=mse_atoms)
+    info = HardwareTransformInfo(ϕ_error=ϕ_error,Ω_error=Ω_error,Δ_error=Δ_error,Δ_mask=Δ_mask,mse_atoms=mse_atoms)
 
     return (new_atoms,ϕ,Ω,Δ,info)
 end

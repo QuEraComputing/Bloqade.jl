@@ -86,7 +86,7 @@ function pin_waveform_edges(wf::Waveform,name,
     t_end = if !isapprox(wf(duration), end_value;atol=eps(),rtol=√eps())
         @debug "During hardware transform: $name(t) end value is not $end_value. adding ramp to fix endpoints."
         ramp_down = (sign(end_value-wf(duration))*max_slope)
-        lin_ramp_end = Waveform(t -> ramp_down .* (t.-duration) .+ end_value, duration)
+        lin_ramp_end = Waveform(t -> ramp_down * (t-duration) + end_value, duration)
         find_zero(wf-lin_ramp_end,(0.0,duration))
     else
         duration
@@ -111,7 +111,7 @@ function pin_waveform_edges(wf::Waveform,name,
 
         return append(start_wf,end_wf)        
     elseif t_begin > 0 && t_end < duration
-        mid_wf = Waveform(t->wf.f(t.+t_begin),duration - t_begin - t_end)
+        mid_wf = wf[t_begin..t_end]
 
         start_wf = linear_ramp(;
             duration=t_begin,
@@ -120,15 +120,14 @@ function pin_waveform_edges(wf::Waveform,name,
         )
 
         end_wf = linear_ramp(;
-            duration=t_end,
+            duration=duration-t_end,
             start_value=wf(t_end),
             stop_value=end_value
         )
 
         return append(start_wf,mid_wf,end_wf)
     elseif t_begin > 0 
-        end_wf = Waveform(t->wf.f(t.+t_begin),duration - t_begin)
-
+        end_wf = wf[t_begin..duration]
         start_wf = linear_ramp(;duration=t_begin,
             start_value=begin_value,
             stop_value=wf(t_begin)
@@ -136,9 +135,9 @@ function pin_waveform_edges(wf::Waveform,name,
 
         return append(start_wf,end_wf)
     elseif t_end < duration
-        start_wf = Waveform(wf.f,duration - t_end)
+        start_wf = wf[0..t_end]
 
-        end_wf = linear_ramp(;duration=t_end,
+        end_wf = linear_ramp(;duration=duration-t_end,
             start_value=wf(t_end),
             stop_value=end_value
         )

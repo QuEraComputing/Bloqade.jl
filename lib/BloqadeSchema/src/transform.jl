@@ -150,59 +150,60 @@ function pin_waveform_edges(wf::Waveform,name,
 
 end
 
-# TODO: move this to BloqadeWaveforms
-# does the SVD method to decompose local drives into an outer produce of masks and functions.
-# function find_local_masks(values::Array{T,2};name::Symbol=:Waveform,ntrunc::Int=1, assert_truncation::Bool=false) where T
+#=
+function find_local_masks(values::Array{T,2};name::Symbol=:Waveform,ntrunc::Int=1, assert_truncation::Bool=false) where T
     
-#     (l,w) = size(values)
+    (l,w) = size(values)
     
-#     # project out uniform amplitude waveforms
-#     ones_norm = ones(w,1)./sqrt(w)
-#     avg = (values*ones_norm)*transpose(ones_norm)
-#     results = []
-#     values = values - avg
-#     avg = avg[:,1]
+    # project out uniform amplitude waveforms
+    ones_norm = ones(w,1)./sqrt(w)
+    avg = (values*ones_norm)*transpose(ones_norm)
+    results = []
+    values = values - avg
+    avg = avg[:,1]
 
-#     if ntrunc > 0
-#         # use SVD to decompose the non-uniform waveforms
-#         # if there are more than one singular value larger than 0 the remaining pattern
-#         # can't be described as a local detuning mask times a single time-dependent function.
-#         # here we truncate the waveform only keeping the first singular value.
-#         u,s,v_T = svd(values)
-#         contained_weight = sum(s[1:ntrunc])
+    if ntrunc > 0
+        # use SVD to decompose the non-uniform waveforms
+        # if there are more than one singular value larger than 0 the remaining pattern
+        # can't be described as a local detuning mask times a single time-dependent function.
+        # here we truncate the waveform only keeping the first singular value.
+        u,s,v_T = svd(values)
+        contained_weight = sum(s[1:ntrunc])
         
-#         remaining_weight = sum(s[(ntrunc+1):end])
+        remaining_weight = sum(s[(ntrunc+1):end])
 
-#         if remaining_weight > eps()*length(s)*contained_weight
-#             error_or_warn(assert_truncation,"Cannot decompose $name into product of masks and scalar functions.")
-#         end
+        if remaining_weight > eps()*length(s)*contained_weight
+            error_or_warn(assert_truncation,"Cannot decompose $name into product of masks and scalar functions.")
+        end
 
-#         for i in 1:ntrunc
+        for i in 1:ntrunc
 
-#             mask = if all(u[:,i] .<= 0) # make u all positive
-#                 u[:,i] .*= -1
-#                 (-s[i] .* v_T[:,i])
+            mask = if all(u[:,i] .<= 0) # make u all positive
+                u[:,i] .*= -1
+                (-s[i] .* v_T[:,i])
 
-#             else
-#                 s[i] .* v_T[:,i]
-#             end
+            else
+                s[i] .* v_T[:,i]
+            end
 
-#             min = minimum(mask)
-#             max = maximum(mask)
+            min = minimum(mask)
+            max = maximum(mask)
 
-#             mask = (mask .- min) ./ (max - min)
+            mask = (mask .- min) ./ (max - min)
 
-#             f = u[:,i] .* (max - min)
-#             avg .+= u[:,i] .* min
+            f = u[:,i] .* (max - min)
+            avg .+= u[:,i] .* min
 
-#             push!(results,(f,mask))
-#         end
-#     end
+            push!(results,(f,mask))
+        end
+    end
 
-#     push!(results,(avg,ones(w)))
-#     return results
+    push!(results,(avg,ones(w)))
+    return results
 
-# end
+end
+=#
+
 function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},name,min_value::T,max_value::T) where {T<:Real,I}
     @assert min_value < max_value
 
@@ -328,9 +329,8 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
 
         return Δt,norm_diff_durations(Δ,Δt),Δ_mask
     elseif Δ isa Vector
-        throw(NotImplementedError("Not implemented."))
-
-        """
+        error("Local detuning not implemented in Schema.")
+        #=
         duration = Δ[1].duration
         nsteps = Int((duration+duration%min_step)÷min_step)
         clocks = collect(LinRange(0.0,duration,nsteps))
@@ -357,7 +357,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
         error = [norm_diff_durations(δ,δt) for (δ,δt) in zip(Δ,Δt)]
 
         return Δt,error,Δ_mask
-        """
+        =#
     end
 
 

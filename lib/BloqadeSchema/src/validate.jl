@@ -1,6 +1,5 @@
 
 
-error_or_warn(warn::Bool,msg::String) = (warn ? @warn(msg) : error(msg))
 
 # checks of x is integer multiple of res
 # if it is return false otherwise return true

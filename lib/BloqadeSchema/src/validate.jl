@@ -36,7 +36,6 @@ function validate_Ω(wf,expected)
         ("duration",max_time,>,expected.max_time,"μs"),
         ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
-        ("minimum step",min_time_step,>,max_time,"μs"),
         ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
         ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
         ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),

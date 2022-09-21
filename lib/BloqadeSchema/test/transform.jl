@@ -5,7 +5,7 @@ using Configurations
 using Test
 using BloqadeSchema
 using BloqadeWaveforms
-
+using Logging
 
 @testset "set_resolution" begin
 
@@ -41,8 +41,14 @@ end
     @test_throws ErrorException BloqadeSchema.check_global(wfs,:test)
 
     time_res = 1.0e-3
-    @test_logs (:info,"waveform test duration will be rounded during hardware transformation.") BloqadeSchema.warn_duration(time_res,wf,:test)
-    @test_logs (:info,"waveform test duration will be rounded during hardware transformation.") BloqadeSchema.warn_duration(time_res,wfs,:test)
+
+    test_logger = Test.TestLogger(;min_level=Logging.Debug);
+    with_logger(test_logger) do
+        BloqadeSchema.warn_duration(time_res,wf,:test)
+        BloqadeSchema.warn_duration(time_res,wfs,:test)
+    end
+    @test test_logger.logs[1].message == "waveform test duration will be rounded during hardware transformation."
+    @test test_logger.logs[2].message == "waveform test duration will be rounded during hardware transformation."
 
 end
 
@@ -51,7 +57,13 @@ end
     max_slope = 100
     begin_value = 0.5
     end_value = 1.0
-    new_wf = BloqadeSchema.pin_waveform_edges(wf,max_slope,begin_value,end_value)
+    # missing first and last values
+    test_logger = Test.TestLogger(;min_level=Logging.Debug);
+    new_wf = with_logger(test_logger) do
+        BloqadeSchema.pin_waveform_edges(wf,:wf,max_slope,begin_value,end_value)
+    end
+    @test test_logger.logs[1].message == "During hardware transform: wf(t) initial value is not $begin_value. adding ramp to fix endpoints."
+    @test test_logger.logs[2].message == "During hardware transform: wf(t) end value is not $end_value. adding ramp to fix endpoints."
     @test new_wf(0.0) == begin_value
     @test new_wf(1.0) == end_value
 
@@ -59,7 +71,11 @@ end
     max_slope = 100
     begin_value = 0.0
     end_value = 0.0
-    new_wf = BloqadeSchema.pin_waveform_edges(wf,max_slope,begin_value,end_value)
+    test_logger = Test.TestLogger(;min_level=Logging.Debug);
+    new_wf = with_logger(test_logger) do
+        BloqadeSchema.pin_waveform_edges(wf,:wf,max_slope,begin_value,end_value)
+    end
+    @test test_logger.logs[1].message == "During hardware transform: wf(t) end value is not $end_value. adding ramp to fix endpoints."
     @test new_wf(0.0) == begin_value
     @test new_wf(1.0) == end_value
 
@@ -68,7 +84,11 @@ end
     max_slope = 100
     begin_value = 0.0
     end_value = 0.0
-    new_wf = BloqadeSchema.pin_waveform_edges(wf,max_slope,begin_value,end_value)
+    test_logger = Test.TestLogger(;min_level=Logging.Debug);
+    new_wf = with_logger(test_logger) do
+        BloqadeSchema.pin_waveform_edges(wf,:wf,max_slope,begin_value,end_value)
+    end
+    @test test_logger.logs[1].message == "During hardware transform: wf(t) initial value is not $begin_value. adding ramp to fix endpoints."
     @test new_wf(0.0) == begin_value
     @test new_wf(1.0) == end_value
 
@@ -81,7 +101,13 @@ end
         clocks=[0,1,2,3,4,5,6],
         values=[0,1,1,0,-1,-1,0])
 
-    @test_logs (:info,"During hardware transform: wf(t) falls outside of hardware bounds, clipping to maximum/minimum.") BloqadeSchema.clip_waveform(wf,:wf,-1,1)
+    
+    test_logger = Test.TestLogger(;min_level=Logging.Debug);
+    with_logger(test_logger) do
+        BloqadeSchema.clip_waveform(wf,:wf,-1,1)
+    end
+    
+    @test test_logger.logs[1].message == "During hardware transform: wf(t) falls outside of hardware bounds, clipping to maximum/minimum."
 end
 
 # @testset "find_local_masks" begin

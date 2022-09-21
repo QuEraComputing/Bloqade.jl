@@ -59,7 +59,7 @@ function warn_duration(time_res,field,name)
         field.duration
     end
     if !(set_resolution(duration,time_res) ≈ duration)
-        @info "waveform $name duration will be rounded during hardware transformation."
+        @debug "waveform $name duration will be rounded during hardware transformation."
     end
 end
 
@@ -73,7 +73,7 @@ function pin_waveform_edges(wf::Waveform,name,
     duration = wf.duration
 
 
-
+    # 
     t_begin = if !isapprox(wf(0.0), begin_value;atol=eps(),rtol=√eps())
         @debug "During hardware transform: $name(t) start value is not $start_value. adding ramp(s) to fix endpoints."
         ramp_up =  (sign(wf(0.0)-begin_value)*max_slope)
@@ -233,6 +233,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
 
     Ω = pin_waveform_edges(Ω,:Ω,max_slope,0,0)
 
+
     Ωt = if Ω isa PiecewiseLinearWaveform
         piecewise_linear(;
             clocks=set_resolution.(Ω.f.clocks,time_res),
@@ -362,8 +363,8 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
 
 end
 
-function hardware_transform_parse(H::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
-    (atoms,ϕ,Ω,Δ) = get_rydberg_params(H)
+function hardware_transform_parse(h::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
+    (atoms,ϕ,Ω,Δ) = get_rydberg_params(h)
 
     ϕ,ϕ_error = hardware_transform_ϕ(ϕ,device_capabilities)
     Ω,Ω_error = hardware_transform_Ω(Ω,device_capabilities)
@@ -380,9 +381,9 @@ function hardware_transform_parse(H::BloqadeExpr.RydbergHamiltonian,device_capab
 end
 
 # public API exposed here: 
-function hardware_transform(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
-    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(H,device_capabilities)
-    hardware_H = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
+function hardware_transform(h::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
+    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h,device_capabilities)
+    hardware_h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
 
-    return hardware_H,info
+    return hardware_h,info
 end

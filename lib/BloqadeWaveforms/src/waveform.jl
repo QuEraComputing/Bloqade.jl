@@ -203,8 +203,6 @@ function append(wf::Waveform, wfs::Waveform...)
         clock += wfs[idx].duration
     end
 
-    println(offsets)
-
     return Waveform(duration) do t
         zero(wf.duration) ≤ t ≤ wf.duration && return wf(t)
         

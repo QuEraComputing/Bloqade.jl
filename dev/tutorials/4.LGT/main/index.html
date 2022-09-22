@@ -17,7 +17,7 @@ ax1.set_ylabel(&quot;Ω1/2π (MHz)&quot;)
 ax2.set_ylabel(&quot;Δ1/2π (MHz)&quot;)
 ax1.grid()
 ax2.grid()
-fig1</code></pre><p><img src="../2832177536.svg" alt/></p><p>In order to simulate the gauge theory dynamics, we define the function <code>get_average_rydberg_densities</code> which takes in a given set of detuning and Rabi frequency <span>$(Δ, Ω)$</span>, and returns the final state and the Rydberg density.</p><pre><code class="language-julia hljs">function get_average_rydberg_densities(Δ, Ω; dt=1e-3)
+fig1</code></pre><p><img src="../main-15.svg" alt/></p><p>In order to simulate the gauge theory dynamics, we define the function <code>get_average_rydberg_densities</code> which takes in a given set of detuning and Rabi frequency <span>$(Δ, Ω)$</span>, and returns the final state and the Rydberg density.</p><pre><code class="language-julia hljs">function get_average_rydberg_densities(Δ, Ω; dt=1e-3)
     h = rydberg_h(atoms; Δ=Δ, Ω=Ω)
     reg = zero_state(subspace)
 
@@ -36,7 +36,7 @@ fig2, ax = plt.subplots(figsize = (10, 4)) ;
 ax.bar(1:N, dens1[end]) ;
 ax.set_xlabel(&quot;site index&quot;)
 ax.set_ylabel(&quot;Average Rydberg densities&quot;)
-fig2</code></pre><p><img src="../183523249.svg" alt/></p><p>Recall the mapping between the Rydberg chain and the LGT illustrated above, we see that the final state is an approximation of the anti-string state of the LGT, or a <span>$Z_2$</span> ordered state of the Rydberg chain. It is not perfectly <span>$Z_2$</span> ordered where the discrepancy is more promonient at the center compared to the edge of the chain. But as we will see later, the prepared state is sufficient for demonstrating the dynamics of the interested LGT.</p><h2 id="Propagation-of-particle-antiparticle-pairs"><a class="docs-heading-anchor" href="#Propagation-of-particle-antiparticle-pairs">Propagation of particle-antiparticle pairs</a><a id="Propagation-of-particle-antiparticle-pairs-1"></a><a class="docs-heading-anchor-permalink" href="#Propagation-of-particle-antiparticle-pairs" title="Permalink"></a></h2><p>In order to simulate the particle-antiparticle dynamics of the interested LGT, next, we prepare defects in the anti-string state, which are links with right-pointing electric fields. The domain walls between anti-string and string states will host particles, whereas those between string and anti-string states will host anti-particles. These can be seen via the mapping between Rydberg system and LGT illustrated above. Interestingly, the particle and antiparticle always come in pairs, and their time evolution exhibits light cones, in which the string-antistring oscillation is out-of-phase compared to that outside of the light cone. This is illustrated below (source: <a href="https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041">Federica M. Surace, et al.</a>).</p><p><img src="../../../assets/LGT_particle_antiparticle_propagation.png" alt="propagation"/></p><h3 id="Site-dependent-waveforms"><a class="docs-heading-anchor" href="#Site-dependent-waveforms">Site-dependent waveforms</a><a id="Site-dependent-waveforms-1"></a><a class="docs-heading-anchor-permalink" href="#Site-dependent-waveforms" title="Permalink"></a></h3><p>To realize the defects, we turn off the detuning for the target atoms while maintaining the same Rabi frequency for all the atoms. This effectively applies a <span>$\pi$</span>-pulse to the target atoms for transitioning them from the Rydberg state to the ground state.</p><pre><code class="language-julia hljs">Δq = 0.0;
+fig2</code></pre><p><img src="../main-19.svg" alt/></p><p>Recall the mapping between the Rydberg chain and the LGT illustrated above, we see that the final state is an approximation of the anti-string state of the LGT, or a <span>$Z_2$</span> ordered state of the Rydberg chain. It is not perfectly <span>$Z_2$</span> ordered where the discrepancy is more promonient at the center compared to the edge of the chain. But as we will see later, the prepared state is sufficient for demonstrating the dynamics of the interested LGT.</p><h2 id="Propagation-of-particle-antiparticle-pairs"><a class="docs-heading-anchor" href="#Propagation-of-particle-antiparticle-pairs">Propagation of particle-antiparticle pairs</a><a id="Propagation-of-particle-antiparticle-pairs-1"></a><a class="docs-heading-anchor-permalink" href="#Propagation-of-particle-antiparticle-pairs" title="Permalink"></a></h2><p>In order to simulate the particle-antiparticle dynamics of the interested LGT, next, we prepare defects in the anti-string state, which are links with right-pointing electric fields. The domain walls between anti-string and string states will host particles, whereas those between string and anti-string states will host anti-particles. These can be seen via the mapping between Rydberg system and LGT illustrated above. Interestingly, the particle and antiparticle always come in pairs, and their time evolution exhibits light cones, in which the string-antistring oscillation is out-of-phase compared to that outside of the light cone. This is illustrated below (source: <a href="https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041">Federica M. Surace, et al.</a>).</p><p><img src="../../../assets/LGT_particle_antiparticle_propagation.png" alt="propagation"/></p><h3 id="Site-dependent-waveforms"><a class="docs-heading-anchor" href="#Site-dependent-waveforms">Site-dependent waveforms</a><a id="Site-dependent-waveforms-1"></a><a class="docs-heading-anchor-permalink" href="#Site-dependent-waveforms" title="Permalink"></a></h3><p>To realize the defects, we turn off the detuning for the target atoms while maintaining the same Rabi frequency for all the atoms. This effectively applies a <span>$\pi$</span>-pulse to the target atoms for transitioning them from the Rydberg state to the ground state.</p><pre><code class="language-julia hljs">Δq = 0.0;
 tq = π/Ωmax;</code></pre><p>The waveforms of the detunings for creating one and two defects are defined as following</p><pre><code class="language-julia hljs">Δ2_single_defect = map(1:length(atoms)) do idx
     if idx == floor(Int, N/2)+1
         append(Δ1, constant(duration=tq, value=Δq))
@@ -51,7 +51,50 @@ end ;
     else
         append(Δ1, constant(duration=tq, value=Δmax))
     end
-end ;</code></pre><p>We append to a constant waveform with the same amplitude to the Rabi frequency such that it has the same duration as the detunings.</p><pre><code class="language-julia hljs">Ω2 = append(Ω1, constant(duration=tq, value=Ωmax));</code></pre><p>As an example, for the case with a single defect, we show the detuning for the central site, which is the defect, and those for other sites separately below.</p><pre><code class="language-julia hljs">fig3, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+end ;</code></pre><pre><code class="nohighlight hljs">[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+[3.5]
+</code></pre><p>We append to a constant waveform with the same amplitude to the Rabi frequency such that it has the same duration as the detunings.</p><pre><code class="language-julia hljs">Ω2 = append(Ω1, constant(duration=tq, value=Ωmax));</code></pre><pre><code class="nohighlight hljs">[3.5]
+</code></pre><p>As an example, for the case with a single defect, we show the detuning for the central site, which is the defect, and those for other sites separately below.</p><pre><code class="language-julia hljs">fig3, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
 for idx in 1 : length(atoms)
     if idx == floor(Int, N/2)+1
         Bloqade.plot!(ax1, Δ2_single_defect[idx])
@@ -64,7 +107,7 @@ ax2.grid()
 ax1.set_title(&quot;Detuning for the central site&quot;)
 ax2.set_title(&quot;Detunings for other sites&quot;)
 
-fig3</code></pre><p><img src="../3367182838.svg" alt/></p><p>We can confirm that the waveforms produce the desired domain walls for the LGT states, by simulating the dynamics governed by the waveforms, followed by plotting their density profiles.</p><pre><code class="language-julia hljs">dens2 = get_average_rydberg_densities(Δ2_single_defect, Ω2)
+fig3</code></pre><p><img src="../main-32.svg" alt/></p><p>We can confirm that the waveforms produce the desired domain walls for the LGT states, by simulating the dynamics governed by the waveforms, followed by plotting their density profiles.</p><pre><code class="language-julia hljs">dens2 = get_average_rydberg_densities(Δ2_single_defect, Ω2)
 dens3 = get_average_rydberg_densities(Δ2_two_defects, Ω2)
 
 fig4, (ax1, ax2) = plt.subplots(nrows = 2, figsize = (10, 4), frameon=false)
@@ -72,7 +115,7 @@ ax1.bar(1:N, dens2[end])
 ax2.bar(1:N, dens3[end])
 fig4.supxlabel(&quot;site index&quot;)
 fig4.supylabel(&quot;Average Rydberg densities&quot;, x=0.06)
-fig4</code></pre><p><img src="../1830870229.svg" alt/></p><p>Again, we see that the Rydberg density at the defects are not exactly zero, but the prepared states, as we shall see below, serve as good initial states to study the propagation of particle-antiparticle pairs in LGT.</p><p>We define the very last piece in the Rabi frequency and detuning that govern the time evolution of the Rydberg chain with defects.</p><pre><code class="language-julia hljs">Δq2 = -π ;
+fig4</code></pre><p><img src="../main-34.svg" alt/></p><p>Again, we see that the Rydberg density at the defects are not exactly zero, but the prepared states, as we shall see below, serve as good initial states to study the propagation of particle-antiparticle pairs in LGT.</p><p>We define the very last piece in the Rabi frequency and detuning that govern the time evolution of the Rydberg chain with defects.</p><pre><code class="language-julia hljs">Δq2 = -π ;
 tq2 = 40/Ωmax ;
 
 Δ3_single_defect = map(1:length(atoms)) do idx
@@ -82,7 +125,50 @@ end
     append(Δ2_two_defects[idx], constant(duration=tq2, value=Δq2))
 end
 
-Ω3 = append(Ω2, constant(duration=tq2, value=Ωmax));</code></pre><p>Again, as an example, for the case with a single defect, we show the detuning for the central site, which is the defect, and those for other sites separately below.</p><pre><code class="language-julia hljs">fig5, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+Ω3 = append(Ω2, constant(duration=tq2, value=Ωmax));</code></pre><pre><code class="nohighlight hljs">[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+[3.6]
+</code></pre><p>Again, as an example, for the case with a single defect, we show the detuning for the central site, which is the defect, and those for other sites separately below.</p><pre><code class="language-julia hljs">fig5, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
 for idx in 1 : length(atoms)
     if idx == floor(Int, N/2)+1
         Bloqade.plot!(ax1, Δ3_single_defect[idx])
@@ -96,7 +182,7 @@ ax2.grid()
 ax1.legend([&quot;Detuning for the central site&quot;, &quot;Rabi frequency for all sites&quot;])
 ax2.legend([&quot;Detunings for other sites&quot;], loc=&quot;center left&quot;)
 
-fig5</code></pre><p><img src="../2714021713.svg" alt/></p><h3 id="Simulation-particle-antiparticle-pairs-in-LGT-dynamics"><a class="docs-heading-anchor" href="#Simulation-particle-antiparticle-pairs-in-LGT-dynamics">Simulation particle-antiparticle pairs in LGT dynamics</a><a id="Simulation-particle-antiparticle-pairs-in-LGT-dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#Simulation-particle-antiparticle-pairs-in-LGT-dynamics" title="Permalink"></a></h3><p>With the waveforms defined, we can run the simulation to evolve the Rydberg chains with defects and collect the final Rydberg densities.</p><pre><code class="language-julia hljs">densities_single_defect = get_average_rydberg_densities(Δ3_single_defect, Ω3);
+fig5</code></pre><p><img src="../main-39.svg" alt/></p><h3 id="Simulation-particle-antiparticle-pairs-in-LGT-dynamics"><a class="docs-heading-anchor" href="#Simulation-particle-antiparticle-pairs-in-LGT-dynamics">Simulation particle-antiparticle pairs in LGT dynamics</a><a id="Simulation-particle-antiparticle-pairs-in-LGT-dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#Simulation-particle-antiparticle-pairs-in-LGT-dynamics" title="Permalink"></a></h3><p>With the waveforms defined, we can run the simulation to evolve the Rydberg chains with defects and collect the final Rydberg densities.</p><pre><code class="language-julia hljs">densities_single_defect = get_average_rydberg_densities(Δ3_single_defect, Ω3);
 densities_two_defects = get_average_rydberg_densities(Δ3_two_defects, Ω3);
 
 D_single_defect = hcat(densities_single_defect...);
@@ -115,4 +201,4 @@ ax1.set_yticks(range(1, stop = length(clocks), length=10), yticks)
 im = ax2.imshow(transpose(D_two_defects)[end:-1:1,:], aspect=&quot;auto&quot;, interpolation=&quot;none&quot;)
 ax2.set_xlabel(&quot;sites&quot;)
 fig6.colorbar(im, ax=[ax1, ax2])
-fig6</code></pre><p><img src="../4154231307.svg" alt/></p><p>From the left panel, we can observe a light-cone-shaped region originating from the particle-antiparticle pair in the vacuum. At the right panel, we show the interference of two light cones, which produces an additional change of periodicity corresponding to the elastic scattering. When the particle or antiparticle reaches the boundary of the chain, it will be scattered back as observed. For more details, the interested readers are referred to the paper <a href="https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041">Federica M. Surace, et al.</a>.</p><p>In summary, we have shown that the ground state and the dynamics of certain LGT can be simulated by a 1D chain of Rydberg atoms. More interestingly, defects can be introduced by locally addressing certain atoms in the chain, and with that we can simulate the propagation of particle-antiparticle pairs in the LGT dynamics.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../3.quantum-scar/main/">« Quantum Scar</a><a class="docs-footer-nextpage" href="../../5.MIS/main/">The Maximum Independent Set Problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Tuesday 13 September 2022 02:35">Tuesday 13 September 2022</span>. Using Julia version 1.8.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig6</code></pre><p><img src="../main-46.svg" alt/></p><p>From the left panel, we can observe a light-cone-shaped region originating from the particle-antiparticle pair in the vacuum. At the right panel, we show the interference of two light cones, which produces an additional change of periodicity corresponding to the elastic scattering. When the particle or antiparticle reaches the boundary of the chain, it will be scattered back as observed. For more details, the interested readers are referred to the paper <a href="https://journals.aps.org/prx/pdf/10.1103/PhysRevX.10.021041">Federica M. Surace, et al.</a>.</p><p>In summary, we have shown that the ground state and the dynamics of certain LGT can be simulated by a 1D chain of Rydberg atoms. More interestingly, defects can be introduced by locally addressing certain atoms in the chain, and with that we can simulate the propagation of particle-antiparticle pairs in the LGT dynamics.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../3.quantum-scar/main/">« Quantum Scar</a><a class="docs-footer-nextpage" href="../../5.MIS/main/">The Maximum Independent Set Problem »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Thursday 22 September 2022 16:35">Thursday 22 September 2022</span>. Using Julia version 1.8.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

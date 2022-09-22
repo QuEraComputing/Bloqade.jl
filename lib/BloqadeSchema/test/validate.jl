@@ -4,7 +4,6 @@ using BloqadeWaveforms:
     Waveform,
     piecewise_linear
 using BloqadeSchema:
-    error_or_warn,
     check_resolution,
     message,
     get_rydberg_capabilities,

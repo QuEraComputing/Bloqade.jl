@@ -394,24 +394,24 @@ function Base.:(==)(lhs::RydInteract, rhs::RydInteract)
     return lhs.C == rhs.C && lhs.atoms == rhs.atoms
 end
 
-function Base.:(==)(lhs::SumOfX, rhs::SumOfX)
-    return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω
+function Base.:(==)(lhs::SumOfX{D1, N1}, rhs::SumOfX{D2, N2}) where {D1, N1, D2, N2}
+    return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && D1 == D2 && N1 === N2
 end
 
-function Base.:(==)(lhs::SumOfZ, rhs::SumOfZ)
-    return lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ
+function Base.:(==)(lhs::SumOfZ{D1, N1}, rhs::SumOfZ{D2, N2}) where {D1, N1, D2, N2}
+    return lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ && D1 == D2 && N1 === N2
 end
 
-function Base.:(==)(lhs::SumOfN, rhs::SumOfN)
-    return lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ
+function Base.:(==)(lhs::SumOfN{D1, N1}, rhs::SumOfN{D2, N2}) where {D1, N1, D2, N2}
+    return lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ && D1 == D2 && N1 === N2
 end
 
-function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
-    return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ
+function Base.:(==)(lhs::SumOfXPhase{D1, N1}, rhs::SumOfXPhase{D2, N2}) where {D1, N1, D2, N2}
+    return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ && D1 == D2 && N1 === N2
 end
 
-function Base.:(==)(lhs::RydbergHamiltonian, rhs::RydbergHamiltonian)
-    return lhs.rydberg_term == rhs.rydberg_term && lhs.rabi_term == rhs.rabi_term && lhs.detuning_term == rhs.detuning_term
+function Base.:(==)(lhs::RydbergHamiltonian{D1}, rhs::RydbergHamiltonian{D2}) where {D1, D2}
+    return lhs.rydberg_term == rhs.rydberg_term && lhs.rabi_term == rhs.rabi_term && lhs.detuning_term == rhs.detuning_term && D1 == D2
 end
 
 Base.isreal(::RydInteract) = true

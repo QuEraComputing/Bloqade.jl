@@ -1,68 +1,67 @@
 using Test
+# using BloqadeWaveforms
+using BloqadeExpr
+using BloqadeSchema:
+    get_rydberg_params,
+    schema_parse_field
+
 using BloqadeWaveforms
-using BloqadeSchema: 
-    parse_dynamic_rydberg_Ω,
-    parse_dynamic_rydberg_Δ,
-    parse_dynamic_rydberg_ϕ,
-    parse_static_rydberg_Ω,
-    parse_static_rydberg_Δ,
-    parse_static_rydberg_ϕ,
-    convert_units,
-    TaskSpecification
 
-using Unitful: μs, s, MHz, rad 
-    
 
-@testset "convert_units" begin
-    T = 1 # seconds
-    T_list = [i for i in 1:10]
-    pair = (1,2)
-    pair_list = [(i,j) for i in 1:5 for j in 1:5]
-    @test 1e6 ≈ convert_units(T,s,μs)
-    @test (1e6 .* T_list) ≈ convert_units(T_list,s,μs)
-    @test all((1e6 .* pair ).≈ convert_units.(pair,s,μs))
-    # @test all([1e6.*p for p in pair_list] .≈ convert_units.(pair_list,s,μs))
+@testset "get_rydberg_params" begin
+    atoms = [(i,i) for i in 1:10]
 
-end
+    values = [nothing,1,t->t^2,rand(10),[t->rand()*t for i in 1:10]]
 
-@testset "set_resolution" begin
-
-    examples = [
-        (1,10.123,10.0),
-        (0.1,10.1256,10.1),
-        (0.01,10.1256,10.13),
-    ]
-    for (δ,val,res) in examples
-        @test BloqadeSchema.set_resolution(val,δ) == res
+    for ϕ in values, Ω in values, Δ in values
+        h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
+        # catches the this weird edge case 
+        Ω = (isnothing(Ω) && !isnothing(ϕ) ? 0 : Ω)
+        @test (atoms,ϕ,Ω,Δ) == BloqadeSchema.get_rydberg_params(h)
     end
-
 end
 
-@testset "parse_dynamic_rydberg_Ω" begin
-
-
-
+@testset "schema_parse_field" begin
+    wf = piecewise_linear(;clocks=[0,2,3,4],values=[1,2,3,4])
+    @test schema_parse_field(:wf,wf) == wf
+    
+    wf = Waveform(t->t^2,1)
+    @test_throws ErrorException schema_parse_field(:wf,wf)
 end
 
-@testset "parse_static_rydberg_Ω" begin
-  
-
+"""
+@testset "schema_parse_ϕ" begin
+    wf = piecewise_linear(;clocks=[0,2,3,4],values=[1,2,3,4])
+    @test schema_parse_ϕ(wf) == wf
+    @test_throws ErrorException schema_parse_ϕ(Waveform(t->t^2,1))
 end
 
-@testset "parse_dynamic_rydberg_ϕ" begin
-
+@testset "schema_parse_Ω" begin
+    wf = piecewise_linear(;clocks=[0,2,3,4],values=[1,2,3,4])
+    @test schema_parse_Ω(wf) == wf
+    @test_throws ErrorException schema_parse_Ω(Waveform(t->t^2,1))
 end
 
-@testset "parse_static_rydberg_ϕ" begin
-   
+@testset "schema_parse_Δ" begin
+    clocks = Float64[0,1,2,3]
+    Δ_values = Float64[1,0,0,-1]
+    δ_values = Float64[1,0,0,1]
+    Δi = rand(10,)
+    Δi = (Δi .- minimum(Δi))./(maximum(Δi)-minimum(Δi))
+    Δi = set_resolution.(Δi,0.001)
+    Δ = piecewise_linear(;clocks=clocks,values=Δ_values)
+    δ = piecewise_linear(;clocks=clocks,values=δ_values)
+    @test (Δ,nothing,1.0) == schema_parse_Δ(Δ)
+    @test_throws ErrorException schema_parse_Δ(Waveform(t->t^2,1.0))
+    @test_throws ErrorException schema_parse_Δ([Waveform(t->t^2,1.0) for i in 1:4])
 
+    local_Δ = [piecewise_linear(;clocks=clocks,values=Δ_values+δi.*δ_values) for δi in Δi]
+
+    # @test (Δ,δ,Δi) == schema_parse_Δ(local_Δ)
+    (parsed_Δ,parsed_δ,parsed_Δi) = schema_parse_Δ(local_Δ)
+    println(Δ.f.values.-parsed_Δ.f.values)
+    @test parsed_Δ == Δ
+    @test parsed_δ == δ
+    @test parsed_Δi == Δi
 end
-
-
-@testset "parse_dynamic_rydberg_Δ" begin
-
-end
-
-@testset "parse_static_rydberg_Δ" begin
-
-end
+"""

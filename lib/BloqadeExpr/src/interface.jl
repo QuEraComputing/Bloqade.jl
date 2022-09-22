@@ -123,6 +123,45 @@ function div_by_two(Ω)
     end
 end
 
+
+
+function mult_by_two(Ω)
+    isnothing(Ω) && return
+    if is_const_param(Ω)
+        return Ω .* 2
+    end
+
+    return if Ω isa Vector
+        map(Ω) do Ω_i
+            return Ω_i.f
+        end
+    else
+        Ω.f
+    end
+
+end
+
+
+function get_rydberg_params(h::RydbergHamiltonian)
+    # extracts parameters from RydbergHamiltonian
+    ϕ = nothing
+    Ω = nothing
+    Δ = nothing
+
+    if h.rabi_term isa SumOfX
+        Ω = mult_by_two(h.rabi_term.Ω)
+    elseif h.rabi_term isa SumOfXPhase
+        Ω = mult_by_two(h.rabi_term.Ω)
+        ϕ = h.rabi_term.ϕ
+    end
+
+    if h.detuning_term isa SumOfN
+        Δ = h.detuning_term.Δ
+    end
+
+    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
+end
+
 attime(t::Real) = h -> attime(h, t)
 
 function attime(h::AbstractBlock, t::Real)

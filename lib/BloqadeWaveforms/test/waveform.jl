@@ -189,3 +189,32 @@ end
     @test Waveform(piecewise_linear(clocks=[0, 3, 5], values=[3, 4, 5]), 10) == Waveform(piecewise_linear(clocks=[0, 3.0, 5], values=[3, 4, 5]), 10.0)
     @test Waveform(piecewise_linear(clocks=[0, 3, 5], values=[3, 4, 5]), 10) != Waveform(piecewise_constant(clocks=[0, 3, 5, 6], values=[3, 4, 8]), 10.0)
 end
+
+
+@testset "append" begin
+    duration=1.0
+    wf = constant(;duration=duration,value=1.0)
+    max_slope = 10
+    t_begin = 1.0/max_slope
+    t_end = duration - 1.0/max_slope
+    begin_value = 0.0
+    end_value = 0.0
+    target_wf = piecewise_linear(;clocks=[0.0,t_begin,t_end,1],values=[0.0,1.0,1.0,0.0])
+
+    mid_wf = wf[t_begin..t_end]
+
+    start_wf = linear_ramp(;
+        duration=t_begin,
+        start_value=begin_value,
+        stop_value=wf(t_begin)
+    )
+
+    end_wf = linear_ramp(;
+        duration=duration-t_end,
+        start_value=wf(t_end),
+        stop_value=end_value
+    )
+    new_wf = append(start_wf,mid_wf,end_wf)
+
+    @test new_wf ≈ target_wf
+end

@@ -198,18 +198,21 @@ function append(wf::Waveform, wfs::Waveform...)
     offsets = Vector{typeof(duration)}(undef, length(wfs))
 
     clock = wf.duration
-    @inbounds for (idx, wf) in enumerate(wfs)
+    @inbounds for idx in eachindex(offsets)
         offsets[idx] = clock
-        clock += wf.duration
+        clock += wfs[idx].duration
     end
+
+    println(offsets)
 
     return Waveform(duration) do t
         zero(wf.duration) ≤ t ≤ wf.duration && return wf(t)
-
-        idx = 1
-        while idx < length(wfs) && t > offsets[idx]
-            idx += 1
-        end
+        
+        idx = searchsortedlast(offsets,t)
+        # idx = 1
+        # while idx < length(wfs) && t > offsets[idx]
+        #     idx += 1
+        # end
         return wfs[idx](t, offsets[idx])
     end
 end

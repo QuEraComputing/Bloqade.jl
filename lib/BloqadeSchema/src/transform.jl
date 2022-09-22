@@ -72,22 +72,25 @@ function pin_waveform_edges(wf::Waveform,name,
 
     duration = wf.duration
 
+    wf_begin = wf(zero(duration))
+    wf_end = wf(duration)
 
+    
     # 
-    t_begin = if !isapprox(wf(0.0), begin_value;atol=eps(),rtol=√eps())
+    t_begin = if !isapprox(wf_begin, begin_value;atol=eps(),rtol=√eps())
         @debug "During hardware transform: $name(t) initial value is not $begin_value. adding ramp to fix endpoints."
-        ramp_up =  (sign(wf(0.0)-begin_value)*max_slope)
+        ramp_up =  (sign(wf_begin-begin_value)*max_slope)
         lin_ramp_begin = Waveform(t -> ramp_up .* t .+ begin_value, duration)
-        find_zero(wf-lin_ramp_begin,(0.0,duration))
+        find_zero(wf-lin_ramp_begin,(zero(duration),duration))
     else
-        0.0
+        zero(duration)
     end
 
-    t_end = if !isapprox(wf(duration), end_value;atol=eps(),rtol=√eps())
+    t_end = if !isapprox(wf_end, end_value;atol=eps(),rtol=√eps())
         @debug "During hardware transform: $name(t) end value is not $end_value. adding ramp to fix endpoints."
-        ramp_down = (sign(end_value-wf(duration))*max_slope)
+        ramp_down = (sign(end_value-wf_end)*max_slope)
         lin_ramp_end = Waveform(t -> ramp_down * (t-duration) + end_value, duration)
-        find_zero(wf-lin_ramp_end,(0.0,duration))
+        find_zero(wf-lin_ramp_end,(zero(duration),duration))
     else
         duration
     end

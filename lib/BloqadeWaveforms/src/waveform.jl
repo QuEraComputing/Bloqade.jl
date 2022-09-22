@@ -209,10 +209,6 @@ function append(wf::Waveform, wfs::Waveform...)
         zero(wf.duration) ≤ t ≤ wf.duration && return wf(t)
         
         idx = searchsortedlast(offsets,t)
-        # idx = 1
-        # while idx < length(wfs) && t > offsets[idx]
-        #     idx += 1
-        # end
         return wfs[idx](t, offsets[idx])
     end
 end

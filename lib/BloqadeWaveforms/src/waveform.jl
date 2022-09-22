@@ -43,7 +43,7 @@ end
 
 function Base.isapprox(lhs::Waveform,rhs::Waveform;atol::Real=0,rtol::Real = (atol>0 ? 0 : √eps()),p::Real=1)
     if lhs != rhs
-            return BloqadeWaveforms.norm(lhs-rhs;p) < max(atol,rtol*max(BloqadeWaveforms.norm(lhs;p),BloqadeWaveforms.norm(rhs;p)))
+            return LinearAlgebra.norm(lhs-rhs;p) < max(atol,rtol*max(LinearAlgebra.norm(lhs;p),LinearAlgebra.norm(rhs;p)))
     else
         return true
     end

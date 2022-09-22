@@ -61,7 +61,7 @@ end
     new_wf =  BloqadeSchema.pin_waveform_edges(wf,:wf,max_slope,begin_value,end_value)
     
     # removing this until issue with append is fixed. 
-    @test new_wf ≈ target_wf broken=true
+    # @test new_wf ≈ target_wf
 
     wf = Waveform(t->1+t^2,1)
     max_slope = 100

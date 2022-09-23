@@ -187,3 +187,59 @@ function piecewise_linear_interpolate(wf::Waveform;
     return piecewise_linear(;clocks=clocks,values=values)
 
 end
+
+function piecewise_constant_interpolate(wf::Waveform; 
+    min_step::Real=0.0, 
+    atol::Real = 1.0e-5)
+    
+    if atol < 0
+        @warn "negative tolerance provided, taking absolute value."
+        atol *= -1
+    end
+
+    if atol == 0 && min_step == 0
+        error("Interpolation requires either a tolerance constraint or a minimum step constraint.")
+    end
+    
+    stack = NTuple{2,Float64}[(0.0,wf.duration)]
+    intervals = NTuple{2,Float64}[]
+    wf_wrapper = t -> sample_values(wf,t)
+    while !isempty(stack)
+        lb,ub = pop!(stack)
+
+        interval = (ub-lb)
+
+        value,_ = quadgk(wf_wrapper,lb,ub,atol=eps())/(ub-lb)
+        area,_ = quadgk(t -> abs.(wf_wrapper(t) .- value),lb,ub,atol=eps())
+
+        error_bound = max(atol*max(atol,interval),eps())
+
+        if area*wf.duration > error_bound
+            mid = (ub+lb)/2
+
+            # only throw error if tolerance is non-zero
+            # if tolerance is 0 simply stop adding to stack
+            if interval < 2*min_step
+                atol > 0 && error("Requested tolerance for interpolation violates the step size constraint.")
+                push!(intervals,(lb,value))
+            else
+                push!(stack,(mid,ub))
+                push!(stack,(lb,mid))
+            end
+
+        else
+            push!(intervals,(lb,ub,value))
+        end
+
+    end
+
+    intervals = sort(intervals,by=ele->ele[1])
+
+    clocks = Float64[each[1] for each in intervals]
+    values = Float64[each[3] for each in intervals]
+
+    push!(clocks,wf.duration)
+
+    return piecewise_constant(;clocks=clocks,values=values)
+
+end

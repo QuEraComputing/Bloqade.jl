@@ -229,6 +229,7 @@ function attime(h::AbstractBlock, t::Real)
     return chsubblocks(h, blks)
 end
 
+
 # Yao Blocks cannot take time-dependent function
 
 """

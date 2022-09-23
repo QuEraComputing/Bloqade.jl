@@ -35,4 +35,9 @@ params = [nothing, 1.0, [0.1 for _ in 1:nsites], sin, [sin for _ in 1:nsites]]
             @test to_matrix(H(0.1)) ≈ mat(ComplexF64, h |> attime(0.1))
         end
     end
+    @testset "SumOfZ_01, SumOfZ_1r" for a in params, b in params
+        h = SumOfZ_01(nsites, isnothing(a) ? 0.0 : a) + SumOfZ_1r(nsites, isnothing(b) ? 0.0 : b)
+        H = Hamiltonian(ComplexF64, h)
+        @test to_matrix(H(0.1)) ≈ mat(ComplexF64, h |> attime(0.1))
+    end
 end;

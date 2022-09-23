@@ -108,6 +108,24 @@ function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
     return RydbergHamiltonian(rydberg_term,rabi_term,detuning_term)
 end
 
+"""
+    rydberg_h_3(atoms; [C=2π * 862690 * MHz*µm^6], 
+        Ω_hf = nothing, ϕ_hf = nothing, Δ_hf = nothing, 
+        Ω_r = nothing, ϕ_r = nothing, Δ_r = nothing)
+
+Create a 3-level Rydberg Hamiltonian
+
+```math
+∑ \\frac{C}{|r_i - r_j|^6} n^r_i n^r_j + \\frac{Ω^{hf}}{2} σ^{hf}_x - Δ^{hf} n^{1} + \\frac{Ω^{r}}{2} σ^{r}_x - (Δ^{hf} + Δ^{r}) n^{r}
+```
+
+shorthand for
+
+```julia
+RydInteract(C, atoms; nlevel = 2) + SumOfXPhase_01(length(atoms), Ω_hf/2, ϕ_hf) - SumOfN(length(atoms), Δ_hf) +
+    SumOfXPhase_1r(length(atoms), Ω_r/2, ϕ_r) - SumOfN(length(atoms), Δ_r + Δ_hf)
+```
+"""
 function rydberg_h_3(atom_positions; 
         C = 2π * 862690, Ω_hf = nothing, ϕ_hf = nothing, Δ_hf = nothing, 
         Ω_r = nothing, ϕ_r = nothing, Δ_r = nothing)
@@ -124,56 +142,42 @@ function rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
 
     Ω_hf = div_by_two(Ω_hf)
     if !isnothing(Ω_hf) && !isnothing(ϕ_hf)
-        rabi_term_hf = SumOfXPhase(nsites, Ω_hf, ϕ_hf; nlevel = 3, name = :hyperfine)
+        rabi_term_hf = SumOfXPhase_01(nsites, Ω_hf, ϕ_hf)
     elseif !isnothing(Ω_hf) && isnothing(ϕ_hf)
-        rabi_term_hf = SumOfX(nsites, Ω_hf; nlevel = 3, name = :hyperfine)
+        rabi_term_hf = SumOfX_01(nsites, Ω_hf)
     elseif isnothing(Ω_hf) && !isnothing(ϕ_hf)
         @warn "Rydberg Hamiltonian contains non-zero rabi phase ϕ_hf with no rabi amplitude Ω_hf."
-        rabi_term_hf = SumOfXPhase(nsites, 0, ϕ_hf; nlevel = 3, name = :hyperfine)
+        rabi_term_hf = SumOfXPhase_01(nsites, 0, ϕ_hf)
     else
         rabi_term_hf = nothing
     end
     
     Ω_r = div_by_two(Ω_r)
     if !isnothing(Ω_r) && !isnothing(ϕ_r)
-        rabi_term_r =+ SumOfXPhase(nsites, Ω_r, ϕ_r; nlevel = 3, name = :rydberg)
+        rabi_term_r = SumOfXPhase_1r(nsites, Ω_r, ϕ_r)
     elseif !isnothing(Ω_r) && isnothing(ϕ_r)
-        rabi_term_r =+ SumOfX(nsites, Ω_r; nlevel = 3, name = :rydberg)
+        rabi_term_r = SumOfX_1r(nsites, Ω_r)
     elseif isnothing(Ω_r) && !isnothing(ϕ_r)
         @warn "Rydberg Hamiltonian contains non-zero rabi phase ϕ_r with no rabi amplitude Ω_r."
-        rabi_term_r =+ SumOfXPhase(nsites, 0, ϕ_r; nlevel = 3, name = :rydberg)
+        rabi_term_r = SumOfXPhase_1r(nsites, 0, ϕ_r)
     else
         rabi_term_r = nothing
     end
 
-    if isnothing(rabi_term_hf) 
-        rabi_term = rabi_term_r
-    elseif isnothing(rabi_term_r)
-        rabi_term = rabi_term_hf
-    else
-        rabi_term = rabi_term_hf + rabi_term_r
-    end
-
-    if !isnothing(Δ_hf)
-        detuning_term = SumOfN(nsites, Δ_hf; nlevel = 3, name = :hyperfine)
-        if !isnothing(Δ_r)
-            detuning_term += SumOfN(nsites, add_params(Δ_hf, Δ_r); nlevel = 3, name = :rydberg)
+    detuning_term_hf = !isnothing(Δ_hf) ? SumOfN_1(nsites, Δ_hf) : nothing
+    detuning_term_r = if !isnothing(Δ_r)
+        if !isnothing(Δ_hf) 
+            SumOfN_r(nsites, add_params(Δ_hf, Δ_r))
         else
-            detuning_term += SumOfN(nsites, Δ_hf; nlevel = 3, name = :rydberg)
+            SumOfN_r(nsites, Δ_r)
         end
-    elseif !isnothing(Δ_r)
-        detuning_term = SumOfN(nsites, Δ_r; nlevel = 3, name = :rydberg)
+    elseif !isnothing(Δ_hf)
+        SumOfN_r(nsites, Δ_hf)
     else
-        detuning_term = nothing
+        nothing
     end
 
-    !isnothing(detuning_term) && (detuning_term = -detuning_term)
-
-    rh3 = rydberg_term
-    for t in (rabi_term, detuning_term)
-        !isnothing(t) && (rh3 += t) 
-    end
-
+    rh3 = RydbergHamiltonian_3(rydberg_term, rabi_term_hf, detuning_term_hf, rabi_term_r, detuning_term_r)
     return rh3
 end
 
@@ -250,16 +254,17 @@ nqudits: 4
 ```
 """
 attime(h::PrimitiveBlock, ::Real) = h
-function attime(h::SumOfX{D, name}, t::Real) where {D, name}
+function attime(h::SumOfXTypes, t::Real)
     is_const_param(h.Ω) && return h
+    T = typeof(h)
     if h.Ω isa Vector
-        SumOfX(h.nsites, map(x -> x(t), h.Ω); nlevel = D, name = name)
+        T(h.nsites, map(x -> x(t), h.Ω))
     else
-        SumOfX(h.nsites, h.Ω(t); nlevel = D, name = name)
+        T(h.nsites, h.Ω(t))
     end
 end
 
-function attime(h::SumOfXPhase{D, name}, t::Real) where {D, name}
+function attime(h::SumOfXPhaseTypes, t::Real)
     if is_const_param(h.Ω)
         Ω = h.Ω
     elseif h.Ω isa Vector
@@ -276,10 +281,11 @@ function attime(h::SumOfXPhase{D, name}, t::Real) where {D, name}
         ϕ = h.ϕ(t)
     end
 
-    return SumOfXPhase(h.nsites, Ω, ϕ; nlevel = D, name = name)
+    T = typeof(h)
+    return T(h.nsites, Ω, ϕ)
 end
 
-function attime(h::Union{SumOfZ,SumOfN}, t::Real)
+function attime(h::SumOfZAndNTypes, t::Real)
     if is_const_param(h.Δ)
         Δ = h.Δ
     elseif h.Δ isa Vector
@@ -290,7 +296,5 @@ function attime(h::Union{SumOfZ,SumOfN}, t::Real)
     return typeof(h)(h.nsites, Δ)
 end
 
-
-function attime(h::RydbergHamiltonian, t::Real)
-    return attime(add_terms(h),t)
-end
+attime(h::RydbergHamiltonian, t::Real) = attime(add_terms(h),t)
+attime(h::RydbergHamiltonian_3, t::Real) = attime(add_terms(h),t)

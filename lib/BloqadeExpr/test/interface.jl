@@ -1,5 +1,6 @@
 using Test
 using BloqadeExpr
+using YaoBlocks
 using YaoBlocks.Optimise
 
 

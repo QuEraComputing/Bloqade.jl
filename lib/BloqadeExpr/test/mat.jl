@@ -4,7 +4,6 @@ using YaoBlocks
 using BloqadeExpr
 using Yao
 using SparseArrays
-using BloqadeExpr: Pu3, Pd3
 
 @testset "mat" begin
     ss = Subspace(10, sort(randperm(1023)[1:100]))
@@ -42,24 +41,24 @@ end
     ids_r = [5, 6, 8, 9]
     ids_hf = [1, 2, 4, 5]
 
-    SX_r = mat(SumOfX(2; nlevel = 3))
+    SX_r = mat(SumOfX_1r(2))
     @test isapprox(SX_r[ids_r, ids_r], mat(SumOfX(2)))
-    SX_hf = mat(SumOfX(2; nlevel = 3, name = :hyperfine))
+    SX_hf = mat(SumOfX_01(2))
     @test SX_hf[ids_hf, ids_hf] ≈ mat(SumOfX(2))
-    SZ_r = mat(SumOfZ(2; nlevel = 3))
+    SZ_r = mat(SumOfZ_1r(2))
     @test SZ_r[ids_r, ids_r] ≈ mat(SumOfZ(2))
-    SZ_hf = mat(SumOfZ(2; nlevel = 3, name = :hyperfine))
+    SZ_hf = mat(SumOfZ_01(2))
     @test SZ_hf[ids_hf, ids_hf] ≈ mat(SumOfZ(2))
-    SN_r = mat(SumOfN(2; nlevel = 3))
+    SN_r = mat(SumOfN_r(2))
     @test SN_r[ids_r, ids_r] ≈ mat(SumOfN(2))
-    SN_hf = mat(SumOfN(2; nlevel = 3, name = :hyperfine))
+    SN_hf = mat(SumOfN_1(2))
     @test SN_hf[ids_hf, ids_hf] ≈ mat(SumOfN(2))
 
-    SXPhase_r = mat(SumOfXPhase(2, 1, [0, 0]; nlevel = 3))
+    SXPhase_r = mat(SumOfXPhase_1r(2, 1, [0, 0]))
     @test SX_r ≈ SXPhase_r
     
     ϕ = rand()*2π
-    @test mat(PuPhase(ϕ; nlevel = 3)) + mat(PdPhase(ϕ; nlevel = 3)) ≈ mat(XPhase(ϕ; nlevel = 3))
-    @test mat(PuPhase(ϕ; nlevel = 3, name = :hyperfine)) + mat(PdPhase(ϕ; nlevel = 3, name = :hyperfine)) ≈ mat(XPhase(ϕ; nlevel = 3, name = :hyperfine))
-    @test sum(mat.([Pu3(:rydberg), Pd3(:rydberg), Pu3(:hyperfine), Pd3(:hyperfine)])) ≈ [0 1 0; 1 0 1; 0 1 0]
+    @test mat(PuPhase_1r(ϕ)) + mat(PdPhase_1r(ϕ)) ≈ mat(XPhase_1r(ϕ))
+    @test mat(PuPhase_01(ϕ)) + mat(PdPhase_01(ϕ)) ≈ mat(XPhase_01(ϕ))
+    @test sum(mat.([Pu_1r, Pd_1r, Pu_01, Pd_01])) ≈ [0 1 0; 1 0 1; 0 1 0]
 end

@@ -72,16 +72,3 @@ end
     step_hamiltonian = hamiltonian(π/2)
     @test LinearAlgebra.opnorm(step_hamiltonian) == 1.0
 end
-
-@testset "Invalid 3-level Operators" begin
-    for op in (XPhase, PuPhase, PdPhase)
-        @test_throws ArgumentError op(rand(); nlevel = 2, name = :hyperfine)
-        @test_throws ArgumentError op(rand(); nlevel = 4, name = :name)
-    end
-    for op in (SumOfX, SumOfN, SumOfZ)
-        @test_throws ArgumentError op(10, rand(); nlevel = 2, name = :hyperfine)
-        @test_throws ArgumentError op(10, rand(); nlevel = 4, name = :name)
-    end
-    @test_throws ArgumentError SumOfXPhase(8, rand(), rand(); nlevel = 2, name = :hyperfine)
-    @test_throws ArgumentError SumOfXPhase(8, rand(), rand(); nlevel = 4, name = :name)
-end

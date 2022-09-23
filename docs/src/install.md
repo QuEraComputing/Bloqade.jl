@@ -113,7 +113,7 @@ Give your instance a memorable name...
 
 ### Step 5: Tune Your Instance
 
-Select the EC2 instance type. Note that the rate at which your charged is dependent on which instance you select. Those with larger RAM/power usually charge more. For simple usage, we recommend an `m2.xlarge` instance as a basic choice. If you're looking for GPU suport consider the `g4dn.xlarge` instance as a starting point.
+Select the EC2 instance type. Note that the rate at which your charged is dependent on which instance you select. Those with larger RAM/power usually charge more. For simple usage, we recommend an `m2.xlarge` instance as a basic choice. If you are looking for GPU suport consider the `g4dn.xlarge` instance as a starting point.
 
 ![Step 5](assets/Bloqade_EC2/Step5.png)
 

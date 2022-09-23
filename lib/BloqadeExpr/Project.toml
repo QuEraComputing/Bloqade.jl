@@ -30,6 +30,7 @@ julia = "1.6"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
+BloqadeKrylov = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"
 
 [targets]
-test = ["Test", "Yao", "Random"]
+test = ["Test", "Yao", "Random", "BloqadeKrylov"]

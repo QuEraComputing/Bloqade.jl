@@ -4,24 +4,39 @@ function YaoAPI.mat(::Type{T}, h::AbstractBlock, space::FullSpace) where {T}
     return YaoAPI.mat(T, h)
 end
 
-function YaoAPI.mat(::Type{T}, h::XPhase) where {T}
-    return PermMatrix([2, 1], [exp(h.ϕ * im), exp(-h.ϕ * im)])
-end
+YaoAPI.mat(::Type{T}, h::XPhase{P}) where {T, P} = PermMatrix([2, 1], T[exp(h.ϕ * im), exp(-h.ϕ * im)])
+YaoAPI.mat(::Type{T}, h::XPhase_01{P}) where {T, P} = PermMatrix([2, 1, 3], T[exp(h.ϕ * im), exp(-h.ϕ * im), 0])
+YaoAPI.mat(::Type{T}, h::XPhase_1r{P}) where {T, P} = PermMatrix([1, 3, 2], T[0, exp(h.ϕ * im), exp(-h.ϕ * im)])
 
-function YaoAPI.mat(::Type{T}, h::PuPhase) where {T}
-    return sparse([1], [2], [exp(h.ϕ * im)], 2, 2)
-end
+YaoAPI.mat(::Type{T}, h::PuPhase{P}) where {T, P} = sparse([1], [2], T[exp(h.ϕ * im)], 2, 2)
+YaoAPI.mat(::Type{T}, h::PuPhase_1r{P}) where {T, P} = sparse([2], [3], T[exp(h.ϕ * im)], 3, 3)
+YaoAPI.mat(::Type{T}, h::PuPhase_01{P}) where {T, P} = sparse([1], [2], T[exp(h.ϕ * im)], 3, 3)
 
-function YaoAPI.mat(::Type{T}, h::PdPhase) where {T}
-    return sparse([2], [1], [exp(-h.ϕ * im)], 2, 2)
-end
+YaoAPI.mat(::Type{T}, h::PdPhase{P}) where {T, P} = sparse([2], [1], T[exp(-h.ϕ * im)], 2, 2)
+YaoAPI.mat(::Type{T}, h::PdPhase_01{P}) where {T, P} = sparse([2], [1], T[exp(-h.ϕ * im)], 3, 3)
+YaoAPI.mat(::Type{T}, h::PdPhase_1r{P}) where {T, P} = sparse([3], [2], T[exp(-h.ϕ * im)], 3, 3)
 
-function YaoAPI.mat(::Type{T}, h::AbstractTerm, space::FullSpace = fullspace) where {T}
+YaoAPI.mat(::Type{T}, ::OpX_01) where T = PermMatrix([2, 1, 3], T[1, 1, 0])
+YaoAPI.mat(::Type{T}, ::OpX_1r) where T = PermMatrix([1, 3, 2], T[0, 1, 1])
+
+YaoAPI.mat(::Type{T}, ::OpZ_01) where T = Diagonal(T[1, -1, 0])
+YaoAPI.mat(::Type{T}, ::OpZ_1r) where T = Diagonal(T[0, 1, -1])
+
+YaoAPI.mat(::Type{T}, ::OpN_1) where T = sparse([2], [2], T[1], 3, 3)
+YaoAPI.mat(::Type{T}, ::OpN_r) where T = sparse([3], [3], T[1], 3, 3)
+
+YaoAPI.mat(::Type{T}, ::OpPu_01) where T = sparse([1], [2], T[1], 3, 3)
+YaoAPI.mat(::Type{T}, ::OpPu_1r) where T = sparse([2], [3], T[1], 3, 3)
+
+YaoAPI.mat(::Type{T}, ::OpPd_01) where T = sparse([2], [1], T[1], 3, 3)
+YaoAPI.mat(::Type{T}, ::OpPd_1r) where T = sparse([3], [2], T[1], 3, 3)
+
+function YaoAPI.mat(::Type{T}, h::AbstractTerm{D}, space::FullSpace = fullspace) where {T, D}
     blocks = YaoBlocks.Optimise.simplify(h; rules = [YaoBlocks.Optimise.to_basictypes])
     return YaoAPI.mat(T, blocks)
 end
 
-function YaoAPI.mat(::Type{T}, h::AbstractTerm, space::Subspace) where {T}
+function YaoAPI.mat(::Type{T}, h::AbstractTerm{D}, space::Subspace) where {T, D}
     blocks = YaoBlocks.Optimise.simplify(h; rules = [YaoBlocks.Optimise.to_basictypes])
     return YaoAPI.mat(T, blocks, space)
 end

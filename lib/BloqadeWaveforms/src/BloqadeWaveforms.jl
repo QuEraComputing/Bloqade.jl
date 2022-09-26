@@ -19,6 +19,7 @@ export Waveform,
     sinusoidal,
     append,
     piecewise_linear_interpolate,
+    piecewise_constant_interpolate,
     norm,
     ..,
     # smooth

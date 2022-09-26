@@ -218,3 +218,7 @@ programming needs with Bloqade.
 To build a system image for your environment, please use
 the [PackageCompiler](https://julialang.github.io/PackageCompiler.jl/dev/)
 or use the Julia VSCode plugin's [build system image feature](https://www.julia-vscode.org/docs/stable/userguide/compilesysimage/)
+
+## Contributing to Bloqade 
+
+Please `git clone` this repository to a directory of your choice on your local machine and refer to [Contributing to Bloqade](@ref contrib) to see how to set up your development environment for Bloqade.

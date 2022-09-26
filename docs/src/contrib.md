@@ -1,4 +1,4 @@
-# Contributing to Bloqade
+# [Contributing to Bloqade](@id contrib)
 
 If you are interested in contributing to this package,
 please consider going through this guide to help make your

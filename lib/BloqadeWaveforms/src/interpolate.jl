@@ -209,7 +209,9 @@ function piecewise_constant_interpolate(wf::Waveform;
 
         interval = (ub-lb)
 
-        value,_ = quadgk(wf_wrapper,lb,ub,atol=eps())/(ub-lb)
+        # quadgk returns a tuple of structure: (fill(value), error)
+        # we just need the value from fill(value)
+        value = quadgk(wf_wrapper,lb,ub,atol=eps())[1][1]/(ub-lb)
         area,_ = quadgk(t -> abs.(wf_wrapper(t) .- value),lb,ub,atol=eps())
 
         error_bound = max(atol*max(atol,interval),eps())
@@ -228,7 +230,8 @@ function piecewise_constant_interpolate(wf::Waveform;
             end
 
         else
-            push!(intervals,(lb,ub,value))
+            # (lb, value)
+            push!(intervals,(lb,value))
         end
 
     end
@@ -236,7 +239,7 @@ function piecewise_constant_interpolate(wf::Waveform;
     intervals = sort(intervals,by=ele->ele[1])
 
     clocks = Float64[each[1] for each in intervals]
-    values = Float64[each[3] for each in intervals]
+    values = Float64[each[2] for each in intervals]
 
     push!(clocks,wf.duration)
 

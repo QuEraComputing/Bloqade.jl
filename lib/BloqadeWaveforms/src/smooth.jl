@@ -3,7 +3,7 @@ Built-in kernel functions.
 """
 module Kernels
 
-export gaussian, triangle, uniform, parabolic, biweight, tricube, cosine, logistic, sigmoid
+export gaussian, triangle, uniform, parabolic, biweight, triweight, tricube, cosine, logistic, sigmoid
 
 # kernels
 # https://en.wikipedia.org/wiki/Kernel_(statistics)#Kernel_functions_in_common_use

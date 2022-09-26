@@ -174,6 +174,9 @@ This should bring you to a "Connect to instance" page where you can navigate to 
 
 From here you have one of two choices to connect with your instance:
 
+!!! warning "Default User Notice"
+    When logging in to your EC2 instance, the recommended user to login as is the `ubuntu` user (the default, non-root user from the Ubuntu base images the Bloqade AMIs are based off of). Using `root` is not advised and unsupported by the Bloqade team. You will notice the "SSH Client" section in the photo above still gives the `ssh -i ...` command with "root" as the username. This must be changed to `ubuntu` IF you intended to use Option 1 below.
+
 #### Option 1: Instant Command Line Access
 
 If you just want to connect to the instance as fast as possible and plan on either:

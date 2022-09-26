@@ -206,7 +206,7 @@ You can either:
 - Terminating your Instance - This does NOT perserve any files and means you will lose any work not transfered off the instance to your local machine. Termination deletes the EBS instance that your instance uses and you will not be charged afterwards for storage.
 
   
-## Build System Image to Accelerate Start-up Time
+## Build System Images to Accelerate Start-up Time
 
 Since Bloqade is a large package, its loading time
 and time-to-first-simulation can be very long.
@@ -218,37 +218,3 @@ programming needs with Bloqade.
 To build a system image for your environment, please use
 the [PackageCompiler](https://julialang.github.io/PackageCompiler.jl/dev/)
 or use the Julia VSCode plugin's [build system image feature](https://www.julia-vscode.org/docs/stable/userguide/compilesysimage/)
-
-
-## Developing Bloqade
-
-When developing Bloqade, one will need to setup a local environment
-that contains all the local changes. To work with the Bloqade repo,
-first you need to clone this repo
-
-```sh
-# clone this repo
-git clone https://github.com/QuEraComputing/Bloqade.jl.git Bloqade
-# go into the directory
-cd Bloqade
-# dev the corresponding environment
-.ci/run dev
-```
-
-How does this work? The `.ci/run dev` command actually calls the `Pkg.develop`
-command from Julia's package manager. Because we want to use the local
-changes of the package, one will need to `dev` the corresponding package to 
-make the changes happen in your current environment, e.g one will need to `dev` 
-the `lib/BloqadeExpr` package to apply changes in `BloqadeExpr` module.
-
-We also provide a convenient tool to setup this more automatically by
-looking up dependencies in `lib` in one's `Project.toml` file,
-
-```sh
-.ci/run dev <path/to/your/environment>
-```
-
-will `dev` all the Bloqade dependencies in your environment.
-
-See also [Modifying A Dependency](https://pkgdocs.julialang.org/v1/getting-started/#Modifying-A-Dependency)
-for more detailed explainations.

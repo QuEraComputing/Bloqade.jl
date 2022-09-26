@@ -120,7 +120,7 @@ Give your instance a memorable name...
 
 ### Step 5: Select Your Instance
 
-Select the EC2 instance type. Note that the rate at which your charged is dependent on which instance you select. Those with larger RAM/power usually charge more. For simple usage, we recommend an `m2.xlarge` instance as a basic choice. If you are looking for GPU suport consider the `g4dn.xlarge` instance as a starting point.
+Select the EC2 instance type. Note that the rate at which your charged is dependent on which instance you select. Those with larger RAM/power usually charge more. For simple usage, we recommend an `m2.xlarge` instance as a basic choice. If you are looking for GPU support consider the `g4dn.xlarge` instance as a starting point.
 
 More information on available instances and the ability to compare between them you can visit [instances.vantage.sh](https://instances.vantage.sh/).
 
@@ -202,8 +202,8 @@ Upon saving the changes, you should be able to access your instance by running `
 In order to shut down your instance, you can return to the "Instances" menu shown in [Step 8](#step-8-blast-off), select your instance, and click the "Instance State" Drop down. 
 
 You can either:
-- Stop your Instance - This preserves any files you may have created working in the instance that were on the EBS but will come at a cost, determinable [here](https://aws.amazon.com/ebs/pricing/). You may reuse the insance by selecting it again in the "Instances" menu and selecting "Start".
-- Terminating your Instance - This does NOT perserve any files and means you will lose any work not transfered off the instance to your local machine. Termination deletes the EBS instance that your instance uses and you will not be charged afterwards for storage.
+- Stop your Instance - This preserves any files you may have created working in the instance that were on the EBS but will come at a cost, determinable [here](https://aws.amazon.com/ebs/pricing/). You may reuse the instance by selecting it again in the "Instances" menu and selecting "Start".
+- Terminating your Instance - This does NOT preserve any files and means you will lose any work not transferred off the instance to your local machine. Termination deletes the EBS instance that your instance uses and you will not be charged afterwards for storage.
 
   
 ## Build System Images to Accelerate Start-up Time

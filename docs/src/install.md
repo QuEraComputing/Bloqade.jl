@@ -175,7 +175,7 @@ This should bring you to a "Connect to instance" page where you can navigate to 
 From here you have one of two choices to connect with your instance:
 
 !!! warning "Default User Notice"
-    When logging in to your EC2 instance, the recommended user to login as is the `ubuntu` user (the default, non-root user from the Ubuntu base images the Bloqade AMIs are based off of). Using `root` is not advised and unsupported by the Bloqade team. You will notice the "SSH Client" section in the photo above still gives the `ssh -i ...` command with "root" as the username. This must be changed to `ubuntu` IF you intended to use Option 1 below.
+    When logging in to your EC2 instance, the recommended user to login as is the `ubuntu` user (the default, non-root user from the Ubuntu base images the Bloqade AMIs are based off of). Using `root` is not advised and unsupported by the Bloqade team. You will notice the "SSH Client" section in the photo above still gives the `ssh -i ...` command with "root" as the username. This must be changed to `ubuntu` IF you intended to use Option 1 below. Option 2 already accounts for this.
 
 #### Option 1: Instant Command Line Access
 
@@ -184,7 +184,7 @@ If you just want to connect to the instance as fast as possible and plan on eith
 - Keeping the instance alive for the duration of your work
 - Terminating (the equivalent of completely deleting an instance) and starting new instances frequently
 
-Just copy and paste the example at the very bottom (the command starting with `ssh -i ...`). If your key is not located in the `~/.ssh` folder for Linux/macOS users, you will need to either navigate to the folder you have the key stored to in the command line and execute the command there OR specify the full path to the key as the string in front of `-i`. 
+Just copy and paste the example at the very bottom (the command starting with `ssh -i ...`), changing the user to `ubuntu` from `root`. If your key is not located in the `~/.ssh` folder for Linux/macOS users, you will need to either navigate to the folder you have the key stored to in the command line and execute the command there OR specify the full path to the key as the string in front of `-i`. 
 
 
 #### Option 2: OpenSSH Config File

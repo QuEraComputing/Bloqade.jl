@@ -79,7 +79,7 @@ as well as:
 - [CUDA.jl](https://github.com/JuliaGPU/CUDA.jl)
 - [Adapt.jl](https://github.com/JuliaGPU/Adapt.jl) 
 
-Both of which are needed for Bloqade to take advantage of GPUs (see [GPU Acceleration](@ref) for more on how to do this). 
+Both of which are needed for Bloqade to take advantage of GPUs (see [GPU Acceleration](@ref cuda) for more on how to do this). 
 
 
 ### Disclaimers

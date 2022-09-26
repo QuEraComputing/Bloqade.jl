@@ -38,6 +38,17 @@ warn_msg = "negative tolerance provided, taking absolute value."
     
     end
 
+    @testset "piecewise constant waveforms" begin
+        wf = piecewise_constant(;clocks = [0.0, 2.0, 3.0, 4.0], values = [0.0, 2.0, 1.0])
+        new_wf = piecewise_constant_interpolate(wf)
+        @test wf == new_wf
+
+        step_msg = "Waveform step smaller than constraint."
+        @test_logs (:warn,warn_msg) piecewise_constant_interpolate(wf;atol=-1e-5)
+        @test_throws ErrorException piecewise_constant_interpolate(wf;atol=0)
+        @test_throws ErrorException piecewise_constant_interpolate(wf;min_step=3.0)
+    end
+
 end
 
 @testset "piecewise linear waveforms" begin

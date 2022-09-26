@@ -230,7 +230,6 @@ function piecewise_constant_interpolate(wf::Waveform;
             end
 
         else
-            # (lb, value)
             push!(intervals,(lb,value))
         end
 
@@ -244,5 +243,36 @@ function piecewise_constant_interpolate(wf::Waveform;
     push!(clocks,wf.duration)
 
     return piecewise_constant(;clocks=clocks,values=values)
+
+end
+
+function piecewise_constant_interpolate(wf::Waveform{PiecewiseConstant{T},T}; 
+    min_step::Real=0.0, 
+    atol::Real = 1.0e-5) where {T<:Real}
+
+    if atol < 0
+        @warn "negative tolerance provided, taking absolute value."
+        atol *= -1
+    end
+
+    if atol == 0 && min_step == 0
+        error("Interpolation requires either a tolerance constraint or a step constraint.")
+    end
+
+    c = wf.f.clocks
+
+    @inbounds for i in 1:length(c)-1
+
+        lb = c[i]
+        ub = c[i+1]
+        
+        interval = ub-lb
+
+        if interval < min_step
+            error("Waveform step smaller than constraint.")
+        end
+    end
+
+    return wf
 
 end

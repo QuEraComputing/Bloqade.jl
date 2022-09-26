@@ -1,0 +1,15 @@
+shape_1 = constant(1.0)
+wf1 = waveform shape_1 3.0
+wf2 = picewise {
+    linear_shape = linear(0.1, 2.0)
+    waveform shape_2 4.0
+    waveform linear_shape 3.0
+    picewise {
+        waveform linear_shape 2.0
+        waveform shape_2 1.0
+    }
+}
+
+wf3 = smooth(wf2)
+
+global channel rabi;

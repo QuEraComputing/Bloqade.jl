@@ -9,6 +9,8 @@ using BloqadeWaveforms: edge_pad
 
     @test biweight(0.1) ≈ 0.91884375
     @test biweight(1.1) ≈ 0.0
+    @test triweight(0.1) ≈ 1.06126453125
+    @test triweight(1.1) ≈ 0.0
     @test cosine(0.1) ≈ π / 4 * cos(π / 2 * 0.1)
     @test gaussian(0.1) ≈ 0.3969525474770118
     @test logistic(0.1) ≈ 0.24937604019289197

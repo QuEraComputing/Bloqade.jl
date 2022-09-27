@@ -244,19 +244,16 @@ end
 
 function hardware_transform_parse(h::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
     (atoms,ϕ,Ω,Δ) = get_rydberg_params(h)
+    Δ_mask = (Δ=Δ,δ=nothing,Δi=1.0)
 
     ϕ,ϕ_error = hardware_transform_ϕ(ϕ,device_capabilities)
     Ω,Ω_error = hardware_transform_Ω(Ω,device_capabilities)
-    Δ,Δ_error,Δ_mask = hardware_transform_Δ(Δ,device_capabilities)
-
-    pos_resolution = device_capabilities.lattice.geometry.positionResolution
-    new_atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
-
-    mse_atoms = sum(√sum((a .- b) .^ 2) for (a,b) in zip(new_atoms,atoms))/length(atoms)
+    Δ,Δ_error = hardware_transform_Δ(Δ,device_capabilities)
+    atoms,mse_atoms = hardware_transform_atoms(atoms,device_capabilities)
 
     info = HardwareTransformInfo(ϕ_error=ϕ_error,Ω_error=Ω_error,Δ_error=Δ_error,Δ_mask=Δ_mask,mse_atoms=mse_atoms)
 
-    return (new_atoms,ϕ,Ω,Δ,info)
+    return (atoms,ϕ,Ω,Δ,info)
 end
 
 # public API exposed here: 
@@ -353,9 +350,8 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities=get_de
             clocks=set_resolution.(Δ.f.clocks,time_res),
             values=set_resolution.(Δ.f.values,detune_res)
         )
-        Δ_mask = (Δ=Δt,δ=nothing,Δi=1.0)
         Δt = clip_waveform(Δt,:Δ,min_value,max_value)
-        return Δt,norm_diff_durations(Δ,Δt),Δ_mask
+        return Δt,norm_diff_durations(Δ,Δt)
 
     elseif Δ isa Waveform{F,T} where {F,T<:Real}
         # arbitrary waveform must transform
@@ -367,9 +363,8 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities=get_de
         )
 
         Δt = clip_waveform(Δt,:Δ,min_value,max_value)
-        Δ_mask = (Δ=Δt,δ=nothing,Δi=1.0)
 
-        return Δt,norm_diff_durations(Δ,Δt),Δ_mask
+        return Δt,norm_diff_durations(Δ,Δt)
     elseif Δ isa Vector
         error("Local detuning not implemented in Schema.")
         #=
@@ -402,6 +397,17 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities=get_de
         =#
     end
 
+
+end
+
+function hardware_transform_atoms(atoms,device_capabilities::DeviceCapabilities=get_device_capabilities())
+    pos_resolution = device_capabilities.lattice.geometry.positionResolution
+
+    new_atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
+
+    mse_atoms = sum(√sum((x.-y).^2) for (x,y) in zip(new_atoms,atoms))/length(new_atoms)
+
+    return new_atoms,mse_atoms
 
 end
 

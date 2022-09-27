@@ -241,7 +241,27 @@ function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseConstant{T},T},nam
     )
 end
 
-function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
+
+function hardware_transform_parse(h::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
+    (atoms,ϕ,Ω,Δ) = get_rydberg_params(h)
+
+    ϕ,ϕ_error = hardware_transform_ϕ(ϕ,device_capabilities)
+    Ω,Ω_error = hardware_transform_Ω(Ω,device_capabilities)
+    Δ,Δ_error,Δ_mask = hardware_transform_Δ(Δ,device_capabilities)
+
+    pos_resolution = device_capabilities.lattice.geometry.positionResolution
+    new_atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
+
+    mse_atoms = sum(√sum((a .- b) .^ 2) for (a,b) in zip(new_atoms,atoms))/length(atoms)
+
+    info = HardwareTransformInfo(ϕ_error=ϕ_error,Ω_error=Ω_error,Δ_error=Δ_error,Δ_mask=Δ_mask,mse_atoms=mse_atoms)
+
+    return (new_atoms,ϕ,Ω,Δ,info)
+end
+
+# public API exposed here: 
+
+function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities=get_device_capabilities())
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     rabi_res = device_capabilities.rydberg.global_value.rabiFrequencyResolution
@@ -275,7 +295,7 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     return Ωt,norm_diff_durations(Ω,Ωt)
 end
 
-function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
+function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities=get_device_capabilities())
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     phase_res = device_capabilities.rydberg.global_value.phaseResolution
@@ -309,7 +329,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     return ϕt,norm_diff_durations(ϕ,ϕt)
 end
 
-function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
+function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities=get_device_capabilities())
 
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
@@ -385,27 +405,14 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
 
 end
 
-function hardware_transform_parse(h::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
-    (atoms,ϕ,Ω,Δ) = get_rydberg_params(h)
-
-    ϕ,ϕ_error = hardware_transform_ϕ(ϕ,device_capabilities)
-    Ω,Ω_error = hardware_transform_Ω(Ω,device_capabilities)
-    Δ,Δ_error,Δ_mask = hardware_transform_Δ(Δ,device_capabilities)
-
-    pos_resolution = device_capabilities.lattice.geometry.positionResolution
-    new_atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
-
-    mse_atoms = sum(√sum((a .- b) .^ 2) for (a,b) in zip(new_atoms,atoms))/length(atoms)
-
-    info = HardwareTransformInfo(ϕ_error=ϕ_error,Ω_error=Ω_error,Δ_error=Δ_error,Δ_mask=Δ_mask,mse_atoms=mse_atoms)
-
-    return (new_atoms,ϕ,Ω,Δ,info)
-end
-
-# public API exposed here: 
 function hardware_transform(h::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
     atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h,device_capabilities)
     hardware_h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
+
+    @debug "Hardware transform report: after linear interpolation ∫dt |ϕ(t)-ϕ_hw(t)| = $(info.ϕ_error) rad⋅μs"
+    @debug "Hardware transform report: after linear interpolation ∫dt |Ω(t)-Ω_hw(t)| = $(info.Ω_error) rad"
+    @debug "Hardware transform report: after linear interpolation ∫dt |Δ(t)-Δ_hw(t)| = $(info.Δ_error) rad"
+    @debug "Hardware transform report: mean deviation after rounding positions $(info.mse_atoms) μm"
 
     return hardware_h,info
 end

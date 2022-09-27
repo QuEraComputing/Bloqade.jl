@@ -67,8 +67,8 @@ end
 # 1. all waveforms must be PWL
 # 2. Local detuning must be PWL with all same clocks and can be decomposed 
 #    the waveform is Δ(i,t) = Δ(t) + Δ_i * δ(t)
-function schema_parse_rydberg_fields(H::BloqadeExpr.RydbergHamiltonian)
-    atoms,ϕ,Ω,Δ = get_rydberg_params(H)
+function schema_parse_rydberg_fields(h::BloqadeExpr.RydbergHamiltonian)
+    atoms,ϕ,Ω,Δ = get_rydberg_params(h)
     ϕ = schema_parse_pwc_field(:ϕ,ϕ) # PWL => PWC for checks
     Ω = schema_parse_pwl_field(:Ω,Ω) 
     Δ = schema_parse_pwl_field(:Δ,Δ)

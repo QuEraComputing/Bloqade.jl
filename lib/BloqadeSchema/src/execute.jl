@@ -164,27 +164,18 @@ end
 
 
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationParams)
-    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h,params.device_capabilities)
-
-    # extract Detuning mask
-    Δ = info.Δ_mask.Δ
-    δ = info.Δ_mask.δ
-    Δi = info.Δ_mask.Δi
-
-    @debug "Hardware transform report: after linear interpolation ∫dt |ϕ(t)-ϕ_hw(t)| = $(info.ϕ_error) rad⋅μs"
-    @debug "Hardware transform report: after linear interpolation ∫dt |Ω(t)-Ω_hw(t)| = $(info.Ω_error) rad"
-    @debug "Hardware transform report: after linear interpolation ∫dt |Δ(t)-Δ_hw(t)| = $(info.Δ_error) rad"
-    @debug "Hardware transform report: mean deviation after rounding positions $(info.mse_atoms) μm"
+    atoms,ϕ,Ω,Δ,δ,Δi = schema_parse_rydberg_fields(h)
 
     violations = validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,params.device_capabilities)
 
     if length(violations) > 0
-        throw(ValidationException())
+        show(violations)
+        throw(ValidationException("Failed to convert to Schema, the Hamiltonian doesn't obey hardware constraints."))
     end
 
     ϕ =(
         clocks=ϕ.f.clocks,
-        values=ϕ.f.values
+        values=collect((ϕ.f.values...,ϕ.f.values[end])) # add extra element at the end 
     )
 
     Ω = (

@@ -45,7 +45,8 @@ end
 
     for Ω in scalar_values, ϕ in scalar_values, Δ in scalar_values
         h = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
-        j = BloqadeSchema.to_json(h)
+        h_hw = hardware_transform(h)
+        j = BloqadeSchema.to_json(h_hw)
 
         t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
 

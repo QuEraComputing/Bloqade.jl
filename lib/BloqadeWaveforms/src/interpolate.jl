@@ -136,7 +136,7 @@ function piecewise_linear_interpolate(wf::Waveform;
     
     stack = NTuple{2,Float64}[(0.0,wf.duration)]
     intervals = NTuple{4,Float64}[]
-    wf_wrapper = t -> sample_values(wf,t)
+
     while !isempty(stack)
         lb,ub = pop!(stack)
 
@@ -148,8 +148,7 @@ function piecewise_linear_interpolate(wf::Waveform;
 
         lin_f = t -> slope .* (t .- lb) .+ f_lb
 
-        area,_ = quadgk(t -> abs.(lin_f(t) .- wf_wrapper(t)),lb,ub,atol=eps())
-
+        area,_ = quadgk(t -> abs.(lin_f(t) .- wf.(t)),lb,ub,atol=eps())
         error_bound = max(atol*max(atol,interval),eps())
 
         if area*wf.duration > error_bound
@@ -201,49 +200,78 @@ function piecewise_constant_interpolate(wf::Waveform;
         error("Interpolation requires either a tolerance constraint or a minimum step constraint.")
     end
     
-    stack = NTuple{2,Float64}[(0.0,wf.duration)]
-    intervals = NTuple{2,Float64}[]
-    wf_wrapper = t -> sample_values(wf,t)
-    while !isempty(stack)
-        lb,ub = pop!(stack)
+    
+    area,_ = quadgk(t->wf.(t),0,wf.duration,atol=eps())
+    value = area/wf.duration
+    global_error,_ = quadgk(t -> abs.(value .- wf.(t)),0,wf.duration,atol=eps())
 
-        interval = (ub-lb)
+    chunks = Dict{NTuple{3,Float64},Float64}((global_error,0.0,wf.duration)=>value)
 
-        # quadgk returns a tuple of structure: (fill(value), error)
-        # we just need the value from fill(value)
-        value = quadgk(wf_wrapper,lb,ub,atol=eps())[1][1]/(ub-lb)
-        area,_ = quadgk(t -> abs.(wf_wrapper(t) .- value),lb,ub,atol=eps())
 
-        error_bound = max(atol*max(atol,interval),eps())
+    while global_error > atol
 
-        if area*wf.duration > error_bound
-            mid = (ub+lb)/2
+        # split interval that can be split in half and has the largest error
+        current_keys = collect(keys(chunks))
+        sort!(current_keys,by=ele->ele[1])
 
-            # only throw error if tolerance is non-zero
-            # if tolerance is 0 simply stop adding to stack
-            if interval < 2*min_step
-                atol > 0 && error("Requested tolerance for interpolation violates the step size constraint.")
-                push!(intervals,(lb,value))
+        while length(current_keys) > 0
+            _,lb,ub = current_keys[end]
+
+            if (ub-lb) < 2*min_step 
+                popfirst!(current_keys)
             else
-                push!(stack,(mid,ub))
-                push!(stack,(lb,mid))
+                break
             end
-
-        else
-            push!(intervals,(lb,value))
         end
+
+        if length(current_keys) == 0
+            atol > 0 && error("Requested tolerance for interpolation violates the step size constraint.")
+            break
+        end
+
+        max_key = current_keys[end]
+        
+        old_value = pop!(chunks,max_key)
+        (old_error,lb,ub) = max_key
+        mid = (ub+lb)/2
+        total_area = old_value*(ub-lb)
+        
+        # only integrate over half of interval and use 
+        # old area to calculate other part because lower_area + upper_area = total_area
+
+        lower_area,_ = quadgk(wf,lb,mid,atol=eps())
+        upper_area = total_area - lower_area
+
+        lower_value = lower_area/(mid-lb)
+        upper_value = upper_area/(ub-mid)
+
+        lower_error,_ = quadgk(t -> abs.(lower_value .- wf.(t)),lb,mid,atol=eps())
+        upper_error,_ = quadgk(t -> abs.(upper_value .- wf.(t)),mid,ub,atol=eps())
+
+        chunks[(lower_error,lb,mid)] = lower_value
+        chunks[(upper_error,mid,ub)] = upper_value
+
+        # update global error
+        global_error = (global_error - old_error) + lower_error + upper_error
 
     end
 
-    intervals = sort(intervals,by=ele->ele[1])
+    
+    current_keys = collect(keys(chunks))
+    sort!(current_keys,by=ele->ele[2])
 
-    clocks = Float64[each[1] for each in intervals]
-    values = Float64[each[2] for each in intervals]
+    clocks = Float64[]
+    values = Float64[]
+    for k in current_keys
+        (error,lb,ub) = k
+
+        push!(clocks,lb)
+        push!(values,chunks[k])
+    end
 
     push!(clocks,wf.duration)
 
     return piecewise_constant(;clocks=clocks,values=values)
-
 end
 
 function piecewise_constant_interpolate(wf::Waveform{PiecewiseConstant{T},T}; 

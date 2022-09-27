@@ -8,6 +8,7 @@ using Interpolations
 using QuadGK: quadgk
 using Optim: optimize,Brent
 using BloqadeExpr: default_unit
+using OrderedCollections: OrderedDict
 
 export Waveform,
     sample_values,

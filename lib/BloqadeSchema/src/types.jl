@@ -1,7 +1,7 @@
 using GarishPrint
 
 const PiecewiseLinearWaveform = Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T} where {T<:Real,I}
-
+const PiecewiseConstantWaveform = Waveform{BloqadeWaveforms.PiecewiseConstant{T},T} where {T<:Real}
 
 
 abstract type QuEraSchema end

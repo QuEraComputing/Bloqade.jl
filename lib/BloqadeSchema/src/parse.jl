@@ -2,8 +2,11 @@
 
 
 
-schema_parse_field(::Symbol,field::PiecewiseLinearWaveform) = field
-schema_parse_field(name::Symbol,::Any) = error("Cannot convert Hamiltonian to schema, $name must be piecewise linear Waveform.")
+schema_parse_pwl_field(::Symbol,field::PiecewiseLinearWaveform) = field
+schema_parse_pwl_field(name::Symbol,::Any) = error("Cannot convert Hamiltonian to schema, $name must be piecewise linear Waveform.")
+
+schema_parse_pwc_field(::Symbol,field::PiecewiseConstantWaveform) = field
+schema_parse_pwc_field(name::Symbol,::Any) = error("Cannot convert Hamiltonian to schema, $name must be piecewise constant Waveform.")
 
 
 
@@ -66,9 +69,9 @@ end
 #    the waveform is Δ(i,t) = Δ(t) + Δ_i * δ(t)
 function schema_parse_rydberg_fields(H::BloqadeExpr.RydbergHamiltonian)
     atoms,ϕ,Ω,Δ = get_rydberg_params(H)
-    ϕ = schema_parse_field(:ϕ,ϕ)
-    Ω = schema_parse_field(:Ω,Ω)
-    Δ = schema_parse_field(:Δ,Δ)
+    ϕ = schema_parse_pwc_field(:ϕ,ϕ) # PWL => PWC for checks
+    Ω = schema_parse_pwl_field(:Ω,Ω) 
+    Δ = schema_parse_pwl_field(:Δ,Δ)
     return (atoms,ϕ,Ω,Δ,nothing,1.0)
 end
     

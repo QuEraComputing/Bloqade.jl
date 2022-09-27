@@ -65,11 +65,13 @@ end
 
 # TODO: move this to BloqadeWaveforms
 # function inserts ramps at the beginning and end to set correct initial and final values
+# two methods, one for general waveform, other is for specifically PWL waveforms
 function pin_waveform_edges(wf::Waveform,name,
     max_slope::Real,
     begin_value::Real,
     end_value::Real)
 
+    
     duration = wf.duration
 
     wf_begin = wf(zero(duration))
@@ -223,6 +225,22 @@ function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},nam
     )
 end
 
+function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseConstant{T},T},name,min_value::T,max_value::T) where {T<:Real,I}
+    @assert min_value < max_value
+
+    for value in wf.f.values
+        if value > max_value || value < min_value
+            @debug "During hardware transform: $name(t) falls outside of hardware bounds, clipping to maximum/minimum."
+            break
+        end
+    end
+
+    return piecewise_constant(;clocks=wf.f.clocks,values=map(wf.f.values) do value
+            return min(max_value,max(min_value,value))
+        end
+    )
+end
+
 function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
@@ -269,21 +287,22 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     check_waveform(ϕ,:ϕ)
     warn_duration(time_res,ϕ,:ϕ)
 
-    ϕ = pin_waveform_edges(ϕ,:ϕ,max_slope,0.0,ϕ(ϕ.duration))
-
-    ϕt = if ϕ isa PiecewiseLinearWaveform
-        piecewise_linear(;
+    ϕt = if ϕ isa PiecewiseConstantWaveform
+        piecewise_constant(;
             clocks=set_resolution.(ϕ.f.clocks,time_res),
             values=set_resolution.(ϕ.f.values,phase_res)
         )        
     elseif ϕ isa Waveform{F,T} where {F,T<:Real}
         # arbitrary waveform must transform
-        
-        ϕ_interp = piecewise_linear_interpolate(ϕ,max_slope=max_slope,min_step=min_step,atol=0)
-        piecewise_linear(;
+        ϕ_interp = piecewise_constant_interpolate(ϕ,max_slope=max_slope,min_step=min_step,atol=0)
+        piecewise_constant(;
             clocks=set_resolution.(ϕ_interp.f.clocks,time_res),
             values=set_resolution.(ϕ_interp.f.values,phase_res)
         )
+    end 
+    # simply clip value to make waveform consistent
+    if !isapprox(ϕt(zero(ϕt.duration)),zero(ϕt.duration);atol=eps()) 
+        ϕt.f.values[1] = zero(ϕt.duration)
     end
 
     ϕt = clip_waveform(ϕt,:ϕ,min_value,max_value)

@@ -1,11 +1,17 @@
 using BloqadeSchema
-using Test
 using Configurations
+using Test
+
+
+
+@testset "parse" begin
+    include("parse.jl")
+end
 
 @testset "execute" begin
     include("execute.jl")
 end
 
-@testset "serialize" begin
-    include("serialize.jl")
-end
+# @testset "serialize" begin
+#     include("serialize.jl")
+# end

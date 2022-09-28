@@ -25,6 +25,30 @@ function Base.:(==)(lhs::Waveform, rhs::Waveform)
     return lhs.duration == rhs.duration && lhs.f == rhs.f
 end
 
+
+
+function LinearAlgebra.norm(x::Waveform;p::Real=1)
+    if isfinite(p) # p-norm 
+        kernel = t->abs.(x(t)) .^ p
+        area,area_error = quadgk(kernel,0,x.duration)
+        return area^(1/p)
+    elseif isinf(p) # infinite norm
+        kernel = t -> -abs.(x(t))
+        res = optimize(kernel,0,x.duration,Brent())
+        return -minimum(res)
+    else
+        throw(OverflowError("argument ord must be finite real valued or infinity."))
+    end
+end
+
+function Base.isapprox(lhs::Waveform,rhs::Waveform;atol::Real=0,rtol::Real = (atol>0 ? 0 : √eps()),p::Real=1)
+    if lhs != rhs
+            return BloqadeWaveforms.norm(lhs-rhs;p) < max(atol,rtol*max(BloqadeWaveforms.norm(lhs;p),BloqadeWaveforms.norm(rhs;p)))
+    else
+        return true
+    end
+end
+
 """
     Waveform(f; duration::Real)
 

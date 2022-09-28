@@ -291,9 +291,6 @@ function collect_atoms(mg::MaskedGrid)
     return AtomList(map(ci -> (mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask)))
 end
 
-in_range(x) = 0 ≤ x < 1 ? true : false
-in_parallelogram(M, p) =  all(in_range.(M \ p))
-
 # generating docstrings
 function _gendoc(::Type{LT}) where {LT}
     return """    $LT <: AbstractLattice{$(dimension(LT()))}

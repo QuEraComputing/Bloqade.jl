@@ -18,6 +18,7 @@ export # types
     KagomeLattice,
     GeneralLattice,
     RectangularLattice,
+    AbstractTile,
     # interfaces
     generate_sites,
     offset_axes,
@@ -38,10 +39,15 @@ export # types
     # visualize
     img_atoms,
     img_maskedgrid,
-    ByDensity
+    ByDensity,
+    # bounds
+    Parallelepiped,
+    Tile,
+    within_tile
 
 include("lattice.jl")
 include("neighbors.jl")
 include("visualize.jl")
+include("tiles.jl")
 
 end

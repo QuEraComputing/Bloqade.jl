@@ -536,6 +536,10 @@ YaoAPI.nqubits(::ThreeLevelRydbergConstGates) = 1
 @inline YaoAPI.nqudits(h::RydbergHamiltonian) = nqudits(h.rydberg_term)
 
 
+function Base.:(==)(lhs::DivByTwo{F1},rhs::DivByTwo{F2}) where {F1,F2}
+    return lhs.f == rhs.f
+end
+
 function Base.:(==)(lhs::RydInteract{D1}, rhs::RydInteract{D2}) where {D1, D2}
     return lhs.C == rhs.C && lhs.atoms == rhs.atoms && D1 == D2
 end

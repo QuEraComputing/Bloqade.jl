@@ -296,7 +296,6 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities=get_de
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     phase_res = device_capabilities.rydberg.global_value.phaseResolution
-    max_slope = device_capabilities.rydberg.global_value.phaseSlewRateMax
     max_value = device_capabilities.rydberg.global_value.phaseMax
     min_value = device_capabilities.rydberg.global_value.phaseMin
 
@@ -311,7 +310,7 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities=get_de
         )        
     elseif ϕ isa Waveform{F,T} where {F,T<:Real}
         # arbitrary waveform must transform
-        ϕ_interp = piecewise_constant_interpolate(ϕ,max_slope=max_slope,min_step=min_step,atol=0)
+        ϕ_interp = piecewise_constant_interpolate(ϕ,min_step=min_step,atol=0)
         piecewise_constant(;
             clocks=set_resolution.(ϕ_interp.f.clocks,time_res),
             values=set_resolution.(ϕ_interp.f.values,phase_res)

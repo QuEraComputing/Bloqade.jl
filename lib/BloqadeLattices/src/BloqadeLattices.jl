@@ -42,7 +42,7 @@ export # types
     # bounds
     Parallelepiped,
     Tile,
-    within_tile
+    within_cell
 
 include("lattice.jl")
 include("neighbors.jl")

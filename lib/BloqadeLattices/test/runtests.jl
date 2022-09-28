@@ -54,32 +54,32 @@ end
     @test (sites |> rescale_axes(2.0)) == [(0.4, 0.6), (0.8, 1.6)]
 end
 
-@testset "tiles" begin
+@testset "cells" begin
 
-    @testset "within_tile" begin
+    @testset "within_cell" begin
         bounds = reshape([3.0, 3.0, 4.0, 0.0], 2, 2)
         tile = Tile(bounds)
         # origin
         p = (0.0,0.0)
-        @test within_tile(tile, p)
+        @test within_cell(tile, p)
         # lies on one of the accepted sides of the parallelogram
         p = (1.0, 1.0)
-        @test within_tile(tile, p)
+        @test within_cell(tile, p)
         # lies on another accepted side of the parallelogram
         p = (2.0, 0.0)
-        @test within_tile(tile, p)
+        @test within_cell(tile, p)
         # lies inside the parallelogram
         p = (2.0, 1.0)
-        @test within_tile(tile, p)
+        @test within_cell(tile, p)
         # shares a point with an non-accepted side of the parallelogram
         p = (4.0, 0.0)
-        @test !within_tile(tile, p)
+        @test !within_cell(tile, p)
         # shares a point with a non-accepted side of the parallelogram
         p = (3.0, 3.0)
-        @test !within_tile(tile, p)
+        @test !within_cell(tile, p)
         # lies on the farthest point from the origin and touches two non-accepted sides
         p = (7.0, 3.0)
-        @test !within_tile(tile, p)
+        @test !within_cell(tile, p)
     end
 
 end

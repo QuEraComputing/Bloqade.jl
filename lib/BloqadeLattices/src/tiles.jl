@@ -29,9 +29,9 @@ end
 # Tile{D,T} is just concrete type based off the Supercell{D}
 # NTuple gives has D elements of type T, representing point
 in_range(x) = 0 ≤ x < 1 ? true : false
-within_tile(tile::Supercell{D},x::NTuple{D,T}) where {D,T} = all(in_range.(tile.bounds_inv * collect(x)))
+within_cell(tile::Supercell{D},x::NTuple{D,T}) where {D,T} = all(in_range.(tile.bounds_inv * collect(x)))
 
-function wrap_around(tile::Tile{D,T},x::NTuple{D,T}) where {D,T}
+function wrap_around(tile::Supercell{D},x::NTuple{D,T}) where {D,T}
 
 end
 

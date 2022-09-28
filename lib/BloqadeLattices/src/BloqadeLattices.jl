@@ -9,7 +9,6 @@ using LuxorGraphPlot: Point
 using LuxorGraphPlot.Luxor: Colors
 
 export # types
-    AbstractLattice,
     HoneycombLattice,
     SquareLattice,
     TriangularLattice,
@@ -18,7 +17,7 @@ export # types
     KagomeLattice,
     GeneralLattice,
     RectangularLattice,
-    AbstractTile,
+    Supercell,
     # interfaces
     generate_sites,
     offset_axes,

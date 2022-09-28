@@ -60,3 +60,18 @@ end
     h2 = RydInteract(; atoms = positions) + SumOfX(; nsites = 2, Ω = [sin(0.1), cos(0.1)])
     @test h1 |> attime(0.1) == h2
 end
+
+
+@testset "get_rydberg_params" begin
+    atoms = [(i,i) for i in 1:10]
+
+    values = [nothing,1,t->t^2,rand(10),[t->rand()*t for i in 1:10]]
+
+    for ϕ in values, Ω in values, Δ in values
+        h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
+        # catches the this weird edge case 
+        Ω = (isnothing(Ω) && !isnothing(ϕ) ? 0 : Ω)
+        @test (atoms,ϕ,Ω,Δ) == BloqadeSchema.get_rydberg_params(h)
+    end
+end
+

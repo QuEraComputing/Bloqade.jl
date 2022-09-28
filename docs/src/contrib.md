@@ -1,4 +1,4 @@
-# Contributing to Bloqade
+# [Contributing to Bloqade](@id contrib)
 
 If you are interested in contributing to this package,
 please consider going through this guide to help make your
@@ -68,6 +68,24 @@ This can be done automatically using the CLI tool via:
 ```sh
 .ci/run dev
 ```
+
+How does this work? The `.ci/run dev` command actually calls the `Pkg.develop`
+command from Julia's package manager. Because we want to use the local
+changes of the package, one will need to `dev` the corresponding package to 
+make the changes happen in your current environment, e.g one will need to `dev` 
+the `lib/BloqadeExpr` package to apply changes in `BloqadeExpr` module.
+
+We also provide a convenient tool to setup this more automatically by
+looking up dependencies in `lib` in one's `Project.toml` file,
+
+```sh
+.ci/run dev <path/to/your/environment>
+```
+
+will `dev` all the Bloqade dependencies in your environment.
+
+See also [Modifying A Dependency](https://pkgdocs.julialang.org/v1/getting-started/#Modifying-A-Dependency)
+for more detailed explainations.
 
 ### Create New Examples
 

@@ -25,7 +25,7 @@ function set_resolution(x::Real,res::Real)
     return round(Int(round(x / res)) * res,sigdigits=14)
 end
 
-# throws error for none-scalar fields
+# throws error for non-scalar fields
 function  check_global(field,name) 
     field isa AbstractArray && error("Failed to transform $name to hardware, $name must be global drive.")
 end
@@ -210,8 +210,18 @@ end
 =#
 
 function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},name,min_value::T,max_value::T) where {T<:Real,I}
+    #=
+    FROM JULIA DOCS:
+    !!! warning An assert might be disabled at various optimization levels. 
+    Assert should therefore only be used as a debugging tool and not used for 
+    authentication verification (e.g., verifying passwords), 
+    nor should side effects needed for the function to work correctly be used inside of asserts.
+    =#
+    # ensure that the maximum value of waveform is greater than minimum value
     @assert min_value < max_value
 
+    # for each value, if a value is greater than the maximum permitted or smaller than the smallest permitted, 
+    # issue notice to user that clipping must occur
     for value in wf.f.values
         if value > max_value || value < min_value
             @debug "During hardware transform: $name(t) falls outside of hardware bounds, clipping to maximum/minimum."
@@ -293,14 +303,18 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities=get_de
 end
 
 function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities=get_device_capabilities())
+
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     phase_res = device_capabilities.rydberg.global_value.phaseResolution
     max_value = device_capabilities.rydberg.global_value.phaseMax
     min_value = device_capabilities.rydberg.global_value.phaseMin
 
+    # Can't feed in array of waveforms for ϕ
     check_global(ϕ,:ϕ)
+    # check that it actually is a waveform (ex: an int/float constant can't be a waveform)
     check_waveform(ϕ,:ϕ)
+    # warn if duration will be rounded to time resolution
     warn_duration(time_res,ϕ,:ϕ)
 
     ϕt = if ϕ isa PiecewiseConstantWaveform
@@ -308,7 +322,8 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities=get_de
             clocks=set_resolution.(ϕ.f.clocks,time_res),
             values=set_resolution.(ϕ.f.values,phase_res)
         )        
-    elseif ϕ isa Waveform{F,T} where {F,T<:Real}
+
+    elseif ϕ isa Waveform{F,T} where {F,T<:Real} # handle the more general case
         # arbitrary waveform must transform
         ϕ_interp = piecewise_constant_interpolate(ϕ,min_step=min_step,atol=0)
         piecewise_constant(;
@@ -400,6 +415,7 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities=get_de
 end
 
 function hardware_transform_atoms(atoms,device_capabilities::DeviceCapabilities=get_device_capabilities())
+
     pos_resolution = device_capabilities.lattice.geometry.positionResolution
 
     new_atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
@@ -411,6 +427,7 @@ function hardware_transform_atoms(atoms,device_capabilities::DeviceCapabilities=
 end
 
 function hardware_transform(h::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
+    # gets transformed versions of waveforms, then creates new hamiltonian    
     atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h,device_capabilities)
     hardware_h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
 

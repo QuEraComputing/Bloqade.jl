@@ -1,7 +1,3 @@
-
-
-
-
 function piecewise_linear_interpolate(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
     max_slope::Real=Inf64, 
     min_step::Real=0.0, 

@@ -7,10 +7,10 @@ to install the latest stable version of this package:
 pkg> add Bloqade
 ```
 
-## Low-latency Usage of Bloqade Component Packages
+## Low-Latency Usage of Bloqade Component Packages
 
-The Bloqade project contains multiple packages. For development on top of the functionality,
-(especially for those who do not need the ODE solvers), we recommend you to use the corresponding
+The Bloqade project contains multiple packages. For development on top of functionality,
+(especially for those who do not need the ODE solvers), we recommend you use the corresponding
 component packages. The following is a list of component packages and what they do (WIP = work-in-progress)
 
 - BloqadeExpr: Expressions and API definitions for Bloqade.
@@ -42,113 +42,174 @@ Bloqade package, just add `#master` after the package name, e.g.:
 pkg> add BloqadeExpr#master
 ```
 
-## Using Bloqade with AWS EC2 services
+## Using Bloqade with AWS EC2
 
-Bloqade is an open source solution for Hamiltonian simulation and can be deployed on any personal computer. Yet, some users might benefit from the extra performance offered by large computational resources from different providers. To address that, Bloqade is also available at the Amazon Web Services (AWS) Marketplace, and prepared to run on AWS EC2 instances via Amazon Machine Images. To deploy Bloqade on AWS EC2 instances, follow the 7-step process below.
+Bloqade can be deployed on any personal computer although some users might benefit from the extra performance offered by large computational resources from different providers. To address that, Bloqade is also available on the Amazon Web Services (AWS) Marketplace, and can run on AWS EC2 instances Amazon Machine Images (AMIs). More information about the AMIs and how to deploy them onto EC2 instances can be found below.
 
-- disclaimer 1: deploying Bloqade on AWS EC2 instances will incur a cost on the user that will depend on the AWS resources utilized.  
-- disclaimer 2: support on deploying Bloqade on AWS can be obtained via AWS Support. This is a one-on-one support channel that is staffed 24x7x365 with experienced support engineers. To learn more, follow [this link](https://aws.amazon.com/premiumsupport/).  
+### Bloqade AMIs
 
-### Step-0: Create an EC2 instance on AWS and check location
+There are two AMIs offered by the Bloqade team:
 
-For the general guidelines on launching EC2 instances, check the [AWS EC2 tutorial](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html).
-Bloqade can be run, technically, from any location. Still, its image is installed in servers held in N. Virginia. To get started as easily as possible, ensure to set the  AWS region location to N. Virginia(US-EAST-1)
+#### Bloqade AMI (Base Image)
 
-<img width="745" alt="step0" src="https://user-images.githubusercontent.com/99290010/188176960-0fc2e132-d15c-4c64-90cd-99790a59b6ec.png">
+Built on top of Ubuntu Server 20.04 LTS, this image includes
+- The latest version of Julia and Bloqade
+- [Yao.jl](https://yaoquantum.org/)
+- [Revise.jl](https://github.com/timholy/Revise.jl)
+- [BenchmarkTools.jl](https://juliaci.github.io/BenchmarkTools.jl/stable/)
+- [PythonCall.jl](https://cjdoris.github.io/PythonCall.jl/stable/) 
+- Conda package manager, provided by [Miniconda](https://docs.conda.io/en/latest/miniconda.html) 
 
-### Step-1: Create an EC2 instance on AWS and check location
+#### Bloqade CUDA AMI
 
-Now to really get started. On your AWS account portal, type EC2 on the search bar and access the EC2 service
+Built on top of an Amazon DLAMI (Deep Learning AMI) on Ubuntu 20.04, this AMI includes everything from the Base Image above along with:
 
-<img width="654" alt="step1" src="https://user-images.githubusercontent.com/99290010/188177392-3681ff55-f418-44bd-9569-ee78ad9a272d.png">
+- NVIDIA CUDA
+- cuDNN
+- NCCL
+- GPU Drivers
+- Intel MKL-DNN
+- Docker
+- NVIDIA-Docker
+- EFA support
+- Support for Block devices
 
-### Step-2: Start the launch
+as well as:
 
-Find the "launch instance" button to start running. You may check all the running instances clicking on the pointed button below.
+- [CUDA.jl](https://github.com/JuliaGPU/CUDA.jl)
+- [Adapt.jl](https://github.com/JuliaGPU/Adapt.jl) 
 
-<img width="411" alt="step2" src="https://user-images.githubusercontent.com/99290010/188177745-5c17d7f5-909d-4c72-846d-c724523df313.png">
-
-### Step-3: Name your instance
-
-Type a convenient name for your use...
-
-<img width="771" alt="step3" src="https://user-images.githubusercontent.com/99290010/188178335-69a5bef0-2291-4989-9954-2686d52270ba.png">
-
-### Step-4: Choose an image
-
-...and choose Bloqade as an image. This will pre-install Julia, Bloqade, and Yao (for general quantum gates) on the cluster
-
-<img width="495" alt="step4" src="https://user-images.githubusercontent.com/99290010/188178496-60d68d90-a5f1-42cc-81f5-2cc903496266.png">
-
-### Step-5: Tune your settings
-
-Select the EC2 instance type. Note that your charge rate will be function of these; large RAM charges more. For simple uses, we recommend m2.xlarge as a basic choice.
-
-<img width="568" alt="step5" src="https://user-images.githubusercontent.com/99290010/188178728-f92e959e-a910-4e84-9bb6-b3872ade6cfc.png">
-
-### Step-6: Tune more settings
-
-Select your security group. This depends on your personal, company security operations, or AWS best practices.
-
-<img width="735" alt="step6" src="https://user-images.githubusercontent.com/99290010/188178844-5cc2f714-fe14-4fac-aef9-9432c24ae0dc.png">
-
-### Step-7: Blast off!
-
-Launch your instance and Bloqade away!
-
-<img width="652" alt="step7" src="https://user-images.githubusercontent.com/99290010/188178941-484e5c3d-a457-49c1-8944-e4417e8f820f.png">
-
-### Final comments:
-
-#### Bloqade Optimized AMIs from AWS Marketplace
-The Bloqade team has implemented 2 dedicated AMIs that can be acquired using AWS Marketplace
-
-##### Bloqade AMI with Julia (base image)
-
-The Bloqade AMI contains:
-- The latest Julia installation using `juliaup add release` which setup the latest Julia release. For more information please refer to [Juliaup](https://github.com/JuliaLang/juliaup) 
-- The latest version of Bloqade 
-
-##### Bloqade Optimized Deep Learning AMI with CUDA
-
-In addition to the content of our base image, this image further contains
-- NVIDIA CUDA, cuDNN, NCCL, GPU Drivers, Intel MKL-DNN, Docker, NVIDIA-Docker and EFA support
-- Block devices
+Both of which are needed for Bloqade to take advantage of GPUs (see [GPU Acceleration](@ref cuda) for more on how to do this). 
 
 
-#### SSH Access
+### Disclaimers
+!!! info
+    - Deploying Bloqade on AWS EC2 instances will incur a cost on the user that will depend on the AWS resources utilized.  
+    - Support on deploying Bloqade on AWS can be obtained via AWS Support. This is a one-on-one support channel that is staffed 24x7x365 with experienced support engineers. To learn more, follow [this link](https://aws.amazon.com/premiumsupport/).
 
-- On step 7, a key-pair login may be created for ssh access, if the user does not posses one previously.
-- In this case, it is recommended to access Key pair (login) and click “Create key-pair”. Following the instructions, one may download a `.pem` file which can be added to the user’s `~/.ssh` folder. 
-- Run the following command chmod `400 <yourkey>`
-- Following this process, a Defaul SSH protocol for sign in and security can be used.)
-    * Do so by accessing `vim config` on your shell and typing the following
- <img width="612" alt="image" src="https://user-images.githubusercontent.com/99290010/188179655-dc6e8cbe-bdd0-462b-8d6a-dbd9cfccda7f.png">
-You can find your DNS name  by clicking your instance on the list of running instances in the dashboard, clicking “Connect” and copying the “Public DNS” in the SSH Client tab
+### Step 0: Set Your AWS Region
 
-Then exit vim and type `SSH AWS`
+For general guidelines on launching EC2 instances, check out the [AWS EC2 tutorial](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/EC2_GetStarted.html).
+Bloqade can technically be run from any location but its images are hosted on servers in AWS' North Virginia (N. Virginia) region. To get started as easily as possible, set your AWS region location to N. Virginia (us-east-1).
 
-#### Other packages
-- Bloqade runs in Julia but if you need to install extra Python packages for your uses, we recommend installing `conda` to manage virtual environments and install packages via `conda install <package>`
-- To install it via command line, follow 
+![Step 0](assets/Bloqade_EC2/Step0.png)
 
-```sh
-mkdir -p ~/miniconda3
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
-bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-rm -rf ~/miniconda3/miniconda.sh
+### Step 1: Access the EC2 Service
+
+Now to really get started. On your AWS account portal, type EC2 on the search bar and access the EC2 Service
+
+![Step 1](assets/Bloqade_EC2/Step1.png)
+
+### Step 2: Launch Your Instance
+
+Find the "Launch Instance" button, circled in red, to create one. To see all currently running instances, click the "Instances (running)" button, indicated by the red arrow.
+
+![Step 2](assets/Bloqade_EC2/Step2.png)
+
+### Step 3: Name Your Instance
+
+Give your instance a memorable name...
+
+![Step 3](assets/Bloqade_EC2/Step3.png)
+
+### Step 4: Choose an Image
+
+...and choose Bloqade as an image. This will put the AMI on the instance which has Bloqade and all its dependencies ready to go. Take a look at the [Bloqade AMIs](#bloqade-amis) section of this page for more information on available images.
+
+![Step 4](assets/Bloqade_EC2/Step4.png)
+
+### Step 5: Select Your Instance
+
+Select the EC2 instance type. Note that the rate at which your charged is dependent on which instance you select. Those with larger RAM/power usually charge more. For simple usage, we recommend an `m2.xlarge` instance as a basic choice. If you are looking for GPU support consider the `g4dn.xlarge` instance as a starting point.
+
+More information on available instances and the ability to compare between them you can visit [instances.vantage.sh](https://instances.vantage.sh/).
+
+![Step 5](assets/Bloqade_EC2/Step5.png)
+
+### Step 6: Generate a Key Pair
+
+In order to access your instance from your local machine's terminal you will need to generate a key pair in advance. Click on "Create new key pair" as circled in the image. 
+
+![Step 6.1](assets/Bloqade_EC2/Step6.1.png)
+
+Give your key pair a memorable name and once you have selected your desirable key pair type and file format click "Create key pair".
+
+![Step 6.2](assets/Bloqade_EC2/Step6.2.png)
+
+A download should happen in your browser that gives you your private key. If you are a PuTTY user you will need to import this key into your client. If you are are a Linux/macOS user using an SSH client from the terminal, you should put the key in your `~/.ssh` folder although any other location will work with the caveat being you will have to specify the exact path to the key when invoking `ssh` as an argument to the command.
+
+You will also need to run the following command to set the proper permissions on the private key:
+```bash
+chmod 400 </path/to/your_key>
 ```
 
-You will need to exit out (`Ctrl-D`) of the AWS SSH ran re-log back in (`ssh AWS`) to get `conda` activated.
+After launching your instance there will be two ways you can connect to it, shown in the later steps of this guide.
 
-<!---```
-#/dev/sda1=snap-03d72fbeb983a4663:60:true:gp2
-#/dev/sdb=ephemeral0
-#/dev/sdc=ephemeral1
-``` --->
+### Step 7: Tune Your Instance Some More
+
+Select your security group. This depends on either your personal setup, company security practices, or AWS best practices.
+
+![Step 7](assets/Bloqade_EC2/Step7.png)
+
+### Step 8: Blast Off!
+
+Launch your instance!
+
+![Step 8.1](assets/Bloqade_EC2/Step8.1.png)
+
+You should be presented with the following screen:
+
+![Step 8.2](assets/Bloqade_EC2/Step8.2.png)
+
+If you click on the instance hyperlink or the "View all instances" button, you'll be brought to the Instances page which shows all currently running as well as previously terminated/stopped instances. This page is also accessible from EC2 service page, 
+accessible via the directions in [Step 2](#step-2-launch-your-instance).
+
+Select your instance from the "Instances" menu by clicking the checkbox next to the desired instance. A "Connect" button should be clickable in the upper right corner.
+
+![Step 8.3](assets/Bloqade_EC2/Step8.3.png)
+
+This should bring you to a "Connect to instance" page where you can navigate to the "SSH client" section.
+
+![Step 8.4](assets/Bloqade_EC2/Step8.4.png)
+
+From here you have one of two choices to connect with your instance:
+
+!!! warning "Default User Notice"
+    When logging in to your EC2 instance, the recommended user to login as is the `ubuntu` user (the default, non-root user from the Ubuntu base images the Bloqade AMIs are based off of). Using `root` is not advised and unsupported by the Bloqade team. You will notice the "SSH Client" section in the photo above still gives the `ssh -i ...` command with "root" as the username. This must be changed to `ubuntu` IF you intended to use Option 1 below. Option 2 already accounts for this.
+
+#### Option 1: Instant Command Line Access
+
+If you just want to connect to the instance as fast as possible and plan on either:
+
+- Keeping the instance alive for the duration of your work
+- Terminating (the equivalent of completely deleting an instance) and starting new instances frequently
+
+Just copy and paste the example at the very bottom (the command starting with `ssh -i ...`), changing the user to `ubuntu` from `root`. If your key is not located in the `~/.ssh` folder for Linux/macOS users, you will need to either navigate to the folder you have the key stored to in the command line and execute the command there OR specify the full path to the key as the string in front of `-i`. 
+
+
+#### Option 2: OpenSSH Config File
+
+If you plan on reusing the same instance (stopping and starting it, thereby preserving your work on the EBS (Elastic Block Storage), essentially the hard drive of your instance) instance that the EC2 instance uses by default, you can set defaults for signing in by creating (if the file does not exist)/editing (if the file does exist) your OpenSSH `config` found in your `~/.ssh` folder. Just add the following using `vim` or your favorite text editor:
+```
+Host AWS
+    HostName <DNS NAME, ex: ec2-3-93-200-58.compute-1.amazonaws.com>
+    User ubuntu
+    IdentityFile ~/.ssh/<PATH TO YOUR KEY>.pem
+```
+You can find your DNS name by following the steps mentioned in Option 1 but focusing on Step 4, which is "Connect to your instance using its Public DNS".
+
+Upon saving the changes, you should be able to access your instance by running `ssh AWS` in your command line.
+
+### Step 9: Shutting Down Your Instance
+
+In order to shut down your instance, you can return to the "Instances" menu shown in [Step 8](#step-8-blast-off), select your instance, and click the "Instance State" Drop down. 
+
+You can either:
+- Stop your Instance - This preserves any files you may have created working in the instance that were on the EBS but will come at a cost, determinable [here](https://aws.amazon.com/ebs/pricing/). You may reuse the instance by selecting it again in the "Instances" menu and selecting "Start".
+- Terminating your Instance - This does NOT preserve any files and means you will lose any work not transferred off the instance to your local machine. Termination deletes the EBS instance that your instance uses and you will not be charged afterwards for storage.
 
   
-## Build System Image to Accelerate Start-up Time
+## Build System Images to Accelerate Start-up Time
 
 Since Bloqade is a large package, its loading time
 and time-to-first-simulation can be very long.
@@ -161,36 +222,6 @@ To build a system image for your environment, please use
 the [PackageCompiler](https://julialang.github.io/PackageCompiler.jl/dev/)
 or use the Julia VSCode plugin's [build system image feature](https://www.julia-vscode.org/docs/stable/userguide/compilesysimage/)
 
+## Contributing to Bloqade 
 
-## Developing Bloqade
-
-When developing Bloqade, one will need to setup a local environment
-that contains all the local changes. To work with the Bloqade repo,
-first you need to clone this repo
-
-```sh
-# clone this repo
-git clone https://github.com/QuEraComputing/Bloqade.jl.git Bloqade
-# go into the directory
-cd Bloqade
-# dev the corresponding environment
-.ci/run dev
-```
-
-How does this work? The `.ci/run dev` command actually calls the `Pkg.develop`
-command from Julia's package manager. Because we want to use the local
-changes of the package, one will need to `dev` the corresponding package to 
-make the changes happen in your current environment, e.g one will need to `dev` 
-the `lib/BloqadeExpr` package to apply changes in `BloqadeExpr` module.
-
-We also provide a convenient tool to setup this more automatically by
-looking up dependencies in `lib` in one's `Project.toml` file,
-
-```sh
-.ci/run dev <path/to/your/environment>
-```
-
-will `dev` all the Bloqade dependencies in your environment.
-
-See also [Modifying A Dependency](https://pkgdocs.julialang.org/v1/getting-started/#Modifying-A-Dependency)
-for more detailed explainations.
+Please `git clone` this repository to a directory of your choice on your local machine and refer to [Contributing to Bloqade](@ref contrib) to see how to set up your development environment for Bloqade.

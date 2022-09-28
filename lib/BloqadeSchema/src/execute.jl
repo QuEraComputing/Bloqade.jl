@@ -82,8 +82,10 @@ function to_task_output(bitstrings::Vector{<:BitBasis.BitStr64})
     )
 end
 
-function from_json(j::String)
-    t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
+from_json(j::String) = BloqadeSchema.from_dict(JSON.parse(j))
+
+function from_dict(d::AbstractDict{String})
+    t = Configurations.from_dict(BloqadeSchema.TaskSpecification, d)
     return from_schema(t)
 end
 
@@ -103,9 +105,9 @@ function from_schema(t::TaskSpecification)
         clocks=convert_units(rabi_freq_amp.times,s,μs), 
         values=convert_units(rabi_freq_amp.values,rad/s,rad*MHz)
     )
-    ϕ = BloqadeWaveforms.piecewise_linear(;
+    ϕ = BloqadeWaveforms.piecewise_constant(;
         clocks=convert_units(rabi_freq_phase.times,s,μs),
-        values=convert_units(rabi_freq_phase.values,rad,rad)
+        values=convert_units(rabi_freq_phase.values[1:end-1],rad,rad)
     )
     Δ = BloqadeWaveforms.piecewise_linear(;
         clocks=convert_units(detuning_global.times,s,μs),

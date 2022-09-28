@@ -94,3 +94,19 @@ end
     @test execute(task) isa String
 
 end
+
+
+@testset "conversion to and from schema" begin
+        # Test if code will run without failing
+        Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
+        Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
+        ϕ = constant(;duration=3,value=0)
+        atoms = [(5.0*i,0.0) for i in 1:4]
+        
+        h = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
+        h,info = hardware_transform(h)
+        hh = BloqadeSchema.from_schema(BloqadeSchema.to_schema(h))
+        @test h == BloqadeSchema.from_schema(BloqadeSchema.to_schema(h))
+        @test h == BloqadeSchema.from_dict(BloqadeSchema.to_dict(h))
+        @test h == BloqadeSchema.from_json(BloqadeSchema.to_json(h))
+end

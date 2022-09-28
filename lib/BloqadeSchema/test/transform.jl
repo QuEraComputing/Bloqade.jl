@@ -1,6 +1,5 @@
 using BloqadeSchema
 using BloqadeExpr
-using BloqadeLattices; 
 using Configurations
 using Test
 using BloqadeSchema
@@ -128,26 +127,8 @@ end
     end
 end
 
-# @testset "find_local_masks" begin
-#     Δ_values = 1 .- 2 .* rand(100,1)
-#     Δ_mask = ones(1,10)
-#     δ_values = rand(100,1)
-#     δ_mask = rand(1,10)
-#     δ_mask = (δ_mask .- minimum(δ_mask))/(maximum(δ_mask) .- minimum(δ_mask))
 
-#     values = Δ_values * Δ_mask .+ δ_values * δ_mask
 
-#     ((parsed_δ_values,parsed_δ_mask),(parsed_Δ_values,parsed_Δ_mask)) = BloqadeSchema.find_local_masks(values)
-
-#     @test parsed_Δ_values ≈ reshape(Δ_values,(100,))
-#     @test parsed_Δ_mask ≈ reshape(Δ_mask,(10,))
-#     @test parsed_δ_values ≈ reshape(δ_values,(100,))
-#     @test parsed_δ_mask ≈ reshape(δ_mask,(10,))
-# end
-
-# global test cases:
-# 1. arbitrary waveform, check error. This includes boundary conditions for Ω.
-# 2. piecewise linear waveform, check that the result doesn't change
 @testset "hardware_transform_ϕ" begin
     device_capabilities = get_device_capabilities()
 
@@ -200,7 +181,7 @@ end
     dc = get_device_capabilities()
     Δ = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0],values=[1.0,0.0,0.0,-1.0])
     Ω = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0],values=[0.0,1.0,1.0,0.0])
-    ϕ = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0],values=[0.0,1,-1,0.0])
+    ϕ = piecewise_constant(;clocks=[0.0,1.0,2.0,3.0],values=[0.0,1,-1])
     H = rydberg_h(atoms,Δ=Δ,ϕ=ϕ,Ω=Ω)
 
     Δ_mask = (Δ=Δ,δ=nothing,Δi=1.0)

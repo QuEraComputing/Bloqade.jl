@@ -45,7 +45,7 @@ end
 
     for Ω in scalar_values, ϕ in scalar_values, Δ in scalar_values
         h = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
-        h_hw = hardware_transform(h)
+        h_hw,info = hardware_transform(h)
         j = BloqadeSchema.to_json(h_hw)
 
         t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
@@ -84,9 +84,10 @@ end
     atoms = 5.0 * [i for i in 1:10]
     
     h = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
-    task_string = to_json(h,n_shots=10)
-    task_dict = BloqadeSchema.to_dict(h,n_shots=10)
-    task = BloqadeSchema.to_schema(h,n_shots=10)
+    h,info = hardware_transform(h)
+    task_string = to_json(h;n_shots=10)
+    task_dict = BloqadeSchema.to_dict(h;n_shots=10)
+    task = BloqadeSchema.to_schema(h;n_shots=10)
     
     @test execute(task_string) isa String
     @test execute(task_dict) isa String

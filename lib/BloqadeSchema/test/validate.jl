@@ -195,14 +195,6 @@ end
         "ϕ(t) minimum step with value 0.001 μs below minimum value of 0.01 μs"
     ])
 
-    supported_max_slope = rydberg_capabilities.ϕ.max_slope
-    slope = round(supported_max_slope*1.01;sigdigits=10)
-    end_value = slope * 0.01
-    ϕ = piecewise_linear(clocks = [0.0, 0.01], values = [0.0, end_value])
-    @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
-        "ϕ(t) maximum slope with value $(supported_max_slope*1.01) rad/μs exceeds maximum value of $supported_max_slope rad/μs"
-    ])
-
     supported_min_value = rydberg_capabilities.ϕ.min_value
     ϕ = piecewise_linear(clocks = [0.0, 4.0], values = [0.0, supported_min_value-0.1])
     @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
@@ -261,7 +253,7 @@ end
 
     Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
     Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
-    ϕ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,-1,-1])
+    ϕ = piecewise_constant(;clocks=Float64[0,1,2,3],values=Float64[0,1,-1])
     atoms = 5.0 * [i for i in 1:10]
     H = rydberg_h(atoms, Ω=Ω, Δ=Δ, ϕ=ϕ)
     violations = validate(H)

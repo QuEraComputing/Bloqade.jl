@@ -1,6 +1,7 @@
 
-
-
+in_range(x) = 0 ≤ x < 1 ? true : false
+in_parallelogram(M, p) = all(in_range.(M \ p))
+ 
 
 function piecewise_linear_interpolate(wf::Waveform{PiecewiseLinear{T,Interp},T}; 
     max_slope::Real=Inf64, 

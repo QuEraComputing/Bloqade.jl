@@ -12,32 +12,6 @@ function benchmark_func()
     new_wf = piecewise_constant_interpolate(wf; atol=0,min_step=1e-3)
 end
 
-@testset "in_parallelogram" begin
-
-    M = reshape([3, 3, 4, 0], 2, 2)
-    # origin
-    p = [0,0]
-    @test BloqadeWaveforms.in_parallelogram(M, p)
-    # lies on one of the accepted sides of the parallelogram
-    p = [1, 1]
-    @test BloqadeWaveforms.in_parallelogram(M, p)
-    # lies on another accepted side of the parallelogram
-    p = [2, 0]
-    @test BloqadeWaveforms.in_parallelogram(M, p)
-    # lies inside the parallelogram
-    p = [2, 1]
-    @test BloqadeWaveforms.in_parallelogram(M, p)
-    # shares a point with an non-accepted side of the parallelogram
-    p = [4, 0]
-    @test !BloqadeWaveforms.in_parallelogram(M, p)
-    # shares a point with a non-accepted side of the parallelogram
-    p = [3, 3]
-    @test !BloqadeWaveforms.in_parallelogram(M, p)
-    # lies on the farthest point from the origin and touches two non-accepted sides
-    p = [7, 3]
-    @test !BloqadeWaveforms.in_parallelogram(M, p)
-end
-
 @testset "piecewise constant" begin
 
     @testset "constraint terminated" begin

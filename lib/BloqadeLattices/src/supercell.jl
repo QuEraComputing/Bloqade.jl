@@ -20,8 +20,8 @@ end
 in_range(x) = 0 ≤ x < 1 ? true : false
 within_cell(cell::Parallelepiped{D, T},x::NTuple{D,T}) where {D,T} = all(in_range.(cell.bounds_inv * collect(x)))
 
-function wrap_around(tile::Parallelepiped{D},x::NTuple{D,T}) where {D,T}
-
+function wrap_around(tile::Parallelepiped{D,T},x::NTuple{D,T}) where {D,T}
+    
 end
 
 # distance(::Supercell{D},x::NTuple{D,T},y::NTuple{D,T}) = 

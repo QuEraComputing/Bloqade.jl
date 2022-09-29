@@ -8,6 +8,7 @@ using Interpolations
 using QuadGK: quadgk
 using Optim: optimize,Brent
 using BloqadeExpr: default_unit
+using OrderedCollections: OrderedDict
 
 export Waveform,
     sample_values,
@@ -19,6 +20,7 @@ export Waveform,
     sinusoidal,
     append,
     piecewise_linear_interpolate,
+    piecewise_constant_interpolate,
     norm,
     ..,
     # smooth

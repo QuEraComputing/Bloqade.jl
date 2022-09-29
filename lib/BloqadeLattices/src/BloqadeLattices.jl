@@ -42,7 +42,6 @@ export # types
     ByDensity,
     # bounds
     Parallelepiped,
-    Tile,
     within_cell
 
 include("lattice.jl")

@@ -127,7 +127,7 @@ THRESHOLD = 2.576  # 99% Two-sided CI of the t-distribution with infinite dofs
     τ_abs = tau(B)
     println(τ_abs)
     println("N_eff")
-    N_eff = MCS / τ_abs
+    N_eff = MCS / (2 * τ_abs + 1)
     println(N_eff)
     abs_mag_binned = measurement(mean(B), std_error(B)*sqrt(N_eff)) # converting standard error to std dev
     println()
@@ -137,7 +137,7 @@ THRESHOLD = 2.576  # 99% Two-sided CI of the t-distribution with infinite dofs
     τ_abs2 = tau(B)
     println(τ_abs2)
     println("N_eff2")
-    N_eff2 = MCS / τ_abs2
+    N_eff2 = MCS / (2 * τ_abs2 + 1)
     println(N_eff2)
     mag_sqr_binned = measurement(mean(B2), std_error(B2)*sqrt(N_eff2)) # converting standard error to std dev
     println()
@@ -149,13 +149,20 @@ THRESHOLD = 2.576  # 99% Two-sided CI of the t-distribution with infinite dofs
     τ_energy = tau(BE)
     println(τ_energy)
     println("N_eff_E")
-    N_eff_E = MCS / τ_energy
+    N_eff_E = MCS / (2 * τ_energy + 1)
     println(N_eff_E)
     energy_binned = measurement(mean(BE), std_error(BE)*sqrt(N_eff_E)) # converting standard error to std dev
     println()
+    # Mean looks good, but I'm worried about the std_dev... Huge increase!!!
 
+    # println("Number of binning levels")
+    # println(length(BE.accumulators))
+    # println(has_converged(BE))
+    # println("Number of entries in last binning level")
+    # println(BE.accumulators[20])
+    # println()
 
-    
+    # Unbinned calculations
 
     abs_mag = mean_and_stderr(abs, mags)
     println("abs_mag")
@@ -176,7 +183,7 @@ THRESHOLD = 2.576  # 99% Two-sided CI of the t-distribution with infinite dofs
     println(energy)
     println("energy_binned")
     println(energy_binned)
-
+    println()
 
 
     heat_capacity = jackknife(ns .^ 2, ns) do nsqr, n

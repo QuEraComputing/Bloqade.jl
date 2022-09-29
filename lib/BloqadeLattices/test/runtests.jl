@@ -58,28 +58,53 @@ end
 
     @testset "within_cell" begin
         bounds = reshape([3.0, 3.0, 4.0, 0.0], 2, 2)
-        tile = Tile(bounds)
+        t = Tile(bounds)
         # origin
         p = (0.0,0.0)
-        @test within_cell(tile, p)
+        @test within_cell(t, p)
         # lies on one of the accepted sides of the parallelogram
         p = (1.0, 1.0)
-        @test within_cell(tile, p)
+        @test within_cell(t, p)
         # lies on another accepted side of the parallelogram
         p = (2.0, 0.0)
-        @test within_cell(tile, p)
+        @test within_cell(t, p)
         # lies inside the parallelogram
         p = (2.0, 1.0)
-        @test within_cell(tile, p)
+        @test within_cell(t, p)
         # shares a point with an non-accepted side of the parallelogram
         p = (4.0, 0.0)
-        @test !within_cell(tile, p)
+        @test !within_cell(t, p)
         # shares a point with a non-accepted side of the parallelogram
         p = (3.0, 3.0)
-        @test !within_cell(tile, p)
+        @test !within_cell(t, p)
         # lies on the farthest point from the origin and touches two non-accepted sides
         p = (7.0, 3.0)
-        @test !within_cell(tile, p)
+        @test !within_cell(t, p)
+        
+        bounds = reshape(Float64.([1,0,0,0,1,0,0,0,1]), 3, 3)
+        ppd = Parallelepiped(bounds)
+
+        # origin
+        p = (0.0, 0.0, 0.0)
+        @test within_cell(ppd, p)
+        # outside parallelpiped
+        p = (2.0, 0.0, 0.0)
+        @test !within_cell(ppd, p)
+        # inside parallelpiped
+        p = (0.5, 0.5, 0.5)
+        @test within_cell(ppd, p)
+        # on a valid surface of the parallelpiped
+        p = (0.5, 0.5, 0.0)
+        @test within_cell(ppd, p)
+        # on a point touching a non-accepted side
+        p = (0.0, 0.0, 1.0)
+        @test !within_cell(ppd, p)
+        # on a non accepted surface
+        p = (0.5, 1.0, 0.5)
+        @test !within_cell(ppd, p)
+        # point touching all non-accepted sides
+        p = (1.0, 1.0, 1.0)
+        @test !within_cell(ppd, p)
     end
 
 end

@@ -3,7 +3,7 @@ using Statistics
 using Random
 using RandomNumbers
 using Measurements
-using Plots: histogram, display, savefig
+# using Plots: histogram, display, savefig
 using BinningAnalysis
 using BloqadeQMC: jackknife
 
@@ -144,7 +144,7 @@ THRESHOLD = 2.576  # 99% Two-sided CI of the t-distribution with infinite dofs
 
     # Binning analysis for observables based on ns
     energy(x) = -x / beta + H.energy_shift
-    BE = LogBinner(energy.(ns) /= nspins(H))
+    BE = LogBinner(energy.(ns) / nspins(H))
     println("Correlation time for energy_binned samples")
     τ_energy = tau(BE)
     println(τ_energy)

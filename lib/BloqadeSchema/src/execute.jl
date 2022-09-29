@@ -177,7 +177,7 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
 
     ϕ =(
         clocks=ϕ.f.clocks,
-        values=collect((ϕ.f.values...,ϕ.f.values[end])) # add extra element at the end 
+        values=[ϕ.f.values...,ϕ.f.values[end]] # add extra element at the end 
     )
 
     Ω = (

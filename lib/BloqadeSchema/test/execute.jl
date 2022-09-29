@@ -105,7 +105,6 @@ end
         
         h = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
         h,info = hardware_transform(h)
-        hh = BloqadeSchema.from_schema(BloqadeSchema.to_schema(h))
         @test h == BloqadeSchema.from_schema(BloqadeSchema.to_schema(h))
         @test h == BloqadeSchema.from_dict(BloqadeSchema.to_dict(h))
         @test h == BloqadeSchema.from_json(BloqadeSchema.to_json(h))

@@ -235,7 +235,7 @@ function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},nam
     )
 end
 
-function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseConstant{T},T},name,min_value::T,max_value::T) where {T<:Real,I}
+function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseConstant{T},T},name,min_value::T,max_value::T) where {T<:Real}
     @assert min_value < max_value
 
     for value in wf.f.values

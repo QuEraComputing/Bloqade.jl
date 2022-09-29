@@ -58,7 +58,7 @@ end
 
     @testset "within_cell" begin
         bounds = reshape([3.0, 3.0, 4.0, 0.0], 2, 2)
-        t = Tile(bounds)
+        t = Parallelepiped(bounds)
         # origin
         p = (0.0,0.0)
         @test within_cell(t, p)

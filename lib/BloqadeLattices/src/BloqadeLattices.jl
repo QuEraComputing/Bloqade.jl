@@ -10,7 +10,6 @@ using LuxorGraphPlot.Luxor: Colors
 
 export # types
     AbstractLattice,
-    AbstractSuperCell,
     HoneycombLattice,
     SquareLattice,
     TriangularLattice,
@@ -41,8 +40,10 @@ export # types
     img_maskedgrid,
     ByDensity,
     # bounds
+    AbstractSuperCell,
     Parallelepiped,
-    within_cell
+    within_cell,
+    distance
 
 include("lattice.jl")
 include("neighbors.jl")

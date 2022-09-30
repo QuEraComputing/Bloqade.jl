@@ -360,7 +360,7 @@ end
     shot_outputs::Vector{ShotOutput}
 end
 
-struct ValidationException <: Exception end
+
 
 Base.@kwdef struct ValidationViolations <: QuEraSchema
     lattice_violations::Set
@@ -371,22 +371,36 @@ Base.@kwdef struct ValidationViolations <: QuEraSchema
     δ_violations::Set
 end
 
-function Base.length(t::ValidationViolations)
-    violations_list = [t.lattice_violations,
-    t.ϕ_violations, t.Ω_violations,
-    t.Δ_violations, t.δ_violations]
-
-    return mapreduce(length,+,violations_list) 
+struct ValidationException <: Exception 
+    violations::ValidationViolations
 end
 
-function Base.show(io::IO, t::ValidationViolations)
-    violations_list = [t.lattice_violations,
-    t.ϕ_violations, t.Ω_violations,
-    t.Δ_violations, t.δ_violations]
+Base.isempty(t::ValidationViolations) = (
+        isempty(t.lattice_violations) && 
+        isempty(t.misc_violations)    && 
+        isempty(t.Δ_violations)       && 
+        isempty(t.Ω_violations)       && 
+        isempty(t.ϕ_violations)       && 
+        isempty(t.δ_violations)
+    )
 
+
+
+function Base.show(io::IO, ::MIME"text/plain", t::ValidationViolations)
+    violations_list = [
+        t.lattice_violations, 
+        t.misc_violations,
+        t.ϕ_violations, 
+        t.Ω_violations,
+        t.Δ_violations, 
+        t.δ_violations
+    ]
+    println(io,"The following validation violations occured:\n")
+    nviolation = one(Int)
     foreach(violations_list) do violations
         for msg in violations
-            println(io,msg)
+            println(io,nviolation,". ",msg)
+            nviolation+=1
         end
     end
 end
@@ -399,4 +413,6 @@ function Base.show(io::IO, ::MIME"text/plain", t::TaskOutput)
     GarishPrint.pprint_struct(t)
 end
 
-Base.showerror(io::IO,e::ValidationException) = print(io,"Failed to convert to Schema due to validation errors, check hamiltonian with validate function.")
+function Base.showerror(io::IO, e::ValidationException)
+    show(io,MIME"text/plain"(),e.violations)
+end

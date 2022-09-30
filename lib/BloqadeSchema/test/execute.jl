@@ -8,6 +8,17 @@ using Unitful: μs, s, MHz, rad
 using Logging
 
 
+@testset "ViolationException" begin
+    
+    Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
+    Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
+    ϕ = piecewise_constant(;clocks=Float64[0,1,2,4],values=Float64[0,1,-1])
+    atoms = 5.0 * [i for i in 1:10]
+    h = rydberg_h(atoms, Ω=Ω, Δ=Δ, ϕ=ϕ)
+    
+    @test_throws BloqadeSchema.ValidationException to_json(h)
+
+end
 
 @testset "convert_units" begin
     T = 1 # seconds

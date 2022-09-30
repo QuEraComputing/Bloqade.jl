@@ -170,9 +170,8 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
 
     violations = validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,params.device_capabilities)
 
-    if length(violations) > 0
-        show(violations)
-        throw(ValidationException("Failed to convert to Schema, the Hamiltonian doesn't obey hardware constraints."))
+    if !isempty(violations)
+        throw(ValidationException(violations))
     end
 
     ϕ =(

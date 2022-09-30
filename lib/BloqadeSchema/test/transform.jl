@@ -1,4 +1,3 @@
-
 using BloqadeSchema
 using BloqadeExpr
 using Configurations
@@ -51,6 +50,8 @@ end
     @test test_logger.logs[2].message == "waveform test duration will be rounded during hardware transformation."
 
 end
+
+
 
 @testset "pin_waveform_edges" begin
     wf = constant(;duration=1.0,value=1.0)
@@ -106,46 +107,34 @@ end
 
 
 @testset "clip_waveform" begin
-    wf = piecewise_linear(;clocks=[0,1,2,3,4,5,6],values=[0,2,2,0,-2,-2,0])
-    @test BloqadeSchema.clip_waveform(wf,:wf,-1,1) == piecewise_linear(;
-        clocks=[0,1,2,3,4,5,6],
-        values=[0,1,1,0,-1,-1,0])
+    wflist = [
+            piecewise_linear(;clocks=[0,1,2,3,4,5,6],values=[0,2,2,0,-2,-2,0]),
+            piecewise_constant(;clocks=[0,1,2,3,4,5,6],values=[0,2,2,0,-2,-2])
+        ]
+    wflist_clipped = [
+            piecewise_linear(;clocks=[0,1,2,3,4,5,6],values=[0,1,1,0,-1,-1,0]),
+            piecewise_constant(;clocks=[0,1,2,3,4,5,6],values=[0,1,1,0,-1,-1])
+        ]
+    for (wf,wf_clipped) in zip(wflist,wflist_clipped)
+        @test BloqadeSchema.clip_waveform(wf,:wf,-1,1) == wf_clipped
 
-    
-    test_logger = Test.TestLogger(;min_level=Logging.Debug);
-    with_logger(test_logger) do
-        BloqadeSchema.clip_waveform(wf,:wf,-1,1)
+        test_logger = Test.TestLogger(;min_level=Logging.Debug);
+        with_logger(test_logger) do
+            BloqadeSchema.clip_waveform(wf,:wf,-1,1)
+        end
+        
+        @test test_logger.logs[1].message == "During hardware transform: wf(t) falls outside of hardware bounds, clipping to maximum/minimum."
     end
-    
-    @test test_logger.logs[1].message == "During hardware transform: wf(t) falls outside of hardware bounds, clipping to maximum/minimum."
 end
 
-# @testset "find_local_masks" begin
-#     Δ_values = 1 .- 2 .* rand(100,1)
-#     Δ_mask = ones(1,10)
-#     δ_values = rand(100,1)
-#     δ_mask = rand(1,10)
-#     δ_mask = (δ_mask .- minimum(δ_mask))/(maximum(δ_mask) .- minimum(δ_mask))
 
-#     values = Δ_values * Δ_mask .+ δ_values * δ_mask
 
-#     ((parsed_δ_values,parsed_δ_mask),(parsed_Δ_values,parsed_Δ_mask)) = BloqadeSchema.find_local_masks(values)
-
-#     @test parsed_Δ_values ≈ reshape(Δ_values,(100,))
-#     @test parsed_Δ_mask ≈ reshape(Δ_mask,(10,))
-#     @test parsed_δ_values ≈ reshape(δ_values,(100,))
-#     @test parsed_δ_mask ≈ reshape(δ_mask,(10,))
-# end
-
-# global test cases:
-# 1. arbitrary waveform, check error. This includes boundary conditions for Ω.
-# 2. piecewise linear waveform, check that the result doesn't change
 @testset "hardware_transform_ϕ" begin
     device_capabilities = get_device_capabilities()
 
     wf = Waveform(t->1+t^2,1)
-    wf_1,error_1 = BloqadeSchema.hardware_transform_Δ(wf,device_capabilities)
-    wf_2,error_2 = BloqadeSchema.hardware_transform_Δ(wf_1,device_capabilities)
+    wf_1,error_1 = BloqadeSchema.hardware_transform_ϕ(wf,device_capabilities)
+    wf_2,error_2 = BloqadeSchema.hardware_transform_ϕ(wf_1,device_capabilities)
 
     @test wf_1 == wf_2
     @test error_2 == 0
@@ -192,7 +181,7 @@ end
     dc = get_device_capabilities()
     Δ = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0],values=[1.0,0.0,0.0,-1.0])
     Ω = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0],values=[0.0,1.0,1.0,0.0])
-    ϕ = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0],values=[0.0,1,-1,0.0])
+    ϕ = piecewise_constant(;clocks=[0.0,1.0,2.0,3.0],values=[0.0,1,-1])
     H = rydberg_h(atoms,Δ=Δ,ϕ=ϕ,Ω=Ω)
 
     Δ_mask = (Δ=Δ,δ=nothing,Δi=1.0)

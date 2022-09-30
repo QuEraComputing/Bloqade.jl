@@ -82,8 +82,10 @@ function to_task_output(bitstrings::Vector{<:BitBasis.BitStr64})
     )
 end
 
-function from_json(j::String)
-    t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
+from_json(j::String) = BloqadeSchema.from_dict(JSON.parse(j))
+
+function from_dict(d::AbstractDict{String})
+    t = Configurations.from_dict(BloqadeSchema.TaskSpecification, d)
     return from_schema(t)
 end
 
@@ -103,9 +105,9 @@ function from_schema(t::TaskSpecification)
         clocks=convert_units(rabi_freq_amp.times,s,μs), 
         values=convert_units(rabi_freq_amp.values,rad/s,rad*MHz)
     )
-    ϕ = BloqadeWaveforms.piecewise_linear(;
+    ϕ = BloqadeWaveforms.piecewise_constant(;
         clocks=convert_units(rabi_freq_phase.times,s,μs),
-        values=convert_units(rabi_freq_phase.values,rad,rad)
+        values=convert_units(rabi_freq_phase.values[1:end-1],rad,rad)
     )
     Δ = BloqadeWaveforms.piecewise_linear(;
         clocks=convert_units(detuning_global.times,s,μs),
@@ -164,27 +166,17 @@ end
 
 
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationParams)
-    atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h,params.device_capabilities)
-
-    # extract Detuning mask
-    Δ = info.Δ_mask.Δ
-    δ = info.Δ_mask.δ
-    Δi = info.Δ_mask.Δi
-
-    @debug "Hardware transform report: after linear interpolation ∫dt |ϕ(t)-ϕ_hw(t)| = $(info.ϕ_error) rad⋅μs"
-    @debug "Hardware transform report: after linear interpolation ∫dt |Ω(t)-Ω_hw(t)| = $(info.Ω_error) rad"
-    @debug "Hardware transform report: after linear interpolation ∫dt |Δ(t)-Δ_hw(t)| = $(info.Δ_error) rad"
-    @debug "Hardware transform report: mean deviation after rounding positions $(info.mse_atoms) μm"
+    atoms,ϕ,Ω,Δ,δ,Δi = schema_parse_rydberg_fields(h)
 
     violations = validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,params.device_capabilities)
 
-    if length(violations) > 0
-        throw(ValidationException())
+    if !isempty(violations)
+        throw(ValidationException(violations))
     end
 
     ϕ =(
         clocks=ϕ.f.clocks,
-        values=ϕ.f.values
+        values=[ϕ.f.values...,ϕ.f.values[end]] # add extra element at the end 
     )
 
     Ω = (

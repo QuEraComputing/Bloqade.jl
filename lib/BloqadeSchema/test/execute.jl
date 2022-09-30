@@ -8,6 +8,17 @@ using Unitful: μs, s, MHz, rad
 using Logging
 
 
+@testset "ViolationException" begin
+    
+    Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
+    Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
+    ϕ = piecewise_constant(;clocks=Float64[0,1,2,4],values=Float64[0,1,-1])
+    atoms = 5.0 * [i for i in 1:10]
+    h = rydberg_h(atoms, Ω=Ω, Δ=Δ, ϕ=ϕ)
+    
+    @test_throws BloqadeSchema.ValidationException to_json(h)
+
+end
 
 @testset "convert_units" begin
     T = 1 # seconds
@@ -45,7 +56,8 @@ end
 
     for Ω in scalar_values, ϕ in scalar_values, Δ in scalar_values
         h = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
-        j = BloqadeSchema.to_json(h)
+        h_hw,info = hardware_transform(h)
+        j = BloqadeSchema.to_json(h_hw)
 
         t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
 
@@ -83,12 +95,28 @@ end
     atoms = 5.0 * [i for i in 1:10]
     
     h = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
-    task_string = to_json(h,n_shots=10)
-    task_dict = BloqadeSchema.to_dict(h,n_shots=10)
-    task = BloqadeSchema.to_schema(h,n_shots=10)
+    h,info = hardware_transform(h)
+    task_string = to_json(h;n_shots=10)
+    task_dict = BloqadeSchema.to_dict(h;n_shots=10)
+    task = BloqadeSchema.to_schema(h;n_shots=10)
     
     @test execute(task_string) isa String
     @test execute(task_dict) isa String
     @test execute(task) isa String
 
+end
+
+
+@testset "conversion to and from schema" begin
+        # Test if code will run without failing
+        Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
+        Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
+        ϕ = constant(;duration=3,value=0)
+        atoms = [(5.0*i,0.0) for i in 1:4]
+        
+        h = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
+        h,info = hardware_transform(h)
+        @test h == BloqadeSchema.from_schema(BloqadeSchema.to_schema(h))
+        @test h == BloqadeSchema.from_dict(BloqadeSchema.to_dict(h))
+        @test h == BloqadeSchema.from_json(BloqadeSchema.to_json(h))
 end

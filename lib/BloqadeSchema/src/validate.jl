@@ -102,7 +102,6 @@ function validate_ϕ(wf,expected)
     max_value = maximum(wf.f.values)
     min_value = minimum(wf.f.values)
     min_time_step  = round(minimum(diff(wf.f.clocks));sigdigits=14)
-    max_slope = round(maximum(abs.(diff(wf.f.values))./diff(wf.f.clocks));sigdigits=14)
     start_value = wf.f.values[1]
 
 
@@ -110,7 +109,6 @@ function validate_ϕ(wf,expected)
         ("duration",max_time,>,expected.max_time,"μs"),
         ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
-        ("maximum slope",max_slope,>,expected.max_slope,"rad/μs"),
         ("minimum value",min_value,<,expected.min_value,"rad"),
         ("maximum value",max_value,>,expected.max_value,"rad"),
         ("start value",start_value,!=,0.0,"rad"),

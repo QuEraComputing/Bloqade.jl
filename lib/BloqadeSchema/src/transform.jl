@@ -65,11 +65,13 @@ end
 
 # TODO: move this to BloqadeWaveforms
 # function inserts ramps at the beginning and end to set correct initial and final values
+# two methods, one for general waveform, other is for specifically PWL waveforms
 function pin_waveform_edges(wf::Waveform,name,
     max_slope::Real,
     begin_value::Real,
     end_value::Real)
 
+    
     duration = wf.duration
 
     wf_begin = wf(zero(duration))
@@ -233,7 +235,40 @@ function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T},nam
     )
 end
 
-function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
+function clip_waveform(wf::Waveform{BloqadeWaveforms.PiecewiseConstant{T},T},name,min_value::T,max_value::T) where {T<:Real}
+    @assert min_value < max_value
+
+    for value in wf.f.values
+        if value > max_value || value < min_value
+            @debug "During hardware transform: $name(t) falls outside of hardware bounds, clipping to maximum/minimum."
+            break
+        end
+    end
+
+    return piecewise_constant(;clocks=wf.f.clocks,values=map(wf.f.values) do value
+            return min(max_value,max(min_value,value))
+        end
+    )
+end
+
+
+function hardware_transform_parse(h::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
+    (atoms,ϕ,Ω,Δ) = get_rydberg_params(h)
+    Δ_mask = (Δ=Δ,δ=nothing,Δi=1.0)
+
+    ϕ,ϕ_error = hardware_transform_ϕ(ϕ,device_capabilities)
+    Ω,Ω_error = hardware_transform_Ω(Ω,device_capabilities)
+    Δ,Δ_error = hardware_transform_Δ(Δ,device_capabilities)
+    atoms,mse_atoms = hardware_transform_atoms(atoms,device_capabilities)
+
+    info = HardwareTransformInfo(ϕ_error=ϕ_error,Ω_error=Ω_error,Δ_error=Δ_error,Δ_mask=Δ_mask,mse_atoms=mse_atoms)
+
+    return (atoms,ϕ,Ω,Δ,info)
+end
+
+# public API exposed here: 
+
+function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities=get_device_capabilities())
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     rabi_res = device_capabilities.rydberg.global_value.rabiFrequencyResolution
@@ -267,12 +302,11 @@ function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities)
     return Ωt,norm_diff_durations(Ω,Ωt)
 end
 
-function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
-    # extract device capabilities relevant to phase waveform
+function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities=get_device_capabilities())
+
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
     phase_res = device_capabilities.rydberg.global_value.phaseResolution
-    max_slope = device_capabilities.rydberg.global_value.phaseSlewRateMax
     max_value = device_capabilities.rydberg.global_value.phaseMax
     min_value = device_capabilities.rydberg.global_value.phaseMin
 
@@ -283,31 +317,30 @@ function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities)
     # warn if duration will be rounded to time resolution
     warn_duration(time_res,ϕ,:ϕ)
 
-    # add ramps to beginning and end to match HW constraints
-    ϕ = pin_waveform_edges(ϕ,:ϕ,max_slope,0.0,ϕ(ϕ.duration))
-
-    # if piecewise_linear, set the clocks and values to fall in line with HW resolution
-    ϕt = if ϕ isa PiecewiseLinearWaveform
-        piecewise_linear(;
+    ϕt = if ϕ isa PiecewiseConstantWaveform
+        piecewise_constant(;
             clocks=set_resolution.(ϕ.f.clocks,time_res),
             values=set_resolution.(ϕ.f.values,phase_res)
         )        
 
     elseif ϕ isa Waveform{F,T} where {F,T<:Real} # handle the more general case
         # arbitrary waveform must transform
-        
-        ϕ_interp = piecewise_linear_interpolate(ϕ,max_slope=max_slope,min_step=min_step,atol=0)
-        piecewise_linear(;
+        ϕ_interp = piecewise_constant_interpolate(ϕ,min_step=min_step,atol=0)
+        piecewise_constant(;
             clocks=set_resolution.(ϕ_interp.f.clocks,time_res),
             values=set_resolution.(ϕ_interp.f.values,phase_res)
         )
+    end 
+    # simply clip value to make waveform consistent
+    if !isapprox(ϕt(zero(ϕt.duration)),zero(ϕt.duration);atol=eps()) 
+        ϕt.f.values[1] = zero(ϕt.duration)
     end
 
     ϕt = clip_waveform(ϕt,:ϕ,min_value,max_value)
     return ϕt,norm_diff_durations(ϕ,ϕt)
 end
 
-function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
+function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities=get_device_capabilities())
 
     time_res = device_capabilities.rydberg.global_value.timeResolution
     min_step = device_capabilities.rydberg.global_value.timeDeltaMin
@@ -331,9 +364,8 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
             clocks=set_resolution.(Δ.f.clocks,time_res),
             values=set_resolution.(Δ.f.values,detune_res)
         )
-        Δ_mask = (Δ=Δt,δ=nothing,Δi=1.0)
         Δt = clip_waveform(Δt,:Δ,min_value,max_value)
-        return Δt,norm_diff_durations(Δ,Δt),Δ_mask
+        return Δt,norm_diff_durations(Δ,Δt)
 
     elseif Δ isa Waveform{F,T} where {F,T<:Real}
         # arbitrary waveform must transform
@@ -345,9 +377,8 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
         )
 
         Δt = clip_waveform(Δt,:Δ,min_value,max_value)
-        Δ_mask = (Δ=Δt,δ=nothing,Δi=1.0)
 
-        return Δt,norm_diff_durations(Δ,Δt),Δ_mask
+        return Δt,norm_diff_durations(Δ,Δt)
     elseif Δ isa Vector
         error("Local detuning not implemented in Schema.")
         #=
@@ -383,29 +414,27 @@ function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities)
 
 end
 
-function hardware_transform_parse(h::BloqadeExpr.RydbergHamiltonian,device_capabilities::DeviceCapabilities)
-    (atoms,ϕ,Ω,Δ) = get_rydberg_params(h)
-
-    # apply transform to each waveform encountered
-    ϕ,ϕ_error = hardware_transform_ϕ(ϕ,device_capabilities)
-    Ω,Ω_error = hardware_transform_Ω(Ω,device_capabilities)
-    Δ,Δ_error,Δ_mask = hardware_transform_Δ(Δ,device_capabilities)
+function hardware_transform_atoms(atoms,device_capabilities::DeviceCapabilities=get_device_capabilities())
 
     pos_resolution = device_capabilities.lattice.geometry.positionResolution
+
     new_atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
 
-    mse_atoms = sum(√sum((a .- b) .^ 2) for (a,b) in zip(new_atoms,atoms))/length(atoms)
+    mse_atoms = sum(√sum((x.-y).^2) for (x,y) in zip(new_atoms,atoms))/length(new_atoms)
 
-    info = HardwareTransformInfo(ϕ_error=ϕ_error,Ω_error=Ω_error,Δ_error=Δ_error,Δ_mask=Δ_mask,mse_atoms=mse_atoms)
+    return new_atoms,mse_atoms
 
-    return (new_atoms,ϕ,Ω,Δ,info)
 end
 
-# public API exposed here: 
 function hardware_transform(h::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
     # gets transformed versions of waveforms, then creates new hamiltonian    
     atoms,ϕ,Ω,Δ,info = hardware_transform_parse(h,device_capabilities)
     hardware_h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
+
+    @debug "Hardware transform report: after linear interpolation ∫dt |ϕ(t)-ϕ_hw(t)| = $(info.ϕ_error) rad⋅μs"
+    @debug "Hardware transform report: after linear interpolation ∫dt |Ω(t)-Ω_hw(t)| = $(info.Ω_error) rad"
+    @debug "Hardware transform report: after linear interpolation ∫dt |Δ(t)-Δ_hw(t)| = $(info.Δ_error) rad"
+    @debug "Hardware transform report: mean deviation after rounding positions $(info.mse_atoms) μm"
 
     return hardware_h,info
 end

@@ -2,7 +2,8 @@ using Test
 using Unitful
 using BloqadeWaveforms:
     Waveform,
-    piecewise_linear
+    piecewise_linear,
+    piecewise_constant
 using BloqadeSchema:
     check_resolution,
     message,
@@ -175,7 +176,7 @@ end
     rydberg_capabilities = get_rydberg_capabilities()
 
     # waveform duration cannot exceed maximum supported time
-    ϕ = piecewise_linear(;clocks = [0.0,1.0,2.0,3.0,4.1], values = fill(0.0, 5))
+    ϕ = piecewise_constant(;clocks = [0.0,1.0,2.0,3.0,4.1], values = fill(0.0, 4))
     @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
         "ϕ(t) duration with value 4.1 μs exceeds maximum value of 4.0 μs"
     ])
@@ -183,47 +184,39 @@ end
     # waveform cannot have duration smaller than minimum allowable time step
     # can give two warnings: waveform duration is shorter than supported minimum time step
     #                        AND minimum time step is shorter than supported minimum time step
-    ϕ = piecewise_linear(clocks = [0.0,0.009], values = [0.0, 0.0])
+    ϕ = piecewise_constant(clocks = [0.0,0.009], values = [0.0])
     @test validate_ϕ(ϕ, rydberg_capabilities.ϕ)== Set([
         "ϕ(t) duration with value 0.009 μs below minimum value of 0.01 μs",
         "ϕ(t) minimum step with value 0.009 μs below minimum value of 0.01 μs"
     ])
 
     # waveform minimum time step cannot be smaller than supported minimum (0.01 microseconds)
-    ϕ = piecewise_linear(clocks = [0.0, 0.01, 0.011, 0.1], values=fill(0.0, 4))
+    ϕ = piecewise_constant(clocks = [0.0, 0.01, 0.011, 0.1], values=fill(0.0, 3))
     @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
         "ϕ(t) minimum step with value 0.001 μs below minimum value of 0.01 μs"
     ])
 
-    supported_max_slope = rydberg_capabilities.ϕ.max_slope
-    slope = round(supported_max_slope*1.01;sigdigits=10)
-    end_value = slope * 0.01
-    ϕ = piecewise_linear(clocks = [0.0, 0.01], values = [0.0, end_value])
-    @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
-        "ϕ(t) maximum slope with value $(supported_max_slope*1.01) rad/μs exceeds maximum value of $supported_max_slope rad/μs"
-    ])
-
     supported_min_value = rydberg_capabilities.ϕ.min_value
-    ϕ = piecewise_linear(clocks = [0.0, 4.0], values = [0.0, supported_min_value-0.1])
+    ϕ = piecewise_constant(clocks = [0.0, 2.0, 4.0], values = [0.0, supported_min_value-0.1])
     @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
         "ϕ(t) minimum value with value $(supported_min_value-0.1) rad below minimum value of $supported_min_value rad"
     ])
 
     supported_max_value = rydberg_capabilities.ϕ.max_value
     # cannot go below hardware supported minimum value
-    ϕ = piecewise_linear(;clocks=[0.0,4.0], values=[0.0, supported_max_value+0.1])
+    ϕ = piecewise_constant(;clocks=[0.0, 2.0,4.0], values=[0.0, supported_max_value+0.1])
     @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
         "ϕ(t) maximum value with value $(supported_max_value+0.1) rad exceeds maximum value of $supported_max_value rad"
     ])
 
     # initial value must be 0.0 radians
-    ϕ = piecewise_linear(;clocks=[0.0,0.1,1.0,2.0], values=[0.1,0.5,0.9,0.0])
+    ϕ = piecewise_constant(;clocks=[0.0,0.1,1.0,2.0], values=[0.1,0.5,0.9])
     @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
         "ϕ(t) start value with value 0.1 rad is not equal to the value of 0.0 rad"
     ])
 
     # time values must be integer multiple of resolution (0.001 μs)
-    ϕ = piecewise_linear(;clocks=[0.0,1.0,2.0,3.0,3.9995], values=fill(0.0,5))
+    ϕ = piecewise_constant(;clocks=[0.0,1.0,2.0,3.0,3.9995], values=fill(0.0,4))
     @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
         "ϕ(t) clock 3.9995 μs is not consistent with resolution 0.001 μs."
     ])
@@ -231,7 +224,7 @@ end
     # waveform values must be integer multiple of resolution (5.0e-7 rad)
     resolution = rydberg_capabilities.ϕ.value_resolution
     value = 11.4*resolution
-    ϕ = piecewise_linear(;clocks=[0.0, 0.1, 0.2, 0.3], values=[0.0, 10*resolution, value, 0.0])
+    ϕ = piecewise_constant(;clocks=[0.0, 0.1, 0.2, 0.3], values=[0.0, 10*resolution, value])
     @test validate_ϕ(ϕ, rydberg_capabilities.ϕ) == Set([
         "ϕ(t) value $value rad is not consistent with resolution $resolution rad."
     ])
@@ -261,11 +254,11 @@ end
 
     Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
     Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
-    ϕ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,-1,-1])
+    ϕ = piecewise_constant(;clocks=Float64[0,1,2,3],values=Float64[0,1,-1])
     atoms = 5.0 * [i for i in 1:10]
     H = rydberg_h(atoms, Ω=Ω, Δ=Δ, ϕ=ϕ)
     violations = validate(H)
-    @test length(violations)==0
+    @test isempty(violations)
     
     show(stdout, MIME"text/plain"(),violations)
 

@@ -549,7 +549,7 @@ function Base.:(==)(lhs::SumOfZAndNTypes, rhs::SumOfZAndNTypes)
 end
 
 function Base.:(==)(lhs::SumOfXPhaseTypes, rhs::SumOfXPhaseTypes)
-    return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ && typeof(lhs) == typeof(rhs)
+    return lhs.nsites == rhs.nsites && lhs.Ω.f == rhs.Ω.f && lhs.ϕ == rhs.ϕ && typeof(lhs) == typeof(rhs)
 end
 
 function Base.:(==)(lhs::RydbergHamiltonian, rhs::RydbergHamiltonian)

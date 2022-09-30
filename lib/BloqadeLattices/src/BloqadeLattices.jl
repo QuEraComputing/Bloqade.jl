@@ -42,7 +42,8 @@ export # types
     ByDensity,
     # bounds
     Parallelepiped,
-    within_cell
+    within_cell,
+    wrap_around
 
 include("lattice.jl")
 include("neighbors.jl")

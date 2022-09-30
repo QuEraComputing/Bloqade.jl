@@ -108,7 +108,11 @@ end
     end
 
     @testset "wrap_around" begin
-        bounds = reshape([-2.0, 2.0, 2.0, 2.0], 2, 2)
+        # bounds = reshape([-2.0, 2.0, 2.0, 2.0], 2, 2)
+        bounds = zeros((2,2))
+        bounds[:,1] .= (2,0)
+        bounds[:,2] .= (0,2)
+
         t = Parallelepiped(bounds)
         # These points SHOULD NOT be wrapped around
         ps = [(0.0, 0.0), (-1.0, 1.0), (1.0, 1.0), (0.0, 3.0)]

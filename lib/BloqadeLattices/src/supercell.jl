@@ -20,23 +20,24 @@ function Parallelepiped(bounds::T) where {T<:Real}
     return Parallelepiped{1,eltype(bounds_inv)}(bounds,bounds_inv)
 end
 
+
+Base.broadcastable(x::AbstractSuperCell) = Ref(x)
+
 # check if a point is in the tile
 # Tile{D,T} is just concrete type based off the Supercell{D}
 # NTuple gives has D elements of type T, representing point
 in_range(x) = 0 ≤ x < 1 ? true : false
-within_cell(cell::Parallelepiped{D,T},x::NTuple{D,T}) where {D,T} = all(in_range.(cell.bounds_inv * collect(x)))
+within_cell(cell::Parallelepiped{D,T},x) where {D,T} = all(in_range.(cell.bounds_inv * [x...,]))
 
 
-
-
-wrap_around(cell::Parallelepiped{D,T},x::NTuple{D,T}) where {D,T} = Tuple(cell.bounds * ((cell.bounds_inv * collect(x)) .% 1))
+wrap_around(cell::Parallelepiped{D,T},x) where {D,T} = typeof(x)(cell.bounds * mod.((cell.bounds_inv * [x...,]),1.0))
 
 distance(x, y) = sqrt(mapreduce(x -> x^2, +, x .- y))
 
 function distance(cell::Parallelepiped{D,T},x,y) where {D,T}
     x = wrap_around(cell,[x...,])
     y = wrap_around(cell,[y...,])
-    dist = BloqadeLattices.distance(x,y)
+    dist = distance(x,y)
 
     for a in 1:D
         shift = cell.bounds[:,a]
@@ -45,8 +46,8 @@ function distance(cell::Parallelepiped{D,T},x,y) where {D,T}
             shift_y = y .+ shift
             shift_x = x .+ shift
             dist = min(
-                BloqadeLattices.distance(x,shift_y),
-                BloqadeLattices.distance(shift_x,y),
+                distance(x,shift_y),
+                distance(shift_x,y),
                 dist
             )
         end

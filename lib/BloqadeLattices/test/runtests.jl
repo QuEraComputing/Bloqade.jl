@@ -107,6 +107,26 @@ end
         @test !within_cell(ppd, p)
     end
 
+    @testset "wrap_around" begin
+        bounds = reshape([-2.0, 2.0, 2.0, 2.0], 2, 2)
+        t = Parallelepiped(bounds)
+        # These points SHOULD NOT be wrapped around
+        ps = [(0.0, 0.0), (-1.0, 1.0), (1.0, 1.0), (0.0, 3.0)]
+        
+        for p in ps
+            @test wrap_around(t, p) == p
+        end
+
+        # Thes points SHOULD wrap around
+        ps = [(3.0, 2.0), (0.0, -1.0), (4.0, 2.0)]
+        wrapped_ps = [(-1.0, 2.0), (0.0, 3.0), (0.0, 2.0)]
+
+        for p in ps, wrapped_p in wrapped_ps
+            @test wrap_around(t, p) == wrapped_p
+        end
+
+    end
+
 end
 
 @testset "neighbors" begin

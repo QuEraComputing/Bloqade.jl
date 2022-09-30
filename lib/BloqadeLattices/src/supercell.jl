@@ -24,15 +24,14 @@ end
 # Tile{D,T} is just concrete type based off the Supercell{D}
 # NTuple gives has D elements of type T, representing point
 in_range(x) = 0 ≤ x < 1 ? true : false
-within_cell(cell::Parallelepiped{D, T},x::NTuple{D,T}) where {D,T} = all(in_range.(cell.bounds_inv * collect(x)))
+within_cell(cell::Parallelepiped{D,T},x::NTuple{D,T}) where {D,T} = all(in_range.(cell.bounds_inv * collect(x)))
 
 
-distance(x,y) = √sum((x .- y) .^ 2)
 
 
-function wrap_around(cell::Parallelepiped{D,T},x) where {D,T}
-end
+wrap_around(cell::Parallelepiped{D,T},x::NTuple{D,T}) where {D,T} = Tuple(cell.bounds * ((cell.bounds_inv * collect(x)) .% 1))
 
+distance(x, y) = sqrt(mapreduce(x -> x^2, +, x .- y))
 
 function distance(cell::Parallelepiped{D,T},x,y) where {D,T}
     x = wrap_around(cell,[x...,])

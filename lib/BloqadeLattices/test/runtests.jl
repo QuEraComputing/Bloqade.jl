@@ -1,6 +1,6 @@
 using BloqadeLattices
-using Test, Distributions, Documenter
-using LuxorGraphPlot
+using Test,Distributions,LuxorGraphPlot
+using Documenter
 
 @testset "AtomList" begin
     al = AtomList([(0.1, 0.2), (0.3, 0.4), (0.1, 0.8)])
@@ -137,18 +137,18 @@ end
         bounds = 3.0
         cell = Parallelepiped(bounds)
         ### points should not wrap around
-        points = [0.0, 1.5, 2.9]
+        points = [0.0, 1.56456, 2.9]
         
         for point in points
-            @test wrap_around(cell, point) == point
+            @test all(isapprox.(wrap_around(cell, point),point,atol=1e-15))
         end
 
         ### points should wrap around
         points = [3.0, 4.0]
         wrapped_points = [0.0, 1.0]
 
-        for point in points
-            @test wrap_around(cell, point) == point
+        for (point,wrapped_point) in zip(points,wrapped_points)
+            @test all(isapprox.(wrap_around(cell, point),wrapped_point,atol=1e-15))
         end
 
         # 2D case

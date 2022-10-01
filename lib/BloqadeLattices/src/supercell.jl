@@ -6,6 +6,7 @@ struct Parallelepiped{D, T} <: AbstractSuperCell{D}
     bounds_inv::Matrix{T}
 end
 
+
 function Parallelepiped(bounds)
     D = size(bounds,1)
     bounds_inv = inv(bounds)
@@ -31,6 +32,7 @@ within_cell(cell::Parallelepiped{D,T},x) where {D,T} = all(in_range.(cell.bounds
 # Enforce periodic boundary conditions by having points that fall outside of the 
 # parallelogram map to ones on the inside
 wrap_around(cell::Parallelepiped{D,T},x) where {D,T} = typeof(x)(cell.bounds * mod.((cell.bounds_inv * [x...,]),1.0))
+wrap_around(cell::Parallelepiped{1,T},x) where {T} =  mod.(x,only(cell.bounds))
 
 distance(x, y) = sqrt(mapreduce(x -> x^2, +, x .- y))
 

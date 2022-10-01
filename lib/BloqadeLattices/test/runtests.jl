@@ -225,7 +225,7 @@ end
         ### Randomized testing, generating
         ### points that fall outside bounds of shape, all of which should 
         ### be properly `wrap_around`'ed and fall within the shape
-        for (x,y) in zip(rand(Uniform(2.0, 100.0),10), rand(Uniform(4.0, 100.0),10))
+        for (x,y) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10))
             @test within_cell(cell, wrap_around(cell, (x,y)))
         end
 
@@ -264,7 +264,7 @@ end
         ### Randomized testing, generating
         ### points that fall outside bounds of shape, all of which should 
         ### be properly `wrap_around`'ed and fall within the shape
-        for (x,y) in zip(rand(Uniform(6.0, 100.0),10), rand(Uniform(2.0, 100.0),10))
+        for (x,y) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10))
             @test within_cell(cell, wrap_around(cell, (x,y)))
         end
 
@@ -304,7 +304,7 @@ end
         ### Randomized testing, generating
         ### points that fall outside bounds of shape, all of which should 
         ### be properly `wrap_around`'ed and fall within the shape
-        for (x,y,z) in zip(rand(Uniform(6.0, 100.0),10), rand(Uniform(2.0, 100.0),10), rand(Uniform(2.0, 100.0), 10))
+        for (x,y,z) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0), 10))
             @test within_cell(cell, wrap_around(cell, (x,y,z)))
         end
         
@@ -316,8 +316,8 @@ end
         bounds = 3.0
         t = Parallelepiped(bounds)
 
-        point_pairs = [(0.0, 0.1), (1.0, 2.0), (0.5, 2.5), (0.5, 2.1)]
-        expected_distances = [0.1, 1.0, 1.0, 1.4]
+        point_pairs = [(0.0, 0.1), (1.0, 2.0), (0.5, 2.5), (0.5, 2.1),(2.9,0.1)]
+        expected_distances = [0.1, 1.0, 1.0, 1.4, 0.2]
         for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
             @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
         end
@@ -333,7 +333,7 @@ end
                        ((0.5,0.5), (2.5,2.5)),
                        ((0.4,2.4), (2.0,2.4)),
                        ((2.5,2.5), (2.0,0.5))]
-        expected_distances = [√2.0, 2√0.5, 1.4, √1.25]
+        expected_distances = [√2.0, √2, 1.4, √1.25]
         for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
             @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
         end
@@ -361,7 +361,7 @@ end
         point_pairs = [((4.0, 1.0), (5.0, 2.0)),
                        ((1.0, 0.5), (6.0, 2.5)),
                        ((3.0, 1.0), (5.0, 2.0))]
-        expected_distances = [√2.0, 2√1.25, √5.0]
+        expected_distances = [√2.0, 2*√1.25, √5.0]
         for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
             @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
         end
@@ -380,6 +380,8 @@ end
         for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
             @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
         end
+
+
 
     end
 

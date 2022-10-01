@@ -13,6 +13,7 @@ function Parallelepiped(bounds)
     return Parallelepiped{D,eltype(bounds_inv)}(bounds,bounds_inv)
 end
 
+# Handle the 1D case
 function Parallelepiped(bounds::T) where {T<:Real}
     bounds = fill(bounds,1,1)
     bounds_inv = inv(bounds)
@@ -23,13 +24,12 @@ end
 
 Base.broadcastable(x::AbstractSuperCell) = Ref(x)
 
-# check if a point is in the tile
-# Tile{D,T} is just concrete type based off the Supercell{D}
-# NTuple gives has D elements of type T, representing point
+# check if a point is in the cell
 in_range(x) = 0 ≤ x < 1 ? true : false
 within_cell(cell::Parallelepiped{D,T},x) where {D,T} = all(in_range.(cell.bounds_inv * [x...,]))
 
-
+# Enforce periodic boundary conditions by having points that fall outside of the 
+# parallelogram map to ones on the inside
 wrap_around(cell::Parallelepiped{D,T},x) where {D,T} = typeof(x)(cell.bounds * mod.((cell.bounds_inv * [x...,]),1.0))
 
 distance(x, y) = sqrt(mapreduce(x -> x^2, +, x .- y))

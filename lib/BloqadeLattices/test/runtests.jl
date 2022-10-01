@@ -1,5 +1,5 @@
 using BloqadeLattices
-using Test, Documenter
+using Test, Distributions, Documenter
 using LuxorGraphPlot
 
 @testset "AtomList" begin
@@ -57,76 +57,328 @@ end
 @testset "cells" begin
 
     @testset "within_cell" begin
-        bounds = reshape([3.0, 3.0, 4.0, 0.0], 2, 2)
-        t = Parallelepiped(bounds)
-        # origin
-        p = (0.0,0.0)
-        @test within_cell(t, p)
-        # lies on one of the accepted sides of the parallelogram
-        p = (1.0, 1.0)
-        @test within_cell(t, p)
-        # lies on another accepted side of the parallelogram
-        p = (2.0, 0.0)
-        @test within_cell(t, p)
-        # lies inside the parallelogram
-        p = (2.0, 1.0)
-        @test within_cell(t, p)
-        # shares a point with an non-accepted side of the parallelogram
-        p = (4.0, 0.0)
-        @test !within_cell(t, p)
-        # shares a point with a non-accepted side of the parallelogram
-        p = (3.0, 3.0)
-        @test !within_cell(t, p)
-        # lies on the farthest point from the origin and touches two non-accepted sides
-        p = (7.0, 3.0)
-        @test !within_cell(t, p)
-        
-        bounds = reshape(Float64.([1,0,0,0,1,0,0,0,1]), 3, 3)
-        ppd = Parallelepiped(bounds)
+        # 1D Case
+        bounds = 4.0
+        cell = Parallelepiped(bounds)
+        ## Origin
+        point = (0.0)
+        @test within_cell(cell, point)
+        ## Point on line
+        point = (1.4)
+        @test within_cell(cell, point)
+        ## Tip of line
+        point = (4.0)
+        @test !within_cell(cell, point)
+        ## Completely off the line
+        point = (11.1)
+        @test !within_cell(cell, point)
 
-        # origin
-        p = (0.0, 0.0, 0.0)
-        @test within_cell(ppd, p)
-        # outside parallelpiped
-        p = (2.0, 0.0, 0.0)
-        @test !within_cell(ppd, p)
-        # inside parallelpiped
-        p = (0.5, 0.5, 0.5)
-        @test within_cell(ppd, p)
-        # on a valid surface of the parallelpiped
-        p = (0.5, 0.5, 0.0)
-        @test within_cell(ppd, p)
-        # on a point touching a non-accepted side
-        p = (0.0, 0.0, 1.0)
-        @test !within_cell(ppd, p)
-        # on a non accepted surface
-        p = (0.5, 1.0, 0.5)
-        @test !within_cell(ppd, p)
-        # point touching all non-accepted sides
-        p = (1.0, 1.0, 1.0)
-        @test !within_cell(ppd, p)
+        # 2D Case
+        bounds = zeros((2,2))
+        bounds[:,1] .= (3,3)
+        bounds[:,2] .= (4,0)
+        cell = Parallelepiped(bounds)
+        ## origin
+        point = (0.0,0.0)
+        @test within_cell(cell, point)
+        ## lies on one of the accepted sides of the parallelogram
+        point = (1.0, 1.0)
+        @test within_cell(cell, point)
+        ## lies on another accepted side of the parallelogram
+        point = (2.0, 0.0)
+        @test within_cell(cell, point)
+        ## lies inside the parallelogram
+        point = (2.0, 1.0)
+        @test within_cell(cell, point)
+        ## shares a point with an non-accepted side of the parallelogram
+        point = (4.0, 0.0)
+        @test !within_cell(cell, point)
+        ## shares a point with a non-accepted side of the parallelogram
+        point = (3.0, 3.0)
+        @test !within_cell(cell, point)
+        ## lies on the farthest point from the origin and touches two non-accepted sides
+        point = (7.0, 3.0)
+        @test !within_cell(cell, point)
+
+        # 3D case
+        ## Cube
+        bounds = zeros((3,3))
+        bounds[:,1] .= (1,0,0)
+        bounds[:,2] .= (0,1,0)
+        bounds[:,3] .= (0,0,1)
+        
+        cell = Parallelepiped(bounds)
+        ## origin
+        point = (0.0, 0.0, 0.0)
+        @test within_cell(cell, point)
+        ## outside parallelpiped
+        point = (2.0, 0.0, 0.0)
+        @test !within_cell(cell, point)
+        ## inside parallelpiped
+        point = (0.5, 0.5, 0.5)
+        @test within_cell(cell, point)
+        ## on a valid surface of the parallelpiped
+        point = (0.5, 0.5, 0.0)
+        @test within_cell(cell, point)
+        ## on a point touching a non-accepted side
+        point = (0.0, 0.0, 1.0)
+        @test !within_cell(cell, point)
+        ## on a non accepted surface
+        point = (0.5, 1.0, 0.5)
+        @test !within_cell(cell, point)
+        ## point touching all non-accepted sides
+        point = (1.0, 1.0, 1.0)
+        @test !within_cell(cell, point)
     end
 
     @testset "wrap_around" begin
-        # bounds = reshape([-2.0, 2.0, 2.0, 2.0], 2, 2)
+        # 1D case
+        ## Line
+        bounds = 3.0
+        cell = Parallelepiped(bounds)
+        ### points should not wrap around
+        points = [0.0, 1.5, 2.9]
+        
+        for point in points
+            @test wrap_around(cell, point) == point
+        end
+
+        ### points should wrap around
+        points = [3.0, 4.0]
+        wrapped_points = [0.0, 1.0]
+
+        for point in points
+            @test wrap_around(cell, point) == point
+        end
+
+        # 2D case
+        ## Square
         bounds = zeros((2,2))
         bounds[:,1] .= (2,0)
         bounds[:,2] .= (0,2)
+        cell = Parallelepiped(bounds)
 
-        t = Parallelepiped(bounds)
-        # These points SHOULD NOT be wrapped around
-        ps = [(0.0, 0.0), (-1.0, 1.0), (1.0, 1.0), (0.0, 3.0)]
-        
-        for p in ps
-            @test wrap_around(t, p) == p
+        ### All of the following points fall outside the square
+        ### but should map to its center
+        points = [(-1.0, -1.0),
+                  (-1.0, 1.0),
+                  (-1.0, 3.0),
+                  (1.0, 3.0),
+                  (3.0, 3.0),
+                  (3.0, 1.0),
+                  (3.0, -1.0),
+                  (1.0, -1.0)]
+        for point in points
+            @test wrap_around(cell, point) == (1.0, 1.0)
         end
 
-        # Thes points SHOULD wrap around
-        ps = [(3.0, 2.0), (0.0, -1.0), (4.0, 2.0)]
-        wrapped_ps = [(-1.0, 2.0), (0.0, 3.0), (0.0, 2.0)]
+        ### Boundary conditions, points that are on or touch a
+        ### side that is not considered part of the cell should be wrapped
+        points = [(0.0, 2.0),
+                  (2.0, 0.0),
+                  (2.0, 2.0)]
 
-        for p in ps, wrapped_p in wrapped_ps
-            @test wrap_around(t, p) == wrapped_p
+        for point in points
+            @test wrap_around(cell, point) == (0.0, 0.0)
+        end
+
+        ### Randomized testing, generating
+        ### points that fall outside bounds of shape, all of which should 
+        ### be properly `wrap_around`'ed and
+        for (x,y) in zip(rand(Uniform(2.0, 100.0),10), rand(Uniform(2.0, 100.0),10))
+            @test within_cell(cell, wrap_around(cell, (x,y)))
+        end
+
+        ## Rectangle
+        bounds = zeros((2,2))
+        bounds[:,1] .= (0.0, 2.0)
+        bounds[:,2] .= (4.0, 0.0)
+        cell = Parallelepiped(bounds)
+
+        ### All of the following points fall outside the rectangle
+        ### but should fall into its interior
+        points = [(1.0, -1.0),
+                  (1.0, 3.0)]
+        
+        for point in points
+            @test wrap_around(cell, point) == (1.0, 1.0)
+        end
+
+        points = [(3.0, -1.0),
+                  (3.0, 3.0)]
+    
+        for point in points
+            @test wrap_around(cell, point) == (3.0, 1.0)
+        end
+        
+
+        ### Boundary conditions, points that are on or touch a
+        ### side that is not considered part of the cell should be wrapped
+        points = [(0.0, 2.0),
+                  (4.0, 0.0),
+                  (4.0, 2.0)]
+        
+        for point in points
+            @test wrap_around(cell, point) == (0.0, 0.0)
+        end
+       
+        ### Randomized testing, generating
+        ### points that fall outside bounds of shape, all of which should 
+        ### be properly `wrap_around`'ed and fall within the shape
+        for (x,y) in zip(rand(Uniform(2.0, 100.0),10), rand(Uniform(4.0, 100.0),10))
+            @test within_cell(cell, wrap_around(cell, (x,y)))
+        end
+
+        ## Parallelogram
+        bounds = zeros((2,2))
+        bounds[:,1] .= (2,2)
+        bounds[:,2] .= (4,0)
+        cell = Parallelepiped(bounds)
+
+        ### All of the following points fall outside the parallelogram
+        ### but should fall into its interior
+        points = [(5.0, 3.0),
+                  (-3.5, 0.5),
+                  (-5.0, -2.0),
+                  (2.0, -1.5)]
+
+        wrapped_points = [(3.0, 1.0),
+                          (0.5, 0.5),
+                          (1.0, 0.0),
+                          (4.0, 0.5)]
+
+        for (point, wrapped_point) in zip(points, wrapped_points)
+            @test wrap_around(cell, point) == wrapped_point
+        end
+
+        ### Boundary conditions, points that are on or touch a
+        ### side that is not considered part of the cell should be wrapped
+        points = [(6.0, 2.0),
+                  (2.0, 2.0),
+                  (4.0, 0.0)]
+        
+        for point in points
+            @test wrap_around(cell, point) == (0.0, 0.0)
+        end
+
+        ### Randomized testing, generating
+        ### points that fall outside bounds of shape, all of which should 
+        ### be properly `wrap_around`'ed and fall within the shape
+        for (x,y) in zip(rand(Uniform(6.0, 100.0),10), rand(Uniform(2.0, 100.0),10))
+            @test within_cell(cell, wrap_around(cell, (x,y)))
+        end
+
+        # 3D Case
+        ## Cube
+        bounds = zeros((3,3))
+        bounds[:,1] .= (2,0,0)
+        bounds[:,2] .= (0,2,0)
+        bounds[:,3] .= (0,0,2)
+        cell = Parallelepiped(bounds)
+
+        ### All of the following points fall outside the parallelogram
+        ### but should fall into its interior
+        points = [(3.0, 3.0, 3.0)]
+
+        wrapped_points = [(1.0, 1.0, 1.0)]
+
+
+        for (point, wrapped_point) in zip(points, wrapped_points)
+            @test wrap_around(cell, point) == wrapped_point
+        end
+
+
+        ### Boundary conditions, points that are on or touch a
+        ### side that is not considered part of the cell should be wrapped
+        points = [(2.0, 2.0, 2.0),
+                  (0.0, 0.0, 2.0),
+                  (0.0, 2.0, 0.0),
+                  (2.0, 0.0, 0.0),
+                  (2.0, 2.0, 0.0)]
+        
+        
+        for point in points
+            @test wrap_around(cell, point) == (0.0, 0.0, 0.0)
+        end
+
+        ### Randomized testing, generating
+        ### points that fall outside bounds of shape, all of which should 
+        ### be properly `wrap_around`'ed and fall within the shape
+        for (x,y,z) in zip(rand(Uniform(6.0, 100.0),10), rand(Uniform(2.0, 100.0),10), rand(Uniform(2.0, 100.0), 10))
+            @test within_cell(cell, wrap_around(cell, (x,y,z)))
+        end
+        
+
+    end
+
+    @testset "distance" begin
+        # 1D case
+        bounds = 3.0
+        t = Parallelepiped(bounds)
+
+        point_pairs = [(0.0, 0.1), (1.0, 2.0), (0.5, 2.5), (0.5, 2.1)]
+        expected_distances = [0.1, 1.0, 1.0, 1.4]
+        for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
+            @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
+        end
+
+        # 2D case
+        ## Square
+        bounds = zeros((2,2))
+        bounds[:,1] .= (3,0)
+        bounds[:,2] .= (0,3)
+        t = Parallelepiped(bounds)
+
+        point_pairs = [((1.0,1.0), (2.0,2.0)), 
+                       ((0.5,0.5), (2.5,2.5)),
+                       ((0.4,2.4), (2.0,2.4)),
+                       ((2.5,2.5), (2.0,0.5))]
+        expected_distances = [√2.0, 2√0.5, 1.4, √1.25]
+        for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
+            @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
+        end
+
+        ## Rectangle
+        bounds = zeros((2,2))
+        bounds[:,1] .= (0,2)
+        bounds[:,2] .= (4,0)
+        t = Parallelepiped(bounds)
+
+        point_pairs = [((1.0, 1.0), (2.0, 1.0)),
+                       ((3.0, 0.4), (3.0, 1.5)),
+                       ((2.0, 0.0), (3.5, 1.5))]
+        expected_distances = [1.0, 0.9, √2.5]
+        for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
+            @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
+        end
+
+        ## Parallelogram
+        bounds = zeros((2,2))
+        bounds[:,1] .= (3,3)
+        bounds[:,2] .= (4,0)
+        t = Parallelepiped(bounds)
+
+        point_pairs = [((4.0, 1.0), (5.0, 2.0)),
+                       ((1.0, 0.5), (6.0, 2.5)),
+                       ((3.0, 1.0), (5.0, 2.0))]
+        expected_distances = [√2.0, 2√1.25, √5.0]
+        for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
+            @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
+        end
+
+        # 3D
+        ## Cube
+        bounds = zeros((3,3))
+        bounds[:,1] .= (3,0,0)
+        bounds[:,2] .= (0,3,0)
+        bounds[:,3] .= (0,0,3)
+        t = Parallelepiped(bounds)
+
+        point_pairs = [((1.0, 1.0, 1.0), (2.0, 2.0, 2.0)),
+                       ((2.5, 2.5, 2.9), (2.5, 2.5, 1.1))]
+        expected_distances = [√3, 1.2]
+        for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
+            @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
         end
 
     end

@@ -43,8 +43,8 @@ export # types
     AbstractSuperCell,
     Parallelepiped,
     within_cell,
-    distance,
-    wrap_around
+    wrap_around,
+    distance
 
 include("lattice.jl")
 include("neighbors.jl")

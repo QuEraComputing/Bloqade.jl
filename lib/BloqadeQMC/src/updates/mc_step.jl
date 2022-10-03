@@ -2,6 +2,16 @@
 
 # mc_step from groundstate.jl
 
+# I am keeping this function name cluster_update!() to keep it separate from the generic_cluster_update() function in cluster.jl. Previously, the two functions had the same name.
+
+function cluster_update!(rng, qmc_state, H::Hamiltonian, d::Diagnostics; p::Float64=0.0, kw...)
+    if rand(rng) < p
+        multibranch_update!(rng, qmc_state, H, d)
+    else
+        line_update!(rng, qmc_state, H, d)
+    end
+end
+
 function mc_step!(f::Function, rng::AbstractRNG, qmc_state::BinaryGroundState, H::Hamiltonian, d::Diagnostics; kw...)
     full_diagonal_update!(rng, qmc_state, H, d)
     lsize = cluster_update!(rng, qmc_state, H, d; kw...)

@@ -235,7 +235,7 @@ trialstate_weight_change(qmc_state::BinaryThermalState, lsize::Int, Ns::Int, i::
 
 #############################################################################
 
-# changed the function name below from cluster_update!() to generic_cluster_update!()
+# changed the function name below from cluster_update!() to generic_cluster_update!() in order to distinguish it from the other cluster_update function defined at the very bottom
 
 function generic_cluster_update!(rng::AbstractRNG, update_kernel!::Function, acceptance::Function, lsize::Int, qmc_state::BinaryQMCState, H::AbstractIsing, d::Diagnostics)
     Ns = nspins(H)
@@ -330,4 +330,14 @@ function generic_cluster_update!(rng::AbstractRNG, update_kernel!::Function, acc
     _map_back_operator_list!(ocount, qmc_state, H, d)
 
     return lsize
+end
+
+# might put this cluster_update function in a more visible position somewhere
+
+function cluster_update!(rng, qmc_state, H::Hamiltonian, d::Diagnostics; p::Float64=0.0, kw...)
+    if rand(rng) < p
+        multibranch_update!(rng, qmc_state, H, d)
+    else
+        line_update!(rng, qmc_state, H, d)
+    end
 end

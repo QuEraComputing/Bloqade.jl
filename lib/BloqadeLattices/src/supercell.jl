@@ -44,7 +44,7 @@ function distance(cell::Parallelepiped{D,T},x,y) where {D,T}
     for a in 1:D
         shift = cell.bounds[:,a]
         for b in a:D
-            shift .+= (b > a ? cell.bounds[:,b] : 0)
+            shift = shift .+ (b > a ? cell.bounds[:,b] : 0)
             shift_y = y .+ shift
             shift_x = x .+ shift
             dist = min(

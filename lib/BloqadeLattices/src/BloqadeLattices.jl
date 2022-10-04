@@ -42,7 +42,10 @@ export # types
     # bounds
     AbstractRegion,
     Parallelepiped,
-    distance
+    distance,
+    # bounded lattice,
+    BoundedLattice,
+    generate_sites_in_region
     
 include("region.jl")
 include("lattice.jl")

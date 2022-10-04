@@ -51,7 +51,7 @@ lattice_vectors(general_lattice::GeneralLattice) = general_lattice.vectors
 """
     lattice_sites(lattice::AbstractLattice)
 
-Returns sites in a Bravais lattice unit region as a Tuple of D-Tuple, where D is the space dimension.
+Returns sites in a Bravais lattice unit cell as a Tuple of D-Tuple, where D is the space dimension.
 """
 lattice_sites(general_lattice::GeneralLattice) = general_lattice.sites
 

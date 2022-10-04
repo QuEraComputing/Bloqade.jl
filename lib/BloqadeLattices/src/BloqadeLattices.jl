@@ -44,10 +44,10 @@ export # types
     AbstractRegion,
     Parallelepiped,
     distance
-
+    
+include("region.jl")
 include("lattice.jl")
 include("neighbors.jl")
 include("visualize.jl")
-include("region.jl")
 
 end

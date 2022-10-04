@@ -315,7 +315,7 @@ end
 
 # abstraction for a single tile of an infinite lattice
 
-struct BoundedLattice{L<:AbstractLattice,R<:AbstractRegion}
+struct BoundedLattice{L<:AbstractLattice,R<:AbstractRegion} 
     lattice::L
     region::R
     site_positions::AtomList
@@ -335,7 +335,7 @@ end
 
 
 
-function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D},PBC::Bool=false) where D
+function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};PBC::Bool=false) where D
     lat_vecs = lattice_vectors(lattice)
     T = eltype(lat_vecs[1])
     bounds =  zeros(T,D,D)

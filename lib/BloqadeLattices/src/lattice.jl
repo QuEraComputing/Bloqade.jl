@@ -30,10 +30,10 @@ end
     GeneralLattice(vectors, sites)
 
 The general lattice type for tiling the space. Type parameter `D` is the dimension,
-`K` is the number of sites in a unit cell and `T` is the data type for coordinates, e.g. `Float64`. Input arguments are
+`K` is the number of sites in a unit region and `T` is the data type for coordinates, e.g. `Float64`. Input arguments are
 
 * `vectors` is a vector/tuple of D-tuple. Its length is D, it specifies the Bravais lattice vectors.
-* `sites` is a vector/tuple of D-tuple. Its length is K, it specifies the sites inside a Bravais cell.
+* `sites` is a vector/tuple of D-tuple. Its length is K, it specifies the sites inside a Bravais region.
 """
 struct GeneralLattice{D,K,T} <: AbstractLattice{D}
     vectors::NTuple{D,NTuple{D,T}}
@@ -51,7 +51,7 @@ lattice_vectors(general_lattice::GeneralLattice) = general_lattice.vectors
 """
     lattice_sites(lattice::AbstractLattice)
 
-Returns sites in a Bravais lattice unit cell as a Tuple of D-Tuple, where D is the space dimension.
+Returns sites in a Bravais lattice unit region as a Tuple of D-Tuple, where D is the space dimension.
 """
 lattice_sites(general_lattice::GeneralLattice) = general_lattice.sites
 
@@ -312,3 +312,58 @@ end
 # TODO
 # pseudo-lattices,
 # image/svg output (maybe),
+
+# abstraction for a single tile of an infinite lattice
+
+abstract type AbstractRegion{D} end
+
+struct BoundedLattice{L<:AbstractLattice,R<:AbstractRegion}
+    lattice::L
+    region::R
+    site_positions::AtomList
+    PBC::Bool
+end
+
+
+
+function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D},PBC::Bool=false) where D
+    lat_vecs = lattice_vectors(lattice)
+    T = eltype(lat_vecs[1])
+    bounds =  zeros(T,D,D)
+    
+    for i in 1:D
+        for j in 1:D
+            bounds[:,i] .+= M[i][j] .* lat_vecs[j]
+        end
+    end
+
+    begin_repeat = zeros(Int,D)
+    end_repeat = zeros(Int,D)
+    for p in combinations(1:D)
+        a = sum(M[i] for i in p)
+        a_floor = convert.(Int,floor.(a))
+        a_ceil = convert.(Int,ceil.(a))
+        begin_repeat = min.(begin_repeat,a_floor)
+        end_repeat = min.(end_repeat,a_ceil)
+    end
+
+    region = Parallelepiped(bounds)
+    lattice_sites = lattice_sites(lattice)
+    site_positions = AtomList[]
+    for ns in product([b:e for (b,e) in zip(begin_repeat,end_repeat)]...)
+        site = sum(n .* lat_vec for (n,lat_vecs) in zip(ns,lat_vecs))
+
+        for lattice_site in lattice_sites
+            site ∈ region && push!(site_positions,Tuple(site .+ lattice_site))
+        end
+    end
+
+    return BoundedLattice(lattice,region,site_positions,PBC)
+end
+
+dimension(lattice::BoundedLattice{L,C}) where {L,C} = dimension(lattice.lattice)
+lattice_vectors(lattice::BoundedLattice{L,C}) where {L,C} = lattice_vectors(lattice.lattice)
+
+
+
+

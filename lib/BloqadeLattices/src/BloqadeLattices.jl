@@ -40,15 +40,13 @@ export # types
     img_maskedgrid,
     ByDensity,
     # bounds
-    AbstractSuperCell,
+    AbstractRegion,
     Parallelepiped,
-    within_cell,
-    wrap_around,
     distance
 
 include("lattice.jl")
 include("neighbors.jl")
 include("visualize.jl")
-include("supercell.jl")
+include("region.jl")
 
 end

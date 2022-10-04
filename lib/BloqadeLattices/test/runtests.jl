@@ -54,51 +54,50 @@ end
     @test (sites |> rescale_axes(2.0)) == [(0.4, 0.6), (0.8, 1.6)]
 end
 
-@testset "cells" begin
-
-    @testset "within_cell" begin
+@testset "regions" begin
+    @testset "within_region" begin
         # 1D Case
         bounds = 4.0
-        cell = Parallelepiped(bounds)
+        region = Parallelepiped(bounds)
         ## Origin
         point = (0.0)
-        @test within_cell(cell, point)
+        @test point ∈ region
         ## Point on line
         point = (1.4)
-        @test within_cell(cell, point)
+        @test point ∈ region
         ## Tip of line
         point = (4.0)
-        @test !within_cell(cell, point)
+        @test !(point ∈ region)
         ## Completely off the line
         point = (11.1)
-        @test !within_cell(cell, point)
+        @test !(point ∈ region)
 
         # 2D Case
         bounds = zeros((2,2))
         bounds[:,1] .= (3,3)
         bounds[:,2] .= (4,0)
-        cell = Parallelepiped(bounds)
+        region = Parallelepiped(bounds)
         ## origin
         point = (0.0,0.0)
-        @test within_cell(cell, point)
+        @test point ∈ region
         ## lies on one of the accepted sides of the parallelogram
         point = (1.0, 1.0)
-        @test within_cell(cell, point)
+        @test point ∈ region
         ## lies on another accepted side of the parallelogram
         point = (2.0, 0.0)
-        @test within_cell(cell, point)
+        @test point ∈ region
         ## lies inside the parallelogram
         point = (2.0, 1.0)
-        @test within_cell(cell, point)
+        @test point ∈ region
         ## shares a point with an non-accepted side of the parallelogram
         point = (4.0, 0.0)
-        @test !within_cell(cell, point)
+        @test !(point ∈ region)
         ## shares a point with a non-accepted side of the parallelogram
         point = (3.0, 3.0)
-        @test !within_cell(cell, point)
+        @test !(point ∈ region)
         ## lies on the farthest point from the origin and touches two non-accepted sides
         point = (7.0, 3.0)
-        @test !within_cell(cell, point)
+        @test !(point ∈ region)
 
         # 3D case
         ## Cube
@@ -107,40 +106,40 @@ end
         bounds[:,2] .= (0,1,0)
         bounds[:,3] .= (0,0,1)
         
-        cell = Parallelepiped(bounds)
+        region = Parallelepiped(bounds)
         ## origin
         point = (0.0, 0.0, 0.0)
-        @test within_cell(cell, point)
+        @test point ∈ region
         ## outside parallelpiped
         point = (2.0, 0.0, 0.0)
-        @test !within_cell(cell, point)
+        @test !(point ∈ region)
         ## inside parallelpiped
         point = (0.5, 0.5, 0.5)
-        @test within_cell(cell, point)
+        @test point ∈ region
         ## on a valid surface of the parallelpiped
         point = (0.5, 0.5, 0.0)
-        @test within_cell(cell, point)
+        @test point ∈ region
         ## on a point touching a non-accepted side
         point = (0.0, 0.0, 1.0)
-        @test !within_cell(cell, point)
+        @test !(point ∈ region)
         ## on a non accepted surface
         point = (0.5, 1.0, 0.5)
-        @test !within_cell(cell, point)
+        @test !(point ∈ region)
         ## point touching all non-accepted sides
         point = (1.0, 1.0, 1.0)
-        @test !within_cell(cell, point)
+        @test !(point ∈ region)
     end
 
-    @testset "wrap_around" begin
+    @testset "mod" begin
         # 1D case
         ## Line
         bounds = 3.0
-        cell = Parallelepiped(bounds)
+        region = Parallelepiped(bounds)
         ### points should not wrap around
         points = [0.0, 1.56456, 2.9]
         
         for point in points
-            @test all(isapprox.(wrap_around(cell, point),point,atol=1e-15))
+            @test all(isapprox.(mod(point,region),point,atol=1e-15))
         end
 
         ### points should wrap around
@@ -148,7 +147,7 @@ end
         wrapped_points = [0.0, 1.0]
 
         for (point,wrapped_point) in zip(points,wrapped_points)
-            @test all(isapprox.(wrap_around(cell, point),wrapped_point,atol=1e-15))
+            @test all(isapprox.(mod(point,region),wrapped_point,atol=1e-15))
         end
 
         # 2D case
@@ -156,7 +155,7 @@ end
         bounds = zeros((2,2))
         bounds[:,1] .= (2,0)
         bounds[:,2] .= (0,2)
-        cell = Parallelepiped(bounds)
+        region = Parallelepiped(bounds)
 
         ### All of the following points fall outside the square
         ### but should map to its center
@@ -169,31 +168,31 @@ end
                   (3.0, -1.0),
                   (1.0, -1.0)]
         for point in points
-            @test wrap_around(cell, point) == (1.0, 1.0)
+            @test mod(point,region) == (1.0, 1.0)
         end
 
         ### Boundary conditions, points that are on or touch a
-        ### side that is not considered part of the cell should be wrapped
+        ### side that is not considered part of the region should be wrapped
         points = [(0.0, 2.0),
                   (2.0, 0.0),
                   (2.0, 2.0)]
 
         for point in points
-            @test wrap_around(cell, point) == (0.0, 0.0)
+            @test mod(point,region) == (0.0, 0.0)
         end
 
         ### Randomized testing, generating
         ### points that fall outside bounds of shape, all of which should 
-        ### be properly `wrap_around`'ed and
-        for (x,y) in zip(rand(Uniform(2.0, 100.0),10), rand(Uniform(2.0, 100.0),10))
-            @test within_cell(cell, wrap_around(cell, (x,y)))
+        ### be properly `mod`'ed and
+        for (x,y) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10))
+            @test mod((x,y),region) ∈ region
         end
 
         ## Rectangle
         bounds = zeros((2,2))
         bounds[:,1] .= (0.0, 2.0)
         bounds[:,2] .= (4.0, 0.0)
-        cell = Parallelepiped(bounds)
+        region = Parallelepiped(bounds)
 
         ### All of the following points fall outside the rectangle
         ### but should fall into its interior
@@ -201,39 +200,39 @@ end
                   (1.0, 3.0)]
         
         for point in points
-            @test wrap_around(cell, point) == (1.0, 1.0)
+            @test mod(point,region) == (1.0, 1.0)
         end
 
         points = [(3.0, -1.0),
                   (3.0, 3.0)]
     
         for point in points
-            @test wrap_around(cell, point) == (3.0, 1.0)
+            @test mod(point,region) == (3.0, 1.0)
         end
         
 
         ### Boundary conditions, points that are on or touch a
-        ### side that is not considered part of the cell should be wrapped
+        ### side that is not considered part of the region should be wrapped
         points = [(0.0, 2.0),
                   (4.0, 0.0),
                   (4.0, 2.0)]
         
         for point in points
-            @test wrap_around(cell, point) == (0.0, 0.0)
+            @test mod(point,region) == (0.0, 0.0)
         end
        
         ### Randomized testing, generating
         ### points that fall outside bounds of shape, all of which should 
-        ### be properly `wrap_around`'ed and fall within the shape
+        ### be properly `mod`'ed and fall within the shape
         for (x,y) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10))
-            @test within_cell(cell, wrap_around(cell, (x,y)))
+            @test mod((x,y),region) ∈ region
         end
 
         ## Parallelogram
         bounds = zeros((2,2))
         bounds[:,1] .= (2,2)
         bounds[:,2] .= (4,0)
-        cell = Parallelepiped(bounds)
+        region = Parallelepiped(bounds)
 
         ### All of the following points fall outside the parallelogram
         ### but should fall into its interior
@@ -248,24 +247,24 @@ end
                           (4.0, 0.5)]
 
         for (point, wrapped_point) in zip(points, wrapped_points)
-            @test wrap_around(cell, point) == wrapped_point
+            @test mod(point,region) == wrapped_point
         end
 
         ### Boundary conditions, points that are on or touch a
-        ### side that is not considered part of the cell should be wrapped
+        ### side that is not considered part of the region should be wrapped
         points = [(6.0, 2.0),
                   (2.0, 2.0),
                   (4.0, 0.0)]
         
         for point in points
-            @test wrap_around(cell, point) == (0.0, 0.0)
+            @test mod(point,region) == (0.0, 0.0)
         end
 
         ### Randomized testing, generating
         ### points that fall outside bounds of shape, all of which should 
-        ### be properly `wrap_around`'ed and fall within the shape
+        ### be properly `mod`'ed and fall within the shape
         for (x,y) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10))
-            @test within_cell(cell, wrap_around(cell, (x,y)))
+            @test mod((x,y),region) ∈ region
         end
 
         # 3D Case
@@ -274,7 +273,7 @@ end
         bounds[:,1] .= (2,0,0)
         bounds[:,2] .= (0,2,0)
         bounds[:,3] .= (0,0,2)
-        cell = Parallelepiped(bounds)
+        region = Parallelepiped(bounds)
 
         ### All of the following points fall outside the parallelogram
         ### but should fall into its interior
@@ -284,12 +283,12 @@ end
 
 
         for (point, wrapped_point) in zip(points, wrapped_points)
-            @test wrap_around(cell, point) == wrapped_point
+            @test mod(point,region) == wrapped_point
         end
 
 
         ### Boundary conditions, points that are on or touch a
-        ### side that is not considered part of the cell should be wrapped
+        ### side that is not considered part of the region should be wrapped
         points = [(2.0, 2.0, 2.0),
                   (0.0, 0.0, 2.0),
                   (0.0, 2.0, 0.0),
@@ -298,14 +297,14 @@ end
         
         
         for point in points
-            @test wrap_around(cell, point) == (0.0, 0.0, 0.0)
+            @test mod(point,region) == (0.0, 0.0, 0.0)
         end
 
         ### Randomized testing, generating
         ### points that fall outside bounds of shape, all of which should 
-        ### be properly `wrap_around`'ed and fall within the shape
+        ### be properly `mod`'ed and fall within the shape
         for (x,y,z) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0), 10))
-            @test within_cell(cell, wrap_around(cell, (x,y,z)))
+            @test mod((x,y,z),region) ∈ region
         end
         
 

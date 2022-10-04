@@ -1,5 +1,5 @@
 using BloqadeLattices
-using Test,Distributions,LuxorGraphPlot
+using Test,LuxorGraphPlot
 using Documenter
 
 @testset "AtomList" begin
@@ -131,6 +131,10 @@ end
     end
 
     @testset "mod" begin
+
+        ## Use this to generate random values from uniform distribution
+        uniform(a,b) = (a-b)*rand() + b
+
         # 1D case
         ## Line
         bounds = 3.0
@@ -148,6 +152,13 @@ end
 
         for (point,wrapped_point) in zip(points,wrapped_points)
             @test all(isapprox.(mod(point,region),wrapped_point,atol=1e-15))
+        end
+
+        ### Randomized testing, generating points
+        ### that fall outside the line which should,
+        ### after wrapping, fall inside the line
+        for x in [uniform(-100.0, 100.0) for _ in 1:10]
+            @test mod(x,region) ∈ region
         end
 
         # 2D case
@@ -181,10 +192,12 @@ end
             @test mod(point,region) == (0.0, 0.0)
         end
 
-        ### Randomized testing, generating
-        ### points that fall outside bounds of shape, all of which should 
-        ### be properly `mod`'ed and
-        for (x,y) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10))
+
+        ### Randomized testing, generating points
+        ### that fall outside the square which should,
+        ### after wrapping, fall inside the square
+        for (x,y) in zip([uniform(-100.0, 100.0) for _ in 1:10], 
+                         [uniform(-100.0, 100.0) for _ in 1:10])
             @test mod((x,y),region) ∈ region
         end
 
@@ -221,10 +234,12 @@ end
             @test mod(point,region) == (0.0, 0.0)
         end
        
-        ### Randomized testing, generating
-        ### points that fall outside bounds of shape, all of which should 
-        ### be properly `mod`'ed and fall within the shape
-        for (x,y) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10))
+
+        ### Randomized testing, generating points
+        ### that fall outside the rectangle which should,
+        ### after wrapping, fall inside the rectangle
+        for (x,y) in zip([uniform(-100.0, 100.0) for _ in 1:10], 
+                         [uniform(-100.0, 100.0) for _ in 1:10])
             @test mod((x,y),region) ∈ region
         end
 
@@ -260,10 +275,11 @@ end
             @test mod(point,region) == (0.0, 0.0)
         end
 
-        ### Randomized testing, generating
-        ### points that fall outside bounds of shape, all of which should 
-        ### be properly `mod`'ed and fall within the shape
-        for (x,y) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10))
+        ### Randomized testing, generating points
+        ### that fall outside the parallelogram which should,
+        ### after wrapping, fall inside the square
+        for (x,y) in zip([uniform(-100.0, 100.0) for _ in 1:10], 
+                         [uniform(-100.0, 100.0) for _ in 1:10])
             @test mod((x,y),region) ∈ region
         end
 
@@ -300,14 +316,15 @@ end
             @test mod(point,region) == (0.0, 0.0, 0.0)
         end
 
-        ### Randomized testing, generating
-        ### points that fall outside bounds of shape, all of which should 
-        ### be properly `mod`'ed and fall within the shape
-        for (x,y,z) in zip(rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0),10), rand(Uniform(-100.0, 100.0), 10))
+        ### Randomized testing, generating points
+        ### that fall outside the cube which should,
+        ### after wrapping, fall inside the cube
+        for (x,y,z) in zip([uniform(-100.0, 100.0) for _ in 1:10], 
+                           [uniform(-100.0, 100.0) for _ in 1:10], 
+                           [uniform(-100.0, 100.0) for _ in 1:10])
             @test mod((x,y,z),region) ∈ region
         end
         
-
     end
 
     @testset "distance" begin
@@ -379,8 +396,6 @@ end
         for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
             @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
         end
-
-
 
     end
 

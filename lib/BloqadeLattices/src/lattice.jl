@@ -315,13 +315,22 @@ end
 
 # abstraction for a single tile of an infinite lattice
 
-abstract type AbstractRegion{D} end
-
 struct BoundedLattice{L<:AbstractLattice,R<:AbstractRegion}
     lattice::L
     region::R
     site_positions::AtomList
     PBC::Bool
+end
+
+function BoundedLattice(lattice::AbstractLattice{D},region::AbstractRegion{D},PBC::Bool=false) where D
+    site_positions = generate_sites_in_region(lattice,region)
+    return BoundedLattice(lattice,region,site_positions,PBC)
+end
+
+function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractRegion{D}) where D
+    # start with origin
+    # use lattice vectors and ∈ function with a stack to generate all sites within region.
+
 end
 
 
@@ -336,29 +345,31 @@ function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,In
             bounds[:,i] .+= M[i][j] .* lat_vecs[j]
         end
     end
-
-    begin_repeat = zeros(Int,D)
-    end_repeat = zeros(Int,D)
-    for p in combinations(1:D)
-        a = sum(M[i] for i in p)
-        a_floor = convert.(Int,floor.(a))
-        a_ceil = convert.(Int,ceil.(a))
-        begin_repeat = min.(begin_repeat,a_floor)
-        end_repeat = min.(end_repeat,a_ceil)
-    end
-
     region = Parallelepiped(bounds)
-    lattice_sites = lattice_sites(lattice)
-    site_positions = AtomList[]
-    for ns in product([b:e for (b,e) in zip(begin_repeat,end_repeat)]...)
-        site = sum(n .* lat_vec for (n,lat_vecs) in zip(ns,lat_vecs))
+    
+    return BoundedLattice(lattice,region,PBC)
 
-        for lattice_site in lattice_sites
-            site ∈ region && push!(site_positions,Tuple(site .+ lattice_site))
-        end
-    end
+    # generating sites within region
+    # begin_repeat = zeros(Int,D)
+    # end_repeat = zeros(Int,D)
+    # for p in combinations(1:D)
+    #     a = sum(M[i] for i in p)
+    #     a_floor = convert.(Int,floor.(a))
+    #     a_ceil = convert.(Int,ceil.(a))
+    #     begin_repeat = min.(begin_repeat,a_floor)
+    #     end_repeat = min.(end_repeat,a_ceil)
+    # end
 
-    return BoundedLattice(lattice,region,site_positions,PBC)
+    # lattice_sites = lattice_sites(lattice)
+    # site_positions = AtomList[]
+    # for ns in product([b:e for (b,e) in zip(begin_repeat,end_repeat)]...)
+    #     site = sum(n .* lat_vec for (n,lat_vecs) in zip(ns,lat_vecs))
+
+    #     for lattice_site in lattice_sites
+    #         site ∈ region && push!(site_positions,Tuple(site .+ lattice_site))
+    #     end
+    # end
+    # return BoundedLattice(lattice,region,site_positions,PBC)
 end
 
 dimension(lattice::BoundedLattice{L,C}) where {L,C} = dimension(lattice.lattice)

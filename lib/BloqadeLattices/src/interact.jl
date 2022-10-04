@@ -25,7 +25,7 @@ end
 
 function rydberg_interaction_matrix(lat::BoundedLattice,C::Real)
     if lat.PBC
-        return two_body_interaction_matrix(lat.lattice_sites,(x,y)->C/distance(lat.supercell,x,y)^6)
+        return two_body_interaction_matrix(lat.lattice_sites,(x,y)->C/distance(lat.region,x,y)^6)
     else
         return two_body_interaction_matrix(lat.lattice_sites,(x,y)->C/distance(x,y)^6)
     end

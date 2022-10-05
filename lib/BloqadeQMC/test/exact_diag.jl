@@ -1,4 +1,5 @@
 using BloqadeQMC
+using BloqadeQMC: Square
 using LinearAlgebra
 using JSON
 
@@ -100,18 +101,18 @@ n2 = 2
 t = 1.0
 
 
-lat = Kagome(t, n1, n2, (false, true); trunc=Inf)
+# lat = Kagome(t, n1, n2, (false, true); trunc=Inf)
+lat = Square(n1, n2, t, (false, false); trunc=Inf)
 @show lat.distance_matrix
-CSV.write("BC=(false,true).csv", Tables.table(lat.distance_matrix), writeheader=false)
-println()
-lat = Kagome(t, n1, n2, (true, false); trunc=Inf)
-CSV.write("BC=(true,false).csv", Tables.table(lat.distance_matrix), writeheader=false)
-@show lat.distance_matrix
-println()
-lat = Kagome(t, n1, n2, (true, true); trunc=Inf)
-CSV.write("BC=(true,true).csv", Tables.table(lat.distance_matrix), writeheader=false)
-@show lat.distance_matrix
-println()
+
+# lat = Kagome(t, n1, n2, (true, false); trunc=Inf)
+# CSV.write("BC=(true,false).csv", Tables.table(lat.distance_matrix), writeheader=false)
+# @show lat.distance_matrix
+# println()
+# lat = Kagome(t, n1, n2, (true, true); trunc=Inf)
+# CSV.write("BC=(true,true).csv", Tables.table(lat.distance_matrix), writeheader=false)
+# @show lat.distance_matrix
+# println()
 
 @show R_b, delta
 H = Rydberg(lat, R_b, Ω, delta)
@@ -130,12 +131,12 @@ E_density = diag.values[1] / N
 @show E_density
 @show mag_density
 
-d = Dict{Symbol, Float64}(:energy_density => E_density, :mag_density => mag_density)
-open("../../qmc_data/kagome_nematic_staggered/exact_energy_magnetization_Rb=$(R_b)_delta=$(delta).json", "w") do f
-    JSON.print(f, Dict([k => d[k] for k in keys(d)]), 2)
-end
+# d = Dict{Symbol, Float64}(:energy_density => E_density, :mag_density => mag_density)
+# open("../../qmc_data/kagome_nematic_staggered/exact_energy_magnetization_Rb=$(R_b)_delta=$(delta).json", "w") do f
+#     JSON.print(f, Dict([k => d[k] for k in keys(d)]), 2)
+# end
 
-println()
+# println()
 
 #=
 for R_b in R_bs

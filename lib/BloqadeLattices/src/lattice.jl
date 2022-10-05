@@ -338,13 +338,14 @@ function generate_neighboring_sites(site, lattice)
 end
 
 function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractRegion{D}) where D
-    origin = Tuple(zeros(D))
+    origin = Tuple(zeros(D)) # origin doesn't use any of the vectors
     origin ∉ region && error("bounding region must contain origin")
 
     # add origin to visited and stack as starting point, 
     # then check if lattice sites are in region
-    visited_sites = Set([origin])
+
     stack = [origin]
+    visited_sites = Set([origin])
     for site in lattice_sites(lattice)
         if site ∉ visited_sites && site ∈ region
             push!(stack, site)
@@ -355,15 +356,14 @@ function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractR
     while !isempty(stack)
         site = pop!(stack)
         for neighbor_site in generate_neighboring_sites(site, lattice)
-            if neighbor_site ∈ region
-                if neighbor_site ∈ region && neighbor_site ∉ visited_sites
-                    push!(visited_sites, neighbor_site)
-                    push!(stack, neighbor_site)
-                end
+            if neighbor_site ∈ region && neighbor_site ∉ visited_sites
+                push!(visited_sites, neighbor_site)
+                push!(stack, neighbor_site)
             end
         end
     end
 
+    # this needs to be put back into positions and sorted
     return AtomList(collect(visited_sites))
 
 end

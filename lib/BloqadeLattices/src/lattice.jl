@@ -327,9 +327,44 @@ function BoundedLattice(lattice::AbstractLattice{D},region::AbstractRegion{D},PB
     return BoundedLattice(lattice,region,site_positions,PBC)
 end
 
+function generate_neighboring_sites(site, lattice)
+    
+    neighboring_sites = typeof(site)[]
+    for lattice_vector in lattice_vectors(lattice)
+        push!(neighboring_sites, site .+ lattice_vector, site .+ -1 .* lattice_vector)
+    end
+
+    return neighboring_sites
+end
+
 function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractRegion{D}) where D
-    # start with origin
-    # use lattice vectors and ∈ function with a stack to generate all sites within region.
+    origin = Tuple(zeros(D))
+    origin ∉ region && error("bounding region must contain origin")
+
+    # add origin to visited and stack as starting point, 
+    # then check if lattice sites are in region
+    visited_sites = Set([origin])
+    stack = [origin]
+    for site in lattice_sites(lattice)
+        if site ∉ visited_sites && site ∈ region
+            push!(stack, site)
+            push!(visited_sites, site)
+        end
+    end
+
+    while !isempty(stack)
+        site = pop!(stack)
+        for neighbor_site in generate_neighboring_sites(site, lattice)
+            if neighbor_site ∈ region
+                if neighbor_site ∈ region && neighbor_site ∉ visited_sites
+                    push!(visited_sites, neighbor_site)
+                    push!(stack, neighbor_site)
+                end
+            end
+        end
+    end
+
+    return AtomList(collect(visited_sites))
 
 end
 

@@ -52,6 +52,41 @@ end
     # rescale axes
     sites = AtomList([(0.2, 0.3), (0.4, 0.8)])
     @test (sites |> rescale_axes(2.0)) == [(0.4, 0.6), (0.8, 1.6)]
+
+    @testset "generate_sites_in_region" begin
+
+        # Chain Lattice
+        lattice = ChainLattice()
+        region = Parallelepiped(4.0)
+        expected_sites = [(0.0,), (1.0,), (2.0,), (3.0,)]
+        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        ## Negative bounds
+        region = Parallelepiped(-4.0)
+        expected_sites = [(0.0,), (-1.0,), (-2.0,), (-3.0,)]
+        println(generate_sites_in_region(lattice, region).atoms)
+        println(expected_sites)
+        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+
+        # Square Lattice
+        lattice = SquareLattice()
+        bounds = zeros((2,2))
+        bounds[1,:] .= (0.0, 2.0)
+        bounds[2,:] .= (2.0, 0.0)
+        region = Parallelepiped(bounds)
+        expected_sites = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)]
+        @test issetequal(generate_sites_in_region(lattice,region).atoms, expected_sites)
+        ## Negative bounds
+        bounds[1,:] .= (2.0, 2.0)
+        bounds[2,:] .= (2.0, -2.0)
+        expected_sites = [(0,0), (1,1), (1,0), (1,-1), (2,1), (2,0), (2,-1), (3,0)]
+        region = Parallelepiped(bounds)
+        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        
+        # Hexagonal Lattice
+
+        # Parallelogram
+        
+    end
 end
 
 @testset "regions" begin

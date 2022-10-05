@@ -58,7 +58,7 @@ end
 """
     XPhase{T} <: PrimitiveBlock{2}
 
-XPhase operator.
+XPhase operator for 2-level Rydberg system.
 
 ```math
 e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|
@@ -68,27 +68,86 @@ struct XPhase{T} <: PrimitiveBlock{2}
     ϕ::T
 end
 
+"""
+    XPhase_01{T} <: PrimitiveBlock{3}
+
+XPhase operator act on |0⟩ and |1⟩ for 3-level Rydberg system.
+
+```math
+e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|
+```
+"""
+struct XPhase_01{T} <: PrimitiveBlock{3}
+    ϕ::T
+end
+
+"""
+    XPhase_1r{T} <: PrimitiveBlock{3}
+
+XPhase operator act on |1⟩ and |r⟩ for 3-level Rydberg system.
+
+```math
+e^{ϕ ⋅ im} |1⟩⟨r| + e^{-ϕ ⋅ im} |r⟩⟨1|
+```
+"""
+struct XPhase_1r{T} <: PrimitiveBlock{3}
+    ϕ::T
+end
+
 struct PuPhase{T} <: PrimitiveBlock{2}
+    ϕ::T
+end
+struct PuPhase_01{T} <: PrimitiveBlock{3}
+    ϕ::T
+end
+struct PuPhase_1r{T} <: PrimitiveBlock{3}
     ϕ::T
 end
 
 struct PdPhase{T} <: PrimitiveBlock{2}
     ϕ::T
 end
+struct PdPhase_01{T} <: PrimitiveBlock{3}
+    ϕ::T
+end
+struct PdPhase_1r{T} <: PrimitiveBlock{3}
+    ϕ::T
+end
+
+struct OpX_01 <: YaoBlocks.ConstantGate{1, 3} end
+struct OpX_1r <: YaoBlocks.ConstantGate{1, 3} end
+struct OpZ_01 <: YaoBlocks.ConstantGate{1, 3} end
+struct OpZ_1r <: YaoBlocks.ConstantGate{1, 3} end
+struct OpN_1 <: YaoBlocks.ConstantGate{1, 3} end
+struct OpN_r <: YaoBlocks.ConstantGate{1, 3} end
+struct OpPu_01 <: YaoBlocks.ConstantGate{1, 3} end
+struct OpPu_1r <: YaoBlocks.ConstantGate{1, 3} end
+struct OpPd_01 <: YaoBlocks.ConstantGate{1, 3} end
+struct OpPd_1r <: YaoBlocks.ConstantGate{1, 3} end
+const X_01 = OpX_01()
+const X_1r = OpX_1r()
+const Z_01 = OpZ_01()
+const Z_1r = OpZ_1r()
+const N_1 = OpN_1()
+const N_r = OpN_r()
+const Pu_01 = OpPu_01()
+const Pu_1r = OpPu_1r()
+const Pd_01 = OpPd_01()
+const Pd_1r = OpPd_1r()
 
 """
-    AbstractTerm <: PrimitiveBlock{2}
+    AbstractTerm{D} <: PrimitiveBlock{D}
 
-Abstract term for local hamiltonian terms.
+Abstract term for local hamiltonian terms on D-level system.
 """
-abstract type AbstractTerm <: PrimitiveBlock{2} end
+abstract type AbstractTerm{D} <: PrimitiveBlock{D} end
 
 YaoBlocks.unsafe_getindex(::Type{T}, x::AbstractTerm, i::Integer, j::Integer) where {T,N} = YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(x), i, j)
 YaoBlocks.unsafe_getcol(::Type{T}, x::AbstractTerm, j::DitStr{2}) where T = YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(x), j)
 YaoBlocks.ishermitian(::AbstractTerm) = true
 
 """
-    struct RydInteract <: AbstractTerm
+    struct RydInteract{D} <: AbstractTerm{D}
     RydInteract(;atoms, C=2π * 862690MHz⋅μm^6)
 
 Type for Rydberg interactive term.
@@ -104,17 +163,18 @@ Type for Rydberg interactive term.
 - `atoms`: a list of atom positions, must be type `RydAtom`, default unit is `μm`.
 - `C`: the interaction strength, default unit is `MHz⋅μm^6`. default value is `2π * 862690 * MHz*µm^6`.
 """
-Base.@kwdef struct RydInteract <: AbstractTerm
+Base.@kwdef struct RydInteract{D} <: AbstractTerm{D}
     atoms::Vector
     C::Real = 2π * 862690
 
-    function RydInteract(atoms, C)
-        return new(atoms, default_unit(MHz * µm^6, C))
+    function RydInteract{D}(atoms, C) where D
+        return new{D}(atoms, default_unit(MHz * µm^6, C))
     end
 end
+RydInteract(atoms, C; nlevel = 2) = RydInteract{nlevel}(atoms, C)
 
 """
-    struct SumOfX <: AbstractTerm
+    struct SumOfX <: AbstractTerm{2}
     SumOfX(nsites, Ω)
 
 Term for sum of X operators.
@@ -141,21 +201,45 @@ nqudits: 1
 \\sum_i Ω σ^x_i
 ```
 """
-Base.@kwdef struct SumOfX <: AbstractTerm
+Base.@kwdef struct SumOfX <: AbstractTerm{2}
     nsites::Int
     Ω = 1
 
-    function SumOfX(nsites, Ω)
+    function SumOfX(nsites::Int, Ω)
         assert_param(nsites, Ω, :Ω)
         Ω = default_unit(MHz, Ω)
         return new(nsites, Ω)
     end
 end
-
 SumOfX(n::Int) = SumOfX(n, 1)
 
+Base.@kwdef struct SumOfX_01 <: AbstractTerm{3}
+    nsites::Int
+    Ω = 1
+
+    function SumOfX_01(nsites::Int, Ω)
+        assert_param(nsites, Ω, :Ω)
+        Ω = default_unit(MHz, Ω)
+        return new(nsites, Ω)
+    end
+end
+SumOfX_01(n::Int) = SumOfX_01(n, 1)
+
+Base.@kwdef struct SumOfX_1r <: AbstractTerm{3}
+    nsites::Int
+    Ω = 1
+
+    function SumOfX_1r(nsites::Int, Ω)
+        assert_param(nsites, Ω, :Ω)
+        Ω = default_unit(MHz, Ω)
+        return new(nsites, Ω)
+    end
+end
+SumOfX_1r(n::Int) = SumOfX_1r(n, 1)
+
+
 """
-    struct SumOfXPhase <: AbstractTerm
+    struct SumOfXPhase <: AbstractTerm{2}
     SumOfXPhase(;nsites, Ω=1, ϕ)
 
 Sum of `XPhase` operators.
@@ -184,7 +268,7 @@ But may provide extra speed up.
 \\sum_i Ω ⋅ (e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|)
 ```
 """
-Base.@kwdef struct SumOfXPhase <: AbstractTerm
+Base.@kwdef struct SumOfXPhase <: AbstractTerm{2}
     nsites::Int
     Ω = 1
     ϕ::Any
@@ -199,8 +283,38 @@ Base.@kwdef struct SumOfXPhase <: AbstractTerm
     end
 end
 
+Base.@kwdef struct SumOfXPhase_01 <: AbstractTerm{3}
+    nsites::Int
+    Ω = 1
+    ϕ::Any
+
+    function SumOfXPhase_01(nsites, Ω, ϕ)
+        assert_param(nsites, Ω, :Ω)
+        assert_param(nsites, ϕ, :ϕ)
+
+        Ω = default_unit(MHz, Ω)
+        ϕ = default_unit(NoUnits, ϕ)
+        return new(nsites, Ω, ϕ)
+    end
+end
+Base.@kwdef struct SumOfXPhase_1r <: AbstractTerm{3}
+    nsites::Int
+    Ω = 1
+    ϕ::Any
+
+    function SumOfXPhase_1r(nsites, Ω, ϕ)
+        assert_param(nsites, Ω, :Ω)
+        assert_param(nsites, ϕ, :ϕ)
+
+        Ω = default_unit(MHz, Ω)
+        ϕ = default_unit(NoUnits, ϕ)
+        return new(nsites, Ω, ϕ)
+    end
+end
+
+
 """
-    struct SumOfN <: AbstractTerm
+    struct SumOfN <: AbstractTerm{2}
     SumOfN(;nsites[, Δ=1])
 
 Sum of N operators. 
@@ -229,7 +343,7 @@ But may provide extra speed up.
 \\sum_i Δ ⋅ n_i
 ```
 """
-Base.@kwdef struct SumOfN <: AbstractTerm
+Base.@kwdef struct SumOfN <: AbstractTerm{2}
     nsites::Int
     Δ = 1
 
@@ -238,11 +352,32 @@ Base.@kwdef struct SumOfN <: AbstractTerm
         return new(nsites, default_unit(MHz, Δ))
     end
 end
-
 SumOfN(n::Int) = SumOfN(n, 1)
 
+Base.@kwdef struct SumOfN_r <: AbstractTerm{3}
+    nsites::Int
+    Δ = 1
+
+    function SumOfN_r(nsites, Δ)
+        assert_param(nsites, Δ, :Δ)
+        return new(nsites, default_unit(MHz, Δ))
+    end
+end
+SumOfN_r(n::Int) = SumOfN_r(n, 1)
+
+Base.@kwdef struct SumOfN_1 <: AbstractTerm{3}
+    nsites::Int
+    Δ = 1
+
+    function SumOfN_1(nsites, Δ)
+        assert_param(nsites, Δ, :Δ)
+        return new(nsites, default_unit(MHz, Δ))
+    end
+end
+SumOfN_1(n::Int) = SumOfN_1(n, 1)
+
 """
-    struct SumOfZ <: AbstractTerm
+    struct SumOfZ <: AbstractTerm{2}
     SumOfZ(;nsites, Δ=1)
 
 Sum of Pauli Z operators.
@@ -269,7 +404,7 @@ nqudits: 1
 \\sum_i Δ ⋅ σ^z_i
 ```
 """
-Base.@kwdef struct SumOfZ <: AbstractTerm
+Base.@kwdef struct SumOfZ <: AbstractTerm{2}
     nsites::Int
     Δ = 1
 
@@ -278,8 +413,30 @@ Base.@kwdef struct SumOfZ <: AbstractTerm
         return new(nsites, default_unit(MHz, Δ))
     end
 end
-
 SumOfZ(n::Int) = SumOfZ(n, 1)
+
+Base.@kwdef struct SumOfZ_01 <: AbstractTerm{3}
+    nsites::Int
+    Δ = 1
+
+    function SumOfZ_01(nsites, Δ)
+        assert_param(nsites, Δ, :Δ)
+        return new(nsites, default_unit(MHz, Δ))
+    end
+end
+SumOfZ_01(n::Int) = SumOfZ_01(n, 1)
+
+Base.@kwdef struct SumOfZ_1r <: AbstractTerm{3}
+    nsites::Int
+    Δ = 1
+
+    function SumOfZ_1r(nsites, Δ)
+        assert_param(nsites, Δ, :Δ)
+        return new(nsites, default_unit(MHz, Δ))
+    end
+end
+SumOfZ_1r(n::Int) = SumOfZ_1r(n, 1)
+
 
 struct DivByTwo{F}
     f::F
@@ -295,10 +452,29 @@ end
 const RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}
 const DetuningTypes = Union{Nothing,SumOfN}
 
-struct RydbergHamiltonian <: AbstractTerm
-    rydberg_term::RydInteract
+const HyperfineRabiTypes = Union{Nothing,SumOfX_01,SumOfXPhase_01}
+const HyperfineDetuningTypes = Union{Nothing,SumOfN_1}
+const RydbergRabiTypes = Union{Nothing,SumOfX_1r,SumOfXPhase_1r}
+const RydbergDetuningTypes = Union{Nothing,SumOfN_r}
+
+const SumOfXPhaseTypes = Union{SumOfXPhase, SumOfXPhase_01, SumOfXPhase_1r}
+const SumOfZAndNTypes = Union{SumOfZ, SumOfZ_01, SumOfZ_1r, SumOfN, SumOfN_1, SumOfN_r}
+const SumOfXTypes = Union{SumOfX, SumOfX_01, SumOfX_1r}
+const ThreeLevelRydbergConstGates = Union{OpX_01, OpX_1r, OpZ_01, OpZ_1r, OpN_1, OpN_r, OpPu_01, OpPu_1r, OpPd_01, OpPd_1r}
+
+
+struct RydbergHamiltonian <: AbstractTerm{2}
+    rydberg_term::RydInteract{2}
     rabi_term::RabiTypes
     detuning_term::DetuningTypes
+end
+
+struct RydbergHamiltonian_3 <: AbstractTerm{3}
+    rydberg_term::RydInteract{3}
+    rabi_term_hf::HyperfineRabiTypes
+    detuning_term_hf::HyperfineDetuningTypes
+    rabi_term_r::RydbergRabiTypes
+    detuning_term_r::RydbergDetuningTypes
 end
 
 function add_terms(h::RydbergHamiltonian)
@@ -313,7 +489,25 @@ function add_terms(h::RydbergHamiltonian)
     end
     
     return YaoBlocks.Optimise.simplify(terms)
+end
 
+function add_terms(h::RydbergHamiltonian_3)
+    terms = h.rydberg_term
+
+    if typeof(h.rabi_term_hf) <: Union{SumOfX_01,SumOfXPhase_01}
+        terms += h.rabi_term_hf
+    end
+    if typeof(h.rabi_term_r) <: Union{SumOfX_1r,SumOfXPhase_1r}
+        terms += h.rabi_term_r
+    end
+    if h.detuning_term_hf isa SumOfN_1
+        terms -= h.detuning_term_hf
+    end
+    if h.detuning_term_r isa SumOfN_r
+        terms -= h.detuning_term_r
+    end
+    
+    return YaoBlocks.Optimise.simplify(terms)
 end
 
 function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where {T,N}
@@ -324,50 +518,62 @@ function YaoBlocks.unsafe_getcol(::Type{T}, h::RydbergHamiltonian, j::DitStr{2})
     YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(h), j)
 end
 
+
 YaoAPI.nqudits(::XPhase) = 1
+YaoAPI.nqudits(::XPhase_01) = 1
+YaoAPI.nqudits(::XPhase_1r) = 1
 YaoAPI.nqudits(::PdPhase) = 1
+YaoAPI.nqudits(::PdPhase_01) = 1
+YaoAPI.nqudits(::PdPhase_1r) = 1
 YaoAPI.nqudits(::PuPhase) = 1
+YaoAPI.nqudits(::PuPhase_01) = 1
+YaoAPI.nqudits(::PuPhase_1r) = 1
 YaoAPI.nqudits(h::RydInteract) = length(h.atoms)
-YaoAPI.nqudits(h::SumOfX) = h.nsites
-YaoAPI.nqudits(h::SumOfXPhase) = h.nsites
-YaoAPI.nqudits(h::SumOfZ) = h.nsites
-YaoAPI.nqudits(h::SumOfN) = h.nsites
+YaoAPI.nqudits(h::SumOfXTypes) = h.nsites
+YaoAPI.nqudits(h::SumOfXPhaseTypes) = h.nsites
+YaoAPI.nqudits(h::SumOfZAndNTypes) = h.nsites
+YaoAPI.nqubits(::ThreeLevelRydbergConstGates) = 1
 @inline YaoAPI.nqudits(h::RydbergHamiltonian) = nqudits(h.rydberg_term)
 
-
-function Base.:(==)(lhs::RydInteract, rhs::RydInteract)
-    return lhs.C == rhs.C && lhs.atoms == rhs.atoms
+# checks of objects have the same base object f.
+function Base.:(==)(lhs::DivByTwo{F1},rhs::DivByTwo{F2}) where {F1,F2} 
+    return F1 == F2 && lhs.f == rhs.f
 end
 
-function Base.:(==)(lhs::SumOfX, rhs::SumOfX)
-    return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω
+function Base.:(==)(lhs::RydInteract{D1}, rhs::RydInteract{D2}) where {D1, D2}
+    return lhs.C == rhs.C && lhs.atoms == rhs.atoms && D1 == D2
 end
 
-function Base.:(==)(lhs::SumOfZ, rhs::SumOfZ)
-    return lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ
+function Base.:(==)(lhs::SumOfXTypes, rhs::SumOfXTypes)
+    return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && typeof(lhs) == typeof(rhs)
 end
 
-function Base.:(==)(lhs::SumOfN, rhs::SumOfN)
-    return lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ
+function Base.:(==)(lhs::SumOfZAndNTypes, rhs::SumOfZAndNTypes)
+    return lhs.nsites == rhs.nsites && lhs.Δ == rhs.Δ && typeof(lhs) == typeof(rhs)
 end
 
-function Base.:(==)(lhs::SumOfXPhase, rhs::SumOfXPhase)
-    return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ
+function Base.:(==)(lhs::SumOfXPhaseTypes, rhs::SumOfXPhaseTypes)
+    return lhs.nsites == rhs.nsites && lhs.Ω == rhs.Ω && lhs.ϕ == rhs.ϕ && typeof(lhs) == typeof(rhs)
 end
 
 function Base.:(==)(lhs::RydbergHamiltonian, rhs::RydbergHamiltonian)
     return lhs.rydberg_term == rhs.rydberg_term && lhs.rabi_term == rhs.rabi_term && lhs.detuning_term == rhs.detuning_term
 end
 
+function Base.:(==)(lhs::RydbergHamiltonian_3, rhs::RydbergHamiltonian_3)
+    return lhs.rydberg_term == rhs.rydberg_term && 
+        lhs.rabi_term_hf == rhs.rabi_term_hf && lhs.detuning_term_hf == rhs.detuning_term_hf &&
+        lhs.rabi_term_r == rhs.rabi_term_r && lhs.detuning_term_r == rhs.detuning_term_r
+end
+
 Base.isreal(::RydInteract) = true
-Base.isreal(::SumOfN) = true
-Base.isreal(::SumOfX) = true
-Base.isreal(::SumOfZ) = true
-Base.isreal(::SumOfXPhase) = false
+Base.isreal(::SumOfZAndNTypes) = true
+Base.isreal(::SumOfXTypes) = true
+Base.isreal(::SumOfXPhaseTypes) = false
 Base.isreal(h::Add) = all(isreal, subblocks(h))
 Base.isreal(h::Scale) = isreal(factor(h)) && isreal(content(h))
 Base.isreal(h::RydbergHamiltonian) = !(h.rabi_term isa SumOfXPhase)
-
+Base.isreal(h::RydbergHamiltonian_3) = !(h.rabi_term_hf isa SumOfXPhase_01) && !(h.rabi_term_r isa SumOfXPhase_1r)
 
 
 storage_size(x) = sizeof(x)
@@ -377,4 +583,3 @@ end
 function storage_size(H::SparseMatrixCSC)
     return sizeof(H.colptr) + sizeof(H.rowval) + sizeof(H.nzval)
 end
-

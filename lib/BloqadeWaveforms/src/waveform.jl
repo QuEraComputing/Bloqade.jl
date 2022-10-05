@@ -43,7 +43,7 @@ end
 
 function Base.isapprox(lhs::Waveform,rhs::Waveform;atol::Real=0,rtol::Real = (atol>0 ? 0 : √eps()),p::Real=1)
     if lhs != rhs
-            return BloqadeWaveforms.norm(lhs-rhs;p) < max(atol,rtol*max(BloqadeWaveforms.norm(lhs;p),BloqadeWaveforms.norm(rhs;p)))
+            return LinearAlgebra.norm(lhs-rhs;p) < max(atol,rtol*max(LinearAlgebra.norm(lhs;p),LinearAlgebra.norm(rhs;p)))
     else
         return true
     end
@@ -198,18 +198,15 @@ function append(wf::Waveform, wfs::Waveform...)
     offsets = Vector{typeof(duration)}(undef, length(wfs))
 
     clock = wf.duration
-    @inbounds for (idx, wf) in enumerate(wfs)
+    @inbounds for idx in eachindex(offsets)
         offsets[idx] = clock
-        clock += wf.duration
+        clock += wfs[idx].duration
     end
 
     return Waveform(duration) do t
         zero(wf.duration) ≤ t ≤ wf.duration && return wf(t)
-
-        idx = 1
-        while idx < length(wfs) && t > offsets[idx]
-            idx += 1
-        end
+        
+        idx = searchsortedlast(offsets,t)
         return wfs[idx](t, offsets[idx])
     end
 end

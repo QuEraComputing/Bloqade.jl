@@ -11,6 +11,7 @@ Configurations = "5218b696-f38b-4ac9-8b61-a12ec717816d"
 GarishPrint = "b0ab02a7-8576-43f7-aa76-eaa7c3897c54"
 JSON = "682c06a0-de6a-54ab-a142-c8b1cf79cde6"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+Roots = "f2b01f46-fcfa-551c-844a-d8ac1e96c665"
 Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
@@ -25,7 +26,8 @@ Yao = "0.8"
 julia = "1.6"
 
 [extras]
+Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["Test", "Logging"]

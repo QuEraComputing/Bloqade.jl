@@ -38,10 +38,15 @@ export # types
     # visualize
     img_atoms,
     img_maskedgrid,
-    ByDensity
+    ByDensity,
+    # bounds
+    AbstractRegion,
+    Parallelepiped,
+    distance
 
 include("lattice.jl")
 include("neighbors.jl")
 include("visualize.jl")
+include("region.jl")
 
 end

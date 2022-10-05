@@ -28,7 +28,7 @@ end
 """
     is_time_function(f)
 
-Check if a function has method whoes
+Check if a function has method whose
 signature is of `Tuple{Real}`
 or `Tuple{T} where {T <: Real}`.
 """

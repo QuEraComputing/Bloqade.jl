@@ -1,68 +1,37 @@
 using Test
 using BloqadeWaveforms
-using BloqadeSchema: 
-    parse_dynamic_rydberg_Ω,
-    parse_dynamic_rydberg_Δ,
-    parse_dynamic_rydberg_ϕ,
-    parse_static_rydberg_Ω,
-    parse_static_rydberg_Δ,
-    parse_static_rydberg_ϕ,
-    convert_units,
-    TaskSpecification
+using BloqadeExpr
+using BloqadeSchema:
+    schema_parse_pwl_field,
+    schema_parse_pwc_field,
+    schema_parse_rydberg_fields
 
-using Unitful: μs, s, MHz, rad 
+
+@testset "schema_parse_pwl_field" begin
+    wf = piecewise_linear(;clocks=[0,2,3,4],values=[1,2,3,4])
+    @test schema_parse_pwl_field(:wf,wf) == wf
     
-
-@testset "convert_units" begin
-    T = 1 # seconds
-    T_list = [i for i in 1:10]
-    pair = (1,2)
-    pair_list = [(i,j) for i in 1:5 for j in 1:5]
-    @test 1e6 ≈ convert_units(T,s,μs)
-    @test (1e6 .* T_list) ≈ convert_units(T_list,s,μs)
-    @test all((1e6 .* pair ).≈ convert_units.(pair,s,μs))
-    # @test all([1e6.*p for p in pair_list] .≈ convert_units.(pair_list,s,μs))
-
+    wf = Waveform(t->t^2,1)
+    @test_throws ErrorException schema_parse_pwl_field(:wf,wf)
 end
 
-@testset "set_resolution" begin
-
-    examples = [
-        (1,10.123,10.0),
-        (0.1,10.1256,10.1),
-        (0.01,10.1256,10.13),
-    ]
-    for (δ,val,res) in examples
-        @test BloqadeSchema.set_resolution(val,δ) == res
-    end
-
+@testset "schema_parse_pwc_field" begin
+    wf = piecewise_constant(;clocks=[0,2,3,4],values=[1,2,3])
+    @test schema_parse_pwc_field(:wf,wf) == wf
+    
+    wf = Waveform(t->t^2,1)
+    @test_throws ErrorException schema_parse_pwc_field(:wf,wf)
 end
 
-@testset "parse_dynamic_rydberg_Ω" begin
+@testset "schema_parse_rydberg_fields" begin
+    Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
+    Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
+    ϕ = piecewise_constant(;clocks=Float64[0,1,2,3],values=Float64[0,1,-1])
+    atoms = [(5.0*i,0.0) for i in 1:10]
+    h = rydberg_h(atoms, Ω=Ω, Δ=Δ, ϕ=ϕ)
 
+    @test schema_parse_rydberg_fields(h) == (atoms,ϕ,Ω,Δ,nothing,1.0)
 
-
-end
-
-@testset "parse_static_rydberg_Ω" begin
-  
-
-end
-
-@testset "parse_dynamic_rydberg_ϕ" begin
-
-end
-
-@testset "parse_static_rydberg_ϕ" begin
-   
-
-end
-
-
-@testset "parse_dynamic_rydberg_Δ" begin
-
-end
-
-@testset "parse_static_rydberg_Δ" begin
-
+    
+    
 end

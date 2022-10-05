@@ -40,3 +40,7 @@ end
 @testset "printings" begin
     include("printings.jl")
 end
+
+@testset "3-level supports" begin
+    include("3-level_supports.jl")
+end

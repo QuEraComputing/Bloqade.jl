@@ -320,6 +320,11 @@ struct BoundedLattice{L<:AbstractLattice,R<:AbstractRegion}
     region::R
     site_positions::AtomList
     PBC::Bool
+    function BoundedLattice(lattice,region,site_positions,PBC) where {L<:AbstractLattice,R<:AbstractRegion} 
+        site_positions = AtomList(site_positions)
+        sort!(site_positions)
+        return new{L,R}(lattice,region,site_positions,PBC)
+    end
 end
 
 function BoundedLattice(lattice::AbstractLattice{D},region::AbstractRegion{D},PBC::Bool=false) where D
@@ -328,7 +333,8 @@ function BoundedLattice(lattice::AbstractLattice{D},region::AbstractRegion{D},PB
 end
 
 function generate_neighboring_sites(site, lattice)
-    
+    # position = n[1]*a[1]+...n[D]*a[D] + site_vector[i] = 1,2,...length(site_vectors)
+    # site = (n[1],n[2],...n[D],i)
     neighboring_sites = typeof(site)[]
     for lattice_vector in lattice_vectors(lattice)
         push!(neighboring_sites, site .+ lattice_vector, site .+ -1 .* lattice_vector)
@@ -346,9 +352,12 @@ function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractR
     visited_sites = Set([origin])
     stack = [origin]
     for site in lattice_sites(lattice)
+        # position = sum(site[i].*lattice_vectors[i] for i in 1:D) .+ site_vector(site[end])
+        # if site ∉ visited_sites && position ∈ region
         if site ∉ visited_sites && site ∈ region
             push!(stack, site)
             push!(visited_sites, site)
+            # push!(site_positions,position)
         end
     end
 

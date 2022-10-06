@@ -133,8 +133,8 @@ end
     a1 = [1.0, 0.0]
     a2 = [0.5, 0.5 * sqrt(3)]
     bounds = zeros((2,2))
-    bounds[1,:] .= rot_mat(deg2rad(50)) * a1 * 2
-    bounds[2,:] .= rot_mat(deg2rad(50)) * a2 * 2
+    bounds[:,1] .= rot_mat(deg2rad(50)) * a1 * 2
+    bounds[:,2] .= rot_mat(deg2rad(50)) * a2 * 2
     # println(bounds)
     region = Parallelepiped(bounds)
     println(region.vecs)

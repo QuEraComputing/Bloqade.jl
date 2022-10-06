@@ -96,6 +96,9 @@ end
                           (1.5, 0.8660254037844386)]
         @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
 
+        # generate rotation matrix
+        rot_mat(θ) = [cos(θ) -sin(θ); sin(θ) cos(θ)]
+
         # Honeycomb Lattice
         lattice = HoneycombLattice()
         bounds = zeros((2,2))
@@ -109,7 +112,6 @@ end
         bounds[2,:] .= rot_mat(deg2rad(50)) * a2 * 2
         println(bounds)
         region = Parallelepiped(bounds)
-        #=
         expected_sites = [
             (0.0, 0.0), 
             (0.5, 0.8660254037844386), 
@@ -117,29 +119,9 @@ end
             (0.5, 0.2886751345948129), 
             (1.0, 1.1547005383792515)
         ]
-        =#
-        for site in generate_sites_in_region(lattice, region).atoms
-            println(site)
-            println(site ∈ region)
-        end
-        # @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
 
     end
-end
-
-@testset "in_region_sanity_check" begin
-    rot_mat(θ) = [cos(θ) -sin(θ); sin(θ) cos(θ)]
-
-    a1 = [1.0, 0.0]
-    a2 = [0.5, 0.5 * sqrt(3)]
-    bounds = zeros((2,2))
-    bounds[:,1] .= rot_mat(deg2rad(50)) * a1 * 2
-    bounds[:,2] .= rot_mat(deg2rad(50)) * a2 * 2
-    # println(bounds)
-    region = Parallelepiped(bounds)
-    println(region.vecs)
-    site = (1.0, 0.0)
-    @test site ∈ region
 end
 
 @testset "regions" begin

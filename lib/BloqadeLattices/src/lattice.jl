@@ -320,7 +320,7 @@ struct BoundedLattice{L<:AbstractLattice,R<:AbstractRegion}
     region::R
     site_positions::AtomList
     PBC::Bool
-    function BoundedLattice(lattice,region,site_positions,PBC) where {L<:AbstractLattice,R<:AbstractRegion} 
+    function BoundedLattice(lattice::L,region::R,site_positions,PBC::Bool) where {L<:AbstractLattice,R<:AbstractRegion} 
         site_positions = AtomList(site_positions)
         sort!(site_positions)
         return new{L,R}(lattice,region,site_positions,PBC)

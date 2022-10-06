@@ -9,7 +9,7 @@ using JSON
 atoms = AtomList([(0.0, 0.0)])
 
 T=1/8
-epsilon =0.01
+# epsilon =0.01
 # Ω = piecewise_constant(clocks=[0.0, epsilon, T+ epsilon , T+2*epsilon], values= 2π*[0.0, 4, 0])
 
 Ω = constant(;duration=T,value=8π)

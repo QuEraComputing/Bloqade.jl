@@ -14,12 +14,15 @@ U1 = -2π * 10;
 U2 = 2π * 10;
 Δ = piecewise_linear(clocks = [0.0, 0.6, 2.1, total_time], values = [U1, U1, U2, U2]);
 
+ϕ = constant(;duration=total_time, value=0)
+
 nsites = 9
 atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
 
-H = rydberg_h(atoms; Δ, Ω)
-h = to_json(H,waveform_tolerance=1e-1,warn=true)
+h = rydberg_h(atoms; Δ, Ω, ϕ)
+h_hardware, info = hardware_transform(h)
+h = to_json(h_hardware)
 
 
 open("lib/BloqadeSchema/schema_examples/tutorial_examples/1D_Z2.json","w") do f

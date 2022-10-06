@@ -11,9 +11,11 @@ T=1
 Δ = Waveform(t->cos(2π*t/T),T)
 Δi=Δ
 Ω = Waveform(t->sin(2π*t/T)^2,T)
-H = rydberg_h(atoms;Ω=Ω,Δ=Δi)
-h = to_json(H,waveform_tolerance=1e-1)
+ϕ = constant(;duration=T,value=0)
 
+h = rydberg_h(atoms;Ω=Ω,Δ=Δi,ϕ=ϕ)
+h_hardware, info = hardware_transform(h)
+h = to_json(h_hardware)
 
 open("lib/BloqadeSchema/schema_examples/aws_science_tasks/lattice_programmability/lattice1.json","w") do f
     JSON.print(f, JSON.parse(h))

@@ -469,7 +469,7 @@ struct RydbergHamiltonian <: AbstractTerm{2}
     detuning_term::DetuningTypes
 end
 
-struct RydbergHamiltonian_3 <: AbstractTerm{3}
+struct RydbergHamiltonian3 <: AbstractTerm{3}
     rydberg_term::RydInteract{3}
     rabi_term_hf::HyperfineRabiTypes
     detuning_term_hf::HyperfineDetuningTypes
@@ -491,7 +491,7 @@ function add_terms(h::RydbergHamiltonian)
     return YaoBlocks.Optimise.simplify(terms)
 end
 
-function add_terms(h::RydbergHamiltonian_3)
+function add_terms(h::RydbergHamiltonian3)
     terms = h.rydberg_term
 
     if typeof(h.rabi_term_hf) <: Union{SumOfX_01,SumOfXPhase_01}
@@ -534,7 +534,7 @@ YaoAPI.nqudits(h::SumOfXPhaseTypes) = h.nsites
 YaoAPI.nqudits(h::SumOfZAndNTypes) = h.nsites
 YaoAPI.nqudits(::ThreeLevelRydbergConstGates) = 1
 @inline YaoAPI.nqudits(h::RydbergHamiltonian) = nqudits(h.rydberg_term)
-@inline YaoAPI.nqudits(h::RydbergHamiltonian_3) = nqudits(h.rydberg_term)
+@inline YaoAPI.nqudits(h::RydbergHamiltonian3) = nqudits(h.rydberg_term)
 
 # checks of objects have the same base object f.
 function Base.:(==)(lhs::DivByTwo{F1},rhs::DivByTwo{F2}) where {F1,F2} 
@@ -561,7 +561,7 @@ function Base.:(==)(lhs::RydbergHamiltonian, rhs::RydbergHamiltonian)
     return lhs.rydberg_term == rhs.rydberg_term && lhs.rabi_term == rhs.rabi_term && lhs.detuning_term == rhs.detuning_term
 end
 
-function Base.:(==)(lhs::RydbergHamiltonian_3, rhs::RydbergHamiltonian_3)
+function Base.:(==)(lhs::RydbergHamiltonian3, rhs::RydbergHamiltonian3)
     return lhs.rydberg_term == rhs.rydberg_term && 
         lhs.rabi_term_hf == rhs.rabi_term_hf && lhs.detuning_term_hf == rhs.detuning_term_hf &&
         lhs.rabi_term_r == rhs.rabi_term_r && lhs.detuning_term_r == rhs.detuning_term_r
@@ -574,7 +574,7 @@ Base.isreal(::SumOfXPhaseTypes) = false
 Base.isreal(h::Add) = all(isreal, subblocks(h))
 Base.isreal(h::Scale) = isreal(factor(h)) && isreal(content(h))
 Base.isreal(h::RydbergHamiltonian) = !(h.rabi_term isa SumOfXPhase)
-Base.isreal(h::RydbergHamiltonian_3) = !(h.rabi_term_hf isa SumOfXPhase_01) && !(h.rabi_term_r isa SumOfXPhase_1r)
+Base.isreal(h::RydbergHamiltonian3) = !(h.rabi_term_hf isa SumOfXPhase_01) && !(h.rabi_term_r isa SumOfXPhase_1r)
 
 
 storage_size(x) = sizeof(x)

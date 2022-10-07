@@ -64,47 +64,59 @@ end
 
 
 
-function generate_neighboring_sites(site, lattice)
-    # position = n[1]*a[1]+...n[D]*a[D] + site_vector[i] = 1,2,...length(site_vectors)
+function generate_neighboring_sites(site::NTuple{N,Int},n_sites::Int) where N
+   
     # site = (n[1],n[2],...n[D],i)
-    neighboring_sites = typeof(site)[]
-    for lattice_vector in lattice_vectors(lattice)
-        push!(neighboring_sites, site .+ lattice_vector, site .+ -1 .* lattice_vector)
+    neighboring_sites = NTuple{N,Int}[]
+    for i in 1:N-1 # add sites from neighboring unit cells
+        new_site = [site...,]
+        
+        for k in 1:n_sites 
+
+            new_site[end] = k
+            new_site[i] += 1
+            push!(neighboring_sites,Tuple(new_site))
+            new_site .= site
+
+            new_site[end] = k
+            new_site[i] -= 1
+            push!(neighboring_sites,Tuple(new_site))
+            new_site .= site            
+            
+        end
     end
 
     return neighboring_sites
 end
 
 function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractRegion{D}) where D
-    origin = Tuple(zeros(D)) # origin doesn't use any of the vectors
-    origin ∉ region && error("bounding region must contain origin")
+    zeros(D) ∉ region && error("bounding region must contain origin")
 
-    # add origin to visited and stack as starting point, 
-    # then check if lattice sites are in region
 
-    stack = [origin]
-    visited_sites = Set([origin])
-    for site in lattice_sites(lattice)
-        # position = sum(site[i].*lattice_vectors[i] for i in 1:D) .+ site_vector(site[end])
-        # if site ∉ visited_sites && position ∈ region
-        if site ∉ visited_sites && site ∈ region
-            push!(stack, site)
-            push!(visited_sites, site)
-            # push!(site_positions,position)
-        end
-    end
+    lat_vecs = lattice_vectors(lattice)
+    lat_sites = lattice_sites(lattice)
+
+    origin = Tuple(vcat(zeros(Int,D),[1]))
+    stack = NTuple{D+1,Int}[origin]
+    visited_sites = Set{NTuple{D+1,Int}}([origin])
+    site_positions = typeof(lat_vecs[1])[Tuple(zeros(D))]
+
+
 
     while !isempty(stack)
         site = pop!(stack)
-        for neighbor_site in generate_neighboring_sites(site, lattice)
-            if neighbor_site ∈ region && neighbor_site ∉ visited_sites
-                push!(visited_sites, neighbor_site)
-                push!(stack, neighbor_site)
+        
+        for nn_site in generate_neighboring_sites(site,length(lat_sites))
+            nn_site_position = sum([lv...,] .* n for (lv,n) in zip(lat_vecs,nn_site)) .+ lat_sites[nn_site[end]]
+            if nn_site ∉ visited_sites && nn_site_position ∈ region
+                push!(stack, nn_site)
+                push!(visited_sites, nn_site)
+                push!(site_positions,Tuple(nn_site_position))
             end
         end
     end
 
-    # this needs to be put back into positions and sorted
-    return AtomList(collect(visited_sites))
+    return AtomList(site_positions)
 
 end
+

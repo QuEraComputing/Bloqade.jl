@@ -53,75 +53,7 @@ end
     sites = AtomList([(0.2, 0.3), (0.4, 0.8)])
     @test (sites |> rescale_axes(2.0)) == [(0.4, 0.6), (0.8, 1.6)]
 
-    @testset "generate_sites_in_region" begin
 
-        # Chain Lattice
-        lattice = ChainLattice()
-        region = Parallelepiped(4.0)
-        expected_sites = [(0.0,), (1.0,), (2.0,), (3.0,)]
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
-        ## Negative bounds
-        region = Parallelepiped(-4.0)
-        expected_sites = [(0.0,), (-1.0,), (-2.0,), (-3.0,)]
-        println(generate_sites_in_region(lattice, region).atoms)
-        println(expected_sites)
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
-
-        # Square Lattice
-        lattice = SquareLattice()
-        bounds = zeros((2,2))
-        bounds[1,:] .= (0.0, 2.0)
-        bounds[2,:] .= (2.0, 0.0)
-        region = Parallelepiped(bounds)
-        expected_sites = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)]
-        @test issetequal(generate_sites_in_region(lattice,region).atoms, expected_sites)
-        ## Negative bounds
-        bounds[1,:] .= (2.0, 2.0)
-        bounds[2,:] .= (2.0, -2.0)
-        expected_sites = [(0,0), (1,1), (1,0), (1,-1), (2,1), (2,0), (2,-1), (3,0)]
-        region = Parallelepiped(bounds)
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
-        
-        # Triangular Lattice
-        lattice = TriangularLattice()
-        bounds = zeros((2,2))
-        bounds[1,:] .= (0, 2)
-        bounds[2,:] .= (2, 0)
-        region = Parallelepiped(bounds)
-        expected_sites = [(0.0, 1.7320508075688772), 
-                          (0.0, 0.0), 
-                          (0.5, 0.8660254037844386), 
-                          (1.0, 1.7320508075688772), 
-                          (1.0, 0.0), 
-                          (1.5, 0.8660254037844386)]
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
-
-        # generate rotation matrix
-        rot_mat(θ) = [cos(θ) -sin(θ); sin(θ) cos(θ)]
-
-        # Honeycomb Lattice
-        lattice = HoneycombLattice()
-        bounds = zeros((2,2))
-        # create region that slices through lattice unit cells.
-        # Start off with vectors for Honeycomb lattice, 
-        # then rotate and scale as needed
-        a1 = [1.0, 0.0]
-        a2 = [0.5, 0.5 * sqrt(3)]
-        
-        bounds[1,:] .= rot_mat(deg2rad(50)) * a1 * 2
-        bounds[2,:] .= rot_mat(deg2rad(50)) * a2 * 2
-        println(bounds)
-        region = Parallelepiped(bounds)
-        expected_sites = [
-            (0.0, 0.0), 
-            (0.5, 0.8660254037844386), 
-            (1.5, 0.8660254037844386), 
-            (0.5, 0.2886751345948129), 
-            (1.0, 1.1547005383792515)
-        ]
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
-
-    end
 end
 
 @testset "regions" begin
@@ -466,6 +398,78 @@ end
         for ((x, y),expected_distance) in zip(point_pairs, expected_distances)
             @test isapprox(distance(t, x, y), expected_distance, atol=eps(), rtol=√eps())
         end
+
+    end
+
+    @testset "generate_sites_in_region" begin
+
+        # Chain Lattice
+        lattice = ChainLattice()
+        region = Parallelepiped(4.0)
+        expected_sites = [(0.0,), (1.0,), (2.0,), (3.0,)]
+        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        ## Negative bounds
+        region = Parallelepiped(-4.0)
+        expected_sites = [(0.0,), (-1.0,), (-2.0,), (-3.0,)]
+        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+
+        # Square Lattice
+        lattice = SquareLattice()
+        bounds = zeros((2,2))
+        bounds[:,1] .= (0.0, 2.0)
+        bounds[:,2] .= (2.0, 0.0)
+        region = Parallelepiped(bounds)
+        expected_sites = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)]
+        @test issetequal(generate_sites_in_region(lattice,region).atoms, expected_sites)
+        ## Negative bounds
+        bounds[:,1] .= (2.0, 2.0)
+        bounds[:,2] .= (2.0, -2.0)
+        expected_sites = [(0,0), (1,1), (1,0), (1,-1), (2,1), (2,0), (2,-1), (3,0)]
+        region = Parallelepiped(bounds)
+        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        
+        # Triangular Lattice
+        lattice = TriangularLattice()
+        bounds = zeros((2,2))
+        bounds[:,1] .= (0, 2)
+        bounds[:,2] .= (2, 0)
+        region = Parallelepiped(bounds)
+        expected_sites = [(0.0, 1.7320508075688772), 
+                          (0.0, 0.0), 
+                          (0.5, 0.8660254037844386), 
+                          (1.0, 1.7320508075688772), 
+                          (1.0, 0.0), 
+                          (1.5, 0.8660254037844386)]
+        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+
+        # generate rotation matrix
+        rot_mat(θ) = [cos(θ) -sin(θ); sin(θ) cos(θ)]
+
+        # Honeycomb Lattice
+        lattice = HoneycombLattice()
+        bounds = zeros((2,2))
+        # create region that slices through lattice unit cells.
+        # Start off with vectors for Honeycomb lattice, 
+        # then rotate and scale as needed
+        (a1,a2) = lattice_vectors(lattice)      
+        bounds[:,1] .= rot_mat(deg2rad(50)) * [a1...,] * 2
+        bounds[:,2] .= rot_mat(deg2rad(50)) * [a2...,] * 2
+
+        region = Parallelepiped(bounds)
+
+        expected_sites = [
+            (-0.5, 2.0207259421636903), 
+            (0.0, 0.0), 
+            (0.0, 1.1547005383792515), 
+            (0.0, 1.7320508075688772), 
+            (0.5, 0.8660254037844386), 
+            (0.5, 2.0207259421636903), 
+            (0.5, 2.598076211353316), 
+            (1.0, 1.7320508075688772)
+        ]
+        println(expected_sites)
+        println(generate_sites_in_region(lattice, region).atoms)
+        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
 
     end
 

@@ -406,12 +406,12 @@ end
         # Chain Lattice
         lattice = ChainLattice()
         region = Parallelepiped(4.0)
-        expected_sites = [(0.0,), (1.0,), (2.0,), (3.0,)]
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        expected_positions = [(0.0,), (1.0,), (2.0,), (3.0,)]
+        @test issetequal(generate_sites_in_region(lattice, region), expected_positions)
         ## Negative bounds
         region = Parallelepiped(-4.0)
-        expected_sites = [(0.0,), (-1.0,), (-2.0,), (-3.0,)]
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        expected_positions = [(0.0,), (-1.0,), (-2.0,), (-3.0,)]
+        @test issetequal(generate_sites_in_region(lattice, region), expected_positions)
 
         # Square Lattice
         lattice = SquareLattice()
@@ -419,14 +419,14 @@ end
         bounds[:,1] .= (0.0, 2.0)
         bounds[:,2] .= (2.0, 0.0)
         region = Parallelepiped(bounds)
-        expected_sites = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)]
-        @test issetequal(generate_sites_in_region(lattice,region).atoms, expected_sites)
+        expected_positions = [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)]
+        @test issetequal(generate_sites_in_region(lattice,region), expected_positions)
         ## Negative bounds
         bounds[:,1] .= (2.0, 2.0)
         bounds[:,2] .= (2.0, -2.0)
-        expected_sites = [(0,0), (1,1), (1,0), (1,-1), (2,1), (2,0), (2,-1), (3,0)]
+        expected_positions = [(0,0), (1,1), (1,0), (1,-1), (2,1), (2,0), (2,-1), (3,0)]
         region = Parallelepiped(bounds)
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        @test issetequal(generate_sites_in_region(lattice, region), expected_positions)
         
         # Triangular Lattice
         lattice = TriangularLattice()
@@ -434,13 +434,13 @@ end
         bounds[:,1] .= (0, 2)
         bounds[:,2] .= (2, 0)
         region = Parallelepiped(bounds)
-        expected_sites = [(0.0, 1.7320508075688772), 
+        expected_positions = [(0.0, 1.7320508075688772), 
                           (0.0, 0.0), 
                           (0.5, 0.8660254037844386), 
                           (1.0, 1.7320508075688772), 
                           (1.0, 0.0), 
                           (1.5, 0.8660254037844386)]
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        @test issetequal(generate_sites_in_region(lattice, region), expected_positions)
 
         # generate rotation matrix
         rot_mat(θ) = [cos(θ) -sin(θ); sin(θ) cos(θ)]
@@ -457,7 +457,7 @@ end
 
         region = Parallelepiped(bounds)
 
-        expected_sites = [
+        expected_positions = [
             (-0.5, 2.0207259421636903), 
             (0.0, 0.0), 
             (0.0, 1.1547005383792515), 
@@ -467,11 +467,68 @@ end
             (0.5, 2.598076211353316), 
             (1.0, 1.7320508075688772)
         ]
-        println(expected_sites)
-        println(generate_sites_in_region(lattice, region).atoms)
-        @test issetequal(generate_sites_in_region(lattice, region).atoms, expected_sites)
+        @test issetequal(generate_sites_in_region(lattice, region), expected_positions)
 
     end
+
+end
+
+@testset "bounded_lattice" begin
+    # chain
+    bounded_lattice = parallelepiped_region(ChainLattice(),(4,);PBC=true)
+    expected_positions = [(0.0,),(1.0,),(2.0,),(3.0,)]
+    @test issetequal(bounded_lattice.site_positions,expected_positions)
+
+    # square
+    bounded_lattice = parallelepiped_region(SquareLattice(),(2,0),(0,2);PBC=true)
+    expected_positions = [(0.0,0.0),(1.0,0.0),(0.0,1.0),(1.0,1.0)]
+    @test issetequal(bounded_lattice.site_positions,expected_positions)
+
+    # tilted square
+    bounded_lattice = parallelepiped_region(SquareLattice(),(3,2),(-2,3))
+    expected_positions = [
+        (-1.0, 2.0), (-1.0, 3.0), (0.0, 0.0), (0.0, 1.0), 
+        (0.0, 2.0), (0.0, 3.0), (0.0, 4.0), (1.0, 1.0), 
+        (1.0, 2.0), (1.0, 3.0), (1.0, 4.0), (2.0, 2.0), (2.0, 3.0)
+    ]
+    @test issetequal(bounded_lattice.site_positions,expected_positions)
+
+    # kagome rectangle boundary
+    bounded_lattice = parallelepiped_region(KagomeLattice(),(2,2),(-2,2))
+    expected_positions = [
+        (-0.75, 1.299038105676658), (-0.5, 0.8660254037844386), (-0.25, 0.4330127018922193), 
+        (-0.25, 1.299038105676658), (0.0, 0.0), (0.0, 1.7320508075688772), 
+        (0.25, 0.4330127018922193), (0.25, 1.299038105676658), (0.25, 2.1650635094610964), 
+        (0.5, 0.8660254037844386), (0.75, 0.4330127018922193), (0.75, 1.299038105676658), 
+        (0.75, 2.1650635094610964), (1.0, 1.7320508075688772), (1.25, 1.299038105676658), 
+        (1.25, 2.1650635094610964), (1.5, 0.8660254037844386), (1.5, 2.598076211353316), 
+        (1.75, 1.299038105676658), (1.75, 2.1650635094610964), (1.75, 3.031088913245535), 
+        (2.0, 1.7320508075688772), (2.25, 1.299038105676658), (2.25, 2.1650635094610964)
+    ]
+    @test issetequal(bounded_lattice.site_positions,expected_positions)
+
+end
+
+@testset "interact.jl" begin
+    pbc = parallelepiped_region(ChainLattice(),(5,);PBC=true)
+    obc =  parallelepiped_region(ChainLattice(),(5,);PBC=false)
+
+    V_pbc = zeros(5,5)
+    V_pbc[1,2] = V_pbc[2,3] = V_pbc[3,4] = V_pbc[4,5] = 1
+    V_pbc[1,3] = V_pbc[2,4] = V_pbc[3,5] = 1/2^6
+    V_pbc[1,4] = V_pbc[2,5] = 1/2^6
+    V_pbc[1,5] = 1
+    @test V_pbc == rydberg_interaction_matrix(pbc,1)
+
+    V_obc = zeros(5,5)
+    V_obc[1,2] = V_obc[2,3] = V_obc[3,4] = V_obc[4,5] = 1
+    V_obc[1,3] = V_obc[2,4] = V_obc[3,5] = 1/2^6
+    V_obc[1,4] = V_obc[2,5] = 1/3^6
+    V_obc[1,5] = 1/4^6
+
+    @test V_obc == rydberg_interaction_matrix(obc,1)
+
+
 
 end
 

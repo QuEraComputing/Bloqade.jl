@@ -393,27 +393,6 @@ function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,In
     
     return BoundedLattice(lattice,region,PBC)
 
-    # generating sites within region
-    # begin_repeat = zeros(Int,D)
-    # end_repeat = zeros(Int,D)
-    # for p in combinations(1:D)
-    #     a = sum(M[i] for i in p)
-    #     a_floor = convert.(Int,floor.(a))
-    #     a_ceil = convert.(Int,ceil.(a))
-    #     begin_repeat = min.(begin_repeat,a_floor)
-    #     end_repeat = min.(end_repeat,a_ceil)
-    # end
-
-    # lattice_sites = lattice_sites(lattice)
-    # site_positions = AtomList[]
-    # for ns in product([b:e for (b,e) in zip(begin_repeat,end_repeat)]...)
-    #     site = sum(n .* lat_vec for (n,lat_vecs) in zip(ns,lat_vecs))
-
-    #     for lattice_site in lattice_sites
-    #         site ∈ region && push!(site_positions,Tuple(site .+ lattice_site))
-    #     end
-    # end
-    # return BoundedLattice(lattice,region,site_positions,PBC)
 end
 
 dimension(lattice::BoundedLattice{L,C}) where {L,C} = dimension(lattice.lattice)

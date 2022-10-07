@@ -23,11 +23,11 @@ end
 ### implementation for bounded lattices
 
 
-function rydberg_interaction_matrix(lat::BoundedLattice,C::Real)
+function rydberg_interaction_matrix(lat::BoundedLattice{L,R},C::Real) where {L,R}
     if lat.PBC
-        return two_body_interaction_matrix(lat.lattice_sites,(x,y)->C/distance(lat.region,x,y)^6)
+        return two_body_interaction_matrix(lat.site_positions,(x,y)->C/distance(lat.region,x,y)^6)
     else
-        return two_body_interaction_matrix(lat.lattice_sites,(x,y)->C/distance(x,y)^6)
+        return two_body_interaction_matrix(lat.site_positions,(x,y)->C/distance(x,y)^6)
     end
 end
 

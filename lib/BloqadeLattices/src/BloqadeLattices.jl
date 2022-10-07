@@ -43,15 +43,21 @@ export # types
     AbstractRegion,
     Parallelepiped,
     distance,
-    # bounded lattice,
+    generate_sites_in_region,
+    # bounded lattice
     BoundedLattice,
-    generate_sites_in_region
+    parallelepiped_region,
+    # interact
+    two_body_interaction_matrix,
+    rydberg_interaction_matrix
+    
 
 
     
 include("lattice.jl")
 include("region.jl")
 include("bounded_lattice.jl")
+include("interact.jl")
 include("neighbors.jl")
 include("visualize.jl")
 

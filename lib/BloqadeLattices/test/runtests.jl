@@ -518,6 +518,7 @@ end
     V_pbc[1,3] = V_pbc[2,4] = V_pbc[3,5] = 1/2^6
     V_pbc[1,4] = V_pbc[2,5] = 1/2^6
     V_pbc[1,5] = 1
+    
     @test V_pbc == rydberg_interaction_matrix(pbc,1)
 
     V_obc = zeros(5,5)

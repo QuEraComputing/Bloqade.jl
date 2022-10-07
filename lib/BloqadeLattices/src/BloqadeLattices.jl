@@ -46,9 +46,12 @@ export # types
     # bounded lattice,
     BoundedLattice,
     generate_sites_in_region
+
+
     
-include("region.jl")
 include("lattice.jl")
+include("region.jl")
+include("bounded_lattice.jl")
 include("neighbors.jl")
 include("visualize.jl")
 

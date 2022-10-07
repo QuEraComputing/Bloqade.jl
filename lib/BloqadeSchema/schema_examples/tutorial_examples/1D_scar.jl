@@ -20,8 +20,10 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 ϕ = constant(duration = 4.2, value = 0);
 
 h = rydberg_h(atoms; Δ = Δ_tot, Ω = Ω_tot, ϕ=ϕ)
-h_hardware, info = hardware_transform(h)
-h = to_json(h_hardware)
+device_capabilities = get_device_capabilities()
+device_capabilities.rydberg.global_value.timeMax = 5
+h_hardware, info = hardware_transform(h, device_capabilities=device_capabilities)
+h = to_json(h_hardware; device_capabilities)
 
 open("lib/BloqadeSchema/schema_examples/tutorial_examples/1D_scar.json","w") do f
     JSON.print(f, JSON.parse(h))

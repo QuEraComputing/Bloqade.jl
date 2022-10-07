@@ -475,12 +475,12 @@ end
 
 @testset "bounded_lattice" begin
     # chain
-    bounded_lattice = parallelepiped_region(ChainLattice(),(4,);PBC=true)
+    bounded_lattice = parallelepiped_region(ChainLattice(),(4,);pbc=true)
     expected_positions = [(0.0,),(1.0,),(2.0,),(3.0,)]
     @test issetequal(bounded_lattice.site_positions,expected_positions)
 
     # square
-    bounded_lattice = parallelepiped_region(SquareLattice(),(2,0),(0,2);PBC=true)
+    bounded_lattice = parallelepiped_region(SquareLattice(),(2,0),(0,2);pbc=true)
     expected_positions = [(0.0,0.0),(1.0,0.0),(0.0,1.0),(1.0,1.0)]
     @test issetequal(bounded_lattice.site_positions,expected_positions)
 
@@ -510,8 +510,8 @@ end
 end
 
 @testset "interact.jl" begin
-    pbc = parallelepiped_region(ChainLattice(),(5,);PBC=true)
-    obc =  parallelepiped_region(ChainLattice(),(5,);PBC=false)
+    pbc = parallelepiped_region(ChainLattice(),(5,);pbc=true)
+    obc =  parallelepiped_region(ChainLattice(),(5,);pbc=false)
 
     V_pbc = zeros(5,5)
     V_pbc[1,2] = V_pbc[2,3] = V_pbc[3,4] = V_pbc[4,5] = 1

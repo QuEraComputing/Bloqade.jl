@@ -52,4 +52,4 @@ function get_position_index(pos,lattice::BoundedLattice{L,C}) where {L,C}
     return j
 end
 
-
+distance(lat::BoundedLattice,x,y) = lat.pbc ? distance(lat.region,x,y) : distance(x,y)

@@ -34,7 +34,7 @@ end
 @testset "to_schema"  begin
     
     T = 0.5
-    atoms = [(π*i,0) for i in 1:10]
+    atoms = [(5*i,0) for i in 1:10]
 
     # values = [1.0,nothing,Waveform(t->sin(2π*t/T)^2,T/2)]
 

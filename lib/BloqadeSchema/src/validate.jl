@@ -1,24 +1,122 @@
 
 
+# helper functions to generate violations
+
+message(::typeof(>)) = "exceeds maximum"
+message(::typeof(<)) = "below minimum"
+message(::typeof(!=)) = "is not equal to the"
 
 # checks of x is integer multiple of res
 # if it is return false otherwise return true
-function check_resolution(res::Float64,x::Float64)
+function check_resolution(res::Real,x::Real) 
     x == 0 && return false
 
     x_div_res = (abs(x) / res)
     return !isapprox(round(x_div_res),x_div_res)
 end
 
+function group_by_key(itr,key)
+    groups = Dict{Any,Set}()
+
+    foreach(enumerate(itr)) do (i,value)
+        key_value = value[key]
+        if haskey(groups,key_value)
+            push!(groups[key_value],i)
+        else
+            groups[key_value] = Set([i])
+        end
+    end
+
+    return groups
+end
+
 # TODO: implement this test based on validation in TaskManager
-validate_lattice(positions,::DeviceCapabilities) = Set([])
+function validate_lattice(positions,dc::DeviceCapabilities)
+
+    positions = map(positions) do position
+        if length(position) == 1
+            (position[1],0.0)
+        else
+            position
+        end
+    end
+
+    violations = Set([])
+
+    # valudate number of sites (qubits)
+    nqubits = length(positions)
+    nqubits_max = dc.task.numberQubitsMax
+    nqubits > nqubits_max && push!(violations,
+        "$nqubits qubits $(message(>)) of $nqubits_max qubits"
+    )
+
+    # validate resolution
+    position_resolution = dc.lattice.geometry.positionResolution
+    foreach(enumerate(positions)) do (i,position)
+        any(check_resolution.(position_resolution,position)) && push!(violations,
+            "$(i)th atom position $position not consistent with position resolution: $position_resolution"
+        )
+    end
+
+    # validate area
+
+    xmin = minimum(pos->pos[1],positions)
+    xmax = maximum(pos->pos[1],positions)
+    ymin = minimum(pos->pos[2],positions)
+    ymax = maximum(pos->pos[2],positions)
+
+    width = xmax-xmin
+
+    height = ymax-ymin
+    max_width = dc.lattice.area.width
+    max_height = dc.lattice.area.height
+    width > max_width && push!(violations,
+        "total width $width μm $(message(>)) value of $max_width μm"
+    )
+    height > max_height && push!(violations,
+        "total height $height μm $(message(>)) value of $max_height μm"
+    )
+
+    # validate radial spacing
+    radial_spacing_min = dc.lattice.geometry.spacingRadialMin
+    for i in 1:nqubits, j in i+1:nqubits
+        x_i,y_i = positions[i]
+        x_j,y_j = positions[j]
+        radial_spacing = hypot(x_i-x_j,y_i-y_j)
+        atom_1 = i => (x_i,y_i)
+        atom_2 = j => (x_j,y_j)
+        radial_spacing < radial_spacing_min && push!(violations,
+            "positions $atom_1 and $atom_2 are a distance of $radial_spacing μm apart which is $(message(<)) value of $radial_spacing_min μm"
+        )
+        
+    end
+
+    # validate vertical spacing
+
+    y_groups = group_by_key(positions,2)
+    y_values = collect(keys(y_groups))
+    sort!(y_values)
+    zip_with_next = zip(y_values[1:end-1],y_values[2:end])
+    vertical_resolution = dc.lattice.geometry.spacingVerticalMin
+
+    foreach(zip_with_next) do (y0,y1)
+        if !(abs(y0-y1) > vertical_resolution || abs(y0-y1) ≈ vertical_resolution)
+            sites = collect(union(y_groups[y0],y_groups[y1]))
+            sorted_sites = sort(sites)
+            error_sites = join([site=>positions[site] for site in sorted_sites],", ")
+            push!(violations,
+                "positions {$(error_sites)} violate y minimum value of $vertical_resolution μs"
+            )
+
+        end
+    end
+
+    return violations
+
+end
 
 # Waveform Validations all waveforms must be piecewise linear
 
-# helper functions to generate violations
-message(::typeof(>)) = "exceeds maximum"
-message(::typeof(<)) = "below minimum"
-message(::typeof(!=)) = "is not equal to the"
 
 # TODO: add explicit typing, wf::Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T} where {T<:Real,I}
 function validate_Ω(wf,expected)

@@ -9,10 +9,43 @@ pos = [(R * sin(i * 2 * pi / (nsites)), R * cos(i * 2 * pi / (nsites))) for i in
 atoms = AtomList(pos); # Define the atom positions as an AtomList.
 
 blockade_radius = sqrt(unit_disk_radius * R);  # R_b = \sqrt{R_min R_max}</code></pre><pre><code class="nohighlight hljs">    CondaPkg Found dependencies: /home/runner/work/Bloqade.jl/Bloqade.jl/CondaPkg.toml
-    CondaPkg Found dependencies: /home/runner/.julia/packages/PythonCall/DqZCE/CondaPkg.toml
+    CondaPkg Found dependencies: /home/runner/.julia/packages/PythonCall/GyqMi/CondaPkg.toml
     CondaPkg Resolving changes
              + libstdcxx-ng
     CondaPkg Installing packages
+             │ /home/runner/.julia/artifacts/6e6d5245d8ef7b40183c446606c8b1590c0788f1/bin/micromamba
+             │ -r /home/runner/.julia/scratchspaces/0b3b1443-0f03-428d-bdfb-f27f9c1191ea/root
+             │ install
+             │ -y
+             │ -p /home/runner/work/Bloqade.jl/Bloqade.jl/examples/1.blockade/.CondaPkg/env
+             │ --override-channels
+             │ --no-channel-priority
+             │ libstdcxx-ng[version=&#39;&gt;=3.4,&lt;11.4&#39;,channel=&#39;conda-forge&#39;]
+             │ matplotlib[version=&#39;3.5.1&#39;]
+             │ python[version=&#39;&gt;=3.7,&lt;4&#39;,channel=&#39;conda-forge&#39;,build=&#39;*cpython*&#39;]
+             └ -c conda-forge
+
+                                           __
+          __  ______ ___  ____ _____ ___  / /_  ____ _
+         / / / / __ `__ \/ __ `/ __ `__ \/ __ \/ __ `/
+        / /_/ / / / / / / /_/ / / / / / / /_/ / /_/ /
+       / .___/_/ /_/ /_/\__,_/_/ /_/ /_/_.___/\__,_/
+      /_/
+
+conda-forge/linux-64                                        Using cache
+conda-forge/noarch                                          Using cache
+
+Transaction
+
+  Prefix: /home/runner/work/Bloqade.jl/Bloqade.jl/examples/1.blockade/.CondaPkg/env
+
+  Updating specs:
+
+   - conda-forge::libstdcxx-ng[version=&#39;&gt;=3.4,&lt;11.4&#39;]
+   - matplotlib==3.5.1
+   - conda-forge::python[version=&#39;&gt;=3.7,&lt;4&#39;,build=*cpython*]
+
+
   Package              Version  Build               Channel                    Size
 ─────────────────────────────────────────────────────────────────────────────────────
   Install:
@@ -111,6 +144,50 @@ blockade_radius = sqrt(unit_disk_radius * R);  # R_b = \sqrt{R_min R_max}</code>
 
 ─────────────────────────────────────────────────────────────────────────────────────
 
+
+Transaction starting
+Changing libstdcxx-ng-12.1.0-ha89aaad_16 ==&gt; libstdcxx-ng-11.3.0-hd8f1017_16
+Changing python-3.10.6-ha86cf86_0_cpython ==&gt; python-3.9.13-h2660328_0_cpython
+Linking lz4-c-1.9.3-h9c3ff4c_1
+Changing mysql-common-8.0.30-h26416b9_1 ==&gt; mysql-common-8.0.29-h26416b9_1
+Changing nss-3.78-h2350873_0 ==&gt; nss-3.77-h2350873_0
+Linking pcre-8.45-h9c3ff4c_0
+Changing expat-2.4.9-h27087fc_0 ==&gt; expat-2.4.8-h27087fc_0
+Changing lerc-4.0.0-h27087fc_0 ==&gt; lerc-3.0-h9c3ff4c_0
+Changing zstd-1.5.2-h6239696_4 ==&gt; zstd-1.5.2-h8a70e8d_1
+Changing libglib-2.74.0-h7a41b64_0 ==&gt; libglib-2.70.2-h174f98d_4
+Changing mysql-libs-8.0.30-hbc51c84_1 ==&gt; mysql-libs-8.0.29-hbc51c84_1
+Changing libtiff-4.4.0-h55922b4_4 ==&gt; libtiff-4.2.0-hf544144_3
+Changing glib-tools-2.74.0-h6239696_0 ==&gt; glib-tools-2.70.2-h780b84a_4
+Changing gstreamer-1.20.3-hd4edc92_2 ==&gt; gstreamer-1.20.2-hd4edc92_1
+Changing openjpeg-2.5.0-h7d73246_1 ==&gt; openjpeg-2.4.0-hb52868f_1
+Changing wheel-0.37.1-pyhd8ed1ab_0 ==&gt; wheel-0.37.1-pyhd8ed1ab_0
+Changing setuptools-65.4.1-pyhd8ed1ab_0 ==&gt; setuptools-65.4.1-pyhd8ed1ab_0
+Changing pip-22.2.2-pyhd8ed1ab_0 ==&gt; pip-22.2.2-pyhd8ed1ab_0
+Changing certifi-2022.9.24-pyhd8ed1ab_0 ==&gt; certifi-2022.9.24-pyhd8ed1ab_0
+Changing munkres-1.1.4-pyh9f0ad1d_0 ==&gt; munkres-1.1.4-pyh9f0ad1d_0
+Changing pyparsing-3.0.9-pyhd8ed1ab_0 ==&gt; pyparsing-3.0.9-pyhd8ed1ab_0
+Changing six-1.16.0-pyh6c4a22f_0 ==&gt; six-1.16.0-pyh6c4a22f_0
+Changing cycler-0.11.0-pyhd8ed1ab_0 ==&gt; cycler-0.11.0-pyhd8ed1ab_0
+Linking olefile-0.46-pyh9f0ad1d_1
+Changing packaging-21.3-pyhd8ed1ab_0 ==&gt; packaging-21.3-pyhd8ed1ab_0
+Changing python-dateutil-2.8.2-pyhd8ed1ab_0 ==&gt; python-dateutil-2.8.2-pyhd8ed1ab_0
+Changing glib-2.74.0-h6239696_0 ==&gt; glib-2.70.2-h780b84a_4
+Changing python_abi-3.10-2_cp310 ==&gt; python_abi-3.9-2_cp39
+Changing numpy-1.23.3-py310h53a5b5f_0 ==&gt; numpy-1.22.3-py39hc58783e_2
+Changing pillow-9.2.0-py310hbd86126_2 ==&gt; pillow-8.2.0-py39hf95b381_1
+Changing kiwisolver-1.4.4-py310hbf28c38_0 ==&gt; kiwisolver-1.4.2-py39hf939315_1
+Changing unicodedata2-14.0.0-py310h5764c6d_1 ==&gt; unicodedata2-14.0.0-py39hb9d737c_1
+Changing pyqt5-sip-4.19.18-py310h122e73d_8 ==&gt; pyqt5-sip-4.19.18-py39he80948d_8
+Changing tornado-6.2-py310h5764c6d_0 ==&gt; tornado-6.2-py39hb9d737c_0
+Changing fonttools-4.37.4-py310h5764c6d_0 ==&gt; fonttools-4.37.4-py39hb9d737c_0
+Changing pyqt-impl-5.12.3-py310h1f8e252_8 ==&gt; pyqt-impl-5.12.3-py39hde8b62d_8
+Changing matplotlib-base-3.5.1-py310h23f4a51_0 ==&gt; matplotlib-base-3.5.1-py39h2fa2bec_0
+Changing pyqtchart-5.12-py310hfcd6d55_8 ==&gt; pyqtchart-5.12-py39h0fcd23e_8
+Changing pyqtwebengine-5.12.1-py310hfcd6d55_8 ==&gt; pyqtwebengine-5.12.1-py39h0fcd23e_8
+Changing pyqt-5.12.3-py310hff52083_8 ==&gt; pyqt-5.12.3-py39hf3d152e_8
+Changing matplotlib-3.5.1-py310hff52083_0 ==&gt; matplotlib-3.5.1-py39hf3d152e_0
+Transaction finished
 </code></pre><p>The system is driven by a constant Rabi drive, which couples each atom&#39;s ground and Rydberg state. The Hamiltonian can be defined in Bloqade with:</p><pre><code class="language-julia hljs">C6 = 2π * 862690;
 Ω = C6 / blockade_radius^6
 h = rydberg_h(atoms; Ω = Ω);</code></pre><p>The system is then initialized into the ground state of all atoms, which is the lowest energy of the classical Hamiltonian. We have two choices of basis: the first choice is the full Hilbert space of <span>$2^{12}$</span> elements, whereas the second basis is the blockade subspace, which excludes Rydberg excitations within the <strong>subspace radius</strong>, <span>$R_s$</span>. In principle, the subspace radius can be taken to be any value less than the blockade radius, but for better approximation, it is better to take smaller <span>$R_s$</span>. Typically, <span>$R_s &lt; R_b / 1.7$</span> will be reasonably good approximation, since states with Rydberg interaction <span>$1.7^6 \Omega \approx 24 \Omega$</span> will be then truncated, and the perturbative truncation error is typically in second order. For <span>$R_s = 0$</span>, no states are excluded and one recovers the exact dynamics. For a subspace radius anywhere between <span>$R_\text{min}$</span> and <span>$R_\text{max}$</span>, the subspace is the same, as there are no vertices having a separation within those radii. Here, we choose the subspace radius for the ring of atoms to be the unit disk radius, which corresponds to truncating the states having a Rydberg interaction <span>$&gt;(R_b/R_u)^6 \Omega \approx 7.2 \Omega$</span>. For more general graphs, it may be reasonable to choose the subspace radius to be smaller than the unit disk radius and include extra states to improve the fidelity of the energy truncation. For example, for the next-nearest-neighbor line, it may be reasonable to choose the subspace radius to be half the blockade radius, which includes high-energy NNN blockaded states to improve numerical accuracy. See the <a href="../../../subspace/#subspace">subspace</a> page for more details.</p><pre><code class="language-julia hljs">subspace_radius = unit_disk_radius # R_s
@@ -155,4 +232,4 @@ plt.plot(times, real(densities - densities2))
 plt.axis([0, 0.5, -0.001, 0.003])
 plt.ylabel(&quot;Difference&quot;, fontsize = 12)
 plt.yticks(LinRange(-0.001, 0.003, 5), fontsize = 12);
-plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);</code></pre><p><img src="../../../assets/RydbergBlockadeSubspace.png" alt="RydbergBlockadeSubspace"/></p><p>Data for this evolution is shown above, where exact evolution in the full space is shown by the black line, and the truncated evolution in the subspace is shown by the red dashed line. It is clear that even though the Hilbert space is <span>$12\times$</span> smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2-atom conditional blockade example above. However, at longer times, this subspace approximation fails to reproduce the full space (shown by divergence between the black and red dashed lines), as the perturbative effects become relevant over longer timescales.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« GPU Acceleration</a><a class="docs-footer-nextpage" href="../../2.adiabatic/main/">Adiabatic Evolution »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Tuesday 4 October 2022 16:46">Tuesday 4 October 2022</span>. Using Julia version 1.8.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);</code></pre><p><img src="../../../assets/RydbergBlockadeSubspace.png" alt="RydbergBlockadeSubspace"/></p><p>Data for this evolution is shown above, where exact evolution in the full space is shown by the black line, and the truncated evolution in the subspace is shown by the red dashed line. It is clear that even though the Hilbert space is <span>$12\times$</span> smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2-atom conditional blockade example above. However, at longer times, this subspace approximation fails to reproduce the full space (shown by divergence between the black and red dashed lines), as the perturbative effects become relevant over longer timescales.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« GPU Acceleration</a><a class="docs-footer-nextpage" href="../../2.adiabatic/main/">Adiabatic Evolution »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Tuesday 11 October 2022 15:57">Tuesday 11 October 2022</span>. Using Julia version 1.8.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

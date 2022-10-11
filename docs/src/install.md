@@ -81,6 +81,27 @@ as well as:
 
 Both of which are needed for Bloqade to take advantage of GPUs (see [GPU Acceleration](@ref cuda) for more on how to do this). 
 
+#### AMI IDs
+
+The Bloqade AMIs have a unique AMI ID associated to them that can be used to make searching for them easier (you can copy-paste the AMI ID when searching through the AMI Catalog) or using them through the AWS CLI. The ID is different for each AWS Region but they can be found in the tables below.
+
+##### Bloqade AMI IDs
+
+| Region                    | AMI ID                |
+|:--------------------------|:----------------------|
+| us-east-1 (N. Virginia)   | ami-074e8de45222c5a18 |
+| us-east-2 (Ohio)          | ami-0adaacf743f9d4403 |
+| us-west-1 (N. California) | ami-0c09dc87d9e3ba27f |
+| us-west-2 (Oregon)        | ami-015d1d8fe1b192bf7 |
+
+##### Bloqade CUDA AMI IDs
+
+| Region                    | AMI ID                |
+|:--------------------------|:----------------------|
+| us-east-1 (N. Virginia)   | ami-06256cea24309bc97 |
+| us-east-2 (Ohio)          | ami-061ab718ef97e1a40 |
+| us-west-1 (N. California) | ami-0cfee0c8087406f9c |
+| us-west-2 (Oregon)        | ami-0da625a7c14b50724 |
 
 ### Disclaimers
 !!! info
@@ -116,7 +137,15 @@ Give your instance a memorable name...
 
 ...and choose Bloqade as an image. This will put the AMI on the instance which has Bloqade and all its dependencies ready to go. Take a look at the [Bloqade AMIs](#bloqade-amis) section of this page for more information on available images.
 
-![Step 4](assets/Bloqade_EC2/Step4.png)
+To find the Bloqade image you can search for it by typing in "Bloqade" or one of the AMI IDs in the prior section in the search bar: 
+
+![Step 4.1](assets/Bloqade_EC2/Step4.1.png)
+
+Upon hitting enter, ensure you're in the "AWS Marketplace AMIs" section and select which image you'd like to use:
+
+![Step 4.2](assets/Bloqade_EC2/Step4.2.png)
+
+Upon reviewing the information on the AMI and hitting "Continue" you'll be returned to the Instance page to continue customizing it.
 
 ### Step 5: Select Your Instance
 

@@ -13,8 +13,6 @@ atoms = generate_sites(SquareLattice(), 16, 16; scale = 4.5)
 # TriangularLattice
 # atoms = generate_sites(TriangularLattice(), 16, 16; scale = 3.2)
 
-
-
 T=1
 Δ = Waveform(t->cos(2π*t/T),T)
 Δi=Δ

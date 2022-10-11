@@ -3,7 +3,8 @@ using BloqadeSchema
 using Bloqade
 using JSON
 
-# Switching rapidly between 0 and non-zero detuning, while also switching rapidly, in sync, between maximal and zero rabi frequency. The result should be identical to applying a continuous rabi pulse over a timeframe when the detuning was zero.
+# Switching rapidly between 0 and non-zero detuning, while also switching rapidly, in sync, between maximal and zero rabi frequency.
+# The result should be identical to applying a continuous rabi pulse over a timeframe when the detuning was zero.
 
 atoms = AtomList([(0.0, 0.0)])
 
@@ -17,9 +18,6 @@ T2=2.5
 ϕ = constant(;duration=T2, value=0)
 
 h = rydberg_h(atoms;Ω=Ω, Δ=Δ, ϕ=ϕ)
-
-# the run results from machine should be the same as the following Hamiltonian 
-# H = rydberg_h(atoms;Ω=Ω, Δ = Δ)
 
 h_hardware,info  = hardware_transform(h)
 h = to_json(h_hardware)

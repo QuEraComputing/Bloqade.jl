@@ -1,6 +1,7 @@
 using BloqadeSchema
 using Bloqade
 using JSON
+
 # sites are spaced less than the minimum distance apart
 atoms = AtomList([(0.0, 0.0), (0.0, 0.8), (0.0, 3.4), (0.0, 5.0)])
 

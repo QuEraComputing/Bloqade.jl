@@ -21,6 +21,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
 h = rydberg_h(atoms; Δ = Δ_tot, Ω = Ω_tot, ϕ=ϕ)
 device_capabilities = get_device_capabilities()
+# WARNING: This will result in invalid JSON file for actual QPU.
 device_capabilities.rydberg.global_value.timeMax = 5
 h_hardware, info = hardware_transform(h, device_capabilities=device_capabilities)
 h = to_json(h_hardware; device_capabilities)

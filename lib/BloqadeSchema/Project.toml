@@ -5,7 +5,6 @@ version = "0.1.5"
 [deps]
 BitBasis = "50ba71b6-fa0f-514d-ae9a-0916efc90dcf"
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
-BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 BloqadeODE = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
 BloqadeWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
 Configurations = "5218b696-f38b-4ac9-8b61-a12ec717816d"
@@ -27,8 +26,9 @@ Yao = "0.8"
 julia = "1.6"
 
 [extras]
+BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "Logging"]
+test = ["Test", "Logging", "BloqadeLattices"]

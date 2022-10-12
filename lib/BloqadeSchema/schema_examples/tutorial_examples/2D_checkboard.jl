@@ -16,8 +16,11 @@ total_time = 2.9
 U = 2π * 15.0
 Δ = piecewise_linear(clocks = [0.0, 0.3, 2.6, total_time], values = [-U, -U, U, U]);
 
-H = rydberg_h(atoms; Δ, Ω)
-h = to_json(H,waveform_tolerance=1e-1, warn=true)
+ϕ = constant(;duration = total_time ,value = 0)
+
+h = rydberg_h(atoms; Δ, Ω, ϕ)
+h_hardware, info = hardware_transform(h)
+h = to_json(h_hardware)
 
 open("lib/BloqadeSchema/schema_examples/tutorial_examples/2D_checkboard.json","w") do f
     JSON.print(f, JSON.parse(h))

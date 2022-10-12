@@ -5,6 +5,7 @@ using BloqadeWaveforms:
     piecewise_linear,
     piecewise_constant
 using BloqadeSchema:
+    TaskCapabilities,
     check_resolution,
     message,
     get_rydberg_capabilities,
@@ -14,10 +15,11 @@ using BloqadeSchema:
     validate_Ω,
     validate_Δ,
     validate_ϕ,
+    validate_lattice,
     validate
 using BloqadeExpr:
     rydberg_h
-
+using BloqadeLattices
 
 @testset "check_resolution" begin
     # check if x is integer multiple of res,
@@ -33,6 +35,67 @@ end
     @test message(>) == "exceeds maximum"
     @test message(<) == "below minimum"
     @test message(!=) == "is not equal to the"
+
+end
+
+@testset "validate_lattice" begin
+    # example for each error
+    dc = get_device_capabilities()
+
+
+    # maximum qubits
+    nqubits_max = dc.task.numberQubitsMax
+    atoms = generate_sites(SquareLattice(),7,15,scale=5)
+    nqubits = length(atoms)
+    violations = validate_lattice(atoms,dc)
+
+    @test violations == Set(["$nqubits qubits $(message(>)) of $nqubits_max qubits"])
+
+    # position resolution
+    position_resolution = dc.lattice.geometry.positionResolution
+    position = (9*position_resolution/10,0)
+    atoms = [position]
+    violations = validate_lattice(atoms,dc)
+    @test violations == Set(["1th atom position $position not consistent with position resolution: $position_resolution"])
+
+    # maximum width
+    max_width = dc.lattice.area.width
+    width = max_width+1
+    atoms = [(0,0),(width,0)]
+    violations = validate_lattice(atoms,dc)
+    @test violations == Set(["total width $width μm $(message(>)) value of $max_width μm"])
+
+
+    # maximum height
+    max_height = dc.lattice.area.height
+    height = max_height+1
+    atoms = [(0,0),(0,height)]
+    violations = validate_lattice(atoms,dc)
+    @test violations == Set(["total height $height μm $(message(>)) value of $max_height μm"])
+
+    # radial distance
+    radial_spacing_min = dc.lattice.geometry.spacingRadialMin
+    radial_spacing = 0.9 * radial_spacing_min
+    v_1 = (0,0)
+    v_2 = (0,radial_spacing)
+    atoms = [v_1,v_2]
+    violations = validate_lattice(atoms,dc)
+    @test violations == Set([
+        "positions 1 => $v_1 and 2 => $v_2 are a distance of $radial_spacing μm apart which is $(message(<)) value of $radial_spacing_min μm"
+    ])
+
+
+    vertical_resolution = dc.lattice.geometry.spacingVerticalMin
+    v_1 = (0,0)
+    v_2 = (5,2*vertical_resolution-0.1)
+    v_3 = (10,vertical_resolution-0.1)
+    v_4 = (15,0)
+    atoms = [v_1,v_2,v_3,v_4]
+    error_sites = join([site=>atoms[site] for site in [1,3,4]],", ")
+    violations = validate_lattice(atoms,dc)
+        
+    @test violations == Set(["positions {$(error_sites)} violate y minimum value of $vertical_resolution μs"])
+
 
 end
 

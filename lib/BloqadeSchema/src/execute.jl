@@ -170,6 +170,13 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
 
     violations = validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,params.device_capabilities)
 
+    params.n_shots < params.device_capabilities.task.numberShotsMin && push!(violations.misc_violations,
+        "n_shots $(params.n_shots) is less than minimum value $(params.device_capabilities.task.numberShotsMin)"
+    )
+    params.n_shots > params.device_capabilities.task.numberShotsMax && push!(violations.misc_violations,
+        "n_shots $(params.n_shots) is exceeds maximum value $(params.device_capabilities.task.numberShotsMax)"
+    )
+
     if !isempty(violations)
         throw(ValidationException(violations))
     end

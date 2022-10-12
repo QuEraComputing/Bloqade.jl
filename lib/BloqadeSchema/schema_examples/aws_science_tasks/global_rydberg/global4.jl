@@ -19,6 +19,8 @@ T2=2.5
 
 h = rydberg_h(atoms;Ω=Ω, Δ=Δ, ϕ=ϕ)
 
+# hardware_transform will add slopes between values in waveform when necessary
+# with the maximum slew rate supported by hardware
 h_hardware,info  = hardware_transform(h)
 h = to_json(h_hardware)
 

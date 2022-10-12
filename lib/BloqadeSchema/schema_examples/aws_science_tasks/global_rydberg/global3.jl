@@ -13,7 +13,7 @@ T=2
 Δ = constant(;duration=T, value=40π)
 
 # minimal detuning 
-# Δ = piecewise_constant(clocks=[0.0, epsilon, T+ epsilon , T+2*epsilon], values= 2π*[0.0, -20, 0])
+# Δ = constant(;duration=T, value=-40π)
 
 ϕ = constant(;duration=T, value=0)
 
@@ -25,6 +25,5 @@ h = to_json(h_hardware)
 open("lib/BloqadeSchema/schema_examples/aws_science_tasks/global_rydberg/global3.json","w") do f
     JSON.print(f, JSON.parse(h))
 end
-
 
 

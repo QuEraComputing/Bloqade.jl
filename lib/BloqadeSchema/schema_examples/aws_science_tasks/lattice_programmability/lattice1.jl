@@ -3,9 +3,13 @@ using Bloqade
 using JSON
 
 
-# 4-10 atoms positioned at the edge of the addressable area
+# 6 atoms positioned at the edge of the addressable area
+device_capabilities = get_device_capabilities()
+max_width = device_capabilities.lattice.area.width
+max_height = device_capabilities.lattice.area.height
 
-atoms = AtomList([(0.0, 0.0), (0, 100), (100,99), (100, 0), (6, 7), (9, 6)])
+atoms = AtomList([(0.0, 0.0), (0, max_height), (max_width, max_height), 
+                  (max_width, 0), (max_width, max_height/2), (0, max_height/2)])
 
 T=1
 Δ = Waveform(t->cos(2π*t/T),T)

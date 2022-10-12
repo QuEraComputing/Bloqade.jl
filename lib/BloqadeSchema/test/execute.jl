@@ -121,6 +121,30 @@ end
         @test h == BloqadeSchema.from_json(BloqadeSchema.to_json(h))
 end
 
+
+@testset "to_json_no_validation" begin
+    # Test if code will run without failing
+    Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
+    Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
+    ϕ = piecewise_constant(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1])
+    atoms = [(5.0*i,0.0) for i in 1:4]
+    
+    h = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
+    h,info = hardware_transform(h)    
+     atoms,ϕ,Ω,Δ = get_rydberg_params(h)
+
+    @test to_json_no_validation(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ) == to_json(h)
+    @test to_schema_no_validation(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ) == to_schema(h)
+
+    # test with partial filling
+    coords = [(5.0*i,0.0) for i in 1:4]
+    filling = [0,1,1,0]
+
+    lattice = BloqadeSchema.Lattice(sites=atoms,filling=filling)
+
+    @test to_json_no_validation(lattice,ϕ=ϕ,Ω=Ω,Δ=Δ) == "{\"nshots\":1,\"lattice\":{\"sites\":[[5.0e-6,0.0],[1.0e-5,0.0],[1.5e-5,0.0],[2.0e-5,0.0]],\"filling\":[0,1,1,0]},\"effective_hamiltonian\":{\"rydberg\":{\"rabi_frequency_amplitude\":{\"global\":{\"times\":[0.0,1.0e-6,2.0e-6,3.0e-6],\"values\":[0.0,1.0e6,1.0e6,0.0]}},\"rabi_frequency_phase\":{\"global\":{\"times\":[0.0,1.0e-6,2.0e-6,3.0e-6],\"values\":[0.0,1.0,-1.0,-1.0]}},\"detuning\":{\"global\":{\"times\":[0.0,1.0e-6,2.0e-6,3.0e-6],\"values\":[1.0e6,1.0e6,-1.0e6,-1.0e6]}}}}}"
+end   
+
 @testset "nshots validation" begin
     Ω = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[0,1,1,0])
     Δ = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,1,-1,-1])
@@ -129,6 +153,7 @@ end
     
     h = rydberg_h(atoms,Ω=Ω,Δ=Δ,ϕ=ϕ)
     h,info = hardware_transform(h)
+
     dc = get_device_capabilities()
     @test_throws BloqadeSchema.ValidationException to_json(h;n_shots=dc.task.numberShotsMin-1)
     @test_throws BloqadeSchema.ValidationException to_json(h;n_shots=dc.task.numberShotsMax+1)

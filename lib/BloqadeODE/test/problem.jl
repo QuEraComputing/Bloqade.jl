@@ -75,3 +75,16 @@ end
     atoms = [(i,) for i in 1:5]
     @test_throws ArgumentError SchrodingerProblem(zero_state(10), 0.2, rydberg_h(atoms; Ω = 1.0))
 end
+
+@testset "3-level W-state ODE simulation" begin
+    nsites = 2
+    V = 1e5
+    atoms = [(0.0, 0.0), (0.0, (862690*2pi/V)^(1/6))]
+    reg = product_state(dit"11;3")
+    h = rydberg_h_3(atoms; Ω_r = 1)
+
+    goal = exp(-im*pi/sqrt(2)*Matrix(h)) * state(reg)
+    prob = SchrodingerProblem(reg, (0, pi/sqrt(2)), h)
+    emulate!(prob)
+    @test isapprox(state(reg), goal; atol = 1e-3)
+end

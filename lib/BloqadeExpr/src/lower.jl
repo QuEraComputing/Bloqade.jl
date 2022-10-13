@@ -147,7 +147,7 @@ function emit_dynamic_terms(ex::SumOfXPhaseTypes)
 end
 
 emit_dynamic_terms(h::RydbergHamiltonian) = emit_dynamic_terms(add_terms(h))
-emit_dynamic_terms(h::RydbergHamiltonian_3) = emit_dynamic_terms(add_terms(h))
+emit_dynamic_terms(h::RydbergHamiltonian3) = emit_dynamic_terms(add_terms(h))
 
 """
     Hamiltonian(::Type{Tv}, expr[, space=fullspace])
@@ -240,7 +240,7 @@ end
 function YaoBlocks.Optimise.to_basictypes(h::RydbergHamiltonian)
     return YaoBlocks.Optimise.simplify(add_terms(h); rules=[YaoBlocks.Optimise.to_basictypes])
 end
-function YaoBlocks.Optimise.to_basictypes(h::RydbergHamiltonian_3)
+function YaoBlocks.Optimise.to_basictypes(h::RydbergHamiltonian3)
     return YaoBlocks.Optimise.simplify(add_terms(h); rules=[YaoBlocks.Optimise.to_basictypes])
 end
 

@@ -85,7 +85,7 @@ private val capabilitiesByQpuId = mapOf(
                     spacingRadialMin = 4e-6,
                     spacingVerticalMin = 2.5e-6,
                     positionResolution = 0.1e-6,
-                    numberSitesMax = 100,
+                    numberSitesMax = 256,
                 ),
             ),
             RydbergCapabilities(

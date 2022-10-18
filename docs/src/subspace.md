@@ -32,9 +32,9 @@ using Bloqade
 atoms = generate_sites(SquareLattice(), 3, 3, scale=5.1)
 space = blockade_subspace(atoms, 5.2)
 ```
-We first created a ``3*3`` square lattice with nearest neighbor atoms seperated by ``5.1`` μm. 
+We first created a ``3*3`` square lattice with nearest neighbor atoms separated by ``5.1`` μm. 
 Then we have created a
-blockade subpace with the subspace radius, ``R_s``, being ``5.2`` μm. 
+blockade subspace with the subspace radius, ``R_s``, being ``5.2`` μm. 
 This means that if two atoms have a separation distance that is smaller than (or equal to)
 ``5.2`` μm, 
 then the blockade subspace does not contain states where both of them being in the Rydberg states.

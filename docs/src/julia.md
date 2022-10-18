@@ -30,7 +30,7 @@ and a guide for learning more about Julia and advanced usage.
 
 !!! info
 
-    Multi-stage programming (MSP) is a variety of metaprogramming in which compilation is divided into a series of intermediate phases, allowing typesafe run-time code generation. Statically defined types are used to verify that dynamically constructed types are valid and do not violate the type system. 
+    Multi-stage programming (MSP) is a variety of metaprogramming in which compilation is divided into a series of intermediate phases, allowing type-safe run-time code generation. Statically defined types are used to verify that dynamically constructed types are valid and do not violate the type system. 
 
     -- Wikipedia
 

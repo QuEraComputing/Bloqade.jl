@@ -9,11 +9,11 @@ pos = [(R * sin(i * 2 * pi / (nsites)), R * cos(i * 2 * pi / (nsites))) for i in
 atoms = AtomList(pos); # Define the atom positions as an AtomList.
 
 blockade_radius = sqrt(unit_disk_radius * R);  # R_b = \sqrt{R_min R_max}</code></pre><pre><code class="nohighlight hljs">    CondaPkg Found dependencies: /home/runner/work/Bloqade.jl/Bloqade.jl/CondaPkg.toml
-    CondaPkg Found dependencies: /home/runner/.julia/packages/PythonCall/GyqMi/CondaPkg.toml
+    CondaPkg Found dependencies: /home/runner/.julia/packages/PythonCall/eU0yr/CondaPkg.toml
     CondaPkg Resolving changes
              + libstdcxx-ng
     CondaPkg Installing packages
-             │ /home/runner/.julia/artifacts/6e6d5245d8ef7b40183c446606c8b1590c0788f1/bin/micromamba
+             │ /home/runner/.julia/artifacts/d45b66605cad8bca223a3eb103eebb71adcf1415/bin/micromamba
              │ -r /home/runner/.julia/scratchspaces/0b3b1443-0f03-428d-bdfb-f27f9c1191ea/root
              │ install
              │ -y
@@ -122,7 +122,7 @@ Transaction
   + mysql-libs          8.0.29  hbc51c84_1          conda-forge/linux-64     Cached
   - nss                   3.78  h2350873_0          conda-forge              Cached
   + nss                   3.77  h2350873_0          conda-forge/linux-64     Cached
-  - numpy               1.23.3  py310h53a5b5f_0     conda-forge              Cached
+  - numpy               1.23.4  py310h53a5b5f_0     conda-forge              Cached
   + numpy               1.22.3  py39hc58783e_2      conda-forge/linux-64        7MB
   - openjpeg             2.5.0  h7d73246_1          conda-forge              Cached
   + openjpeg             2.4.0  hb52868f_1          conda-forge/linux-64      455kB
@@ -174,10 +174,10 @@ Changing python-dateutil-2.8.2-pyhd8ed1ab_0 ==&gt; python-dateutil-2.8.2-pyhd8ed
 Changing packaging-21.3-pyhd8ed1ab_0 ==&gt; packaging-21.3-pyhd8ed1ab_0
 Changing glib-2.74.0-h6239696_0 ==&gt; glib-2.70.2-h780b84a_4
 Changing python_abi-3.10-2_cp310 ==&gt; python_abi-3.9-2_cp39
-Changing numpy-1.23.3-py310h53a5b5f_0 ==&gt; numpy-1.22.3-py39hc58783e_2
 Changing pillow-9.2.0-py310hbd86126_2 ==&gt; pillow-8.2.0-py39hf95b381_1
 Changing kiwisolver-1.4.4-py310hbf28c38_0 ==&gt; kiwisolver-1.4.2-py39hf939315_1
 Changing unicodedata2-14.0.0-py310h5764c6d_1 ==&gt; unicodedata2-14.0.0-py39hb9d737c_1
+Changing numpy-1.23.4-py310h53a5b5f_0 ==&gt; numpy-1.22.3-py39hc58783e_2
 Changing pyqt5-sip-4.19.18-py310h122e73d_8 ==&gt; pyqt5-sip-4.19.18-py39he80948d_8
 Changing tornado-6.2-py310h5764c6d_0 ==&gt; tornado-6.2-py39hb9d737c_0
 Changing fonttools-4.37.4-py310h5764c6d_0 ==&gt; fonttools-4.37.4-py39hb9d737c_0
@@ -232,4 +232,4 @@ plt.plot(times, real(densities - densities2))
 plt.axis([0, 0.5, -0.001, 0.003])
 plt.ylabel(&quot;Difference&quot;, fontsize = 12)
 plt.yticks(LinRange(-0.001, 0.003, 5), fontsize = 12);
-plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);</code></pre><p><img src="../../../assets/RydbergBlockadeSubspace.png" alt="RydbergBlockadeSubspace"/></p><p>Data for this evolution is shown above, where exact evolution in the full space is shown by the black line, and the truncated evolution in the subspace is shown by the red dashed line. It is clear that even though the Hilbert space is <span>$12\times$</span> smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2-atom conditional blockade example above. However, at longer times, this subspace approximation fails to reproduce the full space (shown by divergence between the black and red dashed lines), as the perturbative effects become relevant over longer timescales.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« GPU Acceleration</a><a class="docs-footer-nextpage" href="../../2.adiabatic/main/">Adiabatic Evolution »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Monday 17 October 2022 22:08">Monday 17 October 2022</span>. Using Julia version 1.8.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);</code></pre><p><img src="../../../assets/RydbergBlockadeSubspace.png" alt="RydbergBlockadeSubspace"/></p><p>Data for this evolution is shown above, where exact evolution in the full space is shown by the black line, and the truncated evolution in the subspace is shown by the red dashed line. It is clear that even though the Hilbert space is <span>$12\times$</span> smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2-atom conditional blockade example above. However, at longer times, this subspace approximation fails to reproduce the full space (shown by divergence between the black and red dashed lines), as the perturbative effects become relevant over longer timescales.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« GPU Acceleration</a><a class="docs-footer-nextpage" href="../../2.adiabatic/main/">Adiabatic Evolution »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Tuesday 18 October 2022 21:27">Tuesday 18 October 2022</span>. Using Julia version 1.8.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

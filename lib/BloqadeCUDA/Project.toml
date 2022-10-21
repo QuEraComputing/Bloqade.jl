@@ -5,8 +5,10 @@ version = "0.1.1"
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+CuYao = "b48ca7a8-dd42-11e8-2b8e-1b7706800275"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
 Adapt = "3"

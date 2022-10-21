@@ -1,3 +1,4 @@
+@static if !hasmethod(+, Tuple{Diagonal{T,<:CuArray}, CuSparseMatrixCSC{T}} where T)
 # https://github.com/JuliaGPU/CUDA.jl/issues/1469
 
 for SparseMatrixType in [:CuSparseMatrixCSC, :CuSparseMatrixCSR]
@@ -9,4 +10,6 @@ for SparseMatrixType in [:CuSparseMatrixCSC, :CuSparseMatrixCSR]
             return lhs + $SparseMatrixType(rhs)
         end
     end
+end
+
 end

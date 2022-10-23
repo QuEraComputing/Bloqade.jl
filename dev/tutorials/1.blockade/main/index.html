@@ -9,7 +9,7 @@ pos = [(R * sin(i * 2 * pi / (nsites)), R * cos(i * 2 * pi / (nsites))) for i in
 atoms = AtomList(pos); # Define the atom positions as an AtomList.
 
 blockade_radius = sqrt(unit_disk_radius * R);  # R_b = \sqrt{R_min R_max}</code></pre><pre><code class="nohighlight hljs">    CondaPkg Found dependencies: /home/runner/work/Bloqade.jl/Bloqade.jl/CondaPkg.toml
-    CondaPkg Found dependencies: /home/runner/.julia/packages/PythonCall/eU0yr/CondaPkg.toml
+    CondaPkg Found dependencies: /home/runner/.julia/packages/PythonCall/Td3SH/CondaPkg.toml
     CondaPkg Resolving changes
              + libstdcxx-ng
     CondaPkg Installing packages
@@ -46,147 +46,98 @@ Transaction
    - conda-forge::python[version=&#39;&gt;=3.7,&lt;4&#39;,build=*cpython*]
 
 
-  Package              Version  Build               Channel                    Size
-─────────────────────────────────────────────────────────────────────────────────────
+  Package         Version  Build               Channel                    Size
+────────────────────────────────────────────────────────────────────────────────
   Install:
-─────────────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────
 
-  + lz4-c                1.9.3  h9c3ff4c_1          conda-forge/linux-64     Cached
-  + olefile               0.46  pyh9f0ad1d_1        conda-forge/noarch         33kB
-  + pcre                  8.45  h9c3ff4c_0          conda-forge/linux-64     Cached
+  + jbig              2.1  h7f98852_2003       conda-forge/linux-64     Cached
+  + lz4-c           1.9.3  h9c3ff4c_1          conda-forge/linux-64     Cached
+  + olefile          0.46  pyh9f0ad1d_1        conda-forge/noarch         33kB
+  + pcre             8.45  h9c3ff4c_0          conda-forge/linux-64     Cached
 
   Change:
-─────────────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────
 
-  - fonttools           4.37.4  py310h5764c6d_0     conda-forge              Cached
-  + fonttools           4.37.4  py39hb9d737c_0      conda-forge/linux-64        2MB
-  - matplotlib           3.5.1  py310hff52083_0     conda-forge              Cached
-  + matplotlib           3.5.1  py39hf3d152e_0      conda-forge/linux-64        6kB
-  - matplotlib-base      3.5.1  py310h23f4a51_0     conda-forge              Cached
-  + matplotlib-base      3.5.1  py39h2fa2bec_0      conda-forge/linux-64        8MB
-  - pyqt                5.12.3  py310hff52083_8     conda-forge              Cached
-  + pyqt                5.12.3  py39hf3d152e_8      conda-forge/linux-64       22kB
-  - pyqt-impl           5.12.3  py310h1f8e252_8     conda-forge              Cached
-  + pyqt-impl           5.12.3  py39hde8b62d_8      conda-forge/linux-64        6MB
-  - pyqt5-sip          4.19.18  py310h122e73d_8     conda-forge              Cached
-  + pyqt5-sip          4.19.18  py39he80948d_8      conda-forge/linux-64      318kB
-  - pyqtchart             5.12  py310hfcd6d55_8     conda-forge              Cached
-  + pyqtchart             5.12  py39h0fcd23e_8      conda-forge/linux-64      263kB
-  - pyqtwebengine       5.12.1  py310hfcd6d55_8     conda-forge              Cached
-  + pyqtwebengine       5.12.1  py39h0fcd23e_8      conda-forge/linux-64      178kB
-  - tornado                6.2  py310h5764c6d_0     conda-forge              Cached
-  + tornado                6.2  py39hb9d737c_0      conda-forge/linux-64      673kB
-  - unicodedata2        14.0.0  py310h5764c6d_1     conda-forge              Cached
-  + unicodedata2        14.0.0  py39hb9d737c_1      conda-forge/linux-64      510kB
-  - zstd                 1.5.2  h6239696_4          conda-forge              Cached
-  + zstd                 1.5.2  h8a70e8d_1          conda-forge/linux-64     Cached
+  - openjpeg        2.5.0  h7d73246_1          conda-forge              Cached
+  + openjpeg        2.5.0  h7d73246_0          conda-forge/linux-64     Cached
+  - zstd            1.5.2  h6239696_4          conda-forge              Cached
+  + zstd            1.5.2  h8a70e8d_1          conda-forge/linux-64     Cached
 
   Reinstall:
-─────────────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────
 
-  o certifi          2022.9.24  pyhd8ed1ab_0        conda-forge              Cached
-  o cycler              0.11.0  pyhd8ed1ab_0        conda-forge              Cached
-  o munkres              1.1.4  pyh9f0ad1d_0        conda-forge              Cached
-  o packaging             21.3  pyhd8ed1ab_0        conda-forge              Cached
-  o pip                   22.3  pyhd8ed1ab_0        conda-forge              Cached
-  o pyparsing            3.0.9  pyhd8ed1ab_0        conda-forge              Cached
-  o python-dateutil      2.8.2  pyhd8ed1ab_0        conda-forge              Cached
-  o setuptools          65.5.0  pyhd8ed1ab_0        conda-forge              Cached
-  o six                 1.16.0  pyh6c4a22f_0        conda-forge              Cached
-  o wheel               0.37.1  pyhd8ed1ab_0        conda-forge              Cached
+  o python         3.10.6  ha86cf86_0_cpython  conda-forge              Cached
 
   Downgrade:
-─────────────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────
 
-  - expat                2.4.9  h27087fc_0          conda-forge              Cached
-  + expat                2.4.8  h27087fc_0          conda-forge/linux-64     Cached
-  - glib                2.74.0  h6239696_0          conda-forge              Cached
-  + glib                2.70.2  h780b84a_4          conda-forge/linux-64      441kB
-  - glib-tools          2.74.0  h6239696_0          conda-forge              Cached
-  + glib-tools          2.70.2  h780b84a_4          conda-forge/linux-64      108kB
-  - gstreamer           1.20.3  hd4edc92_2          conda-forge              Cached
-  + gstreamer           1.20.2  hd4edc92_1          conda-forge/linux-64     Cached
-  - kiwisolver           1.4.4  py310hbf28c38_0     conda-forge              Cached
-  + kiwisolver           1.4.2  py39hf939315_1      conda-forge/linux-64       77kB
-  - lerc                 4.0.0  h27087fc_0          conda-forge              Cached
-  + lerc                   3.0  h9c3ff4c_0          conda-forge/linux-64     Cached
-  - libglib             2.74.0  h7a41b64_0          conda-forge              Cached
-  + libglib             2.70.2  h174f98d_4          conda-forge/linux-64     Cached
-  - libstdcxx-ng        12.2.0  h46fd767_18         conda-forge              Cached
-  + libstdcxx-ng        11.3.0  h239ccf8_18         conda-forge/linux-64     Cached
-  - libtiff              4.4.0  h55922b4_4          conda-forge              Cached
-  + libtiff              4.2.0  hf544144_3          conda-forge/linux-64      605kB
-  - mysql-common        8.0.31  h26416b9_0          conda-forge              Cached
-  + mysql-common        8.0.29  h26416b9_1          conda-forge/linux-64     Cached
-  - mysql-libs          8.0.31  hbc51c84_0          conda-forge              Cached
-  + mysql-libs          8.0.29  hbc51c84_1          conda-forge/linux-64     Cached
-  - nss                   3.78  h2350873_0          conda-forge              Cached
-  + nss                   3.77  h2350873_0          conda-forge/linux-64     Cached
-  - numpy               1.23.4  py310h53a5b5f_0     conda-forge              Cached
-  + numpy               1.22.3  py39hc58783e_2      conda-forge/linux-64        7MB
-  - openjpeg             2.5.0  h7d73246_1          conda-forge              Cached
-  + openjpeg             2.4.0  hb52868f_1          conda-forge/linux-64      455kB
-  - pillow               9.2.0  py310hbd86126_2     conda-forge              Cached
-  + pillow               8.2.0  py39hf95b381_1      conda-forge/linux-64      706kB
-  - python              3.10.6  ha86cf86_0_cpython  conda-forge              Cached
-  + python              3.9.13  h2660328_0_cpython  conda-forge/linux-64       28MB
-  - python_abi            3.10  2_cp310             conda-forge              Cached
-  + python_abi             3.9  2_cp39              conda-forge/linux-64        4kB
+  - expat           2.4.9  h27087fc_0          conda-forge              Cached
+  + expat           2.4.8  h27087fc_0          conda-forge/linux-64     Cached
+  - glib           2.74.0  h6239696_0          conda-forge              Cached
+  + glib           2.70.2  h780b84a_4          conda-forge/linux-64      441kB
+  - glib-tools     2.74.0  h6239696_0          conda-forge              Cached
+  + glib-tools     2.70.2  h780b84a_4          conda-forge/linux-64      108kB
+  - gstreamer      1.20.3  hd4edc92_2          conda-forge              Cached
+  + gstreamer      1.20.2  hd4edc92_1          conda-forge/linux-64     Cached
+  - kiwisolver      1.4.4  py310hbf28c38_0     conda-forge              Cached
+  + kiwisolver      1.4.2  py310hbf28c38_1     conda-forge/linux-64     Cached
+  - lerc            4.0.0  h27087fc_0          conda-forge              Cached
+  + lerc              3.0  h9c3ff4c_0          conda-forge/linux-64     Cached
+  - libdeflate       1.14  h166bdaf_0          conda-forge              Cached
+  + libdeflate       1.10  h7f98852_0          conda-forge/linux-64     Cached
+  - libglib        2.74.0  h7a41b64_0          conda-forge              Cached
+  + libglib        2.70.2  h174f98d_4          conda-forge/linux-64     Cached
+  - libstdcxx-ng   12.2.0  h46fd767_19         conda-forge              Cached
+  + libstdcxx-ng   11.3.0  h239ccf8_19         conda-forge/linux-64     Cached
+  - libtiff         4.4.0  h55922b4_4          conda-forge              Cached
+  + libtiff         4.3.0  h542a066_3          conda-forge/linux-64     Cached
+  - mysql-common   8.0.31  h26416b9_0          conda-forge              Cached
+  + mysql-common   8.0.29  h26416b9_1          conda-forge/linux-64     Cached
+  - mysql-libs     8.0.31  hbc51c84_0          conda-forge              Cached
+  + mysql-libs     8.0.29  hbc51c84_1          conda-forge/linux-64     Cached
+  - nss              3.78  h2350873_0          conda-forge              Cached
+  + nss              3.77  h2350873_0          conda-forge/linux-64     Cached
+  - numpy          1.23.4  py310h53a5b5f_0     conda-forge              Cached
+  + numpy          1.22.3  py310h4ef5377_2     conda-forge/linux-64     Cached
+  - pillow          9.2.0  py310hbd86126_2     conda-forge              Cached
+  + pillow          8.4.0  py310h07f4688_0     conda-forge/linux-64        1MB
 
   Summary:
 
-  Install: 3 packages
-  Change: 11 packages
-  Reinstall: 5 packages
-  Downgrade: 17 packages
+  Install: 4 packages
+  Change: 2 packages
+  Reinstall: 0 packages
+  Downgrade: 15 packages
 
-  Total download: 55MB
+  Total download: 2MB
 
-─────────────────────────────────────────────────────────────────────────────────────
+────────────────────────────────────────────────────────────────────────────────
 
 
 Transaction starting
-Changing libstdcxx-ng-12.2.0-h46fd767_18 ==&gt; libstdcxx-ng-11.3.0-h239ccf8_18
-Changing python-3.10.6-ha86cf86_0_cpython ==&gt; python-3.9.13-h2660328_0_cpython
+Changing libstdcxx-ng-12.2.0-h46fd767_19 ==&gt; libstdcxx-ng-11.3.0-h239ccf8_19
+Changing python-3.10.6-ha86cf86_0_cpython ==&gt; python-3.10.6-ha86cf86_0_cpython
+Changing libdeflate-1.14-h166bdaf_0 ==&gt; libdeflate-1.10-h7f98852_0
+Linking jbig-2.1-h7f98852_2003
 Linking lz4-c-1.9.3-h9c3ff4c_1
-Linking pcre-8.45-h9c3ff4c_0
 Changing nss-3.78-h2350873_0 ==&gt; nss-3.77-h2350873_0
-Changing mysql-common-8.0.31-h26416b9_0 ==&gt; mysql-common-8.0.29-h26416b9_1
 Changing expat-2.4.9-h27087fc_0 ==&gt; expat-2.4.8-h27087fc_0
+Changing mysql-common-8.0.31-h26416b9_0 ==&gt; mysql-common-8.0.29-h26416b9_1
 Changing lerc-4.0.0-h27087fc_0 ==&gt; lerc-3.0-h9c3ff4c_0
+Linking pcre-8.45-h9c3ff4c_0
+Changing numpy-1.23.4-py310h53a5b5f_0 ==&gt; numpy-1.22.3-py310h4ef5377_2
+Changing kiwisolver-1.4.4-py310hbf28c38_0 ==&gt; kiwisolver-1.4.2-py310hbf28c38_1
 Changing zstd-1.5.2-h6239696_4 ==&gt; zstd-1.5.2-h8a70e8d_1
 Changing libglib-2.74.0-h7a41b64_0 ==&gt; libglib-2.70.2-h174f98d_4
 Changing mysql-libs-8.0.31-hbc51c84_0 ==&gt; mysql-libs-8.0.29-hbc51c84_1
-Changing libtiff-4.4.0-h55922b4_4 ==&gt; libtiff-4.2.0-hf544144_3
+Changing libtiff-4.4.0-h55922b4_4 ==&gt; libtiff-4.3.0-h542a066_3
 Changing glib-tools-2.74.0-h6239696_0 ==&gt; glib-tools-2.70.2-h780b84a_4
 Changing gstreamer-1.20.3-hd4edc92_2 ==&gt; gstreamer-1.20.2-hd4edc92_1
-Changing openjpeg-2.5.0-h7d73246_1 ==&gt; openjpeg-2.4.0-hb52868f_1
-Changing setuptools-65.5.0-pyhd8ed1ab_0 ==&gt; setuptools-65.5.0-pyhd8ed1ab_0
-Changing wheel-0.37.1-pyhd8ed1ab_0 ==&gt; wheel-0.37.1-pyhd8ed1ab_0
-Changing pip-22.3-pyhd8ed1ab_0 ==&gt; pip-22.3-pyhd8ed1ab_0
-Changing six-1.16.0-pyh6c4a22f_0 ==&gt; six-1.16.0-pyh6c4a22f_0
-Changing certifi-2022.9.24-pyhd8ed1ab_0 ==&gt; certifi-2022.9.24-pyhd8ed1ab_0
-Changing munkres-1.1.4-pyh9f0ad1d_0 ==&gt; munkres-1.1.4-pyh9f0ad1d_0
-Changing pyparsing-3.0.9-pyhd8ed1ab_0 ==&gt; pyparsing-3.0.9-pyhd8ed1ab_0
-Changing cycler-0.11.0-pyhd8ed1ab_0 ==&gt; cycler-0.11.0-pyhd8ed1ab_0
-Linking olefile-0.46-pyh9f0ad1d_1
-Changing python-dateutil-2.8.2-pyhd8ed1ab_0 ==&gt; python-dateutil-2.8.2-pyhd8ed1ab_0
-Changing packaging-21.3-pyhd8ed1ab_0 ==&gt; packaging-21.3-pyhd8ed1ab_0
+Changing openjpeg-2.5.0-h7d73246_1 ==&gt; openjpeg-2.5.0-h7d73246_0
 Changing glib-2.74.0-h6239696_0 ==&gt; glib-2.70.2-h780b84a_4
-Changing python_abi-3.10-2_cp310 ==&gt; python_abi-3.9-2_cp39
-Changing pillow-9.2.0-py310hbd86126_2 ==&gt; pillow-8.2.0-py39hf95b381_1
-Changing kiwisolver-1.4.4-py310hbf28c38_0 ==&gt; kiwisolver-1.4.2-py39hf939315_1
-Changing unicodedata2-14.0.0-py310h5764c6d_1 ==&gt; unicodedata2-14.0.0-py39hb9d737c_1
-Changing numpy-1.23.4-py310h53a5b5f_0 ==&gt; numpy-1.22.3-py39hc58783e_2
-Changing pyqt5-sip-4.19.18-py310h122e73d_8 ==&gt; pyqt5-sip-4.19.18-py39he80948d_8
-Changing tornado-6.2-py310h5764c6d_0 ==&gt; tornado-6.2-py39hb9d737c_0
-Changing fonttools-4.37.4-py310h5764c6d_0 ==&gt; fonttools-4.37.4-py39hb9d737c_0
-Changing pyqt-impl-5.12.3-py310h1f8e252_8 ==&gt; pyqt-impl-5.12.3-py39hde8b62d_8
-Changing matplotlib-base-3.5.1-py310h23f4a51_0 ==&gt; matplotlib-base-3.5.1-py39h2fa2bec_0
-Changing pyqtchart-5.12-py310hfcd6d55_8 ==&gt; pyqtchart-5.12-py39h0fcd23e_8
-Changing pyqtwebengine-5.12.1-py310hfcd6d55_8 ==&gt; pyqtwebengine-5.12.1-py39h0fcd23e_8
-Changing pyqt-5.12.3-py310hff52083_8 ==&gt; pyqt-5.12.3-py39hf3d152e_8
-Changing matplotlib-3.5.1-py310hff52083_0 ==&gt; matplotlib-3.5.1-py39hf3d152e_0
+Linking olefile-0.46-pyh9f0ad1d_1
+Changing pillow-9.2.0-py310hbd86126_2 ==&gt; pillow-8.4.0-py310h07f4688_0
 Transaction finished
 </code></pre><p>The system is driven by a constant Rabi drive, which couples each atom&#39;s ground and Rydberg state. The Hamiltonian can be defined in Bloqade with:</p><pre><code class="language-julia hljs">C6 = 2π * 862690;
 Ω = C6 / blockade_radius^6
@@ -232,4 +183,4 @@ plt.plot(times, real(densities - densities2))
 plt.axis([0, 0.5, -0.001, 0.003])
 plt.ylabel(&quot;Difference&quot;, fontsize = 12)
 plt.yticks(LinRange(-0.001, 0.003, 5), fontsize = 12);
-plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);</code></pre><p><img src="../../../assets/RydbergBlockadeSubspace.png" alt="RydbergBlockadeSubspace"/></p><p>Data for this evolution is shown above, where exact evolution in the full space is shown by the black line, and the truncated evolution in the subspace is shown by the red dashed line. It is clear that even though the Hilbert space is <span>$12\times$</span> smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2-atom conditional blockade example above. However, at longer times, this subspace approximation fails to reproduce the full space (shown by divergence between the black and red dashed lines), as the perturbative effects become relevant over longer timescales.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« GPU Acceleration</a><a class="docs-footer-nextpage" href="../../2.adiabatic/main/">Adiabatic Evolution »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Tuesday 18 October 2022 21:37">Tuesday 18 October 2022</span>. Using Julia version 1.8.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);</code></pre><p><img src="../../../assets/RydbergBlockadeSubspace.png" alt="RydbergBlockadeSubspace"/></p><p>Data for this evolution is shown above, where exact evolution in the full space is shown by the black line, and the truncated evolution in the subspace is shown by the red dashed line. It is clear that even though the Hilbert space is <span>$12\times$</span> smaller, the dynamics are faithfully reproduced, up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, similar to the high frequency oscillations of the 2-atom conditional blockade example above. However, at longer times, this subspace approximation fails to reproduce the full space (shown by divergence between the black and red dashed lines), as the perturbative effects become relevant over longer timescales.</p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../../cuda/">« GPU Acceleration</a><a class="docs-footer-nextpage" href="../../2.adiabatic/main/">Adiabatic Evolution »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.23 on <span class="colophon-date" title="Sunday 23 October 2022 15:20">Sunday 23 October 2022</span>. Using Julia version 1.8.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

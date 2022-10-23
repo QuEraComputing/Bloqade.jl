@@ -229,6 +229,8 @@ struct PiecewiseLinear{T<:Real,Interp}
     function PiecewiseLinear(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
         length(clocks) == length(values) || throw(ArgumentError("expect clocks has the same length as values"))
+        T = promote_type(eltype(clocks), eltype(values))
+        clocks = Vector{T}(clocks); values = Vector{T}(values);
         interp = LinearInterpolation(clocks, values)
         return new{eltype(values),typeof(interp)}(clocks, values, interp)
     end
@@ -251,7 +253,8 @@ struct PiecewiseConstant{T<:Real}
     function PiecewiseConstant(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
         length(clocks) == length(values) + 1 || throw(ArgumentError("expect clocks has one more element than values"))
-        return new{eltype(values)}(clocks, values)
+        T = promote_type(eltype(values), eltype(clocks))
+        return new{T}(clocks, values)
     end
 end
 

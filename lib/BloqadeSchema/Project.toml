@@ -18,10 +18,13 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 [compat]
 BitBasis = "0.8"
 BloqadeExpr = "0.1"
+BloqadeODE = "0.1"
 BloqadeWaveforms = "0.1"
 Configurations = "0.17"
 GarishPrint = "0.5"
 JSON = "0.21"
+Roots = "2"
+Unitful = "1"
 Yao = "0.8"
 julia = "1.6"
 

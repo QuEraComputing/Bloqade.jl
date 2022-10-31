@@ -26,7 +26,7 @@ end
 
 
 
-function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};PBC::Bool=false) where D
+function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Real},D};PBC::Bool=false) where D
     lat_vecs = lattice_vectors(lattice)
     T = eltype(lat_vecs[1])
     bounds =  zeros(T,D,D)

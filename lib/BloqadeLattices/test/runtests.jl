@@ -529,8 +529,6 @@ end
 
     @test V_obc == rydberg_interaction_matrix(obc,1)
 
-
-
 end
 
 @testset "neighbors" begin

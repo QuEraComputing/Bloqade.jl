@@ -1,8 +1,6 @@
 
+function two_body_interaction_matrix(f, atoms)
 
-
-
-function two_body_interaction_matrix(atoms,f)
     natoms = length(atoms)
     mat = zeros(natoms,natoms)
 
@@ -15,8 +13,10 @@ function two_body_interaction_matrix(atoms,f)
     return mat
 end 
 
-function rydberg_interaction_matrix(atoms,C::Real)
-    return two_body_interaction_matrix(atoms,(x,y)->C/distance(x,y)^6)
+function rydberg_interaction_matrix(atoms, C::Real)
+    return two_body_interaction_matrix(atoms) do x,y
+        return C/distance(x,y)^6
+    end
 end
 
 
@@ -25,9 +25,13 @@ end
 
 function rydberg_interaction_matrix(lat::BoundedLattice{L,R},C::Real) where {L,R}
     if lat.PBC
-        return two_body_interaction_matrix(lat.site_positions,(x,y)->C/distance(lat.region,x,y)^6)
+        return two_body_interaction_matrix(lat.site_positions) do x,y
+            return C/distance(lat.region,x,y)^6
+        end 
     else
-        return two_body_interaction_matrix(lat.site_positions,(x,y)->C/distance(x,y)^6)
+        return two_body_interaction_matrix(lat.site_positions) do x,y
+            return C/distance(x,y)^6
+        end
     end
 end
 

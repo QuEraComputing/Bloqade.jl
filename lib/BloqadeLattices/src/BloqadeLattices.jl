@@ -47,6 +47,7 @@ export # types
     # bounded lattice
     BoundedLattice,
     parallelepiped_region,
+    dimension,
     # interact
     two_body_interaction_matrix,
     rydberg_interaction_matrix

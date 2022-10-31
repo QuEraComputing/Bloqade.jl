@@ -478,11 +478,13 @@ end
     bounded_lattice = parallelepiped_region(ChainLattice(),(4,);PBC=true)
     expected_positions = [(0.0,),(1.0,),(2.0,),(3.0,)]
     @test issetequal(bounded_lattice.site_positions,expected_positions)
+    @test dimension(bounded_lattice) == 1
 
     # square
     bounded_lattice = parallelepiped_region(SquareLattice(),(2,0),(0,2);PBC=true)
     expected_positions = [(0.0,0.0),(1.0,0.0),(0.0,1.0),(1.0,1.0)]
     @test issetequal(bounded_lattice.site_positions,expected_positions)
+    @test dimension(bounded_lattice) == 2
 
     # tilted square
     bounded_lattice = parallelepiped_region(SquareLattice(),(3,2),(-2,3))
@@ -506,7 +508,26 @@ end
         (2.0, 1.7320508075688772), (2.25, 1.299038105676658), (2.25, 2.1650635094610964)
     ]
     @test issetequal(bounded_lattice.site_positions,expected_positions)
+    @test dimension(bounded_lattice) == 2
 
+    # cube
+    cube_vectors = ((1.0, 0.0, 0.0), 
+                    (0.0, 1.0, 0.0), 
+                    (0.0, 0.0, 1.0))
+    cube_sites = ((0.0, 0.0, 0.0),)
+    cube_lattice = GeneralLattice(cube_vectors, cube_sites)
+    bounded_lattice = parallelepiped_region(cube_lattice, 
+                                            (1.1, 0.0, 0.0), 
+                                            (0.0, 1.1, 0.0),
+                                            (0.0, 0.0, 1.1);
+                                            PBC=false)
+    expected_positions = [
+        (0.0, 0.0, 0.0), 
+        (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0),
+        (1.0, 1.0, 0.0), (1.0, 0.0, 1.0), (0.0, 1.0, 1.0),
+        (1.0, 1.0, 1.0)
+    ]
+    @test issetequal(bounded_lattice.site_positions, expected_positions)
 end
 
 @testset "interact.jl" begin

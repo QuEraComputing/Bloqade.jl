@@ -258,11 +258,11 @@ function latex_expr(t::SumOfXPhaseTypes)
     return tex
 end
 
-function latex_expr(h::Union{RydbergHamiltonian, RydbergHamiltonian_3})
+function latex_expr(h::Union{RydbergHamiltonian, RydbergHamiltonian3})
     return latex_expr(add_terms(h))
 end
 
-function print_expr(io::IO, ::MIME"text/plain", h::Union{RydbergHamiltonian, RydbergHamiltonian_3})
+function print_expr(io::IO, ::MIME"text/plain", h::Union{RydbergHamiltonian, RydbergHamiltonian3})
     print(io,add_terms(h))
 end
 

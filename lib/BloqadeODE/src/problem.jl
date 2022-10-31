@@ -76,7 +76,7 @@ struct SchrodingerProblem{Reg,EquationType<:ODEFunction,uType,tType,Kwargs} <:
 end
 
 function SchrodingerProblem(reg::AbstractRegister, tspan, expr; kw...)
-    nqubits(reg) == nqubits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
+    nqudits(reg) == nqudits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
     # remove this after ArrayReg start using AbstractVector
     state = statevec(reg)
     space = YaoSubspaceArrayReg.space(reg)

@@ -70,6 +70,13 @@ end
         @test wf(100.0) ≈ 0.0011
         @test wf(200.0) ≈ 0.0021
     end
+
+    @testset "promote_type" begin
+        wf = piecewise_linear(clocks=[0,1.23], values= [0, 0])
+        @test eltype(wf) === Float64
+        wf = piecewise_constant(clocks=[0,1.23,1.5], values= [0, 0])
+        @test eltype(wf) === Float64
+    end
 end
 
 @testset "waveform + waveform" begin

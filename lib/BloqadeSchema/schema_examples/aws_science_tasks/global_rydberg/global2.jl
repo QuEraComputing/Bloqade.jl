@@ -8,11 +8,13 @@ using JSON
 atoms = AtomList([(0.0, 0.0)])
 
 T=2
-epsilon =0.01
-Ω = piecewise_constant(clocks=[0.0, epsilon, T+ epsilon , T+2*epsilon], values= 2π*[0.0, 3, 0])
+Ω = constant(;duration=T, value=6π)
+ϕ = constant(;duration=T, value=0)
+Δ = constant(;duration=T, value=0)
 
-H = rydberg_h(atoms;Ω=Ω)
-h = to_json(H,waveform_tolerance=1e-1,warn=true)
+h = rydberg_h(atoms;Ω=Ω,ϕ=ϕ,Δ=Δ)
+h_hardware,info = hardware_transform(h)
+h = to_json(h_hardware)
 
 
 open("lib/BloqadeSchema/schema_examples/aws_science_tasks/global_rydberg/global2.json","w") do f

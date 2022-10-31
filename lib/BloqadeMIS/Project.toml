@@ -1,6 +1,6 @@
 name = "BloqadeMIS"
 uuid = "bd27d05e-4ce1-5e74-84dd-c5d7d508bbe2"
-version = "0.1.5"
+version = "0.1.6"
 
 [deps]
 BitBasis = "50ba71b6-fa0f-514d-ae9a-0916efc90dcf"

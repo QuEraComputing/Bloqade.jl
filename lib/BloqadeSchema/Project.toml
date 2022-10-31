@@ -1,6 +1,6 @@
 name = "BloqadeSchema"
 uuid = "a64e8dd8-bb5a-11ec-104d-290571fc3a8d"
-version = "0.1.5"
+version = "0.2.0"
 
 [deps]
 BitBasis = "50ba71b6-fa0f-514d-ae9a-0916efc90dcf"
@@ -18,16 +18,20 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 [compat]
 BitBasis = "0.8"
 BloqadeExpr = "0.1"
+BloqadeODE = "0.1"
 BloqadeWaveforms = "0.1"
 Configurations = "0.17"
 GarishPrint = "0.5"
 JSON = "0.21"
+Roots = "2"
+Unitful = "1"
 Yao = "0.8"
 julia = "1.6"
 
 [extras]
+BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 Logging = "56ddb016-857b-54e1-b83d-db4d58db5568"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "Logging"]
+test = ["Test", "Logging", "BloqadeLattices"]

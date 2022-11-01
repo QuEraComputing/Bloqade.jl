@@ -9,6 +9,7 @@ using YaoSubspaceArrayReg
 @reexport using BloqadeExpr
 @reexport using OrdinaryDiffEq
 using BloqadeExpr: Hamiltonian
+using OrdinaryDiffEq: AutoSwitchCache
 using LinearAlgebra
 
 using OrdinaryDiffEq:

@@ -8,7 +8,7 @@ alt="Bloqade Logo" width="400"></img>
 [![Build Status](https://github.com/QuEraComputing/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/QuEraComputing/Bloqade.jl/actions)
 [![codecov](https://codecov.io/gh/QuEraComputing/Bloqade.jl/branch/master/graph/badge.svg?token=DYm2XwiTaR)](https://codecov.io/gh/QuEraComputing/Bloqade.jl)
 
-**If you have the following issue installing Bloqade**
+**We are experiencing an upstream issue from [mamba#2057](https://github.com/mamba-org/mamba/issues/2057), if you have the following issue installing Bloqade**
 
 ```
   ✗ Bloqade

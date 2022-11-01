@@ -517,10 +517,10 @@ end
     cube_sites = ((0.0, 0.0, 0.0),)
     cube_lattice = GeneralLattice(cube_vectors, cube_sites)
     bounded_lattice = parallelepiped_region(cube_lattice, 
-                                            (1.1, 0.0, 0.0), 
-                                            (0.0, 1.1, 0.0),
-                                            (0.0, 0.0, 1.1);
-                                            PBC=false)
+                                            (2, 0, 0), 
+                                            (0, 2, 0),
+                                            (0, 0, 2);
+                                            pbc=false)
     expected_positions = [
         (0.0, 0.0, 0.0), 
         (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0),

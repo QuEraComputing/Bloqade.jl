@@ -24,7 +24,7 @@ end
 
 
 function rydberg_interaction_matrix(lat::BoundedLattice{L,R},C::Real) where {L,R}
-    if lat.PBC
+    if lat.pbc
         return two_body_interaction_matrix(lat.site_positions) do x,y
             return C/distance(lat.region,x,y)^6
         end 

@@ -85,7 +85,7 @@ looking up dependencies in `lib` in one's `Project.toml` file,
 will `dev` all the Bloqade dependencies in your environment.
 
 See also [Modifying A Dependency](https://pkgdocs.julialang.org/v1/getting-started/#Modifying-A-Dependency)
-for more detailed explainations.
+for more detailed explanations.
 
 ### Create New Examples
 

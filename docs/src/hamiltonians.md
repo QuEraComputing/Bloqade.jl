@@ -140,7 +140,7 @@ space = blockade_subspace(atoms, 7.5)
 
 The above code means that the blockade subspace only includes states where there is only one Rydberg excitation 
 within the distance of 7.5 μm, which we call the subspace radius ``R_s``. If we have a chain of atoms separated by 5.72 μm, the blockade subspace 
-does not contain states with nearest-neighbor atoms being simutaneously excited to the Rydberg state `` | r \rangle ``.
+does not contain states with nearest-neighbor atoms being simultaneously excited to the Rydberg state `` | r \rangle ``.
 
 Once we have defined the space, we can convert the Hamiltonian to a matrix in a subspace basis via the codes below:
 

@@ -163,12 +163,17 @@ function to_dict(h::BloqadeExpr.RydbergHamiltonian,params::SchemaTranslationPara
     return Configurations.to_dict(to_schema(h,params))
 end
 
-
-
 function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationParams)
     atoms,ϕ,Ω,Δ,δ,Δi = schema_parse_rydberg_fields(h)
 
     violations = validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,params.device_capabilities)
+
+    params.n_shots < params.device_capabilities.task.numberShotsMin && push!(violations.misc_violations,
+        "n_shots $(params.n_shots) is less than minimum value $(params.device_capabilities.task.numberShotsMin)"
+    )
+    params.n_shots > params.device_capabilities.task.numberShotsMax && push!(violations.misc_violations,
+        "n_shots $(params.n_shots) is exceeds maximum value $(params.device_capabilities.task.numberShotsMax)"
+    )
 
     if !isempty(violations)
         throw(ValidationException(violations))
@@ -203,6 +208,98 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
     )
 end
 
+
+function to_json_no_validation(lattice::Union{Vector,Lattice};
+    ϕ::Maybe{PiecewiseConstantWaveform}=nothing,
+    Ω::Maybe{PiecewiseLinearWaveform}=nothing,
+    Δ::Maybe{PiecewiseLinearWaveform}=nothing,
+    δ::Maybe{PiecewiseLinearWaveform}=nothing,
+    Δi::Maybe{Vector{Number}}=nothing,kw...)
+    schema = to_schema_no_validation(lattice,ϕ,Ω,Δ,δ,Δi,SchemaTranslationParams(;kw...))
+    return JSON.json(Configurations.to_dict(schema))
+end
+
+function to_schema_no_validation(lattice::Union{Vector,Lattice};
+    ϕ::Maybe{PiecewiseConstantWaveform}=nothing,
+    Ω::Maybe{PiecewiseLinearWaveform}=nothing,
+    Δ::Maybe{PiecewiseLinearWaveform}=nothing,
+    δ::Maybe{PiecewiseLinearWaveform}=nothing,
+    Δi::Maybe{Vector{Number}}=nothing, 
+    kw...)
+    return to_schema_no_validation(lattice,ϕ,Ω,Δ,δ,Δi,SchemaTranslationParams(;kw...))
+end
+
+
+function to_schema_no_validation(lattice::Union{Vector,Lattice},
+    ϕ::Maybe{PiecewiseConstantWaveform},
+    Ω::Maybe{PiecewiseLinearWaveform},
+    Δ::Maybe{PiecewiseLinearWaveform},
+    δ::Maybe{PiecewiseLinearWaveform},
+    Δi::Maybe{Vector{Number}}, 
+    params::SchemaTranslationParams)
+    
+    duration = params.device_capabilities.rydberg.global_value.timeDeltaMin
+    # take maximum value for duration
+    
+    for wf in [Ω,Δ,ϕ]
+        duration =  (!isnothing(wf) ? max(wf.duration,duration) : duration)
+    end
+
+    ϕ = if !isnothing(ϕ)
+        (
+            clocks=ϕ.f.clocks,
+            values=[ϕ.f.values...,ϕ.f.values[end]] # add extra element at the end 
+        )
+    else
+        (
+            clocks = [0.0,0.0],
+            values = [0.0,duration]
+        )
+    end
+
+    Ω = if !isnothing(Ω)
+        (
+            clocks=Ω.f.clocks,
+            values=Ω.f.values
+        )
+    else
+        (
+            clocks = [0.0,0.0],
+            values = [0.0,duration]
+        )
+    end
+
+    Δ =  if !isnothing(Δ) 
+        (
+            clocks=Δ.f.clocks,
+            values=Δ.f.values
+        )
+    else
+        (
+            clocks = [0.0,0.0],
+            values = [0.0,duration]
+        )
+    end
+
+    δ = if !isnothing(δ)  
+        (
+            clocks=δ.f.clocks,
+            values=δ.f.values
+        )
+    end
+
+    return TaskSpecification(;
+        nshots=params.n_shots,
+        lattice=to_lattice(lattice),
+        effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ, δ, Δi)
+    )
+
+end
+
+to_lattice(lattice::Lattice) = Lattice(
+    sites = [convert_units.(site,μm,m) for site in lattice.sites],
+    filling = lattice.filling
+)
 
 function to_lattice(atoms::Vector)
     coords = map(atoms) do coord
@@ -255,7 +352,7 @@ function to_hamiltonian(
     ϕ::NamedTuple,
     Δ::NamedTuple,
     δ::Nothing,
-    Δ_i::Real)
+    Δ_i::Maybe{Real})
 
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;

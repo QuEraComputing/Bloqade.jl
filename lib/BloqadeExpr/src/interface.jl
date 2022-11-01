@@ -177,7 +177,7 @@ function rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
         nothing
     end
 
-    rh3 = RydbergHamiltonian_3(rydberg_term, rabi_term_hf, detuning_term_hf, rabi_term_r, detuning_term_r)
+    rh3 = RydbergHamiltonian3(rydberg_term, rabi_term_hf, detuning_term_hf, rabi_term_r, detuning_term_r)
     return rh3
 end
 
@@ -337,4 +337,4 @@ function attime(h::SumOfZAndNTypes, t::Real)
 end
 
 attime(h::RydbergHamiltonian, t::Real) = attime(add_terms(h),t)
-attime(h::RydbergHamiltonian_3, t::Real) = attime(add_terms(h),t)
+attime(h::RydbergHamiltonian3, t::Real) = attime(add_terms(h),t)

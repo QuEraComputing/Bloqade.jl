@@ -8,38 +8,6 @@ alt="Bloqade Logo" width="400"></img>
 [![Build Status](https://github.com/QuEraComputing/Bloqade.jl/workflows/CI/badge.svg)](https://github.com/QuEraComputing/Bloqade.jl/actions)
 [![codecov](https://codecov.io/gh/QuEraComputing/Bloqade.jl/branch/master/graph/badge.svg?token=DYm2XwiTaR)](https://codecov.io/gh/QuEraComputing/Bloqade.jl)
 
-**We are experiencing an upstream issue from [mamba#2057](https://github.com/mamba-org/mamba/issues/2057), if you have the following issue installing Bloqade**
-
-```
-  ✗ Bloqade
-  243 dependencies successfully precompiled in 550 seconds (16 already precompiled)
-  1 dependency errored. To see a full report either run `import Pkg; Pkg.precompile()` or load the package
-     Testing Running tests...
-    CondaPkg Found dependencies: /home/runner/work/Bloqade.jl/Bloqade.jl/CondaPkg.toml
-    CondaPkg Found dependencies: /home/runner/.julia/packages/PythonCall/Td3SH/CondaPkg.toml
-    CondaPkg Resolving changes
-             + libstdcxx-ng
-             + matplotlib
-             + python
- Downloading artifact: micromamba-0.27.0
- Downloading artifact: micromamba-0.27.0
-┌ Error: Hash Mismatch!
-│   Expected sha256:   4adbf3091a4159af2c48264a8e32ecb98147b0e3f200601f384f8f53a6910ca2
-│   Calculated sha256: 1bb0c8896927a64a6d73a33fa08a915c22c57b240db92e2d6595b6741f509ed0
-└ @ Pkg.PlatformEngines /buildworker/worker/package_linux64/build/usr/share/julia/stdlib/v1.6/Pkg/src/PlatformEngines.jl:629
-ERROR: LoadError: InitError: Unable to automatically install 'micromamba-0.27.0' from '/home/runner/.julia/packages/MicroMamba/rCGZ4/Artifacts.toml'
-Stacktrace:
-  [1] error(s::String)
-```
-
-**please consider run the following command instead**
-
-```julia
-pkg> add https://github.com/kshyatt/MicroMamba.jl.git#ksh/artifactfix
-
-pkg> add Bloqade
-```
-
 Bloqade is a package developed for quantum computation and quantum simulation based on the neutral-atom architecture. Please refer to the [documentation](https://queracomputing.github.io/Bloqade.jl/dev/) page to learn more about Bloqade.
 
 **Bloqade is currently under public release beta. High-level APIs are stable, but please expect some further exploration and rough edges.**

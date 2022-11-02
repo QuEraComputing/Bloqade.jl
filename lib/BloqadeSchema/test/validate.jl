@@ -204,6 +204,7 @@ end
         "Δ(t) minimum step with value 0.001 μs below minimum value of $min_time_step μs"
     ])
     
+    # violating slope constraint also means violating maximum value constraint
     supported_max_slope = rydberg_capabilities.Δ.max_slope
     end_value = set_resolution(supported_max_slope*1.01 * 0.05, rydberg_capabilities.Δ.value_resolution)
     slope = end_value/0.05
@@ -220,7 +221,7 @@ end
     ])
 
     supported_max_value = rydberg_capabilities.Δ.max_value
-    # cannot go below hardware supported minimum value
+    # cannot go beyond hardware supported maximum Δ value
     Δ = piecewise_linear(;clocks=[0.0,4.0], values=[0.0, supported_max_value+0.1])
     @test validate_Δ(Δ, rydberg_capabilities.Δ) == Set([
         "Δ(t) maximum value with value $(supported_max_value+0.1) rad⋅MHz exceeds maximum value of $supported_max_value rad⋅MHz"

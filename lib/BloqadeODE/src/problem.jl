@@ -76,7 +76,7 @@ struct SchrodingerProblem{Reg,EquationType<:ODEFunction,uType,tType,Algo,Kwargs}
     p::Nothing # well make DiffEq happy
 end
 
-function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=AutoVern9(Rodas5()), kw...)
+function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=AutoVern9(Rodas5(autodiff=false)), kw...)
     nqudits(reg) == nqudits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
     # remove this after ArrayReg start using AbstractVector
     state = statevec(reg)
@@ -89,10 +89,13 @@ function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=AutoVern9(R
     eq = SchrodingerEquation(expr, Hamiltonian(T, expr, space))
     ode_f = ODEFunction(eq)
 
+    tspan_type = promote_type(real(eltype(state)), eltype(tspan))
+    tspan = tspan_type.(tspan) # promote tspan to T so Dual number works
+
     default_ode_options = (save_everystep = false, save_start = false, save_on = false, dense = false)
     kw = pairs(merge(default_ode_options, kw))
 
-    return SchrodingerProblem{typeof(reg),typeof(ode_f),typeof(state),typeof(tspan),typeof(kw)}(
+    return SchrodingerProblem{typeof(reg),typeof(ode_f),typeof(state),typeof(tspan),typeof(algo), typeof(kw)}(
         reg,
         ode_f,
         state,

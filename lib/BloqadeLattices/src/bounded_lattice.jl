@@ -44,6 +44,7 @@ end
 
 dimension(lattice::BoundedLattice{L,C}) where {L,C} = dimension(lattice.lattice)
 lattice_vectors(lattice::BoundedLattice{L,C}) where {L,C} = lattice_vectors(lattice.lattice)
+Base.length(lattice::BoundedLattice{L,C}) where {L,C} = length(lattice.site_positions)
 
 # what behavior to produce when position is not found?
 function get_position_index(pos,lattice::BoundedLattice{L,C}) where {L,C}

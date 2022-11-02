@@ -96,7 +96,11 @@ function (wf::Waveform)(t::Real, offset::Real = zero(t))
     t - offset < wf.duration ||
         t - offset ≈ wf.duration ||
         throw(ArgumentError("t is not in range, expect $(offset) ≤ t ≤ $(wf.duration + offset), got $t"))
-    return wf.f(t - offset)
+    
+    # NOTE: t - offset is always smaller than wf.duration
+    # but it may be slightly larger due to floating point error
+    # so we need to always use the smaller of the two values
+    return wf.f(min(t - offset, wf.duration))
 end
 
 function sample_clock(wf::Waveform; offset::Real = zero(eltype(wf)), dt::Real = 1e-3)
@@ -205,7 +209,7 @@ function append(wf::Waveform, wfs::Waveform...)
 
     return Waveform(duration) do t
         zero(wf.duration) ≤ t ≤ wf.duration && return wf(t)
-        
+
         idx = searchsortedlast(offsets,t)
         return wfs[idx](t, offsets[idx])
     end

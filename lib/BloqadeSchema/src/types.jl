@@ -142,12 +142,17 @@ end
 # end
 
 
-function convert_units(values::AbstractDict,units::AbstractDict)
-    new_values = Dict(values)
-
-    for (key,value) in values
-        unitful_value = Quantity()
-        new_values[]
+@eval function convert_units(value,units)
+    if typeof(values) <: AbstractDict
+        new_values = Dict()
+        for (key,value) in values
+            new_values[key] = convert_units(value,units[key])
+        end
+        return new_values
+    else
+        unit_expr = Base.Meta.eval(units)
+        unitful_value = Quantity($value,$unit_expr)
+        return BloqadeExpr.default_unit(unitful_value)
     end
 end
 
@@ -260,31 +265,35 @@ get_device_capabilities_SI() = DeviceCapabilities(
 )
 =#
 
-function get_device_capabilities(capabilities_file=nothing) 
-    if isnothing(path_to_json)
-        path_to_json = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json"])
-        capabilities_json_SI = JSON.parse(JSON.open(path_to_json))
-        
+function get_device_capabilities(capabilities_file=nothing)
+    units_file = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock-units.json"])
+    capabilities_json_units = JSON.parse(JSON.open(units_file))
+
+    capabilities_json_SI = if isnothing(capabilities_file)
+        capabilities_file = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json"])
+        JSON.parse(JSON.open(capabilities_file))["capabilities"]
     else
-        JSON.parse(JSON.open(path_to_json))
-        capabilities_json = JSON.parse(JSON.open(path_to_json))
-        return Configurations.from_dict(DeviceCapabilities,capabilities_json)
+        JSON.parse(JSON.open(capabilities_file))
     end
+    
+    capabilities_json = convert_units_recursive(capabilities_json_SI,capabilities_json_units)
+
+    return Configurations.from_dict(DeviceCapabilities,capabilities_json)
 end
 
 
 # leave as SI units, needed for rounding purposes
 
-function get_device_capabilities_SI(path_to_json=nothing)
-    if isnothing(path_to_json)
-        path_to_json = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json"])
-        capabilities_json = JSON.parse(JSON.open(path_to_json))
-        return Configurations.from_dict(DeviceCapabilities,capabilities_json["capabilities"])
+function get_device_capabilities_SI(capabilities_file=nothing)
+
+    capabilities_json = if isnothing(capabilities_file)
+        capabilities_file = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json"])
+        JSON.parse(JSON.open(capabilities_file))["capabilities"]
     else
-        JSON.parse(JSON.open(path_to_json))
-        capabilities_json = JSON.parse(JSON.open(path_to_json))
-        return Configurations.from_dict(DeviceCapabilities,capabilities_json)
+        JSON.parse(JSON.open(capabilities_file))
     end
+
+    return Configurations.from_dict(DeviceCapabilities,capabilities_json)
 end
 
 

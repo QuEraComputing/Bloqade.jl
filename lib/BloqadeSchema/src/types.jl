@@ -96,26 +96,25 @@ end
     detuning_max::Float64
     detuning_resolution::Float64
     detuning_slew_rate_max::Float64
-    phaseMin::Float64
-    phaseMax::Float64
-    phaseResolution::Float64
-    phaseSlewRateMax::Float64
-    timeMin::Float64
-    timeMax::Float64
-    timeResolution::Float64
-    timeDeltaMin::Float64
+    phase_min::Float64
+    phase_max::Float64
+    phase_resolution::Float64
+    time_min::Float64
+    time_max::Float64
+    time_resolution::Float64
+    time_delta_min::Float64
 end
 
 @option mutable struct RydbergLocalCapabilities <: QuEraSchema 
-    detuningMin::Float64
-    detuningMax::Float64
-    commonDetuningResolution::Float64
-    localDetuningResolution::Float64
-    detuningSlewRateMax::Float64
-    numberLocalDetuningSites::Int
-    spacingRadialMin::Float64
-    timeResolution::Float64
-    timeDeltaMin::Float64
+    detuning_min::Float64
+    detuning_max::Float64
+    common_detuning_resolution::Float64
+    local_detuning_resolution::Float64
+    detuning_slew_rate_max::Float64
+    number_local_detuning_sites::Int
+    spacing_radial_min::Float64
+    time_resolution::Float64
+    time_delta_min::Float64
 end
 
 @option struct RydbergCapabilities <: QuEraSchema 
@@ -135,11 +134,21 @@ end
     rydberg::RydbergCapabilities
 end
 
-function get_device_capabilities_SI(json_path::AbstractString)
-    open(json_path) do f
-        device_capabilities = JSON.parse(f)
-        return Configurations.from_dict(DeviceCapabilities,device_capabilities["capabilities"])
-    end 
+# function get_device_capabilities_SI(json_path::AbstractString)
+#     open(json_path) do f
+#         device_capabilities = JSON.parse(f)
+#         return Configurations.from_dict(DeviceCapabilities,device_capabilities["capabilities"])
+#     end 
+# end
+
+
+function convert_units(values::AbstractDict,units::AbstractDict)
+    new_values = Dict(values)
+
+    for (key,value) in values
+        unitful_value = Quantity()
+        new_values[]
+    end
 end
 
 
@@ -250,19 +259,32 @@ get_device_capabilities_SI() = DeviceCapabilities(
     )
 )
 =#
-function get_device_capabilities(capabilities_file=nothing) 
 
+function get_device_capabilities(capabilities_file=nothing) 
+    if isnothing(path_to_json)
+        path_to_json = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json"])
+        capabilities_json_SI = JSON.parse(JSON.open(path_to_json))
+        
+    else
+        JSON.parse(JSON.open(path_to_json))
+        capabilities_json = JSON.parse(JSON.open(path_to_json))
+        return Configurations.from_dict(DeviceCapabilities,capabilities_json)
+    end
 end
 
 
 # leave as SI units, needed for rounding purposes
 
-function get_device_capabilities_SI()
-    filename = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json"])
-    capabilities_json = JSON.parse(JSON.open(filename))
-
-    device_capabilities = Configurations.from_dict(DeviceCapabilities,capabilities_json["capabilities"])
-
+function get_device_capabilities_SI(path_to_json=nothing)
+    if isnothing(path_to_json)
+        path_to_json = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json"])
+        capabilities_json = JSON.parse(JSON.open(path_to_json))
+        return Configurations.from_dict(DeviceCapabilities,capabilities_json["capabilities"])
+    else
+        JSON.parse(JSON.open(path_to_json))
+        capabilities_json = JSON.parse(JSON.open(path_to_json))
+        return Configurations.from_dict(DeviceCapabilities,capabilities_json)
+    end
 end
 
 

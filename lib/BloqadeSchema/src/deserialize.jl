@@ -23,11 +23,12 @@ end
 
 function Configurations.from_dict(::Type{RydbergCapabilities}, d::Dict{String,<:Any})
     return if haskey(d, "local")
-        RydbergDetuning(
+        RydbergCapabilities(
+            c6_coefficient=d["c6_coefficient"],
             global_value=Configurations.from_dict(RydbergGlobalCapabilities, d["global"]),
             local_value=Configurations.from_dict(RydbergLocalCapabilities, d["local"])
         )
     else
-        RydbergDetuning(global_value = Configurations.from_dict(RydbergGlobalCapabilities, d["global"]), local_value = nothing)
+        RydbergCapabilities(c6_coefficient=d["c6_coefficient"],global_value = Configurations.from_dict(RydbergGlobalCapabilities, d["global"]), local_value = nothing)
     end
 end

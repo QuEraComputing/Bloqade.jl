@@ -26,7 +26,10 @@ function convert_units_recursive(input_value,units)
     else
         units == "NoUnits" && return input_value
              
-        to_units = replace(units,"m"=>"μm","s"=>"μs")
+        to_units = replace(
+                replace(units,
+                "m"=>"μm"),
+            "s"=>"μs")
 
         from = Base.eval(@__MODULE__,parse_unit(@__MODULE__,units))
         to   = Base.eval(@__MODULE__,parse_unit(@__MODULE__,to_units))
@@ -36,11 +39,11 @@ function convert_units_recursive(input_value,units)
 end
 
 function get_device_capabilities(capabilities_file=nothing)
-    units_file = Base.Filesystem.joinpath([dirname(pathof(@__MODULE__)),"config","capabilities-qpu1-mock-units.json"])
+    units_file = Base.Filesystem.joinpath(dirname(pathof(@__MODULE__)),"config","capabilities-qpu1-mock-units.json")
     capabilities_json_units = JSON.parse(JSON.open(units_file))["capabilities"]
 
     capabilities_json_SI = if isnothing(capabilities_file)
-        capabilities_file = Base.Filesystem.joinpath([dirname(pathof(@__MODULE__)),"config","capabilities-qpu1-mock.json"])
+        capabilities_file = Base.Filesystem.joinpath(dirname(pathof(@__MODULE__)),"config","capabilities-qpu1-mock.json")
         JSON.parse(JSON.open(capabilities_file))["capabilities"]
     else
         JSON.parse(JSON.open(capabilities_file))
@@ -57,7 +60,7 @@ end
 function get_device_capabilities_SI(capabilities_file=nothing)
 
     capabilities_json = if isnothing(capabilities_file)
-        capabilities_file = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json"])
+        capabilities_file = Base.Filesystem.joinpath(dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json")
         JSON.parse(JSON.open(capabilities_file))["capabilities"]
     else
         JSON.parse(JSON.open(capabilities_file))

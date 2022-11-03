@@ -23,6 +23,10 @@ end
     include("execute.jl")
 end
 
+@testet "types" begin
+    include("types.jl")
+end
+
 # @testset "serialize" begin
 #     include("serialize.jl")
 # end

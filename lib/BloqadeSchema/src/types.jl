@@ -1,4 +1,5 @@
 using GarishPrint
+using JSON
 
 const PiecewiseLinearWaveform = Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T} where {T<:Real,I}
 const PiecewiseConstantWaveform = Waveform{BloqadeWaveforms.PiecewiseConstant{T},T} where {T<:Real}
@@ -73,16 +74,16 @@ end
 end
 
 @option mutable struct LatticeGeometryCapabilities <: QuEraSchema 
-    spacingRadialMin::Float64
-    spacingVerticalMin::Float64
-    positionResolution::Float64
-    numberSitesMax::Int
+    spacing_radial_min::Float64
+    spacing_vertical_min::Float64
+    position_resolution::Float64
+    number_sites_max::Int
 end
 
 @option mutable struct LatticeCapabilities <: QuEraSchema 
     area::LatticeAreaCapabilities
     geometry::LatticeGeometryCapabilities
-    numberQubitsMax::Int
+    number_qubits_max::Int
 end
 
 # non snake case is from API
@@ -118,20 +119,27 @@ end
 end
 
 @option struct RydbergCapabilities <: QuEraSchema 
-    c6Coefficient::Float64
+    c6_coefficient::Float64
     global_value::RydbergGlobalCapabilities
     local_value::RydbergLocalCapabilities
 end
 
 @option mutable struct TaskCapabilities <: QuEraSchema 
-    numberShotsMin::Int 
-    numberShotsMax::Int
+    number_shots_min::Int 
+    number_shots_max::Int
 end
 
 @option struct DeviceCapabilities <: QuEraSchema
     task::TaskCapabilities
     lattice::LatticeCapabilities
     rydberg::RydbergCapabilities
+end
+
+function get_device_capabilities_SI(json_path::AbstractString)
+    open(json_path) do f
+        device_capabilities = JSON.parse(f)
+        return Configurations.from_dict(DeviceCapabilities,device_capabilities["capabilities"])
+    end 
 end
 
 

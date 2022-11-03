@@ -65,54 +65,6 @@ end
 
 # copying structure from device API 
 
-# see https://github.com/QuEra-QCS/TaskManager/blob/0be1d6f86bce8267b8a6d10f91019791eb24366e/api-impl/src/main/kotlin/com/queraqcs/ahs/services/v1/qpu/StubQpuCapabilitiesService.kt
-"""
-private val capabilitiesByQpuId = mapOf(
-    "qpu1-mock" to VersionedCapabilities(
-        version = "0.2",
-        DeviceCapabilities(
-            TaskCapabilities(
-                numberShotsMin = 1,
-                numberShotsMax = 1000,
-            ),
-            LatticeCapabilities(
-                numberQubitsMax = 100,
-                LatticeAreaCapabilities(
-                    width = 56e-6,
-                    height = 100e-6,
-                ),
-                LatticeGeometryCapabilities(
-                    spacingRadialMin = 4e-6,
-                    spacingVerticalMin = 2.5e-6,
-                    positionResolution = 0.1e-6,
-                    numberSitesMax = 256,
-                ),
-            ),
-            RydbergCapabilities(
-                c6Coefficient = 5.420e-24,
-                RydbergGlobalCapabilities(
-                    rabiFrequencyMin = 0.0,
-                    rabiFrequencyMax = 6.30e6,
-                    rabiFrequencyResolution = 400.0,
-                    rabiFrequencySlewRateMax = 2.5e14,
-                    detuningMin = -125.0e6,
-                    detuningMax = 125.0e6,
-                    detuningResolution = 0.2,
-                    detuningSlewRateMax = 2.5e15,
-                    phaseMin = -99.0,
-                    phaseMax = 99.0,
-                    phaseResolution = 0.5e-6,
-                    timeMin = 0.0,
-                    timeMax = 4e-6,
-                    timeResolution = 1e-9,
-                    timeDeltaMin = 10e-9,
-                )
-            ),
-        ),
-    ),
-)
-"""
-
 # make field mutable for user to change parameters
 
 @option mutable struct LatticeAreaCapabilities <: QuEraSchema 

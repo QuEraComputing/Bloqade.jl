@@ -269,12 +269,12 @@ end
 # public API exposed here: 
 
 function hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities=get_device_capabilities())
-    time_res = device_capabilities.rydberg.global_value.timeResolution
-    min_step = device_capabilities.rydberg.global_value.timeDeltaMin
-    rabi_res = device_capabilities.rydberg.global_value.rabiFrequencyResolution
-    max_slope = device_capabilities.rydberg.global_value.rabiFrequencySlewRateMax
-    max_value = device_capabilities.rydberg.global_value.rabiFrequencyMax
-    min_value = device_capabilities.rydberg.global_value.rabiFrequencyMin
+    time_res = device_capabilities.rydberg.global_value.time_resolution
+    min_step = device_capabilities.rydberg.global_value.time_delta_min
+    rabi_res = device_capabilities.rydberg.global_value.rabi_frequency_resolution
+    max_slope = device_capabilities.rydberg.global_value.rabi_frequency_slew_rate_max
+    max_value = device_capabilities.rydberg.global_value.rabi_frequency_max
+    min_value = device_capabilities.rydberg.global_value.rabi_frequency_min
 
     check_waveform(Ω,:Ω)
     check_global(Ω,:Ω)
@@ -304,11 +304,11 @@ end
 
 function hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities=get_device_capabilities())
 
-    time_res = device_capabilities.rydberg.global_value.timeResolution
-    min_step = device_capabilities.rydberg.global_value.timeDeltaMin
-    phase_res = device_capabilities.rydberg.global_value.phaseResolution
-    max_value = device_capabilities.rydberg.global_value.phaseMax
-    min_value = device_capabilities.rydberg.global_value.phaseMin
+    time_res = device_capabilities.rydberg.global_value.time_resolution
+    min_step = device_capabilities.rydberg.global_value.time_delta_min
+    phase_res = device_capabilities.rydberg.global_value.phase_resolution
+    max_value = device_capabilities.rydberg.global_value.phase_max
+    min_value = device_capabilities.rydberg.global_value.phase_min
 
     # Can't feed in array of waveforms for ϕ
     check_global(ϕ,:ϕ)
@@ -342,15 +342,15 @@ end
 
 function hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities=get_device_capabilities())
 
-    time_res = device_capabilities.rydberg.global_value.timeResolution
-    min_step = device_capabilities.rydberg.global_value.timeDeltaMin
+    time_res = device_capabilities.rydberg.global_value.time_resolution
+    min_step = device_capabilities.rydberg.global_value.time_delta_min
     
-    detune_res = device_capabilities.rydberg.global_value.detuningResolution
-    local_res = device_capabilities.rydberg.local_value.localDetuningResolution
-    common_detune_res = device_capabilities.rydberg.local_value.commonDetuningResolution
-    max_slope = device_capabilities.rydberg.global_value.detuningSlewRateMax
-    max_value = device_capabilities.rydberg.global_value.detuningMax
-    min_value = device_capabilities.rydberg.global_value.detuningMin
+    detune_res = device_capabilities.rydberg.global_value.detuning_resolution
+    # local_res = device_capabilities.rydberg.local_value.local_detuning_resolution
+    # common_detune_res = device_capabilities.rydberg.local_value.common_detuning_resolution
+    max_slope = device_capabilities.rydberg.global_value.detuning_slew_rate_max
+    max_value = device_capabilities.rydberg.global_value.detuning_max
+    min_value = device_capabilities.rydberg.global_value.detuning_min
 
 
     check_waveform(Δ,:Δ)

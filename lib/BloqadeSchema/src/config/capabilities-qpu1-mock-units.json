@@ -16,11 +16,11 @@
           "spacing_radial_min": "m",
           "spacing_vertical_min": "m",
           "position_resolution": "m",
-          "number_sites_max": "m"
+          "number_sites_max": "NoUnits"
         }
       },
       "rydberg": {
-        "c6_coefficient": "rad*m^6",
+        "c6_coefficient": "rad*m^6/s",
         "global": {
           "rabi_frequency_min": "rad/s",
           "rabi_frequency_max": "rad/s",

@@ -24,6 +24,7 @@ end
     for x in [0.1,1,1.5]
         B = constant(;duration=x,value=1)
         @test 2-x ≈ BloqadeSchema.norm_diff_durations(A,B)
+        @test 2-x ≈ BloqadeSchema.norm_diff_durations(B,A)
     end
 end
 

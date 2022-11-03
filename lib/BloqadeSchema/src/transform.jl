@@ -13,7 +13,7 @@ function norm_diff_durations(A::Waveform,B::Waveform)
         B = append(B,constant(;duration=T_diff,value=0))
         return norm(A-B)
     else
-        T_diff = B.duration - B.duration
+        T_diff = B.duration - A.duration
         A = append(A,constant(;duration=T_diff,value=0))
         return norm(A-B)
     end

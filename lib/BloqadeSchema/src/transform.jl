@@ -416,7 +416,7 @@ end
 
 function hardware_transform_atoms(atoms,device_capabilities::DeviceCapabilities=get_device_capabilities())
 
-    pos_resolution = device_capabilities.lattice.geometry.positionResolution
+    pos_resolution = device_capabilities.lattice.geometry.position_resolution
 
     new_atoms = [set_resolution.(pos,pos_resolution) for pos in atoms]
 

@@ -23,7 +23,7 @@ end
     include("execute.jl")
 end
 
-@testet "types" begin
+@testset "types" begin
     include("types.jl")
 end
 

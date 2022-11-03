@@ -69,44 +69,74 @@ end
 
 
 function get_rydberg_capabilities(;device_capabilities::DeviceCapabilities=get_device_capabilities())
-    return (
-        Ω=(
-            min_time_step = device_capabilities.rydberg.global_value.time_delta_min,
-            time_resolution = device_capabilities.rydberg.global_value.time_resolution,
-            max_time = device_capabilities.rydberg.global_value.time_max,
-            max_value = device_capabilities.rydberg.global_value.rabi_frequency_max,
-            min_value = device_capabilities.rydberg.global_value.rabi_frequency_min,
-            max_slope = device_capabilities.rydberg.global_value.rabi_frequency_slew_rate_max,
-            value_resolution = device_capabilities.rydberg.global_value.rabi_frequency_resolution
-        ),
-        ϕ = (
-            min_time_step = device_capabilities.rydberg.global_value.time_delta_min,
-            time_resolution = device_capabilities.rydberg.global_value.time_resolution,
-            max_time = device_capabilities.rydberg.global_value.time_max,
-            max_value = device_capabilities.rydberg.global_value.phase_max,
-            min_value = device_capabilities.rydberg.global_value.phase_min,
-            max_slope = device_capabilities.rydberg.global_value.phase_slew_rate_max,
-            value_resolution = device_capabilities.rydberg.global_value.phase_resolution
-        ),
-        Δ = (
-            min_time_step = device_capabilities.rydberg.global_value.time_delta_min,
-            time_resolution = device_capabilities.rydberg.global_value.time_resolution,
-            max_time = device_capabilities.rydberg.global_value.time_max,
-            max_value = device_capabilities.rydberg.global_value.detuning_max,
-            min_value = device_capabilities.rydberg.global_value.detuning_min,
-            max_slope = device_capabilities.rydberg.global_value.detuning_slew_rate_max,
-            value_resolution = device_capabilities.rydberg.global_value.detuning_resolution
-        ),
-        δ = (
-            min_time_step = device_capabilities.rydberg.local_value.time_delta_min,
-            time_resolution = device_capabilities.rydberg.local_value.time_resolution,
-            max_time = device_capabilities.rydberg.global_value.time_max,
-            max_value = device_capabilities.rydberg.local_value.detuning_max,
-            min_value = device_capabilities.rydberg.local_value.detuning_min,
-            max_slope = device_capabilities.rydberg.local_value.detuning_slew_rate_max,
-            value_resolution = device_capabilities.rydberg.local_value.common_detuning_resolution,
-            local_mask_resolution = device_capabilities.rydberg.local_value.local_detuning_resolution
+    return if isnothing(device_capabilities.rydberg.local_value)
+        (
+            Ω=(
+                min_time_step = device_capabilities.rydberg.global_value.time_delta_min,
+                time_resolution = device_capabilities.rydberg.global_value.time_resolution,
+                max_time = device_capabilities.rydberg.global_value.time_max,
+                max_value = device_capabilities.rydberg.global_value.rabi_frequency_max,
+                min_value = device_capabilities.rydberg.global_value.rabi_frequency_min,
+                max_slope = device_capabilities.rydberg.global_value.rabi_frequency_slew_rate_max,
+                value_resolution = device_capabilities.rydberg.global_value.rabi_frequency_resolution
+            ),
+            ϕ = (
+                min_time_step = device_capabilities.rydberg.global_value.time_delta_min,
+                time_resolution = device_capabilities.rydberg.global_value.time_resolution,
+                max_time = device_capabilities.rydberg.global_value.time_max,
+                max_value = device_capabilities.rydberg.global_value.phase_max,
+                min_value = device_capabilities.rydberg.global_value.phase_min,
+                value_resolution = device_capabilities.rydberg.global_value.phase_resolution
+            ),
+            Δ = (
+                min_time_step = device_capabilities.rydberg.global_value.time_delta_min,
+                time_resolution = device_capabilities.rydberg.global_value.time_resolution,
+                max_time = device_capabilities.rydberg.global_value.time_max,
+                max_value = device_capabilities.rydberg.global_value.detuning_max,
+                min_value = device_capabilities.rydberg.global_value.detuning_min,
+                max_slope = device_capabilities.rydberg.global_value.detuning_slew_rate_max,
+                value_resolution = device_capabilities.rydberg.global_value.detuning_resolution
+            ),
+            δ = nothing
         )
-    
-    )
+    else
+        (
+            Ω=(
+                min_time_step = device_capabilities.rydberg.global_value.time_delta_min,
+                time_resolution = device_capabilities.rydberg.global_value.time_resolution,
+                max_time = device_capabilities.rydberg.global_value.time_max,
+                max_value = device_capabilities.rydberg.global_value.rabi_frequency_max,
+                min_value = device_capabilities.rydberg.global_value.rabi_frequency_min,
+                max_slope = device_capabilities.rydberg.global_value.rabi_frequency_slew_rate_max,
+                value_resolution = device_capabilities.rydberg.global_value.rabi_frequency_resolution
+            ),
+            ϕ = (
+                min_time_step = device_capabilities.rydberg.global_value.time_delta_min,
+                time_resolution = device_capabilities.rydberg.global_value.time_resolution,
+                max_time = device_capabilities.rydberg.global_value.time_max,
+                max_value = device_capabilities.rydberg.global_value.phase_max,
+                min_value = device_capabilities.rydberg.global_value.phase_min,
+                value_resolution = device_capabilities.rydberg.global_value.phase_resolution
+            ),
+            Δ = (
+                min_time_step = device_capabilities.rydberg.global_value.time_delta_min,
+                time_resolution = device_capabilities.rydberg.global_value.time_resolution,
+                max_time = device_capabilities.rydberg.global_value.time_max,
+                max_value = device_capabilities.rydberg.global_value.detuning_max,
+                min_value = device_capabilities.rydberg.global_value.detuning_min,
+                max_slope = device_capabilities.rydberg.global_value.detuning_slew_rate_max,
+                value_resolution = device_capabilities.rydberg.global_value.detuning_resolution
+            ),
+            δ = (
+                min_time_step = device_capabilities.rydberg.local_value.time_delta_min,
+                time_resolution = device_capabilities.rydberg.local_value.time_resolution,
+                max_time = device_capabilities.rydberg.global_value.time_max,
+                max_value = device_capabilities.rydberg.local_value.detuning_max,
+                min_value = device_capabilities.rydberg.local_value.detuning_min,
+                max_slope = device_capabilities.rydberg.local_value.detuning_slew_rate_max,
+                value_resolution = device_capabilities.rydberg.local_value.common_detuning_resolution,
+                local_mask_resolution = device_capabilities.rydberg.local_value.local_detuning_resolution
+            )
+        )
+    end
 end

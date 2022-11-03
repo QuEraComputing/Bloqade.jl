@@ -1,0 +1,43 @@
+{
+    "version": "0.6",
+    "qpu_id": "qpu1-mock",
+    "capabilities": {
+      "task": {
+        "number_shots_min": 1,
+        "number_shots_max": 1000
+      },
+      "lattice": {
+        "number_qubits_max": 256,
+        "area": {
+          "width": 7.5E-5,
+          "height": 7.6E-5
+        },
+        "geometry": {
+          "spacing_radial_min": 4.0E-6,
+          "spacing_vertical_min": 4.0E-6,
+          "position_resolution": 1.0E-7,
+          "number_sites_max": 256
+        }
+      },
+      "rydberg": {
+        "c6_coefficient": 5.42E-24,
+        "global": {
+          "rabi_frequency_min": 0.0,
+          "rabi_frequency_max": 1.58E7,
+          "rabi_frequency_resolution": 400.0,
+          "rabi_frequency_slew_rate_max": 2.5E14,
+          "detuning_min": -1.25E8,
+          "detuning_max": 1.25E8,
+          "detuning_resolution": 0.2,
+          "detuning_slew_rate_max": 2.5E15,
+          "phase_min": -99.0,
+          "phase_max": 99.0,
+          "phase_resolution": 5.0E-7,
+          "time_min": 0.0,
+          "time_max": 4.0E-6,
+          "time_resolution": 1.0E-9,
+          "time_delta_min": 5.0E-8
+        }
+      }
+    }
+  }

@@ -88,14 +88,14 @@ end
 
 # non snake case is from API
 @option mutable struct RydbergGlobalCapabilities <: QuEraSchema 
-    rabiFrequencyMin::Float64
-    rabiFrequencyMax::Float64
-    rabiFrequencyResolution::Float64
-    rabiFrequencySlewRateMax::Float64
-    detuningMin::Float64
-    detuningMax::Float64
-    detuningResolution::Float64
-    detuningSlewRateMax::Float64
+    rabi_frequency_min::Float64
+    rabi_frequency_max::Float64
+    rabi_frequency_resolution::Float64
+    rabi_frequency_slew_rate_max::Float64
+    detuning_min::Float64
+    detuning_max::Float64
+    detuning_resolution::Float64
+    detuning_slew_rate_max::Float64
     phaseMin::Float64
     phaseMax::Float64
     phaseResolution::Float64
@@ -121,7 +121,7 @@ end
 @option struct RydbergCapabilities <: QuEraSchema 
     c6_coefficient::Float64
     global_value::RydbergGlobalCapabilities
-    local_value::RydbergLocalCapabilities
+    local_value::Maybe{RydbergLocalCapabilities}
 end
 
 @option mutable struct TaskCapabilities <: QuEraSchema 
@@ -143,6 +143,7 @@ function get_device_capabilities_SI(json_path::AbstractString)
 end
 
 
+#=
 # manually convert to default units
 get_device_capabilities() = DeviceCapabilities(
     task=TaskCapabilities(
@@ -248,6 +249,22 @@ get_device_capabilities_SI() = DeviceCapabilities(
         )
     )
 )
+=#
+function get_device_capabilities(capabilities_file=nothing) 
+
+end
+
+
+# leave as SI units, needed for rounding purposes
+
+function get_device_capabilities_SI()
+    filename = Base.Filesystem.joinpath([dirname(pathof(BloqadeSchema)),"config","capabilities-qpu1-mock.json"])
+    capabilities_json = JSON.parse(JSON.open(filename))
+
+    device_capabilities = Configurations.from_dict(DeviceCapabilities,capabilities_json["capabilities"])
+
+end
+
 
 
 function get_rydberg_capabilities(;device_capabilities::DeviceCapabilities=get_device_capabilities())

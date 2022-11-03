@@ -127,9 +127,10 @@ end
     numberSitesMax::Int
 end
 
-@option struct LatticeCapabilities <: QuEraSchema 
+@option mutable struct LatticeCapabilities <: QuEraSchema 
     area::LatticeAreaCapabilities
     geometry::LatticeGeometryCapabilities
+    numberQubitsMax::Int
 end
 
 # non snake case is from API
@@ -171,7 +172,6 @@ end
 end
 
 @option mutable struct TaskCapabilities <: QuEraSchema 
-    numberQubitsMax::Int
     numberShotsMin::Int 
     numberShotsMax::Int
 end
@@ -186,7 +186,6 @@ end
 # manually convert to default units
 get_device_capabilities() = DeviceCapabilities(
     task=TaskCapabilities(
-        numberQubitsMax = 256,
         numberShotsMin = 1,
         numberShotsMax = 1000,
     ),
@@ -200,7 +199,8 @@ get_device_capabilities() = DeviceCapabilities(
             spacingVerticalMin = convert_units(4e-6,m,μm),
             positionResolution = convert_units(0.1e-6,m,μm),
             numberSitesMax = 256,
-        )
+        ),
+        numberQubitsMax = 256
     ),
     rydberg=RydbergCapabilities(
         c6Coefficient = convert_units(5.420e-24,rad*m^6/s,rad*μm^6/μs),
@@ -239,7 +239,6 @@ get_device_capabilities() = DeviceCapabilities(
 # leave as SI units, needed for rounding purposes
 get_device_capabilities_SI() = DeviceCapabilities(
     task=TaskCapabilities(
-        numberQubitsMax = 256,
         numberShotsMin = 1,
         numberShotsMax = 1000,
     ),
@@ -253,7 +252,8 @@ get_device_capabilities_SI() = DeviceCapabilities(
             spacingVerticalMin = 4.0e-6,
             positionResolution = 0.1e-6,
             numberSitesMax = 256,
-        )
+        ),
+        numberQubitsMax = 256
     ),
     rydberg=RydbergCapabilities(
         c6Coefficient = 5.420e-24,

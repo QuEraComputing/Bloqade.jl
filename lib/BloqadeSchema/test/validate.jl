@@ -44,7 +44,7 @@ end
 
 
     # maximum qubits
-    nqubits_max = dc.task.numberQubitsMax
+    nqubits_max = dc.lattice.numberQubitsMax
     atoms = generate_sites(SquareLattice(),17,16,scale=4)
     nqubits = length(atoms)
     violations = validate_lattice(atoms,dc)

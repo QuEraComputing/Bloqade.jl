@@ -45,7 +45,7 @@ function validate_lattice(positions,dc::DeviceCapabilities)
 
     # valudate number of sites (qubits)
     nqubits = length(positions)
-    nqubits_max = dc.task.numberQubitsMax
+    nqubits_max = dc.lattice.numberQubitsMax
     nqubits > nqubits_max && push!(violations,
         "$nqubits qubits $(message(>)) of $nqubits_max qubits"
     )

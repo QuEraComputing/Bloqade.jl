@@ -65,54 +65,6 @@ end
 
 # copying structure from device API 
 
-# see https://github.com/QuEra-QCS/TaskManager/blob/0be1d6f86bce8267b8a6d10f91019791eb24366e/api-impl/src/main/kotlin/com/queraqcs/ahs/services/v1/qpu/StubQpuCapabilitiesService.kt
-"""
-private val capabilitiesByQpuId = mapOf(
-    "qpu1-mock" to VersionedCapabilities(
-        version = "0.2",
-        DeviceCapabilities(
-            TaskCapabilities(
-                numberShotsMin = 1,
-                numberShotsMax = 1000,
-            ),
-            LatticeCapabilities(
-                numberQubitsMax = 100,
-                LatticeAreaCapabilities(
-                    width = 56e-6,
-                    height = 100e-6,
-                ),
-                LatticeGeometryCapabilities(
-                    spacingRadialMin = 4e-6,
-                    spacingVerticalMin = 2.5e-6,
-                    positionResolution = 0.1e-6,
-                    numberSitesMax = 256,
-                ),
-            ),
-            RydbergCapabilities(
-                c6Coefficient = 5.420e-24,
-                RydbergGlobalCapabilities(
-                    rabiFrequencyMin = 0.0,
-                    rabiFrequencyMax = 6.30e6,
-                    rabiFrequencyResolution = 400.0,
-                    rabiFrequencySlewRateMax = 2.5e14,
-                    detuningMin = -125.0e6,
-                    detuningMax = 125.0e6,
-                    detuningResolution = 0.2,
-                    detuningSlewRateMax = 2.5e15,
-                    phaseMin = -99.0,
-                    phaseMax = 99.0,
-                    phaseResolution = 0.5e-6,
-                    timeMin = 0.0,
-                    timeMax = 4e-6,
-                    timeResolution = 1e-9,
-                    timeDeltaMin = 10e-9,
-                )
-            ),
-        ),
-    ),
-)
-"""
-
 # make field mutable for user to change parameters
 
 @option mutable struct LatticeAreaCapabilities <: QuEraSchema 
@@ -127,9 +79,10 @@ end
     numberSitesMax::Int
 end
 
-@option struct LatticeCapabilities <: QuEraSchema 
+@option mutable struct LatticeCapabilities <: QuEraSchema 
     area::LatticeAreaCapabilities
     geometry::LatticeGeometryCapabilities
+    numberQubitsMax::Int
 end
 
 # non snake case is from API
@@ -171,7 +124,6 @@ end
 end
 
 @option mutable struct TaskCapabilities <: QuEraSchema 
-    numberQubitsMax::Int
     numberShotsMin::Int 
     numberShotsMax::Int
 end
@@ -186,28 +138,28 @@ end
 # manually convert to default units
 get_device_capabilities() = DeviceCapabilities(
     task=TaskCapabilities(
-        numberQubitsMax = 100,
         numberShotsMin = 1,
         numberShotsMax = 1000,
     ),
     lattice=LatticeCapabilities(
         area=LatticeAreaCapabilities(
-            width = convert_units(56e-6,m,μm),
-            height = convert_units(100e-6,m,μm)
+            width = convert_units(7.5e-5,m,μm),
+            height = convert_units(7.6e-5,m,μm)
         ),
         geometry=LatticeGeometryCapabilities(
             spacingRadialMin = convert_units(4e-6,m,μm),
-            spacingVerticalMin = convert_units(2.5e-6,m,μm),
+            spacingVerticalMin = convert_units(4e-6,m,μm),
             positionResolution = convert_units(0.1e-6,m,μm),
-            numberSitesMax = 100,
-        )
+            numberSitesMax = 256,
+        ),
+        numberQubitsMax = 256
     ),
     rydberg=RydbergCapabilities(
         c6Coefficient = convert_units(5.420e-24,rad*m^6/s,rad*μm^6/μs),
         global_value=RydbergGlobalCapabilities(
             rabiFrequencyMin = convert_units(0.0,rad/s,rad*MHz),
             # rabiFrequencyMax = convert_units(25.0e6,rad/s,rad*MHz),
-            rabiFrequencyMax = convert_units(6.3e6,rad/s,rad*MHz),
+            rabiFrequencyMax = convert_units(1.58e7,rad/s,rad*MHz),
             rabiFrequencyResolution = convert_units(400.0,rad/s,rad*MHz),
             rabiFrequencySlewRateMax = convert_units(2.5e14,rad/s^2,rad*MHz/μs),
             detuningMin = convert_units(-125.0e6,rad/s,rad*MHz),
@@ -221,7 +173,7 @@ get_device_capabilities() = DeviceCapabilities(
             timeMin = convert_units(0.0,s,μs),
             timeMax = convert_units(4e-6,s,μs),
             timeResolution = convert_units(1e-9,s,μs),
-            timeDeltaMin = convert_units(10e-9,s,μs)
+            timeDeltaMin = convert_units(5e-8,s,μs)
         ),
         local_value=RydbergLocalCapabilities(
             detuningMin = convert_units(0.0,rad/s,rad*MHz),
@@ -239,27 +191,27 @@ get_device_capabilities() = DeviceCapabilities(
 # leave as SI units, needed for rounding purposes
 get_device_capabilities_SI() = DeviceCapabilities(
     task=TaskCapabilities(
-        numberQubitsMax = 100,
         numberShotsMin = 1,
         numberShotsMax = 1000,
     ),
     lattice=LatticeCapabilities(
         area=LatticeAreaCapabilities(
-            width = 56e-6,
-            height = 100e-6
+            width = 7.5e-5,
+            height = 7.6e-5
         ),
         geometry=LatticeGeometryCapabilities(
             spacingRadialMin = 4e-6,
-            spacingVerticalMin = 2.5e-6,
+            spacingVerticalMin = 4.0e-6,
             positionResolution = 0.1e-6,
-            numberSitesMax = 100,
-        )
+            numberSitesMax = 256,
+        ),
+        numberQubitsMax = 256
     ),
     rydberg=RydbergCapabilities(
         c6Coefficient = 5.420e-24,
         global_value=RydbergGlobalCapabilities(
             rabiFrequencyMin = 0.0,
-            rabiFrequencyMax = 6.3e6,
+            rabiFrequencyMax = 1.58e7,
             rabiFrequencyResolution = 400.0,
             rabiFrequencySlewRateMax = 2.5e14,
             detuningMin = -125.0e6,
@@ -273,7 +225,7 @@ get_device_capabilities_SI() = DeviceCapabilities(
             timeMin = 0.0,
             timeMax = 4e-6,
             timeResolution = 1e-9,
-            timeDeltaMin = 10e-9
+            timeDeltaMin = 5e-8
         ),
         local_value=RydbergLocalCapabilities(
             detuningMin = 0.0,

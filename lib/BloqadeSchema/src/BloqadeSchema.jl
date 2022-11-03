@@ -1,6 +1,6 @@
 module BloqadeSchema
 
-using Unitful: Quantity, NoUnits, m, μm, μs, s, MHz, Hz, rad, uconvert
+using Unitful: Unitful, Quantity, m, μm, μs, s, rad, uconvert
 using BloqadeExpr
 using BloqadeWaveforms
 using BloqadeODE: SchrodingerProblem
@@ -33,7 +33,10 @@ export get_device_capabilities,
     TaskOutput,
     ValidationViolations
 
+include("schemas/ahs_ir.jl")
+include("schemas/ahs_capabilities.jl")
 include("types.jl")
+include("capabilities.jl")
 include("serialize.jl")
 include("deserialize.jl")
 include("parse.jl")

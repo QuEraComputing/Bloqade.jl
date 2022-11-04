@@ -17,15 +17,20 @@ end
 function convert_units_recursive(input_value,units)
 
     if typeof(input_value) <: AbstractDict
+        # make a copy
         new_values = Dict(input_value)
-
+        # for each k,v in input_dict, 
+        # find the unit in the units dict and convert v to that unit
         for (key,value) in input_value
             new_values[key] = convert_units_recursive(value,units[key])
         end
         return new_values
     else
         units == "NoUnits" && return input_value
-             
+        
+        # Inside the units dictionary, 
+        # replace instances of μm with m, 
+        # THEN replace instances of s with μs
         to_units = replace(
                 replace(units,
                 "m"=>"μm"),

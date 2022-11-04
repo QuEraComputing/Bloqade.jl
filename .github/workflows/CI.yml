@@ -36,6 +36,7 @@ jobs:
           - x64
         package:
           - '.'
+          - 'lib/BloqadeGates'
           - 'lib/BloqadeExpr'
           - 'lib/BloqadeKrylov'
           - 'lib/BloqadeLattices'

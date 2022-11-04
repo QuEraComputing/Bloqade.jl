@@ -19,7 +19,7 @@ using Test
     for (str,expr) in tests
         str_val =  Base.eval(@__MODULE__,parse_unit(@__MODULE__, str))
         expr_val = Base.eval(@__MODULE__,expr)
-        @test 
+        @test str_val ===expr_val
     end
 
 

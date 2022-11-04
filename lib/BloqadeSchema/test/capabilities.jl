@@ -10,18 +10,18 @@ using BloqadeSchema:
 using Test
 
 @testset "parse_units" begin
+    tests = [
+        ("m",:(m)),
+        ("s",:(s)),
+        ("m/s",:(m/s)),
+        ("m*s^2",:(m*s^2))
+    ]
+    for (str,expr) in tests
+        str_val =  Base.eval(@__MODULE__,parse_unit(@__MODULE__, str))
+        expr_val = Base.eval(@__MODULE__,expr)
+        @test 
+    end
 
-    @test parse_unit(Main, "m") == m
-    @test parse_unit(Main, "s") == s
-    @test parse_unit(Main, "rad") == rad
-
-    @test parse_unit(Main, "μm") == μm
-
-    #=
-    @test parse_unit(Main, "rad/s") == rad*s^-1
-    @test parse_unit(Main, "rad/s^2") == 
-    @test parse_unit(Main, "rad*m^6/s") == 
-    =#
 
 
 end

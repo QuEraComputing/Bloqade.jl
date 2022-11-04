@@ -9,6 +9,7 @@ using Reexport
 @reexport using BloqadeKrylov
 @reexport using YaoSubspaceArrayReg
 @reexport using BloqadeWaveforms
+@reexport using BloqadeGates
 
 # partially reexport
 @reexport using Measurements: ±, Measurement

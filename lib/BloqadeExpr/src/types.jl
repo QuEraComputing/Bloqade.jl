@@ -584,3 +584,18 @@ end
 function storage_size(H::SparseMatrixCSC)
     return sizeof(H.colptr) + sizeof(H.rowval) + sizeof(H.nzval)
 end
+
+is_time_dependent(::Nothing) = false
+function is_time_dependent(t::Union{RabiTypes, HyperfineRabiTypes, RydbergRabiTypes})
+    (t isa Union{SumOfX, SumOfX_01, SumOfX_1r}) && return is_time_function(t.Ω)
+    (t isa Union{SumOfXPhase, SumOfXPhase_01, SumOfXPhase_1r}) && (return is_time_function(t.Ω) || is_time_function(t.ϕ))
+    return false
+end
+function is_time_dependent(t::Union{DetuningTypes, HyperfineDetuningTypes, RydbergDetuningTypes})
+    (t isa Union{SumOfN, SumOfN_1, SumOfN_r}) && return is_time_function(t.Δ)
+    return false
+end
+is_time_dependent(h::RydbergHamiltonian) = is_time_dependent(h.rabi_term) || is_time_dependent(h.detuning_term)
+is_time_dependent(h::RydbergHamiltonian3) = 
+    is_time_dependent(h.rabi_term_hf) || is_time_dependent(h.detuning_term_hf) ||
+    is_time_dependent(h.rabi_term_r) || is_time_dependent(h.detuning_term_r)

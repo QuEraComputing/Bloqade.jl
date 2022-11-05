@@ -1,4 +1,4 @@
-function local_single_qubit_gate(atoms, locs, gate::AbstractBlock{2}; backend = KrylovEvolution, step = 1e-2)
+function local_single_qubit_gate(atoms, locs::Vector{<:Integer}, gate::AbstractBlock{2}; backend = KrylovEvolution, step = 1e-2)
     n = length(atoms)
     mask = zeros(n)
     mask[locs] .= 1

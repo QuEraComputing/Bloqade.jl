@@ -1,4 +1,4 @@
-function local_CkZ(atoms, ctrls, locs)
+function local_CkZ(atoms, ctrls::Vector{<:Integer}, locs::Vector{<:Integer})
     n = length(atoms)
     @assert ctrls ⊆ 1:n
     @assert locs ⊆ 1:n
@@ -15,7 +15,7 @@ function local_CkZ(atoms, ctrls, locs)
     return seq
 end
 
-function local_CkNOT(atoms, ctrls, locs)
+function local_CkNOT(atoms, ctrls::Vector{<:Integer}, locs::Vector{<:Integer})
     seq = [local_single_qubit_gate(atoms, locs, H)]
     append!(seq, local_CkZ(atoms, ctrls, locs))
     push!(seq, local_single_qubit_gate(atoms, locs, H))

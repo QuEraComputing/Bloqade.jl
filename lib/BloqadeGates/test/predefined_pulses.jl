@@ -28,7 +28,7 @@ end
     n = length(atoms)
     ids = two_level_indices(n)
     for g in single_qubit_gates, loc in 1:n
-        p  = local_single_qubit_gate(atoms, loc, g)
+        p = local_single_qubit_gate(atoms, [loc], g)
         m_p = mat(p)[ids, ids]
         fid = operator_fidelity(matblock(m_p), put(n, loc=>g))
         @test isapprox(fid, 1; atol = 1e-9)

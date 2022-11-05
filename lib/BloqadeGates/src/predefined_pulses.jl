@@ -1,7 +1,7 @@
 function local_single_qubit_gate(atoms, locs, gate::AbstractBlock{2}; backend = KrylovEvolution, step = 1e-2)
     n = length(atoms)
     mask = zeros(n)
-    mask[locs] = 1
+    mask[locs] .= 1
     Ω, ϕ, Δ, t = single_qubit_gate_params(gate)
     return local_pulse(atoms, mask, Ω, ϕ, Δ, t; pulse_type = :hyperfine, backend, step)
 end

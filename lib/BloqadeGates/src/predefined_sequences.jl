@@ -3,21 +3,21 @@ function local_CkZ(atoms, ctrls, locs)
     @assert ctrls ⊆ 1:n
     @assert locs ⊆ 1:n
     @assert isempty(locs ∩ ctrls)
-    seq = [single_site_pi_pulse(atoms, i, :hyperfine) for i = [ctrls; locs]]
-    append!(seq, [single_site_pi_pulse(atoms, ctrl, :rydberg) for ctrl in ctrls])
+    seq = [local_single_qubit_gate(atoms, [ctrls; locs], X)]
+    append!(seq, [single_site_pulse(atoms, ctrl, 1.0, 0.0, 0.0, π; pulse_type = :rydberg) for ctrl in ctrls])
     for loc in locs
         mask = zeros(n)
         mask[loc] = 1
         push!(seq, local_pulse(atoms, mask, 1.0, 0.0, 0.0, 2π; pulse_type = :rydberg))
     end
-    append!(seq, reverse!([single_site_pi_pulse(atoms, ctrl, :rydberg) for ctrl in ctrls]))
-    append!(seq, [single_site_pi_pulse(atoms, i, :hyperfine) for i = [ctrls; locs]])
+    append!(seq, reverse!([single_site_pulse(atoms, ctrl, 1.0, 0.0, 0.0, π; pulse_type = :rydberg) for ctrl in ctrls]))
+    push!(seq, local_single_qubit_gate(atoms, [ctrls; locs], X))
     return seq
 end
 
 function local_CkNOT(atoms, ctrls, locs)
-    seq = [local_hadamard(atoms, loc) for loc in locs]
+    seq = [local_single_qubit_gate(atoms, locs, H)]
     append!(seq, local_CkZ(atoms, ctrls, locs))
-    append!(seq, [local_hadamard(atoms, loc) for loc in locs])
+    push!(seq, local_single_qubit_gate(atoms, locs, H))
     return seq
 end

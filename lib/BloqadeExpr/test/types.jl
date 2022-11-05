@@ -72,3 +72,23 @@ end
     step_hamiltonian = hamiltonian(π/2)
     @test LinearAlgebra.opnorm(step_hamiltonian) == 1.0
 end
+
+@testset "is_time_dependent" begin
+    nsites = 3
+    atoms = [(1, i) for i = 1:nsites]
+    params = [nothing, 1.0, [0.1 for _ in 1:nsites], sin, [sin for _ in 1:nsites]]
+    @testset "is_time_dependent (2-level)" begin
+        @testset "Ω=$Ω, Δ=$Δ, ϕ=$ϕ" for Ω in params[2:end], Δ in params, ϕ in params
+            h = rydberg_h(atoms; Ω, Δ, ϕ)
+            @test !(BloqadeExpr.is_time_dependent(h)) == all(x->(BloqadeExpr.is_const_param(x) || isnothing(x)), [Ω, Δ, ϕ])
+        end
+    end;
+    @testset "is_time_dependent (3-level)" begin
+        @testset "Ω_hf=$Ω_hf, Δ_hf=$Δ_hf, ϕ_hf=$ϕ_hf" for Ω_hf in params[2:2], Δ_hf in params[3:4], ϕ_hf in params[5:5]
+            @testset "Ω_r=$Ω_r, Δ_r=$Δ_r, ϕ_r=$ϕ_r" for Ω_r in params[2:end], Δ_r in params, ϕ_r in params
+                h = rydberg_h_3(atoms; Ω_hf, Δ_hf, ϕ_hf, Ω_r, Δ_r, ϕ_r)
+                @test !(BloqadeExpr.is_time_dependent(h)) == all(x->(BloqadeExpr.is_const_param(x) || isnothing(x)), [Ω_hf, Δ_hf, ϕ_hf, Ω_r, Δ_r, ϕ_r])
+            end
+        end
+    end;
+end

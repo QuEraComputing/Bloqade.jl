@@ -142,7 +142,7 @@ Abstract term for local hamiltonian terms on D-level system.
 """
 abstract type AbstractTerm{D} <: PrimitiveBlock{D} end
 
-YaoBlocks.unsafe_getindex(::Type{T}, x::AbstractTerm, i::Integer, j::Integer) where {T,N} = YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(x), i, j)
+YaoBlocks.unsafe_getindex(::Type{T}, x::AbstractTerm, i::Integer, j::Integer) where T = YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(x), i, j)
 YaoBlocks.unsafe_getcol(::Type{T}, x::AbstractTerm, j::DitStr{2}) where T = YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(x), j)
 YaoBlocks.ishermitian(::AbstractTerm) = true
 
@@ -510,7 +510,7 @@ function add_terms(h::RydbergHamiltonian3)
     return YaoBlocks.Optimise.simplify(terms)
 end
 
-function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where {T,N}
+function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where T
     return YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(h), i, j)
 end
 
@@ -587,12 +587,12 @@ end
 
 is_time_dependent(::Nothing) = false
 function is_time_dependent(t::Union{RabiTypes, HyperfineRabiTypes, RydbergRabiTypes})
-    (t isa Union{SumOfX, SumOfX_01, SumOfX_1r}) && return is_time_function(t.Ω)
-    (t isa Union{SumOfXPhase, SumOfXPhase_01, SumOfXPhase_1r}) && (return is_time_function(t.Ω) || is_time_function(t.ϕ))
+    (t isa Union{SumOfX, SumOfX_01, SumOfX_1r}) && return !is_const_param(t.Ω)
+    (t isa Union{SumOfXPhase, SumOfXPhase_01, SumOfXPhase_1r}) && (return !is_const_param(t.Ω) || !is_const_param(t.ϕ))
     return false
 end
 function is_time_dependent(t::Union{DetuningTypes, HyperfineDetuningTypes, RydbergDetuningTypes})
-    (t isa Union{SumOfN, SumOfN_1, SumOfN_r}) && return is_time_function(t.Δ)
+    (t isa Union{SumOfN, SumOfN_1, SumOfN_r}) && return !is_const_param(t.Δ)
     return false
 end
 is_time_dependent(h::RydbergHamiltonian) = is_time_dependent(h.rabi_term) || is_time_dependent(h.detuning_term)

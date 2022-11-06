@@ -3,7 +3,11 @@ using Configurations
 using Test
 
 
-# TODO: add tests
+
+@testset "capabilities" begin
+    include("capabilities.jl")
+end
+
 @testset "parse" begin
     include("parse.jl")
 end

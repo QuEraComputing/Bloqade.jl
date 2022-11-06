@@ -5,9 +5,9 @@
 
 # Let's start by importing the required libraries:
 
-using Bloqade: rydberg_density
-using BloqadeLattices: generate_sites, ChainLattice
-using BloqadeExpr: rydberg_h 
+using Bloqade
+using BloqadeLattices
+using BloqadeExpr
 
 using KrylovKit
 using LinearAlgebra

@@ -32,6 +32,7 @@ end
     @test !isreal(scale)
 
     # 3-level
+    atoms = [(rand(), rand()) for i=1:3]
     @test !isreal(rydberg_h(atoms; Ω = 1.0, ϕ = sin, Δ = 1.0))
     @test !isreal(rydberg_h(atoms; ϕ = sin, Δ = 1.0))
     @test isreal(rydberg_h(atoms; Ω = sin, Δ = 1.0))

@@ -5,8 +5,11 @@ using Unitful:
     s,
     @u_str
 using BloqadeSchema:
+    BloqadeSchema,
     parse_unit,
-    convert_units_recursive
+    convert_units_recursive,
+    get_device_capabilities,
+    get_device_capabilities_SI
 using Test
 
 @testset "parse_units" begin
@@ -183,3 +186,10 @@ end
     end 
 end
 
+
+@testset "get_device_capabilities" begin
+
+    @test typeof(get_device_capabilities()) === BloqadeSchema.DeviceCapabilities 
+    @test typeof(get_device_capabilities_SI()) === BloqadeSchema.DeviceCapabilities
+
+end

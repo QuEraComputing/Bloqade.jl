@@ -28,12 +28,12 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
 # We fix the Rabi frequency to be ``Ω = 2π * 4`` MHz, and study the thermal state as a function of the detuning ``Δ`` at various temperatures specified by β:
 
-Ω = 2π * 4
+Ω = 2π * 4 
 Δ_step = 30
 Δ = collect(LinRange(-2π * 10, 2π * 10, Δ_step));
 
-βs = [0.00005, 0.0005, 0.005, 0.05, 0.5, 5.0, 50.0, 500.0]
-labels = ["β=0.00005", "β=0.0005", "β=0.005", "β=0.05", "β=0.5", "β=5.0", "β=50.0", "β=500.0"]
+βs = [0.00005, 0.005, 0.01, 0.03, 0.05, 0.2, 0.5, 5.0, 50.0, 5000.0]
+labels = ["β=0.00005", "β=0.005", "β=0.01", "β=0.03", "β=0.05", "β=0.2", "β=0.5", "β=5.0","β=50.0","β=5000.0"]
 
 all_energies = zeros(length(βs), Δ_step)
 all_densities = zeros(length(βs), Δ_step, nsites)
@@ -121,6 +121,48 @@ title!("Density Profile: 1D Chain, Δ = 2π * 10 MHz")
 savefig("DensityProfile_LargePositiveDetuning_HighT.png")
 
 # We see that the density profile is now insensitive to the detuning.
+
+# DERIVATIVES
+
+# We can also plot the first derivative of the energy with respect to the detuning, in order to study the continuous phase transition.
+
+Δ_diff = diff(Δ)
+
+# Initiate plot
+plt = plot(Δ[2:30] / 2π, diff(all_energies[1,:]) ./ Δ_diff, label=labels[1])             
+# uses plot() instead of plot!() as in next beta-values
+xlabel!("Δ/2π (MHz) ")
+ylabel!("First energy derivative")
+title!("1D Chain (9 sites, OBC)")
+
+# Add plots
+N = length(βs) - 1
+for i in 1:N
+    plt = plot!(Δ[2:30] / 2π, diff(all_energies[i+1,:]) ./ Δ_diff, label=labels[i+1])
+end
+
+display(plt)
+savefig("FirstEnergyDerivative_DetuningSweep.png")
+
+# Finally, we compare with the second derivative.
+
+Δ_diff2 = Δ_diff.^2
+
+# Initiate plot
+plt = plot(Δ[2:29] / 2π, diff(diff(all_energies[1,:])) ./ Δ_diff2[2:29], label=labels[1])             
+# uses plot() instead of plot!() as in next beta-values
+xlabel!("Δ/2π (MHz) ")
+ylabel!("Second energy derivative")
+title!("1D Chain (9 sites, OBC)")
+
+# Add plots
+N = length(βs) - 1
+for i in 1:N
+    plt = plot!(Δ[2:29] / 2π, diff(diff(all_energies[i+1,:])) ./ Δ_diff2[2:29], label=labels[i+1])
+end
+
+display(plt)
+savefig("SecondEnergyDerivative_DetuningSweep.png")
 
 # Insert more physics explanations.
 

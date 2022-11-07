@@ -103,7 +103,7 @@ function from_schema(t::TaskSpecification)
 
     Ω = BloqadeWaveforms.piecewise_linear(; 
         clocks=convert_units(rabi_freq_amp.times,s,μs), 
-        values=convert_units(rabi_freq_amp.values,rad/s,rad*MHz)
+        values=convert_units(rabi_freq_amp.values,rad/s,rad/μs)
     )
     ϕ = BloqadeWaveforms.piecewise_constant(;
         clocks=convert_units(rabi_freq_phase.times,s,μs),
@@ -111,12 +111,12 @@ function from_schema(t::TaskSpecification)
     )
     Δ = BloqadeWaveforms.piecewise_linear(;
         clocks=convert_units(detuning_global.times,s,μs),
-        values=convert_units(detuning_global.values,rad/s,rad*MHz)
+        values=convert_units(detuning_global.values,rad/s,rad/μs)
     )
     if !isnothing(detuning_local)
         δ = BloqadeWaveforms.piecewise_linear(;
             clocks=convert_units(detuning_local.times,s,μs),
-            values=convert_units(detuning_local.values,rad/s,rad*MHz)
+            values=convert_units(detuning_local.values,rad/s,rad/μs)
         )
         
         Δ_i = [Δ+δ_i*δ for (i,δ_i) in enumerate(detuning_local.lattice_site_coefficients) if t.lattice.filling[i] == 1]
@@ -168,11 +168,11 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
 
     violations = validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,params.device_capabilities)
 
-    params.n_shots < params.device_capabilities.task.numberShotsMin && push!(violations.misc_violations,
-        "n_shots $(params.n_shots) is less than minimum value $(params.device_capabilities.task.numberShotsMin)"
+    params.n_shots < params.device_capabilities.task.number_shots_min && push!(violations.misc_violations,
+        "n_shots $(params.n_shots) is less than minimum value $(params.device_capabilities.task.number_shots_min)"
     )
-    params.n_shots > params.device_capabilities.task.numberShotsMax && push!(violations.misc_violations,
-        "n_shots $(params.n_shots) is exceeds maximum value $(params.device_capabilities.task.numberShotsMax)"
+    params.n_shots > params.device_capabilities.task.number_shots_max && push!(violations.misc_violations,
+        "n_shots $(params.n_shots) is exceeds maximum value $(params.device_capabilities.task.number_shots_max)"
     )
 
     if !isempty(violations)
@@ -238,7 +238,7 @@ function to_schema_no_validation(lattice::Union{Vector,Lattice},
     Δi::Maybe{Vector{Number}}, 
     params::SchemaTranslationParams)
     
-    duration = params.device_capabilities.rydberg.global_value.timeDeltaMin
+    duration = params.device_capabilities.rydberg.global_value.time_delta_min
     # take maximum value for duration
     
     for wf in [Ω,Δ,ϕ]
@@ -359,7 +359,7 @@ function to_hamiltonian(
             rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
                 global_value = RydbergRabiFrequencyAmplitudeGlobal(; 
                     times = convert_units.(Ω.clocks,μs,s), 
-                    values = convert_units.(Ω.values,rad*MHz,rad/s)
+                    values = convert_units.(Ω.values,rad/μs,rad/s)
                 ),
             ),
             rabi_frequency_phase = RydbergRabiFrequencyPhase(;
@@ -371,7 +371,7 @@ function to_hamiltonian(
             detuning = RydbergDetuning(;
                 global_value = RydbergDetuningGlobal(; 
                     times = convert_units.(Δ.clocks,μs,s), 
-                    values = convert_units.(Δ.values,rad*MHz,rad/s)
+                    values = convert_units.(Δ.values,rad/μs,rad/s)
                 )
             ),
         ),

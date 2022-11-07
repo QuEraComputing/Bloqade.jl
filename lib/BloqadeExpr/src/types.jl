@@ -533,8 +533,7 @@ YaoAPI.nqudits(h::SumOfXTypes) = h.nsites
 YaoAPI.nqudits(h::SumOfXPhaseTypes) = h.nsites
 YaoAPI.nqudits(h::SumOfZAndNTypes) = h.nsites
 YaoAPI.nqudits(::ThreeLevelRydbergConstGates) = 1
-@inline YaoAPI.nqudits(h::RydbergHamiltonian) = nqudits(h.rydberg_term)
-@inline YaoAPI.nqudits(h::RydbergHamiltonian3) = nqudits(h.rydberg_term)
+@inline YaoAPI.nqudits(h::Union{RydbergHamiltonian, RydbergHamiltonian3}) = nqudits(h.rydberg_term)
 
 # checks of objects have the same base object f.
 function Base.:(==)(lhs::DivByTwo{F1},rhs::DivByTwo{F2}) where {F1,F2} 

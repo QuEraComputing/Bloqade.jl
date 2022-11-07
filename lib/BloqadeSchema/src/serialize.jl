@@ -6,7 +6,7 @@ function Configurations.to_dict(
     return Dict("global" => Configurations.to_dict(x.global_value))
 end
 
-function Configurations.to_dict(::Type{T}, x::RydbergDetuning, option::Configurations.ToDictOption) where {T}
+function Configurations.to_dict(::Type{T}, x::Union{RydbergDetuning,RydbergCapabilities}, option::Configurations.ToDictOption) where {T}
     if isnothing(x.local_value)
         return Dict("global" => Configurations.to_dict(x.global_value))
     end

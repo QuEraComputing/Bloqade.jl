@@ -24,7 +24,6 @@ function YaoAPI.apply!(reg::AbstractRegister{D}, p::RydbergPulse{D}) where D
     return reg
 end
 
-Base.:(|>)(reg::AbstractRegister{D}, p::RydbergPulse{D}) where D = apply!(reg, p)
 YaoAPI.nqudits(p::RydbergPulse{D}) where D = nqudits(p.rydberg_hamiltonian)
 YaoAPI.nlevel(::RydbergPulse{D}) where D = D
 function YaoAPI.mat(p::RydbergPulse{D}) where D 

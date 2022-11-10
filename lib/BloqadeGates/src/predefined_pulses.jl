@@ -29,7 +29,7 @@ function single_qubit_gate_params(gate::AbstractBlock{2})
     (gate isa ConstGate.TdagGate) && return (0.0, 0.0, 1.0, 7π/4)
 
     # Rotation Gates
-    (gate isa ShiftGate) && return (0.0, 0.0, 1, gate.theta)
+    (gate isa ShiftGate) && return (0.0, 0.0, 1, rem2pi(gate.theta, RoundDown))
     if gate isa RotationGate
         axis = gate.block
         θ = gate.theta

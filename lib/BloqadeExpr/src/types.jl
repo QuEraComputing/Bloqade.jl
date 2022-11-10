@@ -142,7 +142,7 @@ Abstract term for local hamiltonian terms on D-level system.
 """
 abstract type AbstractTerm{D} <: PrimitiveBlock{D} end
 
-YaoBlocks.unsafe_getindex(::Type{T}, x::AbstractTerm, i::Integer, j::Integer) where {T,N} = YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(x), i, j)
+YaoBlocks.unsafe_getindex(::Type{T}, x::AbstractTerm, i::Integer, j::Integer) where T = YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(x), i, j)
 YaoBlocks.unsafe_getcol(::Type{T}, x::AbstractTerm, j::DitStr{2}) where T = YaoBlocks.unsafe_getcol(T, YaoBlocks.Optimise.to_basictypes(x), j)
 YaoBlocks.ishermitian(::AbstractTerm) = true
 
@@ -510,7 +510,7 @@ function add_terms(h::RydbergHamiltonian3)
     return YaoBlocks.Optimise.simplify(terms)
 end
 
-function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where {T,N}
+function YaoBlocks.unsafe_getindex(::Type{T}, h::RydbergHamiltonian, i::Integer, j::Integer) where T
     return YaoBlocks.unsafe_getindex(T, YaoBlocks.Optimise.to_basictypes(h), i, j)
 end
 
@@ -533,8 +533,7 @@ YaoAPI.nqudits(h::SumOfXTypes) = h.nsites
 YaoAPI.nqudits(h::SumOfXPhaseTypes) = h.nsites
 YaoAPI.nqudits(h::SumOfZAndNTypes) = h.nsites
 YaoAPI.nqudits(::ThreeLevelRydbergConstGates) = 1
-@inline YaoAPI.nqudits(h::RydbergHamiltonian) = nqudits(h.rydberg_term)
-@inline YaoAPI.nqudits(h::RydbergHamiltonian3) = nqudits(h.rydberg_term)
+@inline YaoAPI.nqudits(h::Union{RydbergHamiltonian, RydbergHamiltonian3}) = nqudits(h.rydberg_term)
 
 # checks of objects have the same base object f.
 function Base.:(==)(lhs::DivByTwo{F1},rhs::DivByTwo{F2}) where {F1,F2} 
@@ -584,3 +583,18 @@ end
 function storage_size(H::SparseMatrixCSC)
     return sizeof(H.colptr) + sizeof(H.rowval) + sizeof(H.nzval)
 end
+
+is_time_dependent(::Nothing) = false
+function is_time_dependent(t::Union{RabiTypes, HyperfineRabiTypes, RydbergRabiTypes})
+    (t isa Union{SumOfX, SumOfX_01, SumOfX_1r}) && return !is_const_param(t.Ω)
+    (t isa Union{SumOfXPhase, SumOfXPhase_01, SumOfXPhase_1r}) && (return !is_const_param(t.Ω) || !is_const_param(t.ϕ))
+    return false
+end
+function is_time_dependent(t::Union{DetuningTypes, HyperfineDetuningTypes, RydbergDetuningTypes})
+    (t isa Union{SumOfN, SumOfN_1, SumOfN_r}) && return !is_const_param(t.Δ)
+    return false
+end
+is_time_dependent(h::RydbergHamiltonian) = is_time_dependent(h.rabi_term) || is_time_dependent(h.detuning_term)
+is_time_dependent(h::RydbergHamiltonian3) = 
+    is_time_dependent(h.rabi_term_hf) || is_time_dependent(h.detuning_term_hf) ||
+    is_time_dependent(h.rabi_term_r) || is_time_dependent(h.detuning_term_r)

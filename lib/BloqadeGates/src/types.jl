@@ -1,41 +1,44 @@
-struct RydbergPulse{D} <: AbstractBlock{D}
+struct RydbergPulse{D, B} <: AbstractBlock{D}
     rydberg_hamiltonian::Union{RydbergHamiltonian, RydbergHamiltonian3}
     t_start::Float64
     t_end::Float64
-    backend::Union{Type{KrylovEvolution}, Type{SchrodingerProblem}}
     step::Float64
+    function RydbergPulse{D, B}(rydberg_hamiltonian, t_start, t_end, step) where {D, B}
+        @assert B isa Union{Type{KrylovEvolution}, Type{SchrodingerProblem}}
+        @assert t_start <= t_end
+        return new{D, B}(rydberg_hamiltonian, t_start, t_end, step)
+    end
 end
 
-RydbergPulse(rh::RydbergHamiltonian3, t_start::Real, t_end::Real; backend = KrylovEvolution, step = 1e-2) = RydbergPulse{3}(rh, t_start, t_end, backend, step)
-RydbergPulse(rh::RydbergHamiltonian, t_start::Real, t_end::Real; backend = KrylovEvolution, step = 1e-2) = RydbergPulse{2}(rh, t_start, t_end, backend, step)
-RydbergPulse(rh::RydbergHamiltonian3, t::Real; backend = KrylovEvolution, step = 1e-2) = RydbergPulse{3}(rh, 0.0, t, backend, step)
-RydbergPulse(rh::RydbergHamiltonian, t::Real; backend = KrylovEvolution, step = 1e-2) = RydbergPulse{2}(rh, 0.0, t, backend, step)
+RydbergPulse(rh::RydbergHamiltonian3, t_start::Real, t_end::Real; backend = KrylovEvolution, step = 1e-2) = RydbergPulse{3, backend}(rh, t_start, t_end, step)
+RydbergPulse(rh::RydbergHamiltonian, t_start::Real, t_end::Real; backend = KrylovEvolution, step = 1e-2) = RydbergPulse{2, backend}(rh, t_start, t_end, step)
+RydbergPulse(rh::RydbergHamiltonian3, t::Real; backend = KrylovEvolution, step = 1e-2) = RydbergPulse{3, backend}(rh, 0.0, t, step)
+RydbergPulse(rh::RydbergHamiltonian, t::Real; backend = KrylovEvolution, step = 1e-2) = RydbergPulse{2, backend}(rh, 0.0, t, step)
 
-function YaoAPI.apply!(reg::AbstractRegister{D}, p::RydbergPulse{D}) where D
-    evo = p.backend
-    if evo === KrylovEvolution
-        @assert p.t_start <= p.t_end
-        ts = p.t_start:p.step:p.t_end
-    else
-        ts = (p.t_start, p.t_end)
-    end
-    prob = evo(reg, ts, p.rydberg_hamiltonian)
+function YaoAPI.apply!(reg::AbstractRegister{D}, p::RydbergPulse{D, KrylovEvolution}) where D
+    ts = p.t_start:p.step:p.t_end
+    prob = KrylovEvolution(reg, ts, p.rydberg_hamiltonian)
     emulate!(prob)
     return reg
 end
-
-YaoAPI.nqudits(p::RydbergPulse{D}) where D = nqudits(p.rydberg_hamiltonian)
-YaoAPI.nlevel(::RydbergPulse{D}) where D = D
-function YaoAPI.mat(p::RydbergPulse{D}) where D 
+function YaoAPI.apply!(reg::AbstractRegister{D}, p::RydbergPulse{D, SchrodingerProblem}) where D
+    ts = (p.t_start, p.t_end)
+    prob = SchrodingerProblem(reg, ts, p.rydberg_hamiltonian)
+    emulate!(prob)
+    return reg
+end
+YaoAPI.nqudits(p::RydbergPulse{D, B}) where {D, B} = nqudits(p.rydberg_hamiltonian)
+YaoAPI.nlevel(::RydbergPulse{D, B}) where {D, B} = D
+function YaoAPI.mat(p::RydbergPulse{D, B}) where {D, B}
     if BloqadeExpr.is_time_dependent(p.rydberg_hamiltonian)
         error("Cannot get the matrix representation of a time-dependent Hamiltonian evolution")
     end
     return exp(-im*(p.t_end-p.t_start)*Matrix(p.rydberg_hamiltonian))
 end
-YaoAPI.occupied_locs(p::RydbergPulse{D}) where D = tuple(collect(1:nqudits(p))...)
-function YaoAPI.print_block(io::IO, p::RydbergPulse{D}) where D
+YaoAPI.occupied_locs(p::RydbergPulse{D, B}) where {D, B} = tuple(collect(1:nqudits(p))...)
+function YaoAPI.print_block(io::IO, p::RydbergPulse{D, B}) where {D, B}
     println(io, "$(nlevel(p))-level Rydberg pulse on $(nqudits(p)) atoms:\nHamiltonian:")
     print_block(io, p.rydberg_hamiltonian)
-    println(io, "Time: $(p.t_start) to $(p.t_end)\nSimulated by: $(p.backend)")
+    println(io, "Time: $(p.t_start) to $(p.t_end)\nSimulated by: $B")
 end
-Base.show(io::IO, p::RydbergPulse{D}) where D = print_block(io, p)
+Base.show(io::IO, p::RydbergPulse{D, B}) where {D, B} = print_block(io, p)

@@ -25,17 +25,17 @@ function single_qubit_gate_params(gate::AbstractBlock{2})
     (gate isa HGate) && return (sqrt(1/2), 0.0, sqrt(1/2), π)   # H = 1/√2 * (X + Z)
     (gate isa ConstGate.SGate) && return (0.0, 0.0, 1.0, π/2)
     (gate isa TGate) && return (0.0, 0.0, 1.0, π/4)
-    (gate isa ConstGate.SdagGate) && return (0.0, 0.0, 1.0, -π/2)
-    (gate isa ConstGate.TdagGate) && return (0.0, 0.0, 1.0, -π/4)
+    (gate isa ConstGate.SdagGate) && return (0.0, 0.0, 1.0, 3π/2)
+    (gate isa ConstGate.TdagGate) && return (0.0, 0.0, 1.0, 7π/4)
 
     # Rotation Gates
     (gate isa ShiftGate) && return (0.0, 0.0, 1, gate.theta)
     if gate isa RotationGate
         axis = gate.block
         θ = gate.theta
-        (axis isa XGate) && return (1.0, 0.0, 0.0, θ)
-        (axis isa YGate) && return (1.0, -π/2, 0.0, θ)
-        (axis isa ZGate) && return (0.0, 0.0, 1.0, θ)
+        (axis isa XGate) && return (1.0, 0.0, 0.0, rem2pi(θ, RoundDown))
+        (axis isa YGate) && return (1.0, -π/2, 0.0, rem2pi(θ, RoundDown))
+        (axis isa ZGate) && return (0.0, 0.0, 1.0, rem2pi(θ, RoundDown))
     end
 
     # Arbitrary 1-qubit Gates

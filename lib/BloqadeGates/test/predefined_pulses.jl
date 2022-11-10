@@ -7,9 +7,9 @@ using Yao.EasyBuild: SqrtX, SqrtY, SqrtW
 using Yao.YaoBlocks.ConstGate: I2, X, Y, Z, H, S, T
 
 const single_qubit_gates = [
-    I2, phase(rand()),
+    I2, phase(rand()*2π - π),
     X, Y, Z, H, S, T, S', T',
-    shift(rand()), phase(rand()), Rx(rand()), Ry(rand()), Rz(rand()),
+    shift(rand()*2π - π), phase(rand()*2π - π), Rx(rand()*2π - π), Ry(rand()*2π - π), Rz(rand()*2π - π),
     SqrtX, SqrtY, SqrtW, 
     matblock(rand_unitary(2))
 ]

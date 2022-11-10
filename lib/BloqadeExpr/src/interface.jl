@@ -109,20 +109,21 @@ function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
 end
 
 """
-    rydberg_h_3(atoms; [C=2π * 862690 * MHz*µm^6], 
+    rydberg_h_3(atoms; [C=2π * 862690 * MHz*µm^6, 
         Ω_hf = nothing, ϕ_hf = nothing, Δ_hf = nothing, 
-        Ω_r = nothing, ϕ_r = nothing, Δ_r = nothing)
+        Ω_r = nothing, ϕ_r = nothing, Δ_r = nothing])
 
 Create a 3-level Rydberg Hamiltonian
 
 ```math
-∑ \\frac{C}{|r_i - r_j|^6} n^r_i n^r_j + \\frac{Ω^{hf}}{2} σ^{hf}_x - Δ^{hf} n^{1} + \\frac{Ω^{r}}{2} σ^{r}_x - (Δ^{hf} + Δ^{r}) n^{r}
+∑ \\frac{C}{|r_i - r_j|^6} n^r_i n^r_j + \\frac{Ω^{\\mathrm{hf}}}{2} σ^{\\mathrm{hf}}_x - Δ^{\\mathrm{hf}} n^{1} + \\frac{Ω^{\\mathrm{r}}}{2} σ^{\\mathrm{r}}_x - (Δ^{\\mathrm{hf}} + Δ^{\\mathrm{r}}) n^{\\mathrm{r}}
 ```
 
 shorthand for
 
 ```julia
-RydInteract(C, atoms; nlevel = 2) + SumOfXPhase_01(length(atoms), Ω_hf/2, ϕ_hf) - SumOfN(length(atoms), Δ_hf) +
+RydInteract(C, atoms; nlevel = 2) + 
+    SumOfXPhase_01(length(atoms), Ω_hf/2, ϕ_hf) - SumOfN(length(atoms), Δ_hf) +
     SumOfXPhase_1r(length(atoms), Ω_r/2, ϕ_r) - SumOfN(length(atoms), Δ_r + Δ_hf)
 ```
 """

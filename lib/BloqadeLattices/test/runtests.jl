@@ -25,3 +25,7 @@ end
 @testset "visualize" begin
     include("visualize.jl")
 end
+
+@testset "docstrings.jl" begin
+    include("docstrings.jl")
+end

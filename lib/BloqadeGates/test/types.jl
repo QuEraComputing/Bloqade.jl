@@ -18,8 +18,9 @@ rh3 = rydberg_h_3(atoms; Ω_hf = Ω, ϕ_hf = ϕ, Δ_hf = Δ, Ω_r = Ω, ϕ_r = �
     @test mat(RydbergPulse(rh3, 1.0)) ≈ mat(ComplexF32, RydbergPulse(rh3, 1.0))
 
     # time-dependent Hamiltonian
-    @test operator_fidelity(RydbergPulse(rydberg_h(atoms; Ω = one), pi; backend = SchrodingerProblem), 
-        RydbergPulse(rydberg_h(atoms; Ω = 1.0), pi; backend = SchrodingerProblem)) > 1-1e-6
+    fid = operator_fidelity(RydbergPulse(rydberg_h(atoms; Ω = one), pi; backend = SchrodingerProblem), 
+        RydbergPulse(rydberg_h(atoms; Ω = 1.0), pi; backend = SchrodingerProblem))
+    @test 1-1e-4 < fid < 1+1e-4
     ids = two_level_indices(2)
     p_t = RydbergPulse(rydberg_h_3(atoms; Ω_hf = one), pi; step = 1e-3)
     p_1 = RydbergPulse(rydberg_h_3(atoms; Ω_hf = 1.0), pi; step = 1e-3)

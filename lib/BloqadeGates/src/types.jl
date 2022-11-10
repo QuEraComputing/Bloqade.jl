@@ -39,7 +39,7 @@ function YaoAPI.mat(::Type{T}, p::RydbergPulse{D, B}) where {T, D, B}
         for i in 1:d^n
             st = zeros(T, d^n)
             st[i] = 1
-            reg = ArrayReg(st)
+            reg = ArrayReg(st; nlevel = d)
             reg |> p
             mat[:, i] = state(reg)
         end

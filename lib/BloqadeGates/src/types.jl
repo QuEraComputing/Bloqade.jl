@@ -32,9 +32,10 @@ function YaoAPI.mat(p::RydbergPulse{D}) where D
     end
     return exp(-im*(p.t_end-p.t_start)*Matrix(p.rydberg_hamiltonian))
 end
-YaoAPI.occupied_locs(p::RydbergPulse{D}) where D = 1:nqudits(p)
+YaoAPI.occupied_locs(p::RydbergPulse{D}) where D = tuple(collect(1:nqudits(p))...)
 function YaoAPI.print_block(io::IO, p::RydbergPulse{D}) where D
+    println(io, "$(nlevel(p))-level Rydberg pulse on $(nqudits(p)) atoms:\nHamiltonian:")
     print_block(io, p.rydberg_hamiltonian)
-    println(io, "time: $(p.t_start) to $(p.t_end)\t simulated by: $(p.backend)")
+    println(io, "Time: $(p.t_start) to $(p.t_end)\nSimulated by: $(p.backend)")
 end
 Base.show(io::IO, p::RydbergPulse{D}) where D = print_block(io, p)

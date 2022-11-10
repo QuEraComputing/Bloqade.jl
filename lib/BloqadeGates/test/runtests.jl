@@ -5,6 +5,10 @@ using Test
     include("utils.jl")
 end
 
+@testset "types.jl" begin
+    include("types.jl")
+end
+
 @testset "Predefined Pulses" begin
     include("predefined_pulses.jl")
 end

@@ -7,9 +7,17 @@ atoms = [(0.0, 0.0), (4.0, 0.0)]
 Ω, ϕ, Δ = rand(3)
 rh = rydberg_h(atoms; Ω, ϕ, Δ)
 rh3 = rydberg_h_3(atoms; Ω_hf = Ω, ϕ_hf = ϕ, Δ_hf = Δ, Ω_r = Ω, ϕ_r = ϕ, Δ_r = Δ)
-@testset "t_start, t_end" begin
-    @test mat(RydbergPulse(rh, 1.0)) ≈ mat(RydbergPulse(rh, 1.0, 2.0))
+@testset "mat" begin
+    # different starting time
+    @test mat(RydbergPulse(rh, 1.0)) ≈ mat(RydbergPulse(rh, 1.0, 2.0)) 
     @test mat(RydbergPulse(rh3, 1.0)) ≈ mat(RydbergPulse(rh3, 1.0, 2.0))
+
+    # different complex type
+    @test mat(RydbergPulse(rh, 1.0)) ≈ mat(ComplexF32, RydbergPulse(rh, 1.0))
+    @test mat(RydbergPulse(rh3, 1.0)) ≈ mat(ComplexF32, RydbergPulse(rh3, 1.0))
+    
+    # time-dependent Hamiltonian
+    @test_warn "Computing the matrix of time-dependent RydbergPulse is slow." BloqadeGates.mat(RydbergPulse(rydberg_h(atoms; Ω = sin), pi))
 end
 
 @testset "ODE emulator" begin

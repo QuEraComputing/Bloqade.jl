@@ -4,6 +4,7 @@ using BloqadeExpr
 using BloqadeODE
 using BloqadeKrylov
 using YaoBlocks
+using YaoArrayRegister
 using YaoAPI
 using LinearAlgebra
 

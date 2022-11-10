@@ -29,11 +29,23 @@ function YaoAPI.apply!(reg::AbstractRegister{D}, p::RydbergPulse{D, SchrodingerP
 end
 YaoAPI.nqudits(p::RydbergPulse{D, B}) where {D, B} = nqudits(p.rydberg_hamiltonian)
 YaoAPI.nlevel(::RydbergPulse{D, B}) where {D, B} = D
-function YaoAPI.mat(p::RydbergPulse{D, B}) where {D, B}
+YaoAPI.subblocks(p::RydbergPulse{D, B}) where {D, B} = subblocks(p.rydberg_hamiltonian)
+function YaoAPI.mat(::Type{T}, p::RydbergPulse{D, B}) where {T, D, B}
     if BloqadeExpr.is_time_dependent(p.rydberg_hamiltonian)
-        error("Cannot get the matrix representation of a time-dependent Hamiltonian evolution")
+        @warn "Computing the matrix of time-dependent RydbergPulse is slow."
+        n = nqudits(p)
+        d = nlevel(p)
+        mat = Array{T, 2}(undef, d^n, d^n)
+        for i in 1:d^n
+            st = zeros(T, d^n)
+            st[i] = 1
+            reg = ArrayReg(st)
+            reg |> p
+            mat[:, i] = state(reg)
+        end
+        return mat
     end
-    return exp(-im*(p.t_end-p.t_start)*Matrix(p.rydberg_hamiltonian))
+    return exp(T(-im*(p.t_end-p.t_start))*Matrix(YaoAPI.mat(T, p.rydberg_hamiltonian)))
 end
 YaoAPI.occupied_locs(p::RydbergPulse{D, B}) where {D, B} = tuple(collect(1:nqudits(p))...)
 function YaoAPI.print_block(io::IO, p::RydbergPulse{D, B}) where {D, B}

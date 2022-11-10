@@ -2,8 +2,9 @@ using BloqadeGates
 using BloqadeExpr, BloqadeODE
 using Yao
 using Test
+using BloqadeGates: two_level_indices
 
-atoms = [(0.0, 0.0), (4.0, 0.0)]
+atoms = [(0.0, 0.0), (10.0, 0.0)]
 Ω, ϕ, Δ = rand(3)
 rh = rydberg_h(atoms; Ω, ϕ, Δ)
 rh3 = rydberg_h_3(atoms; Ω_hf = Ω, ϕ_hf = ϕ, Δ_hf = Δ, Ω_r = Ω, ϕ_r = ϕ, Δ_r = Δ)
@@ -20,8 +21,8 @@ rh3 = rydberg_h_3(atoms; Ω_hf = Ω, ϕ_hf = ϕ, Δ_hf = Δ, Ω_r = Ω, ϕ_r = �
     @test operator_fidelity(RydbergPulse(rydberg_h(atoms; Ω = one), pi; backend = SchrodingerProblem), 
         RydbergPulse(rydberg_h(atoms; Ω = 1.0), pi; backend = SchrodingerProblem)) > 1-1e-6
     ids = two_level_indices(2)
-    p_t = RydbergPulse(rydberg_h_3(atoms; Ω_hf = one), pi; backend = KrylovEvolution, step = 1e-3)
-    p_1 = RydbergPulse(rydberg_h_3(atoms; Ω_hf = 1.0), pi; backend = KrylovEvolution, step = 1e-3)
+    p_t = RydbergPulse(rydberg_h_3(atoms; Ω_hf = one), pi; step = 1e-3)
+    p_1 = RydbergPulse(rydberg_h_3(atoms; Ω_hf = 1.0), pi; step = 1e-3)
     @test operator_fidelity(matblock(mat(p_t)[ids, ids]), matblock(mat(p_1)[ids, ids])) > 1-1e-6
 end
 

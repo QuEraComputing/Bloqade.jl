@@ -1,6 +1,10 @@
 using Test
 using BloqadeLattices
 
+if "docstring" in ARGS
+    include("docstrings.jl")
+    exit()
+end
 
 @testset "lattice" begin
     include("lattice.jl")

@@ -118,7 +118,7 @@ run all the tests for doc strings.
         return joinpath("lib", pkg)
     end
     push!(paths, ".")
-    return docstring(paths...;)
+    return docstring(paths...)
 end
 
 """

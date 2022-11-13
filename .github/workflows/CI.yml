@@ -33,7 +33,7 @@ jobs:
         os:
           - ubuntu-latest
         arch:
-          - x64
+          - x86
         package:
           - '.'
           - 'lib/BloqadeGates'

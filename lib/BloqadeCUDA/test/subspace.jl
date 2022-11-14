@@ -2,40 +2,64 @@ using Test
 using Random
 using CUDA
 using YaoSubspaceArrayReg
+using YaoArrayRegister
+using StatsBase
 using CuYao
+using GPUArrays
+using Adapt
+using BloqadeCUDA
 
-function sample(rng::AbstractRNG, wv::AbstractWeights)
-    1 == firstindex(wv) ||
-        throw(ArgumentError("non 1-based arrays are not supported"))
-    t = rand(rng) * sum(wv)
-    n = length(wv)
-    i = 1
-    cw = wv[1]
-    while cw < t && i < n
-        i += 1
-        @inbounds cw += wv[i]
-    end
-    return i
+
+struct Sampler{A,B}
+    cum_prob::A
+    values::B
 end
 
-function sample(rng::Union{RNG,GPUArrays.RNG}, weights::CuVector)
-    dices = rand(rng, length(weights))
-    slots = cumsum(weights)
-    return map(dices) do d
-        # TODO: use binary search
-        findfirst(d, slots)
-        searchsortedfirst
-    end
+struct CuWeights{T<:Real}
+    values::CuVector{T}
+    sum::T
+end
+
+
+function Adapt.adapt_structure(to, sampler::Sampler)
+    cum_prob = Adapt.adapt_structure(to, sampler.cum_prob)
+    values = Adapt.adapt_structure(to, sampler.values)
+    Sampler(cum_prob,values)
+end
+
+
+function StatsBase.Weights(values::CuVector{T}) where {T<:Real}
+    return CuWeights{eltype(values)}(values,sum(values))
+end
+
+function (sampler::Sampler)(x)
+    i = searchsortedfirst(sampler.cum_prob, x)
+    i = clamp(i, firstindex(sampler.values), lastindex(sampler.values))
+    @inbounds sampler.values[i]
+end
+
+
+function sample(rng::AbstractRNG, subspace_v::CuVector, weights::CuWeights,nshots::Integer)
+    dices = rand(rng, nshots)
+    sampler = Sampler(cumsum(weights.values),subspace_v)
+
+    Array(sampler.(dices))
 end
 
 
 
 space = Subspace(10, sort(randperm(1 << 10)[1:76] .- 1))
 r = SubspaceArrayReg(randn(ComplexF64, 76), space)
-
+normalize!(r)
 dr = cu(r)
-@which measure(r)
 
-@which measure(ComputationalBasis(), r, AllLocs(); nshots=10)
 
-measure(dr)
+weights = Weights(abs2.(relaxedvec(dr)))
+subspace_v = vec(dr.subspace)
+
+samples = sample(CURAND.default_rng(),subspace_v,weights,1000)
+
+# weights = Weights(abs2.(relaxedvec(dr)))
+# @which measure(r)
+
+# measure(dr)

@@ -32,7 +32,8 @@ end
 """
     parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};pbc::Bool=false)
 
-Create a `BoundedLattice` given an existing lattice and tuples defining a parallelogram/paralelepiped.
+Create a `BoundedLattice` given an existing lattice and tuples defining a parallelogram/paralelepiped
+/line segment
 
 Periodic Boundary Conditions can be enable/disabled via `pbc`.
 
@@ -65,7 +66,7 @@ end
 """
     dimension(lattice::BoundedLattice{L,C}) where {L,C}
 
-Returns the dimensions of the`BoundedLattice` (ex: `2` for 2D, `3` for 3D)
+Returns the dimensions of the `BoundedLattice` (ex: `2` for 2D, `3` for 3D)
 
 ```jldoctest; setup=:(using BloqadeLattices)
 julia> bl = parallelepiped_region(ChainLattice(),(4,);pbc=true) # create a 1D BoundedLattice

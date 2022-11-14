@@ -17,7 +17,6 @@ julia> two_body_interaction_matrix(atoms) do x,y return 1/distance(x,y) end
  0.0  0.0  0.0  0.0
 ```
 """
-
 function two_body_interaction_matrix(f, atoms)
 
     natoms = length(atoms)

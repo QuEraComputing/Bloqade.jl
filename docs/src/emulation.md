@@ -105,7 +105,7 @@ solvers in Julia in [DiffEq:Translation from MATLAB/Python/R](https://diffeq.sci
 ## Adaptive Steps in ODE Solvers
 
 Our ODE solvers use adaptive steps by default. It provides a significant speedup
-compared to standard fixed-step methods (see [our benchmark here](#)).
+compared to standard fixed-step methods (see [our benchmark here](https://github.com/yardstiq/bloqade_benchmarks/tree/main#results)).
 However, if one expects to retrieve the results during the time evolution, e.g.,
 plotting Rydberg densities with the evolution time, fixed-step methods are sometimes 
 preferred.

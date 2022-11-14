@@ -15,7 +15,7 @@ end
 end
 
 function CuYao.cu(reg::SubspaceArrayReg{D}) where {D}
-    println("here")
+
     natoms = reg.natoms
     new_state = CuArray(reg.state)
     new_subspace = Subspace(

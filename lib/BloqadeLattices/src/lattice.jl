@@ -1,4 +1,8 @@
-# `D` is the dimensionality
+"""
+    AbstractLattice{D}
+
+Supertype for all `D` dimensional lattices.
+"""
 abstract type AbstractLattice{D} end
 """
     dimension(lattice)

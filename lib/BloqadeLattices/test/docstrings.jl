@@ -20,7 +20,7 @@ end
 @testset "Docstring Present" begin
     for symbol in names(BloqadeLattices)
 
-        symbol ∈ [:AbstractLattice, :AbstractRegion] && continue
+        #symbol ∈ [:AbstractLattice, :AbstractRegion] && continue
 
         obj = Base.eval(@__MODULE__, :(BloqadeLattices.$symbol))
 

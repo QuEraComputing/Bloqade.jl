@@ -1,6 +1,9 @@
-abstract type AbstractRegion{D} end
-####### AbstractRegion ########
+"""
+    AbstractRegion{D}
 
+Supertype for all `D` dimensional regions used to define bounds on lattices.
+"""
+abstract type AbstractRegion{D} end
 
 Base.broadcastable(x::AbstractRegion) = Ref(x)
 

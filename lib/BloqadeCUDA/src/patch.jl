@@ -13,3 +13,15 @@ for SparseMatrixType in [:CuSparseMatrixCSC, :CuSparseMatrixCSR]
 end
 
 end
+
+function CuYao.cu(reg::SubspaceArrayReg{D}) where {D}
+    println("here")
+    natoms = reg.natoms
+    new_state = CuArray(reg.state)
+    new_subspace = Subspace(
+        reg.subspace.nqubits,
+        reg.subspace.map,
+        CuArray(reg.subspace.subspace_v)
+    )
+    return SubspaceArrayReg{D}(new_state,new_subspace)
+end

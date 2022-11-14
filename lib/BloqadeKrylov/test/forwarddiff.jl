@@ -6,20 +6,19 @@ using BloqadeWaveforms
 using BloqadeKrylov
 using BloqadeLattices
 
-function test(x;tol=1e-7)
+
+ForwardDiff.derivative(2.0) do x
     T = 0.1
     dT = T/10
     reg = zero_state(Complex{typeof(x)}, 5)
     atoms = [(6.7*i,) for i in 1:5]
     h = rydberg_h(atoms; Ω = x, Δ = t->-5*cos(π*t/T))
-    prob = KrylovEvolution(reg, 0:dT:T, h;tol=tol)
+    prob = KrylovEvolution(reg, 0:dT:T, h)
     emulate!(prob)
-    return abs2.(statevec(reg))
+    return abs2(statevec(reg)[1])
 end
 
-test(10.0;tol=1e-9)
-
-
+# failing function, doesn't seem to 
 # ForwardDiff.derivative(2.0) do x
 #     reg = zero_state(Complex{typeof(x)}, 5)
 #     atoms = [(i,) for i in 1:5]
@@ -29,10 +28,10 @@ test(10.0;tol=1e-9)
 #     return abs2(statevec(reg)[1])
 # end
 
-# using ExponentialUtilities
+using ExponentialUtilities
 
-# ForwardDiff.derivative(2.0) do x
-#     st = rand(2)
-#     st = BloqadeKrylov.expmv(2.0, fill(x, (2, 2)), st)
-#     return sum(st)
-# end
+ForwardDiff.derivative(2.0) do x
+    st = rand(2)
+    st = BloqadeKrylov.expmv(2.0, fill(x, (2, 2)), st)
+    return sum(st)
+end

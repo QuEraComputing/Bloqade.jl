@@ -8,7 +8,17 @@ export gaussian, triangle, uniform, parabolic, biweight, triweight, tricube, cos
 # kernels
 # https://en.wikipedia.org/wiki/Kernel_(statistics)#Kernel_functions_in_common_use
 _in_radius(t, value) = abs(t) ≤ 1 ? value : zero(t)
+"""
+    gaussian(t)
+
+Gaussian kernel function for smoothing waveforms via [`smooth`](@ref)
+"""
 gaussian(t) = exp(-abs2(t) / 2) / sqrt(2π)
+"""
+    triangle(t)
+
+Triangle kernel function for smoothing waveforms via [`smooth`](@ref)
+"""
 triangle(t) = _in_radius(t, 1 - abs(t))
 
 function uniform(t::T) where {T}
@@ -17,13 +27,48 @@ function uniform(t::T) where {T}
     return T(abs(t) ≤ 1)
 end
 
+"""
+    parabolic(t)
+
+Parabolic kernel function for smoothing waveforms via [`smooth`](@ref)
+"""
 parabolic(t) = _in_radius(t, 3 / 4 * (1 - abs2(t)))
+"""
+    biweight(t)
+
+Biweight kernel function for smoothing waveforms via [`smooth`](@ref)
+"""
 biweight(t) = _in_radius(t, 15 / 16 * (1 - abs2(t))^2)
+"""
+    triweight(t)
+
+Biweight kernel function for smoothing waveforms via [`smooth`](@ref)
+"""
 triweight(t) = _in_radius(t, 35 / 32 * (1 - abs2(t))^3)
+"""
+    tricube(t)
+
+Tricube kernel function for smoothing waveforms via [`smooth`](@ref)
+"""
 tricube(t) = _in_radius(t, 70 / 81 * (1 - abs(t)^3)^3)
+"""
+    cosine(t)
+
+Cosine kernel function for smoothing waveforms via [`smooth`](@ref)
+"""
 cosine(t) = _in_radius(t, π / 4 * cos(π / 2 * t))
 # TODO: check numerical stability
+"""
+    logistic(t)
+
+Logistic kernel function for smoothing waveforms via [`smooth`](@ref)
+"""
 logistic(t) = 1 / (exp(t) + 2 + exp(-t))
+"""
+    simgoid(t)
+
+Sigmoid kernel funciton for smoothing waveforms via [`smooth`](@ref)
+"""
 sigmoid(t) = 2 / (π * (exp(t) + exp(-t)))
 
 end
@@ -135,7 +180,8 @@ $(
             !startswith(x, '_') &&
             !startswith(x, '#') &&
             !isequal(x, "Kernels") &&
-            !isequal(x, "eval")
+            !isequal(x, "eval") &&
+            !isequal(x, "include")
         end |> xs->map(x->string("[`", x, "`](@ref)"), xs), "; "
     )
 )

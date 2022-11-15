@@ -187,13 +187,7 @@ end
     piecewise_constant_interpolate(wf::Waveform; min_step::Real=0.0, atol::Real = 1.0e-5)
 
 Converts `wf` to a [`piecewise_constant`](@ref) waveform subject to `min_step` 
-(the smallest acceptable difference between values) and tolerance `atol`.
-
-```jldoctest; setup:=(using BloqadeWaveforms)
-julia> wf = sinusoidal(duration=2, amplitude=2π*1.0);
-
-julia> piecewise_constant_interpolate(wf; atol=1.0e-3);
-```
+(the smallest allowable time step) and tolerance `atol`.
 """
 function piecewise_constant_interpolate(wf::Waveform; 
     min_step::Real=0.0, 

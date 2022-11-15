@@ -11,16 +11,34 @@ _in_radius(t, value) = abs(t) ≤ 1 ? value : zero(t)
 """
     gaussian(t)
 
-Gaussian kernel function for smoothing waveforms via [`smooth`](@ref)
+Gaussian kernel function for smoothing waveforms via [`smooth`](@ref).
+
+The function is defined as:
+```math
+f(t) = \\frac{1}{\\sqrt{2\\pi}}e^{-\\frac{1}{2}|t|^2}
+```
 """
 gaussian(t) = exp(-abs2(t) / 2) / sqrt(2π)
 """
     triangle(t)
 
-Triangle kernel function for smoothing waveforms via [`smooth`](@ref)
+Triangle kernel function for smoothing waveforms via [`smooth`](@ref).
+
+The function is defined as:
+```math
+f(t) = 1 - |t|
+```
+where ``|t| \\leq 0``. Otherwise, ``f(t) = 0``
 """
 triangle(t) = _in_radius(t, 1 - abs(t))
 
+"""
+    uniform(t::T) where {T}
+
+Uniform kernel function for smoothing waveforms via [`smooth`](@ref)
+
+The function returns ``1`` for ``|t| \\leq 1``. Otherwise, it returns ``0``.
+"""
 function uniform(t::T) where {T}
     # we calculate the normalize factor
     # in smooth, no need to div by m
@@ -31,30 +49,60 @@ end
     parabolic(t)
 
 Parabolic kernel function for smoothing waveforms via [`smooth`](@ref)
+
+The function is defined as:
+```math
+f(t) = \\frac{3}{4}(1 - |t|^2)
+```
+when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
 """
 parabolic(t) = _in_radius(t, 3 / 4 * (1 - abs2(t)))
 """
     biweight(t)
 
 Biweight kernel function for smoothing waveforms via [`smooth`](@ref)
+
+The function is defined as:
+```math 
+f(t) = \\frac{15}{16}(1 - |t|^2)^2
+```
+when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
 """
 biweight(t) = _in_radius(t, 15 / 16 * (1 - abs2(t))^2)
 """
     triweight(t)
 
 Biweight kernel function for smoothing waveforms via [`smooth`](@ref)
+
+The function is defined as:
+```math
+f(t) = \\frac{35}{32}(1 - |t|^2)^3
+```
+when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
 """
 triweight(t) = _in_radius(t, 35 / 32 * (1 - abs2(t))^3)
 """
     tricube(t)
 
 Tricube kernel function for smoothing waveforms via [`smooth`](@ref)
+
+The function is defined as:
+```math
+f(t) = \\frac{70}{81}(1 - |t|^3)^3
+```
+when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
 """
 tricube(t) = _in_radius(t, 70 / 81 * (1 - abs(t)^3)^3)
 """
     cosine(t)
 
 Cosine kernel function for smoothing waveforms via [`smooth`](@ref)
+
+The function is defined as:
+```math
+f(t) = \\frac{\\pi}{4}\\cos\\left(\\frac{\\pi}{2}t\\right)
+```
+when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
 """
 cosine(t) = _in_radius(t, π / 4 * cos(π / 2 * t))
 # TODO: check numerical stability
@@ -62,12 +110,22 @@ cosine(t) = _in_radius(t, π / 4 * cos(π / 2 * t))
     logistic(t)
 
 Logistic kernel function for smoothing waveforms via [`smooth`](@ref)
+
+The function is defined as:
+```math
+f(t) = \\frac{1}{e^{t} + 2 + e^{-t}}
+```
 """
 logistic(t) = 1 / (exp(t) + 2 + exp(-t))
 """
     simgoid(t)
 
 Sigmoid kernel funciton for smoothing waveforms via [`smooth`](@ref)
+
+The function is defined as:
+```math
+f(t) = \\frac{2}{\\pi (e^{t} + e^{-t})}
+```
 """
 sigmoid(t) = 2 / (π * (exp(t) + exp(-t)))
 
@@ -182,7 +240,7 @@ $(
             !isequal(x, "Kernels") &&
             !isequal(x, "eval") &&
             !isequal(x, "include")
-        end |> xs->map(x->string("[`", x, "`](@ref)"), xs), "; "
+        end |> xs->map(x->string("[`Kernels.", x, "`](@ref)"), xs), "; "
     )
 )
 

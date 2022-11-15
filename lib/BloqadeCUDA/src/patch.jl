@@ -14,6 +14,7 @@ end
 
 end
 
+#=
 function CuYao.cu(reg::SubspaceArrayReg{D}) where {D}
 
     natoms = reg.natoms
@@ -25,3 +26,4 @@ function CuYao.cu(reg::SubspaceArrayReg{D}) where {D}
     )
     return SubspaceArrayReg{D}(new_state,new_subspace)
 end
+=#

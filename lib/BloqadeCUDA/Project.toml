@@ -4,6 +4,7 @@ version = "0.1.1"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
+BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 CuYao = "b48ca7a8-dd42-11e8-2b8e-1b7706800275"
 GPUArrays = "0c68f7d7-f131-5f86-a1c3-88cf8149b2d7"

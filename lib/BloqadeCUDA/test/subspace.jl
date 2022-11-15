@@ -9,57 +9,83 @@ using GPUArrays
 using Adapt
 using BloqadeCUDA
 
-
-struct Sampler{A,B}
-    cum_prob::A
+# TODO: use Alias sampler
+struct SamplerWithValues{T,A<:AbstractVector{T},B<:AbstractVector}
+    total::T
+    cumulative_weights::A
     values::B
 end
 
-struct CuWeights{T<:Real}
-    values::CuVector{T}
-    sum::T
+function SamplerWithValues(weights,values)
+    length(weights) != length(values) && error("Sampler expects values with same length as weights.")
+    total = sum(weights)
+    cumulative_weights = cumsum(weights)
+    return SamplerWithValues(total,cumulative_weights,values)
 end
 
-
-function Adapt.adapt_structure(to, sampler::Sampler)
-    cum_prob = Adapt.adapt_structure(to, sampler.cum_prob)
+function Adapt.adapt_structure(to, sampler::SamplerWithValues)
+    cumulative_weights = Adapt.adapt_structure(to, sampler.cumulative_weights)
     values = Adapt.adapt_structure(to, sampler.values)
-    Sampler(cum_prob,values)
+    SamplerWithValues(sampler.total,cumulative_weights,values)
 end
 
-
-function StatsBase.Weights(values::CuVector{T}) where {T<:Real}
-    return CuWeights{eltype(values)}(values,sum(values))
-end
-
-function (sampler::Sampler)(x)
-    i = searchsortedfirst(sampler.cum_prob, x)
-    i = clamp(i, firstindex(sampler.values), lastindex(sampler.values))
+function (sampler::SamplerWithValues)(x)
+    i = searchsortedfirst(sampler.cumulative_weights, x)
+    i = clamp(i, firstindex(sampler.cumulative_weights), lastindex(sampler.cumulative_weights))
     @inbounds sampler.values[i]
 end
 
+# TODO: use Alias sampler
+struct Sampler{T,A<:AbstractVector{T}}
+    total::T
+    cumulative_weights::A
+end
 
-function sample(rng::AbstractRNG, subspace_v::CuVector, weights::CuWeights,nshots::Integer)
-    dices = rand(rng, nshots)
-    sampler = Sampler(cumsum(weights.values),subspace_v)
+function Sampler(weights)
+    total = sum(weights)
+    cumulative_weights = cumsum(weights)
+    return Sampler(total,cumulative_weights)
+end
 
-    Array(sampler.(dices))
+function Adapt.adapt_structure(to, sampler::Sampler)
+    cumulative_weights = Adapt.adapt_structure(to, sampler.cumulative_weights)
+    Sampler(sampler.total,cumulative_weights)
+end
+
+function (sampler::Sampler)(x)
+    i = searchsortedfirst(sampler.cumulative_weights, x)
+    clamp(i, firstindex(sampler.cumulative_weights), lastindex(sampler.cumulative_weights))
 end
 
 
+function sample(rng::AbstractRNG, weights::CuVector,nshots::Integer)
+    sampler = Sampler(weights)
 
-space = Subspace(10, sort(randperm(1 << 10)[1:76] .- 1))
-r = SubspaceArrayReg(randn(ComplexF64, 76), space)
+    dices = sampler.total .* rand(rng, nshots)
+
+    sampler.(dices)
+end
+
+function sample(rng::AbstractRNG, weights::CuVector,nshots::Integer, obs::CuVector)
+    sampler = SamplerWithValues(weights,obs)
+
+    dices = sampler.total .* rand(rng, nshots)
+
+    sampler.(dices)
+end
+
+
+N = 20
+ntot = 2^(N-4)
+space = Subspace(N, sort(randperm(1 << N)[1:ntot] .- 1))
+r = SubspaceArrayReg(randn(ComplexF64, ntot), space)
 normalize!(r)
 dr = cu(r)
 
 
-weights = Weights(abs2.(relaxedvec(dr)))
-subspace_v = vec(dr.subspace)
+weights = abs2.(relaxedvec(dr))
 
-samples = sample(CURAND.default_rng(),subspace_v,weights,1000)
+using BenchmarkTools 
 
-# weights = Weights(abs2.(relaxedvec(dr)))
-# @which measure(r)
+@benchmark CUDA.@sync sample(CURAND.default_rng(),weights,10000)
 
-# measure(dr)

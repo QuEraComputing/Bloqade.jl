@@ -1,15 +1,14 @@
 # abstraction for a single tile of an infinite lattice
 """
     struct BoundedLattice{L<:AbstractLattice, R<:AbstractRegion}
-    BoundedLattice(lattice::L,region::R,site_positions,pbc::Bool) where {L<:AbstractLattice,R<:AbstractRegion} 
-    BoundedLattice(lattice::AbstractLattice{D},region::AbstractRegion{D},pbc::Bool=false)
     
-Define a lattice bounded by a `region` with the option for periodic boundary conditions.
+Defines a lattice bounded by a region with the option for periodic boundary conditions.
 
-`site_positions` is used to explicitly define atom sites in the `BoundedLattice` and
- must be a type accepted by the `AtomList` constructor (ex: Vector of Tuples).
-
-See also: [`parallelepiped_region`](@ref)
+# Fields
+- `lattice <: AbstractLattice`: Lattice to be bounded.
+- `region <: AbstractRegion`: Region that bounds the underlying `lattice`.
+- `site_positions::AtomList`: Positions of the atoms.
+- `pbc::Bool`: Enable/Disable behavior for Periodic Boundary Conditions.
 
 """
 struct BoundedLattice{L<:AbstractLattice,R<:AbstractRegion} 
@@ -24,6 +23,14 @@ struct BoundedLattice{L<:AbstractLattice,R<:AbstractRegion}
     end
 end
 
+"""
+    BoundedLattice(lattice::AbstractLattice{D},region::AbstractRegion{D},pbc::Bool=false)
+
+Creates a `BoundedLattice`(@ref) instance when provided with the underlying `lattice` and `region` to 
+bound on the lattice, with the option to enable Periodic Boundary Conditions.
+
+See also: [`parallelepiped_region`](@ref)
+"""
 function BoundedLattice(lattice::AbstractLattice{D},region::AbstractRegion{D},pbc::Bool=false) where D
     site_positions = generate_sites_in_region(lattice,region)
     return BoundedLattice(lattice,region,site_positions,pbc)

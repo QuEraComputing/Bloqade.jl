@@ -101,8 +101,24 @@ end
 
 """
     struct Parallelepiped{D, T} <: AbstractRegion{D}
-    Parallelepiped(vecs)
-    Parallelepiped(vecs::T) where {T<:Real}
+    
+Region that is a Parallelogram/Parallelepiped
+
+See also [`Parallelepiped(vecs)`](@ref), [`Parallelepiped(vecs::T) where {T<:Real}`](@ref)
+
+# Fields
+- `vecs::Matrix{T}`: Matrix with column vectors defining Parallelogram/Parallelepiped 
+- `vecs_inv::Matrix{T}`: Inverse of `vecs`
+"""
+struct Parallelepiped{D, T} <: AbstractRegion{D}
+    # abstract matrix dimensions already guaranteed to be 2D
+    vecs::Matrix{T}
+    vecs_inv::Matrix{T}
+end
+
+"""
+Parallelepiped(vecs)
+Parallelepiped(vecs::T) where {T<:Real}
 
 Define a region (either a line segment, parallelogram, or parallelepiped depending
 on the dimensions of `vecs`) using a single value or column vectors in a matrix that can be
@@ -120,12 +136,6 @@ julia> Parallelepiped(bounds)
 Parallelepiped{2, Float64}([3.0 4.0; 3.0 0.0], [0.0 0.3333333333333333; 0.25 -0.25])
 ```
 """
-struct Parallelepiped{D, T} <: AbstractRegion{D}
-    # abstract matrix dimensions already guaranteed to be 2D
-    vecs::Matrix{T}
-    vecs_inv::Matrix{T}
-end
-
 function Parallelepiped(vecs)
     D = size(vecs,1)
     vecs_inv = inv(vecs)

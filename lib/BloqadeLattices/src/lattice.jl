@@ -6,8 +6,9 @@ Supertype for all `D` dimensional lattices.
 # Implementation
 
 `lattice_vectors` and `lattice_sites` functions must be overriden
-which should both return an iterable containing the Bravais lattice vectors and lattice sites respectively.
-(ex: `GeneralLattice` returns a tuple of tuples containing the Bravais lattice vectors and lattice sites).
+which should both return an indexable iterable containing the Bravais lattice vectors and 
+lattice sites respectively. (ex: `GeneralLattice` returns a tuple of tuples containing the 
+Bravais lattice vectors and lattice sites).
 """
 abstract type AbstractLattice{D} end
 """

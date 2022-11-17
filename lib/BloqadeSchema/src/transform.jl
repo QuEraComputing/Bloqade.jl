@@ -511,7 +511,7 @@ end
 
 Given the constraints of the hardware from `device_capabilities` (specifically the position resolution)
 and an iterable containing the atom positions `atoms`, returns a Tuple containing the adjusted 
-atom positions the machine is capable of implementing and the mean squared error between the 
+atom positions the machine is capable of resolving and the mean squared error between the 
 desired atom positions and newly generated ones.
 
 # Examples 

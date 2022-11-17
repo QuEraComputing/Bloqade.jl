@@ -61,7 +61,7 @@ end
 XPhase operator for 2-level Rydberg system.
 
 ```math
-e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|
+e^{ϕ ⋅ i} |0⟩⟨1| + e^{-ϕ ⋅ i} |1⟩⟨0|
 ```
 """
 struct XPhase{T} <: PrimitiveBlock{2}
@@ -74,7 +74,12 @@ end
 XPhase operator act on |0⟩ and |1⟩ for 3-level Rydberg system.
 
 ```math
-e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|
+e^{ϕ ⋅ i} |0⟩⟨1| + e^{-ϕ ⋅ i} |1⟩⟨0| = 
+\\begin{pmatrix}
+0 & e^{ϕ ⋅ im} & 0 \\\\
+e^{-ϕ ⋅ im} & 0 & 0 \\\\
+0 & 0 & 0
+\\end{pmatrix}
 ```
 """
 struct XPhase_01{T} <: PrimitiveBlock{3}
@@ -87,7 +92,12 @@ end
 XPhase operator act on |1⟩ and |r⟩ for 3-level Rydberg system.
 
 ```math
-e^{ϕ ⋅ im} |1⟩⟨r| + e^{-ϕ ⋅ im} |r⟩⟨1|
+e^{ϕ ⋅ i} |1⟩⟨r| + e^{-ϕ ⋅ i} |r⟩⟨1| = 
+\\begin{pmatrix}
+0 & 0 & 0 \\\\
+0 & 0 & e^{ϕ ⋅ im} \\\\
+0 & e^{-ϕ ⋅ im} & 0
+\\end{pmatrix}
 ```
 """
 struct XPhase_1r{T} <: PrimitiveBlock{3}
@@ -125,6 +135,20 @@ struct OpPu_1r <: YaoBlocks.ConstantGate{1, 3} end
 struct OpPd_01 <: YaoBlocks.ConstantGate{1, 3} end
 struct OpPd_1r <: YaoBlocks.ConstantGate{1, 3} end
 
+const X_01 = OpX_01()
+const X_1r = OpX_1r()
+const Z_01 = OpZ_01()
+const Z_1r = OpZ_1r()
+const N_1 = OpN_1()
+const N_r = OpN_r()
+const Pu_01 = OpPu_01()
+const Pu_1r = OpPu_1r()
+const Pd_01 = OpPd_01()
+const Pd_1r = OpPd_1r()
+
+
+# ==================== Docstring for 3-level constant gates ====================
+
 """
     X_01
     OpX_01 <: YaoBlocks.ConstantGate{1, 3}
@@ -142,7 +166,7 @@ Matrix expression:
 \\end{pmatrix}
 ```
 """
-const X_01 = OpX_01()
+X_01, OpX_01
 
 """
     X_1r
@@ -161,7 +185,7 @@ Matrix expression:
 \\end{pmatrix}
 ```
 """
-const X_1r = OpX_1r()
+X_1r, OpX_1r
 
 """
     Z_01
@@ -180,7 +204,7 @@ Matrix expression:
 \\end{pmatrix}
 ```
 """
-const Z_01 = OpZ_01()
+Z_01, OpZ_01
 
 """
     Z_1r
@@ -199,7 +223,7 @@ Matrix expression:
 \\end{pmatrix}
 ```
 """
-const Z_1r = OpZ_1r()
+Z_1r, OpZ_1r
 
 """
     N_1
@@ -218,8 +242,7 @@ n^1 = |1⟩⟨1| =
 \\end{pmatrix}
 ```
 """
-const N_1 = OpN_1()
-
+N_1, OpN_1
 
 """
     N_r
@@ -230,7 +253,7 @@ Projection operator onto |r⟩ for 3-level Rydberg system.
 Matrix expression:
     
 ```math
-n^r = |r⟩⟨r| = 
+n^{\\mathrm{r}} = |r⟩⟨r| = 
 \\begin{pmatrix}
 0 & 0 & 0 \\\\
 0 & 0 & 0 \\\\
@@ -238,7 +261,7 @@ n^r = |r⟩⟨r| =
 \\end{pmatrix}
 ```
 """
-const N_r = OpN_r()
+N_r, OpN_r
 
 """
     Pu_01
@@ -247,7 +270,7 @@ const N_r = OpN_r()
 Matrix expression:
 
 ```math
-Pu^{hf} = 
+\\mathrm{Pu}^{\\mathrm{hf}} = 
 \\begin{pmatrix}
 0 & 1 & 0 \\\\
 0 & 0 & 0 \\\\
@@ -255,7 +278,8 @@ Pu^{hf} =
 \\end{pmatrix}
 ```
 """
-const Pu_01 = OpPu_01()
+Pu_01, OpPu_01
+
 
 """
     Pu_1r
@@ -264,7 +288,7 @@ const Pu_01 = OpPu_01()
 Matrix expression:
 
 ```math
-Pu^{r} = 
+\\mathrm{Pu}^{\\mathrm{r}} = 
 \\begin{pmatrix}
 0 & 0 & 0 \\\\
 0 & 0 & 1 \\\\
@@ -272,7 +296,7 @@ Pu^{r} =
 \\end{pmatrix}
 ```
 """
-const Pu_1r = OpPu_1r()
+Pu_1r, OpPu_1r
 
 """
     Pd_01
@@ -281,7 +305,7 @@ const Pu_1r = OpPu_1r()
 Matrix expression:
 
 ```math
-Pd^{hf} = 
+\\mathrm{Pd}^{\\mathrm{hf}} = 
 \\begin{pmatrix}
 0 & 0 & 0 \\\\
 1 & 0 & 0 \\\\
@@ -289,7 +313,7 @@ Pd^{hf} =
 \\end{pmatrix}
 ```
 """
-const Pd_01 = OpPd_01()
+Pd_01, OpPd_01
 
 """
     Pd_1r
@@ -298,7 +322,7 @@ const Pd_01 = OpPd_01()
 Matrix expression:
 
 ```math
-Pd^{r} = 
+\\mathrm{Pd}^{\\mathrm{r}} = 
 \\begin{pmatrix}
 0 & 0 & 0 \\\\
 0 & 0 & 0 \\\\
@@ -306,7 +330,10 @@ Pd^{r} =
 \\end{pmatrix}
 ```
 """
-const Pd_1r = OpPd_1r()
+Pd_1r, OpPd_1r
+
+# ==================== Docstring for 3-level constant gates (end) ====================
+
 
 """
     AbstractTerm{D} <: PrimitiveBlock{D}

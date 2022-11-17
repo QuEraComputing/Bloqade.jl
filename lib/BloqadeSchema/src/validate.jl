@@ -323,6 +323,37 @@ function validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,device_capabilities::Devic
     )
 end
 
+"""
+    validate(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
+
+Checks if `H` is capable of being represented as part of the internal schema as well as if it falls
+in the capabilities of what the machine can do via `device_capabilities`.
+
+Returns [`ValidationViolations`](@ref) with each field containing a set of strings indicating which
+constraints were violated for which part of `H`.
+
+# Logs/Warnings/Exceptions
+
+The following exceptions can be thrown:
+* ϕ is not of type `PiecewiseConstantWaveform`
+* Ω and Δ are not of type `PiecewiseLinearWaveform`
+
+# Examples
+```jldoctest; setup:=(using BloqadeExpr, BloqadeWaveforms, BloqadeLattices)
+julia> Δ = Ω = ϕ = sinusoidal(duration=2, amplitude=1.3*π);
+
+julia> h = rydberg_h(atom_positions; Ω=Ω,Δ=Δ,ϕ=ϕ)
+
+julia> transformed_h, _ = transform(h); # transform returns error info
+
+julia> validate(transformed_h) # constrained by default value of `device_capabilities` argument
+The following validation violations occured:
+
+1. positions 2 => (2.0, 0.0) and 3 => (3.0, 0.0) are a distance of 1.0 μm apart which is below minimum value of 4.0 μm
+2. positions 1 => (1.1, 0.0) and 2 => (2.0, 0.0) are a distance of 0.8999999999999999 μm apart which is below minimum value of 4.0 μm
+3. positions 1 => (1.1, 0.0) and 3 => (3.0, 0.0) are a distance of 1.9 μm apart which is below minimum value of 4.0 μm
+``` 
+"""
 # public API exposed here
 function validate(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
     (atoms,ϕ,Ω,Δ,δ,Δi) = schema_parse_rydberg_fields(H)

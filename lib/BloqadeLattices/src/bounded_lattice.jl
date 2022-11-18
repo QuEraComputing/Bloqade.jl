@@ -26,7 +26,7 @@ end
 """
     BoundedLattice(lattice::AbstractLattice{D},region::AbstractRegion{D},pbc::Bool=false)
 
-Creates a `BoundedLattice`(@ref) instance when provided with the underlying `lattice` and `region` to 
+Creates a [`BoundedLattice`](@ref) instance when provided with the underlying `lattice` and `region` to 
 bound on the lattice, with the option to enable Periodic Boundary Conditions.
 
 See also: [`parallelepiped_region`](@ref)
@@ -71,7 +71,7 @@ function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,In
 end
 
 """
-    dimension(lattice::BoundedLattice{L,C}) where {L,C}
+    dimension(lattice::BoundedLattice{L,C})
 
 Returns the dimensions of the `BoundedLattice` (ex: `2` for 2D, `3` for 3D)
 
@@ -89,18 +89,20 @@ julia> dimension(bl)
 2
 ```
 """
-
 dimension(lattice::BoundedLattice{L,C}) where {L,C} = dimension(lattice.lattice)
+
 """
-    lattice_vectors(lattice::BoundedLattice{L,C}) where {L,C}
+    lattice_vectors(lattice::BoundedLattice{L,C})
 
 Returns the underlying Bravais lattice vectors of the `BoundedLattice`
 
+```jldoctest; setup=:(using BloqadeLattices)
 julia> bl = parallelepiped_region(SquareLattice(),(3,0),(0,2);) # create a 2D BoundedLattice
 BoundedLattice{SquareLattice, Parallelepiped{2, Float64}}(SquareLattice(), Parallelepiped{2, Float64}([3.0 0.0; 0.0 2.0], [0.3333333333333333 0.0; 0.0 0.5]), [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0), (2.0, 0.0), (2.0, 1.0)], false)
 
 julia> lattice_vectors(bl) # lattice vectors used in Bravais Lattice definition of underlying SquareLattice
 ((1.0, 0.0), (0.0, 1.0))
+```
 """
 lattice_vectors(lattice::BoundedLattice{L,C}) where {L,C} = lattice_vectors(lattice.lattice)
 
@@ -114,12 +116,12 @@ end
 """
     distance(lat::BoundedLattice,x,y)
 
-Returns the distance between two points in the `BoundedLattice`. 
+Returns the distance between two points in the [`BoundedLattice`](@ref). 
 
-Points `x` and `y` can be any iterable and must have the same dimensions as the `BoundedLattice` 
+Points `x` and `y` can be any iterable and must have the same dimensions as the [`BoundedLattice`](@ref) 
 (ex: `(x,y)` for a 2D lattice, `(x,y,z)` for a 3D lattice).
 
-If the Periodic Boundary Condition option has been set to `true` for the `BoundedLattice`,
+If the Periodic Boundary Condition option has been set to `true` for the [`BoundedLattice`](@ref),
 the smallest distance between points is returned. 
 
 ```jldoctest; setup=:(using BloqadeLattices)

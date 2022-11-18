@@ -5,15 +5,15 @@ Supertype for all `D` dimensional lattices.
 
 # Implementation
 
-`lattice_vectors` and `lattice_sites` functions must be overriden
+[`lattice_vectors`](@ref) and [`lattice_sites`](@ref) functions must be overriden
 which should both return an indexable iterable containing the Bravais lattice vectors and 
-lattice sites respectively. (ex: `GeneralLattice` returns a tuple of tuples containing the 
+lattice sites respectively. (ex: [`GeneralLattice`](@ref) returns a tuple of tuples containing the 
 Bravais lattice vectors and lattice sites).
 """
 abstract type AbstractLattice{D} end
 
 """
-    dimension(lattice)
+    dimension(::AbstractLattice{D})
 
 Returns the space dimension of target lattice.
 e.g. [`ChainLattice`](@ref) is a 1D lattice, hence returns 1.
@@ -77,6 +77,7 @@ Overriden functions to return lattice vectors and sites exists as
 [`lattice_sites(::HoneycombLattice)`](@ref).
 
 # Fields
+
 None
 """
 struct HoneycombLattice <: AbstractLattice{2} end
@@ -115,6 +116,7 @@ Overriden functions to return lattice vectors and sites exists as
 [`lattice_sites(::SquareLattice)`](@ref).
 
 # Fields
+
 None
 """
 struct SquareLattice <: AbstractLattice{2} end
@@ -152,6 +154,7 @@ Overriden functions to return lattice vectors and sites exists as
 [`lattice_sites(::TriangularLattice)`](@ref).
 
 # Fields
+
 None
 """
 struct TriangularLattice <: AbstractLattice{2} end
@@ -189,6 +192,7 @@ Overriden functions to return lattice vectors and sites exists as
 [`lattice_sites(::ChainLattice)`](@ref).
 
 # Fields
+
 None
 """
 struct ChainLattice <: AbstractLattice{1} end
@@ -225,6 +229,7 @@ Overriden functions to return lattice vectors and sites exists as
 [`lattice_sites(::LiebLattice)`](@ref).
 
 # Fields
+
 None
 """
 struct LiebLattice <: AbstractLattice{2} end
@@ -232,7 +237,7 @@ struct LiebLattice <: AbstractLattice{2} end
 """
     lattice_vectors(::LiebLattice)
 
-Returns the Bravais lattice vectors for a Chain lattice as a Tuple of Tuples containing
+Returns the Bravais lattice vectors for a Lieb lattice as a Tuple of Tuples containing
 floats.
         
 The vectors are defined as:
@@ -264,6 +269,7 @@ Overriden functions to return lattice vectors and sites exists as
 [`lattice_sites(::KagomeLattice)`](@ref).
 
 # Fields
+
 None
 """
 struct KagomeLattice <: AbstractLattice{2} end
@@ -504,24 +510,6 @@ Returns an list of atoms in the `maskedgrid` in order.
 function collect_atoms(mg::MaskedGrid)
     return AtomList(map(ci -> (mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask)))
 end
-
-# generating docstrings
-function _gendoc(::Type{LT}) where {LT}
-    return """    $LT <: AbstractLattice{$(dimension(LT()))}
-    $LT()
-
-`$LT` is a $(dimension(LT())) dimensional lattice with:
-
-* Lattice vectors = $(lattice_vectors(LT()))
-* Lattice sites   = $(lattice_sites(LT()))
-"""
-end
-@doc _gendoc(SquareLattice) SquareLattice
-@doc _gendoc(TriangularLattice) TriangularLattice
-@doc _gendoc(ChainLattice) ChainLattice
-@doc _gendoc(LiebLattice) LiebLattice
-@doc _gendoc(KagomeLattice) KagomeLattice
-@doc _gendoc(HoneycombLattice) HoneycombLattice
 
 # TODO
 # pseudo-lattices,

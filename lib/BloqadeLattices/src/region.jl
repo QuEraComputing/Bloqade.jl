@@ -66,6 +66,7 @@ julia> generate_sites_in_region(SquareLattice(), Parallelepiped(bounds))
  (1.0, 0.0)
  (0.0, 1.0)
  (1.0, 1.0)
+```
 """
 function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractRegion{D}) where D
     zeros(D) ∉ region && error("bounding region must contain origin")
@@ -117,8 +118,8 @@ struct Parallelepiped{D, T} <: AbstractRegion{D}
 end
 
 """
-Parallelepiped(vecs)
-Parallelepiped(vecs::T) where {T<:Real}
+    Parallelepiped(vecs)
+    Parallelepiped(vecs::T) where {T<:Real}
 
 Define a region (either a line segment, parallelogram, or parallelepiped depending
 on the dimensions of `vecs`) using a single value or column vectors in a matrix that can be

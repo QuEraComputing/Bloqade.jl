@@ -18,25 +18,25 @@ i \hbar \dfrac{\partial}{\partial t} | \psi \rangle = \hat{\mathcal{H}}(t) | \ps
 \end{aligned}
 ```
 
-Here, $|0\rangle$ and $|1\rangle$ represent two different hyperfine levels 
-in a atom. And $|r\rangle$ represent the Rydberg level we use for entangling 
+Here, ``|0\rangle`` and ``|1\rangle`` represent two different hyperfine levels 
+in a atom. And ``|r\rangle`` represent the Rydberg level we use for entangling 
 different atoms. There are two seperated pulses: the first one couples two 
-hyperfine levels $|0\rangle$ and $|1\rangle$ and the second couples the 
-hyperfine level $|1\rangle$ and the Rydberg level $|r\rangle$. We use two 
-different superscripts $\mathrm{hf}$ and $\mathrm{r}$ to indicate them 
+hyperfine levels ``|0\rangle`` and ``|1\rangle`` and the second couples the 
+hyperfine level ``|1\rangle`` and the Rydberg level ``|r\rangle``. We use two 
+different superscripts ``\mathrm{hf}`` and ``\mathrm{r}`` to indicate them 
 respectively.
 
-With `ArrayReg` in `YaoArrayRegister`, we use $|0\rangle$, $|1\rangle$, and $|2\rangle$ to 
-represent $|0\rangle$, $|1\rangle$, and $|r\rangle$, respectively. 
+With `ArrayReg` in `YaoArrayRegister`, we use ``|0\rangle``, ``|1\rangle``, and ``|2\rangle`` to 
+represent ``|0\rangle``, ``|1\rangle``, and ``|r\rangle``, respectively. 
 
 
 ## Interface for the 3-level Hamiltonian
 
 The interface for defining a 3-level Rydberg Hamiltonian is [`rydberg_h_3`](@ref). It is similar as the 
 2-level interface [`rydberg_h`](@ref). The only difference is that, in 3-level you need to specify the Rabi term 
-$(\Omega, \phi)$ and the detunning term $(\Delta)$ for both hyperfine coupling 
-$(\Omega^{\mathrm{hf}}, \phi^{\mathrm{hf}}, \Delta^{\mathrm{hf}})$ and rydberg coupling 
-$(\Omega^{\mathrm{r}}, \phi^{\mathrm{r}}, \Delta^{\mathrm{r}})$. And both time-dependent and site-dependent waveforms are supported for each parameter (see [Hamiltonians](@ref) for details about defining different waveforms).
+``(\Omega, \phi)`` and the detunning term ``(\Delta)`` for both hyperfine coupling 
+``(\Omega^{\mathrm{hf}}, \phi^{\mathrm{hf}}, \Delta^{\mathrm{hf}})`` and rydberg coupling 
+``(\Omega^{\mathrm{r}}, \phi^{\mathrm{r}}, \Delta^{\mathrm{r}})``. And both time-dependent and site-dependent waveforms are supported for each parameter (see [Hamiltonians](@ref) for details about defining different waveforms).
 
 
 ## Pulse sequences and quantum gates
@@ -44,15 +44,15 @@ $(\Omega^{\mathrm{r}}, \phi^{\mathrm{r}}, \Delta^{\mathrm{r}})$. And both time-d
 We can use two hyperfine levels to represent a qubit. In this case 
 single-qubit gates can be directly obtained using hyperfine coupling in the 
 3-level system, and two-qubit gates can also be implemented by the coupling 
-between $|1\rangle$ and $|r\rangle$ with the assist of Rydberg interation 
+between ``|1\rangle`` and ``|r\rangle`` with the assist of Rydberg interation 
 between different Rydberg atoms. In general, any n-qubit unitary can be 
 approximated by a 3-level Rydberg pulse sequence. Hence, the 3-level Rydberg 
 system is universal for qubit quantum computation.
 
 ### Single-qubit gates
 
-Here is an example for applying a Pauli $X$ gate (acting on hyperfine levels 
-$|0\rangle$ and $|1\rangle$) to each site. Notes that single qubit gates 
+Here is an example for applying a Pauli ``X`` gate (acting on hyperfine levels 
+``|0\rangle`` and ``|1\rangle``) to each site. Notes that single qubit gates 
 could be parallelize, that is implementing the same single qubit gate on 
 different sites with only one pulse.
 ```@repl 3-level-single-qubit

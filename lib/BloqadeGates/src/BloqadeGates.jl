@@ -20,7 +20,7 @@ include("pulse_generators.jl")
 export local_single_qubit_gate, global_single_qubit_gate
 include("predefined_pulses.jl")
 
-export local_CkZ, local_CkNOT
+export local_CkZ, local_CkNOT, global_levine_pichler
 include("predefined_sequences.jl")
 
 end

@@ -22,3 +22,14 @@ function local_CkNOT(atoms, ctrls::Vector{<:Integer}, locs::Vector{<:Integer})
     push!(seq, local_single_qubit_gate(atoms, locs, H))
     return seq
 end
+
+function global_levine_pichler(atoms; Ω_r = 1.0)
+    ϕ_r = 3.90242
+    Δ_r = 0.377371*Ω_r
+    τ = 4.29268/Ω_r
+    seq = chain(
+        global_pulse(atoms, Ω_r, 0.0, Δ_r, τ; pulse_type = :rydberg),
+        global_pulse(atoms, Ω_r, ϕ_r, Δ_r, τ; pulse_type = :rydberg)
+    )
+    return seq
+end

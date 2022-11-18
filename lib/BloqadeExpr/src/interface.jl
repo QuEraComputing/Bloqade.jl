@@ -116,7 +116,7 @@ end
 Create a 3-level Rydberg Hamiltonian
 
 ```math
-∑ \\frac{C}{|r_i - r_j|^6} n^r_i n^r_j + \\frac{Ω^{\\mathrm{hf}}}{2} σ^{\\mathrm{hf}}_x - Δ^{\\mathrm{hf}} n^{1} + \\frac{Ω^{\\mathrm{r}}}{2} σ^{\\mathrm{r}}_x - (Δ^{\\mathrm{hf}} + Δ^{\\mathrm{r}}) n^{\\mathrm{r}}
+\\sum_{i<j} \\frac{C}{|r_i - r_j|^6} n^r_i n^r_j + \\sum_{i} \\frac{Ω^{\\mathrm{hf}}}{2} σ^{x,\\mathrm{hf}}_i - Δ^{\\mathrm{hf}} n^{1}_i + \\frac{Ω^{\\mathrm{r}}}{2} σ^{x,\\mathrm{r}}_i - (Δ^{\\mathrm{hf}} + Δ^{\\mathrm{r}}) n^{\\mathrm{r}}_i
 ```
 
 shorthand for

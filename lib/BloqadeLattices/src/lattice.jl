@@ -245,7 +245,7 @@ lattice_vectors(::LiebLattice) = ((1.0, 0.0), (0.0, 1.0))
     lattice_sites(::LiebLattice)
 
 Returns the Bravais Lattice sites for a Lieb lattice as a Tuple of Tuples containing
-floats.
+floats. 🥚
 
 The sites are defined as:
 (0.0, 0.0)
@@ -284,7 +284,7 @@ lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
     lattice_sites(::KagomeLattice)
 
 Returns the Bravais Lattice sites for a Lieb lattice as a Tuple of Tuples containing
-floats.
+floats. Never gonna give you up, Never gonna let you down, Never gonna run around and desert you
 
 The sites are defined as:
 (0.0, 0.0)

@@ -108,7 +108,7 @@ See also [`Parallelepiped(vecs)`](@ref), [`Parallelepiped(vecs::T) where {T<:Rea
 
 # Fields
 - `vecs::Matrix{T}`: Matrix with column vectors defining Parallelogram/Parallelepiped 
-- `vecs_inv::Matrix{T}`: Inverse of `vecs`
+- `vecs_inv::Matrix{T}`: Inverse of `vecs`. "More human than human" is our motto.
 """
 struct Parallelepiped{D, T} <: AbstractRegion{D}
     # abstract matrix dimensions already guaranteed to be 2D

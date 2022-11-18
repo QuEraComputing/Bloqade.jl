@@ -68,45 +68,52 @@ measure(reg) # the final state is an all-one state
 ### Two-qubit gates
 
 Two-qubit gates can be implemented with the assist of Rydberg interaction 
-between two atoms. Here we give an example of the CZ-gate using the 3-level 
-Rydberg system. Notes that the gate set of arbitrary single-qubit gate + 
-CZ-gate is universal. Hence, 3-level Rydberg system is universal for quantum 
-computing.
+between two atoms. Here we give two example of different implementation of 
+the CZ-gate using the 3-level Rydberg system. 
+
+- 5-pulse CZ-gate
+- The Levine-Pichler pulses
+
+Notes that the gate set of arbitrary single-qubit gate + CZ-gate is universal. 
+Hence, 3-level Rydberg system is universal for quantum computing.
+
+### 5-pulse CZ-gate
 
 Suppose we have two atoms which are cloesed to each other so that there is 
 Rydberg blockade between them. And the first atom is the controlling qubit 
 while the second atom is the target qubit. 
-```@repl 3-level-two-qubit
+```@repl 3-level-5-pulse-CZ
 using Bloqade
 atoms = generate_sites(ChainLattice(), 2; scale = 4)
 ```
 
 There are 5 steps in total for the CZ-gate. 
-1. Apply an X-gate (hyperfine π-pulse) on each qubit to flip |0⟩ and |1⟩
+1. Apply an X-gate (hyperfine π-pulse) on each qubit to flip ``|0\rangle`` and ``|1\rangle``
 2. Apply an Rydberg π-pulse on the controlling qubit
 3. Apply an Rydberg 2π-pulse on the target qubit
 4. Apply an Rydberg π-pulse on the controlling qubit
-5. Apply an X-gate (hyperfine π-pulse) on each qubit to flip |0⟩ and |1⟩
+5. Apply an X-gate (hyperfine π-pulse) on each qubit to flip ``|0\rangle`` and ``|1\rangle``
 
 To understand the above steps, let us consider two different cases when the 
-controlling qubit starts with |0⟩ and |1⟩.
-- If the controlling qubit starts with |0⟩, then after step 2 it will be 
-excited into the Rydberg state |r⟩. Because of the Rydberg blockade, the 
+controlling qubit starts with ``|0\rangle`` and ``|1\rangle``.
+- If the controlling qubit starts with ``|0\rangle``, then after step 2 it will be 
+excited into the Rydberg state ``|r\rangle``. Because of the Rydberg blockade, the 
 pulse in step 3 act trivially but a global phase -1 onto the target qubit. 
-This means nothing changes but a global phase -1 if controlling qubit is |0⟩.
-- If the controlling qubit is started with |1⟩, then after step 2 it will 
-become the hyperfine state |0⟩ which will not affect the pulse in step 3. 
+This means nothing changes but a global phase -1 if controlling qubit is ``|0\rangle``.
+- If the controlling qubit is started with ``|1\rangle``, then after step 2 it will 
+become the hyperfine state ``|0\rangle`` which will not affect the pulse in step 3. 
 In this case, the 2π-pulse will cause a phase -1 only if the target qubit 
-is |1⟩ after step 2 (which means the target qubit starts with |0⟩). This 
+is ``|1\rangle`` after step 2 (which means the target qubit starts with ``|0\rangle``). This 
 means a Z-gate upto a global phase -1 is applied on the target qubit when 
-the controlling qubit is |1⟩.
+the controlling qubit is ``|1\rangle``.
 
 The following codes implement the above 5-steps of the CZ-gate.
-```@repl 3-level-two-qubit
+```@repl 3-level-5-pulse-CZ
 using Bloqade
+using Yao
 atoms = generate_sites(ChainLattice(), 2; scale = 4)
-reg_00 = product_state(dit"00;3"); # a register initialized with |00⟩
-reg_11 = product_state(dit"11;3"); # a register initialized with |11⟩
+st = zeros(ComplexF64, 9); st[[1, 2, 4, 5]] .= 1/2; # [1, 2, 4, 5] are indices for hyperfine states
+reg = arrayreg(st; nlevel = 3)  # initialize the state with 1/2 (|00⟩ + |01⟩ + |10⟩ + |11⟩) 
 hs = [
     rydberg_h_3(atoms; Ω_hf = [1.0, 1.0]),  # hyperfine pulse for step 1
     rydberg_h_3(atoms; Ω_r = [1.0, 0.0]),   # Rydberg pulse for step 2
@@ -116,15 +123,76 @@ hs = [
 ]   # Hamiltonians for step 1-5
 ts = [π, π, 2π, π, π]   # pulse time for step 1-5
 step = 1e-3; # Krylov time step
-for i = 1:5, reg in (reg_00, reg_11)
+for i = 1:5
     prob = KrylovEvolution(reg, 0.0:step:ts[i], hs[i])
     emulate!(prob)
 end
-state(reg_00)   # global phase -1
-state(reg_11)   # global phase -1 and a phase flip
+state(reg)[1, 2, 4, 5]  # equivalent to 1/2 (|00⟩ + |01⟩ + |10⟩ - |11⟩) 
 ```
 
-Another example of two-qubit gate could be found at [(Levine-Pichler pulse)](https://github.com/QuEraComputing/Bloqade.jl/blob/a9a83684102b7ced4972345c96bf715800165151/lib/BloqadeExpr/test/3-level_supports.jl#L6).
+#### Levine-Pichler Pulses
+
+A more efficient way to implementing the CZ-gate is using the 
+[Levine-Pichler pulses](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.123.170503). 
+Comparing to the above 5-pulse CZ-gate, the Levine-Pichler pulses uses shorter 
+sequence and less time. 
+
+Consider two atoms which are closed to each other. If we apply a pulse that 
+couples ``|1\rangle`` and ``|r\rangle`` with the Rabi frequency 
+``\Omega^\mathrm{r}``, detunning ``\Delta^\mathrm{r}``, and duration 
+``\tau``, then the dynamics of four hyperfine state are different.
+
+- ``|00\rangle`` will not change during the pulse
+- ``|01\rangle`` (``|10\rangle``) will oscillate between ``|01\rangle`` and ``|0r\rangle`` (``|10\rangle`` and ``|r0\rangle``) with a frequency ``\Omega^\mathrm{r}``
+- ``|11\rangle`` will oscillate between ``|11\rangle`` and ``|w\rangle = \frac{1}{2}\left( |1r\rangle + |r1\rangle \right)`` with a frequency ``\sqrt{2}\Omega^\mathrm{r}`` (this is an approximation when the Rydberg blockade is strong enough such that the population of ``|rr\rangle`` could be ignored)
+
+The Levine-Pichler pulses consists of three global pulses:
+
+1. A global Rydberg pulse with parameters ``\frac{\Delta^\mathrm{r}}{\Omega^\mathrm{r}} \approx 0.377371``, ``\phi^\mathrm{r} = 0``, ``\Omega^\mathrm{r}\tau \approx 4.29268``
+2. A global Rydberg pulse with parameters ``\frac{\Delta^\mathrm{r}}{\Omega^\mathrm{r}} \approx 0.377371``, ``\phi^\mathrm{r} \approx 3.90242``, ``\Omega^\mathrm{r}\tau \approx 4.29268``
+3. A global hyperfine pulse with parameters ``\Delta^\mathrm{r}}\tau = 2\pi-\alpha \approx 3.90242``, ``{\Omega^\mathrm{r}} = \phi^\mathrm{r} = 0``
+
+The first pulse completes a full cycle of oscillation for ``|11\rangle`` while it 
+does not complete a cycle for ``|01\rangle`` and ``|10\rangle``. The only difference 
+between the first and the second pulse is the parameter ``\phi^\mathrm{r}``. This 
+difference causes a change of the rotation axis on the Bloch sphere, such that the 
+second pulse completes another full cycle of oscillation for ``|11\rangle`` while it 
+also brings back ``|01\rangle`` and ``|10\rangle``. After these two pulses has a unitary representation 
+```math
+\begin{pmatrix}
+1 & & & \\
+& e^{i\alpha} & & \\
+& & e^{i\alpha} & \\
+& & & e^{i(2\alpha-\pi)}
+\end{pmatrix},
+```
+which is a CZ-gate with single qubit rotation gates ``R_Z(\alpha)`` on each qubit.
+The following picture (Fig 2 c) in [the original paper](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.123.170503)) 
+demonstrates the process of the first pulse and the second pulse.
+![](assets/levine-pichler.png)
+
+Here are codes for the Levine-Pichler pulses.
+```@repl 3-level-levine-pichler
+using Bloqade
+using Yao
+st = zeros(ComplexF64, 9); st[[1, 2, 4, 5]] .= 1/2; # [1, 2, 4, 5] are indices for hyperfine states
+reg = arrayreg(st; nlevel = 3); # initialize the state with 1/2 (|00⟩ + |01⟩ + |10⟩ + |11⟩) 
+atoms = generate_sites(ChainLattice(), 2; scale = 4);
+Ω_r = 1.0; ϕ_r = 3.90242; Δ_r = 0.377371*Ω_r;   # define parameters
+τ = 4.29268/Ω_r; α = 2.38076;   # define pulse durations
+step = 1e-3;    # Krylov step
+hs = [
+    rydberg_h_3(atoms; Ω_r = Ω_r, Δ_r = Δ_r),   # global Rydberg pulse for step 1
+    rydberg_h_3(atoms; Ω_r = Ω_r, ϕ_r = ϕ_r, Δ_r = Δ_r),    # global Rydberg pulse for step 2
+    rydberg_h_3(atoms; Δ_hf = 1.0), # global hyperfine pulse for R_Z-gate in step 3
+]
+ts = [τ, τ, 2π - α]
+for i = 1:3 # simulation
+    prob = KrylovEvolution(reg, 0:step:ts[i], hs[i])
+    emulate!(prob)
+end
+state(reg)[1, 2, 4, 5]  # desired state 1/2 (|00⟩ + |01⟩ + |10⟩ - |11⟩) 
+```
 
 ### Predefined pulse sequences for different quantum gates
 

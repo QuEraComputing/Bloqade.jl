@@ -26,21 +26,27 @@ end
 @testset "Local pulses" begin
     @testset "C_{$n}Z" for n = 1:5
         atoms = [(cos(2π*i/n), sin(2π*i/n)) for i = 1:n]
-        seq = local_CkZ(atoms, [i for i = 2:n], [1])
-        ms = mat.(seq)
-        m = prod(reverse(ms))
-        ids = two_level_indices(n)
-        m = m[ids, ids]
-        @test operator_fidelity(matblock(m), control(n, collect(2:n), 1=>Z)) ≈ 1
+        if n == 1
+            @test_throws AssertionError local_CkZ(atoms, [i for i = 2:n], [1])
+        else
+            seq = local_CkZ(atoms, [i for i = 2:n], [1])
+            m = mat(seq)
+            ids = two_level_indices(n)
+            m = m[ids, ids]
+            @test operator_fidelity(matblock(m), control(n, collect(2:n), 1=>Z)) ≈ 1
+        end
     end
     
     @testset "C_{$n}NOT" for n = 1:5
         atoms = [(cos(2π*i/n), sin(2π*i/n)) for i = 1:n]
-        seq = local_CkNOT(atoms, [i for i = 2:n], [1])
-        ms = mat.(seq)
-        m = prod(reverse(ms))
-        ids = two_level_indices(n)
-        m = m[ids, ids]
-        @test operator_fidelity(matblock(m), control(n, collect(2:n), 1=>X)) ≈ 1
+        if n == 1
+            @test_throws AssertionError local_CkZ(atoms, [i for i = 2:n], [1])
+        else
+            seq = local_CkNOT(atoms, [i for i = 2:n], [1])
+            m = mat(seq)
+            ids = two_level_indices(n)
+            m = m[ids, ids]
+            @test operator_fidelity(matblock(m), control(n, collect(2:n), 1=>X)) ≈ 1
+        end
     end
 end

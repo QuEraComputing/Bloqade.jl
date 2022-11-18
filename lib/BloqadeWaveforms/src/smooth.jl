@@ -15,7 +15,7 @@ Gaussian kernel function for smoothing waveforms via [`smooth`](@ref).
 
 The function is defined as:
 ```math
-f(t) = \\frac{1}{\\sqrt{2\\pi}}e^{-\\frac{1}{2}|t|^2}
+f(t) = \\frac{1}{\\sqrt{2π}}e^{-\\frac{1}{2}|t|^2}
 ```
 """
 gaussian(t) = exp(-abs2(t) / 2) / sqrt(2π)
@@ -28,7 +28,7 @@ The function is defined as:
 ```math
 f(t) = 1 - |t|
 ```
-where ``|t| \\leq 0``. Otherwise, ``f(t) = 0``
+where ``|t| ≤ 1``. Otherwise, ``f(t) = 0``
 """
 triangle(t) = _in_radius(t, 1 - abs(t))
 
@@ -37,7 +37,7 @@ triangle(t) = _in_radius(t, 1 - abs(t))
 
 Uniform kernel function for smoothing waveforms via [`smooth`](@ref)
 
-The function returns ``1`` for ``|t| \\leq 1``. Otherwise, it returns ``0``.
+The function returns ``1`` for ``|t| ≤ 1``. Otherwise, it returns ``0``.
 """
 function uniform(t::T) where {T}
     # we calculate the normalize factor
@@ -54,7 +54,7 @@ The function is defined as:
 ```math
 f(t) = \\frac{3}{4}(1 - |t|^2)
 ```
-when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
+when ``|t| ≤ 1``. Otherwise, ``f(t) = 0``.
 """
 parabolic(t) = _in_radius(t, 3 / 4 * (1 - abs2(t)))
 """
@@ -66,7 +66,7 @@ The function is defined as:
 ```math 
 f(t) = \\frac{15}{16}(1 - |t|^2)^2
 ```
-when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
+when ``|t| ≤ 1``. Otherwise, ``f(t) = 0``.
 """
 biweight(t) = _in_radius(t, 15 / 16 * (1 - abs2(t))^2)
 """
@@ -78,7 +78,7 @@ The function is defined as:
 ```math
 f(t) = \\frac{35}{32}(1 - |t|^2)^3
 ```
-when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
+when ``|t| ≤ 1``. Otherwise, ``f(t) = 0``.
 """
 triweight(t) = _in_radius(t, 35 / 32 * (1 - abs2(t))^3)
 """
@@ -90,7 +90,7 @@ The function is defined as:
 ```math
 f(t) = \\frac{70}{81}(1 - |t|^3)^3
 ```
-when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
+when ``|t| ≤ 1``. Otherwise, ``f(t) = 0``.
 """
 tricube(t) = _in_radius(t, 70 / 81 * (1 - abs(t)^3)^3)
 """
@@ -100,9 +100,9 @@ Cosine kernel function for smoothing waveforms via [`smooth`](@ref)
 
 The function is defined as:
 ```math
-f(t) = \\frac{\\pi}{4}\\cos\\left(\\frac{\\pi}{2}t\\right)
+f(t) = \\frac{π}{4}\\cos\\left(\\frac{π}{2}t\\right)
 ```
-when ``|t| \\leq 1``. Otherwise, ``f(t) = 0``.
+when ``|t| ≤ 1``. Otherwise, ``f(t) = 0``.
 """
 cosine(t) = _in_radius(t, π / 4 * cos(π / 2 * t))
 # TODO: check numerical stability

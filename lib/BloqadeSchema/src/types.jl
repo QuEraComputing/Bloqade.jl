@@ -25,6 +25,18 @@ end
     post_sequence::Vector{Int32}
 end
 
+"""
+    struct TaskOutput <: QuEraSchema
+
+The result of executing a `TaskSpecification` on the machine.
+
+Output of [`execute`](@ref) function.
+
+# Fields
+- `task_status_code::Int`: Task Status
+- `shot_outputs::Vector{ShotOutput}`: Contains pre- and post- shot 
+sequence in binary of if atoms are in Rydberg/Ground state.
+"""
 @option struct TaskOutput <: QuEraSchema
     task_status_code::Int
     shot_outputs::Vector{ShotOutput}

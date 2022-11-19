@@ -9,6 +9,10 @@ end
     include("types.jl")
 end
 
+@testset "pulse_generator.jl" begin
+    include("pulse_generator.jl")
+end
+
 @testset "Predefined Pulses" begin
     include("predefined_pulses.jl")
 end

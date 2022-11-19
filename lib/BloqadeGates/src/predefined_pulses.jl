@@ -2,13 +2,13 @@ function local_single_qubit_gate(atoms, locs::Vector{<:Integer}, gate::AbstractB
     n = length(atoms)
     mask = zeros(n)
     mask[locs] .= 1
-    Ω, ϕ, Δ, t = single_qubit_gate_params(gate)
-    return local_pulse(atoms, mask, Ω, ϕ, Δ, t; pulse_type = :hyperfine, backend, step)
+    Ω_hf, ϕ_hf, Δ_hf, t = single_qubit_gate_params(gate)
+    return local_pulse(atoms, mask, t; Ω_hf, ϕ_hf, Δ_hf, backend, step)
 end
 
 function global_single_qubit_gate(atoms, gate::AbstractBlock{2}; backend = KrylovEvolution, step = 1e-2)
-    Ω, ϕ, Δ, t = single_qubit_gate_params(gate)
-    return global_pulse(atoms, Ω, ϕ, Δ, t; pulse_type = :hyperfine, backend, step)
+    Ω_hf, ϕ_hf, Δ_hf, t = single_qubit_gate_params(gate)
+    return global_pulse(atoms, t; Ω_hf, ϕ_hf, Δ_hf, backend, step)
 end
 
 function single_qubit_gate_params(gate::AbstractBlock{2})

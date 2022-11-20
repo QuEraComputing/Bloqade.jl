@@ -164,7 +164,7 @@ Type for Rydberg interactive term.
 - `C`: the interaction strength, default unit is `MHz⋅μm^6`. default value is `2π * 862690 * MHz*µm^6`.
 """
 Base.@kwdef struct RydInteract{D} <: AbstractTerm{D}
-    atoms::Vector
+    atoms::Union{Vector,BoundedLattice}
     C::Real = 2π * 862690
 
     function RydInteract{D}(atoms, C) where D

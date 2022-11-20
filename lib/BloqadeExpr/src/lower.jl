@@ -220,13 +220,12 @@ end
 
 function YaoBlocks.Optimise.to_basictypes(ex::RydInteract{D}) where D
     nsites = length(ex.atoms)
-    # replace this code with function from V = BloqadeLattices.generate_interactions(ex.atoms,r -> ex.C/r^6)
+    V = rydberg_interaction_matrix(ex.atoms,ex.C)
     term = nothing
     op = (D == 2 ? ConstGate.P1 : N_r)
-    for i in 1:nsites, j in 1:i-1
+    for i in 1:nsites, j in i+1:nsites
         x, y = ex.atoms[i], ex.atoms[j]
-        # h = V[i,j]*kron(nsites, i => op, j => op)
-        h = ex.C / distance(x, y)^6 * kron(nsites, i => op, j => op)
+        h = V[i,j]*kron(nsites, i => op, j => op)
 
         if isnothing(term)
             term = h

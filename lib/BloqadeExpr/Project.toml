@@ -5,6 +5,7 @@ version = "0.1.8"
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 BitBasis = "50ba71b6-fa0f-514d-ae9a-0916efc90dcf"
+BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 InteractiveUtils = "b77e0a4c-d291-57a0-90e8-8db25a27a240"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"

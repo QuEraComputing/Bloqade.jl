@@ -222,6 +222,9 @@ ByDensity
 
 AbstractRegion
 Parallelepiped
+Parallelepiped(vecs)
+Parallelepiped(vecs::T) where {T<:Real}
+
 distance
 generate_sites_in_region
 

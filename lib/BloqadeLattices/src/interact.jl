@@ -33,7 +33,7 @@ end
 
 """
     rydberg_interaction_matrix(atoms, C::Real)
-    rydberg_interaction_matrix(lat::BoundedLattice{L,R},C::Real)
+    rydberg_interaction_matrix(lattice::BoundedLattice{L,R},C::Real)
 
 Generate the interaction matrix given an indexable iterable `atoms` containg atom positions and the
 Rydberg interaction constant `C`.
@@ -73,13 +73,13 @@ end
 ### implementation for bounded lattices
 
 
-function rydberg_interaction_matrix(lat::BoundedLattice{L,R},C::Real) where {L,R}
-    if lat.pbc
-        return two_body_interaction_matrix(lat.site_positions) do x,y
-            return C/distance(lat.region,x,y)^6
+function rydberg_interaction_matrix(lattice::BoundedLattice{L,R},C::Real) where {L,R}
+    if lattice.pbc
+        return two_body_interaction_matrix(lattice.site_positions) do x,y
+            return C/distance(lattice.region,x,y)^6
         end 
     else
-        return two_body_interaction_matrix(lat.site_positions) do x,y
+        return two_body_interaction_matrix(lattice.site_positions) do x,y
             return C/distance(x,y)^6
         end
     end

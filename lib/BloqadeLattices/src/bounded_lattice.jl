@@ -7,7 +7,7 @@ Defines a lattice bounded by a region with the option for periodic boundary cond
 # Fields
 - `lattice <: AbstractLattice`: Lattice to be bounded.
 - `region <: AbstractRegion`: Region that bounds the underlying `lattice`.
-- `site_positions::AtomList`: Positions of the atoms.
+- `site_positions::AtomList`: Positions of the atoms inside region.
 - `pbc::Bool`: Enable/Disable behavior for Periodic Boundary Conditions.
 
 """
@@ -40,7 +40,7 @@ end
     parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};pbc::Bool=false)
 
 Create a `BoundedLattice` given an existing lattice and tuples defining a parallelogram/paralelepiped
-/line segment
+/line segment defined by vectors that are integer multiples of the lattice vectors in `lattice`.
 
 Periodic Boundary Conditions can be enable/disabled via `pbc`.
 
@@ -73,7 +73,7 @@ end
 """
     dimension(lattice::BoundedLattice{L,C})
 
-Returns the dimensions of the `BoundedLattice` (ex: `2` for 2D, `3` for 3D)
+Returns the dimensions of the `BoundedLattice` (e.g.: `2` for 2D, `3` for 3D)
 
 ```jldoctest; setup=:(using BloqadeLattices)
 julia> bl = parallelepiped_region(ChainLattice(),(4,);pbc=true) # create a 1D BoundedLattice
@@ -114,7 +114,7 @@ function get_position_index(pos,lattice::BoundedLattice{L,C}) where {L,C}
 end
 
 """
-    distance(lat::BoundedLattice,x,y)
+    distance(lattice::BoundedLattice,x,y)
 
 Returns the distance between two points in the [`BoundedLattice`](@ref). 
 
@@ -122,7 +122,8 @@ Points `x` and `y` can be any iterable and must have the same dimensions as the 
 (ex: `(x,y)` for a 2D lattice, `(x,y,z)` for a 3D lattice).
 
 If the Periodic Boundary Condition option has been set to `true` for the [`BoundedLattice`](@ref),
-the smallest distance between points is returned. 
+the smallest distance between points (modulo the region) is returned, otherwise the standard Euclidean
+metric is used.
 
 ```jldoctest; setup=:(using BloqadeLattices)
 julia> bl = parallelepiped_region(SquareLattice(), (1,0),(0,1);) # Define 2D BoundedLattice
@@ -138,4 +139,4 @@ julia> distance(bl_pbc, (0.1, 0.1), (0.5, 1.1)) # distance with periodic boundar
 0.4
 ```
 """
-distance(lat::BoundedLattice,x,y) = lat.pbc ? distance(lat.region,x,y) : distance(x,y)
+distance(lattice::BoundedLattice,x,y) = lattice.pbc ? distance(lattice.region,x,y) : distance(x,y)

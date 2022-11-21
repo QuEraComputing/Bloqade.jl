@@ -193,14 +193,14 @@ One can check the docstring of [`Bloqade.plot`](@ref) to know more about how to 
 
 ```@docs
 AbstractLattice
-HoneycombLattice
+GeneralLattice
 SquareLattice
+RectangularLattice
+HoneycombLattice
 TriangularLattice
 ChainLattice
 LiebLattice
 KagomeLattice
-GeneralLattice
-RectangularLattice
 
 lattice_vectors
 lattice_sites

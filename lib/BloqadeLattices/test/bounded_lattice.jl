@@ -25,7 +25,7 @@ expected_positions = [
 @test issetequal(bounded_lattice.site_positions,expected_positions)
 
 # kagome rectangle boundary
-bounded_lattice = parallelepiped_region(KagomeLattice(),(2,2),(-2,2))
+bounded_lattice = parallelepiped_region(KagomeLattice(),(2,2),(-2,2);scale=scale)
 expected_positions = [
     (-0.75*scale, 1.299038105676658*scale), (-0.5*scale, 0.8660254037844386*scale), (-0.25*scale, 0.4330127018922193*scale), 
     (-0.25*scale, 1.299038105676658*scale), (0.0*scale, 0.0*scale), (0.0*scale, 1.7320508075688772*scale), 
@@ -37,6 +37,9 @@ expected_positions = [
     (2.0*scale, 1.7320508075688772*scale), (2.25*scale, 1.299038105676658*scale), (2.25*scale, 2.1650635094610964*scale)
 ]
 
+# should not be a type issue, both are vectors containing tuples with 
+# pairs of Float64s
+# issetequal(bounded_lattice.site_positions, expected_positions)
 @test issetequal(bounded_lattice.site_positions,expected_positions)
 @test dimension(bounded_lattice) == 2
 

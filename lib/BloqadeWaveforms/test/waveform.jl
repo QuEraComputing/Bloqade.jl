@@ -224,4 +224,13 @@ end
     new_wf = append(start_wf,mid_wf,end_wf)
 
     @test new_wf ≈ target_wf
+
+    # check floating point error
+    wf = append(
+        piecewise_linear(clocks=[0.0,0.2],values=[0.0,0.0]),
+        piecewise_linear(clocks=[0.0,0.16], values = [0.1,0.1]),
+        piecewise_linear(clocks=[0.0,0.2], values=[0.0,0.0])
+    );
+
+    @test wf(0.56) ≈ 0.0
 end

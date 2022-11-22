@@ -14,7 +14,7 @@ function independent_set_subspace(::Type{T}, graph::SimpleGraph) where T
     return create_subspace_from_mis(T, n, mis)
 end
 
-function independent_set_subspace(graph::SimpleGraph) where T
+function independent_set_subspace(graph::SimpleGraph)
     n = nv(graph)
     @assert n <= 128 "number of vertices in a graph is too large! $(n) > 128"
     independent_set_subspace(n > 64 ? Int128 : Int64, graph)

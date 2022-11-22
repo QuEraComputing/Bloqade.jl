@@ -10,3 +10,6 @@ YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18"
+
+[compat]
+ForwardDiff = "0.10.32"

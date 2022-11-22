@@ -89,8 +89,8 @@ Returns the Bravais lattice vectors for a Honeycomb lattice as a Tuple of Tuples
 floats.
 
 The vectors are defined as:
-𝐚₁ = (1.0, 0.0)
-𝐚₂ = (0.5, 0.5√3)
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.5, 0.5√3)
 """
 lattice_vectors(::HoneycombLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
 
@@ -101,8 +101,8 @@ Returns the Bravais Lattice sites for a Honeycomb lattice as a Tuple of Tuples c
 floats.
 
 The sites are defined as:
-(0.0, 0.0)
-(0.5, 0.5√3)
+- (0.0, 0.0)
+- (0.5, 0.5√3)
 """
 lattice_sites(::HoneycombLattice) = ((0.0, 0.0), (0.5, 0.5 / sqrt(3)))
 
@@ -128,8 +128,8 @@ Returns the Bravais lattice vectors for a Square lattice as a Tuple of Tuples co
 floats.
     
 The vectors are defined as:
-𝐚₁ = (1.0, 0.0)
-𝐚₂ = (0.0, 1.0)
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.0, 1.0)
 """
 lattice_vectors(::SquareLattice) = ((1.0, 0.0), (0.0, 1.0))
 
@@ -140,7 +140,7 @@ Returns the Bravais Lattice sites for a Square lattice as a Tuple of Tuples cont
 floats.
 
 The sites are defined as:
-(0.0, 0.0)
+- (0.0, 0.0)
 """
 lattice_sites(::SquareLattice) = ((0.0, 0.0),)
 
@@ -166,8 +166,8 @@ Returns the Bravais lattice vectors for a Triangular lattice as a Tuple of Tuple
 floats.
     
 The vectors are defined as:
-𝐚₁ = (1.0, 0.0)
-𝐚₂ = (0.5, 0.5√3)
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.5, 0.5√3)
 """
 lattice_vectors(::TriangularLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
 
@@ -178,7 +178,7 @@ Returns the Bravais Lattice sites for a Triangular lattice as a Tuple of Tuples 
 floats.
 
 The sites are defined as:
-(0.0, 0.0)
+- (0.0, 0.0)
 """
 lattice_sites(::TriangularLattice) = ((0.0, 0.0),)
 
@@ -204,7 +204,7 @@ Returns the Bravais lattice vectors for a Chain lattice as a Tuple of Tuples con
 floats.
     
 The vectors are defined as:
-𝐚₁ = (1.0,)
+- 𝐚₁ = (1.0,)
 """
 lattice_vectors(::ChainLattice) = ((1.0,),)
 
@@ -215,7 +215,7 @@ Returns the Bravais Lattice sites for a Chain lattice as a Tuple of Tuples conta
 floats.
 
 The sites are defined as:
-(0.0,)
+- (0.0,)
 """
 lattice_sites(::ChainLattice) = ((0.0,),)
 
@@ -241,8 +241,8 @@ Returns the Bravais lattice vectors for a Lieb lattice as a Tuple of Tuples cont
 floats.
         
 The vectors are defined as:
-𝐚₁ = (1.0, 0.0)
-𝐚₁ = (0.0, 1.0)
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.0, 1.0)
 """
 lattice_vectors(::LiebLattice) = ((1.0, 0.0), (0.0, 1.0))
 
@@ -253,9 +253,9 @@ Returns the Bravais Lattice sites for a Lieb lattice as a Tuple of Tuples contai
 floats.
 
 The sites are defined as:
-(0.0, 0.0)
-(0.5, 0.0)
-(0.0, 0.5)
+- (0.0, 0.0)
+- (0.5, 0.0)
+- (0.0, 0.5)
 """
 lattice_sites(::LiebLattice) = ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5))
 
@@ -281,8 +281,8 @@ Returns the Bravais lattice vectors for a Kagome lattice as a Tuple of Tuples co
 floats.
         
 The vectors are defined as:
-𝐚₁ = (1.0, 0.0)
-𝐚₁ = (0.5, 0.5√3)
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.5, 0.5√3)
 """
 lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
 
@@ -293,25 +293,50 @@ Returns the Bravais Lattice sites for a Lieb lattice as a Tuple of Tuples contai
 floats.
 
 The sites are defined as:
-(0.0, 0.0)
-(0.25, 0.25√3)
-(0.75, 0.25√3)
+- (0.0, 0.0)
+- (0.25, 0.25√3)
+- (0.75, 0.25√3)
 """
 lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25 * sqrt(3)), (0.75, 0.25 * sqrt(3)))
 
 """
-    RectangularLattice <: AbstractLattice{2}
-    RectangularLattice(aspect_ratio::Real)
+    struct RectangularLattice <: AbstractLattice{2}
 
-`RectangularLattice` is a 2 dimensional lattice with:
+Type representing 2D Rectangular Lattice.
 
-* Lattice vectors = ((1.0, 0.0), (0.0, `aspect_ratio`)
-* Lattice sites   = ((0.0, 0.0),)
+Overriden functions to return lattice vectors and sites exists as 
+[`lattice_vectors(::RectangularLattice)`](@ref) and
+[`lattice_sites(::RectangularLattice)`](@ref).
+
+# Fields
+- `aspect_ratio::Float64`: defines the length of one of the Bravais lattice vectors
+(see [`lattice_vectors(r::RectangularLattice)`](@ref))
 """
 struct RectangularLattice <: AbstractLattice{2}
     aspect_ratio::Float64
 end
+
+"""
+    lattice_vectors(r::RectangularLattice)
+
+Returns the Bravais lattice vectors for a Rectangular lattice as a Tuple of Tuples containing
+floats.
+        
+The vectors are defined as:
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.0, `r.aspect_ratio`), where `aspect_ratio` is a `Float64`.
+"""
 lattice_vectors(r::RectangularLattice) = ((1.0, 0.0), (0.0, r.aspect_ratio))
+
+"""
+    lattice_sites(::RectangularLattice)
+
+Returns the Bravais Lattice sites for a Rectangular lattice as a Tuple of Tuples containing
+floats.
+
+The sites are defined as:
+- (0.0, 0.0)
+"""
 lattice_sites(::RectangularLattice) = ((0.0, 0.0),)
 
 """

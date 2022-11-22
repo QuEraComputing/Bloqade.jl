@@ -45,13 +45,13 @@ function validate_lattice(positions,dc::DeviceCapabilities)
 
     # valudate number of sites (qubits)
     nqubits = length(positions)
-    nqubits_max = dc.task.numberQubitsMax
+    nqubits_max = dc.lattice.number_qubits_max
     nqubits > nqubits_max && push!(violations,
         "$nqubits qubits $(message(>)) of $nqubits_max qubits"
     )
 
     # validate resolution
-    position_resolution = dc.lattice.geometry.positionResolution
+    position_resolution = dc.lattice.geometry.position_resolution
     foreach(enumerate(positions)) do (i,position)
         any(check_resolution.(position_resolution,position)) && push!(violations,
             "$(i)th atom position $position not consistent with position resolution: $position_resolution"
@@ -78,7 +78,7 @@ function validate_lattice(positions,dc::DeviceCapabilities)
     )
 
     # validate radial spacing
-    radial_spacing_min = dc.lattice.geometry.spacingRadialMin
+    radial_spacing_min = dc.lattice.geometry.spacing_radial_min
     for i in 1:nqubits, j in i+1:nqubits
         x_i,y_i = positions[i]
         x_j,y_j = positions[j]
@@ -97,7 +97,7 @@ function validate_lattice(positions,dc::DeviceCapabilities)
     y_values = collect(keys(y_groups))
     sort!(y_values)
     zip_with_next = zip(y_values[1:end-1],y_values[2:end])
-    vertical_resolution = dc.lattice.geometry.spacingVerticalMin
+    vertical_resolution = dc.lattice.geometry.spacing_vertical_min
 
     foreach(zip_with_next) do (y0,y1)
         if !(abs(y0-y1) > vertical_resolution || abs(y0-y1) ≈ vertical_resolution)

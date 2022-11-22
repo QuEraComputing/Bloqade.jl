@@ -1,6 +1,7 @@
 [deps]
 Bloqade = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe1"
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
+BloqadeGates = "9b473568-af80-491c-8f51-e251334462c1"
 BloqadeKrylov = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"
 BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
 BloqadeMIS = "bd27d05e-4ce1-5e74-84dd-c5d7d508bbe2"

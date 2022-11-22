@@ -15,7 +15,6 @@ using Logging
     ϕ = piecewise_constant(;clocks=Float64[0,1,2,4],values=Float64[0,1,-1])
     atoms = 5.0 * [i for i in 1:10]
     h = rydberg_h(atoms, Ω=Ω, Δ=Δ, ϕ=ϕ)
-    
     @test_throws BloqadeSchema.ValidationException to_json(h)
 
 end
@@ -46,13 +45,13 @@ end
     # all_values = [constant(;duration=T,value=1.0),wf1,wfs_mixed,wfs_same]
     params = get_device_capabilities_SI()
 
-    check_atom_res(x) = !any(BloqadeSchema.check_resolution.(params.lattice.geometry.positionResolution,x))
-    check_clock_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.timeResolution,x))
-    check_Δ_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.detuningResolution,x))
-    check_δ_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.local_value.commonDetuningResolution,x))
-    check_Δi_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.local_value.localDetuningResolution,x))
-    check_ϕ_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.phaseResolution,x))
-    check_Ω_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.rabiFrequencyResolution,x))
+    check_atom_res(x) = !any(BloqadeSchema.check_resolution.(params.lattice.geometry.position_resolution,x))
+    check_clock_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.time_resolution,x))
+    check_Δ_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.detuning_resolution,x))
+    # check_δ_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.local_value.common_detuning_resolution,x))
+    # check_Δi_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.local_value.local_detuning_resolution,x))
+    check_ϕ_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.phase_resolution,x))
+    check_Ω_res(x) = !any(BloqadeSchema.check_resolution.(params.rydberg.global_value.rabi_frequency_resolution,x))
 
     for Ω in scalar_values, ϕ in scalar_values, Δ in scalar_values
         h = rydberg_h(atoms;Ω=Ω,Δ=Δ,ϕ=ϕ)
@@ -68,7 +67,7 @@ end
         detuning_global = t.effective_hamiltonian.rydberg.detuning.global_value
         detuning_local = t.effective_hamiltonian.rydberg.detuning.local_value
 
-        pos_res = params.lattice.geometry.positionResolution
+        pos_res = params.lattice.geometry.position_resolution
         @test all(check_atom_res(s) for s in sites)
         @test check_clock_res(rabi_freq_phase.times)
         @test check_clock_res(rabi_freq_amp.times)
@@ -155,7 +154,8 @@ end
     h,info = hardware_transform(h)
 
     dc = get_device_capabilities()
-    @test_throws BloqadeSchema.ValidationException to_json(h;n_shots=dc.task.numberShotsMin-1)
-    @test_throws BloqadeSchema.ValidationException to_json(h;n_shots=dc.task.numberShotsMax+1)
+
+    @test_throws BloqadeSchema.ValidationException to_json(h;n_shots=dc.task.number_shots_min-1)
+    @test_throws BloqadeSchema.ValidationException to_json(h;n_shots=dc.task.number_shots_max+1)
 
 end

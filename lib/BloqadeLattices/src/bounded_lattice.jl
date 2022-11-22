@@ -27,6 +27,7 @@ end
 
 
 function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};pbc::Bool=false,scale::Real=1) where D
+    scale > 0 || error("scale must be a positive real value.")
     lat_vecs = lattice_vectors(lattice)
     lat_sites = lattice_sites(lattice)
     T = eltype(lat_vecs[1])

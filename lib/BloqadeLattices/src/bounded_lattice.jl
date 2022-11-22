@@ -26,19 +26,24 @@ end
 
 
 
-function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};pbc::Bool=false) where D
+function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};pbc::Bool=false,scale::Real=1) where D
     lat_vecs = lattice_vectors(lattice)
+    lat_sites = lattice_sites(lattice)
     T = eltype(lat_vecs[1])
-    bounds =  zeros(T,D,D)
-    
+    scaled_bounds =  zeros(T,D,D)
+    scaled_lat_vecs = Tuple(scale .* lat_vec for lat_vec in lat_vecs)
+    scaled_lat_sites = Tuple(scale .* lat_site for lat_site in lat_sites)
+
     for i in 1:D
         for j in 1:D
-            bounds[:,i] .+= M[i][j] .* lat_vecs[j]
+            scaled_bounds[:,i] .+= M[i][j] .* scaled_lat_vecs[j]
         end
     end
-    region = Parallelepiped(bounds)
+
+    scaled_region = Parallelepiped(scaled_bounds)
+    scaled_lattice = GeneralLattice(scaled_lat_vecs,scaled_lat_sites)
     
-    return BoundedLattice(lattice,region,pbc)
+    return BoundedLattice(scaled_lattice,scaled_region,pbc)
 
 end
 

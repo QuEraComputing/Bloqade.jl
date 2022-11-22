@@ -24,7 +24,7 @@ using ExponentialUtilities
     # ForwardDiff.derivative(2.0) do x
     #     reg = zero_state(Complex{typeof(x)}, 5)
     #     atoms = [(6*i,) for i in 1:5]
-    #     h = rydberg_h(atoms; Δ = x)
+    #     h = rydberg_h(atoms; Ω = sin ,Δ = x)
     #     prob = KrylovEvolution(reg, 0:1e-3:0.02, h)
     #     emulate!(prob)
     #     return abs2(statevec(reg)[1])

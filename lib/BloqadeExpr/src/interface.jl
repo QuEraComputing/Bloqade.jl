@@ -7,7 +7,7 @@ end
 
 function process_atom_positions(atom_positions)
     if typeof(atom_positions) <: BoundedLattice
-        return atoms
+        return atom_positions
     else
         return map(atom_positions) do pos
             (pos...,)

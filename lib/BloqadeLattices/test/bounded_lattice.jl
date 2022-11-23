@@ -4,10 +4,10 @@ using BloqadeLattices
 # catch invalid scale (must be greater than 0)
 negative_scale = -0.1
 # define chain lattice
-@test_throws "scale must be a positive real value." parallelepiped_region(ChainLattice(),(4,);pbc=true,scale=negative_scale)
+@test_throws ErrorException parallelepiped_region(ChainLattice(),(4,);pbc=true,scale=negative_scale)
 
 zero_scale = 0.0
-@test_throws "scale must be a positive real value." parallelepiped_region(ChainLattice(),(4,);pbc=true,scale=zero_scale)
+@test_throws ErrorException parallelepiped_region(ChainLattice(),(4,);pbc=true,scale=zero_scale)
 
 scale = π
 bounded_lattice = parallelepiped_region(ChainLattice(),(4,);pbc=true,scale=scale)

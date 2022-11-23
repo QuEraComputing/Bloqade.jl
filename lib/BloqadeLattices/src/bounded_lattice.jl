@@ -47,7 +47,6 @@ Tuples must be the same length and quantity as the dimensions of the lattice arg
 
 ```jldoctest; setup=:(using BloqadeLattices)
 julia>  parallelepiped_region(SquareLattice(),(2,0),(0,2);pbc=true)
-BoundedLattice{SquareLattice, Parallelepiped{2, Float64}}(SquareLattice(), Parallelepiped{2, Float64}([2.0 0.0; 0.0 2.0], [0.5 0.0; 0.0 0.5]), [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0)], true)
 
 julia> parallelepiped_region(KagomeLattice(),(2,2),(-2,2))
 BoundedLattice{KagomeLattice, Parallelepiped{2, Float64}}(KagomeLattice(), Parallelepiped{2, Float64}([3.0 -1.0; 1.7320508075688772 1.7320508075688772], [0.25 0.14433756729740643; -0.25 0.43301270189221935]), [(-0.75, 1.299038105676658), (-0.5, 0.8660254037844386), (-0.25, 0.4330127018922193), (-0.25, 1.299038105676658), (0.0, 0.0), (0.0, 1.7320508075688772), (0.25, 0.4330127018922193), (0.25, 1.299038105676658), (0.25, 2.1650635094610964), (0.5, 0.8660254037844386)  …  (1.25, 1.299038105676658), (1.25, 2.1650635094610964), (1.5, 0.8660254037844386), (1.5, 2.598076211353316), (1.75, 1.299038105676658), (1.75, 2.1650635094610964), (1.75, 3.031088913245535), (2.0, 1.7320508075688772), (2.25, 1.299038105676658), (2.25, 2.1650635094610964)], false)
@@ -83,13 +82,11 @@ Returns the dimensions of the `BoundedLattice` (e.g.: `2` for 2D, `3` for 3D)
 
 ```jldoctest; setup=:(using BloqadeLattices)
 julia> bl = parallelepiped_region(ChainLattice(),(4,);pbc=true) # create a 1D BoundedLattice
-BoundedLattice{ChainLattice, Parallelepiped{1, Float64}}(ChainLattice(), Parallelepiped{1, Float64}([4.0;;], [0.25;;]), [(0.0,), (1.0,), (2.0,), (3.0,)], true)
 
 julia> dimension(bl)
 1
 
 julia> bl = parallelepiped_region(SquareLattice(),(3,0),(0,2);) # create a 2D BoundedLattice
-BoundedLattice{SquareLattice, Parallelepiped{2, Float64}}(SquareLattice(), Parallelepiped{2, Float64}([3.0 0.0; 0.0 2.0], [0.3333333333333333 0.0; 0.0 0.5]), [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0), (2.0, 0.0), (2.0, 1.0)], false)
 
 julia> dimension(bl)
 2
@@ -104,7 +101,6 @@ Returns the underlying Bravais lattice vectors of the `BoundedLattice`
 
 ```jldoctest; setup=:(using BloqadeLattices)
 julia> bl = parallelepiped_region(SquareLattice(),(3,0),(0,2);) # create a 2D BoundedLattice
-BoundedLattice{SquareLattice, Parallelepiped{2, Float64}}(SquareLattice(), Parallelepiped{2, Float64}([3.0 0.0; 0.0 2.0], [0.3333333333333333 0.0; 0.0 0.5]), [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0), (2.0, 0.0), (2.0, 1.0)], false)
 
 julia> lattice_vectors(bl) # lattice vectors used in Bravais Lattice definition of underlying SquareLattice
 ((1.0, 0.0), (0.0, 1.0))
@@ -119,7 +115,6 @@ Returns the underlying site vectors that define the unit-cell of the `BoundedLat
 
 ```jldoctest; setup=:(using BloqadeLattices)
 julia> bl = parallelepiped_region(SquareLattice(),(3,0),(0,2);) # create a 2D BoundedLattice
-BoundedLattice{SquareLattice, Parallelepiped{2, Float64}}(SquareLattice(), Parallelepiped{2, Float64}([3.0 0.0; 0.0 2.0], [0.3333333333333333 0.0; 0.0 0.5]), [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0), (2.0, 0.0), (2.0, 1.0)], false)
 
 julia> lattice_sites(bl) # lattice vectors used in Bravais Lattice definition of underlying SquareLattice
 ((0.0, 0.0), )
@@ -150,13 +145,11 @@ metric is used.
 
 ```jldoctest; setup=:(using BloqadeLattices)
 julia> bl = parallelepiped_region(SquareLattice(), (1,0),(0,1);) # Define 2D BoundedLattice
-BoundedLattice{SquareLattice, Parallelepiped{2, Float64}}(SquareLattice(), Parallelepiped{2, Float64}([1.0 0.0; 0.0 1.0], [1.0 0.0; 0.0 1.0]), [(0.0, 0.0)], false)
 
 julia> distance(bl, (0.1, 0.1), (0.5, 1.1)) # distance between two points
 1.077032961426901
 
 julia> bl_pbc = parallelepiped_region(SquareLattice(), (1,0),(0,1);pbc=true) # Define 2D BoundedLattice with Periodic Boundary Condition
-BoundedLattice{SquareLattice, Parallelepiped{2, Float64}}(SquareLattice(), Parallelepiped{2, Float64}([1.0 0.0; 0.0 1.0], [1.0 0.0; 0.0 1.0]), [(0.0, 0.0)], true)
 
 julia> distance(bl_pbc, (0.1, 0.1), (0.5, 1.1)) # distance with periodic boundary condition enabled
 0.4

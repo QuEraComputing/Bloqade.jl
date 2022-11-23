@@ -30,7 +30,7 @@ function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,In
     scale > 0 || error("scale must be a positive real value.")
     lat_vecs = lattice_vectors(lattice)
     lat_sites = lattice_sites(lattice)
-    T = promote_type(eltype(lat_vecs[1]),Int)
+    T = promote_type(eltype(lat_vecs[1]),Int,typeof(scale))
     scaled_bounds =  zeros(T,D,D)
     scaled_lat_vecs = Tuple(scale .* lat_vec for lat_vec in lat_vecs)
     scaled_lat_sites = Tuple(scale .* lat_site for lat_site in lat_sites)

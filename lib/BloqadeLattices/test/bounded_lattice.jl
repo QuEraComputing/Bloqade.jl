@@ -11,13 +11,19 @@ zero_scale = 0.0
 
 scale = π
 bounded_lattice = parallelepiped_region(ChainLattice(),(4,);pbc=true,scale=scale)
-expected_positions = [(0.0*scale,),(1.0*scale,),(2.0*scale,),(3.0*scale,)]
-@test issetequal(bounded_lattice.site_positions,expected_positions)
+base_expected_positions = [(0.0,),(1.0,),(2.0,),(3.0,)]
+scaled_expected_positions = map(base_expected_positions) do pos
+    (pos[1] * scale,)
+end
+@test issetequal(bounded_lattice.site_positions,scaled_expected_positions)
 @test dimension(bounded_lattice) == 1
 
 # square
 bounded_lattice = parallelepiped_region(SquareLattice(),(2,0),(0,2);pbc=true,scale=scale)
-expected_positions = [(0.0*scale,0.0*scale),(1.0*scale,0.0*scale),(0.0*scale,1.0*scale),(1.0*scale,1.0*scale)]
+base_expected_positions = [(0.0,0.0),(1.0,0.0),(0.0,1.0),(1.0,1.0)]
+scaled_expected_positions = map(base_expected_positions) do pos
+    scale .* pos
+end
 @test issetequal(bounded_lattice.site_positions,expected_positions)
 @test dimension(bounded_lattice) == 2
 

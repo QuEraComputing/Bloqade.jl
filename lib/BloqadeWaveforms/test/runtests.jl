@@ -1,5 +1,10 @@
 using Test
 
+if "docstring" in ARGS
+    # include("docstrings.jl")
+    exit()
+end
+
 @testset "waveform" begin
     include("waveform.jl")
 end

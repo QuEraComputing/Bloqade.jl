@@ -44,7 +44,7 @@ end
 
 
     # maximum qubits
-    nqubits_max = dc.lattice.numberQubitsMax
+    nqubits_max = dc.lattice.number_qubits_max
     atoms = generate_sites(SquareLattice(),17,16,scale=4)
     nqubits = length(atoms)
     violations = validate_lattice(atoms,dc)
@@ -52,7 +52,7 @@ end
     @test violations == Set(["$nqubits qubits $(message(>)) of $nqubits_max qubits"])
 
     # position resolution
-    position_resolution = dc.lattice.geometry.positionResolution
+    position_resolution = dc.lattice.geometry.position_resolution
     position = (9*position_resolution/10,0)
     atoms = [position]
     violations = validate_lattice(atoms,dc)
@@ -75,8 +75,8 @@ end
 
     # radial distance
     ## NOTE: minimum supported radial distance is equal to the minimum supported vertical distance
-    radial_spacing_min = dc.lattice.geometry.spacingRadialMin
-    vertical_resolution = dc.lattice.geometry.spacingVerticalMin
+    radial_spacing_min = dc.lattice.geometry.spacing_radial_min
+    vertical_resolution = dc.lattice.geometry.spacing_vertical_min
     radial_spacing = 0.9 * radial_spacing_min
     v_1 = (0,0)
     v_2 = (0,radial_spacing)

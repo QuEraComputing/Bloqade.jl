@@ -67,3 +67,11 @@ expected_positions = [
     (1.0*scale, 1.0*scale, 1.0*scale)
 ]
 @test issetequal(bounded_lattice.site_positions, expected_positions)
+
+
+for n in 0:10, m in 1:10
+    blt = parallelepiped_region(SquareLattice(),(n,m),(m,-n);scale=Float32(1.2342))
+    @test length(blt.site_positions) == m^2+n^2
+    blt = parallelepiped_region(SquareLattice(),(n,m),(m,-n);scale=Float64(1.2342))
+    @test length(blt.site_positions) == m^2+n^2
+end

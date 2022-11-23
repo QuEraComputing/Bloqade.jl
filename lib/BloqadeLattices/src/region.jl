@@ -88,8 +88,15 @@ end
 
 
 # check if a point is in the region
-in_range(x) = 0 ≤ x < 1 || isapprox(x,0,atol=eps()) ? true : false
-Base.in(x,region::Parallelepiped{D,T}) where {D,T} = all(in_range.(region.vecs_inv * [x...,]))
+# function in_range(x) 
+#     isapprox(x,one(x),atol=2*eps()) && return false
+#     zero(x) ≤ x < one(x) && return true
+#     isapprox(x,zero(x),atol=2*eps()) && return true
+# end
+
+approx_in_range(x) = (zero(x) ≤ x < one(x) || isapprox(x,zero(x),atol=eps(typeof(x)))) && !isapprox(x,one(x),atol=eps(typeof(x)))
+
+Base.in(x,region::Parallelepiped{D,T}) where {D,T} = all(approx_in_range.(region.vecs_inv * [x...,]))
 
 # Enforce periodic boundary conditions by having points that fall outside of the 
 # parallelogram map to ones on the inside

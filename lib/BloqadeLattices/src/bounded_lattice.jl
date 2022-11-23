@@ -46,10 +46,9 @@ Periodic Boundary Conditions can be enable/disabled via `pbc`.
 Tuples must be the same length and quantity as the dimensions of the lattice argument.
 
 ```jldoctest; setup=:(using BloqadeLattices)
-julia>  parallelepiped_region(SquareLattice(),(2,0),(0,2);pbc=true)
+julia> parallelepiped_region(SquareLattice(),(2,0),(0,2);pbc=true);
 
-julia> parallelepiped_region(KagomeLattice(),(2,2),(-2,2))
-BoundedLattice{KagomeLattice, Parallelepiped{2, Float64}}(KagomeLattice(), Parallelepiped{2, Float64}([3.0 -1.0; 1.7320508075688772 1.7320508075688772], [0.25 0.14433756729740643; -0.25 0.43301270189221935]), [(-0.75, 1.299038105676658), (-0.5, 0.8660254037844386), (-0.25, 0.4330127018922193), (-0.25, 1.299038105676658), (0.0, 0.0), (0.0, 1.7320508075688772), (0.25, 0.4330127018922193), (0.25, 1.299038105676658), (0.25, 2.1650635094610964), (0.5, 0.8660254037844386)  …  (1.25, 1.299038105676658), (1.25, 2.1650635094610964), (1.5, 0.8660254037844386), (1.5, 2.598076211353316), (1.75, 1.299038105676658), (1.75, 2.1650635094610964), (1.75, 3.031088913245535), (2.0, 1.7320508075688772), (2.25, 1.299038105676658), (2.25, 2.1650635094610964)], false)
+julia> parallelepiped_region(KagomeLattice(),(2,2),(-2,2));
 ```
 """
 function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};pbc::Bool=false,scale::Real=1.0) where D

@@ -71,7 +71,6 @@ julia> generate_sites_in_region(SquareLattice(), Parallelepiped(bounds))
 function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractRegion{D}) where D
     zeros(D) ∉ region && error("bounding region must contain origin")
 
-
     lat_vecs = lattice_vectors(lattice)
     lat_sites = lattice_sites(lattice)
     T = eltype(first(lat_vecs))
@@ -80,8 +79,6 @@ function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractR
     stack = NTuple{D+1,Int}[origin]
     visited_sites = Set{NTuple{D+1,Int}}([origin])
     site_positions = NTuple{D,T}[Tuple(zeros(D))]
-
-
 
     while !isempty(stack)
         site = pop!(stack)

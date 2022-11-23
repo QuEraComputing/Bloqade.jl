@@ -53,7 +53,7 @@ julia> parallelepiped_region(KagomeLattice(),(2,2),(-2,2))
 BoundedLattice{KagomeLattice, Parallelepiped{2, Float64}}(KagomeLattice(), Parallelepiped{2, Float64}([3.0 -1.0; 1.7320508075688772 1.7320508075688772], [0.25 0.14433756729740643; -0.25 0.43301270189221935]), [(-0.75, 1.299038105676658), (-0.5, 0.8660254037844386), (-0.25, 0.4330127018922193), (-0.25, 1.299038105676658), (0.0, 0.0), (0.0, 1.7320508075688772), (0.25, 0.4330127018922193), (0.25, 1.299038105676658), (0.25, 2.1650635094610964), (0.5, 0.8660254037844386)  …  (1.25, 1.299038105676658), (1.25, 2.1650635094610964), (1.5, 0.8660254037844386), (1.5, 2.598076211353316), (1.75, 1.299038105676658), (1.75, 2.1650635094610964), (1.75, 3.031088913245535), (2.0, 1.7320508075688772), (2.25, 1.299038105676658), (2.25, 2.1650635094610964)], false)
 ```
 """
-function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};pbc::Bool=false) where D
+function parallelepiped_region(lattice::AbstractLattice{D},M::Vararg{NTuple{D,Int},D};pbc::Bool=false,scale::Real=1.0) where D
     scale > 0 || error("scale must be a positive real value.")
 
     lat_vecs = lattice_vectors(lattice)
@@ -111,6 +111,22 @@ julia> lattice_vectors(bl) # lattice vectors used in Bravais Lattice definition 
 ```
 """
 lattice_vectors(lattice::BoundedLattice{L,C}) where {L,C} = lattice_vectors(lattice.lattice)
+
+"""
+    lattice_sites(lattice::BoundedLattice{L,C})
+
+Returns the underlying site vectors that define the unit-cell of the `BoundedLattice`
+
+```jldoctest; setup=:(using BloqadeLattices)
+julia> bl = parallelepiped_region(SquareLattice(),(3,0),(0,2);) # create a 2D BoundedLattice
+BoundedLattice{SquareLattice, Parallelepiped{2, Float64}}(SquareLattice(), Parallelepiped{2, Float64}([3.0 0.0; 0.0 2.0], [0.3333333333333333 0.0; 0.0 0.5]), [(0.0, 0.0), (0.0, 1.0), (1.0, 0.0), (1.0, 1.0), (2.0, 0.0), (2.0, 1.0)], false)
+
+julia> lattice_sites(bl) # lattice vectors used in Bravais Lattice definition of underlying SquareLattice
+((0.0, 0.0), )
+```
+"""
+lattice_sites(lattice::BoundedLattice{L,C}) where {L,C} = lattice_sites(lattice.lattice)
+
 Base.length(lattice::BoundedLattice{L,C}) where {L,C} = length(lattice.site_positions)
 
 # what behavior to produce when position is not found?

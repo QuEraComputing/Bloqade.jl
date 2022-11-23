@@ -93,8 +93,15 @@ end
         filename = nothing,
         kwargs...
         )
-
-Plots `atoms` with colors specified by `colors` and texts specified by `texts`.
+    img_atoms(bounded_lattice::BoundedLattice;
+        colors = [DEFAULT_LINE_COLOR[], ...],
+        texts = ["1", "2", ...],
+        vectors = [],
+        format = :svg,
+        filename = nothing,
+        kwargs...
+        )
+Plots `atoms` or `bounded_lattice.site_positions` with colors specified by `colors` and texts specified by `texts`.
 You will need a `VSCode`, `Pluto` notebook or `Jupyter` notebook to show the image.
 If you want to write this image to the disk without displaying it in a frontend, please try
 
@@ -140,6 +147,9 @@ function img_atoms(
     end
 end
 img_atoms(atoms::AtomList{1}; kwargs...) = img_atoms(padydim(atoms); kwargs...)
+img_atoms(bounded_lattice::BoundedLattice{<:AbstractLattice{2},<:AbstractRegion{2}}; kwargs...) = img_atoms(bounded_lattice.site_positions; kwargs...)
+img_atoms(bounded_lattice::BoundedLattice{<:AbstractLattice{1},<:AbstractRegion{1}}; kwargs...) = img_atoms(bounded_lattice.site_positions; kwargs...)
+
 
 function _edges(atoms, blockade_radius)
     n = length(atoms)
@@ -352,6 +362,11 @@ for (mime, format) in [MIME"image/png" => :png, MIME"image/svg+xml" => :svg]
 
         function Base.show(io::IO, m::$mime, list::AtomList)
             Base.show(io, m, img_atoms(list; format = $(QuoteNode(format))))
+            return nothing
+        end
+
+        function Base.show(io::IO, m::$mime, bounded_lattice::BoundedLattice)
+            Base.show(io, m, img_atoms(bounded_lattice.site_positions; format = $(QuoteNode(format))))
             return nothing
         end
     end

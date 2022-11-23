@@ -1,6 +1,11 @@
 using Test
 using BloqadeKrylov
 
+if "docstring" in ARGS
+    # include("docstrings.jl")
+    exit()
+end
+
 @testset "expmv" begin
     include("expmv.jl")
 end

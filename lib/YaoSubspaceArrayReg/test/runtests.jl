@@ -1,5 +1,9 @@
 using Test
 
+if "docstring" in ARGS
+    # include("docstrings.jl")
+    exit()
+end
 @testset "register" begin
     include("type.jl")
 end

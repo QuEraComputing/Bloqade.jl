@@ -1,6 +1,17 @@
-abstract type AbstractRegion{D} end
-####### AbstractRegion ########
+"""
+    AbstractRegion{D}
 
+Supertype for all `D` dimensional regions used to define bounds on lattices.
+
+# Implementation
+
+The following should be overriden:
+
+- `Base.in`: Returns `Bool` on whether a point exists in the region
+- `Base.mod`: Maps points outside the region back into the region
+- `distance`: Calculates distance between points with periodic boundary conditions enabled
+"""
+abstract type AbstractRegion{D} end
 
 Base.broadcastable(x::AbstractRegion) = Ref(x)
 
@@ -29,6 +40,34 @@ function generate_neighboring_sites(site::NTuple{N,Int},n_sites::Int) where N
     return neighboring_sites
 end
 
+"""
+    generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractRegion{D})
+
+Generates sites from the `lattice` that are present in the `region`.
+
+```jldoctest; setup=:(using BloqadeLattices)
+julia> generate_sites_in_region(ChainLattice(), Parallelepiped(4.0))
+4-element Vector{Tuple{Float64}}:
+ (0.0,)
+ (1.0,)
+ (2.0,)
+ (3.0,)
+
+julia> bounds = zeros(2,2)
+2×2 Matrix{Float64}:
+ 0.0  0.0
+ 0.0  0.0
+
+julia> bounds[:,1] .= (0.0, 2.0); bounds[:,2] .= (2.0, 0.0);
+
+julia> generate_sites_in_region(SquareLattice(), Parallelepiped(bounds))
+4-element Vector{Tuple{Float64, Float64}}:
+ (0.0, 0.0)
+ (1.0, 0.0)
+ (0.0, 1.0)
+ (1.0, 1.0)
+```
+"""
 function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractRegion{D}) where D
     zeros(D) ∉ region && error("bounding region must contain origin")
 
@@ -61,15 +100,43 @@ function generate_sites_in_region(lattice::AbstractLattice{D}, region::AbstractR
 
 end
 
+"""
+    struct Parallelepiped{D, T} <: AbstractRegion{D}
+    
+Region that is a Parallelogram/Parallelepiped
 
+See also [`Parallelepiped(vecs)`](@ref), [`Parallelepiped(vecs::T) where {T<:Real}`](@ref)
+
+# Fields
+- `vecs::Matrix{T}`: Matrix with column vectors defining Parallelogram/Parallelepiped 
+- `vecs_inv::Matrix{T}`: Inverse of `vecs`.
+"""
 struct Parallelepiped{D, T} <: AbstractRegion{D}
     # abstract matrix dimensions already guaranteed to be 2D
     vecs::Matrix{T}
     vecs_inv::Matrix{T}
 end
 
+"""
+    Parallelepiped(vecs)
+    Parallelepiped(vecs::T) where {T<:Real}
 
+Define a region (either a line segment, parallelogram, or parallelepiped depending
+on the dimensions of `vecs`) using a single value or column vectors in a matrix that can be
+used to create a [`BoundedLattice`](@ref).
 
+```jldoctest; setup=:(using BloqadeLattices)
+julia> Parallelepiped(2.0) # can bound a 1D lattice
+Parallelepiped{1, Float64}([2.0;;], [0.5;;])
+
+julia> bounds = zeros((2,2)); # Create 2x2 matrix to store vectors defining 2D region
+
+julia> bounds[:,1] .= (3,3); bounds[:,2] .= (4,0); # Column Vectors define the Parallelogram
+
+julia> Parallelepiped(bounds)
+Parallelepiped{2, Float64}([3.0 4.0; 3.0 0.0], [0.0 0.3333333333333333; 0.25 -0.25])
+```
+"""
 function Parallelepiped(vecs)
     D = size(vecs,1)
     vecs_inv = inv(vecs)
@@ -89,13 +156,76 @@ end
 
 # check if a point is in the region
 in_range(x) = 0 ≤ x < 1 || isapprox(x,0,atol=eps()) ? true : false
+"""
+    Base.in(x,region::Parallelepiped{D,T}) where {D,T} = all(in_range.(region.vecs_inv * [x...,]))
+
+Given a point `x`, check if exists in the `region`.
+
+```jldoctest; setup=:(using BloqadeLattices)
+julia> bounds = zeros(2,2);
+
+julia> bounds[:,1] .= (3,3); bounds[:,2] .= (4,0);
+
+julia> p = Parallelepiped(bounds)
+Parallelepiped{2, Float64}([3.0 4.0; 3.0 0.0], [0.0 0.3333333333333333; 0.25 -0.25])
+
+julia> (0.0, 0.0) ∈ p
+true
+
+julia> (5.0, 1.0) ∈ p
+false
+```
+"""
 Base.in(x,region::Parallelepiped{D,T}) where {D,T} = all(in_range.(region.vecs_inv * [x...,]))
 
+"""
+    Base.mod(x,region::Parallelepiped{D,T})
+    Base.mod(x,region::Parallelepiped{1,T})
+
+Given a point `x`, enforce periodic boundary conditions by having points that fall outside of
+the `region` map to ones on the inside.
+
+```jldoctest; setup=:(using BloqadeLattices)
+julia> p = Parallelepiped(1.0)
+
+julia> mod(1.0, p) # 1.0 falls outside of region, mapped to opposite end
+0.0
+
+julia> bounds = zeros(2,2); bounds[:,1] .= (0.0, 2.0); bounds[:,2] .= (2.0, 0.0); # define square region
+
+julia> mod((1.0, 1.0), Parallelepiped(bounds)) # point is in bounds, so nothing happens
+(1.0, 1.0)
+
+julia> mod((3.0, 3.0), Parallelepiped(bounds)) # point is out out of bounds, mapped back inside
+(1.0, 1.0)
+```
+"""
 # Enforce periodic boundary conditions by having points that fall outside of the 
 # parallelogram map to ones on the inside
 Base.mod(x,region::Parallelepiped{D,T}) where {D,T} = typeof(x)(region.vecs * mod.((region.vecs_inv * [x...,]),1.0))
 Base.mod(x,region::Parallelepiped{1,T}) where {T} =  mod.(x,only(region.vecs))
 
+"""
+    distance(x, y)
+    distance(region::Parallelepiped{D,T},x,y)
+
+Distance between two points. 
+
+If just points `x` and `y` are provided, the Euclidean distance is calculated. 
+
+If a `region` is provided, then it is automatically assumed periodic boundary conditions are enabled
+and the smallest possible distance between the two points is returned.
+
+```jldoctest; setup=:(using BloqadeLattices)
+julia> distance((0.0, 0.0), (1.0, 1.0))
+1.4142135623730951
+
+julia> bounds = zeros(2,2); bounds[:,1] .= (3, 0); bounds[:,2] .= (0, 3);
+
+julia> distance(Parallelepiped(bounds), (0.5, 0.5), (2.5, 2.5))
+1.4142135623730951
+```
+"""
 distance(x, y) = sqrt(mapreduce(x -> x^2, +, x .- y))
 
 function distance(region::Parallelepiped{D,T},x,y) where {D,T}

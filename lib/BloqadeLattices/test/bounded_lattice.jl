@@ -24,35 +24,40 @@ base_expected_positions = [(0.0,0.0),(1.0,0.0),(0.0,1.0),(1.0,1.0)]
 scaled_expected_positions = map(base_expected_positions) do pos
     scale .* pos
 end
-@test issetequal(bounded_lattice.site_positions,expected_positions)
+@test issetequal(bounded_lattice.site_positions,scaled_expected_positions)
 @test dimension(bounded_lattice) == 2
 
 # tilted square
 bounded_lattice = parallelepiped_region(SquareLattice(),(3,2),(-2,3);scale=scale)
-expected_positions = [
-    (-1.0*scale, 2.0*scale), (-1.0*scale, 3.0*scale), (0.0*scale, 0.0*scale), (0.0*scale, 1.0*scale), 
-    (0.0*scale, 2.0*scale), (0.0*scale, 3.0*scale), (0.0*scale, 4.0*scale), (1.0*scale, 1.0*scale), 
-    (1.0*scale, 2.0*scale), (1.0*scale, 3.0*scale), (1.0*scale, 4.0*scale), (2.0*scale, 2.0*scale), (2.0*scale, 3.0*scale)
+base_expected_positions = [
+    (-1.0, 2.0), (-1.0, 3.0), (0.0, 0.0), (0.0, 1.0), 
+    (0.0, 2.0), (0.0, 3.0), (0.0, 4.0), (1.0, 1.0), 
+    (1.0, 2.0), (1.0, 3.0), (1.0, 4.0), (2.0, 2.0), (2.0, 3.0)
 ]
-@test issetequal(bounded_lattice.site_positions,expected_positions)
+scaled_expected_positions = map(base_expected_positions) do pos
+    scale .* pos
+end
+@test issetequal(bounded_lattice.site_positions,scaled_expected_positions)
 
 # kagome rectangle boundary
 bounded_lattice = parallelepiped_region(KagomeLattice(),(2,2),(-2,2);scale=scale)
-expected_positions = [
-    (-0.75*scale, 1.299038105676658*scale), (-0.5*scale, 0.8660254037844386*scale), (-0.25*scale, 0.4330127018922193*scale), 
-    (-0.25*scale, 1.299038105676658*scale), (0.0*scale, 0.0*scale), (0.0*scale, 1.7320508075688772*scale), 
-    (0.25*scale, 0.4330127018922193*scale), (0.25*scale, 1.299038105676658*scale), (0.25*scale, 2.1650635094610964*scale), 
-    (0.5*scale, 0.8660254037844386*scale), (0.75*scale, 0.4330127018922193*scale), (0.75*scale, 1.299038105676658*scale), 
-    (0.75*scale, 2.1650635094610964*scale), (1.0*scale, 1.7320508075688772*scale), (1.25*scale, 1.299038105676658*scale), 
-    (1.25*scale, 2.1650635094610964*scale), (1.5*scale, 0.8660254037844386*scale), (1.5*scale, 2.598076211353316*scale), 
-    (1.75*scale, 1.299038105676658*scale), (1.75*scale, 2.1650635094610964*scale), (1.75*scale, 3.031088913245535*scale), 
-    (2.0*scale, 1.7320508075688772*scale), (2.25*scale, 1.299038105676658*scale), (2.25*scale, 2.1650635094610964*scale)
+base_expected_positions = [
+    (-0.75, 1.299038105676658), (-0.5, 0.8660254037844386), (-0.25, 0.4330127018922193), 
+    (-0.25, 1.299038105676658), (0.0, 0.0), (0.0, 1.7320508075688772), 
+    (0.25, 0.4330127018922193), (0.25, 1.299038105676658), (0.25, 2.1650635094610964), 
+    (0.5, 0.8660254037844386), (0.75, 0.4330127018922193), (0.75, 1.299038105676658), 
+    (0.75, 2.1650635094610964), (1.0, 1.7320508075688772), (1.25, 1.299038105676658), 
+    (1.25, 2.1650635094610964), (1.5, 0.8660254037844386), (1.5, 2.598076211353316), 
+    (1.75, 1.299038105676658), (1.75, 2.1650635094610964), (1.75, 3.031088913245535), 
+    (2.0, 1.7320508075688772), (2.25, 1.299038105676658), (2.25, 2.1650635094610964)
 ]
-
+scaled_expected_positions = map(base_expected_positions) do pos
+    scale .* pos
+end
 # should not be a type issue, both are vectors containing tuples with 
 # pairs of Float64s
 # issetequal(bounded_lattice.site_positions, expected_positions)
-@test issetequal(bounded_lattice.site_positions,expected_positions)
+@test issetequal(bounded_lattice.site_positions,scaled_expected_positions)
 @test dimension(bounded_lattice) == 2
 
 # cube
@@ -66,13 +71,16 @@ bounded_lattice = parallelepiped_region(cube_lattice,
                                         (0, 2, 0),
                                         (0, 0, 2);
                                         pbc=false,scale=scale)
-expected_positions = [
-    (0.0*scale, 0.0*scale, 0.0*scale), 
-    (1.0*scale, 0.0*scale, 0.0*scale), (0.0, 1.0*scale, 0.0*scale), (0.0*scale, 0.0*scale, 1.0*scale),
-    (1.0*scale, 1.0*scale, 0.0*scale), (1.0*scale, 0.0*scale, 1.0*scale), (0.0*scale, 1.0*scale, 1.0*scale),
-    (1.0*scale, 1.0*scale, 1.0*scale)
+base_expected_positions = [
+    (0.0, 0.0, 0.0), 
+    (1.0, 0.0, 0.0), (0.0, 1.0, 0.0), (0.0, 0.0, 1.0),
+    (1.0, 1.0, 0.0), (1.0, 0.0, 1.0), (0.0, 1.0, 1.0),
+    (1.0, 1.0, 1.0)
 ]
-@test issetequal(bounded_lattice.site_positions, expected_positions)
+scaled_expected_positions = map(base_expected_positions) do pos
+    scale .* pos
+end
+@test issetequal(bounded_lattice.site_positions, scaled_expected_positions)
 
 
 for n in 0:10, m in 1:10

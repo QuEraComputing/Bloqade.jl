@@ -54,15 +54,11 @@ lat = Chain(N, a, false; trunc=Inf)
     energy_QMC_β1 = []
 
     for ii in 1:Δ_step
-        @show ii
         H = Rydberg(lat, R_b, Ω, Δ[ii])
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
         [mc_step_beta!(rng, ts, H, β, d, eq=true) for i in 1:EQ_MCS] #equilibration phase
-        
-        println("Equilibrated at this number of operators:")
-        @show mc_step_beta!(rng, ts, H, β, d, eq=true)
     
         ns = zeros(MCS)
     
@@ -75,12 +71,6 @@ lat = Chain(N, a, false; trunc=Inf)
         @test abs(stdscore(energy_QMC_β1[ii], energy_ED[1,ii])) < THRESHOLD
     end
 
-    # scatter(Δ/2π, value.(energy_QMC_β1); yerror=uncertainty.(energy_QMC_β1), marker=:x, label="QMC")
-    # scatter!(Δ/2π, energy_ED[1,:], marker=:x, label="ED")
-    # title!("Energy Sweep: 9 sites, a=5.48, β=0.005")
-    # xlabel!("Δ/2π (MHz) ")
-    # ylabel!("Energy")
-    # savefig("TestPlot_β=0.005.png")
 end
 
 
@@ -95,15 +85,11 @@ end
     energy_QMC_β2 = []
 
     for ii in 1:Δ_step
-        @show ii
         H = Rydberg(lat, R_b, Ω, Δ[ii])
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
         [mc_step_beta!(rng, ts, H, β, d, eq=true) for i in 1:EQ_MCS] #equilibration phase
-        
-        println("Equilibrated at this number of operators:")
-        @show mc_step_beta!(rng, ts, H, β, d, eq=true)
     
         ns = zeros(MCS)
     
@@ -115,12 +101,6 @@ end
 
         @test abs(stdscore(energy_QMC_β2[ii], energy_ED[2,ii])) < THRESHOLD
     end
-    # scatter(Δ/2π, value.(energy_QMC_β2); yerror=uncertainty.(energy_QMC_β2), marker=:x, label="QMC")
-    # scatter!(Δ/2π, energy_ED[2,:], marker=:x, label="ED")
-    # title!("Energy Sweep: 9 sites, a=5.48, β=0.05")
-    # xlabel!("Δ/2π (MHz) ")
-    # ylabel!("Energy")
-    # savefig("TestPlot_β=0.05.png")
 end
 
 @testset "1D Chain (9 atoms), β=0.5" begin
@@ -134,16 +114,12 @@ end
     energy_QMC_β3 = []
 
     for ii in 1:Δ_step
-        @show ii
         H = Rydberg(lat, R_b, Ω, Δ[ii])
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
         [mc_step_beta!(rng, ts, H, β, d, eq=true) for i in 1:EQ_MCS] #equilibration phase
         
-        println("Equilibrated at this number of operators:")
-        @show mc_step_beta!(rng, ts, H, β, d, eq=true)
-    
         ns = zeros(MCS)
     
         for i in 1:MCS # Monte Carlo Steps
@@ -154,12 +130,4 @@ end
 
         @test abs(stdscore(energy_QMC_β3[ii], energy_ED[3,ii])) < THRESHOLD
     end
-
-    scatter(Δ/2π, value.(energy_QMC_β3); yerror=uncertainty.(energy_QMC_β3), marker=:x, label="QMC")
-    scatter!(Δ/2π, energy_ED[3,:], marker=:x, label="ED")
-    title!("Energy Sweep: 9 sites, a=5.48, β=0.5")
-    xlabel!("Δ/2π (MHz) ")
-    ylabel!("Energy")
-    savefig("TestPlot_β=0.5.png")
-
 end

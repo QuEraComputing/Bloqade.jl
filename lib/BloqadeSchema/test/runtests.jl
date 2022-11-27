@@ -2,7 +2,10 @@ using BloqadeSchema
 using Configurations
 using Test
 
-
+if "docstring" in ARGS
+    # include("docstrings.jl")
+    exit()
+end
 
 @testset "capabilities" begin
     include("capabilities.jl")

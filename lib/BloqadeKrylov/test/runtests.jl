@@ -1,6 +1,11 @@
 using Test
 using BloqadeKrylov
 
+if "docstring" in ARGS
+    # include("docstrings.jl")
+    exit()
+end
+
 @testset "expmv" begin
     include("expmv.jl")
 end
@@ -9,6 +14,6 @@ end
     include("emulate.jl")
 end
 
-@testset "forwarddiff" begin
-    include("forwarddiff.jl")
-end
+# @testset "forwarddiff" begin
+#     include("forwarddiff.jl")
+# end

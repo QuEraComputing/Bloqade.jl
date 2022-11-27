@@ -1,6 +1,11 @@
 using Test, BloqadeQMC
 using Statistics
 
+if "docstring" in ARGS
+    # include("docstrings.jl")
+    exit()
+end
+
 @testset "Probability Vectors" begin
     @testset "Small Vector of size $n" for n in 1:10
         p = float.(rand(1:10, n))

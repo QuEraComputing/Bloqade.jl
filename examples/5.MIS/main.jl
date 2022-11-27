@@ -3,7 +3,7 @@
 # ## Background
 
 # In graph theory, an independent set is a set of vertices in a graph such that no two of which are connected by an edge.
-# The problem of finding maximum independent sets (MIS) is NP-hard, i.e., it is unlikely to be solved in a time polynomial to the problem size.
+# The problem of finding Maximum Independent Sets (MISs) is NP-hard, i.e., it is unlikely to be solved in a time polynomial to the problem size.
 # Interestingly, there is a natural connection between the independent set constraint,
 # and the [Rydberg Blockade](@ref blockade) phenomenon in neutral-atom quantum computing using Rydberg states. 
 # More specifically, Rydberg blockade implies that two atoms cannot be both excited to the Rydberg state ``|r\rangle`` if they are close to each other, 
@@ -14,18 +14,18 @@
 # which is to find the largest independent set of a given graph. 
 # For a particular subclass of geometric graphs, the so-called unit disk graphs, 
 # the Rydberg Hamiltonian can encode the solution without any overhead in the number of qubits. 
-# In fact, an experimental demonstration of quantum optimization has been realized in solving the maximum independent set problem up to 289 qubits in [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372).
+# In fact, an experimental demonstration of quantum optimization has been realized in solving the maximum independent set problem on up to 289 qubits in [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372).
 
 # In this tutorial, we show how to solve the MIS problem using Bloqade.
-# We focus on a particular subclass of unit disk graphs defined as diagonal-connected unit-disk grid graphs (DUGG).
+# We focus on a particular subclass of unit disk graphs defined as Diagonal-connected Unit-disk Grid Graphs (DUGG).
 # This is the class of graphs studied in the demonstration experiment [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372).
-# Although these graphs have highly constraint topologies, finding its MISs is still NP-hard.
+# Although these graphs have highly constrained topologies, finding its MISs is still NP-hard.
 # Here, we show how to use variational quantum algorithms with Rydberg Hamiltonians to solve the MIS problem on these graphs.
 # The tutorial here strongly resembles the setup in [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372),
-# but, unsurprisingly, Bloqade can only simulate a much smaller problem.
+# with the limitation that Bloqade can only simulate a much smaller problem.
 
 # For more details on the functionalities supported by Bloqade in studying independent set problems,
-# please refer to the [MIS manual](@ref mis) page. 
+# please refer to the [Maximum Independent Set](@ref mis) page. 
 
 # Let's start by importing the required libraries:
 
@@ -45,7 +45,7 @@ Random.seed!(2)
 atoms = generate_sites(SquareLattice(), 4, 4; scale = 4.5) |> random_dropout(0.2)
 
 # Next, we set the blockade radius to be 7.5 μm, 
-# corresponding to a case where nearest neighbors and next-nearest neighbors (diagonal) are within the blockade radius.
+# corresponding to a case where nearest neighbors and next-nearest neighbors (diagonal from the initial atom) are within the blockade radius.
 # As we discussed in [Rydberg Blockade](@ref blockade), only one Rydberg excitation is allowed within the blockade radius.  
 # To better illustrate this constraint, we 
 # plot the interactions of Rydberg atoms as a DUGG, where each edge corresponds to the blockade constraint given by the blockade radius: 

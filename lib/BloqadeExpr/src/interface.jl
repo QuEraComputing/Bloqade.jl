@@ -5,13 +5,11 @@ const n = YaoBlocks.ConstGate.P1
 
 end
 
-function process_atom_positions(atom_positions)
-    if typeof(atom_positions) <: BoundedLattice
-        return atom_positions
-    else
-        return map(atom_positions) do pos
-            (pos...,)
-        end
+process_atom_positions(atom_positions::BoundedLattice) = atom_positions
+
+function process_atom_positions(atom_positions) # catches other cases
+    return map(atom_positions) do pos
+        (pos...,)
     end
 end
 

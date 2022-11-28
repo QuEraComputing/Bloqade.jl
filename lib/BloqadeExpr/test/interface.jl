@@ -2,7 +2,16 @@ using Test
 using BloqadeExpr
 using YaoBlocks
 using YaoBlocks.Optimise
+using BloqadeLattices
 
+
+@testset "process_atom_positions" begin
+    position = [(1, 2), (2, 3)]
+    lattice = parallelepiped_region(SquareLattice(),(0,2),(2,0);scale=5)
+    @test BloqadeExpr.process_atom_positions(position) == position
+    @test BloqadeExpr.process_atom_positions(lattice) == lattice
+    
+end
 
 @testset "rydberg_h" begin
     positions = [(1, 2), (2, 3)]

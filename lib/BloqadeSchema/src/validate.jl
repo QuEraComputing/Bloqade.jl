@@ -323,6 +323,7 @@ function validate_analog_params(atoms,ϕ,Ω,Δ,δ,Δi,device_capabilities::Devic
     )
 end
 
+# public API exposed here
 """
     validate(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
 
@@ -354,7 +355,6 @@ The following validation violations occured:
 3. positions 1 => (1.1, 0.0) and 3 => (3.0, 0.0) are a distance of 1.9 μm apart which is below minimum value of 4.0 μm
 ``` 
 """
-# public API exposed here
 function validate(H::BloqadeExpr.RydbergHamiltonian;device_capabilities::DeviceCapabilities=get_device_capabilities())
     (atoms,ϕ,Ω,Δ,δ,Δi) = schema_parse_rydberg_fields(H)
 

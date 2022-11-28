@@ -61,7 +61,7 @@ end
 XPhase operator for 2-level Rydberg system.
 
 ```math
-e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|
+e^{ϕ ⋅ i} |0⟩⟨1| + e^{-ϕ ⋅ i} |1⟩⟨0|
 ```
 """
 struct XPhase{T} <: PrimitiveBlock{2}
@@ -74,7 +74,12 @@ end
 XPhase operator act on |0⟩ and |1⟩ for 3-level Rydberg system.
 
 ```math
-e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|
+e^{ϕ ⋅ i} |0⟩⟨1| + e^{-ϕ ⋅ i} |1⟩⟨0| = 
+\\begin{pmatrix}
+0 & e^{ϕ ⋅ im} & 0 \\\\
+e^{-ϕ ⋅ im} & 0 & 0 \\\\
+0 & 0 & 0
+\\end{pmatrix}
 ```
 """
 struct XPhase_01{T} <: PrimitiveBlock{3}
@@ -87,7 +92,12 @@ end
 XPhase operator act on |1⟩ and |r⟩ for 3-level Rydberg system.
 
 ```math
-e^{ϕ ⋅ im} |1⟩⟨r| + e^{-ϕ ⋅ im} |r⟩⟨1|
+e^{ϕ ⋅ i} |1⟩⟨r| + e^{-ϕ ⋅ i} |r⟩⟨1| = 
+\\begin{pmatrix}
+0 & 0 & 0 \\\\
+0 & 0 & e^{ϕ ⋅ im} \\\\
+0 & e^{-ϕ ⋅ im} & 0
+\\end{pmatrix}
 ```
 """
 struct XPhase_1r{T} <: PrimitiveBlock{3}
@@ -124,6 +134,7 @@ struct OpPu_01 <: YaoBlocks.ConstantGate{1, 3} end
 struct OpPu_1r <: YaoBlocks.ConstantGate{1, 3} end
 struct OpPd_01 <: YaoBlocks.ConstantGate{1, 3} end
 struct OpPd_1r <: YaoBlocks.ConstantGate{1, 3} end
+
 const X_01 = OpX_01()
 const X_1r = OpX_1r()
 const Z_01 = OpZ_01()
@@ -134,6 +145,195 @@ const Pu_01 = OpPu_01()
 const Pu_1r = OpPu_1r()
 const Pd_01 = OpPd_01()
 const Pd_1r = OpPd_1r()
+
+
+# ==================== Docstring for 3-level constant gates ====================
+
+"""
+    X_01
+    OpX_01 <: YaoBlocks.ConstantGate{1, 3}
+
+Pauli X operator act on |0⟩ and |1⟩ for 3-level Rydberg system.
+
+Matrix expression:
+
+```math
+\\sigma^{x,\\mathrm{hf}} = 
+\\begin{pmatrix}
+0 & 1 & 0 \\\\
+1 & 0 & 0 \\\\
+0 & 0 & 0
+\\end{pmatrix}
+```
+"""
+X_01, OpX_01
+
+"""
+    X_1r
+    OpX_1r <: YaoBlocks.ConstantGate{1, 3}
+
+Pauli X operator act on |1⟩ and |r⟩ for 3-level Rydberg system.
+
+Matrix expression:
+
+```math
+\\sigma^{x,\\mathrm{r}} = 
+\\begin{pmatrix}
+0 & 0 & 0 \\\\
+0 & 0 & 1 \\\\
+0 & 1 & 0
+\\end{pmatrix}
+```
+"""
+X_1r, OpX_1r
+
+"""
+    Z_01
+    OpZ_01 <: YaoBlocks.ConstantGate{1, 3}
+
+Pauli Z operator act on |0⟩ and |1⟩ for 3-level Rydberg system.
+
+Matrix expression:
+
+```math
+\\sigma^{z,\\mathrm{hf}} = 
+\\begin{pmatrix}
+1 & 0 & 0 \\\\
+0 & -1 & 0 \\\\
+0 & 0 & 0
+\\end{pmatrix}
+```
+"""
+Z_01, OpZ_01
+
+"""
+    Z_1r
+    OpZ_1r <: YaoBlocks.ConstantGate{1, 3}
+
+Pauli Z operator act on |1⟩ and |r⟩ for 3-level Rydberg system.
+
+Matrix expression:
+
+```math
+\\sigma^{z,\\mathrm{r}} = 
+\\begin{pmatrix}
+0 & 0 & 0 \\\\
+0 & 1 & 0 \\\\
+0 & 0 & -1
+\\end{pmatrix}
+```
+"""
+Z_1r, OpZ_1r
+
+"""
+    N_1
+    OpN_1 <: YaoBlocks.ConstantGate{1, 3}
+
+Projection operator onto |1⟩ for 3-level Rydberg system.
+
+Matrix expression:
+
+```math
+n^1 = |1⟩⟨1| = 
+\\begin{pmatrix}
+0 & 0 & 0 \\\\
+0 & 1 & 0 \\\\
+0 & 0 & 0
+\\end{pmatrix}
+```
+"""
+N_1, OpN_1
+
+"""
+    N_r
+    OpN_r <: YaoBlocks.ConstantGate{1, 3}
+
+Projection operator onto |r⟩ for 3-level Rydberg system.
+
+Matrix expression:
+    
+```math
+n^{\\mathrm{r}} = |r⟩⟨r| = 
+\\begin{pmatrix}
+0 & 0 & 0 \\\\
+0 & 0 & 0 \\\\
+0 & 0 & 1
+\\end{pmatrix}
+```
+"""
+N_r, OpN_r
+
+"""
+    Pu_01
+    OpPu_01 <: YaoBlocks.ConstantGate{1, 3}
+
+Matrix expression:
+
+```math
+\\mathrm{Pu}^{\\mathrm{hf}} = 
+\\begin{pmatrix}
+0 & 1 & 0 \\\\
+0 & 0 & 0 \\\\
+0 & 0 & 0
+\\end{pmatrix}
+```
+"""
+Pu_01, OpPu_01
+
+
+"""
+    Pu_1r
+    OpPu_1r <: YaoBlocks.ConstantGate{1, 3}
+
+Matrix expression:
+
+```math
+\\mathrm{Pu}^{\\mathrm{r}} = 
+\\begin{pmatrix}
+0 & 0 & 0 \\\\
+0 & 0 & 1 \\\\
+0 & 0 & 0
+\\end{pmatrix}
+```
+"""
+Pu_1r, OpPu_1r
+
+"""
+    Pd_01
+    OpPd_01 <: YaoBlocks.ConstantGate{1, 3}
+
+Matrix expression:
+
+```math
+\\mathrm{Pd}^{\\mathrm{hf}} = 
+\\begin{pmatrix}
+0 & 0 & 0 \\\\
+1 & 0 & 0 \\\\
+0 & 0 & 0
+\\end{pmatrix}
+```
+"""
+Pd_01, OpPd_01
+
+"""
+    Pd_1r
+    OpPd_1r <: YaoBlocks.ConstantGate{1, 3}
+
+Matrix expression:
+
+```math
+\\mathrm{Pd}^{\\mathrm{r}} = 
+\\begin{pmatrix}
+0 & 0 & 0 \\\\
+0 & 0 & 0 \\\\
+0 & 1 & 0
+\\end{pmatrix}
+```
+"""
+Pd_1r, OpPd_1r
+
+# ==================== Docstring for 3-level constant gates (end) ====================
+
 
 """
     AbstractTerm{D} <: PrimitiveBlock{D}
@@ -213,6 +413,18 @@ Base.@kwdef struct SumOfX <: AbstractTerm{2}
 end
 SumOfX(n::Int) = SumOfX(n, 1)
 
+"""
+    struct SumOfX_01 <: AbstractTerm{3}
+    SumOfX_01(nsites, Ω)
+
+Term for sum of `X_01` operators.
+
+# Expression
+
+```math
+\\sum_i Ω σ^{x,\\mathrm{hf}}_i
+```
+"""
 Base.@kwdef struct SumOfX_01 <: AbstractTerm{3}
     nsites::Int
     Ω = 1
@@ -225,6 +437,18 @@ Base.@kwdef struct SumOfX_01 <: AbstractTerm{3}
 end
 SumOfX_01(n::Int) = SumOfX_01(n, 1)
 
+"""
+    struct SumOfX_1r <: AbstractTerm{3}
+    SumOfX_1r(nsites, Ω)
+
+Term for sum of `X_1r` operators.
+
+# Expression
+
+```math
+\\sum_i Ω σ^{x,\\mathrm{r}}_i
+```
+"""
 Base.@kwdef struct SumOfX_1r <: AbstractTerm{3}
     nsites::Int
     Ω = 1
@@ -265,7 +489,7 @@ But may provide extra speed up.
 # Expression
 
 ```math
-\\sum_i Ω ⋅ (e^{ϕ ⋅ im} |0⟩⟨1| + e^{-ϕ ⋅ im} |1⟩⟨0|)
+\\sum_i Ω ⋅ (e^{ϕ ⋅ i} |0⟩⟨1| + e^{-ϕ ⋅ i} |1⟩⟨0|)
 ```
 """
 Base.@kwdef struct SumOfXPhase <: AbstractTerm{2}
@@ -283,6 +507,18 @@ Base.@kwdef struct SumOfXPhase <: AbstractTerm{2}
     end
 end
 
+"""
+    struct SumOfXPhase_01 <: AbstractTerm{3}
+    SumOfXPhase_01(nsites, Ω, ϕ)
+
+Term for sum of `XPhase_01` operators.
+
+# Expression
+
+```math
+\\sum_i Ω ⋅ (e^{ϕ ⋅ i} |0⟩⟨1| + e^{-ϕ ⋅ i} |1⟩⟨0|)
+```
+"""
 Base.@kwdef struct SumOfXPhase_01 <: AbstractTerm{3}
     nsites::Int
     Ω = 1
@@ -297,6 +533,19 @@ Base.@kwdef struct SumOfXPhase_01 <: AbstractTerm{3}
         return new(nsites, Ω, ϕ)
     end
 end
+
+"""
+    struct SumOfXPhase_1r <: AbstractTerm{3}
+    SumOfXPhase_1r(nsites, Ω, ϕ)
+
+Term for sum of `XPhase_1r` operators.
+
+# Expression
+
+```math
+\\sum_i Ω ⋅ (e^{ϕ ⋅ i} |1⟩⟨r| + e^{-ϕ ⋅ i} |r⟩⟨1|)
+```
+"""
 Base.@kwdef struct SumOfXPhase_1r <: AbstractTerm{3}
     nsites::Int
     Ω = 1
@@ -354,6 +603,18 @@ Base.@kwdef struct SumOfN <: AbstractTerm{2}
 end
 SumOfN(n::Int) = SumOfN(n, 1)
 
+"""
+    struct SumOfN_r <: AbstractTerm{3}
+    SumOfN_1(;nsites[, Δ=1])
+
+Sum of N_r operators. 
+
+# Expression
+
+```math
+\\sum_i Δ ⋅ n^r_i
+```
+"""
 Base.@kwdef struct SumOfN_r <: AbstractTerm{3}
     nsites::Int
     Δ = 1
@@ -365,6 +626,18 @@ Base.@kwdef struct SumOfN_r <: AbstractTerm{3}
 end
 SumOfN_r(n::Int) = SumOfN_r(n, 1)
 
+"""
+    struct SumOfN_1 <: AbstractTerm{3}
+    SumOfN_1(;nsites[, Δ=1])
+
+Sum of N_1 operators. 
+
+# Expression
+
+```math
+\\sum_i Δ ⋅ n^r_i
+```
+"""
 Base.@kwdef struct SumOfN_1 <: AbstractTerm{3}
     nsites::Int
     Δ = 1
@@ -415,6 +688,18 @@ Base.@kwdef struct SumOfZ <: AbstractTerm{2}
 end
 SumOfZ(n::Int) = SumOfZ(n, 1)
 
+"""
+    struct SumOfZ_01 <: AbstractTerm{2}
+    SumOfZ_01(;nsites, Δ=1)
+
+Sum of Pauli Z_01 operators.
+
+# Expression
+
+```math
+\\sum_i Δ ⋅ σ^{z,\\mathrm{hf}}_i
+```
+"""
 Base.@kwdef struct SumOfZ_01 <: AbstractTerm{3}
     nsites::Int
     Δ = 1
@@ -426,6 +711,18 @@ Base.@kwdef struct SumOfZ_01 <: AbstractTerm{3}
 end
 SumOfZ_01(n::Int) = SumOfZ_01(n, 1)
 
+"""
+    struct SumOfZ_1r <: AbstractTerm{2}
+    SumOfZ_1r(;nsites, Δ=1)
+
+Sum of Pauli Z_1r operators.
+
+# Expression
+
+```math
+\\sum_i Δ ⋅ σ^{z,\\mathrm{r}}_i
+```
+"""
 Base.@kwdef struct SumOfZ_1r <: AbstractTerm{3}
     nsites::Int
     Δ = 1

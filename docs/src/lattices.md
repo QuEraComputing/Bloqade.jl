@@ -191,6 +191,48 @@ One can check the docstring of [`Bloqade.plot`](@ref) to know more about how to 
 
 ## References
 
-```@autodocs
-Modules = [BloqadeLattices]
+```@docs
+AbstractLattice
+GeneralLattice
+SquareLattice
+RectangularLattice
+HoneycombLattice
+TriangularLattice
+ChainLattice
+LiebLattice
+KagomeLattice
+
+lattice_vectors
+lattice_sites
+BloqadeLattices.dimension
+generate_sites
+offset_axes
+random_dropout
+rescale_axes
+clip_axes
+
+MaskedGrid
+AtomList
+make_grid
+collect_atoms
+
+img_atoms
+img_maskedgrid
+ByDensity
+
+AbstractRegion
+Parallelepiped
+Parallelepiped(vecs)
+Parallelepiped(vecs::T) where {T<:Real}
+
+distance
+generate_sites_in_region
+
+BoundedLattice
+parallelepiped_region
+
+two_body_interaction_matrix
+rydberg_interaction_matrix
+
 ```
+

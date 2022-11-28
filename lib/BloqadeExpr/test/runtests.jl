@@ -1,6 +1,11 @@
 using Test
 using BloqadeExpr
 
+if "docstring" in ARGS
+    # include("docstrings.jl")
+    exit()
+end
+
 @testset "assertions" begin
     include("assert.jl")
 end

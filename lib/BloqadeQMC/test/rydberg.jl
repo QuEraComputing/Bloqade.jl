@@ -6,6 +6,10 @@ using Measurements
 using Measurements: value, uncertainty
 using BinningAnalysis
 using BloqadeQMC: Chain, Square
+using BloqadeLattices: generate_sites, ChainLattice
+using BloqadeExpr: rydberg_h 
+using Yao: mat, ArrayReg
+using LinearAlgebra
 #using PLots
 
 # Generate ED values - do we want the ED to run every time? Or do we want to pre-calculate and store the values in a dict?
@@ -16,7 +20,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.48)
 
 Ω = 2π * 4
 Δ_step = 30
-Δ = LinRange(-2π * 10, 2π * 10, Δ_step)
+Δ = LinRange(-2π * 9, 2π * 9, Δ_step)
 
 energy_ED = zeros(3, Δ_step)
 
@@ -70,7 +74,6 @@ lat = Chain(N, a, false; trunc=Inf)
 
         @test abs(stdscore(energy_QMC_β1[ii], energy_ED[1,ii])) < THRESHOLD
     end
-
 end
 
 
@@ -109,7 +112,7 @@ end
     MCS = 10_000
     M = 5000
 
-    rng = MersenneTwister(4312)
+    rng = MersenneTwister(12345)
 
     energy_QMC_β3 = []
 

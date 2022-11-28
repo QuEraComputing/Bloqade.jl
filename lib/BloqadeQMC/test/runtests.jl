@@ -29,6 +29,6 @@ H = @inferred LTFIM((10,), 1.0, 1.0, 1.0)
 
 THRESHOLD = 2.576  # 99% Two-sided CI of the t-distribution with infinite dofs
 
-include(
+include("rydberg.jl")
 # include("ltfim.jl")
 # include("tfim.jl")

@@ -72,7 +72,7 @@ between two atoms. Here we give two example of different implementation of
 the CZ-gate using the 3-level Rydberg system. 
 
 - 5-pulse CZ-gate
-- The Levine-Pichler pulses
+- The Levine-Pichler gate
 
 Notes that the gate set of arbitrary single-qubit gate + CZ-gate is universal. 
 Hence, 3-level Rydberg system is universal for quantum computing.
@@ -130,11 +130,11 @@ end
 state(reg)[1, 2, 4, 5]  # equivalent to 1/2 (|00⟩ + |01⟩ + |10⟩ - |11⟩) 
 ```
 
-#### Levine-Pichler Pulses
+#### The Levine-Pichler gate
 
 A more efficient way to implementing the CZ-gate is using the 
-[Levine-Pichler pulses](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.123.170503). 
-Comparing to the above 5-pulse CZ-gate, the Levine-Pichler pulses uses shorter 
+[Levine-Pichler gate](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.123.170503). 
+Comparing to the above 5-pulse CZ-gate, the Levine-Pichler gate uses shorter 
 sequence and less time. 
 
 Consider two atoms which are closed to each other. If we apply a pulse that 
@@ -146,7 +146,7 @@ couples ``|1\rangle`` and ``|r\rangle`` with the Rabi frequency
 - ``|01\rangle`` (``|10\rangle``) will oscillate between ``|01\rangle`` and ``|0r\rangle`` (``|10\rangle`` and ``|r0\rangle``) with a frequency ``\Omega^\mathrm{r}``
 - ``|11\rangle`` will oscillate between ``|11\rangle`` and ``|w\rangle = \frac{1}{2}\left( |1r\rangle + |r1\rangle \right)`` with a frequency ``\sqrt{2}\Omega^\mathrm{r}`` (this is an approximation when the Rydberg blockade is strong enough such that the population of ``|rr\rangle`` could be ignored)
 
-The Levine-Pichler pulses consists of three global pulses:
+The Levine-Pichler gate consists of two global pulses. Together with a global hyperfine pulse for rotation-Z gates, we will get a CZ-gate.
 
 1. A global Rydberg pulse with parameters ``\frac{\Delta^\mathrm{r}}{\Omega^\mathrm{r}} \approx 0.377371``, ``\phi^\mathrm{r} = 0``, ``\Omega^\mathrm{r}\tau \approx 4.29268``
 2. A global Rydberg pulse with parameters ``\frac{\Delta^\mathrm{r}}{\Omega^\mathrm{r}} \approx 0.377371``, ``\phi^\mathrm{r} \approx 3.90242``, ``\Omega^\mathrm{r}\tau \approx 4.29268``
@@ -171,7 +171,7 @@ The following picture (Fig 2 c) in [the original paper](https://journals.aps.org
 demonstrates the process of the first pulse and the second pulse.
 ![](assets/levine-pichler.png)
 
-Here are codes for the Levine-Pichler pulses.
+Here are codes for the Levine-Pichler gate.
 ```@repl 3-level-levine-pichler
 using Bloqade
 using Yao

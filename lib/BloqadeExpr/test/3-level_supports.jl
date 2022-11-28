@@ -3,7 +3,7 @@ using BloqadeExpr
 using BloqadeKrylov
 using Yao
 
-@testset "Levine Pichler pulse" begin
+@testset "The Levine-Pichler gate" begin
     nsites = 2
     V = 1e3
     Ω_r = 1.0

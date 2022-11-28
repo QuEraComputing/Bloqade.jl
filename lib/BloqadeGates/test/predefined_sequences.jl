@@ -34,7 +34,7 @@ using BloqadeGates: two_level_indices
     end
 end
 
-@testset "Levine-Pichler pulses" begin
+@testset "The Levine-Pichler gate" begin
     atoms = [(0.0, 0.0), (0.0, 4.0)]
     seq = global_levine_pichler(atoms)
     push!(seq, global_single_qubit_gate(atoms, Rz(2π - 2.38076)))

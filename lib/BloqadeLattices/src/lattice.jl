@@ -363,6 +363,7 @@ The tiling repeat the `sites` of the lattice `m` times along the first dimension
 `n` times along the second dimension, and so on. `scale` is a real number that re-scales the lattice constant and atom locations.
 """
 function generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale = 1.0) where {D}
+    scale > 0 || error("scale must be a positive real value.")
     return AtomList(
         _generate_sites((lattice_vectors(lattice)...,), (lattice_sites(lattice)...,), repeats...; scale = scale),
     )

@@ -1,5 +1,10 @@
 using Test
 
+if "docstring" in ARGS
+    # include("docstrings.jl")
+    exit()
+end
+
 @testset "problem" begin
     include("problem.jl")
 end

@@ -167,4 +167,14 @@ sinusoidal
 append
 smooth
 smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
+Kernels.biweight
+Kernels.cosine
+Kernels.gaussian
+Kernels.logistic
+Kernels.parabolic
+Kernels.sigmoid
+Kernels.triangle
+Kernels.tricube
+Kernels.triweight
+Kernels.uniform
 ```

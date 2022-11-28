@@ -85,6 +85,43 @@ run all the tests (in parallel).
 end
 
 """
+checks for docstrings for packages
+
+# Args
+
+- `paths`: paths of the packages to run test.
+
+"""
+@cast function docstring(paths::String...;)
+    isempty(paths) && error("expect paths to the package")
+    try
+        @sync for path in paths
+            isfile(joinpath(path, "Manifest.toml")) || dev(path)
+            test_cmd = "using Pkg; Pkg.test(;test_args=[\"docstring\"])"
+            Threads.@spawn run(`$(Base.julia_exename()) --project=$path -e "$test_cmd"`)
+        end
+    catch e
+        if !(e isa InterruptException)
+            rethrow(e)
+        end
+    end
+
+end
+
+
+"""
+run all the tests for doc strings.
+
+"""
+@cast function docstrings()
+    paths = map(readdir(root_dir("lib"))) do pkg
+        return joinpath("lib", pkg)
+    end
+    push!(paths, ".")
+    return docstring(paths...)
+end
+
+"""
 develop the Bloqade components into environment.
 
 # Args

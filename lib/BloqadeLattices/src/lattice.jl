@@ -1,7 +1,19 @@
-# `D` is the dimensionality
-abstract type AbstractLattice{D} end
 """
-    dimension(lattice)
+    AbstractLattice{D}
+
+Supertype for all `D` dimensional lattices.
+
+# Implementation
+
+[`lattice_vectors`](@ref) and [`lattice_sites`](@ref) functions must be defined
+which should both return an indexable iterable containing the Bravais lattice vectors and 
+lattice sites respectively. (e.g.: [`GeneralLattice`](@ref) returns a tuple of tuples containing the 
+Bravais lattice vectors and lattice sites).
+"""
+abstract type AbstractLattice{D} end
+
+"""
+    dimension(::AbstractLattice{D})
 
 Returns the space dimension of target lattice.
 e.g. [`ChainLattice`](@ref) is a 1D lattice, hence returns 1.
@@ -55,43 +67,276 @@ Returns sites in a Bravais lattice unit cell as a Tuple of D-Tuple, where D is t
 """
 lattice_sites(general_lattice::GeneralLattice) = general_lattice.sites
 
+"""
+    struct HoneycombLattice <: AbstractLattice{2}
+
+Type representing 2D Honeycomb Lattice.
+
+Overriden functions to return lattice vectors and sites exists as 
+[`lattice_vectors(::HoneycombLattice)`](@ref) and
+[`lattice_sites(::HoneycombLattice)`](@ref).
+
+# Fields
+
+None
+"""
 struct HoneycombLattice <: AbstractLattice{2} end
+
+"""
+    lattice_vectors(::HoneycombLattice)
+
+Returns the Bravais lattice vectors for a Honeycomb lattice as a Tuple of Tuples containing
+floats.
+
+The vectors are defined as:
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.5, 0.5√3)
+"""
 lattice_vectors(::HoneycombLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
+
+"""
+    lattice_sites(::HoneycombLattice)
+
+Returns the Bravais Lattice sites for a Honeycomb lattice as a Tuple of Tuples containing
+floats.
+
+The sites are defined as:
+- (0.0, 0.0)
+- (0.5, 0.5√3)
+"""
 lattice_sites(::HoneycombLattice) = ((0.0, 0.0), (0.5, 0.5 / sqrt(3)))
 
+"""
+    struct SquareLattice <: AbstractLattice{2}
+
+Type representing 2D Square Lattice.
+
+Overriden functions to return lattice vectors and sites exists as 
+[`lattice_vectors(::SquareLattice)`](@ref) and
+[`lattice_sites(::SquareLattice)`](@ref).
+
+# Fields
+
+None
+"""
 struct SquareLattice <: AbstractLattice{2} end
+
+"""
+    lattice_vectors(::SquareLattice)
+
+Returns the Bravais lattice vectors for a Square lattice as a Tuple of Tuples containing
+floats.
+    
+The vectors are defined as:
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.0, 1.0)
+"""
 lattice_vectors(::SquareLattice) = ((1.0, 0.0), (0.0, 1.0))
+
+"""
+    lattice_sites(::SquareLattice)
+
+Returns the Bravais Lattice sites for a Square lattice as a Tuple of Tuples containing
+floats.
+
+The sites are defined as:
+- (0.0, 0.0)
+"""
 lattice_sites(::SquareLattice) = ((0.0, 0.0),)
 
+"""
+    struct TriangularLattice <: AbstractLattice{2}
+
+Type representing 2D Square Lattice.
+
+Overriden functions to return lattice vectors and sites exists as 
+[`lattice_vectors(::TriangularLattice)`](@ref) and
+[`lattice_sites(::TriangularLattice)`](@ref).
+
+# Fields
+
+None
+"""
 struct TriangularLattice <: AbstractLattice{2} end
+
+"""
+    lattice_vectors(::TriangularLattice)
+
+Returns the Bravais lattice vectors for a Triangular lattice as a Tuple of Tuples containing
+floats.
+    
+The vectors are defined as:
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.5, 0.5√3)
+"""
 lattice_vectors(::TriangularLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
+
+"""
+    lattice_sites(::TriangularLattice)
+
+Returns the Bravais Lattice sites for a Triangular lattice as a Tuple of Tuples containing
+floats.
+
+The sites are defined as:
+- (0.0, 0.0)
+"""
 lattice_sites(::TriangularLattice) = ((0.0, 0.0),)
 
+"""
+    struct ChainLattice <: AbstractLattice{1}
+
+Type representing 1D Chain Lattice.
+
+Overriden functions to return lattice vectors and sites exists as 
+[`lattice_vectors(::ChainLattice)`](@ref) and
+[`lattice_sites(::ChainLattice)`](@ref).
+
+# Fields
+
+None
+"""
 struct ChainLattice <: AbstractLattice{1} end
+
+"""
+    lattice_vectors(::ChainLattice)
+
+Returns the Bravais lattice vectors for a Chain lattice as a Tuple of Tuples containing
+floats.
+    
+The vectors are defined as:
+- 𝐚₁ = (1.0,)
+"""
 lattice_vectors(::ChainLattice) = ((1.0,),)
+
+"""
+    lattice_sites(::ChainLattice)
+
+Returns the Bravais Lattice sites for a Chain lattice as a Tuple of Tuples containing
+floats.
+
+The sites are defined as:
+- (0.0,)
+"""
 lattice_sites(::ChainLattice) = ((0.0,),)
 
+"""
+    struct LiebLattice <: AbstractLattice{2}
+
+Type representing 1D Chain Lattice.
+
+Overriden functions to return lattice vectors and sites exists as 
+[`lattice_vectors(::LiebLattice)`](@ref) and
+[`lattice_sites(::LiebLattice)`](@ref).
+
+# Fields
+
+None
+"""
 struct LiebLattice <: AbstractLattice{2} end
+
+"""
+    lattice_vectors(::LiebLattice)
+
+Returns the Bravais lattice vectors for a Lieb lattice as a Tuple of Tuples containing
+floats.
+        
+The vectors are defined as:
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.0, 1.0)
+"""
 lattice_vectors(::LiebLattice) = ((1.0, 0.0), (0.0, 1.0))
+
+"""
+    lattice_sites(::LiebLattice)
+
+Returns the Bravais Lattice sites for a Lieb lattice as a Tuple of Tuples containing
+floats.
+
+The sites are defined as:
+- (0.0, 0.0)
+- (0.5, 0.0)
+- (0.0, 0.5)
+"""
 lattice_sites(::LiebLattice) = ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5))
 
+"""
+    struct KagomeLattice <: AbstractLattice{2}
+
+Type representing 2D Kagome Lattice.
+
+Overriden functions to return lattice vectors and sites exists as 
+[`lattice_vectors(::KagomeLattice)`](@ref) and
+[`lattice_sites(::KagomeLattice)`](@ref).
+
+# Fields
+
+None
+"""
 struct KagomeLattice <: AbstractLattice{2} end
+
+"""
+    lattice_vectors(::KagomeLattice)
+
+Returns the Bravais lattice vectors for a Kagome lattice as a Tuple of Tuples containing
+floats.
+        
+The vectors are defined as:
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.5, 0.5√3)
+"""
 lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
+
+"""
+    lattice_sites(::KagomeLattice)
+
+Returns the Bravais Lattice sites for a Lieb lattice as a Tuple of Tuples containing
+floats.
+
+The sites are defined as:
+- (0.0, 0.0)
+- (0.25, 0.25√3)
+- (0.75, 0.25√3)
+"""
 lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25 * sqrt(3)), (0.75, 0.25 * sqrt(3)))
 
 """
-    RectangularLattice <: AbstractLattice{2}
-    RectangularLattice(aspect_ratio::Real)
+    struct RectangularLattice <: AbstractLattice{2}
 
-`RectangularLattice` is a 2 dimensional lattice with:
+Type representing 2D Rectangular Lattice.
 
-* Lattice vectors = ((1.0, 0.0), (0.0, `aspect_ratio`)
-* Lattice sites   = ((0.0, 0.0),)
+Overriden functions to return lattice vectors and sites exists as 
+[`lattice_vectors(::RectangularLattice)`](@ref) and
+[`lattice_sites(::RectangularLattice)`](@ref).
+
+# Fields
+- `aspect_ratio::Float64`: defines the length of one of the Bravais lattice vectors
+(see [`lattice_vectors(r::RectangularLattice)`](@ref))
 """
 struct RectangularLattice <: AbstractLattice{2}
     aspect_ratio::Float64
 end
+
+"""
+    lattice_vectors(r::RectangularLattice)
+
+Returns the Bravais lattice vectors for a Rectangular lattice as a Tuple of Tuples containing
+floats.
+        
+The vectors are defined as:
+- 𝐚₁ = (1.0, 0.0)
+- 𝐚₂ = (0.0, `r.aspect_ratio`), where `aspect_ratio` is a `Float64`.
+"""
 lattice_vectors(r::RectangularLattice) = ((1.0, 0.0), (0.0, r.aspect_ratio))
+
+"""
+    lattice_sites(::RectangularLattice)
+
+Returns the Bravais Lattice sites for a Rectangular lattice as a Tuple of Tuples containing
+floats.
+
+The sites are defined as:
+- (0.0, 0.0)
+"""
 lattice_sites(::RectangularLattice) = ((0.0, 0.0),)
 
 """
@@ -118,6 +363,7 @@ The tiling repeat the `sites` of the lattice `m` times along the first dimension
 `n` times along the second dimension, and so on. `scale` is a real number that re-scales the lattice constant and atom locations.
 """
 function generate_sites(lattice::AbstractLattice{D}, repeats::Vararg{Int,D}; scale = 1.0) where {D}
+    scale > 0 || error("scale must be a positive real value.")
     return AtomList(
         _generate_sites((lattice_vectors(lattice)...,), (lattice_sites(lattice)...,), repeats...; scale = scale),
     )
@@ -290,24 +536,6 @@ Returns an list of atoms in the `maskedgrid` in order.
 function collect_atoms(mg::MaskedGrid)
     return AtomList(map(ci -> (mg.xs[ci.I[1]], mg.ys[ci.I[2]]), findall(mg.mask)))
 end
-
-# generating docstrings
-function _gendoc(::Type{LT}) where {LT}
-    return """    $LT <: AbstractLattice{$(dimension(LT()))}
-    $LT()
-
-`$LT` is a $(dimension(LT())) dimensional lattice with:
-
-* Lattice vectors = $(lattice_vectors(LT()))
-* Lattice sites   = $(lattice_sites(LT()))
-"""
-end
-@doc _gendoc(SquareLattice) SquareLattice
-@doc _gendoc(TriangularLattice) TriangularLattice
-@doc _gendoc(ChainLattice) ChainLattice
-@doc _gendoc(LiebLattice) LiebLattice
-@doc _gendoc(KagomeLattice) KagomeLattice
-@doc _gendoc(HoneycombLattice) HoneycombLattice
 
 # TODO
 # pseudo-lattices,

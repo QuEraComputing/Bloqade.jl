@@ -150,7 +150,7 @@ The Levine-Pichler gate consists of two global pulses. Together with a global hy
 
 1. A global Rydberg pulse with parameters ``\frac{\Delta^\mathrm{r}}{\Omega^\mathrm{r}} \approx 0.377371``, ``\phi^\mathrm{r} = 0``, ``\Omega^\mathrm{r}\tau \approx 4.29268``
 2. A global Rydberg pulse with parameters ``\frac{\Delta^\mathrm{r}}{\Omega^\mathrm{r}} \approx 0.377371``, ``\phi^\mathrm{r} \approx 3.90242``, ``\Omega^\mathrm{r}\tau \approx 4.29268``
-3. A global hyperfine pulse with parameters ``\Delta^\mathrm{r}}\tau = 2\pi-\alpha \approx 3.90242``, ``{\Omega^\mathrm{r}} = \phi^\mathrm{r} = 0``
+3. A global hyperfine pulse with parameters ``\Delta^\mathrm{r}\tau = 2\pi - \alpha \approx 3.90242``, ``\Omega^\mathrm{r} = \phi^\mathrm{r} = 0``
 
 The first pulse completes a full cycle of oscillation for ``|11\rangle`` while it 
 does not complete a cycle for ``|01\rangle`` and ``|10\rangle``. The only difference 
@@ -191,7 +191,7 @@ for i = 1:3 # simulation
     prob = KrylovEvolution(reg, 0:step:ts[i], hs[i])
     emulate!(prob)
 end
-state(reg)[1, 2, 4, 5]  # desired state 1/2 (|00⟩ + |01⟩ + |10⟩ - |11⟩) 
+state(reg)[[1, 2, 4, 5]]  # desired state 1/2 (|00⟩ + |01⟩ + |10⟩ - |11⟩) 
 ```
 
 ### Predefined pulse sequences for different quantum gates

@@ -1,9 +1,11 @@
 using Base.Iterators
 
-# changed type tree s.t. AbstractRydberg is a direct subtype of Hamiltonian
-abstract type AbstractRydberg{O <: AbstractOperatorSampler} <: Hamiltonian{2,O} end
+export Rydberg
 
-struct Rydberg{O,M <: UpperTriangular{Float64},UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}, L <: Lattice} <: AbstractRydberg{O}
+# changed type tree s.t. AbstractRydberg is a direct subtype of Hamiltonian... ACTUALLY NO NEED FOR ABSTRACT AT ALL?
+# abstract type AbstractRydberg{O <: AbstractOperatorSampler} <: Hamiltonian{2,O} end
+
+struct Rydberg{O,M <: UpperTriangular{Float64},UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}, L <: Lattice} # <: AbstractRydberg{O}
     op_sampler::O
     V::M
     Ω::UΩ
@@ -15,11 +17,11 @@ end
 nspins(H::Rydberg) = nspins(H.lattice)
 
 
-function make_prob_vector(H::Type{<:AbstractRydberg}, V::UpperTriangular{T}, Ω::AbstractVector{T}, δ::AbstractVector{T}; epsilon=0.0) where T
+function make_prob_vector(H::Type{<:Rydberg}, V::UpperTriangular{T}, Ω::AbstractVector{T}, δ::AbstractVector{T}; epsilon=0.0) where T
     @assert length(Ω) == length(δ) == size(V, 1) == size(V, 2)
     @assert (0.0 <= epsilon <= 1.0) "epsilon must be in the range [0, 1]!"
 
-    ops = Vector{NTuple{ISING_OP_SIZE, Int}}()
+    ops = Vector{NTuple{OP_SIZE, Int}}()
     p = Vector{T}()
     energy_shift = zero(T)
 
@@ -87,6 +89,7 @@ end
 # Check with Phil how that function is coming along.
 
 function Rydberg(lat::Lattice, R_b::Float64, Ω::Float64, δ::Float64; trunc::Int=0, epsilon=0)
+    println("Hello!")
     Ns = nspins(lat)
     V = zeros(Float64, Ns, Ns)
 
@@ -144,7 +147,7 @@ function Rydberg(lat::Lattice, R_b::Float64, Ω::Float64, δ::Float64; trunc::In
 end
 
 function Rydberg(V::AbstractMatrix{T}, Ω::AbstractVector{T}, δ::AbstractVector{T}, lattice::Lattice; epsilon=zero(T)) where T
-    ops, p, energy_shift = make_prob_vector(AbstractRydberg, V, Ω, δ, epsilon=epsilon)
+    ops, p, energy_shift = make_prob_vector(Rydberg, V, Ω, δ, epsilon=epsilon)
     op_sampler = ImprovedOperatorSampler(AbstractLTFIM, ops, p)
     return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω), typeof(δ), typeof(lattice)}(op_sampler, V, Ω, δ, lattice, energy_shift)
 end
@@ -152,4 +155,4 @@ end
 # Check whether the two functions below are needed in updates.
 
 total_hx(H::Rydberg)::Float64 = sum(H.Ω) / 2
-haslongitudinalfield(H::AbstractRydberg) = !iszero(H.δ)
+haslongitudinalfield(H::Rydberg) = !iszero(H.δ)

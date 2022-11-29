@@ -10,7 +10,7 @@ using BloqadeLattices: generate_sites, ChainLattice
 using BloqadeExpr: rydberg_h 
 using Yao: mat, ArrayReg
 using LinearAlgebra
-#using PLots
+using BinningAnalysis
 
 # Generate ED values - do we want the ED to run every time? Or do we want to pre-calculate and store the values in a dict?
 
@@ -73,11 +73,18 @@ lat = Chain(N, a, false; trunc=Inf)
             ns[i] = mc_step_beta!(rng, ts, H, β, d, eq=false)
         end
 
-        append!(energy_QMC_β1, mean_and_stderr(x -> -x/β, ns) + H.energy_shift)
-        χ_squared += abs2(value(energy_QMC_β1[ii]) - energy_ED[1, ii]) / abs2(uncertainty(energy_QMC_β1[ii]))
+        # Binning analysis 
+        energy(x) = -x / β + H.energy_shift
+        BE = LogBinner(energy.(ns))
+        τ_energy = tau(BE)
+        ratio = 2 * τ_energy + 1
+        energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
+        append!(energy_QMC_β1, energy_binned)
 
+        χ_squared += abs2(value(energy_QMC_β1[ii]) - energy_ED[1, ii]) / abs2(uncertainty(energy_QMC_β1[ii]))
         # @test abs(stdscore(energy_QMC_β1[ii], energy_ED[1,ii])) < THRESHOLD_t       t-test for testing each QMC run individually
     end
+
     @test χ_squared < THRESHOLD_χ
 end
 
@@ -107,7 +114,16 @@ end
             ns[i] = mc_step_beta!(rng, ts, H, β, d, eq=false)
         end
 
-        append!(energy_QMC_β2, mean_and_stderr(x -> -x/β, ns) + H.energy_shift)
+        # Binning analysis 
+        energy(x) = -x / β + H.energy_shift
+        BE = LogBinner(energy.(ns))
+        τ_energy = tau(BE)
+        ratio = 2 * τ_energy + 1
+        energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
+        append!(energy_QMC_β2, energy_binned)
+        println()
+        #append!(energy_QMC_β2, mean_and_stderr(x -> -x/β, ns) + H.energy_shift)
+
         χ_squared += abs2(value(energy_QMC_β2[ii]) - energy_ED[2, ii]) / abs2(uncertainty(energy_QMC_β2[ii]))
         # @test abs(stdscore(energy_QMC_β2[ii], energy_ED[2,ii])) < THRESHOLD_t
     end
@@ -139,11 +155,18 @@ end
             ns[i] = mc_step_beta!(rng, ts, H, β, d, eq=false)
         end
 
-        append!(energy_QMC_β3, mean_and_stderr(x -> -x/β, ns) + H.energy_shift)
+        # Binning analysis 
+        energy(x) = -x / β + H.energy_shift
+        BE = LogBinner(energy.(ns))
+        τ_energy = tau(BE)
+        ratio = 2 * τ_energy + 1
+        energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
+        append!(energy_QMC_β3, energy_binned)
+        println()
+        #append!(energy_QMC_β3, mean_and_stderr(x -> -x/β, ns) + H.energy_shift)
 
         χ_squared += abs2(value(energy_QMC_β3[ii]) - energy_ED[3, ii]) / abs2(uncertainty(energy_QMC_β3[ii]))
-
-        # @test abs(stdscore(energy_QMC_β3[ii], energy_ED[3,ii])) < THRESHOLD_t
+        # @test abs(stdscore(energy_QMC_β3[ii], energy_ED[2,ii])) < THRESHOLD_t
     end
     @test χ_squared < THRESHOLD_χ
 end

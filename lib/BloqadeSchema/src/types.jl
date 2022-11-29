@@ -42,7 +42,14 @@ sequence in binary of if atoms are in Rydberg/Ground state.
     shot_outputs::Vector{ShotOutput}
 end
 
+"""
+    struct ValidationViolations <: QuEraSchema
 
+Stores violations of hardware constraints from the user-supplied
+[`BloqadeExpr.RydbergHamiltonian`](@ref) in sets. This is returned by [`validate`](@ref).
+
+# Fields
+"""
 Base.@kwdef struct ValidationViolations <: QuEraSchema
     lattice_violations::Set
     misc_violations::Set

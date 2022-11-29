@@ -59,6 +59,7 @@ include("hamiltonian.jl")
 include("operatorsamplers/improved_op_sampler.jl")
 include("diagnostics/Diagnostics.jl")
 include("ising/Ising.jl")
+include("updates/updates.jl")
 include("measurements.jl")
 include("error.jl")
 

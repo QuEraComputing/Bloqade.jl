@@ -13,6 +13,7 @@ using Unitful: Quantity, NoUnits, MHz, µm, uconvert
 using InteractiveUtils: subtypes
 using Base.Cartesian: @nexprs
 using YaoBlocks: ChainBlock, PutBlock, TrivialGate, Subroutine, Scale, Daggered, Add, ControlBlock, TimeEvolution
+using BloqadeLattices: BoundedLattice, rydberg_interaction_matrix
 
 export rydberg_h,
     rydberg_h_3,

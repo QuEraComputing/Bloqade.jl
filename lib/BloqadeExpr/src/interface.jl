@@ -5,6 +5,14 @@ const n = YaoBlocks.ConstGate.P1
 
 end
 
+process_atom_positions(atom_positions::BoundedLattice) = atom_positions
+
+function process_atom_positions(atom_positions) # catches other cases
+    return map(atom_positions) do pos
+        (pos...,)
+    end
+end
+
 """
     emulate!(prob)
 
@@ -79,9 +87,7 @@ function rydberg_h(atom_positions; C = 2π * 862690, Ω = nothing, ϕ = nothing,
 end
 
 function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
-    positions = map(atom_positions) do pos
-        return (pos...,)
-    end
+    positions = process_atom_positions(atom_positions)
 
     nsites = length(positions)
     rydberg_term = RydInteract(positions, C)
@@ -136,9 +142,7 @@ function rydberg_h_3(atom_positions;
 end
 
 function rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
-    positions = map(atom_positions) do pos
-        return (pos...,)
-    end
+    positions = process_atom_positions(atom_positions)
 
     nsites = length(positions)
     rydberg_term = RydInteract(positions, C; nlevel = 3)

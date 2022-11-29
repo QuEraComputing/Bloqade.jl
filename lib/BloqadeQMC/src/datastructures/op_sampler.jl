@@ -5,16 +5,16 @@ firstindex(::OperatorSampler) = 1               # changed argument from taking a
 lastindex(os::OperatorSampler) = length(os)
 @inline normalization(os::AbstractOperatorSampler) = normalization(os.pvec)
 
-# abstract type AbstractOperatorSampler{K, T, P} <: AbstractOperatorSampler{K, T, P} end        Again, probably no need for Abstract type2
+# abstract type AbstractOperatorSampler{K, T, P} <: AbstractOperatorSampler{K, T, P} end        Again, probably no need for Abstract type
 
-struct OperatorSampler{K, T, P} # <: AbstractOperatorSampler{K, T, P}                   no abstract subtyping
+struct OperatorSampler{K, T, P} # <: OperatorSampler{K, T, P}                   no abstract subtyping
     operators::Vector{NTuple{K, Int}}
     pvec::ProbabilityAlias              # replaced P with ProbabilityAlias 
     op_log_weights::Vector{T}
 end
 
-# What do I do with AbstractOperatorSampler in argument here?
-function OperatorSampler(H::Type{<:Hamiltonian{2, <:AbstractOperatorSampler}}, operators::Vector{NTuple{K, Int}}, p::Vector{T}) where {T <: AbstractFloat, K}
+# What do I do with OperatorSampler in argument here?
+function OperatorSampler(H::Type{<:Hamiltonian{2, <:OperatorSampler}}, operators::Vector{NTuple{K, Int}}, p::Vector{T}) where {T <: AbstractFloat, K}
     @assert length(operators) == length(p) "Given vectors must have the same length!"
 
     op_log_weights = log.(p)

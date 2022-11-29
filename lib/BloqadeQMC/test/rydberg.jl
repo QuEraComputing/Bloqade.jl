@@ -10,7 +10,6 @@ using BloqadeLattices: generate_sites, ChainLattice
 using BloqadeExpr: rydberg_h 
 using Yao: mat, ArrayReg
 using LinearAlgebra
-using BinningAnalysis
 
 # Generate ED values - do we want the ED to run every time? Or do we want to pre-calculate and store the values in a dict?
 

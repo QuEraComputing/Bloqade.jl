@@ -3,7 +3,7 @@
 # abstract type AbstractOperatorSampler{K, T, P <: AbstractProbabilityVector{T}} end            We probably don't need Abstract type
 firstindex(::OperatorSampler) = 1               # changed argument from taking abstract type to concrete type
 lastindex(os::OperatorSampler) = length(os)
-@inline normalization(os::AbstractOperatorSampler) = normalization(os.pvec)
+@inline normalization(os::OperatorSampler) = normalization(os.pvec)
 
 # abstract type AbstractOperatorSampler{K, T, P} <: AbstractOperatorSampler{K, T, P} end        Again, probably no need for Abstract type
 

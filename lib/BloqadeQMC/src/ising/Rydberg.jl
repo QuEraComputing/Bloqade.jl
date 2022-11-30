@@ -3,18 +3,6 @@ using BloqadeLattices: rydberg_interaction_matrix, AtomList
 
 abstract type AbstractRydberg{O <: AbstractOperatorSampler} <: AbstractLTFIM{O} end
 
-# struct Rydberg{O,M <: UpperTriangular{Float64},UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}, L <: Lattice} <: AbstractRydberg{O}
-#     op_sampler::O
-#     V::M
-#     Ω::UΩ
-#     δ::Uδ
-#     lattice::L
-#     energy_shift::Float64
-# end
-# nspins(H::Rydberg) = nspins(H.lattice)
-
-###################
-
 struct Rydberg{O,M <: AbstractMatrix{Float64},UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}, A} <: AbstractRydberg{O}
     op_sampler::O
     V::M
@@ -81,87 +69,6 @@ function make_prob_vector(H::Type{<:AbstractRydberg}, V::AbstractMatrix{T}, Ω::
 
     return ops, p, energy_shift
 end
-
-
-###############################################################################
-
-# function BlockadeRydberg(dims::NTuple{N, Int}, J::Float64, hx::Float64, hz::Float64, pbc=true) where N
-# end
-
-# function Rydberg(dims::NTuple{D, Int}, R_b, Ω, δ; pbc=true, trunc::Int=0, epsilon::Float64=0) where D
-#     if D == 1
-#         lat = Chain(dims[1], 1.0, pbc)
-#     elseif D == 2
-#         lat = Rectangle(dims[1], dims[2], 1.0, 1.0, pbc)
-#     else
-#         error("Unsupported number of dimensions. 1- and 2-dimensional lattices are supported.")
-#     end
-#     return Rydberg(lat, R_b, Ω, δ; trunc=trunc, epsilon=epsilon)
-# end
-
-
-# function Rydberg(lat::Lattice, R_b::Float64, Ω::Float64, δ::Float64; trunc::Int=0, epsilon=0)
-#     Ns = nspins(lat)
-#     V = zeros(Float64, Ns, Ns)
-
-#     if trunc > 0
-#         _dist = sort!(collect(Set(lat.distance_matrix)))
-#         uniq_dist = Vector{Float64}(undef, 0)
-#         for i in eachindex(_dist)
-#             if length(uniq_dist) == 0
-#                 push!(uniq_dist, _dist[i])
-#             elseif !(last(uniq_dist) ≈ _dist[i])
-#                 push!(uniq_dist, _dist[i])
-#             end
-#         end
-#         smallest_k = sort!(uniq_dist)[1:(trunc+1)]
-#         dist = copy(lat.distance_matrix)
-#         for i in eachindex(dist)
-#             if dist[i] > last(smallest_k) && !(dist[i] ≈ last(smallest_k))
-#                 dist[i] = zero(dist[i])
-#             end
-#         end
-#     elseif lat isa Rectangle && all(lat.PBC)
-#         V = zeros(Ns, Ns)
-#         K = 3  # figure out an efficient way to set this dynamically
-
-#         dist = zeros(Ns, Ns)
-#         for v2 in -K:K, v1 in -K:K
-#             dV = zeros(Ns, Ns)
-#             for x2 in axes(dV, 2), x1 in axes(dV, 1)
-#                 i1, j1 = divrem(x1 - 1, lat.n1)
-#                 i2, j2 = divrem(x2 - 1, lat.n1)
-#                 r = [i2 - i1 + v1*lat.n1, j2 - j1 + v2*lat.n2]
-#                 dV[x1, x2] += Ω * (R_b/norm(r, 2))^6
-#             end
-#             # @show v2, v1, maximum(abs, dV)
-
-#             V += dV
-#         end
-
-#         V = (V + V') / 2  # should already be symmetric but just in case
-
-#         return Rydberg(UpperTriangular(triu!(V, 1)), Ω*ones(Ns), δ*ones(Ns), lat; epsilon=epsilon)
-#     else
-#         dist = lat.distance_matrix
-#     end
-
-#     @inbounds for i in 1:(Ns-1)
-#         for j in (i+1):Ns
-#             # a zero entry in distance_matrix means there should be no bond
-#             V[i, j] = dist[i, j] != 0.0 ? Ω * (R_b / dist[i, j])^6 : 0.0
-#         end
-#     end
-#     V = UpperTriangular(triu!(V, 1))
-
-#     return Rydberg(V, Ω*ones(Ns), δ*ones(Ns), lat; epsilon=epsilon)
-# end
-
-# function Rydberg(V::AbstractMatrix{T}, Ω::AbstractVector{T}, δ::AbstractVector{T}, lattice::Lattice; epsilon=zero(T)) where T
-#     ops, p, energy_shift = make_prob_vector(AbstractRydberg, V, Ω, δ, epsilon=epsilon)
-#     op_sampler = ImprovedOperatorSampler(AbstractLTFIM, ops, p)
-#     return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω), typeof(δ), typeof(lattice)}(op_sampler, V, Ω, δ, lattice, energy_shift)
-# end
 
 total_hx(H::Rydberg)::Float64 = sum(H.Ω) / 2
 haslongitudinalfield(H::AbstractRydberg) = !iszero(H.δ)

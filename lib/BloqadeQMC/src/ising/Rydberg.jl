@@ -30,7 +30,7 @@ nspins(H::Rydberg) = length(H.atoms)
 @inline diagonaloperator(H::AbstractRydberg) = diagonaloperator(typeof(H))
 
 
-function make_prob_vector(H::Type{<:AbstractRydberg}, V::Matrix{T}, Ω::AbstractVector{T}, δ::AbstractVector{T}; epsilon=0.0) where T
+function make_prob_vector(H::Type{<:AbstractRydberg}, V::AbstractMatrix{T}, Ω::AbstractVector{T}, δ::AbstractVector{T}; epsilon=0.0) where T
     @assert length(Ω) == length(δ) == size(V, 1) == size(V, 2)
     @assert (0.0 <= epsilon <= 1.0) "epsilon must be in the range [0, 1]!"
 

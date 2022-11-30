@@ -166,4 +166,13 @@ end
 total_hx(H::Rydberg)::Float64 = sum(H.Ω) / 2
 haslongitudinalfield(H::AbstractRydberg) = !iszero(H.δ)
 
+function rydberg_QMC(atoms::AtomList{1, Float64}; C = 2π * 862690, Ω::Float64, Δ::Float64)  # intended to mimic the rydberg_h interface 
+    # revisit the argument types & site-dependent parameters
+    Ns = length(atoms)
+    V = rydberg_interaction_matrix(atoms, C)
+    ops, p, energy_shift = make_prob_vector(AbstractRydberg, V, Ω*ones(Ns), Δ*ones(Ns), epsilon=0.0)
+    op_sampler = ImprovedOperatorSampler(AbstractLTFIM, ops, p)
+    return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω*ones(Ns)), typeof(Δ*ones(Ns)), typeof(atoms)}(op_sampler, V, Ω*ones(Ns), Δ*ones(Ns), atoms, energy_shift)
+end
+
 

@@ -59,7 +59,7 @@ end
 The schema representation of a task for the machine.
 
 Is the output of [`to_schema`](@ref) and [`to_schema_no_validation`](@ref)
-as well as input to `[execute(task::TaskSpecification)]`(@ref).
+as well as input to [`execute(task::TaskSpecification)`](@ref).
 
 # Fields
 - `nshots::Int`: Number of shots (number of times hamiltonian is executed)

@@ -201,7 +201,7 @@ exception to be thrown should any violations be caught. Refer to Logs/Warnings/E
 # Logs/Warnings/Exceptions
 
 If any violations of `device_capabilities` are detected, a `ValidationException` is thrown which wraps
-a `ValidationViolations` instance.
+a [`ValidationViolations`](@ref) instance.
 
 Violations include:
 
@@ -226,6 +226,9 @@ Violations include:
 * Slope exceeds largest supported slope
 ## ϕ Waveform specific constraints
 * start value is not equal to 0.0 rad⋅MHz
+## Miscellaneous Violations
+* Number of shots is below minimum supported
+* Number of shots exceeds maximum supported
 """
 to_schema(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_schema(h,SchemaTranslationParams(;kw...))
 

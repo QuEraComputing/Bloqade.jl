@@ -333,6 +333,30 @@ in the capabilities of what the machine can do via `device_capabilities`.
 Returns [`ValidationViolations`](@ref) with each field containing a set of strings indicating which
 constraints were violated for which part of `H`.
 
+Violations include:
+
+## Waveform Type
+* ϕ is not of type `PiecewiseConstantWaveform`
+* Ω and Δ are not of type `PiecewiseLinearWaveform`
+## Atom Position
+* Number of qubits requested exceeds what is supported by the device
+* Atom positions exceed position resolution suported by the device
+* The total width/height of the atom arrangement exceeds what is supported by the device
+* The radial spacing between atoms is smaller than what is supported by the device
+## General Waveform Constraints (apply to Ω, Δ, ϕ)
+* duration exceeds device supported duration
+* duration is smaller than device supported minimum time step
+* smallest time step is smaller than supported smallest time step
+* value is smaller than smallest supported value
+* value is larger than largest supported value
+## Ω Waveform specific constraints
+* Slope exceeds largest supported slope
+* Start and end values are not equal to 0.0 rad⋅MHz
+## Δ Waveform specific constraints
+* Slope exceeds largest supported slope
+## ϕ Waveform specific constraints
+* start value is not equal to 0.0 rad⋅MHz
+
 # Logs/Warnings/Exceptions
 
 The following exceptions can be thrown:

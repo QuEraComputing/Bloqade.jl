@@ -51,7 +51,7 @@ JSON file or using the default JSON provided in "lib/BloqadeSchema/config/capabi
 
 By default, the units for capabilities JSON file are specified by the 
 "lib/BloqadeSchema/config/capabilities-qpu1-mock-units.json" file this function
-gives a `DeviceCapabilities` struct with *non-SI base* (ex: μm, μs) units.
+gives a `DeviceCapabilities` struct with *non-SI base* (e.g. μm, μs) units.
 
 See also [`get_device_capabilities_SI`](@ref)
 
@@ -109,7 +109,7 @@ end
 
 Returns a named tuple containing values from the `RydbergCapabilities` field in `DeviceCapabilities`
 designed to be used by [`validate`](@ref). Remaps fields in the structs to easier to access names:
-(ex: `DeviceCapabilities.rydberg.global_value.time_delta_min` is now accessible as
+(e.g.: `DeviceCapabilities.rydberg.global_value.time_delta_min` is now accessible as
 `Ω.min_time_step`).
 """
 function get_rydberg_capabilities(;device_capabilities::DeviceCapabilities=get_device_capabilities())

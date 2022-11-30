@@ -271,7 +271,7 @@ end
     hardware_transform_Ω(Ω,device_capabilities::DeviceCapabilities=get_device_capabilities())
 
 Given the `device_capabilities` of the machine and a Rabi frequency (Ω) [`Waveform`](@ref),
-returned a transformed Ω capable of being implemented by the machine along with
+return a transformed Ω capable of being implemented by the machine along with
 the error between the original (``A``) and transformed (``B``)
 waveforms calculated as ``\\Vert A - B\\Vert_1``. If the waveform durations are different,
 the shorter waveform is padded with zeros for values to make the durations equal in error calculation.
@@ -280,7 +280,7 @@ the shorter waveform is padded with zeros for values to make the durations equal
 
 Exceptions are thrown if Ω is:
 - Not of type [`BloqadWaveforms.Waveform`](@ref)
-- Not a global drive (ex: Vector of Waveforms, localized Ω is not supported)
+- Not a global drive (e.g.: Vector of Waveforms, localized Ω is not supported)
 - the maximum slope allowed for the waveform from `device_capabilities` is set to inifinity 
 - the minimum time step allowed for the waveform from `device_capabilities` is set to zero
 
@@ -336,7 +336,7 @@ end
     hardware_transform_ϕ(ϕ,device_capabilities::DeviceCapabilities=get_device_capabilities())
 
 Given the `device_capabilities` of the machine and a phase [`Waveform`](@ref),
-returned a transformed ϕ capable of being implemented by the machine along with
+return a transformed ϕ capable of being implemented by the machine along with
 the error between the original (``A``) and transformed (``B``)
 waveforms calculated as ``\\Vert A - B\\Vert_1``. If the waveform durations are different,
 the shorter waveform is padded with zeros for values to make the durations equal in error calculation.
@@ -345,7 +345,7 @@ the shorter waveform is padded with zeros for values to make the durations equal
 
 Exceptions are thrown if ϕ is:
 - Not of type [`BloqadWaveforms.Waveform`](@ref)
-- Not a global drive (ex: Vector of Waveforms, localized ϕ is not supported)
+- Not a global drive (e.g.: Vector of Waveforms, localized ϕ is not supported)
 - the maximum slope allowed for the waveform from `device_capabilities` is set to inifinity 
 - the minimum time step allowed for the waveform from `device_capabilities` is set to zero
 
@@ -405,7 +405,7 @@ end
     hardware_transform_Δ(Δ,device_capabilities::DeviceCapabilities=get_device_capabilities())
 
 Given the `device_capabilities` of the machine and a detuning waveform Δ,
-returned a transformed Δ capable of being implemented by the machine along with
+return a transformed Δ capable of being implemented by the machine along with
 the error between the original (``A``) and transformed (``B``)
 waveforms calculated as ``\\Vert A - B\\Vert_1``. If the waveform durations are different,
 the shorter waveform is padded with zeros for values to make the durations equal in error calculation.
@@ -414,7 +414,7 @@ the shorter waveform is padded with zeros for values to make the durations equal
 
 Exceptions are thrown if Δ is:
 - Not of type [`BloqadWaveforms.Waveform`](@ref)
-- Not a global drive (ex: Vector of Waveforms, localized Δ is not supported)
+- Not a global drive (e.g. Vector of Waveforms, localized Δ is not supported)
 - the maximum slope allowed for the waveform from `device_capabilities` is set to inifinity 
 - the minimum time step allowed for the waveform from `device_capabilities` is set to zero
 

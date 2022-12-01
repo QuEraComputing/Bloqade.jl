@@ -1,5 +1,6 @@
 using Base.Iterators
 using BloqadeLattices: rydberg_interaction_matrix, AtomList
+using BloqadeExpr: RydbergHamiltonian, get_rydberg_params, is_time_function
 
 abstract type AbstractRydberg{O <: AbstractOperatorSampler} <: AbstractLTFIM{O} end
 
@@ -73,13 +74,35 @@ end
 total_hx(H::Rydberg)::Float64 = sum(H.Ω) / 2
 haslongitudinalfield(H::AbstractRydberg) = !iszero(H.δ)
 
-function rydberg_QMC(atoms::AtomList{1, Float64}; C = 2π * 862690, Ω::Float64, Δ::Float64)  # intended to mimic the rydberg_h interface 
-    # revisit the argument types & site-dependent parameters
-    Ns = length(atoms)
-    V = rydberg_interaction_matrix(atoms, C)
-    ops, p, energy_shift = make_prob_vector(AbstractRydberg, V, Ω*ones(Ns), Δ*ones(Ns), epsilon=0.0)
-    op_sampler = ImprovedOperatorSampler(AbstractLTFIM, ops, p)
-    return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω*ones(Ns)), typeof(Δ*ones(Ns)), typeof(atoms)}(op_sampler, V, Ω*ones(Ns), Δ*ones(Ns), atoms, energy_shift)
+function _make_vector(param::Real, Ns::Int64)
+    return param*ones(Ns)
 end
 
+function _make_vector(param::AbstractVector, Ns::Int64)
+    return param
+end
+
+
+function rydberg_QMC(h::RydbergHamiltonian) 
+    atoms,ϕ,Ω,Δ = get_rydberg_params(h)
+
+    if !isnothing(ϕ)
+        error("SSE QMC currently does not support a non-zero laser phase ϕ")
+    end
+
+    if is_time_function(Ω) || is_time_function(Δ)
+        error("SSE QMC currently does not support time-dependent waveforms")
+    end
+
+    Ns = length(atoms)
+    C = 2π * 862690
+    V = rydberg_interaction_matrix(atoms, C)
+
+    Ω_N = _make_vector(Ω,Ns)
+    Δ_N = _make_vector(Δ ,Ns)
+
+    ops, p, energy_shift = make_prob_vector(AbstractRydberg, V, Ω_N, Δ_N, epsilon=0.0)
+    op_sampler = ImprovedOperatorSampler(AbstractLTFIM, ops, p)
+    return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω*ones(Ns)), typeof(Δ*ones(Ns)), typeof(atoms)}(op_sampler, V, Ω_N, Δ_N, atoms, energy_shift)
+end
 

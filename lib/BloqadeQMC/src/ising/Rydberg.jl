@@ -72,12 +72,12 @@ end
 total_hx(H::Rydberg)::Float64 = sum(H.Ω) / 2
 haslongitudinalfield(H::AbstractRydberg) = !iszero(H.δ)
 
-function _make_vector(param::Real, Ns::Int)
-    return param*ones(Ns)
-end
-
 function _make_vector(param::AbstractVector, Ns::Int)
     return param
+end
+
+function _make_vector(param::Real, Ns::Int)
+    return param*ones(Ns)
 end
 
 
@@ -97,10 +97,9 @@ function rydberg_QMC(h::RydbergHamiltonian)
     V = rydberg_interaction_matrix(atoms, C)
 
     Ω_N = _make_vector(Ω,Ns)
-    Δ_N = _make_vector(Δ ,Ns)
+    Δ_N = _make_vector(Δ,Ns)
 
     ops, p, energy_shift = make_prob_vector(AbstractRydberg, V, Ω_N, Δ_N, epsilon=0.0)
     op_sampler = ImprovedOperatorSampler(AbstractLTFIM, ops, p)
-    return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω), typeof(Δ), typeof(atoms)}(op_sampler, V, Ω_N, Δ_N, atoms, energy_shift)
+    return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω_N), typeof(Δ_N), typeof(atoms)}(op_sampler, V, Ω_N, Δ_N, atoms, energy_shift)
 end
-

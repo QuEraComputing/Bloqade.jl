@@ -103,6 +103,6 @@ function rydberg_QMC(h::RydbergHamiltonian)
 
     ops, p, energy_shift = make_prob_vector(AbstractRydberg, V, Ω_N, Δ_N, epsilon=0.0)
     op_sampler = ImprovedOperatorSampler(AbstractLTFIM, ops, p)
-    return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω*ones(Ns)), typeof(Δ*ones(Ns)), typeof(atoms)}(op_sampler, V, Ω_N, Δ_N, atoms, energy_shift)
+    return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω), typeof(Δ), typeof(atoms)}(op_sampler, V, Ω_N, Δ_N, atoms, energy_shift)
 end
 

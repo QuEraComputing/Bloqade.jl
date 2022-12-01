@@ -54,7 +54,6 @@ THRESHOLD_χ = 43.77             # threshold for χ² test with 30 DOF and p=0.0
     χ_squared = 0
 
     for ii in 1:Δ_step
-        @show ii
         h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
         H = rydberg_QMC(h_ii)
         ts = BinaryThermalState(H, M)
@@ -77,14 +76,11 @@ THRESHOLD_χ = 43.77             # threshold for χ² test with 30 DOF and p=0.0
         append!(energy_QMC_β1, energy_binned)
 
         χ_squared += abs2(value(energy_QMC_β1[ii]) - energy_ED[1, ii]) / abs2(uncertainty(energy_QMC_β1[ii]))
-        @show χ_squared
+        χ_squared
         # @test abs(stdscore(energy_QMC_β1[ii], energy_ED[1,ii])) < THRESHOLD_t       t-test for testing each QMC run individually
     end
 
     @test χ_squared < THRESHOLD_χ
-
-    # scatter(Δ/2π, value.(energy_QMC_β1); yerror=uncertainty.(energy_QMC_β1), marker=:x)
-    # scatter!(Δ/2π, energy_ED[1,:], marker=:x)
 end
 
 
@@ -101,7 +97,6 @@ end
     χ_squared = 0
 
     for ii in 1:Δ_step
-        @show ii
         h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
         H = rydberg_QMC(h_ii)
         ts = BinaryThermalState(H, M)
@@ -122,16 +117,12 @@ end
         ratio = 2 * τ_energy + 1
         energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
         append!(energy_QMC_β2, energy_binned)
-        println()
         #append!(energy_QMC_β2, mean_and_stderr(x -> -x/β, ns) + H.energy_shift)
 
-        @show χ_squared += abs2(value(energy_QMC_β2[ii]) - energy_ED[2, ii]) / abs2(uncertainty(energy_QMC_β2[ii]))
+        χ_squared += abs2(value(energy_QMC_β2[ii]) - energy_ED[2, ii]) / abs2(uncertainty(energy_QMC_β2[ii]))
         # @test abs(stdscore(energy_QMC_β2[ii], energy_ED[2,ii])) < THRESHOLD_t
     end
     @test χ_squared < THRESHOLD_χ
-
-    # scatter(Δ/2π, value.(energy_QMC_β2); yerror=uncertainty.(energy_QMC_β2), marker=:x)
-    # scatter!(Δ/2π, energy_ED[2,:], marker=:x)
 end
 
 @testset "1D Chain (9 atoms), β=0.5" begin
@@ -147,7 +138,6 @@ end
     χ_squared = 0
 
     for ii in 1:Δ_step
-        @show ii
         h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
         H = rydberg_QMC(h_ii)
         ts = BinaryThermalState(H, M)
@@ -165,19 +155,16 @@ end
         energy(x) = -x / β + H.energy_shift
         BE = LogBinner(energy.(ns))
         τ_energy = tau(BE)
-        @show τ_energy
+        τ_energy
         ratio = 2 * τ_energy + 1
-        @show energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
+        energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
         append!(energy_QMC_β3, energy_binned)
         println()
         #append!(energy_QMC_β3, mean_and_stderr(x -> -x/β, ns) + H.energy_shift)
 
-        @show χ_squared += abs2(value(energy_QMC_β3[ii]) - energy_ED[3, ii]) / abs2(uncertainty(energy_QMC_β3[ii]))
+        χ_squared += abs2(value(energy_QMC_β3[ii]) - energy_ED[3, ii]) / abs2(uncertainty(energy_QMC_β3[ii]))
         # @test abs(stdscore(energy_QMC_β3[ii], energy_ED[2,ii])) < THRESHOLD_t
     end
     @test χ_squared < THRESHOLD_χ
-
-    # scatter(Δ/2π, value.(energy_QMC_β3); yerror=uncertainty.(energy_QMC_β3), marker=:x)
-    # scatter!(Δ/2π, energy_ED[3,:], marker=:x)
 end
 

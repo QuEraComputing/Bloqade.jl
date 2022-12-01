@@ -5,12 +5,14 @@ using RandomNumbers
 using Measurements
 using Measurements: value, uncertainty
 using BloqadeLattices: generate_sites, ChainLattice
-using BloqadeQMC: Chain, Square, rydberg_QMC
-using BloqadeQMC
+using BloqadeQMC: rydberg_QMC, BinaryThermalState, Diagnostics, mc_step_beta!
+# using BloqadeQMC
 using BloqadeExpr: rydberg_h 
 using Yao: mat, ArrayReg
 using LinearAlgebra
 using BinningAnalysis
+
+using Plots
 
 # Generate ED values - do we want the ED to run every time? Or do we want to pre-calculate and store the values in a dict?
 
@@ -55,7 +57,8 @@ THRESHOLD_χ = 43.77             # threshold for χ² test with 30 DOF and p=0.0
 
     for ii in 1:Δ_step
         @show ii
-        H = rydberg_QMC(atoms, Ω=Ω, Δ=Δ[ii])
+        h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
+        H = rydberg_QMC(h_ii)
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
@@ -81,6 +84,9 @@ THRESHOLD_χ = 43.77             # threshold for χ² test with 30 DOF and p=0.0
     end
 
     @test χ_squared < THRESHOLD_χ
+
+    scatter(Δ/2π, value.(energy_QMC_β1); yerror=uncertainty.(energy_QMC_β1), marker=:x)
+    scatter!(Δ/2π, energy_ED[1,:], marker=:x)
 end
 
 
@@ -98,7 +104,8 @@ end
 
     for ii in 1:Δ_step
         @show ii
-        H = rydberg_QMC(atoms, Ω=Ω, Δ=Δ[ii])
+        h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
+        H = rydberg_QMC(h_ii)
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
@@ -124,6 +131,9 @@ end
         # @test abs(stdscore(energy_QMC_β2[ii], energy_ED[2,ii])) < THRESHOLD_t
     end
     @test χ_squared < THRESHOLD_χ
+
+    scatter(Δ/2π, value.(energy_QMC_β2); yerror=uncertainty.(energy_QMC_β2), marker=:x)
+    scatter!(Δ/2π, energy_ED[2,:], marker=:x)
 end
 
 @testset "1D Chain (9 atoms), β=0.5" begin
@@ -140,7 +150,8 @@ end
 
     for ii in 1:Δ_step
         @show ii
-        H = rydberg_QMC(atoms, Ω=Ω, Δ=Δ[ii])
+        h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
+        H = rydberg_QMC(h_ii)
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
@@ -167,4 +178,7 @@ end
         # @test abs(stdscore(energy_QMC_β3[ii], energy_ED[2,ii])) < THRESHOLD_t
     end
     @test χ_squared < THRESHOLD_χ
+
+    scatter(Δ/2π, value.(energy_QMC_β3); yerror=uncertainty.(energy_QMC_β3), marker=:x)
+    scatter!(Δ/2π, energy_ED[3,:], marker=:x)
 end

@@ -18,6 +18,9 @@ using LinearAlgebra
 
 using Random
 
+using BloqadeLattices: rydberg_interaction_matrix, AtomList
+using BloqadeExpr: RydbergHamiltonian, get_rydberg_params, is_time_function
+
 import Base: zero, one, convert
 import Base: length, size, eltype, setindex!, getindex, firstindex, lastindex
 import Base: rand, show, pop!, push!, append!, isempty, empty!, count

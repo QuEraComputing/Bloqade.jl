@@ -1,6 +1,4 @@
 using Base.Iterators
-using BloqadeLattices: rydberg_interaction_matrix, AtomList
-using BloqadeExpr: RydbergHamiltonian, get_rydberg_params, is_time_function
 
 abstract type AbstractRydberg{O <: AbstractOperatorSampler} <: AbstractLTFIM{O} end
 
@@ -74,11 +72,11 @@ end
 total_hx(H::Rydberg)::Float64 = sum(H.Ω) / 2
 haslongitudinalfield(H::AbstractRydberg) = !iszero(H.δ)
 
-function _make_vector(param::Real, Ns::Int64)
+function _make_vector(param::Real, Ns::Int)
     return param*ones(Ns)
 end
 
-function _make_vector(param::AbstractVector, Ns::Int64)
+function _make_vector(param::AbstractVector, Ns::Int)
     return param
 end
 
@@ -95,7 +93,7 @@ function rydberg_QMC(h::RydbergHamiltonian)
     end
 
     Ns = length(atoms)
-    C = 2π * 862690
+    C = h.rydberg_term.C
     V = rydberg_interaction_matrix(atoms, C)
 
     Ω_N = _make_vector(Ω,Ns)

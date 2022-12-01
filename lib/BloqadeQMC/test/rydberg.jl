@@ -12,8 +12,6 @@ using Yao: mat, ArrayReg
 using LinearAlgebra
 using BinningAnalysis
 
-using Plots
-
 # Generate ED values - do we want the ED to run every time? Or do we want to pre-calculate and store the values in a dict?
 
 βs = [0.005, 0.05, 0.5]
@@ -85,8 +83,8 @@ THRESHOLD_χ = 43.77             # threshold for χ² test with 30 DOF and p=0.0
 
     @test χ_squared < THRESHOLD_χ
 
-    scatter(Δ/2π, value.(energy_QMC_β1); yerror=uncertainty.(energy_QMC_β1), marker=:x)
-    scatter!(Δ/2π, energy_ED[1,:], marker=:x)
+    # scatter(Δ/2π, value.(energy_QMC_β1); yerror=uncertainty.(energy_QMC_β1), marker=:x)
+    # scatter!(Δ/2π, energy_ED[1,:], marker=:x)
 end
 
 
@@ -132,8 +130,8 @@ end
     end
     @test χ_squared < THRESHOLD_χ
 
-    scatter(Δ/2π, value.(energy_QMC_β2); yerror=uncertainty.(energy_QMC_β2), marker=:x)
-    scatter!(Δ/2π, energy_ED[2,:], marker=:x)
+    # scatter(Δ/2π, value.(energy_QMC_β2); yerror=uncertainty.(energy_QMC_β2), marker=:x)
+    # scatter!(Δ/2π, energy_ED[2,:], marker=:x)
 end
 
 @testset "1D Chain (9 atoms), β=0.5" begin
@@ -179,6 +177,10 @@ end
     end
     @test χ_squared < THRESHOLD_χ
 
-    scatter(Δ/2π, value.(energy_QMC_β3); yerror=uncertainty.(energy_QMC_β3), marker=:x)
-    scatter!(Δ/2π, energy_ED[3,:], marker=:x)
+    # scatter(Δ/2π, value.(energy_QMC_β3); yerror=uncertainty.(energy_QMC_β3), marker=:x)
+    # scatter!(Δ/2π, energy_ED[3,:], marker=:x)
+end
+
+@testset "1D Chain with site-dependent parameters" begin
+    
 end

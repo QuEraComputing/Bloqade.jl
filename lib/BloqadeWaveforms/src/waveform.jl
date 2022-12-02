@@ -218,9 +218,9 @@ function append(wf::Waveform, wfs::Waveform...)
 end
 
 function assert_clocks(clocks)
-    issorted(clocks) || throw(ArgumentError("expect clocks to be sorted"))
-    all(≥(0), clocks) || throw(ArgumentError("clocks must be non-nagative values"))
-    iszero(first(clocks)) || throw(ArgumentError("the starting clock must be zero"))
+    issorted(clocks) || throw(ArgumentError("clocks must be sorted"))
+    all(≥(0), clocks) || throw(ArgumentError("clocks must be non-negative values"))
+    iszero(first(clocks)) || throw(ArgumentError("the starting clock value must be zero"))
     return
 end
 
@@ -234,7 +234,7 @@ struct PiecewiseLinear{T<:Real,Interp}
 
     function PiecewiseLinear(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
-        length(clocks) == length(values) || throw(ArgumentError("expect clocks has the same length as values"))
+        length(clocks) == length(values) || throw(ArgumentError("clocks must have the same length as values"))
         T = promote_type(eltype(clocks), eltype(values))
         clocks = Vector{T}(clocks); values = Vector{T}(values);
         interp = LinearInterpolation(clocks, values)
@@ -258,7 +258,7 @@ struct PiecewiseConstant{T<:Real}
 
     function PiecewiseConstant(clocks::Vector{<:Real}, values::Vector{<:Real})
         assert_clocks(clocks)
-        length(clocks) == length(values) + 1 || throw(ArgumentError("expect clocks has one more element than values"))
+        length(clocks) == length(values) + 1 || throw(ArgumentError("clocks must have one more element than values"))
         T = promote_type(eltype(values), eltype(clocks))
         return new{T}(clocks, values)
     end
@@ -315,7 +315,7 @@ julia> piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=[0.0, 2.0, 2.0, 0.0]
 
 """
 function piecewise_linear(; clocks::Vector, values::Vector)
-    iszero(first(clocks)) || throw(ArgumentError("the first clock time should be zero"))
+    iszero(first(clocks)) || throw(ArgumentError("the first clock element should be zero"))
     return Waveform(PiecewiseLinear(clocks, values), last(clocks))
 end
 

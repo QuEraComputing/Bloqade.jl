@@ -1,10 +1,11 @@
 using Base.Iterators
+using BloqadeLattices: rydberg_interaction_matrix
 
 abstract type AbstractRydberg{O <: AbstractOperatorSampler} <: AbstractLTFIM{O} end
 
 struct Rydberg{O,M <: AbstractMatrix{Float64},UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}, A} <: AbstractRydberg{O}
     op_sampler::O
-    V::M
+    V::M            # interaction matrix
     Ω::UΩ
     δ::Uδ
     atoms::A

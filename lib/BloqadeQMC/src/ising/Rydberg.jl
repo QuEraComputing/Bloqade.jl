@@ -1,14 +1,14 @@
 using Base.Iterators
-using BloqadeLattices: rydberg_interaction_matrix
+using BloqadeLattices: rydberg_interaction_matrix, BoundedLattice
 
 abstract type AbstractRydberg{O <: AbstractOperatorSampler} <: AbstractLTFIM{O} end
 
-struct Rydberg{O,M <: AbstractMatrix{Float64},UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}, A} <: AbstractRydberg{O}
-    op_sampler::O
-    V::M            # interaction matrix
-    Ω::UΩ
-    δ::Uδ
-    atoms::A
+struct Rydberg <: AbstractRydberg{AbstractOperatorSampler}
+    op_sampler
+    V::AbstractMatrix{Float64}           # interaction matrix
+    Ω::AbstractVector{Float64}
+    δ::AbstractVector{Float64}
+    atoms::Union{Vector,BoundedLattice}
     energy_shift::Float64
 end
 

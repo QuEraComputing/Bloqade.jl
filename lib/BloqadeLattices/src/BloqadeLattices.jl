@@ -7,6 +7,7 @@ using StatsBase
 using LuxorGraphPlot
 using LuxorGraphPlot: Point
 using LuxorGraphPlot.Luxor: Colors
+using LinearAlgebra
 
 export # types
     AbstractLattice,

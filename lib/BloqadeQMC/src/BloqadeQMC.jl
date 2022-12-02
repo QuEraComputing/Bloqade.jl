@@ -44,6 +44,8 @@ export AbstractRunStats, NoStats, RunStats, RunStatsHistogram, Diagnostics
 export NoTransitionMatrix, TransitionMatrix, PositionDependentTransitionMatrix, CombinedTransitionMatrix
 export ProductState, PlusState, AbstractProductState, AbstractTrialState
 
+export rydberg_qmc
+
 @inline function pop!(v::PushVector)
     @boundscheck isempty(v) && throw(ArgumentError("vector must be non-empty"))
     x = @inbounds v.parent[v.len]

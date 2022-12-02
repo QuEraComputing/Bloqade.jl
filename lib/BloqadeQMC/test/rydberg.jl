@@ -5,8 +5,8 @@ using RandomNumbers
 using Measurements
 using Measurements: value, uncertainty
 using BloqadeLattices: generate_sites, ChainLattice
-using BloqadeQMC: rydberg_QMC, BinaryThermalState, Diagnostics, mc_step_beta!
-using BloqadeQMC
+using BloqadeQMC: rydberg_qmc, BinaryThermalState, Diagnostics, mc_step_beta!
+# using BloqadeQMC
 using BloqadeExpr: rydberg_h 
 using Yao: mat, ArrayReg
 using LinearAlgebra
@@ -54,8 +54,9 @@ THRESHOLD_χ = 18.25             # threshold for χ² test with 15 DOF and p=0.0
     χ_squared = 0
 
     for ii in 1:Δ_step
+        ii = 1
         h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
-        H = rydberg_QMC(h_ii)
+        H = rydberg_qmc(h_ii)
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
@@ -97,7 +98,7 @@ end
 
     for ii in 1:Δ_step
         h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
-        H = rydberg_QMC(h_ii)
+        H = rydberg_qmc(h_ii)
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
@@ -138,7 +139,7 @@ end
 
     for ii in 1:Δ_step
         h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
-        H = rydberg_QMC(h_ii)
+        H = rydberg_qmc(h_ii)
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     

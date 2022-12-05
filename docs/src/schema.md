@@ -2,17 +2,20 @@
 
 Bloqade contains its own schema used to represent Hamiltonians in an IR (Intermediate Representation) that can then be executed via simulator or converted to and from other formats. Furthermore, tools such as [`hardware_transform`](@ref) and [`validate`](@ref) are available to check that user-defined Hamiltonians are capable of being executed on hardware and if not, transform them to be able to do so.
 
+!!! warning "3-Level Support"
+    The schema and conversion functionalities are currently not available for 3-level Hamiltonians
+
 ## Transforming Hamiltonians
 
 We start with creating a hamiltonian:
 
 ```@repl schema_example
 using Bloqade, BloqadeSchema
-Δ = constant(;duration=1.1, value=1.2*2π); # create detuning waveform
-Ω = linear_ramp(duration=1.1, start_value=0.0, stop_value=2π*1.0); # create Rabi frequency waveform
-ϕ = Waveform(t->2.2*2π*sin(t)^2, duration=1.1); # create phase waveform
-atoms = generate_sites(ChainLattice(), 4, scale=1.0); # provide lattice geometry
-h = rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ) # put it all together to create a hamiltonian
+Δ = constant(;duration=1.1, value=1.2*2π); 
+Ω = linear_ramp(duration=1.1, start_value=0.0, stop_value=2π*1.0); 
+ϕ = Waveform(t->2.2*2π*sin(t)^2, duration=1.1);
+atoms = generate_sites(ChainLattice(), 4, scale=1.0);
+h = rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
 ```
 
 To transform the Hamiltonian into something the hardware is capable of supporting, we can pass it through [`hardware_transform`](@ref).
@@ -24,7 +27,7 @@ To transform the Hamiltonian into something the hardware is capable of supportin
 transformed_h, transform_info = hardware_transform(h);
 transformed_h
 transform_info
-dump(transform_info) # the returned HardwareTransformInfo has fields containing corresponding transformation information
+dump(transform_info)
 ```
 
 ## Validating Hamiltonians
@@ -38,7 +41,7 @@ validate(transformed_h)
 In this case, the waveforms have been successfully transformed but there are still some issues with the atom positions. We can rescale their positions, regenerate the Hamiltonian and validate again to make sure the changes are correct.
 
 ```@repl schema_example
-atoms = generate_sites(ChainLattice(), 4, scale=4.0); # provide REVISED lattice geometry
+atoms = generate_sites(ChainLattice(), 4, scale=4.0);
 fixed_h = rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ) # Keep older waveforms with new atom geometry
 transformed_h, _ = hardware_transform(fixed_h)
 validate(transformed_h)
@@ -55,7 +58,7 @@ You can convert the Hamiltonian to and from:
 to store the Hamiltonian for other applications.
 
 !!! note "Internal Validation"
-    By Default, all conversion functions invoke [`validate`](@ref) internally to ensure the Hamiltonian is capable of being run on hardware. If a violation is detected, the Hamiltonian is not converted. For JSON and Schema representations, this can be bypassed by invoking the "no validation" variants [`to_schema_no_validation`](@ref) and [`to_json_no_validation`](@ref) respectively. This bypass ability is not available for dictionary representation.
+    By default, all conversion functions invoke [`validate`](@ref) internally to ensure the Hamiltonian is capable of being run on hardware. If a violation is detected, the Hamiltonian is not converted. For JSON and Schema representations, this can be bypassed by invoking the "no validation" variants [`to_schema_no_validation`](@ref) and [`to_json_no_validation`](@ref) respectively. This bypass ability is not available for dictionary representation.
 
 ### Schema
 
@@ -68,7 +71,7 @@ from_schema(h_schema) # to convert back to Hamiltonian
 ```
 
 ### JSON
-[`to_json`] allows you to convert a Hamiltonian to a JSON Object along with an optional
+[`to_json`](@ref) allows you to convert a Hamiltonian to a JSON Object along with an optional
 [`SchemaTranslationParams`](@ref) argument to specify the number of shots and device capabilities for validation.
 ```@repl schema_example
 h_json = to_json(transformed_h)

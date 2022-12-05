@@ -4,7 +4,18 @@ using JSON
 const PiecewiseLinearWaveform = Waveform{BloqadeWaveforms.PiecewiseLinear{T,I},T} where {T<:Real,I}
 const PiecewiseConstantWaveform = Waveform{BloqadeWaveforms.PiecewiseConstant{T},T} where {T<:Real}
 
+"""
+    struct SchemaTranslationParams
 
+Used to specify number of times a Hamiltonian should be executed and the capabilities of the machine the Hamiltonian
+will be executed on as an argument to functions that convert Hamiltonians to other formats.
+
+See also [`to_schema`](@ref), [`to_dict`](@ref), [`to_json`](@ref)
+
+# Fields
+- `nshots::Int = 1`:  The number of times a Hamiltonian should be executed
+- `device_capabilities::DeviceCapabilities = get_device_capabilities()`: capabilities of the machine the Hamiltonian will be executed on
+"""
 @option struct SchemaTranslationParams <: QuEraSchema
     n_shots::Int = 1
     device_capabilities::DeviceCapabilities = get_device_capabilities()
@@ -14,7 +25,7 @@ end
     struct HardwareTransformInfo <: QuEraSchema
 
 Contains the calculated differences (error) betwen the original and transformed waveforms and atoms from
-invoking [`transform`](@ref) on a [`BloqadeExpr.RydbergHamiltonian`](@ref).
+invoking [`hardware_transform`](@ref) on a [`BloqadeExpr.RydbergHamiltonian`](@ref).
 
 # Fields
 - `ϕ_error`: Error between the original laser phase waveform (``A``) and transformed one (``B``) waveforms calculated as ``\\Vert A - B\\Vert_1``. 

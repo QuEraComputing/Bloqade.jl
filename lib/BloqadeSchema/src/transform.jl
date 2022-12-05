@@ -4,7 +4,7 @@
 # end with 0. This is useful when the user passes
 # in a duration that doesn't neatly fit into the
 # time resolution of the device. In which case 
-# this is reqiured to check the error.
+# this is required to check the error.
 function norm_diff_durations(A::Waveform,B::Waveform)
     A.duration==B.duration && return norm(A-B)
 
@@ -281,14 +281,14 @@ the shorter waveform is padded with zeros for values to make the durations equal
 Exceptions are thrown if Ω is:
 - Not of type [`BloqadWaveforms.Waveform`](@ref)
 - Not a global drive (e.g.: Vector of Waveforms, localized Ω is not supported)
-- the maximum slope allowed for the waveform from `device_capabilities` is set to inifinity 
+- the maximum slope allowed for the waveform from `device_capabilities` is set to infinity 
 - the minimum time step allowed for the waveform from `device_capabilities` is set to zero
 
 
 Debug logs are issued if the following are encountered in Ω:
 - duration may be rounded due to time resolution from `device_capabilities`
 - the initial waveform does not start/end in zero for its value
-- the values in the waveform exceed `device_capabiliites` supported values, and must be clipped 
+- the values in the waveform exceed `device_capabilities` supported values, and must be clipped 
 
 # Examples
 ```jldoctest; setup:=(using BloqadeWaveforms)
@@ -346,7 +346,7 @@ the shorter waveform is padded with zeros for values to make the durations equal
 Exceptions are thrown if ϕ is:
 - Not of type [`BloqadWaveforms.Waveform`](@ref)
 - Not a global drive (e.g.: Vector of Waveforms, localized ϕ is not supported)
-- the maximum slope allowed for the waveform from `device_capabilities` is set to inifinity 
+- the maximum slope allowed for the waveform from `device_capabilities` is set to infinity 
 - the minimum time step allowed for the waveform from `device_capabilities` is set to zero
 
 
@@ -415,7 +415,7 @@ the shorter waveform is padded with zeros for values to make the durations equal
 Exceptions are thrown if Δ is:
 - Not of type [`BloqadWaveforms.Waveform`](@ref)
 - Not a global drive (e.g. Vector of Waveforms, localized Δ is not supported)
-- the maximum slope allowed for the waveform from `device_capabilities` is set to inifinity 
+- the maximum slope allowed for the waveform from `device_capabilities` is set to infinity 
 - the minimum time step allowed for the waveform from `device_capabilities` is set to zero
 
 

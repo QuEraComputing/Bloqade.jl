@@ -340,7 +340,7 @@ Violations include:
 * Ω and Δ are not of type `PiecewiseLinearWaveform`
 ## Atom Position
 * Number of qubits requested exceeds what is supported by the device
-* Atom positions exceed position resolution suported by the device
+* Atom positions exceed position resolution supported by the device
 * The total width/height of the atom arrangement exceeds what is supported by the device
 * The radial spacing between atoms is smaller than what is supported by the device
 ## General Waveform Constraints (apply to Ω, Δ, ϕ)
@@ -372,7 +372,7 @@ julia> h = rydberg_h(atom_positions; Ω=Ω,Δ=Δ,ϕ=ϕ)
 julia> transformed_h, _ = transform(h); # transform returns error info
 
 julia> validate(transformed_h) # constrained by default value of `device_capabilities` argument
-The following validation violations occured:
+The following validation violations occurred:
 
 1. positions 2 => (2.0, 0.0) and 3 => (3.0, 0.0) are a distance of 1.0 μm apart which is below minimum value of 4.0 μm
 2. positions 1 => (1.1, 0.0) and 2 => (2.0, 0.0) are a distance of 0.8999999999999999 μm apart which is below minimum value of 4.0 μm

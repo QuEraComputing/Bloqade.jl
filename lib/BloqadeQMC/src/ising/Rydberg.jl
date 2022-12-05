@@ -3,7 +3,7 @@ using BloqadeLattices: rydberg_interaction_matrix, BoundedLattice
 
 abstract type AbstractRydberg{O <: AbstractOperatorSampler} <: AbstractLTFIM{O} end
 
-struct Rydberg{O,M <: AbstractMatrix{Float64},UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}, A} <: AbstractRydberg{O}
+struct Rydberg{O,M <: UpperTriangular,UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}, A} <: AbstractRydberg{O}
     op_sampler::O
     V::M          # interaction matrix
     Ω::UΩ 
@@ -18,7 +18,7 @@ nspins(H::Rydberg) = length(H.atoms)
 @inline diagonaloperator(H::AbstractRydberg) = diagonaloperator(typeof(H))
 
 
-function make_prob_vector(H::Type{<:AbstractRydberg}, V::AbstractMatrix{T}, Ω::AbstractVector{T}, δ::AbstractVector{T}; epsilon=0.0) where T
+function make_prob_vector(H::Type{<:AbstractRydberg}, V::UpperTriangular, Ω::AbstractVector{T}, δ::AbstractVector{T}; epsilon=0.0) where T
     @assert length(Ω) == length(δ) == size(V, 1) == size(V, 2)
     @assert (0.0 <= epsilon <= 1.0) "epsilon must be in the range [0, 1]!"
 

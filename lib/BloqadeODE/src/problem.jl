@@ -92,7 +92,14 @@ function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=AutoVern9(R
     tspan_type = promote_type(real(eltype(state)), eltype(tspan))
     tspan = tspan_type.(tspan) # promote tspan to T so Dual number works
 
-    default_ode_options = (save_everystep = false, save_start = false, save_on = false, dense = false)
+    default_ode_options = (
+        save_everystep = false,
+        save_start = false,
+        save_on = false,
+        dense = false,
+        reltol=1e-8,
+        abstol=1e-8,
+    )
     kw = pairs(merge(default_ode_options, kw))
 
     return SchrodingerProblem{typeof(reg),typeof(ode_f),typeof(state),typeof(tspan),typeof(algo), typeof(kw)}(

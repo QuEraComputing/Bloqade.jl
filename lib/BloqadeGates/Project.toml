@@ -1,6 +1,6 @@
 name = "BloqadeGates"
 uuid = "9b473568-af80-491c-8f51-e251334462c1"
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"

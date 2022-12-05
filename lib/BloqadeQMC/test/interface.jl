@@ -1,7 +1,7 @@
 using Test
 using BloqadeLattices
 using BloqadeExpr
-using BloqadeQMC: make_prob_vector
+using BloqadeQMC: make_prob_vector, ImprovedOperatorSampler
 
 
 @testset "rydberg_qmc" begin

@@ -514,6 +514,11 @@ and an iterable containing the atom positions `atoms`, returns a Tuple containin
 atom positions the machine is capable of resolving and the mean squared error between the 
 desired atom positions and newly generated ones.
 
+Note that other constraints such as the maximum width, height, and minimum supported spacings
+are not taken into account in adjusting the atoms. This may result in the [`validation`](@ref) 
+function failing and requiring user intervention to modify the atom positions such that 
+they satisfy the other constraints.
+
 # Examples 
 ```jldoctest;
 julia> atom_positions = ((1.12,), (2.01,), (3.01,));

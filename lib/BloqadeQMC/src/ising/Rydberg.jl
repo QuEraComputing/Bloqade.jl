@@ -3,12 +3,12 @@ using BloqadeLattices: rydberg_interaction_matrix, BoundedLattice
 
 abstract type AbstractRydberg{O <: AbstractOperatorSampler} <: AbstractLTFIM{O} end
 
-struct Rydberg{O,M <: AbstractMatrix{Float64},UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}} <: AbstractRydberg{O}
+struct Rydberg{O,M <: AbstractMatrix{Float64},UΩ <: AbstractVector{Float64}, Uδ <: AbstractVector{Float64}, A} <: AbstractRydberg{O}
     op_sampler::O
     V::M          # interaction matrix
     Ω::UΩ 
     δ::Uδ
-    atoms           # hoping to include typing ::Union{Vector,BoundedLattice} during refactoring. This actually does break stuff!
+    atoms::A          # hoping to include typing ::Union{Vector,BoundedLattice} during refactoring. This actually does break stuff!
     energy_shift::Float64
 end
 
@@ -102,5 +102,5 @@ function rydberg_qmc(h::RydbergHamiltonian)
 
     ops, p, energy_shift = make_prob_vector(AbstractRydberg, V, Ω_N, Δ_N, epsilon=0.0)
     op_sampler = ImprovedOperatorSampler(AbstractLTFIM, ops, p)
-    return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω_N), typeof(Δ_N)}(op_sampler, V, Ω_N, Δ_N, atoms, energy_shift)
+    return Rydberg{typeof(op_sampler), typeof(V), typeof(Ω_N), typeof(Δ_N), typeof(atoms)}(op_sampler, V, Ω_N, Δ_N, atoms, energy_shift)
 end

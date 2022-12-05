@@ -5,6 +5,14 @@ const n = YaoBlocks.ConstGate.P1
 
 end
 
+process_atom_positions(atom_positions::BoundedLattice) = atom_positions
+
+function process_atom_positions(atom_positions) # catches other cases
+    return map(atom_positions) do pos
+        (pos...,)
+    end
+end
+
 """
     emulate!(prob)
 
@@ -79,9 +87,7 @@ function rydberg_h(atom_positions; C = 2π * 862690, Ω = nothing, ϕ = nothing,
 end
 
 function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
-    positions = map(atom_positions) do pos
-        return (pos...,)
-    end
+    positions = process_atom_positions(atom_positions)
 
     nsites = length(positions)
     rydberg_term = RydInteract(positions, C)
@@ -109,20 +115,23 @@ function rydberg_h(atom_positions, C, Ω, ϕ, Δ)
 end
 
 """
-    rydberg_h_3(atoms; [C=2π * 862690 * MHz*µm^6], 
+    rydberg_h_3(atoms; [C=2π * 862690 * MHz*µm^6, 
         Ω_hf = nothing, ϕ_hf = nothing, Δ_hf = nothing, 
-        Ω_r = nothing, ϕ_r = nothing, Δ_r = nothing)
+        Ω_r = nothing, ϕ_r = nothing, Δ_r = nothing])
 
 Create a 3-level Rydberg Hamiltonian
 
 ```math
-∑ \\frac{C}{|r_i - r_j|^6} n^r_i n^r_j + \\frac{Ω^{hf}}{2} σ^{hf}_x - Δ^{hf} n^{1} + \\frac{Ω^{r}}{2} σ^{r}_x - (Δ^{hf} + Δ^{r}) n^{r}
+\\sum_{i<j} \\frac{C}{|r_i - r_j|^6} n^r_i n^r_j + 
+\\sum_{i} \\left[\\frac{Ω^{\\mathrm{hf}}}{2} (e^{iϕ^\\mathrm{hf}}|0⟩⟨1| + e^{-iϕ^\\mathrm{hf}}|1⟩⟨0|) - Δ^{\\mathrm{hf}} n^{1}_i + 
+\\frac{Ω^{\\mathrm{r}}}{2} (e^{iϕ^\\mathrm{r}}|1⟩⟨r| + e^{-iϕ^\\mathrm{r}}|r⟩⟨1|) - (Δ^{\\mathrm{hf}} + Δ^{\\mathrm{r}}) n^{\\mathrm{r}}_i \\right]
 ```
 
 shorthand for
 
 ```julia
-RydInteract(C, atoms; nlevel = 2) + SumOfXPhase_01(length(atoms), Ω_hf/2, ϕ_hf) - SumOfN(length(atoms), Δ_hf) +
+RydInteract(C, atoms; nlevel = 3) + 
+    SumOfXPhase_01(length(atoms), Ω_hf/2, ϕ_hf) - SumOfN(length(atoms), Δ_hf) +
     SumOfXPhase_1r(length(atoms), Ω_r/2, ϕ_r) - SumOfN(length(atoms), Δ_r + Δ_hf)
 ```
 """
@@ -133,9 +142,7 @@ function rydberg_h_3(atom_positions;
 end
 
 function rydberg_h_3(atom_positions, C, Ω_hf, ϕ_hf, Δ_hf, Ω_r, ϕ_r, Δ_r)
-    positions = map(atom_positions) do pos
-        return (pos...,)
-    end
+    positions = process_atom_positions(atom_positions)
 
     nsites = length(positions)
     rydberg_term = RydInteract(positions, C; nlevel = 3)

@@ -170,7 +170,7 @@ Violations include:
 * Ω and Δ are not of type `PiecewiseLinearWaveform`
 ## Atom Position
 * Number of qubits requested exceeds what is supported by the device
-* Atom positions exceed position resolution suported by the device
+* Atom positions exceed position resolution supported by the device
 * The total width/height of the atom arrangement exceeds what is supported by the device
 * The radial spacing between atoms is smaller than what is supported by the device
 ## General Waveform Constraints (apply to Ω, Δ, ϕ)
@@ -233,7 +233,7 @@ Violations include:
 * Ω and Δ are not of type `PiecewiseLinearWaveform`
 ## Atom Position
 * Number of qubits requested exceeds what is supported by the device
-* Atom positions exceed position resolution suported by the device
+* Atom positions exceed position resolution supported by the device
 * The total width/height of the atom arrangement exceeds what is supported by the device
 * The radial spacing between atoms is smaller than what is supported by the device
 ## General Waveform Constraints (apply to Ω, Δ, ϕ)
@@ -278,7 +278,7 @@ Violations include:
 * Ω and Δ are not of type `PiecewiseLinearWaveform`
 ## Atom Position
 * Number of qubits requested exceeds what is supported by the device
-* Atom positions exceed position resolution suported by the device
+* Atom positions exceed position resolution supported by the device
 * The total width/height of the atom arrangement exceeds what is supported by the device
 * The radial spacing between atoms is smaller than what is supported by the device
 ## General Waveform Constraints (apply to Ω, Δ, ϕ)

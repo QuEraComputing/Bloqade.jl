@@ -10,11 +10,11 @@ See also [`rydberg_interaction_matrix`](@ref)
 julia> atoms = [(0.0,), (1.0,), (2.0,), (3.0,)]; # 1D chain, can also be AtomList
 
 julia> two_body_interaction_matrix(atoms) do x,y return 1/distance(x,y) end
-4×4 Matrix{Float64}:
+4×4 UpperTriangular{Float64, Matrix{Float64}}:
  0.0  1.0  0.5  0.333333
- 0.0  0.0  1.0  0.5
- 0.0  0.0  0.0  1.0
- 0.0  0.0  0.0  0.0
+  ⋅   0.0  1.0  0.5
+  ⋅    ⋅   0.0  1.0
+  ⋅    ⋅    ⋅   0.0
 ```
 """
 function two_body_interaction_matrix(f, atoms)
@@ -28,7 +28,7 @@ function two_body_interaction_matrix(f, atoms)
         end
     end
 
-    return mat
+    return UpperTriangular(mat)
 end 
 
 """
@@ -47,20 +47,20 @@ See also [`two_body_interaction_matrix`](@ref)
 julia> atoms = [(0.0,), (1.0,), (2.0,), (3.0,)]; # 1D chain of atoms
 
 julia> rydberg_interaction_matrix(atoms, 2π * 862690) # provide Rydberg constant
-4×4 Matrix{Float64}:
+4×4 UpperTriangular{Float64, Matrix{Float64}}:
  0.0  5.42044e6  84694.4         7435.45
- 0.0  0.0            5.42044e6  84694.4
- 0.0  0.0            0.0            5.42044e6
- 0.0  0.0            0.0            0.0
+  ⋅   0.0            5.42044e6  84694.4
+  ⋅    ⋅             0.0            5.42044e6
+  ⋅    ⋅              ⋅             0.0
 
 julia> bl = parallelepiped_region(SquareLattice(),(2,0),(0,2);pbc=true); 
 
 julia> rydberg_interaction_matrix(bl, 2π * 862690)
-4×4 Matrix{Float64}:
+4×4 UpperTriangular{Float64, Matrix{Float64}}:
  0.0  5.42044e6  5.42044e6  6.77555e5
- 0.0  0.0        6.77555e5  5.42044e6
- 0.0  0.0        0.0        5.42044e6
- 0.0  0.0        0.0        0.0
+  ⋅   0.0        6.77555e5  5.42044e6
+  ⋅    ⋅         0.0        5.42044e6
+  ⋅    ⋅          ⋅         0.0
 ```
 """
 function rydberg_interaction_matrix(atoms, C::Real)

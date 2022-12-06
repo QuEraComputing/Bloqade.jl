@@ -159,6 +159,10 @@ fig
 
 
 ```@docs
+Waveform
+Waveform(f; duration::Real)
+sample_values
+sample_clock
 piecewise_linear
 piecewise_constant
 linear_ramp
@@ -177,4 +181,7 @@ Kernels.triangle
 Kernels.tricube
 Kernels.triweight
 Kernels.uniform
+piecewise_linear_interpolate
+piecewise_constant_interpolate
+Bloqade.LinearAlgebra.norm
 ```

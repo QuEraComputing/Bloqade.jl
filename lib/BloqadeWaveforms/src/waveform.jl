@@ -1,5 +1,5 @@
 """
-    struct Waveform
+    struct Waveform{F,T<:Real}
 
 Type for waveforms. `Waveform`s are defined
 as a function combined with a real number
@@ -26,7 +26,11 @@ function Base.:(==)(lhs::Waveform, rhs::Waveform)
 end
 
 
+"""
+    function LinearAlgebra.norm(x::Waveform;p::Real=1)
 
+Defines the norm function on [`Waveform`](@ref) type.
+"""
 function LinearAlgebra.norm(x::Waveform;p::Real=1)
     if isfinite(p) # p-norm 
         kernel = t->abs.(x(t)) .^ p

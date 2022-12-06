@@ -28,7 +28,7 @@ using BloqadeQMC: make_prob_vector, ImprovedOperatorSampler
         @test H.V == V
         @test H.Ω == Ω_N
         @test H.δ == Δ_N
-        @test H.atoms == atoms
+        @test H.atoms == positions
         @test H.energy_shift == energy_shift
     end
 

@@ -173,6 +173,7 @@ Violations include:
 * Atom positions exceed position resolution supported by the device
 * The total width/height of the atom arrangement exceeds what is supported by the device
 * The radial spacing between atoms is smaller than what is supported by the device
+* The vertical row spacing between atoms is smaller than what is supported by the device
 ## General Waveform Constraints (apply to Ω, Δ, ϕ)
 * duration exceeds device supported duration
 * duration is smaller than device supported minimum time step
@@ -236,6 +237,7 @@ Violations include:
 * Atom positions exceed position resolution supported by the device
 * The total width/height of the atom arrangement exceeds what is supported by the device
 * The radial spacing between atoms is smaller than what is supported by the device
+* The vertical row spacing between atoms is smaller than what is supported by the device
 ## General Waveform Constraints (apply to Ω, Δ, ϕ)
 * duration exceeds device supported duration
 * duration is smaller than device supported minimum time step
@@ -280,6 +282,7 @@ Violations include:
 * Number of qubits requested exceeds what is supported by the device
 * Atom positions exceed position resolution supported by the device
 * The total width/height of the atom arrangement exceeds what is supported by the device
+* The vertical row spacing between atoms is smaller than what is supported by the device
 * The radial spacing between atoms is smaller than what is supported by the device
 ## General Waveform Constraints (apply to Ω, Δ, ϕ)
 * duration exceeds device supported duration

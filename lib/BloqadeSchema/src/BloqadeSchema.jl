@@ -13,7 +13,6 @@ using LinearAlgebra: svd
 
 export get_device_capabilities,
     get_device_capabilities_SI,
-    get_rydberg_capabilities,
     hardware_transform_Ω,
     hardware_transform_ϕ,
     hardware_transform_Δ,

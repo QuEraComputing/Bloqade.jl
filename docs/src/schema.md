@@ -1,11 +1,11 @@
-# Schema
+# Interacting with Neutral Atom Hardware
 
 Bloqade contains its own schema used to represent Hamiltonians in an IR (Intermediate Representation) that can then be executed via simulator or converted to and from other formats. Furthermore, tools such as [`hardware_transform`](@ref) and [`validate`](@ref) are available to check that user-defined Hamiltonians are capable of being executed on hardware and if not, transform them to be able to do so.
 
 !!! warning "3-Level Support"
     The schema and conversion functionalities are currently not available for 3-level Hamiltonians
 
-## Transforming Hamiltonians
+## Transforming Hamiltonians to Hardware Compatible Form
 
 We start with creating a hamiltonian:
 
@@ -91,7 +91,6 @@ from_dict(h_dict) # to convert back to Hamiltonian
 ```@docs
 get_device_capabilities
 get_device_capabilities_SI
-get_rydberg_capabilities
 hardware_transform_Ω
 hardware_transform_ϕ
 hardware_transform_Δ

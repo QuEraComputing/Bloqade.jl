@@ -24,11 +24,13 @@ export get_device_capabilities,
     to_json_no_validation,
     to_dict,
     to_schema,
+    to_braket_ahs_ir,
     to_schema_no_validation,
     from_json,
     from_dict,
     from_schema,
     execute,
+    submit_to_braket,
     TaskSpecification,
     TaskOutput,
     ValidationViolations
@@ -43,5 +45,7 @@ include("parse.jl")
 include("validate.jl")
 include("transform.jl")
 include("execute.jl")
+include("to_braket_ahs_ir.jl")
+include("submit_to_braket.jl")
 
 end

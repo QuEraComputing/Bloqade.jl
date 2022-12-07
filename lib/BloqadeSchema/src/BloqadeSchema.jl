@@ -10,6 +10,9 @@ using Yao
 using JSON
 using BitBasis
 using LinearAlgebra: svd
+using AWS
+using Braket
+using DecFP
 
 export get_device_capabilities,
     get_device_capabilities_SI,
@@ -25,11 +28,13 @@ export get_device_capabilities,
     to_dict,
     SchemaTranslationParams,
     to_schema,
+    to_braket_ahs_ir,
     to_schema_no_validation,
     from_json,
     from_dict,
     from_schema,
     execute,
+    submit_to_braket,
     TaskSpecification,
     TaskOutput,
     ValidationViolations
@@ -44,5 +49,7 @@ include("parse.jl")
 include("validate.jl")
 include("transform.jl")
 include("execute.jl")
+include("to_braket_ahs_ir.jl")
+include("submit_to_braket.jl")
 
 end

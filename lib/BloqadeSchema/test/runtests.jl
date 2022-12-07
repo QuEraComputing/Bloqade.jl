@@ -34,6 +34,10 @@ end
     include("types.jl")
 end
 
+@testset "to_braket_ahs_ir" begin
+    include("to_braket_ahs_ir.jl")
+end
+
 # @testset "serialize" begin
 #     include("serialize.jl")
 # end

@@ -12,7 +12,7 @@ the Hamiltonian should be executed.
 - `credentials::Union{AWSCredentials, Nothing}=nothing`: `AWS.AWSCredentials` instance you can create to login.
 
 Credentials can be passed in explicitly through an `AWS.AWSCredentials` struct or by passing in 
-`nothing`, in which case credentials will be sought after in the shell environment variables. 
+`nothing`, in which case credentials will be sought in the standard AWS locations.
 
 # Keyword Arguments
 - `arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila"`: ARN for the machine
@@ -42,7 +42,7 @@ device capabilities, returning an `AWS.AwsQuantumTask` and `Bloqade.HardwareTran
 converting the Hamiltonian to one the hardware can execute.
 
 Credentials can be passed in explicitly through an `AWS.AWSCredentials` struct or by passing in 
-`nothing`, in which case credentials will be sought after in the shell environment variables. 
+`nothing`, in which case credentials will be sought in the standard AWS locations.
 
 # Keyword Arguments
 - `arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila"`: ARN for the machine
@@ -68,7 +68,7 @@ end
 Submits a `BloqadeSchema.TaskSpecification` instance to Braket, returning an `AWS.AwsQuantumTask`.
 
 Credentials can be passed in explicitly through an `AWS.AWSCredentials` struct or by passing in 
-`nothing`, in which case credentials will be sought after in the shell environment variables. 
+`nothing`, in which case credentials will be sought in the standard AWS locations.
 
 # Keyword Arguments
 - `arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila"`: ARN for the machine

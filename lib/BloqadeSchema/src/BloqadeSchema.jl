@@ -10,6 +10,9 @@ using Yao
 using JSON
 using BitBasis
 using LinearAlgebra: svd
+using AWS
+using Braket
+using DecFP
 
 export get_device_capabilities,
     get_device_capabilities_SI,

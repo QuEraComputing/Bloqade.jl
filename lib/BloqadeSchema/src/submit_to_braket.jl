@@ -1,7 +1,3 @@
-using BloqadeSchema
-using BloqadeExpr
-using AWS
-
 """
     submit_to_braket(h::BloqadeExpr.Hamiltonian, n_shots::Int; <keyword arguments>)
 

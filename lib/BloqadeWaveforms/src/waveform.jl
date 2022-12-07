@@ -573,4 +573,4 @@ julia> wf[0.9..1.5]
 ```
 
 """
-function (..)(first, last) end 
+function (..) end

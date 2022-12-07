@@ -12,11 +12,7 @@ The generated waveforms can be directly used to build the time-dependent Hamilto
 ## Creating Waveforms
 
 In Bloqade, the waveforms are defined as a [`Waveform`](@ref) object,
-which is a composition of a callable object and a real number `duration`:
-
-```@docs
-BloqadeWaveforms.Waveform
-```
+which is a created by providing a callable object and a real number `duration`:
 
 Bloqade gives users the flexibility to specify general waveforms by inputting functions. The following code constructs a sinusoidal waveform with a time duration of 2 μs:
 
@@ -157,9 +153,8 @@ fig
 
 ## References
 
-
 ```@docs
-Waveform
+BloqadeWaveforms.Waveform
 Waveform(f; duration::Real)
 sample_values
 sample_clock
@@ -183,5 +178,6 @@ Kernels.triweight
 Kernels.uniform
 piecewise_linear_interpolate
 piecewise_constant_interpolate
-Bloqade.LinearAlgebra.norm
+BloqadeWaveforms.LinearAlgebra.norm
+BloqadeWaveforms.:(..)
 ```

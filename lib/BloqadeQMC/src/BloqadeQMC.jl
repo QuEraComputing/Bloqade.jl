@@ -18,6 +18,9 @@ using LinearAlgebra
 
 using Random
 
+import BloqadeLattices: rydberg_interaction_matrix, AtomList
+import BloqadeExpr: RydbergHamiltonian, get_rydberg_params, is_time_function
+
 import Base: zero, one, convert
 import Base: length, size, eltype, setindex!, getindex, firstindex, lastindex
 import Base: rand, show, pop!, push!, append!, isempty, empty!, count
@@ -40,6 +43,8 @@ export BinaryQMCState, BinaryGroundState, BinaryThermalState,
 export AbstractRunStats, NoStats, RunStats, RunStatsHistogram, Diagnostics
 export NoTransitionMatrix, TransitionMatrix, PositionDependentTransitionMatrix, CombinedTransitionMatrix
 export ProductState, PlusState, AbstractProductState, AbstractTrialState
+
+export rydberg_qmc
 
 @inline function pop!(v::PushVector)
     @boundscheck isempty(v) && throw(ArgumentError("vector must be non-empty"))

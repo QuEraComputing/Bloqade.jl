@@ -1,15 +1,16 @@
-using Test, BloqadeQMC
+using Test
 using Statistics
 using Random
 using RandomNumbers
 using Measurements
 using Measurements: value, uncertainty
-using BinningAnalysis
-using BloqadeQMC: Chain, Square
 using BloqadeLattices: generate_sites, ChainLattice
+using BloqadeQMC: rydberg_qmc, BinaryThermalState, Diagnostics, mc_step_beta!
+# using BloqadeQMC
 using BloqadeExpr: rydberg_h 
 using Yao: mat, ArrayReg
 using LinearAlgebra
+using BinningAnalysis
 
 # Generate ED values - do we want the ED to run every time? Or do we want to pre-calculate and store the values in a dict?
 
@@ -18,7 +19,7 @@ nsites = 9
 atoms = generate_sites(ChainLattice(), nsites, scale = 5.48)
 
 Ω = 2π * 4
-Δ_step = 30
+Δ_step = 15
 Δ = LinRange(-2π * 9, 2π * 9, Δ_step)
 
 energy_ED = zeros(3, Δ_step)
@@ -38,14 +39,7 @@ end
 ### Now, start running QMC tests.
 
 # THRESHOLD_t = 2.576             threshold for t-test with ∞ DOF and 99.5% confidence   
-THRESHOLD_χ = 43.77             # threshold for χ² test with 30 DOF and p=0.05
-
-R_b = 7.74                      # This does correspond to C6 = 862690 * 2pi Mhz μm^6 at a Rabi frequency of Ω = 2π * 4.
-Ω = 2π * 4
-N = 9
-a = 5.48
-
-lat = Chain(N, a, false; trunc=Inf)
+THRESHOLD_χ = 18.25             # threshold for χ² test with 15 DOF and p=0.05
 
 @testset "1D Chain (9 atoms), β=0.005" begin
     β = 0.005
@@ -60,7 +54,9 @@ lat = Chain(N, a, false; trunc=Inf)
     χ_squared = 0
 
     for ii in 1:Δ_step
-        H = Rydberg(lat, R_b, Ω, Δ[ii])
+        ii = 1
+        h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
+        H = rydberg_qmc(h_ii)
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
@@ -101,7 +97,8 @@ end
     χ_squared = 0
 
     for ii in 1:Δ_step
-        H = Rydberg(lat, R_b, Ω, Δ[ii])
+        h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
+        H = rydberg_qmc(h_ii)
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
@@ -120,7 +117,6 @@ end
         ratio = 2 * τ_energy + 1
         energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
         append!(energy_QMC_β2, energy_binned)
-        println()
         #append!(energy_QMC_β2, mean_and_stderr(x -> -x/β, ns) + H.energy_shift)
 
         χ_squared += abs2(value(energy_QMC_β2[ii]) - energy_ED[2, ii]) / abs2(uncertainty(energy_QMC_β2[ii]))
@@ -135,14 +131,15 @@ end
     MCS = 10_000
     M = 5000
 
-    rng = MersenneTwister(12345)
+    rng = MersenneTwister(1234)
 
     energy_QMC_β3 = []
 
     χ_squared = 0
 
     for ii in 1:Δ_step
-        H = Rydberg(lat, R_b, Ω, Δ[ii])
+        h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
+        H = rydberg_qmc(h_ii)
         ts = BinaryThermalState(H, M)
         d = Diagnostics()
     
@@ -158,10 +155,10 @@ end
         energy(x) = -x / β + H.energy_shift
         BE = LogBinner(energy.(ns))
         τ_energy = tau(BE)
+        τ_energy
         ratio = 2 * τ_energy + 1
         energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
         append!(energy_QMC_β3, energy_binned)
-        println()
         #append!(energy_QMC_β3, mean_and_stderr(x -> -x/β, ns) + H.energy_shift)
 
         χ_squared += abs2(value(energy_QMC_β3[ii]) - energy_ED[3, ii]) / abs2(uncertainty(energy_QMC_β3[ii]))
@@ -169,3 +166,4 @@ end
     end
     @test χ_squared < THRESHOLD_χ
 end
+

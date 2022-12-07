@@ -3,7 +3,7 @@ using Configurations
 using Test
 
 if "docstring" in ARGS
-    # include("docstrings.jl")
+    include("docstrings.jl")
     exit()
 end
 
@@ -32,6 +32,10 @@ end
 
 @testset "types" begin
     include("types.jl")
+end
+
+@testset "to_braket_ahs_ir" begin
+    include("to_braket_ahs_ir.jl")
 end
 
 # @testset "serialize" begin

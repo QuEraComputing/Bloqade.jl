@@ -38,6 +38,7 @@ function pages(; light = false)
             "Maximum Independent Set" => "mis.md",
             "GPU Acceleration" => "cuda.md",
             "3-Level Support and Quantum Gates" => "3-level.md",
+            "Interacting with Neutral Atom Hardware" => "schema.md",
         ],
     ]
 

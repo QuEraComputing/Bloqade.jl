@@ -156,13 +156,17 @@ fig
 ```@docs
 BloqadeWaveforms.Waveform
 Waveform(f; duration::Real)
+BloqadeWaveforms.:(..)
 sample_values
 sample_clock
 piecewise_linear
 piecewise_constant
+piecewise_linear_interpolate
+piecewise_constant_interpolate
 linear_ramp
 constant
 sinusoidal
+BloqadeWaveforms.LinearAlgebra.norm
 append
 smooth
 smooth(kernel, Xi::Vector, Yi::Vector, kernel_radius::Real)
@@ -176,8 +180,4 @@ Kernels.triangle
 Kernels.tricube
 Kernels.triweight
 Kernels.uniform
-piecewise_linear_interpolate
-piecewise_constant_interpolate
-BloqadeWaveforms.LinearAlgebra.norm
-BloqadeWaveforms.:(..)
 ```

@@ -19,7 +19,7 @@ Credentials can be passed in explicitly through an `AWS.AWSCredentials` struct o
 - `region="us-east-1"`: AWS Region machine is located in
 - `credentials::Union{AWSCredentials, Nothing}=nothing`: `AWS.AWSCredentials` instance you can create to login.
 """
-function submit_to_braket(h::BloqadeExpr.Hamiltonian, 
+function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian, 
                           n_shots::Int, 
                           device_capabilities = BloqadeSchema.get_device_capabilities();
                             arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila",
@@ -49,7 +49,7 @@ Credentials can be passed in explicitly through an `AWS.AWSCredentials` struct o
 - `region="us-east-1"`: AWS Region machine is located in
 - `credentials::Union{AWSCredentials, Nothing}=nothing`: `AWS.AWSCredentials` instance you can create to login.
 """
-function submit_to_braket(h::BloqadeExpr.Hamiltonian,
+function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
                           translation_params::BloqadeSchema.SchemaTranslationParams;
                             arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila",
                             region="us-east-1",

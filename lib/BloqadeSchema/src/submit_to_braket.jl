@@ -1,7 +1,7 @@
 """
     submit_to_braket(h::BloqadeExpr.Hamiltonian, n_shots::Int; <keyword arguments>)
 
-Submits a `BloqadeExpr.Hamiltonian` instance to Braket with `n_shots` defining the number of times
+Submits a `BloqadeExpr.RydbergHamiltonian` instance to Braket with `n_shots` defining the number of times
 the Hamiltonian should be executed. 
 
 
@@ -35,9 +35,9 @@ function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
 end
 
 """
-    submit_to_braket(h::BloqadeExpr.Hamiltonian, translation_params::BloqadeSchema.SchemaTranslationParams; <keyword arguments>)
+    submit_to_braket(h::BloqadeExpr.RydbergHamiltonian, translation_params::BloqadeSchema.SchemaTranslationParams; <keyword arguments>)
 
-Submits a `BloqadeExpr.Hamiltonian` instance to Braket with `BloqadeSchema.SchemaTranslationParams` containing the number of shots and 
+Submits a `BloqadeExpr.RydbergHamiltonian` instance to Braket with `BloqadeSchema.SchemaTranslationParams` containing the number of shots and 
 device capabilities, returning an `AWS.AwsQuantumTask` and `Bloqade.HardwareTransformInfo` upon
 converting the Hamiltonian to one the hardware can execute.
 

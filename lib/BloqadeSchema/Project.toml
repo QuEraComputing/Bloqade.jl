@@ -30,7 +30,7 @@ Roots = "2"
 Unitful = "1"
 Yao = "0.8"
 julia = "1.6"
-AWS = "1.79"
+AWS = "1.78"
 Braket = "0.2"
 DecFP = "1.1"
 

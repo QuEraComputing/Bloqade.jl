@@ -1,7 +1,7 @@
 using Test
 
 if "docstring" in ARGS
-    # include("docstrings.jl")
+    include("docstrings.jl")
     exit()
 end
 

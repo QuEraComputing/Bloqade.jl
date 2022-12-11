@@ -1,5 +1,5 @@
 """
-    struct Waveform
+    struct Waveform{F,T<:Real}
 
 Type for waveforms. `Waveform`s are defined
 as a function combined with a real number
@@ -26,7 +26,11 @@ function Base.:(==)(lhs::Waveform, rhs::Waveform)
 end
 
 
+"""
+    LinearAlgebra.norm(x::Waveform;p::Real=1)
 
+Defines the norm function on [`Waveform`](@ref) type.
+"""
 function LinearAlgebra.norm(x::Waveform;p::Real=1)
     if isfinite(p) # p-norm 
         kernel = t->abs.(x(t)) .^ p
@@ -105,10 +109,71 @@ function (wf::Waveform)(t::Real, offset::Real = zero(t))
     return wf.f(min(t - offset, wf.duration))
 end
 
+"""
+    sample_clock(wf::Waveform; offset::Real = zero(eltype(wf)), dt::Real = 1e-3)
+
+Generates range of time values based on `wf`'s duration 
+with `dt` time between each time value along with
+`offset` time added to the beginning and end of the waveform's time span.
+
+See also [`sample_values`](@ref)
+
+```jldoctest; setup=:(using BloqadeWaveforms)
+julia> wf = sinusoidal(duration=2, amplitude=2π*2.2); # create a waveform
+
+julia> sample_clock(wf;) # range from 0.0 to 2.0 with step of 0.001 (default arg)
+0.0:0.001:2.0
+
+julia> sample_clock(wf; offset=0.1) # offset beginning and end by 0.1
+0.1:0.001:2.1
+
+julia> sample_clock(wf; dt = 2e-3) # set step size of 2e-3
+0.0:0.002:2.0
+```
+"""
 function sample_clock(wf::Waveform; offset::Real = zero(eltype(wf)), dt::Real = 1e-3)
     return offset:dt:wf.duration+offset
 end
 
+"""
+    sample_values(wf::Waveform, clocks; offset::Real = zero(eltype(wf)))
+    sample_values(wf::Waveform; offset::Real = zero(eltype(wf)), dt::Real = 1e-3)
+
+Samples of waveform `wf` values obtainable by either providing an iterable `clocks`
+containing exact time values to sample from or providing `offset` and `dt` values 
+which specify the offset to add to the beginning and end of the waveforms time span and 
+the step between time values. 
+
+See also [`sample_clock`](@ref)
+
+```jldoctest; setup:=using(using BloqadeWaveforms)
+julia> wf = linear_ramp(duration=0.5, start_value=0.0, stop_value=2π*1.0);
+
+julia> sample_values(wf,0.0:0.1:0.5) # sample waveform values from range
+6-element Vector{Float64}:
+ 0.0
+ 1.2566370614359172
+ 2.5132741228718345
+ 3.7699111843077517
+ 5.026548245743669
+ 6.283185307179586
+
+julia> sample_values(wf; dt=5e-2) #5e-2 time gap between each sampled valued
+11-element Vector{Float64}:
+ 0.0
+ 0.6283185307179586
+ 1.2566370614359172
+ 1.8849555921538759
+ 2.5132741228718345
+ 3.141592653589793
+ 3.7699111843077517
+ 4.39822971502571
+ 5.026548245743669
+ 5.654866776461628
+ 6.283185307179586
+
+```
+"""
 function sample_values(wf::Waveform, clocks; offset::Real = zero(eltype(wf)))
     return [wf(t, offset) for t in clocks]
 end
@@ -452,3 +517,60 @@ function sinusoidal(; duration, amplitude = one(duration))
         return amplitude * sin(2π * t)
     end
 end
+
+"""
+    function (..)(first, last)
+
+Exported from [`Intervals`](https://github.com/invenia/Intervals.jl), creates a closed interval from `first..last` 
+and can be used with `Waveform` structs to obtain a slice of a Waveform's values, with the waveform slice's time adjusted to begin at 0 μs and
+the duration being `last - first`.
+
+# Example
+
+```julia
+julia> wf = Waveform(t->2.2*2π*sin(2π*t), duration = 2)
+                    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Int64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                    ┌────────────────────────────────────────┐
+                  3 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⠀⠀⡴⠋⠙⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠋⠙⢦⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⠀⡼⠁⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡼⠁⠀⠀⠈⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⢰⠃⠀⠀⠀⠀⠈⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢰⠃⠀⠀⠀⠀⠈⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⢀⡏⠀⠀⠀⠀⠀⠀⢸⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡏⠀⠀⠀⠀⠀⠀⢸⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⡼⠀⠀⠀⠀⠀⠀⠀⠀⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡼⠀⠀⠀⠀⠀⠀⠀⠀⢧⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+   value (2π ⋅ MHz) │⠧⠤⠤⠤⠤⠤⠤⠤⠤⠼⡦⠤⠤⠤⠤⠤⠤⠤⠤⢤⠧⠤⠤⠤⠤⠤⠤⠤⠤⠼⡦⠤⠤⠤⠤⠤⠤⠤⠤⢤│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⠀⠀⠀⠀⠀⠀⠀⠀⡞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⠀⠀⠀⠀⠀⠀⠀⠀⡞│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣇⠀⠀⠀⠀⠀⠀⢸⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⣇⠀⠀⠀⠀⠀⠀⢸⠁│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢀⠇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠸⡄⠀⠀⠀⠀⢀⠇⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⢀⡞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢳⡀⠀⠀⢀⡞⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠳⣄⣠⠞⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠳⣄⣠⠞⠀⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠁⠀⠀⠀⠀│
+                 -3 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    └────────────────────────────────────────┘
+                    ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀2⠀
+
+julia> wf[0.9..1.5]
+                    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀Waveform{_, Float64}⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+                    ┌────────────────────────────────────────┐
+                  3 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⠤⠔⠒⠒⠒⠦⢤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡤⠞⠉⠀⠀⠀⠀⠀⠀⠀⠀⠈⠙⠲⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠑⢦⡀⠀⠀⠀⠀⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢦⠀⠀⠀⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠳⣄⠀⠀⠀│
+   value (2π ⋅ MHz) │⠀⠀⠀⠀⠀⠀⠀⠀⣠⠎⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠳⡀⠀│
+                    │⠀⠀⠀⠀⠀⠀⢀⡜⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⢦│
+                    │⠉⠉⠉⠉⠉⡽⠋⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉│
+                    │⠀⠀⠀⣠⠞⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⢀⡴⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⡴⠋⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                 -2 │⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀│
+                    └────────────────────────────────────────┘
+                    ⠀0⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀clock (μs)⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀0.6⠀
+
+```
+
+"""
+function (..) end

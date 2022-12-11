@@ -1,6 +1,6 @@
 name = "BloqadeSchema"
 uuid = "a64e8dd8-bb5a-11ec-104d-290571fc3a8d"
-version = "0.2.2"
+version = "0.2.3"
 
 [deps]
 AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
@@ -30,6 +30,9 @@ Roots = "2"
 Unitful = "1"
 Yao = "0.8"
 julia = "1.6"
+AWS = "1.78"
+Braket = "0.2"
+DecFP = "1.1"
 
 [extras]
 BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"

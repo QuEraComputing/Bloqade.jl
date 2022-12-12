@@ -66,7 +66,7 @@ function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
     h_transformed, _ = hardware_transform(h)
     bloqade_ir = BloqadeSchema.to_schema(h_transformed, translation_params)
     task = submit_to_braket(bloqade_ir; arn=arn, region=region, credentials=credentials)
-    return task, transform_info
+    return task
 end
 
 """

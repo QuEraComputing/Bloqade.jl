@@ -59,7 +59,7 @@ You can convert the Hamiltonian to and from:
 to store the Hamiltonian for other applications or execute it in Bloqade/Neutral Atom hardware. 
 
 !!! note "Internal Validation"
-    By default, all conversion functions invoke [`val idate`](@ref) internally to ensure the Hamiltonian is capable of being run on hardware. If a violation is detected, the Hamiltonian is not converted. For JSON and Schema representations, this can be bypassed by invoking the "no validation" variants [`to_schema_no_validation`](@ref) and [`to_json_no_validation`](@ref) respectively. This bypass ability is not available for dictionary representation and AWS Braket representation (which requires the Hamiltonian is already in [`TaskSpecification`](@ref) format).
+    By default, all conversion functions invoke [`validate`](@ref) internally to ensure the Hamiltonian is capable of being run on hardware. If a violation is detected, the Hamiltonian is not converted. For JSON and Schema representations, this can be bypassed by invoking the "no validation" variants [`to_schema_no_validation`](@ref) and [`to_json_no_validation`](@ref) respectively. This bypass ability is not available for dictionary representation and AWS Braket representation (which requires the Hamiltonian is already in [`TaskSpecification`](@ref) format).
 
 ### Schema
 

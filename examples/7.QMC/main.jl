@@ -132,14 +132,14 @@ rng = MersenneTwister(3214)
 #
 # *Note: You will see that mc_step_beta!() returns three objects which can be used for computations during each MC step. "ts" stores the instantaneous SSE configuration, "h_qmc" is the same object as before, "lsize" is related to the arrays used to the arrays used to carry out a MC step and depend on the operator sequence of the current configuration."
 
-[mc_step_beta!(rng, ts, H, β, d, eq=true) for i in 1:EQ_MCS] # equilibration phase
+[mc_step_beta!(rng, ts, h_qmc,β, d, eq=true) for i in 1:EQ_MCS] # equilibration phase
 
 densities_QMC = zeros(nsites)
 occs = zeros(MCS, nsites)
 
 for i in 1:MCS # Monte Carlo Steps
-    mc_step_beta!(rng, ts, H, β, d, eq=false) do lsize, ts, H
-        spin_prop = sample(H, ts, 1)
+    mc_step_beta!(rng, ts, h_qmc,β, d, eq=false) do lsize, ts, h_qmc
+        spin_prop = sample(h_qmc,ts, 1)
         occs[i, :] = ifelse.(spin_prop .== true, 1.0, 0.0)
     end
 end
@@ -210,15 +210,15 @@ using BinningAnalysis
 for ii in 1:Δ_step
         h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
         H = rydberg_qmc(h_ii)
-        ts = BinaryThermalState(H, M)
+        ts = BinaryThermalState(h_qmc,M)
         d = Diagnostics()
     
-        [mc_step_beta!(rng, ts, H, β, d, eq=true) for i in 1:EQ_MCS] #equilibration phase
+        [mc_step_beta!(rng, ts, h_qmc,β, d, eq=true) for i in 1:EQ_MCS] #equilibration phase
         
         ns = zeros(MCS)
     
         for i in 1:MCS # Monte Carlo Steps
-            ns[i] = mc_step_beta!(rng, ts, H, β, d, eq=false)
+            ns[i] = mc_step_beta!(rng, ts, h_qmc,β, d, eq=false)
         end
 
         # Binning analysis 
@@ -272,16 +272,16 @@ for ii in 1:Δ_step
     @show ii
     h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
     H = rydberg_qmc(h_ii)
-    ts = BinaryThermalState(H, M)
+    ts = BinaryThermalState(h_qmc,M)
     d = Diagnostics()
 
-    [mc_step_beta!(rng, ts, H, β, d, eq=true) for i in 1:EQ_MCS] #equilibration phase
+    [mc_step_beta!(rng, ts, h_qmc,β, d, eq=true) for i in 1:EQ_MCS] #equilibration phase
     
     occs = zeros(MCS, nsites)
 
     for i in 1:MCS # Monte Carlo Steps
-        mc_step_beta!(rng, ts, H, β, d, eq=false) do lsize, ts, H
-            SSE_slice = sample(H, ts, 1)
+        mc_step_beta!(rng, ts, h_qmc,β, d, eq=false) do lsize, ts, h_qmc
+            SSE_slice = sample(h_qmc,ts, 1)
             occs[i, :] = ifelse.(SSE_slice .== true, 1.0, 0.0)
         end
     end

@@ -130,7 +130,7 @@ rng = MersenneTwister(3214)
 
 # Time to run the simulation!
 #
-# *Note: You will see that mc_step_beta!() returns three objects which can be used for computations during each MC step. "ts" stores the instantaneous SSE configuration, "h_qmc" is the same object as before, "lsize" is related to the arrays used to the arrays used to carry out a MC step and depend on the operator sequence of the current configuration."
+# *Note: You will see that mc_step_beta!() returns three objects which can be used for computations during each MC step. "ts" stores the instantaneous SSE configuration, "h_qmc" is the same object as before, "lsize" is related to the arrays used to the arrays used to carry out a MC step and depend on the operator sequence of the current configuration. Details are explained in the upcoming manual. Further, SSE_slice stores a sample of the atom configuration taken from the current SSE configuration, in this case chosen to be the first vertical slice."
 
 [mc_step_beta!(rng, ts, h_qmc,β, d, eq=true) for i in 1:EQ_MCS] # equilibration phase
 
@@ -139,8 +139,8 @@ occs = zeros(MCS, nsites)
 
 for i in 1:MCS # Monte Carlo Steps
     mc_step_beta!(rng, ts, h_qmc,β, d, eq=false) do lsize, ts, h_qmc
-        spin_prop = sample(h_qmc,ts, 1)
-        occs[i, :] = ifelse.(spin_prop .== true, 1.0, 0.0)
+        SSE_slice = sample(h_qmc,ts, 1)
+        occs[i, :] = ifelse.(SSE_slice .== true, 1.0, 0.0)
     end
 end
 

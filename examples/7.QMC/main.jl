@@ -109,10 +109,10 @@ MCS = 100_000
 
 # As you can see, we are in fact not defining one but two parameters. Indeed, a MCMC simulation is typically split into two phases: first the equilibration phase, also referred to as the *burn-in*, followed by the sampling phase. Even though the mathematical theorems surrounding Markov chains guarantee that under reasonable assumptions these chains eventually converge to the desired probability distribution, it does take some time until this is indeed the case.
 # 
-# While there is no formula that will tell you when precisely equilibration has been reached, a good heuristic is plotting an observable such as the energy. You will see its value initially fluctuating and eventually stabilizing around a value which you can then assume is its equilibrium expectation value, e.g. *discuss this part and modify plot; give code once mc_step_beta etc. is explained?*
+# While there is no formula that will tell you when precisely equilibration has been reached, a good heuristic is plotting an observable such as the energy. You will see its value initially fluctuating and eventually stabilizing around a value which you can then assume is its equilibrium expectation value.*
 # 
 # ![Equilibration](../../../assets/QMC_tutorial/equilibration.png)
-# Now, we're almost ready to run the simulation. You can think of the BinaryThermalState object as the initialization (rephrase). You can roughly think of M as the maximum expansion order. (Indeed, we are allowed to truncate the expansion since one can show that the weights of higher terms in the expansion fall off as a Poisson distribution. Might write this up in a manual or so.) 
+# Now, we're almost ready to run the simulation. You can think of the BinaryThermalState object as the initialization (rephrase). You can roughly think of M as the maximum expansion order. (Indeed, we are allowed to truncate the expansion since one can show that the weights of higher terms in the expansion fall off as a Poisson distribution.) 
 # 
 # We choose the inverse temperature β large enough for the simulation to approximate the ground state. If your system is gapped, then a finite value for β will be enough to reach the ground state. If the gap closes, then you will need to scale β with the system size.
 M = 50

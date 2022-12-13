@@ -1,9 +1,7 @@
 # # Quantum Monte Carlo Method
 # 
 # You remember that tutorial about adiabatic evolution? The one in which we prepared ordered ground states of Rydberg Hamiltonians, such as the $\mathbb{Z}_2$  phase? What method did we use to achieve that goal? 
-# Not sure? Don't worry - we actually never mentioned its name. That's because that tutorial was all about introducing those interesting ground states themselves. In this tutorial, on the other hand, the aim is to familiarize ourselves with a specific *method* that can produce such results - the **Quantum Monte Carlo** method. In particular, it will allow us to tackle system sizes far beyond what is possible with exact diagonalization - yup, that's the method used in the previous tutorial. While ED is limited to a few tens of particles, QMC can deal with hundreds. (This means you can use it benchmark your simulations on Aquila! *Cut?*)
-
-# ### Monte Carlo
+# Not sure? Don't worry - we actually never mentioned its name. That's because that tutorial was all about introducing those interesting ground states themselves. In this tutorial, on the other hand, the aim is to familiarize ourselves with a specific *method* that can produce such results - the **Quantum Monte Carlo** method. In particular, it will allow us to tackle system sizes far beyond what is possible with exact diagonalization - yup, that's the method used in the previous tutorial. While ED is limited to a few tens of particles, QMC can deal with hundreds.
 # Before we dive into QMC, let's take a step back and make sure we understand the gist of plain Monte Carlo. Consider the following example: You are asked to calculate a really hard integral. You have no clue how to solve it analytically. Is there another way you could approach the problem? 
 # You could draw the corresponding graph, add a square around it and throw darts randomly at the square. For each throw, you record whether the dart landed below or above the graph. Then you form the ratio $N_{below}/N_{above}$ and multiply it by the area of the square. Indeed, after enough throws that value will approach the true area underneath the graph.
 # 

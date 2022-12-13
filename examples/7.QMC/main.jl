@@ -114,8 +114,7 @@ MCS = 100_000
 # ![Equilibration](../../../assets/QMC_tutorial/equilibration.png)
 # Now, we're almost ready to run the simulation. You can think of the BinaryThermalState object as the initialization (rephrase). You can roughly think of M as the maximum expansion order. (Indeed, we are allowed to truncate the expansion since one can show that the weights of higher terms in the expansion fall off as a Poisson distribution. Might write this up in a manual or so.) 
 # 
-# We choose the inverse temperature β large enough for the simulation to approximate the ground state. To achieve this, it is sufficient to choose a value smaller than the energy gap of the Hamiltonian.
-
+# We choose the inverse temperature β large enough for the simulation to approximate the ground state. If your system is gapped, then a finite value for β will be enough to reach the ground state. If the gap closes, then you will need to scale β with the system size.
 M = 50
 ts = BinaryThermalState(h_qmc, M)   
 # BinaryThermalState is an object necessary in the backend to store the instantaneous SSE configuration during the MC steps.

@@ -117,8 +117,11 @@ MCS = 100_000
 # We choose the inverse temperature β large enough for the simulation to approximate the ground state. To achieve this, it is sufficient to choose a value smaller than the energy gap of the Hamiltonian.
 
 M = 50
-ts = BinaryThermalState(h_qmc, M)
-d = Diagnostics()                   # Change API s.t. Diagnostics() is not needed?
+ts = BinaryThermalState(h_qmc, M)   
+# BinaryThermalState is an object necessary in the backend to store the instantaneous SSE configuration during the MC steps.
+d = Diagnostics()                   
+# Diagnostics are a feature that can be used by the advanced user to analyse performance and extract further information from the backend. We refer to the manual (in progress) for details.
+
 
 rng = MersenneTwister(3214)
 

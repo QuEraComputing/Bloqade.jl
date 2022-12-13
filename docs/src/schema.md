@@ -55,11 +55,11 @@ You can convert the Hamiltonian to and from:
 * JSON Object format
 * Julia Dictionary representation
 * Schema representation
-* AWS Braket representation
+* Amazon Braket representation
 to store the Hamiltonian for other applications or execute it in Bloqade/Neutral Atom hardware. 
 
 !!! note "Internal Validation"
-    By default, all conversion functions invoke [`validate`](@ref) internally to ensure the Hamiltonian is capable of being run on hardware. If a violation is detected, the Hamiltonian is not converted. For JSON and Schema representations, this can be bypassed by invoking the "no validation" variants [`to_schema_no_validation`](@ref) and [`to_json_no_validation`](@ref) respectively. This bypass ability is not available for dictionary representation and AWS Braket representation (which requires the Hamiltonian is already in [`TaskSpecification`](@ref) format).
+    By default, all conversion functions invoke [`validate`](@ref) internally to ensure the Hamiltonian is capable of being run on hardware. If a violation is detected, the Hamiltonian is not converted. For JSON and Schema representations, this can be bypassed by invoking the "no validation" variants [`to_schema_no_validation`](@ref) and [`to_json_no_validation`](@ref) respectively. This bypass ability is not available for dictionary representation and Amazon Braket representation (which requires the Hamiltonian is already in [`TaskSpecification`](@ref) format).
 
 ### Schema
 
@@ -88,8 +88,8 @@ h_dict = to_dict(transformed_h)
 from_dict(h_dict) # to convert back to Hamiltonian
 ```
 
-### AWS Braket
-[`to_braket_ahs_ir`](@ref) allows you to convert a [`TaskSpecification`](@ref) instance into an [`Braket.IR.AHSProgram`](https://github.com/awslabs/Braket.jl/blob/main/src/raw_schema.jl#L604) that can be submitted for execution on Neutral Atom hardware such as [QuEra's 256-qubit Aquila machine](https://www.quera.com/aquila) via [AWS Braket](https://aws.amazon.com/braket/).
+### Amazon Braket
+[`to_braket_ahs_ir`](@ref) allows you to convert a [`TaskSpecification`](@ref) instance into an [`Braket.IR.AHSProgram`](https://github.com/awslabs/Braket.jl/blob/main/src/raw_schema.jl#L604) that can be submitted for execution on Neutral Atom hardware such as [QuEra's 256-qubit Aquila machine](https://www.quera.com/aquila) via [Amazon Braket](https://aws.amazon.com/braket/).
 ```@repl schema_example
 h_schema = to_schema(transformed_h)
 h_braket = to_braket_ahs_ir(h_schema)
@@ -101,9 +101,9 @@ h_braket = to_braket_ahs_ir(h_schema)
 !!! warning "No Validation"
     [`to_braket_ahs_ir`](@ref) does no validation on its input. It is assumed that the [`TaskSpecification`](@ref) given to it is already validated. Therefore, it is possible to produce a `Braket.IR.AHSProgram` that is incapable of being run on Neutral Atom hardware and may cause the Braket API to reject it.
 
-## Submitting to AWS Braket
+## Submitting to Amazon Braket
 
-To submit to Neutral Atom hardware on AWS Braket, Bloqade provides [`submit_to_braket`](@ref) which can submit BOTH the native Bloqade representation of Hamiltonians (`BloqadeExpr.RydbergHamiltonian`) as well as the [`TaskSpecification`](@ref) representation.
+To submit to Neutral Atom hardware on Amazon Braket, Bloqade provides [`submit_to_braket`](@ref) which can submit BOTH the native Bloqade representation of Hamiltonians (`BloqadeExpr.RydbergHamiltonian`) as well as the [`TaskSpecification`](@ref) representation.
 
 !!! warning "Implicit Transformation and No Validation for TaskSpecification"
     For any `BloqadeExpr.RydbergHamiltonian` passed in, [`hardware_transform`](@ref) is invoked to ensure it is compatible with hardware. On the other hand, [`TaskSpecification`](@ref) types are assumed to already be valid.

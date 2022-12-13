@@ -129,6 +129,8 @@ rng = MersenneTwister(3214)
 
 
 # Time to run the simulation!
+#
+# *Note: You will see that mc_step_beta!() returns three objects which can be used for computations during each MC step. "ts" stores the instantaneous SSE configuration, "h_qmc" is the same object as before, "lsize" is related to the arrays used to the arrays used to carry out a MC step and depend on the operator sequence of the current configuration."
 
 [mc_step_beta!(rng, ts, H, β, d, eq=true) for i in 1:EQ_MCS] # equilibration phase
 

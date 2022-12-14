@@ -25,6 +25,7 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
 [compat]
+Yao = "0.8"
 BinningAnalysis = "0.5"
 DataStructures = "0.18"
 Distributions = "0.24, 0.25"

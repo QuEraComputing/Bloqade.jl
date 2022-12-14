@@ -203,6 +203,8 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72);
 
 using BinningAnalysis
 
+energy_QMC = []
+
 for ii in 1:Δ_step
         h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
         H = rydberg_qmc(h_ii)
@@ -225,7 +227,7 @@ for ii in 1:Δ_step
         τ_energy
         ratio = 2 * τ_energy + 1
         energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
-        append!(energy_QMC_β3, energy_binned)
+        append!(energy_QMC, energy_binned)
     end
 
 
@@ -249,7 +251,7 @@ for ii in 1:Δ_step
 end
 
 scatter(Δ/2π, energy_ED, label="ED", marker=:x)
-scatter!(Δ/2π, value.(energy_QMC_β3); yerror=uncertainty.(energy_QMC_β3), label="QMC", marker=:x)
+scatter!(Δ/2π, value.(energy_QMC); yerror=uncertainty.(energy_QMC), label="QMC", marker=:x)
 xlabel!("Δ/2π")
 ylabel!("Energy")
 

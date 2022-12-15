@@ -173,3 +173,13 @@ function YaoArrayRegister.most_probable(reg::SubspaceArrayReg{D}, n::Int) where 
     imax = sortperm(abs2.(reg.state); rev = true)[1:n]
     return YaoArrayRegister.DitStr{D, nqubits(reg)}.(reg.subspace.subspace_v[imax])
 end
+
+function Base.getindex(reg::SubspaceArrayReg{D, T, State, Space}, key::DitStr{D}) where {D, T, State, Space <: Subspace}
+    nqudits(reg) == length(key) || error("number of qudits in register and ditstring does not match")
+    if haskey(space(reg), key)
+        subspace_idx = space(reg)[key]
+        return reg.state[subspace_idx]
+    else
+        return zero(T)
+    end
+end

@@ -91,3 +91,18 @@ end
     space = Subspace(10, subspace_v)
     @test sum(probs(rand_state(space))) ≈ 1.0
 end
+
+@testset "getindex(::SubspaceArrayReg, ::DisStr)" begin
+    subspace = [0, 1, 4, 8]
+    s = Subspace(5, subspace)
+    reg = zero_state(s)
+    @test reg[bit"00000"] == 1
+    @test reg[bit"00001"] == 0
+    @test reg[bit"00011"] == 0
+    @test reg[bit"00100"] == 0
+    @test reg[bit"01000"] == 0
+    @test reg[bit"01001"] == 0
+    @test reg[bit"01011"] == 0
+    @test reg[bit"01111"] == 0
+    @test reg[bit"11111"] == 0
+end

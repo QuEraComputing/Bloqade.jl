@@ -189,10 +189,10 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72);
 # Yet in the SSE formalism we can find another expression for the expectation value $\langle E \rangle$. Let's work backwards and consider the SSE expectation value of the length of the operator sequence:
 # 
 # $$
-#     \langle n \rangle = \frac{1}{Z} Tr(\sum_{n=0}^\infty n \frac{(-\beta \hat{H})^n}{n!} \\
-#     = \frac{1}{Z} Tr(\sum_{n=1}^\infty n \frac{(-\beta \hat{H})^n}{n!} \\
-#     = \frac{1}{Z} Tr(\sum_{n=1}^\infty \frac{(-\beta \hat{H})^n}{(n-1)!} \\
-#     = \frac{1}{Z} Tr(\sum_{n=0}^\infty (-\beta \hat{H}) * \frac{(-\beta \hat{H})^n}{n!},
+#     \langle n \rangle = \frac{1}{Z} Tr(\sum_{n=0}^\infty n \frac{(-\beta \hat{H})^n}{n!}) \\
+#     = \frac{1}{Z} Tr(\sum_{n=1}^\infty n \frac{(-\beta \hat{H})^n}{n!}) \\
+#     = \frac{1}{Z} Tr(\sum_{n=1}^\infty \frac{(-\beta \hat{H})^n}{(n-1)!}) \\
+#     = \frac{1}{Z} Tr(\sum_{n=0}^\infty (-\beta \hat{H}) * \frac{(-\beta \hat{H})^n}{n!}),
 # $$
 # 
 # where in the second line we dropped the vanishing $n=0$ term and in the fourth line we shifted the sum over n by 1 and hence obtained the extra factor $-\beta \hat{H}$. From this, we directly read of the SSE formula for the energy expectation value:

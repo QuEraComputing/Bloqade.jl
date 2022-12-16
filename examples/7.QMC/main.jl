@@ -224,7 +224,6 @@ for ii in 1:Δ_step
                                              # See Merali et al. for details.
         BE = LogBinner(energy.(ns))
         τ_energy = tau(BE)
-        τ_energy
         ratio = 2 * τ_energy + 1
         energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
         append!(energy_QMC, energy_binned)

@@ -1,8 +1,3 @@
-<div align="center"> <img
-src="docs/src/assets/logo.png"
-alt="Bloqade Logo" width="400"></img>
-</div>
-
 <div align="center">
 <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/src/assets/logo-dark.png">

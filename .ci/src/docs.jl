@@ -77,7 +77,7 @@ function doc_build_script(pages, repo)
         format=Documenter.HTML(;
             prettyurls=get(ENV, "CI", "false") == "true",
             canonical="https://QuEraComputing.github.io/Bloqade.jl",
-            assets=String[indigo],
+            assets=String[indigo, "assets/favicon.ico"],
             sidebar_sitename=false,
         ),
         pages=$pages,

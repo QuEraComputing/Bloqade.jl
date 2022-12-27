@@ -1,4 +1,4 @@
-# Interacting with Neutral Atom Hardware
+# [Interacting with Neutral Atom Hardware](@id schema)
 
 Bloqade contains its own schema used to represent Hamiltonians in an IR (Intermediate Representation) that can then be executed via simulator/hardware as well as converted to and from other formats. Furthermore, tools such as [`hardware_transform`](@ref) and [`validate`](@ref) are available to check that user-defined Hamiltonians are capable of being executed on hardware and if not, transform them to be able to do so.
 

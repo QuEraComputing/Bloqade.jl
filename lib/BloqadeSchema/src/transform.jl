@@ -548,6 +548,11 @@ machine is capable of executing as well as:
 * The 1-norm of the difference between the original and transformed waveforms
 which are all stored in a [`HardwareTransformInfo`](@ref) struct.
 
+Note that not all atom position constraints are accounted for, such as the maximum lattice width, lattice height, 
+and minimum supported spacings. Only position resolution is automatically accounted for.
+This may result in the [`validation`](@ref) function failing and requiring user intervention to modify the atom 
+positions such that they satisfy the other constraints.
+
 # Logs/Warnings/Exceptions
 
 Debug logs are *always* emitted containing the error (defined as the 1-norm of the difference between

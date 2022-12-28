@@ -22,19 +22,18 @@
 # 
 # Let's get started in the usual way by importing the required libraries:
 
-using BloqadeLattices
-using BloqadeExpr
 using BloqadeQMC
 using Random
 using Plots
 
 # In addition, we'll import some libraries that we can later use to check our QMC against ED results for small system sizes. 
 
-using Bloqade: rydberg_density 
+using Bloqade 
 using Yao: mat, ArrayReg
 using LinearAlgebra
 using Measurements
 using Measurements: value, uncertainty
+using Statistics
 
 
 # As an initial example, let's recreate the $\mathbb{Z}_2$ phase in the 1D chain which we first saw in the tutorial on *Adiabatic Evolution*. This means defining the lattice geometry as well as the Rabi drive and global detuning parameters which we'll once again feed into the Rydberg Hamiltonian. 
@@ -149,7 +148,7 @@ end
 
 using Plots: bar
     
-bar(occs_QMC, label="")
+bar(densities_QMC, label="")
 xlabel!("Site number")
 ylabel!("Occupation density")
 
@@ -207,20 +206,20 @@ energy_QMC = []
 
 for ii in 1:Δ_step
         h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
-        H = rydberg_qmc(h_ii)
-        ts = BinaryThermalState(h_qmc,M)
-        d = Diagnostics()
+        h_ii_qmc = rydberg_qmc(h_ii)
+        ts_ii = BinaryThermalState(h_ii_qmc,M)
+        d_ii = Diagnostics()
     
-        [mc_step_beta!(rng, ts, h_qmc,β, d, eq=true) for i in 1:EQ_MCS] #equilibration phase
+        [mc_step_beta!(rng, ts_ii, h_ii_qmc, β, d_ii, eq=true) for i in 1:EQ_MCS] #equilibration phase
         
         ns = zeros(MCS)
     
         for i in 1:MCS # Monte Carlo Steps
-            ns[i] = mc_step_beta!(rng, ts, h_qmc,β, d, eq=false)
+            ns[i] = mc_step_beta!(rng, ts_ii, h_ii_qmc,β, d_ii, eq=false)
         end
 
         # Binning analysis 
-        energy(x) = -x / β + H.energy_shift  # The energy shift here ensures that all matrix elements are non-negative. 
+        energy(x) = -x / β + h_ii_qmc.energy_shift  # The energy shift here ensures that all matrix elements are non-negative. 
                                              # See Merali et al. for details.
         BE = LogBinner(energy.(ns))
         τ_energy = tau(BE)
@@ -263,42 +262,34 @@ ylabel!("Energy")
 # To finish off this tutorial, we will leave with one final plot of the staggered magnetization which acts as an order parameter to observe the transition from the disordered to the $\mathbb{Z}_2$ phase achieved before :)
 
 densities_QMC = []
-order_para_QMC = []
+order_param_QMC = []
 
 for ii in 1:Δ_step
-    @show ii
     h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
-    H = rydberg_qmc(h_ii)
-    ts = BinaryThermalState(h_qmc,M)
-    d = Diagnostics()
+    h_ii_qmc = rydberg_qmc(h_ii)
+    ts_ii = BinaryThermalState(h_ii_qmc,M)
+    d_ii = Diagnostics()
 
-    [mc_step_beta!(rng, ts, h_qmc,β, d, eq=true) for i in 1:EQ_MCS] #equilibration phase
+    [mc_step_beta!(rng, ts_ii, h_ii_qmc, β, d_ii, eq=true) for i in 1:EQ_MCS] #equilibration phase
     
-    occs = zeros(MCS, nsites)
+    order_param = zeros(MCS)
 
     for i in 1:MCS # Monte Carlo Steps
-        mc_step_beta!(rng, ts, h_qmc,β, d, eq=false) do lsize, ts, h_qmc
-            SSE_slice = sample(h_qmc,ts, 1)
-            occs[i, :] = ifelse.(SSE_slice .== true, 1.0, 0.0)
+        mc_step_beta!(rng, ts_ii, h_ii_qmc, β, d_ii, eq=false) do lsize, ts, h_qmc
+            SSE_slice = sample(h_qmc,ts, 1) # occ = 0,1
+            spin = 2 .* SSE_slice .- 1 # spin = -1, 1
+            order_param[i] = abs(sum(spin[1:2:end]) - sum(spin[2:2:end]))/length(spin)
         end
     end
 
-    densities_values = zeros(nsites)
-    densities_uncertainties = zeros(nsites)
-
-    for jj in 1:nsites
-        # Binning analysis 
-        BD = LogBinner(occs[:,jj])
-        τ_occ = tau(BD)
-        ratio = 2 * τ_occ + 1
-        densities_values[jj] = mean(BD)
-        densities_uncertainties[jj] = std_error(BD)*sqrt(ratio)
-    end    
-    densities = measurement.(densities_values, densities_uncertainties)
-    append!(order_para_QMC, sum(densities[1:2:nsites]) - sum(densities[2:2:nsites]))
+    BD = LogBinner(order_param)
+    τ_energy = tau(BD)
+    ratio = 2 * τ_energy + 1
+    energy_binned = measurement(mean(BD), std_error(BD)*sqrt(ratio)) 
+    append!(order_param_QMC, measurement(mean(BD), std_error(BD)*sqrt(ratio)) )
 end
 
-scatter(Δ / 2π, abs.(order_para_QMC), label="", marker=:x)
+scatter(Δ/2π, value.(order_param_QMC); yerror=uncertainty.(order_param_QMC), label="", marker=:x)
 xlabel!("Δ/2π (MHz)")
 ylabel!("Stag mag")
 

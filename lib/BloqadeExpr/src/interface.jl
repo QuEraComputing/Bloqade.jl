@@ -248,10 +248,11 @@ end
 """
     get_rydberg_params(h)
 
-Generates an interaction matrix given a function `f` that accepts two atom positions at a time 
-and an indexable iterable `atoms` containing atom positions.
+Returns a named tuple containing the fields `atoms`, `ϕ`, `Ω`, and `Δ` for the RydbergHamiltonian, `h`.
 
 See also [`rydberg_h`](@ref)
+
+# Example
 
 ```julia
     (atoms,ϕ,Ω,Δ) = get_rydberg_params(h)

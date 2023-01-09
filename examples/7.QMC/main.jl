@@ -218,10 +218,8 @@ for ii in 1:Δ_step
         ns[i] = mc_step_beta!(rng, ts_ii, h_ii_qmc,β, d_ii, eq=false)
     end
 
-    # Binning analysis 
-    energy(x) = -x / β + h_ii_qmc.energy_shift  # The energy shift here ensures that all matrix elements are non-negative. 
-                                                # See Merali et al. for details.
-    BE = LogBinner(energy.(ns))
+    energy(x) = -x / β + h_ii_qmc.energy_shift  # The energy shift here ensures that all matrix elements are non-negative. See Merali et al. for details.
+    BE = LogBinner(energy.(ns)) # Binning analysis 
     τ_energy = tau(BE)
     ratio = 2 * τ_energy + 1
     energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 

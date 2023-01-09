@@ -245,7 +245,19 @@ function mult_by_two(Ω)
 
 end
 
+"""
+    get_rydberg_params(h)
 
+Generates an interaction matrix given a function `f` that accepts two atom positions at a time 
+and an indexable iterable `atoms` containing atom positions.
+
+See also [`rydberg_h`](@ref)
+
+```julia
+    (atoms,ϕ,Ω,Δ) = get_rydberg_params(h)
+````
+
+"""
 function get_rydberg_params(h::RydbergHamiltonian)
     # extracts parameters from RydbergHamiltonian
     ϕ = nothing
@@ -263,7 +275,7 @@ function get_rydberg_params(h::RydbergHamiltonian)
         Δ = h.detuning_term.Δ
     end
 
-    return (h.rydberg_term.atoms,ϕ,Ω,Δ)
+    return (atoms=h.rydberg_term.atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
 end
 
 attime(t::Real) = h -> attime(h, t)

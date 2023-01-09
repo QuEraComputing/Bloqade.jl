@@ -1,0 +1,34 @@
+cff-version: 1.2.0
+message: "Cite this paper whenever you use Bloqade"
+
+# authors:
+# - family-names: "John"
+#   given-names: "Doe"
+
+title: "Yao.jl: Extensible, Efficient Framework for Quantum Algorithm Design"
+version: "v1"
+license: "Apache License 2.0"
+# doi: "10.22331/q-2020-10-11-341"
+date-released: 2023-01-09
+url: "https://github.com/QuEraComputing/Bloqade.jl"
+# NOTE: add the reference paper here in the future
+# preferred-citation:
+#   authors:
+#     - family-names: "Luo"
+#       given-names: "Xiu-Zhe"
+#     - family-names: "Liu"
+#       given-names: "Jin-Guo"
+#     - family-names: "Pan"
+#       given-names: "Zhang"
+#     - family-names: "Wang"
+#       given-names: "Lei"
+#   doi: "10.22331/q-2020-10-11-341"
+#   journal: "Quantum"
+#   month: 10
+#   pages: 341
+#   title: "Yao.jl: Extensible, Efficient Framework for Quantum Algorithm Design"
+#   type: article
+#   volume: 4
+#   year: 2020
+#   publisher:
+#     - name: "Verein zur F{\"{o}}rderung des Open Access Publizierens in den Quantenwissenschaften"

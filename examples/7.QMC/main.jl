@@ -7,7 +7,6 @@
 # 
 # ![Integral](../../../assets/QMC_tutorial/integral.png)
 # 
-# *Note to myself: Add in a square to image*
 
 # Of course, you might spare yourself the darts and ask a computer to generate a very large number of uniformly random points scattered across the plot, to improve the accuracy of your result. As a matter of fact, the history of the Monte Carlo method and the rise of computers are closely intertwined - the very [first MC](https://en.wikipedia.org/wiki/Monte_Carlo_method#History) was run on the ENIAC itself in 1948 to simulate neutron diffusion processes in the hydrogen bomb. It was this MC simulation that gave birth to the modern era of computational physics. 
 # To summarize, what's the gist of Monte Carlo? Instead of solving a problem exactly, you invoke randomness to sample from the distribution involved in the problem, in this case the $f(x)$ in $\int_0^3 f(x) dx$, until your result approximates the true solution closely enough. This begs the question of what defines *closely enough*, an issue we will examine in more detail below.
@@ -56,17 +55,16 @@ h_qmc = rydberg_qmc(h)
 # Before answering those questions, let us revisit the finite temperature partition function $Z = Tr(e^{-\beta H})$. Indeed, $Z$ is the protagonist in the mathematical formalism of SSE. Massaging it through a few tricks and combinatorics will help us answer the questions and prepare us for the picture that will come below.
 #
 # The core idea is the following: Instead of calculating the trace analytically, we can first write out the Taylor series of the exponential. (That's where the SE in SSE, the idea of *series expansion*, comes in!).
-# $$
-#     Z = Tr(e^{-\beta H}) = Tr(\sum_{n=0}^{\infty} \frac{\beta^n}{n!}(-\hat{H})^n).
-# $$
+# \begin{equation}
+#     Z = Tr(e^{-\beta H}) = Tr\left(\sum_{n=0}^{\infty} \frac{\beta^n}{n!}\left(-\hat{H}\right)^n\right).
+# \end{equation}
 # Next, we simply insert the usual identities over a set of basis states $\{\alpha_p\}$, giving
-# $$
-# Z = \sum_{\{\alpha_p\}} \sum_{n=0}^{\infty}\frac{\beta^n}{n!} \prod_{p=1}^n \langle\alpha_{p-1}| -\hat{H} | \alpha_p\rangle.
-# $$
+# \begin{equation}
+#   Z = Tr(e^{-\beta H}) = Tr\left(\sum_{n=0}^{\infty} \frac{\beta^n}{n!}\left(-\hat{H}\right)^n\right).
+# \end{equation}
 # Finally, we split the Hamiltonian into a sum of local Hamiltonians where each term acts on only one or two atoms. (For example, the latter includes the Rydberg interaction term.) Formally, we'll write $H = - \sum_{t, a} \hat{H}_{t,a}$  where the labels $t$ symbolizes whether the term is diagonal ($t=1$) or off-diagonal ($t=-1$) and $a$ specifies the atoms the term acts on. This leads to the last crucial step in the massage: We switch the order of the n-fold product and sum. From each copy of the total Hamiltonian, we pick one of the local terms and multiply these in a new n-fold product:
-# $$
-#     Z =  \sum_{\{\alpha_p\}} \sum_{n=0}^{\infty} \sum_{S_n} \frac{\beta^n}{n!} \prod_{p=1}^n \langle\alpha_{p-1}| - \hat{H}_{t_p, a_p} | \alpha_p\rangle.
-# $$
+# \begin{equation}
+#   Z =  \sum_{\{\alpha_p\}} \sum_{n=0}^{\infty} \sum_{S_n} \frac{\beta^n}{n!} \prod_{p=1}^n \left\langle\alpha_{p-1}\left\vert - \hat{H}_{t_p, a_p} \right\vert \alpha_p\right\rangle.# \end{equation}
 # *Note: For further technical details, please refer to section 2.1 of [Merali et al (2021)](https://arxiv.org/abs/2107.00766)*
 # Why is this crucial? This procedure of picking local terms produced something we will henceforth refer to as an *operator sequence* and denote by $S_n$ with $n$ being the length of this sequence. Let's have a look what this looks like!
 
@@ -94,7 +92,9 @@ h_qmc = rydberg_qmc(h)
 # 1) randomly propose a new configuration, 
 # 
 # 2) accept the proposal according to a probability given by the ratio of the weights of the current and proposed configuration, 
-# $$P = min(\frac{W_{current}}{W_{proposed}}, 1)$$
+# \begin{equation}
+#   P = min\left(\frac{W_{current}}{W_{proposed}}, 1\right)
+# \end{equation}
 # 
 # 3) repeat.
 
@@ -181,24 +181,24 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72);
 # 
 # We can then use the number of operators to compute the energy thanks to the following observation. Firstly, we know from statistical physics that
 # 
-# $$
-#     \langle E \rangle = -\frac{\partial ln Z}{\partial \beta}.
-# $$
+# \begin{equation}
+#   \langle E \rangle = -\frac{\partial}{\partial \beta} \ln Z.
+# \end{equation}
 # 
 # Yet in the SSE formalism we can find another expression for the expectation value $\langle E \rangle$. Let's work backwards and consider the SSE expectation value of the length of the operator sequence:
 # 
-# $$
-#     \langle n \rangle = \frac{1}{Z} Tr(\sum_{n=0}^\infty n \frac{(-\beta \hat{H})^n}{n!}) \\
-#     = \frac{1}{Z} Tr(\sum_{n=1}^\infty n \frac{(-\beta \hat{H})^n}{n!}) \\
-#     = \frac{1}{Z} Tr(\sum_{n=1}^\infty \frac{(-\beta \hat{H})^n}{(n-1)!}) \\
-#     = \frac{1}{Z} Tr(\sum_{n=0}^\infty (-\beta \hat{H}) * \frac{(-\beta \hat{H})^n}{n!}),
-# $$
+# \begin{align*}
+#     \langle n \rangle &= \frac{1}{Z} Tr(\sum_{n=0}^\infty n \frac{(-\beta \hat{H})^n}{n!}) \\
+#     &= \frac{1}{Z} Tr(\sum_{n=1}^\infty n \frac{(-\beta \hat{H})^n}{n!}) \\
+#     &= \frac{1}{Z} Tr(\sum_{n=1}^\infty \frac{(-\beta \hat{H})^n}{(n-1)!}) \\
+#     &= \frac{1}{Z} Tr(\sum_{n=0}^\infty (-\beta \hat{H}) * \frac{(-\beta \hat{H})^n}{n!}),
+# \end{align*}
 # 
 # where in the second line we dropped the vanishing $n=0$ term and in the fourth line we shifted the sum over n by 1 and hence obtained the extra factor $-\beta \hat{H}$. From this, we directly read of the SSE formula for the energy expectation value:
 # 
-# $$
+# \begin{equation}
 #     \langle E \rangle = -\frac{\langle n \rangle}{\beta}.
-# $$
+# \end{equation}
 
 using BinningAnalysis
 

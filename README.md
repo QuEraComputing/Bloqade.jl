@@ -44,6 +44,18 @@ pkg> add Bloqade#master
 
 You can join QuEra's Slack workspace with this [link](https://join.slack.com/t/querapublic/shared_invite/zt-1d5jjy2kl-_BxvXJQ4_xs6ZoUclQOTJg). Join the `#bloqade` channel to discuss anything related to Bloqade.
 
+## Citation
+
+We are still working on a paper for this package, but if you use Bloqade in your research, please cite the following:
+
+```bibtex
+@misc{bloqade2023quera,
+  url = {https://github.com/QuEraComputing/Bloqade.jl/},
+  title = {Bloqade.jl: {P}ackage for the quantum computation and quantum simulation based on the neutral-atom architecture.},
+  year = {2023}
+}
+```
+
 ## License
 
 Apache License 2.0

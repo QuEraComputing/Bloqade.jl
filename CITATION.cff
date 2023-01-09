@@ -5,7 +5,7 @@ message: "Cite this paper whenever you use Bloqade"
 # - family-names: "John"
 #   given-names: "Doe"
 
-title: "Yao.jl: Extensible, Efficient Framework for Quantum Algorithm Design"
+title: "Bloqade.jl: Package for the quantum computation and quantum simulation based on the neutral-atom architecture."
 version: "v1"
 license: "Apache License 2.0"
 # doi: "10.22331/q-2020-10-11-341"

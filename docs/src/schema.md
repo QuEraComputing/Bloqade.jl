@@ -1,4 +1,4 @@
-# Interacting with Neutral Atom Hardware
+# [Interacting with Neutral Atom Hardware](@id schema)
 
 Bloqade contains its own schema used to represent Hamiltonians in an IR (Intermediate Representation) that can then be executed via simulator/hardware as well as converted to and from other formats. Furthermore, tools such as [`hardware_transform`](@ref) and [`validate`](@ref) are available to check that user-defined Hamiltonians are capable of being executed on hardware and if not, transform them to be able to do so.
 
@@ -19,6 +19,9 @@ h = rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
 ```
 
 To transform the Hamiltonian into something the hardware is capable of supporting, we can pass it through [`hardware_transform`](@ref).
+
+!!! warning "Limitations on Atom Position Transformations"
+    While `hardware_transform` may attempt to adjust atom positions so that they conform to hardware position resolution capabilities, the function will NOT move atoms such that they satisfy minimum spacing constraints. The `validate` function presented later will explicitly indicate which atoms are in violation of the position constraints but will require the user to make the necessary changes.
 
 `hardware_transform` accepts information from [`get_device_capabilities`](@ref) (already called as a default argument) which provides information on the machine's capabilities and returns the transformed hamiltonian along with additional information regarding the difference (error) between the originally defined lattice geometry and waveforms versus their transformed versions through a [`HardwareTransformInfo`](@ref) instance.
 

@@ -12,11 +12,11 @@ i \hbar \dfrac{\partial}{\partial t} | \psi \rangle = \hat{\mathcal{H}}(t) | \ps
 \frac{\mathcal{H}(t)}{\hbar} = \sum_j \frac{\Omega_j(t)}{2} \left( e^{i \phi_j(t) } | g_j \rangle  \langle r_j | + e^{-i \phi_j(t) } | r_j \rangle  \langle g_j | \right) - \sum_j \Delta_j(t) \hat{n}_j + \sum_{j < k} V_{jk} \hat{n}_j \hat{n}_k,
 ```
 
-where ``\Omega_j``, ``\phi_j``, and ``\Delta_j``  denote the Rabi frequency, laser phase, and the detuning of the driving laser field on atom (qubit) ``j`` coupling the two states  ``| g_j \rangle `` (ground state) and `` | r_j \rangle `` (Rydberg state); ``\hat{n}_j = |r_j\rangle \langle r_j|`` is the number operator, and ``V_{jk} = C_6/|\mathbf{r}_j - \mathbf{r}_k|^6`` describes the Rydberg interaction (van der Waals interaction) between atoms ``j`` and ``k`` where ``\mathbf{r}_j`` denotes the position of the atom ``j``; ``C_6`` is the Rydberg interaction constant that depends on the particular Rydberg state used. For Bloqade, the default ``C_6 = 862690 \times 2\pi \text{ MHz μm}^6`` for ``|r \rangle = \lvert 70S_{1/2} \rangle`` of the ``^{87}``Rb atoms; ``\hbar`` is the reduced Planck's constant.
+where ``\Omega_j``, ``\phi_j``, and ``\Delta_j``  denote the Rabi frequency, laser phase, and the detuning of the driving laser field on atom (qubit) ``j`` coupling the two states  ``| g_j \rangle `` (ground state) and `` | r_j \rangle `` (Rydberg state); ``\hat{n}_j = |r_j\rangle \langle r_j|`` is the number operator, and ``V_{jk} = C_6/|\mathbf{x}_j - \mathbf{x}_k|^6`` describes the Rydberg interaction (van der Waals interaction) between atoms ``j`` and ``k`` where ``\mathbf{x}_j`` denotes the position of the atom ``j``; ``C_6`` is the Rydberg interaction constant that depends on the particular Rydberg state used. For Bloqade, the default ``C_6 = 862690 \times 2\pi \text{ MHz μm}^6`` for ``|r \rangle = \lvert 70S_{1/2} \rangle`` of the ``^{87}``Rb atoms; ``\hbar`` is the reduced Planck's constant.
 
 One can use the Rydberg Hamiltonian to 
 understand the ground state properties of the corresponding system and to generate interesting quantum dynamics. 
-The Rydberg Hamiltonian is generally specified by atom positions ``\mathbf{r}_j``, Rabi frequencies ``\Omega_j``, laser phase ``\phi_j``, and detunings ``\Delta_j``. In Bloqade, 
+The Rydberg Hamiltonian is generally specified by atom positions ``\mathbf{x}_j``, Rabi frequencies ``\Omega_j``, laser phase ``\phi_j``, and detunings ``\Delta_j``. In Bloqade, 
 we can easily create a Hamiltonian by inputting these variable parameters into the function [`rydberg_h`](@ref). Furthermore, by inputting waveforms for the Rabi frequency and 
 detuning, we can easily generate time-dependent Hamiltonians. 
 

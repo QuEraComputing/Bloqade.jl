@@ -46,7 +46,7 @@ You can join QuEra's Slack workspace with this [link](https://join.slack.com/t/q
 
 ## Citation
 
-We are still working on a paper for this package, but if you use Bloqade in your research, please cite the following:
+If you use Bloqade in your research, please cite the following:
 
 ```bibtex
 @misc{bloqade2023quera,

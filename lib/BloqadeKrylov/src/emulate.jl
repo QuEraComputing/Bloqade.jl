@@ -58,7 +58,7 @@ julia> atoms = [(i, ) for i in 1:5]
 julia> h = rydberg_h(atoms; Ω=sin)
 nqubits: 5
 +
-├─ [+] ∑ 5.42e6/|r_i-r_j|^6 n_i n_j
+├─ [+] ∑ 5.42e6/|x_i-x_j|^6 n_i n_j
 └─ [+] Ω(t) ⋅ ∑ σ^x_i
 
 

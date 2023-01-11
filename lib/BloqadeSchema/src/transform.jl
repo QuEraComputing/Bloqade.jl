@@ -575,7 +575,7 @@ julia> Δ = Ω = ϕ = sinusoidal(duration=2, amplitude=1.3*π);
 julia> h = rydberg_h(atom_positions; Ω=Ω,Δ=Δ,ϕ=ϕ)
 nqubits: 3
 +
-├─ [+] ∑ 2π ⋅ 8.627e5.0/|r_i-r_j|^6 n_i n_j
+├─ [+] ∑ 2π ⋅ 8.627e5.0/|x_i-x_j|^6 n_i n_j
 ├─ [+] Ω(t) ⋅∑ e^{ϕ(t) ⋅ im} |0⟩⟨1| + e^{-ϕ(t) ⋅ im} |1⟩⟨0|
 └─ [-] Δ(t) ⋅ ∑ n_i
 
@@ -583,7 +583,7 @@ nqubits: 3
 julia> hardware_transform(h)
 (nqubits: 3
 +
-├─ [+] ∑ 2π ⋅ 8.627e5.0/|r_i-r_j|^6 n_i n_j
+├─ [+] ∑ 2π ⋅ 8.627e5.0/|x_i-x_j|^6 n_i n_j
 ├─ [+] Ω(t) ⋅∑ e^{ϕ(t) ⋅ im} |0⟩⟨1| + e^{-ϕ(t) ⋅ im} |1⟩⟨0|
 └─ [-] Δ(t) ⋅ ∑ n_i
 , BloqadeSchema.HardwareTransformInfo(0.5386117854062276, 2.632451578170084, 0.06492452289703464, (Δ = Waveform(_, 2), δ = nothing, Δi = 1.0), 0.013333333333333197))

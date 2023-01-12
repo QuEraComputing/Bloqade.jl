@@ -43,7 +43,7 @@ function print_expr(io::IO, ::MIME"text/plain", t::RydInteract{D}) where D
     n = ceil(log10(C))-1
     C = round(C / 10^n, digits = 3)
     str_op = (D == 2 ? "n_i n_j" : "n^r_i n^r_j")
-    return print(io, "∑ 2π ⋅ $(C)e$n/|r_i-r_j|^6 ", str_op)
+    return print(io, "∑ 2π ⋅ $(C)e$n/|x_i-x_j|^6 ", str_op)
 end
 
 function latex_expr(t::RydInteract{D}) where D
@@ -51,7 +51,7 @@ function latex_expr(t::RydInteract{D}) where D
     n = ceil(log10(C))
     C = round(C / 10^n, digits = 3)
     str_op = (D == 2 ? "n_i n_j" : "n^r_i n^r_j")
-    return "\\sum \\frac{2π \\cdot $C\\times 10^{$n}}{|r_i-r_j|^6} " * str_op
+    return "\\sum \\frac{2π \\cdot $C\\times 10^{$n}}{|x_i-x_j|^6} " * str_op
 end
 
 function pretty_number(x)

@@ -149,7 +149,7 @@ BloqadeMIS.is_independent_set(fixed, graph)
 
 # In a Rydberg Hamiltonian, the first term corresponds to the detuning ``w_i = \Delta``.
 # The second term contains an ``\infty``, which corresponds to the Rydberg blockade term 
-# with its strength described as ``V_{jk} = C_6/|\overrightarrow{\mathbf{r_j}} - \overrightarrow{\mathbf{r_k}}|^6``.
+# with its strength described as ``V_{jk} = C_6/|\mathbf{x}_j - \mathbf{x}_k|^6``.
 # As we can see, the Rydberg interaction is not a perfect independence constraint (with finite blockade interaction and unwanted long-rance interaction). 
 # Thus, postprocessing might be required using neutral-atom quantum computers to solve the MIS problem.
 #

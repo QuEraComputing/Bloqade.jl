@@ -26,7 +26,7 @@ function emulate! end
 Create a rydberg hamiltonian
 
 ```math
-∑ \\frac{C}{|r_i - r_j|^6} n_i n_j + \\frac{Ω}{2} σ_x - Δ σ_n
+∑ \\frac{C}{|x_i - x_j|^6} n_i n_j + \\frac{Ω}{2} σ_x - Δ σ_n
 ```
 
 shorthand for
@@ -71,14 +71,14 @@ julia> atoms = [(1, ), (2, ), (3, ), (4, )]
  (4,)
 
 julia> rydberg_h(atoms)
-∑ 5.42e6/|r_i-r_j|^6 n_i n_j
+∑ 5.42e6/|x_i-x_j|^6 n_i n_j
 ```
 
 ```julia-repl
 julia> rydberg_h(atoms; Ω=0.1)
 nqubits: 4
 +
-├─ ∑ 5.42e6/|r_i-r_j|^6 n_i n_j
+├─ ∑ 5.42e6/|x_i-x_j|^6 n_i n_j
 └─ 0.05 ⋅ ∑ σ^x_i
 ```
 """
@@ -122,7 +122,7 @@ end
 Create a 3-level Rydberg Hamiltonian
 
 ```math
-\\sum_{i<j} \\frac{C}{|r_i - r_j|^6} n^r_i n^r_j + 
+\\sum_{i<j} \\frac{C}{|x_i - x_j|^6} n^r_i n^r_j + 
 \\sum_{i} \\left[\\frac{Ω^{\\mathrm{hf}}}{2} (e^{iϕ^\\mathrm{hf}}|0⟩⟨1| + e^{-iϕ^\\mathrm{hf}}|1⟩⟨0|) - Δ^{\\mathrm{hf}} n^{1}_i + 
 \\frac{Ω^{\\mathrm{r}}}{2} (e^{iϕ^\\mathrm{r}}|1⟩⟨r| + e^{-iϕ^\\mathrm{r}}|r⟩⟨1|) - (Δ^{\\mathrm{hf}} + Δ^{\\mathrm{r}}) n^{\\mathrm{r}}_i \\right]
 ```
@@ -303,13 +303,13 @@ Return the hamiltonian at time `t`.
 julia> h = rydberg_h(atoms; Ω=sin)
 nqudits: 4
 +
-├─ ∑ 5.42e6/|r_i-r_j|^6 n_i n_j
+├─ ∑ 5.42e6/|x_i-x_j|^6 n_i n_j
 └─ Ω(t) ⋅ ∑ σ^x_i
 
 julia> h |> attime(0.1)
 nqudits: 4
 +
-├─ ∑ 5.42e6/|r_i-r_j|^6 n_i n_j
+├─ ∑ 5.42e6/|x_i-x_j|^6 n_i n_j
 └─ 0.0499 ⋅ ∑ σ^x_i
 ```
 """

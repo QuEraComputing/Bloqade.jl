@@ -8,7 +8,7 @@
 # The van der Waals interaction is
 
 # ```math
-# V_{jk} = \frac{C_6}{|\overrightarrow{\mathbf{r}_j} - \overrightarrow{\mathbf{r}_k}|^6}\hat n_j \hat n_k,
+# V_{jk} = \frac{C_6}{|\mathbf{x}_j - \mathbf{x}_k|^6}\hat n_j \hat n_k,
 # ```
 
 # where ``\hat n_j=|r_j\rangle\langle r_j|`` is the number operator on the ``j``th site, 
@@ -26,7 +26,7 @@
 # The left atom is either in a Rydberg state, or in the ground state, and the right atom is originally in the ground state. 
 # Then, a Rabi drive is applied to the right atom, which couples the atom's ground state to the Rydberg state. 
 # For this example, we choose a Rabi frequency of ``\Omega=2\pi\times 0.5`` MHz 
-# and distance between atoms ``|\overrightarrow{\mathbf{r}_j} - \overrightarrow{\mathbf{r}_k}| = 7`` μm, 
+# and distance between atoms ``|\mathbf{x}_j - \mathbf{x}_k| = 7`` μm, 
 # which gives a conditional detuning (Rydberg interaction) of ``\approx 2\pi \times 7.33`` MHz. 
 # When the left atom is in the ground state (black, top), 
 # there are no interactions and the state of the right atom experiences 
@@ -75,7 +75,7 @@
 # and truncate those blockade-violated states. 
 # Mathematically, this is related to the [independent sets](@ref mis-tutorial) of the unit disk graph defined by the positions of the atoms.
 # A unit disk graph is a set of vertices and edges, where each vertex represents an atom, 
-# and there are edges if the distance between vertices is less than or equal to some unit disk radius ``|\overrightarrow{\mathbf{r}_j} - \overrightarrow{\mathbf{r}_k}| \leq R_u``.
+# and there are edges if the distance between vertices is less than or equal to some unit disk radius ``|\mathbf{x}_j - \mathbf{x}_k| \leq R_u``.
 # An independent set is a set of vertices in the graph such that no two of which are connected by an edge.
 # Thus, the non-blockade-violated states are the independent set states of the corresponding unit disk graph, 
 # where the independent set consists of the vertices (atoms) that are excited to the Rydberg state.

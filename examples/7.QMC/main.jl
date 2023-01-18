@@ -61,18 +61,14 @@ h_qmc = rydberg_qmc(h)
 # Before answering those questions, let us revisit the finite temperature partition function $Z = Tr(e^{-\beta H})$. Indeed, $Z$ is the protagonist in the mathematical formalism of SSE. Massaging it through a few tricks and combinatorics will help us answer the questions and prepare us for the picture that will come below.
 #
 # The core idea is the following: Instead of calculating the trace analytically, we can first write out the Taylor series of the exponential. (That's where the SE in SSE, the idea of *series expansion*, comes in!).
-# $$
-#     Z = Tr(e^{-\beta H}) = Tr(\sum_{n=0}^{\infty} \frac{\beta^n}{n!}(-\hat{H})^n).
-# $$
+# $$Z = Tr(e^{-\beta H}) = Tr(\sum_{n=0}^{\infty} \frac{\beta^n}{n!}(-\hat{H})^n).$$
 # Next, we simply insert the usual identities over a set of basis states $\{\alpha_p\}$, giving
-# $$
-# Z = \sum_{\{\alpha_p\}} \sum_{n=0}^{\infty}\frac{\beta^n}{n!} \prod_{p=1}^n \langle\alpha_{p-1}| -\hat{H} | \alpha_p\rangle.
-# $$
+# $$Z = \sum_{\{\alpha_p\}} \sum_{n=0}^{\infty}\frac{\beta^n}{n!} \prod_{p=1}^n \langle\alpha_{p-1}| -\hat{H} | \alpha_p\rangle.$$
 # Finally, we split the Hamiltonian into a sum of local Hamiltonians where each term acts on only one or two atoms. (For example, the latter includes the Rydberg interaction term.) Formally, we'll write $H = - \sum_{t, a} \hat{H}_{t,a}$  where the labels $t$ symbolizes whether the term is diagonal ($t=1$) or off-diagonal ($t=-1$) and $a$ specifies the atoms the term acts on. This leads to the last crucial step in the massage: We switch the order of the n-fold product and sum. From each copy of the total Hamiltonian, we pick one of the local terms and multiply these in a new n-fold product:
-# $$
-#     Z =  \sum_{\{\alpha_p\}} \sum_{n=0}^{\infty} \sum_{S_n} \frac{\beta^n}{n!} \prod_{p=1}^n \langle\alpha_{p-1}| - \hat{H}_{t_p, a_p} | \alpha_p\rangle.
-# $$
+# $$Z =  \sum_{\{\alpha_p\}} \sum_{n=0}^{\infty} \sum_{S_n} \frac{\beta^n}{n!} \prod_{p=1}^n \langle\alpha_{p-1}| - \hat{H}_{t_p, a_p} | \alpha_p\rangle.$$
+#
 # *Note: For further technical details, please refer to section 2.1 of [Merali et al (2021)](https://arxiv.org/abs/2107.00766)*
+#
 # Why is this crucial? This procedure of picking local terms produced something we will henceforth refer to as an *operator sequence* and denote by $S_n$ with $n$ being the length of this sequence. Let's have a look what this looks like!
 
 # ## The SSE Configuration Space
@@ -185,25 +181,14 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72);
 # Now, we only need to make two small changes to our previous MC code. First, for each value of $\Delta$ specified in this ramp, we will run a separate QMC simulation that will produce one data point in the final energy plot. Second, we need to store the number of operators contained in each sample. Yes, this is where the picture we introduced earlier comes in. This number will fluctuate from sample to sample as we build the Markov chain. It is directly returned by the mc_step_beta!() function.
 # 
 # We can then use the number of operators to compute the energy thanks to the following observation. Firstly, we know from statistical physics that
-# 
-# $$
-#     \langle E \rangle = -\frac{\partial ln Z}{\partial \beta}.
-# $$
-# 
+# $$\langle E \rangle = -\frac{\partial ln Z}{\partial \beta}.$$
 # Yet in the SSE formalism we can find another expression for the expectation value $\langle E \rangle$. Let's work backwards and consider the SSE expectation value of the length of the operator sequence:
-# 
-# $$
-#     \langle n \rangle = \frac{1}{Z} Tr(\sum_{n=0}^\infty n \frac{(-\beta \hat{H})^n}{n!}) \\
+# $$\langle n \rangle = \frac{1}{Z} Tr(\sum_{n=0}^\infty n \frac{(-\beta \hat{H})^n}{n!}) \\
 #     = \frac{1}{Z} Tr(\sum_{n=1}^\infty n \frac{(-\beta \hat{H})^n}{n!}) \\
 #     = \frac{1}{Z} Tr(\sum_{n=1}^\infty \frac{(-\beta \hat{H})^n}{(n-1)!}) \\
-#     = \frac{1}{Z} Tr(\sum_{n=0}^\infty (-\beta \hat{H}) * \frac{(-\beta \hat{H})^n}{n!}),
-# $$
-# 
+#     = \frac{1}{Z} Tr(\sum_{n=0}^\infty (-\beta \hat{H}) * \frac{(-\beta \hat{H})^n}{n!}),$$
 # where in the second line we dropped the vanishing $n=0$ term and in the fourth line we shifted the sum over n by 1 and hence obtained the extra factor $-\beta \hat{H}$. From this, we directly read of the SSE formula for the energy expectation value:
-# 
-# $$
-#     \langle E \rangle = -\frac{\langle n \rangle}{\beta}.
-# $$
+# $$\langle E \rangle = -\frac{\langle n \rangle}{\beta}.$$
 
 using BinningAnalysis
 

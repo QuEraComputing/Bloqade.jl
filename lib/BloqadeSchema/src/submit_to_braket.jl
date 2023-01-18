@@ -67,11 +67,14 @@ function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
 
     # Transform error info is output via @debug
     h_transformed, _ = hardware_transform(h)
-    # bloqade_ir = BloqadeSchema.to_schema(h_transformed, translation_params)
     bloqade_ir = if validate_h 
         BloqadeSchema.to_schema(h_transformed, translation_params)
     else
-        BloqadeSchema.to_schema_no_validation(schema_parse_rydberg_fields(h_transformed)..., translation_params)
+        atoms, ϕ, Ω, Δ, δ, Δi = schema_parse_rydberg_fields(h_transformed)
+        # not needed, no local detuning going on
+        # δ already set to nothing
+        Δi = nothing
+        BloqadeSchema.to_schema_no_validation(atoms, ϕ, Ω, Δ, δ, Δi, translation_params)
     end
     task = submit_to_braket(bloqade_ir; arn=arn, region=region, credentials=credentials)
     return task

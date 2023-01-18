@@ -71,7 +71,7 @@ function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
     bloqade_ir = if validate_h 
         BloqadeSchema.to_schema(h_transformed, translation_params)
     else
-        BloqadeSchema.to_schema_no_validation(schema_parse_rydberg_fields(h)..., translation_params)
+        BloqadeSchema.to_schema_no_validation(schema_parse_rydberg_fields(h_transformed)..., translation_params)
     end
     task = submit_to_braket(bloqade_ir; arn=arn, region=region, credentials=credentials)
     return task

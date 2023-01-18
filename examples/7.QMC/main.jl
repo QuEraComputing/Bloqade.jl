@@ -16,7 +16,7 @@
 # 
 # To summarize, what's the gist of Monte Carlo? Instead of solving a problem exactly, you invoke randomness to sample from the distribution involved in the problem, in this case the $f(x)$ in $\int_0^3 f(x) dx$, until your result approximates the true solution closely enough. This begs the question of what defines *closely enough*, an issue we will examine in more detail below.
 
-# ### Quantum Monte Carlo
+# ## Quantum Monte Carlo
 # 
 # So what about *Quantum* Monte Carlo? Firstly, let us emphasize that QMC is still a *classical* simulation, i.e. it is not run on a quantum machine such as QuEra's Aquila. It is simply called *quantum* because we aim to use the idea of MC to investigate problems from quantum physics. In other words, the space we are generating samples from is a Hilbert space of quantum-mechanical configurations. Furthermore, QMC is one of the best established methods in numerically tackling the analytically intractable integrals of quantum *many-body* physics that are beyond the reach of exact solutions. 
 # 
@@ -24,7 +24,7 @@
 #
 # To finish of our introduction, we should mention that QMC is an umbrella term comprising many different implementations of this same core idea, each tailored to a specific class of quantum problems. Under the hood, BloqadeQMC currently implements the SSE (Stochastic Series Expansion) method. It was [first invented](http://physics.bu.edu/~sandvik/research/ssehistory.html) by Anders Sandvik to study e.g. Heisenberg-type models and recently adapted to the Rydberg Hamiltonian by [Merali et al (2021)](https://arxiv.org/abs/2107.00766).
 
-# ### Getting Started with BloqadeQMC
+# ## Getting Started with BloqadeQMC
 # 
 # Let's get started in the usual way by importing the required libraries:
 
@@ -59,7 +59,7 @@ h_qmc = rydberg_qmc(h)
 
 # What has happened in this step? The object h_qmc still contains all the previous information about the lattice geometry as well as the Hamiltonian parameters $\Omega$ and $\Delta$. Crucially, however, this object now also stores the distribution of weights from which our algorithm will sample. Without going into all the details which can be found in [Merali et al (2021)](https://arxiv.org/abs/2107.00766), let's focus on those key elements of the SSE formalism that you will need to calculate observables from the samples. This means understanding what exactly is meant by configuration space in the SSE formalism, what samples from that space look like and what their weights are. 
 
-# ### Prelude: Massaging the partition function
+# ## Prelude: Massaging the partition function
 # Before answering those questions, let us revisit the finite temperature partition function $Z = Tr(e^{-\beta H})$. Indeed, $Z$ is the protagonist in the mathematical formalism of SSE. Massaging it through a few tricks and combinatorics will help us answer the questions and prepare us for the picture that will come below.
 #
 # The core idea is the following: Instead of calculating the trace analytically, we can first write out the Taylor series of the exponential. (That's where the SE in SSE, the idea of *series expansion*, comes in!).
@@ -93,7 +93,7 @@ h_qmc = rydberg_qmc(h)
 # 
 # Don't worry if it takes you a while to process the above information. In fact, a precise understanding is not necessary to successfully run a simulation using BloqadeQMC. We have simply included this peek into the backend in order for you to have some notion of what we mean when we refer to the *number of operators sampled* in the energy calculations later on. We simply mean the number of boxes in Figure xxx.
 
-# ### Running a simulation using BloqadeQMC
+# ## Running a simulation using BloqadeQMC
 # 
 # Now that we have defined the configuration space, let's traverse it and generate samples from it. Importantly, there is a key difference in how these samples are generated as opposed to when we were throwing darts in the beginning. Those throws were all individually random and independent. The algorithm implemented in BloqadeQMC, on the other hand, falls within the class of Markov Chain Monte Carlo (MCMC) methods. As the name suggests, the samples are no longer independent but form a chain in which the probability of the next sample depends on the current sample. (This is the so-called Markov property.)
 
@@ -171,7 +171,7 @@ atoms = generate_sites(SquareLattice(), nx, ny, scale = 6.51);
 
 # ![100atoms](../../../assets/QMC_tutorial/Checkerboard_10x10.png)
 
-# ### Calculating observables using BloqadeQMC
+# ## Calculating observables using BloqadeQMC
 # 
 # The final question we will address in this tutorial is how to calculate observables using BloqadeQMC. We'll choose to investigate the energy during a detuning sweep. Furthermore, we'll limit ourselves to a system size which ED can also handle such that we may compare the results from both methods.
 # 

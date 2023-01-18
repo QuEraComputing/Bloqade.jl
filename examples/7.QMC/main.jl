@@ -1,8 +1,11 @@
 # # Quantum Monte Carlo Method
 # 
 # You remember that tutorial about adiabatic evolution? The one in which we prepared ordered ground states of Rydberg Hamiltonians, such as the $\mathbb{Z}_2$  phase? What method did we use to achieve that goal? 
+# 
 # Not sure? Don't worry - we actually never mentioned its name. That's because that tutorial was all about introducing those interesting ground states themselves. In this tutorial, on the other hand, the aim is to familiarize ourselves with a specific *method* that can produce such results - the **Quantum Monte Carlo** method. In particular, it will allow us to tackle system sizes far beyond what is possible with exact diagonalization - yup, that's the method used in the previous tutorial. While ED is limited to a few tens of particles, QMC can deal with hundreds.
+# 
 # Before we dive into QMC, let's take a step back and make sure we understand the gist of plain Monte Carlo. Consider the following example: You are asked to calculate a really hard integral. You have no clue how to solve it analytically. Is there another way you could approach the problem? 
+# 
 # You could draw the corresponding graph, add a square around it and throw darts randomly at the square. For each throw, you record whether the dart landed below or above the graph. Then you form the ratio $N_{below}/N_{above}$ and multiply it by the area of the square. Indeed, after enough throws that value will approach the true area underneath the graph.
 # 
 # ![Integral](../../../assets/QMC_tutorial/integral.png)
@@ -10,12 +13,15 @@
 # *Note to myself: Add in a square to image*
 
 # Of course, you might spare yourself the darts and ask a computer to generate a very large number of uniformly random points scattered across the plot, to improve the accuracy of your result. As a matter of fact, the history of the Monte Carlo method and the rise of computers are closely intertwined - the very [first MC](https://en.wikipedia.org/wiki/Monte_Carlo_method#History) was run on the ENIAC itself in 1948 to simulate neutron diffusion processes in the hydrogen bomb. It was this MC simulation that gave birth to the modern era of computational physics. 
+# 
 # To summarize, what's the gist of Monte Carlo? Instead of solving a problem exactly, you invoke randomness to sample from the distribution involved in the problem, in this case the $f(x)$ in $\int_0^3 f(x) dx$, until your result approximates the true solution closely enough. This begs the question of what defines *closely enough*, an issue we will examine in more detail below.
 
 # ### Quantum Monte Carlo
 # 
 # So what about *Quantum* Monte Carlo? Firstly, let us emphasize that QMC is still a *classical* simulation, i.e. it is not run on a quantum machine such as QuEra's Aquila. It is simply called *quantum* because we aim to use the idea of MC to investigate problems from quantum physics. In other words, the space we are generating samples from is a Hilbert space of quantum-mechanical configurations. Furthermore, QMC is one of the best established methods in numerically tackling the analytically intractable integrals of quantum *many-body* physics that are beyond the reach of exact solutions. 
+# 
 # Typically, the integral or sum in question is the expection value of some observable $\langle A \rangle_\psi = \sum_j a_j |\langle \psi | \phi_j \rangle |^2$ such as the energy, magnetization etc. The issue we face is the *curse of dimensionality*, meaning the number of terms in this sum grows exponentially in system size. We circumvent this curse by not calculating the whole sum, but instead sampling from the probability distribution given by $|\langle \psi | \phi_j \rangle |^2$, favoring those terms that contribute signficantly to the sum, i.e. have large weights $a_j$. While doing so, it is essential that we explore the configuration space ergodically. This simply means that configurations with a small but non-zero weight should have a chance of being reached, even though this will occur less frequently than for those with large weights. 
+#
 # To finish of our introduction, we should mention that QMC is an umbrella term comprising many different implementations of this same core idea, each tailored to a specific class of quantum problems. Under the hood, BloqadeQMC currently implements the SSE (Stochastic Series Expansion) method. It was [first invented](http://physics.bu.edu/~sandvik/research/ssehistory.html) by Anders Sandvik to study e.g. Heisenberg-type models and recently adapted to the Rydberg Hamiltonian by [Merali et al (2021)](https://arxiv.org/abs/2107.00766).
 
 # ### Getting Started with BloqadeQMC
@@ -227,7 +233,7 @@ for ii in 1:Δ_step
         ratio = 2 * τ_energy + 1
         energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
         append!(energy_QMC, energy_binned)
-    end
+end
 
 
 # *Note: For a detailed guide to the backend of the mc_step_beta!() function, please see the manual (in progress).*

@@ -11,6 +11,7 @@ Credentials can be passed in explicitly through an `AWS.AWSCredentials` struct o
 - `arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila"`: ARN for the machine
 - `region="us-east-1"`: AWS Region machine is located in
 - `credentials::Union{AWSCredentials, Nothing}=nothing`: `AWS.AWSCredentials` instance you can create to login.
+- `validate_h=true` =  Validates the Hamiltonian to ensure compatibility with the machine.
 
 # Logs/Warnings/Exceptions
 
@@ -22,6 +23,7 @@ between the original waveforms in `h` and the newly generated ones compatible wi
 function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian, 
                           n_shots::Int, 
                           device_capabilities = BloqadeSchema.get_device_capabilities();
+                            validate_h = true,
                             arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila",
                             region="us-east-1",
                             credentials::Union{AWSCredentials, Nothing}=nothing
@@ -31,7 +33,7 @@ function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
         n_shots,
         device_capabilities
     )
-    return submit_to_braket(h, translation_params; arn=arn, region=region, credentials=credentials)
+    return submit_to_braket(h, translation_params, validate_h; arn=arn, region=region, credentials=credentials)
 end
 
 """
@@ -47,7 +49,7 @@ Credentials can be passed in explicitly through an `AWS.AWSCredentials` struct o
 - `arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila"`: ARN for the machine
 - `region="us-east-1"`: AWS Region machine is located in
 - `credentials::Union{AWSCredentials, Nothing}=nothing`: `AWS.AWSCredentials` instance you can create to login.
-
+- `validate_h=true` =  Validates the Hamiltonian to ensure compatibility with the machine.
 # Logs/Warnings/Exceptions
 
 An `AWS.NoCredentials` exception is thrown containing a `message` string "Can't find AWS credentials!" if the credentials given are invalid.
@@ -57,6 +59,7 @@ between the original waveforms in `h` and the newly generated ones compatible wi
 """
 function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
                           translation_params::BloqadeSchema.SchemaTranslationParams;
+                            validate_h = true,
                             arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila",
                             region="us-east-1",
                             credentials::Union{AWSCredentials, Nothing}=nothing
@@ -64,7 +67,12 @@ function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
 
     # Transform error info is output via @debug
     h_transformed, _ = hardware_transform(h)
-    bloqade_ir = BloqadeSchema.to_schema(h_transformed, translation_params)
+    # bloqade_ir = BloqadeSchema.to_schema(h_transformed, translation_params)
+    bloqade_ir = if validate_h 
+        BloqadeSchema.to_schema(h_transformed, translation_params)
+    else
+        BloqadeSchema.to_schema_no_validation(schema_parse_rydberg_fields(h)...)
+    end
     task = submit_to_braket(bloqade_ir; arn=arn, region=region, credentials=credentials)
     return task
 end

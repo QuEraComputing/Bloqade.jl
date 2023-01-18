@@ -10,8 +10,6 @@
 # 
 # ![Integral](../../../assets/QMC_tutorial/integral.png)
 # 
-# *Note to myself: Add in a square to image*
-
 # Of course, you might spare yourself the darts and ask a computer to generate a very large number of uniformly random points scattered across the plot, to improve the accuracy of your result. As a matter of fact, the history of the Monte Carlo method and the rise of computers are closely intertwined - the very [first MC](https://en.wikipedia.org/wiki/Monte_Carlo_method#History) was run on the ENIAC itself in 1948 to simulate neutron diffusion processes in the hydrogen bomb. It was this MC simulation that gave birth to the modern era of computational physics. 
 # 
 # To summarize, what's the gist of Monte Carlo? Instead of solving a problem exactly, you invoke randomness to sample from the distribution involved in the problem, in this case the $f(x)$ in $\int_0^3 f(x) dx$, until your result approximates the true solution closely enough. This begs the question of what defines *closely enough*, an issue we will examine in more detail below.

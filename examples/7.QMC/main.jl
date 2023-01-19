@@ -48,12 +48,12 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
 Ω = 2π * 4
 Δ = 2π * 10
-h = rydberg_h(atoms; Δ, Ω)
+h = rydberg_h(atoms; Δ, Ω);
 
 
 # Now comes the first new step:
 
-h_qmc = rydberg_qmc(h)
+h_qmc = rydberg_qmc(h);
 
 # What has happened in this step? The object h_qmc still contains all the previous information about the lattice geometry as well as the Hamiltonian parameters $\Omega$ and $\Delta$. Crucially, however, this object now also stores the distribution of weights from which our algorithm will sample. Without going into all the details which can be found in [Merali et al (2021)](https://arxiv.org/abs/2107.00766), let's focus on those key elements of the SSE formalism that you will need to calculate observables from the samples. This means understanding what exactly is meant by configuration space in the SSE formalism, what samples from that space look like and what their weights are. 
 
@@ -101,8 +101,8 @@ h_qmc = rydberg_qmc(h)
 
 # Now, let's define the parameters than govern the length of the chain, i.e. how long we let the simulation run for.
 
-EQ_MCS = 100
-MCS = 100_000
+EQ_MCS = 100;
+MCS = 100_000;
 
 # As you can see, we are in fact not defining one but two parameters. Indeed, a MCMC simulation is typically split into two phases: first the equilibration phase, also referred to as the *burn-in*, followed by the sampling phase. Even though the mathematical theorems surrounding Markov chains guarantee that under reasonable assumptions these chains eventually converge to the desired probability distribution, it does take some time until this is indeed the case.
 # 
@@ -112,16 +112,16 @@ MCS = 100_000
 # Now, we're almost ready to run the simulation. You can think of the BinaryThermalState object as the initialization (rephrase). You can roughly think of M as the maximum expansion order. (Indeed, we are allowed to truncate the expansion since one can show that the weights of higher terms in the expansion fall off as a Poisson distribution.) 
 # 
 # We choose the inverse temperature β large enough for the simulation to approximate the ground state. If your system is gapped, then a finite value for β will be enough to reach the ground state. If the gap closes, then you will need to scale β with the system size.
-M = 50
-ts = BinaryThermalState(h_qmc, M)   
+M = 50;
+ts = BinaryThermalState(h_qmc, M);   
 # BinaryThermalState is an object necessary in the backend to store the instantaneous SSE configuration during the MC steps.
-d = Diagnostics()                   
+d = Diagnostics();                   
 # Diagnostics are a feature that can be used by the advanced user to analyse performance and extract further information from the backend. We refer to the manual (in progress) for details.
 
 
-rng = MersenneTwister(3214)
+rng = MersenneTwister(3214);
 
-β = 0.5
+β = 0.5;
 
 
 # Time to run the simulation!
@@ -159,8 +159,8 @@ ylabel!("Occupation density")
 
 # As expected, we see a $\mathbb{Z}_2$ pattern has emerged, just as we saw using the exact diagonalization method. So let's try an example that goes beyond what is feasible with ED. We run the same code as before, substituting the 1D chain with 9 atoms for a 2D square lattice with 100 atoms. (This should only take a minute or two to run on your laptop.)
 
-nx = ny = 10
-nsites = nx*ny
+nx = ny = 10;
+nsites = nx*ny;
 atoms = generate_sites(SquareLattice(), nx, ny, scale = 6.51);
 
 # ![100atoms](../../../assets/QMC_tutorial/Checkerboard_10x10.png)
@@ -171,11 +171,11 @@ atoms = generate_sites(SquareLattice(), nx, ny, scale = 6.51);
 # 
 # Let's start by returning to the 1D chain and defining the Hamiltonian parameters. We will keep the constant Rabi drive from before, i.e. $\Omega = 4 \times 2\pi$ MHz. For the detuning, we will choose the following ramp.
 
-nsites = 9
+nsites = 9;
 atoms = generate_sites(ChainLattice(), nsites, scale = 5.72);
 
-Δ_step = 15
-Δ = LinRange(-2π * 9, 2π * 9, Δ_step)
+Δ_step = 15;
+Δ = LinRange(-2π * 9, 2π * 9, Δ_step);
 
 
 # Now, we only need to make two small changes to our previous MC code. First, for each value of $\Delta$ specified in this ramp, we will run a separate QMC simulation that will produce one data point in the final energy plot. Second, we need to store the number of operators contained in each sample. Yes, this is where the picture we introduced earlier comes in. This number will fluctuate from sample to sample as we build the Markov chain. It is directly returned by the mc_step_beta!() function.

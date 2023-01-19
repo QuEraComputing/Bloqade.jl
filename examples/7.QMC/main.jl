@@ -74,7 +74,7 @@ h_qmc = rydberg_qmc(h);
 # ## The SSE Configuration Space
 # Let's consider a system consisting of four Rydberg atoms. One state in the SSE configuration space of this system could look like the following,
 
-#![SSE](../../../assets/QMC_tutorial/SSEconfig.png)
+# ![SSE](../../../assets/QMC_tutorial/SSEconfig.png)
 # where we will briefly define each ingredient in this probably surprising picture. 
 #
 # One aspect of the picture we can directly identify is its vertical dimension: the four circles correspond to four atoms, with filled circles being excited atoms $|r\rangle$ and white circles representing the ground state $|g\rangle$.

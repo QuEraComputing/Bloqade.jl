@@ -149,13 +149,10 @@ end
 
 using Plots: bar
     
-bar(occs_QMC, label="")
+bar = bar(occs_QMC, label="");
 xlabel!("Site number")
 ylabel!("Occupation density")
-
-
-# <img alt="9atoms" src="./9atom_chain_Z2.png">
-# ![9atoms](../../../assets/QMC_tutorial/9atom_chain_Z2.png)
+bar
 
 # As expected, we see a $\mathbb{Z}_2$ pattern has emerged, just as we saw using the exact diagonalization method. So let's try an example that goes beyond what is feasible with ED. We run the same code as before, substituting the 1D chain with 9 atoms for a 2D square lattice with 100 atoms. (This should only take a minute or two to run on your laptop.)
 
@@ -238,12 +235,11 @@ for ii in 1:Δ_step
     energy_ED[ii] = sum(w .* energies) / sum(w)
 end
 
-scatter(Δ/2π, energy_ED, label="ED", marker=:x)
+fig_energy = scatter(Δ/2π, energy_ED, label="ED", marker=:x);
 scatter!(Δ/2π, value.(energy_QMC); yerror=uncertainty.(energy_QMC), label="QMC", marker=:x)
 xlabel!("Δ/2π")
 ylabel!("Energy")
-
-# ![energy](../../../assets/QMC_tutorial/Energy_Comparison.png)
+fig_energy
 
 # We see that using the QMC, we have indeed achieved the same results as for the ED with high accuracy.
 # 
@@ -287,8 +283,7 @@ for ii in 1:Δ_step
     append!(order_para_QMC, sum(densities[1:2:nsites]) - sum(densities[2:2:nsites]))
 end
 
-scatter(Δ / 2π, abs.(order_para_QMC), label="", marker=:x)
+fig_order = scatter(Δ / 2π, abs.(order_para_QMC), label="", marker=:x);
 xlabel!("Δ/2π (MHz)")
 ylabel!("Stag mag")
-
-# ![order_param](../../../assets/QMC_tutorial/order_parameter.png)
+fig_order

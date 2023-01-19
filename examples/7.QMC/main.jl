@@ -110,21 +110,21 @@ MCS = 100_000;
 # 
 # ![Equilibration](../../../assets/QMC_tutorial/equilibration.png)
 # Now, we're almost ready to run the simulation. You can think of the BinaryThermalState object as the initialization (rephrase). You can roughly think of M as the maximum expansion order. (Indeed, we are allowed to truncate the expansion since one can show that the weights of higher terms in the expansion fall off as a Poisson distribution.) 
-# 
-# We choose the inverse temperature β large enough for the simulation to approximate the ground state. If your system is gapped, then a finite value for β will be enough to reach the ground state. If the gap closes, then you will need to scale β with the system size.
+ 
 M = 50;
 ts = BinaryThermalState(h_qmc, M);   
 # BinaryThermalState is an object necessary in the backend to store the instantaneous SSE configuration during the MC steps.
 d = Diagnostics();                   
 # Diagnostics are a feature that can be used by the advanced user to analyse performance and extract further information from the backend. We refer to the manual (in progress) for details.
-
-
-rng = MersenneTwister(3214);
+#
+# Further, we choose the inverse temperature β large enough for the simulation to approximate the ground state. If your system is gapped, then a finite value for β will be enough to reach the ground state. If the gap closes, then you will need to scale β with the system size.
 
 β = 0.5;
 
+rng = MersenneTwister(3214);
 
-# Time to run the simulation!
+
+# Finally, we initialize the pseudorandom number generator. Time to run the simulation!
 #
 # *Note: You will see that mc_step_beta!() returns three objects which can be used for computations during each MC step. "ts" stores the instantaneous SSE configuration, "h_qmc" is the same object as before, "lsize" is related to the arrays used to the arrays used to carry out a MC step and depend on the operator sequence of the current configuration. Details are explained in the upcoming manual. Further, SSE_slice stores a sample of the atom configuration taken from the current SSE configuration, in this case chosen to be the first vertical slice."
 

@@ -243,7 +243,7 @@ fig_energy
 
 # We see that using the QMC, we have indeed achieved the same results as for the ED with high accuracy.
 # 
-# *Note: It is possible to also calculate other observables in the SSE formalism, if they are products of the operators present in the Hamiltonian itself. For example, to calculate $\langle X \rangle$, one would count the number of times the off-diagonal operator $\sigma_x$ appears in each sample and take its average. For more examples and derivations, please see [insert Sandvik 90s paper]*
+# *Note: It is possible to also calculate other observables in the SSE formalism, if they are products of the operators present in the Hamiltonian itself. For example, to calculate $\langle X \rangle$, one would count the number of times the off-diagonal operator $\sigma_x$ appears in each sample and take its average. For more examples and derivations, please see [Sandvik 1992](https://iopscience.iop.org/article/10.1088/0305-4470/25/13/017/pdf)*
 
 # To finish off this tutorial, we will leave with one final plot of the staggered magnetization which acts as an order parameter to observe the transition from the disordered to the $\mathbb{Z}_2$ phase achieved before :)
 

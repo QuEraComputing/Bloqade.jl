@@ -85,7 +85,7 @@ h_qmc = rydberg_qmc(h);
 # 
 # Putting the pieces together, we are ready to get the gist of the weight distribution stored in the rydberg_qmc object. That distribution is given by the matrix elements defined by the local operators (boxes) sandwiched in between two configurations of the physical system (two copies of the four vertically stacked atoms). The picture as a whole is what defines one sample in the SSE configuration whose overall weight is given by the product of the matrix elements of each operator.
 # 
-# Don't worry if it takes you a while to process the above information. In fact, a precise understanding is not necessary to successfully run a simulation using BloqadeQMC. We have simply included this peek into the backend in order for you to have some notion of what we mean when we refer to the *number of operators sampled* in the energy calculations later on. We simply mean the number of boxes in Figure xxx.
+# Don't worry if it takes you a while to process the above information. In fact, a precise understanding is not necessary to successfully run a simulation using BloqadeQMC. We have simply included this peek into the backend in order for you to have some notion of what we mean when we refer to the *number of operators sampled* in the energy calculations later on. We simply mean the number of boxes in the picture above.
 
 # ## Running a simulation using BloqadeQMC
 # 

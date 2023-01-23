@@ -1,6 +1,6 @@
 name = "BloqadeSchema"
 uuid = "a64e8dd8-bb5a-11ec-104d-290571fc3a8d"
-version = "0.2.4"
+version = "0.2.5"
 
 [deps]
 AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"

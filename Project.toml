@@ -1,6 +1,6 @@
 name = "Bloqade"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe1"
-version = "0.1.17"
+version = "0.1.18"
 
 [deps]
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"

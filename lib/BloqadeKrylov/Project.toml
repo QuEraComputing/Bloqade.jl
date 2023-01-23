@@ -1,6 +1,6 @@
 name = "BloqadeKrylov"
 uuid = "bd27d05e-4cd1-5e79-84dd-c5d7d508ade2"
-version = "0.1.5"
+version = "0.1.6"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"

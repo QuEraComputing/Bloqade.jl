@@ -48,7 +48,10 @@ function check_waveform(field,name)
         return
 
     end
-    (isnothing(field) || field isa Number || BloqadeExpr.is_time_function(field)) && error("Failed to transform $name to hardware, $name must be a Waveform.\n If $name is constant or zero use `BloqadeWaveforms.constant`.")
+    # enforce requirement that ALL waveforms must be present prior to invoking hardware_transform (Bloqade doesn't assume any default values).
+    # Transform fails otherwise!
+    isnothing(field) && error("$name must be specified prior to transform to hardware compatible format.\n You can specify the absence of a waveform by passing in a constant waveform (use `BloqadeWaveforms.constant`) with value set to zero.")
+    (field isa Number || BloqadeExpr.is_time_function(field)) && error("Failed to transform $name to hardware, $name must be a Waveform.\n If $name is constant or zero use `BloqadeWaveforms.constant`.")
 
 end
 # warns user if the duration of the waveform will be rounded by the time resolution.

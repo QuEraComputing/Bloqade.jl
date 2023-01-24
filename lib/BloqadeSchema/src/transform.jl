@@ -555,7 +555,7 @@ machine is capable of executing as well as:
 which are all stored in a [`HardwareTransformInfo`](@ref) struct.
 
 `hardware_transform` expects that ALL waveforms `h` can have specified (Ω, Δ, ϕ) are explicitly defined.
-If there is a waveform that is not being used, a [`BloqadeWaveforms.constant`] waveform should be created with value zero
+If there is a waveform that is not being used, a [`BloqadeWaveforms.constant`](@ref) waveform should be created with value zero
 to indicate non-use.
 
 Note that not all atom position constraints are accounted for, such as the maximum lattice width, lattice height, 

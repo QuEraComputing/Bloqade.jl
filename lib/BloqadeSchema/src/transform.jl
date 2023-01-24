@@ -283,6 +283,7 @@ the shorter waveform is padded with zeros for values to make the durations equal
 
 Exceptions are thrown if Ω is:
 - Not of type [`BloqadWaveforms.Waveform`](@ref)
+- Not present (`nothing` was passed in)
 - Not a global drive (e.g.: Vector of Waveforms, localized Ω is not supported)
 - the maximum slope allowed for the waveform from `device_capabilities` is set to infinity 
 - the minimum time step allowed for the waveform from `device_capabilities` is set to zero
@@ -348,6 +349,7 @@ the shorter waveform is padded with zeros for values to make the durations equal
 
 Exceptions are thrown if ϕ is:
 - Not of type [`BloqadWaveforms.Waveform`](@ref)
+- Not present (`nothing` was passed in)
 - Not a global drive (e.g.: Vector of Waveforms, localized ϕ is not supported)
 - the maximum slope allowed for the waveform from `device_capabilities` is set to infinity 
 - the minimum time step allowed for the waveform from `device_capabilities` is set to zero
@@ -417,6 +419,7 @@ the shorter waveform is padded with zeros for values to make the durations equal
 
 Exceptions are thrown if Δ is:
 - Not of type [`BloqadWaveforms.Waveform`](@ref)
+- Not present (`nothing` was passed in)
 - Not a global drive (e.g. Vector of Waveforms, localized Δ is not supported)
 - the maximum slope allowed for the waveform from `device_capabilities` is set to infinity 
 - the minimum time step allowed for the waveform from `device_capabilities` is set to zero
@@ -550,6 +553,10 @@ machine is capable of executing as well as:
 * The mean squared error between original positions of the atoms and the transformed ones
 * The 1-norm of the difference between the original and transformed waveforms
 which are all stored in a [`HardwareTransformInfo`](@ref) struct.
+
+`hardware_transform` expects that ALL waveforms `h` can have specified (Ω, Δ, ϕ) are explicitly defined.
+If there is a waveform that is not being used, a [`BloqadeWaveforms.constant`] waveform should be created with value zero
+to indicate non-use.
 
 Note that not all atom position constraints are accounted for, such as the maximum lattice width, lattice height, 
 and minimum supported spacings. Only position resolution is automatically accounted for.

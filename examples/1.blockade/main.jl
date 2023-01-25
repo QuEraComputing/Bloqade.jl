@@ -12,7 +12,7 @@
 # ```
 
 # where ``\hat n_j=|r_j\rangle\langle r_j|`` is the number operator on the ``j``th site, 
-# which is `1` if the atom is in the Rydberg state ``| r_j \rangle``, and `0` if the atom is in the ground state ``| g_j \rangle``. 
+# which is 1 if the atom is in the Rydberg state ``| r_j \rangle``, and 0 if the atom is in the ground state ``| g_j \rangle``. 
 # The coefficient ``C_6 = 2\pi\times 862690 \text{ MHz μm}^6`` is the interaction strength; 
 # characteristically, this interaction has a strength ``C_6 \approx 2\pi\times 4`` MHz for two atoms separated by ``7.74`` μm,
 # a similar scale to the Rabi frequency coupling the ground and the Rydberg state. 
@@ -33,7 +33,7 @@
 # standard [Rabi oscillation](https://en.wikipedia.org/wiki/Rabi_cycle) between the ground state and the Rydberg state; 
 # for a particular choice of timing, this executes a ``\pi`` pulse, 
 # flipping the right atom from the ground to the Rydberg state. 
-# However, when the left atom is in the Rydberg state (red, bottom), 
+# However, when the left atom is in the Rydberg state (red circle in figure), 
 # there is a large detuning on the right atom due to the strong Rydberg interaction, 
 # which causes the transition to the Rydberg state to be strongly suppressed. 
 # In this case, the right atom (up to perturbative corrections) is never in the Rydberg state.
@@ -42,7 +42,7 @@
 # ![RydbergBlockade](../../../assets/RydbergBlockade.png)
 
 # Because of the large energy shift from having two adjacent atoms in the Rydberg state, 
-# evolution from an atomic ground state with local Rabi couplings between ground and Rydberg is restricted to a low-energy subspace of states 
+# evolution from an atomic ground state with local Rabi couplings between ground and Rydberg state is restricted to a low-energy subspace of states 
 # where no two adjacent atoms are in the Rydberg state. 
 # Furthermore, because the interaction strength with distance is a large power law, 
 # one can define a characteristic scale set by the Rabi frequency. 
@@ -79,14 +79,14 @@
 # An independent set is a set of vertices in the graph such that no two of which are connected by an edge.
 # Thus, the non-blockade-violated states are the independent set states of the corresponding unit disk graph, 
 # where the independent set consists of the vertices (atoms) that are excited to the Rydberg state.
-# If we set ``R_u = R_s``, it will be a good approximation to throw away those non-independent-sets.
+# If we set ``R_u = R_s``, it will be a good approximation to throw away those non-independent sets.
 # In practice, it may not be easy to know *a priori* what will be a good choice for ``R_s``, since it depends on 
 # the specific atom arrangement and the specific many-body quantum dynamics. 
-# For example, if ``R_s = 1/2 * R_b``, we will be throwing away states that have interaction energies at least ``2^6*\Omega``, 
+# For example, if ``R_s = 1/2 \times R_b``, we will be throwing away states that have interaction energies at least ``2^6 \times \Omega``, 
 # which will typically be a very good approximation. 
 # In the two-atom example above, we can set ``R_s = 7`` μm and throw away the state when both atoms are in the Rydberg state,
 # which is quite good an approximation as seen in the figure below. 
-# In this case, the Rydberg-blockaded state has an interaction of ``(R_b / R_s)^6 \Omega \approx 14.7 \, \Omega``.
+# In this case, the Rydberg-blockaded state has an interaction of ``(R_b / R_s)^6 \, \Omega \approx 14.7 \, \Omega``.
 # When the blockade approximation is valid, the basis states would be separated into bands due to the strong Rydberg interaction,
 # and there will be small perturbative coupling between the bands due to the Rabi coupling, 
 # (which is typically in the order of ``(\Omega / V_{jk})^2``).
@@ -162,8 +162,8 @@
 # as much as possible, it's best to have 
 
 # ```math
-# R_b = \sqrt{R_\text{min} R_\text{max}} = R_\text{min} * \sqrt{\frac{R_\text{max}}{R_\text{min}}} 
-# \quad \Rightarrow \quad R_\text{min} = R_b * \sqrt{\frac{R_\text{min}}{R_\text{max}}}.
+# R_b = \sqrt{R_\text{min} R_\text{max}} = R_\text{min} \times \sqrt{\frac{R_\text{max}}{R_\text{min}}} 
+# \quad \Rightarrow \quad R_\text{min} = R_b \times \sqrt{\frac{R_\text{min}}{R_\text{max}}}.
 # ```
 
 # Now, there are several characteristic distances. To summarize, we have: 
@@ -211,7 +211,7 @@
 # Note that acronyms such as "NN", "NNN", and "NNNN" stand for "Nearest-Neighbor", "Next Nearest-Neighbor", and
 # "Next Next Nearest-Neighbor", denoting the furthest atom that can feel the blockading effect of another atom.
 
-# |                         | ``R_\text{min}``              | ``R_\text{max}``                       | ``a`` for ``\Omega = 2\pi * 4`` MHz     | ``a`` for ``\Omega = 2\pi * 10`` MHz    | 
+# |                         | ``R_\text{min}``              | ``R_\text{max}``                       | ``a`` for ``\Omega = 2\pi \times 4`` MHz     | ``a`` for ``\Omega = 2\pi \times 10`` MHz    | 
 # | :-----                  |    :-----:                    |     :-----:                            |              :-----:                    |             :-----:                     | 
 # | Chain ``Z_2``           |      ``a``                    |       ``2a``                           |                 5.48                    |                 4.70                    |
 # | Chain ``Z_3``           |      ``2a``                   |       ``3a``                           |                 3.16                    |                 2.71                    |
@@ -250,7 +250,7 @@
 # for a ring of ``12`` atoms seperated by ``R_\text{min} = 6.9`` μm. 
 # The minimum distance of atoms not within the blockade radius is ``R_\text{max} \approx 13.33`` μm (next-nearest neighbor separation), 
 # Thus, the blockade radius can be ``R_b = 6.9 \times \sqrt{13.33/6.9} \approx 9.59`` μm.
-# This blockade energy scale corresponds to ``\Omega \approx 2\pi * 1.11`` MHz, 
+# This blockade energy scale corresponds to ``\Omega \approx 2\pi \times 1.11`` MHz, 
 # and the perturbative limits are 
 # ``\Omega \ll C_6/R_\text{min} \approx 7.99`` MHz 
 # and ``\Omega \gg C_6/R_\text{max} \approx 0.15`` MHz. 
@@ -293,14 +293,14 @@ h = rydberg_h(atoms; Ω = Ω);
 # In principle, the subspace radius can be taken to be any value less than the blockade radius,
 # but for better approximation, it is better to take smaller ``R_s``. 
 # Typically, ``R_s < R_b / 1.7`` will be a reasonably good approximation,
-# since states with Rydberg interaction ``1.7^6 \Omega \approx 24 \Omega`` will be then truncated, 
+# since states with Rydberg interaction ``1.7^6 \, \Omega \approx 24 \, \Omega`` will be then truncated, 
 # and the perturbative truncation error is typically in second order.
 # For ``R_s = 0``, no states are excluded and one recovers the exact dynamics. 
 # For a subspace radius anywhere between ``R_\text{min}`` and ``R_\text{max}``, 
 # the subspace is the same, as there are no vertices having a separation within those radii. 
 # Here, we choose the subspace radius for the ring of atoms to be the unit disk radius, 
 # which corresponds to truncating the states having a Rydberg interaction 
-# ``>(R_b/R_u)^6 \Omega \approx 7.2 \Omega``.
+# ``>(R_b/R_u)^6 \, \Omega \approx 7.2 \, \Omega``.
 # For more general graphs, it may be reasonable to choose the subspace radius to be smaller than the unit disk radius 
 # and include extra states to improve the fidelity of the energy truncation. 
 # For example, for the next-nearest-neighbor line, it may be reasonable to choose the subspace radius to be half the blockade radius, 

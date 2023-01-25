@@ -371,7 +371,7 @@ plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);
 # Data for this evolution is shown above, 
 # where exact evolution in the full space is shown by the black line, 
 # and the truncated evolution in the subspace is shown by the red dashed line. 
-# It is clear that even though the Hilbert space is ``12\times`` smaller, 
+# It is clear that even though the Hilbert space is 12 times smaller, 
 # the dynamics are faithfully reproduced, 
 # up to high frequency oscillations (inset) from adjacent atoms in the Rydberg state, 
 # similar to the high frequency oscillations of the 2-atom conditional blockade example above. 

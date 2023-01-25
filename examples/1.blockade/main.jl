@@ -184,6 +184,9 @@
 
 # Below, we explain how to set the distance scale using a few example unit disk graphs.
 
+# Note that acronyms such as "NN", "NNN", and "NNNN" found in this page and its diagrams/tables stand for "Nearest-Neighbor", "Next Nearest-Neighbor", and
+# "Next Next Nearest-Neighbor", denoting the furthest atom that can feel the blockading effect of another atom.
+
 # ![BlockadRadius](../../../assets/bloqade_subspace_UDGradius.png)
 
 # In the examples above, ``R_\text{min}`` is the radius of the dark-red disk, 
@@ -193,8 +196,8 @@
 # For the 1D chain with nearest-neighbor blockade, let's say the lattice constant is ``a``
 # with ``R_\text{min} = a`` and ``R_\text{max} = 2a``. 
 # So with ``R_b = \sqrt{R_\text{min} R_\text{max}}``, we have ``a = R_b/\sqrt{2}``.
-# Therefore, given:
-# - ``\Omega = 2\pi \times 4`` MHz,
+# Therefore:
+# - given ``\Omega = 2\pi \times 4`` MHz,
 # - we have``R_b = (C_6 / \Omega)^{1/6} \approx 7.74`` μm,
 # - and `` a = R_b /\sqrt{2} \approx 5.48`` μm. 
 
@@ -207,9 +210,6 @@
 # as in this [paper](https://www.nature.com/articles/s41586-021-03582-4),
 # following the same rationale as above.
 # Here, we summarize the recommended lattice constants (unit μm) for common lattices in the following table:
-
-# Note that acronyms such as "NN", "NNN", and "NNNN" stand for "Nearest-Neighbor", "Next Nearest-Neighbor", and
-# "Next Next Nearest-Neighbor", denoting the furthest atom that can feel the blockading effect of another atom.
 
 # |                         | ``R_\text{min}``              | ``R_\text{max}``                       | ``a`` for ``\Omega = 2\pi \times 4`` MHz     | ``a`` for ``\Omega = 2\pi \times 10`` MHz    | 
 # | :-----                  |    :-----:                    |     :-----:                            |              :-----:                    |             :-----:                     | 

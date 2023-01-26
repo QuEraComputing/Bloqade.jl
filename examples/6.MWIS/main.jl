@@ -1,12 +1,12 @@
 # # Maximum Weight Independent Set
 # ## Background
-# In the [The Maximum Independent Set Problem](@ref mis-tutorial) page, 
+# In the [The Maximum Independent Set Problem](@ref mis-tutorial) tutorial, 
 # we provide a detailed example on how to solve the Maximum Independent Set (MIS) problem
 # using neutral-atom quantum computers. 
 # The first algorithm proposal and experimental demonstration can be found in 
-# [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf) and [S. Ebadi, et al.](https://arxiv.org/abs/2202.09372).
+# [H. Pichler et al. (10.48550/arXiv.1808.10816)](https://arxiv.org/pdf/1808.10816.pdf) and [S. Ebadi et al. (10.48550/arXiv.2202.09372)](https://arxiv.org/abs/2202.09372).
 # In this tutorial, we present a more advanced example of using neutral atom quantum computers
-# to solve the [maximum weight independent set](https://en.wikipedia.org/wiki/Independent_set_(graph_theory)) (MWIS) problem 
+# to solve the [Maximum Weight Independent Set](https://en.wikipedia.org/wiki/Independent_set_(graph_theory)) (MWIS) problem 
 # on a weighted unit disk graph, with arbitrary weights for each vertex. The MWIS problem 
 # seeks to find an independent set whose weights sum to the maximum possible value.
 
@@ -21,9 +21,9 @@ using PythonCall
 plt = pyimport("matplotlib.pyplot");
 
 # We now specify the atom locations and construct an example  
-# unit disk graph on a square lattice with nearest neighbor connections. 
+# unit disk graph on a square lattice with nearest-neighbor connections. 
 # The atoms represent vertices on the problem graph, 
-# and all vertices closer than a distance 1.5 are connected by an edge.  
+# and all vertices closer than a distance 1.5 are connected by an edge:
 locs = [(1, -1), (4, 0), (1, 1), (2, 0), (0, 0), (2, 2), (2, -2), (3, 1), (3, -1)];
 g = unit_disk_graph(locs, 1.5)
 show_graph(g; locs = locs, vertex_colors = ["white" for i in 1:nv(g)])
@@ -42,13 +42,13 @@ show_graph(g; locs = locs, vertex_colors = [iszero(MIS_config[i]) ? "white" : "r
 
 # The quantum adiabatic algorithm (QAA) can be performed with the Hamiltonian:
 
-# $H_{\text{QA}}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \frac{1}{2}\Omega_v(t) \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$.
+# $H_{\text{QA}}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \frac{\Omega_v(t)}{2} \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$.
 
 # Here, we work in the limit of $\Delta, \Omega \ll U$, where 
 # the non-independent set space of the graph can be neglected 
 # (on neutral-atom quantum hardware, this corresponds 
 # to the limit where the interaction energy is much stronger than other energy scales). 
-# In this limit, we can restrict outselves to the Rydberg blockade subspace (see [blockade](@ref)) of the graph 
+# In this limit, we can restrict ourselves to the Rydberg blockade subspace (see the [Rydberg Blockade](@ref blockade) tutorial) of the graph 
 # and ignore the interaction term $\sum_{(u, w) \in E} U n_u n_w$ in the Hamiltonian. 
 # Note that in this tutorial, we also do not include the long-range interaction tail in the Hamiltonian. 
 # The vertex weights of the MWIS problem in this Hamiltonian can be implemented on the hardware 
@@ -61,12 +61,12 @@ show_graph(g; locs = locs, vertex_colors = [iszero(MIS_config[i]) ? "white" : "r
 # and sweeping $\Delta(t)$ to $\Delta_0 > 0$ after some final time $t_f$.  
 
 # By the adiabatic theorem, when the time evolution is sufficiently slow, 
-# the system should follow the instantaneous ground state and ends up in the 
+# the system should follow the instantaneous ground state and end up in the 
 # solution to the MWIS problem.  
 
 # ## Building Pulse Sequences
 # Since we are considering the MWIS problem, we can implement individual
-# atom detuning with, e.g., $\Delta(t)_i = w_i \times \Delta(t)$.  
+# atom detuning with $\Delta(t)_i = w_i \times \Delta(t)$.  
 
 # Let's first build and plot the individual pulse waveforms.
 # We use the following function to build the Hamiltonian and the corresponding waveforms for the adiabatic evolution of the system:
@@ -96,13 +96,13 @@ fig
 
 # ## Compute the MIS Probability and the Adiabatic Timescale
 
-# Here, We compute the MWIS probability of the graph as a function of time. 
+# Here we compute the MWIS probability of the graph as a function of time. 
 # In addition, we would like to extract the adiabatic timescale $T_{\text{LZ}}$ from the Landau-Zener fitting: 
 # $1 - P_{\text{MWIS}} = e^{a - T/T_{\text{LZ}}}$. 
 # To do this, we find the first instance time $T^*$
 # such that $P_{\text{MWIS}}(T) > 0.9$, and 
 # then continue to run evolutions to $2.5T^*$ to extract $T_{\text{LZ}}$. 
-# See [H. Pichler, et al.](https://arxiv.org/pdf/1808.10816.pdf) 
+# See [H. Pichler et al. (10.48550/arXiv.1808.10816)](https://arxiv.org/pdf/1808.10816.pdf) 
 # for more details on the procedure to extract the Landau-Zener timescale.
 
 # We run the simulation in the blockade (independent set) subspace:

@@ -2,10 +2,10 @@
 # ## Background
 
 # In this example, we will show how to use Bloqade to prepare ordered ground states in the Rydberg system. 
-# The example is based on the experimental works in a [1D System (H. Bernien et al. (10.1038/nature24622)](https://www.nature.com/articles/nature24622) and [2D system (S. Ebadi et al. (10.1038/s41586-021-03582-4))](https://www.nature.com/articles/s41586-021-03582-4).
+# The example is based on the experimental works in a [1D System (H. Bernien et al. (10.1038/nature24622)](https://www.nature.com/articles/nature24622)) and [2D system (S. Ebadi et al. (10.1038/s41586-021-03582-4))](https://www.nature.com/articles/s41586-021-03582-4).
 # The Rydberg Hamiltonian can be found in the [Bloqade](@ref) page.
 
-# Due to the strong Rydberg interactions, only one Rydberg excitation is allowed within the blockade radius (see [Rydberg Blockade](@ref blockade)). With a positive detuning Δ, more Rydberg excitations 
+# Due to the strong Rydberg interactions, only one Rydberg excitation is allowed within the blockade radius (see the [Rydberg Blockade](@ref blockade) tutorial). With a positive detuning Δ, more Rydberg excitations 
 # are favored (to lower the ground state(s) energy). The interplay of these two mechanisms allows the creation of different ordered states depending on the strength of the blockade radius and the detunings,
 # such as the [``Z_N`` ordered states (H. Bernien et al. (10.1038/nature24622))](https://www.nature.com/articles/nature24622) in 1D and the checkerboard phase, the star phase, and a pure quantum phase (the striated phase) in 2D 
 # (see the [experiment (S. Ebadi et al. (10.1038/s41586-021-03582-4))](https://www.nature.com/articles/s41586-021-03582-4) and [theory (R. Samajdar et al. (10.1103/PhysRevLett.124.103601))](https://journals.aps.org/prl/abstract/10.1103/PhysRevLett.124.103601) papers).
@@ -30,7 +30,7 @@ plt = pyimport("matplotlib.pyplot");
 # We start by probing the ground state properties of the Rydberg Hamiltonian in a 1D system. 
 # We will use the 1D chain for simplicity and vary the parameters of the Rydberg Hamiltonian, calculating the corresponding ground state properties.
 # Here, we consider a chain with 9 atoms, with each atom separated by a distance of 5.72 μm. 
-# Please refer to the [Rydberg Blockade](@ref blockade) page on tips for setting the separation distance for the atoms in preparing different ordered states.
+# Please refer to the [Rydberg Blockade](@ref blockade) tutorial on tips for setting the separation distance for the atoms in preparing different ordered states.
 # We can generate the system as follows using the function [`generate_sites`](@ref):
 
 nsites = 9

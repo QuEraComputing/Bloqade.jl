@@ -1,20 +1,20 @@
 # # Quantum Scar
 # ## Background
 
-# The experimental study [H. Bernien, et al.](https://www.nature.com/articles/nature24622) discovered that if one starts with a 
+# The experimental study by [H. Bernien et al. (10.1038/nature24622)](https://www.nature.com/articles/nature24622) discovered that if one starts with a 
 # particular initial state (e.g. the Neel state), the Rydberg blockade constraint results into persistent revivals of quantum dynamics, 
-# in constrast to the expectation of reaching thermalization quickly.
-# Later, theoretical studies (e.g. [C. J. Turner, et al.](https://www.nature.com/articles/s41567-018-0137-5)) reveal that this behavior is due to 
+# in contrast to the expectation of reaching thermalization quickly.
+# Later, theoretical studies (e.g. [C. J. Turner et al. (10.1038/s41567-018-0137-5)](https://www.nature.com/articles/s41567-018-0137-5)) reveal that this behavior is due to 
 # special eigenstates embedded in the quantum many-body spectrum, and the phenomenon is called quantum many-body scars.
 
 # Quantum many-body scars are analogous to the phenomenon of classical scars in single-particle quantum chaos, where scars represent a concentration of some eigenfunctions 
-# along the trajectory of classical periodic orbits. Similarly, in the quantum many-body case, the initial Neel state has a large component of these specific scar states. 
+# along the trajectory of classical periodic orbits. Similarly, in the quantum many-body case, the initial Neel state has a large overlap of these specific scar states. 
 # Under the time evolution of the Rydberg Hamiltonian, the initial state undergoes the trajectory of periodic quantum orbits. The non-thermal behavior is mainly caused by such non-ergodicity 
 # in the Hilbert space. 
 
 # In this example, we use Bloqade to simulate the evolution of a fully coherent, 
 # strongly interacting Rydberg system.  We demonstrate the persistent revivals of many-body dynamics with measurements of the Rydberg density 
-# and entanglement entropy. For a comprehensive review of quantum many-body scars, we refer readers to the paper [M. Serbyn et al.](https://www.nature.com/articles/s41567-021-01230-2)
+# and entanglement entropy. For a comprehensive review of quantum many-body scars, we refer readers to the paper [M. Serbyn et al. (10.1038/s41567-021-01230-2)](https://www.nature.com/articles/s41567-021-01230-2)
 
 # In this tutorial, we provide an example of using Bloqade to simulate quantum many-body scars.
 # To start, we first import the required libraries:
@@ -27,14 +27,14 @@ plt = pyimport("matplotlib.pyplot");
 # # Many-Body Rabi Oscillations with Rydberg Blockade
 
 # We first demonstrate that the strong Rydberg interactions have important effects on the Rabi oscillations of Rydberg atoms.
-# To do so, we consider a system with 1, 2, and 3 atoms. All the atoms are placed within the blockade radius of any other atom (see ['Rydberg Blockade'](@ref blockade) for more details). 
+# To do so, we consider a system with 1, 2, and 3 atoms. All the atoms are placed within the blockade radius of any other atom (see the [Rydberg Blockade](@ref blockade) tutorial for more details). 
 # The atom positions can be created as:
 
 atom1 = generate_sites(ChainLattice(), 1, scale = 3.0)
 atom2 = generate_sites(ChainLattice(), 2, scale = 3.0)
 atom3 = generate_sites(ChainLattice(), 3, scale = 3.0)
 
-# Let's apply a resonant Rabi driving on each of the system. The Hamiltonians can be simply constructed by: 
+# Let's apply a resonant Rabi drive on each atom. The Hamiltonians can be simply constructed by: 
 h1 = rydberg_h(atom1; Δ = 0, Ω = 2π * 2)
 h2 = rydberg_h(atom2; Δ = 0, Ω = 2π * 2)
 h3 = rydberg_h(atom3; Δ = 0, Ω = 2π * 2)
@@ -44,7 +44,7 @@ reg1 = zero_state(1)
 reg2 = zero_state(2)
 reg3 = zero_state(3)
 
-# We first simulate the dynamics for the single atom's case, where the intial state is quenched under a Hamiltonian with constant Rabi frequency:
+# We first simulate the dynamics for the single atom's case, where the initial state is quenched under a Hamiltonian with constant Rabi frequency:
 total_time = 1.5
 clocks = 0.0:1e-2:total_time
 prob1 = KrylovEvolution(reg1, clocks, h1)
@@ -54,9 +54,9 @@ for info in prob1
     density1[1, info.step] = rydberg_density(info.reg, 1)
 end
 
-# Here, we use the [`KrylovEvolution`](@ref) to simulate the dynamics for a time-independent Hamiltonian.
-# One can also use ODE to simulate the dynamics. For an example, see [Adiabatic Evolution](@ref).
-# The Rydberg density of this atom exihibits Rabi oscillations as a function of time, shown by the plot below:
+# Here, we use a [`KrylovEvolution`](@ref) object to simulate the dynamics for a time-independent Hamiltonian.
+# One can also use ODE to simulate the dynamics. For an example, see the [Adiabatic Evolution](@ref) tutorial.
+# The Rydberg density of this atom exhibits Rabi oscillations as a function of time, shown by the plot below:
 fig, ax = plt.subplots()
 ax.plot(clocks, density1[1, :])
 ax.set_xlabel("Time (μs)")
@@ -88,9 +88,9 @@ end
 density3 = sum(density3, dims = 1);
 
 # Because of the Rydberg blockade, the system will undergo many-body Rabi oscillation with the state 
-# oscillating between the all 0 state and the W state, where the Rabi frequency will be enhanced by ``\sqrt{N}``, 
+# oscillating between the all 0 state (``\Ket{0 \ldots 0}``) and the W state (``1/\sqrt{2}(\Ket{0 \ldots 0} + \Ket{010 \ldots 0} + \Ket{0 \ldots 0})``), where the Rabi frequency will be enhanced by ``\sqrt{N}``, 
 # where ``N`` is the number of atoms.
-# For more information, please refer to [H. Bernien, et al.](https://www.nature.com/articles/nature24622).
+# For more information, please refer to [H. Bernien, et al. (10.1038/nature24622)](https://www.nature.com/articles/nature24622).
 # The total Rydberg density for the 1-, 2-, and 3-atom system is plotted below:
 fig, ax = plt.subplots()
 ax.plot(clocks, density1[1, :])
@@ -103,7 +103,7 @@ ax.legend(["1 atom", "2 atoms", "3 atoms"], loc = "lower right")
 fig
 
 # From this plot, we can see that the total Rydberg density for 2 (3) atom case does not exceed 1. This is because
-# it is energitically unfavorable to have more than 1 excitations due to the strong Rydberg interactions. 
+# it is energetically unfavorable to have more than 1 excitation due to the strong Rydberg interactions. 
 # In addition, we can see the enhancement of the many-body Rabi frequency.
 # This shows that the interactions play an important role in the system's dynamics.
 
@@ -114,22 +114,22 @@ fig
 # ## Create the lattice and the Hamiltonian
 
 # We first create a 9-atom system with a 1D-chain arrangement, where each atom is separated from its neighbors by 5.72 μm. This results in a nearest-neighbor 
-# interaction strength of ``2 \pi * 24`` MHz, which is much larger than the Rabi frequency ``\Omega`` specified below. Thus, the nearest-neighbor
-# Rydberg atoms are within the blockade radius, such that the atoms cannot be both excited simultaneously.
+# interaction strength of ``2 \pi \times 24`` MHz, which is much larger than the Rabi frequency ``\Omega`` specified below. Thus, the nearest-neighbor
+# Rydberg atoms are within the blockade radius and cannot be both excited simultaneously:
 
 nsites = 9
 atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
-# The waveforms have two parts. For the first part, we use the adiabatic evolution to prepare an ordered Neel state (see [Adiabatic Evolution](@ref) for more details):
+# The waveforms are made up of two parts. For the first part, we use the adiabatic evolution to prepare an ordered Neel state (see the [Adiabatic Evolution](@ref) tutorial for more details):
 
 Δ1 = piecewise_linear(clocks = [0.0, 0.3, 1.6, 2.2], values = 2π * [-10.0, -10.0, 10.0, 10.0]);
 Ω1 = piecewise_linear(clocks = [0.0, 0.05, 1.6, 2.2], values = 2π * [0.0, 4.0, 4.0, 0.0]);
 
-# The second part of the waveform has constant values for the parameters, so we can use [`constant`](@ref) to construct:
+# The second part of the waveform has constant values for the parameters, so we can use [`constant`](@ref) to construct them:
 Ω2 = constant(duration = 2.0, value = 2 * 2π);
 Δ2 = constant(duration = 2.0, value = 0);
 
-# The waveform for the whole evolution can be composed by appending the second part to the first part:
+# The waveform for the whole evolution can be composed by appending the second part to the first part via [`append`](@ref):
 
 Ω_tot = append(Ω1, Ω2);
 Δ_tot = append(Δ1, Δ2);
@@ -146,9 +146,9 @@ fig
 
 h = rydberg_h(atoms; Δ = Δ_tot, Ω = Ω_tot)
 
-# ## Simulate the Quantum Dynamics
+# ## Simulating the Quantum Dynamics
 
-# We simulate the quench dynamics of the Rydberg atom array (initially prepared in the ground state). 
+# We now simulate the quench dynamics of the Rydberg atom array (initially prepared in the ground state). 
 # The initial state can be created by:
 
 reg = zero_state(nsites);

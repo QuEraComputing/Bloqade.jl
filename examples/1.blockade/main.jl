@@ -120,7 +120,7 @@
 # as the mixing terms only couple to low-energy states.
 
 # Please also refer to the [Working with Subspace](@ref subspace) page in the manual for more details on running simulations in the subspace. 
-# Also, see [Maximum Independent Set tutorial](@ref mis-tutorial) for more descriptions on the correspondence 
+# Also, see [Maximum Independent Set](@ref mis-tutorial) tutorial for more descriptions on the correspondence 
 # between the independent set constraint and the blockade constraint,
 # and a tutorial on how to solve the Maximum Independent Set problem using Rydberg Hamiltonians.
 
@@ -201,13 +201,13 @@
 # - we have``R_b = (C_6 / \Omega)^{1/6} \approx 7.74`` μm,
 # - and `` a = R_b /\sqrt{2} \approx 5.48`` μm. 
 
-# Thus, for the ``Z_2`` phase transition of the [adiabatic example](@ref Adiabatic Evolution) 
-# and in the 1D [paper](https://www.nature.com/articles/nature24622), it is good to set ``a = 5.48`` μm.
+# Thus, for the ``Z_2`` phase transition in the upcoming [Adiabatic Evolution](@ref Adiabatic-Evolution) example and
+# and in a 1D system [paper (H. Bernien et al. (10.1038/nature24622))](https://www.nature.com/articles/nature24622), it is good to set ``a = 5.48`` μm.
 # Similarly, one can compute that ``a = 3.16`` μm and ``a = 2.24`` μm will be good choices 
 # for observing ``Z_3`` and ``Z_4`` phase transitions in the 1D chain. 
 # For the 2D square lattice, ``a = 6.51`` μm and ``a = 4.60`` μm are good options for 
 # observing the checkerboard phase (nearest-neighbor blockade) and the striated phase (next-nearest-neighbor blockade)
-# as in this [paper](https://www.nature.com/articles/s41586-021-03582-4),
+# as in this [paper (S. Ebadi et al. (10.1038/s41586-021-03582-4))](https://www.nature.com/articles/s41586-021-03582-4),
 # following the same rationale as above.
 # Here, we summarize the recommended lattice constants (unit μm) for common lattices in the following table:
 
@@ -246,8 +246,8 @@
 # ## Example Dynamics in the Blockade Subspace
 
 # To emphasize the effectiveness of the subspace emulation, 
-# some example nonequilibrium dynamics are shown below, 
-# for a ring of ``12`` atoms seperated by ``R_\text{min} = 6.9`` μm. 
+# some example non-equilibrium dynamics are shown below, 
+# for a ring of ``12`` atoms separated by ``R_\text{min} = 6.9`` μm. 
 # The minimum distance of atoms not within the blockade radius is ``R_\text{max} \approx 13.33`` μm (next-nearest neighbor separation), 
 # Thus, the blockade radius can be ``R_b = 6.9 \times \sqrt{13.33/6.9} \approx 9.59`` μm.
 # This blockade energy scale corresponds to ``\Omega \approx 2\pi \times 1.11`` MHz, 
@@ -305,7 +305,7 @@ h = rydberg_h(atoms; Ω = Ω);
 # and include extra states to improve the fidelity of the energy truncation. 
 # For example, for the next-nearest-neighbor line, it may be reasonable to choose the subspace radius to be half the blockade radius, 
 # which includes high-energy NNN blockaded states to improve numerical accuracy.
-# See the [subspace](@ref subspace) page for more details.
+# See the [Working With Subspace](@ref subspace) page in the manual for more details: 
 
 subspace_radius = unit_disk_radius # R_s
 
@@ -321,7 +321,7 @@ init_state2 = zero_state(space); # Define the initial state in the blockade subs
 # they are dynamically blockaded, causing the maximum Rydberg density to only be ``1/2``, 
 # corresponding to an antiferromagnetic ``Z_2`` state. 
 # Note that because the ring has a translation symmetry, 
-# the Rydberg density is equal on all sites.
+# the Rydberg density is equal on all sites: 
 
 Tmax = 6.0
 nsteps = 2001

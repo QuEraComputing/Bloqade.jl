@@ -113,13 +113,13 @@
 # The validity of the energy truncation subspace is governed by the strength of off-diagonal matrix elements coupling the low-energy subspace to the high-energy one. 
 # For the Rydberg Hamiltonian, these off-diagonal elements ``|1r\rangle\leftrightarrow|rr\rangle`` have a strength ``\Omega``. 
 # In order to preserve dynamics within the subspace, the energy difference 
-# between states within the blockade subspace (e.g., ``|1r\rangle``) and outside (``|rr\rangle``) must be much larger than the Rabi strength. 
+# between states within the blockade subspace (e.g. ``|1r\rangle``) and outside (``|rr\rangle``) must be much larger than the Rabi strength. 
 # Formally, if ``\Omega \ll C_6/R_s^6``, then the blockade approximation should be valid 
 # (the perturbation is typically in the second order ``(\Omega/ (C_6/R_s^6))^2``).
 # As long as this condition holds, the exact dynamics in the full Hilbert space should be closely approximated by the dynamics in the blockade subspace, 
 # as the mixing terms only couple to low-energy states.
 
-# Please also refer to the [Working with Subspace](@ref subspace) page for more details on running simulations in the subspace. 
+# Please also refer to the [Working with Subspace](@ref subspace) page in the manual for more details on running simulations in the subspace. 
 # Also, see [Maximum Independent Set tutorial](@ref mis-tutorial) for more descriptions on the correspondence 
 # between the independent set constraint and the blockade constraint,
 # and a tutorial on how to solve the Maximum Independent Set problem using Rydberg Hamiltonians.

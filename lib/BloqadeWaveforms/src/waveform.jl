@@ -282,48 +282,6 @@ function append(wf::Waveform, wfs::Waveform...)
     end
 end
 
-function append(wf::Waveform{PiecewiseConstant{T},T}, wfs::Waveform{PiecewiseConstant{T},T}...) where {T<:Real}
-    clocks = wf.f.clocks
-    values = wf.f.values
-
-    for new_wf in wfs
-        new_clocks = new_wf.f.clocks[2:end] .+ clocks[end] # skip first element which is 0
-        clocks = vcat(clocks,new_clocks)
-        values = vcat(values,new_wf.f.values)
-    end
-
-    return piecewise_constant(;clocks=clocks,values=values)
-end
-
-function append(wf::Waveform{PiecewiseLinear{T,Interp},T}, wfs::Waveform{PiecewiseLinear{T,Interp},T}...) where {T<:Real,Interp}
-    clocks = wf.f.clocks
-    values = wf.f.values
-    println(length(wfs))
-
-    for (i,new_wf) in enumerate(wfs)
-        new_clocks = new_wf.f.clocks[2:end] .+ clocks[end]
-        if values[end] == new_wf.f.values[1] || values[end] ≈ new_wf.f.values[1] # extent pwl waveform
-
-            clocks = vcat(clocks,new_clocks)
-            values = vcat(values,new_wf.f.values[2:end])
-        else # discontineuity fall back on annonymos functions 
-            next_wf = append(new_wf,wfs[i+1:end]...)
-            this_wf = piecewise_linear(;clocks=clocks,values=values)
-            this_duration = this_wf.duration
-            duration = this_duration + next_wf.duration
-            return Waveform(duration) do t
-                if t <= this_duration
-                    return this_wf(t)
-                else
-                    return next_wf(t-this_duration)
-                end
-            end
-        end
-    end
-    println("$(clocks) $(values)")
-    return piecewise_linear(;clocks=clocks,values=values)
-end
-
 function assert_clocks(clocks)
     issorted(clocks) || throw(ArgumentError("clocks must be sorted"))
     all(≥(0), clocks) || throw(ArgumentError("clocks must be non-negative values"))
@@ -358,6 +316,33 @@ function PiecewiseLinear(clocks::Vector{<:Quantity}, values::Vector{<:Quantity})
 end
 
 (f::PiecewiseLinear)(t::Real) = f.interp(t)
+
+function append(wf::Waveform{PiecewiseLinear{T,Interp},T}, wfs::Waveform{PiecewiseLinear{T,Interp},T}...) where {T<:Real,Interp}
+    clocks = wf.f.clocks
+    values = wf.f.values
+
+    for (i,new_wf) in enumerate(wfs)
+        new_clocks = new_wf.f.clocks[2:end] .+ clocks[end]
+        if values[end] == new_wf.f.values[1] || values[end] ≈ new_wf.f.values[1] # extent pwl waveform
+
+            clocks = vcat(clocks,new_clocks)
+            values = vcat(values,new_wf.f.values[2:end])
+        else # discontineuity fall back on annonymos functions 
+            next_wf = append(new_wf,wfs[i+1:end]...)
+            this_wf = piecewise_linear(;clocks=clocks,values=values)
+            this_duration = this_wf.duration
+            duration = this_duration + next_wf.duration
+            return Waveform(duration) do t
+                if t <= this_duration
+                    return this_wf(t)
+                else
+                    return next_wf(t-this_duration)
+                end
+            end
+        end
+    end
+    return piecewise_linear(;clocks=clocks,values=values)
+end
 
 function Base.getindex(wf::Waveform{PiecewiseLinear{T,Interp},T}, slice::Interval{<:Real,Closed,Closed}) where {T<:Real,Interp}
     issubset(slice, 0 .. wf.duration) || throw(ArgumentError("slice is not in $(wf.duration) range, got $slice"))
@@ -400,6 +385,19 @@ function (f::PiecewiseConstant)(t::Real)
     idx = findfirst(>(t), f.clocks) # we checked range
     isnothing(idx) && return f.values[end]
     return f.values[idx-1]
+end
+
+function append(wf::Waveform{PiecewiseConstant{T},T}, wfs::Waveform{PiecewiseConstant{T},T}...) where {T<:Real}
+    clocks = wf.f.clocks
+    values = wf.f.values
+
+    for new_wf in wfs
+        new_clocks = new_wf.f.clocks[2:end] .+ clocks[end] # skip first element which is 0
+        clocks = vcat(clocks,new_clocks)
+        values = vcat(values,new_wf.f.values)
+    end
+
+    return piecewise_constant(;clocks=clocks,values=values)
 end
 
 function Base.getindex(wf::Waveform{PiecewiseConstant{T},T}, slice::Interval{<:Real,Closed,Closed}) where T<:Real

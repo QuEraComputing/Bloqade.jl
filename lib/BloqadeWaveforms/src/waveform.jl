@@ -282,6 +282,48 @@ function append(wf::Waveform, wfs::Waveform...)
     end
 end
 
+function append(wf::Waveform{PiecewiseConstant{T},T}, wfs::Waveform{PiecewiseConstant{T},T}...) where {T<:Real}
+    clocks = wf.f.clocks
+    values = wf.f.values
+
+    for new_wf in wfs
+        new_clocks = new_wf.f.clocks[2:end] .+ clocks[end] # skip first element which is 0
+        clocks = vcat(clocks,new_clocks)
+        values = vcat(values,new_wf.f.values)
+    end
+
+    return piecewise_constant(;clocks=clocks,values=values)
+end
+
+function append(wf::Waveform{PiecewiseLinear{T,Interp},T}, wfs::Waveform{PiecewiseLinear{T,Interp},T}...) where {T<:Real,Interp}
+    clocks = wf.f.clocks
+    values = wf.f.values
+    println(length(wfs))
+
+    for (i,new_wf) in enumerate(wfs)
+        new_clocks = new_wf.f.clocks[2:end] .+ clocks[end]
+        if values[end] == new_wf.f.values[1] || values[end] ≈ new_wf.f.values[1] # extent pwl waveform
+
+            clocks = vcat(clocks,new_clocks)
+            values = vcat(values,new_wf.f.values[2:end])
+        else # discontineuity fall back on annonymos functions 
+            next_wf = append(new_wf,wfs[i+1:end]...)
+            this_wf = piecewise_linear(;clocks=clocks,values=values)
+            this_duration = this_wf.duration
+            duration = this_duration + next_wf.duration
+            return Waveform(duration) do t
+                if t <= this_duration
+                    return this_wf(t)
+                else
+                    return next_wf(t-this_duration)
+                end
+            end
+        end
+    end
+    println("$(clocks) $(values)")
+    return piecewise_linear(;clocks=clocks,values=values)
+end
+
 function assert_clocks(clocks)
     issorted(clocks) || throw(ArgumentError("clocks must be sorted"))
     all(≥(0), clocks) || throw(ArgumentError("clocks must be non-negative values"))
@@ -329,8 +371,7 @@ function Base.getindex(wf::Waveform{PiecewiseLinear{T,Interp},T}, slice::Interva
     values[end] = wf(slice.last)
     clocks[end] = slice.last
     clocks .-= slice.first
-    println(values)
-    println(clocks)
+
     return piecewise_linear(;clocks=clocks,values=values)
 
 end

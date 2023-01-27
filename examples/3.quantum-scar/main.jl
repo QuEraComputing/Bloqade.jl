@@ -88,7 +88,7 @@ end
 density3 = sum(density3, dims = 1);
 
 # Because of the Rydberg blockade, the system will undergo many-body Rabi oscillation with the state 
-# oscillating between the all 0 state (``\Ket{0 \ldots 0}``) and the W state (``1/\sqrt{2}(\Ket{0 \ldots 0} + \Ket{010 \ldots 0} + \Ket{0 \ldots 0})``), where the Rabi frequency will be enhanced by ``\sqrt{N}``, 
+# oscillating between the all 0 state (``\Ket{0 \ldots 0}``) and the W state (``1/\sqrt{2}(\Ket{0 \ldots 0} + \Ket{010 \ldots 0} + \Ket{0 \ldots 1})``), where the Rabi frequency will be enhanced by ``\sqrt{N}``, 
 # where ``N`` is the number of atoms.
 # For more information, please refer to [H. Bernien, et al. (10.1038/nature24622)](https://www.nature.com/articles/nature24622).
 # The total Rydberg density for the 1-, 2-, and 3-atom system is plotted below:

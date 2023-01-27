@@ -42,7 +42,7 @@ show_graph(g; locs = locs, vertex_colors = [iszero(MIS_config[i]) ? "white" : "r
 
 # The quantum adiabatic algorithm (QAA) can be performed with the Hamiltonian:
 
-# $H_{\text{QA}}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \frac{\Omega_v(t)}{2} \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$.
+# $H_{\text{QA}}(t) = \sum_{v \in V} (- \Delta_v(t) n_v + \frac{\Omega_v(t)}{2} \sigma_v^x) + \sum_{(u, w) \in E} U_{u,w} n_u n_w$
 
 # Here, we work in the limit of $\Delta, \Omega \ll U$, where 
 # the non-independent set space of the graph can be neglected 

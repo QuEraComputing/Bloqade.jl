@@ -1,24 +1,26 @@
 release-patch:
-    ion bump patch lib/BloqadeExpr            --no-commit
-    ion bump patch lib/BloqadeKrylov          --no-commit
-    ion bump patch lib/BloqadeLattices        --no-commit
-    ion bump patch lib/BloqadeMIS             --no-commit
-    ion bump patch lib/BloqadeODE             --no-commit
-    ion bump patch lib/BloqadeSchema          --no-commit
-    ion bump patch lib/BloqadeWaveforms       --no-commit
-    ion bump patch lib/YaoSubspaceArrayReg    --no-commit
-    ion bump patch
+    #!/usr/bin/env bash
+    set -e
+    git pull origin master
+    git push origin master
 
-    git add lib/BloqadeExpr/Project.toml
-    git add lib/BloqadeKrylov/Project.toml
-    git add lib/BloqadeLattices/Project.toml
-    git add lib/BloqadeMIS/Project.toml
-    git add lib/BloqadeODE/Project.toml
-    git add lib/BloqadeSchema/Project.toml
-    git add lib/BloqadeWaveforms/Project.toml
-    git add lib/YaoSubspaceArrayReg/Project.toml
+    for i in lib/*; do
+        if [ -d "$i" ]; then
+            cd $i
+            ion bump patch --no-commit
+            git add Project.toml
+            cd ../..
+        fi
+    done
+    ion bump patch --no-commit
     git commit -m "Bump patch version"
+    git push origin master
 
+    for i in lib/*; do
+        if [ -d "$i" ]; then
+            ion summon lib/$i --skip-note
+        fi
+    done
     ion summon
 
 release-minor:

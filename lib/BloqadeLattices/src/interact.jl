@@ -18,9 +18,9 @@ julia> two_body_interaction_matrix(atoms) do x,y return 1/distance(x,y) end
 ```
 """
 function two_body_interaction_matrix(f, atoms)
-
     natoms = length(atoms)
-    mat = zeros(natoms,natoms)
+    T = (!isempty(atoms)) ? typeof(f(atoms[1], atoms[1])) : Float64
+    mat = zeros(T, natoms, natoms)
 
     for i in 1:natoms
         for j in i+1:natoms

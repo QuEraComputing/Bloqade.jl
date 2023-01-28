@@ -1,6 +1,6 @@
 name = "BloqadeQMC"
 uuid = "2c0eea08-e05e-11ec-33df-b7e33af02477"
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 BinningAnalysis = "b7192094-8e58-5052-a244-180a858778ee"

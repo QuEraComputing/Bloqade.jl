@@ -15,7 +15,7 @@ release-patch:
     ion bump patch --no-commit
     git add Project.toml
 
-    git commit -m "Bump patch version"
+    git diff --quiet && git diff --staged --quiet || git commit -m "Bump patch version"
     git push origin master
 
     for i in lib/*; do

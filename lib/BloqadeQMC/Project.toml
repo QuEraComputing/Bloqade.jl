@@ -25,12 +25,11 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
 [compat]
-Yao = "0.8"
 BinningAnalysis = "0.5"
+BloqadeExpr = "^0.1.10"
+BloqadeLattices = "^0.1.6"
 DataStructures = "0.18"
 Distributions = "0.24, 0.25"
-BloqadeLattices = "^0.1.6"
-BloqadeExpr = "^0.1.10"
 FFTW = "1.2"
 FileIO = "1.4"
 JLD2 = "0.3, 0.4"
@@ -38,6 +37,7 @@ Measurements = "2.3"
 OnlineStats = "1"
 PushVectors = "0.2"
 RandomNumbers = "1.4"
+Yao = "0.8"
 julia = "1.6"
 
 [extras]

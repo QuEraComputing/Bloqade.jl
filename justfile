@@ -13,12 +13,14 @@ release-patch:
         fi
     done
     ion bump patch --no-commit
-    git commit -m "Bump patch version"
+    git add Project.toml
+
+    git diff --quiet && git diff --staged --quiet || git commit -m "Bump patch version"
     git push origin master
 
     for i in lib/*; do
         if [ -d "$i" ]; then
-            ion summon lib/$i --skip-note
+            ion summon $i --skip-note
         fi
     done
     ion summon

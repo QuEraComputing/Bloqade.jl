@@ -7,6 +7,7 @@ release-patch:
     ion bump patch lib/BloqadeSchema          --no-commit
     ion bump patch lib/BloqadeWaveforms       --no-commit
     ion bump patch lib/YaoSubspaceArrayReg    --no-commit
+    ion bump patch
 
     git add lib/BloqadeExpr/Project.toml
     git add lib/BloqadeKrylov/Project.toml

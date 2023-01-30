@@ -48,7 +48,7 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 
 Ω = 2π * 4
 Δ = 2π * 10
-h = rydberg_h(atoms; Δ, Ω);
+h = rydberg_h(atoms; Δ, Ω)
 
 
 # Now comes the first new step:
@@ -149,7 +149,7 @@ end
 
 using Plots: bar
     
-bar = bar(occs_QMC, label="");
+bar = bar(occs_QMC, label="")
 xlabel!("Site number")
 ylabel!("Occupation density")
 bar

@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "Cite this paper whenever you use Bloqade"
+title: "Bloqade.jl: Package for the quantum computation and quantum simulation based on the neutral-atom architecture."
+version: "v1"
+license: "Apache License 2.0"
+date-released: 2023-01-09
+url: "https://github.com/QuEraComputing/Bloqade.jl"

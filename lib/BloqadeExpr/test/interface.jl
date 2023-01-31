@@ -85,7 +85,7 @@ end
         h = rydberg_h(atoms,ϕ=ϕ,Ω=Ω,Δ=Δ)
         # catches the this weird edge case 
         Ω = (isnothing(Ω) && !isnothing(ϕ) ? 0 : Ω)
-        @test (atoms,ϕ,Ω,Δ) == get_rydberg_params(h)
+        @test (atoms=atoms,ϕ=ϕ,Ω=Ω,Δ=Δ) == get_rydberg_params(h)
     end
 end
 

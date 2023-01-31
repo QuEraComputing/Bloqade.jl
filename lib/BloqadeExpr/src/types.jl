@@ -355,7 +355,7 @@ Type for Rydberg interactive term.
 # Expression
 
 ```math
-\\sum_{i, j} \\frac{C}{|r_i - r_j|^6} n_i n_j
+\\sum_{i, j} \\frac{C}{|x_i - x_j|^6} n_i n_j
 ```
 
 # Keyword Arguments

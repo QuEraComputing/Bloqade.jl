@@ -191,27 +191,27 @@ using BinningAnalysis
 energy_QMC = []
 
 for ii in 1:Δ_step
-        h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
-        h_ii_qmc = rydberg_qmc(h_ii)
-        ts_ii = BinaryThermalState(h_ii_qmc,M)
-        d_ii = Diagnostics()
-    
-        [mc_step_beta!(rng, ts_ii, h_ii_qmc, β, d_ii, eq=true) for i in 1:EQ_MCS] #equilibration phase
-        
-        ns = zeros(MCS)
-    
-        for i in 1:MCS # Monte Carlo Steps
-            ns[i] = mc_step_beta!(rng, ts_ii, h_ii_qmc, β, d_ii, eq=false)
-        end
+    h_ii = rydberg_h(atoms; Δ = Δ[ii], Ω)
+    h_ii_qmc = rydberg_qmc(h_ii)
+    ts_ii = BinaryThermalState(h_ii_qmc,M)
+    d_ii = Diagnostics()
 
-        # Binning analysis 
-        energy(x) = -x / β + h_ii_qmc.energy_shift  # The energy shift here ensures that all matrix elements are non-negative. 
-                                             # See Merali et al. for details.
-        BE = LogBinner(energy.(ns))
-        τ_energy = tau(BE)
-        ratio = 2 * τ_energy + 1
-        energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
-        append!(energy_QMC, energy_binned)
+    [mc_step_beta!(rng, ts_ii, h_ii_qmc, β, d_ii, eq=true) for i in 1:EQ_MCS] #equilibration phase
+    
+    ns = zeros(MCS)
+
+    for i in 1:MCS # Monte Carlo Steps
+        ns[i] = mc_step_beta!(rng, ts_ii, h_ii_qmc, β, d_ii, eq=false)
+    end
+
+    # Binning analysis 
+    energy(x) = -x / β + h_ii_qmc.energy_shift  # The energy shift here ensures that all matrix elements are non-negative. 
+                                            # See Merali et al. for details.
+    BE = LogBinner(energy.(ns))
+    τ_energy = tau(BE)
+    ratio = 2 * τ_energy + 1
+    energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 
+    append!(energy_QMC, energy_binned)
 end
 
 

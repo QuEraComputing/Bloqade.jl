@@ -205,8 +205,7 @@ for ii in 1:Δ_step
     end
 
     # Binning analysis 
-    energy(x) = -x / β + h_ii_qmc.energy_shift  # The energy shift here ensures that all matrix elements are non-negative. 
-                                            # See Merali et al. for details.
+    energy(x) = -x / β + h_ii_qmc.energy_shift  # The energy shift here ensures that all matrix elements are non-negative. See Merali et al for details.
     BE = LogBinner(energy.(ns))
     τ_energy = tau(BE)
     ratio = 2 * τ_energy + 1

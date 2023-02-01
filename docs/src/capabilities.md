@@ -38,21 +38,21 @@ The field names for each value have been provided below but will require you to 
 
 ### Global Rydberg Values
 
-| Capability                       | Field                          | Value              |
-|:---------------------------------|:-------------------------------|:-------------------|
-| Rydberg Interaction Constant     | `c6_coefficient`               | 5.42×10⁶ MHz × µm⁶ |
-| Minimum Rabi Frequency           | `rabi_frequency_min`           | 0.00 MHz           |
-| Maximum Rabi Frequency           | `rabi_frequency_max`           | 15.8 MHz           |
-| Rabi Frequency Resolution        | `rabi_frequency_resolution`    | 0.0004 MHz         |
-| Maximum Rabi Frequency Slew Rate | `rabi_frequency_slew_rate_max` | 250.0 MHz/µs       |
-| Minimum Detuning                 | `detuning_min`                 | -125.0 MHz         |
-| Maximum Detuning                 | `detuning_max`                 | 125.0 MHz          |
-| Detuning Resolution              | `detuning_resolution`          | 2.0×10⁻⁷ MHz       |
-| Maximum Detuning Slew Rate       | `detuning_slew_rate_max`       | 2500.0 MHz/µs      |
-| Minimum Phase                    | `phase_min`                    | -99.0 rad          |
-| Maximum Phase                    | `phase_max`                    | 99.0 rad           |
-| Phase Resolution                 | `phase_resolution`             | 5.0×10⁻⁷ rad       |
-| Minimum Time                     | `time_min`                     | 0.0 µs             |
-| Maximum Time                     | `time_max`                     | 4.0 µs             |
-| Time Resolution                  | `time_resolution`              | 0.001 µs           |
-| Minimum Δt                       | `time_delta_min`               | 0.05 µs            |
+| Capability                       | Field                          | Value                 |
+|:---------------------------------|:-------------------------------|:----------------------|
+| Rydberg Interaction Constant     | `c6_coefficient`               | 5.42×10⁶ rad/μs × µm⁶ |
+| Minimum Rabi Frequency           | `rabi_frequency_min`           | 0.00 rad/μs           |
+| Maximum Rabi Frequency           | `rabi_frequency_max`           | 15.8 rad/μs           |
+| Rabi Frequency Resolution        | `rabi_frequency_resolution`    | 0.0004 rad/μs         |
+| Maximum Rabi Frequency Slew Rate | `rabi_frequency_slew_rate_max` | 250.0 rad/µs²         |
+| Minimum Detuning                 | `detuning_min`                 | -125.0 rad/μs         |
+| Maximum Detuning                 | `detuning_max`                 | 125.0 rad/μs          |
+| Detuning Resolution              | `detuning_resolution`          | 2.0×10⁻⁷ rad/μs       |
+| Maximum Detuning Slew Rate       | `detuning_slew_rate_max`       | 2500.0 rad/µs²        |
+| Minimum Phase                    | `phase_min`                    | -99.0 rad             |
+| Maximum Phase                    | `phase_max`                    | 99.0 rad              |
+| Phase Resolution                 | `phase_resolution`             | 5.0×10⁻⁷ rad          |
+| Minimum Time                     | `time_min`                     | 0.0 µs                |
+| Maximum Time                     | `time_max`                     | 4.0 µs                |
+| Time Resolution                  | `time_resolution`              | 0.001 µs              |
+| Minimum Δt                       | `time_delta_min`               | 0.05 µs               |

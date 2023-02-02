@@ -1,6 +1,6 @@
 name = "BloqadeSchema"
 uuid = "a64e8dd8-bb5a-11ec-104d-290571fc3a8d"
-version = "0.2.4"
+version = "0.2.7"
 
 [deps]
 AWS = "fbe9abb3-538b-5e4e-ba9e-bc94f4f92ebc"
@@ -24,7 +24,7 @@ BitBasis = "0.8"
 BloqadeExpr = "0.1"
 BloqadeODE = "0.1"
 BloqadeWaveforms = "0.1"
-Braket = "0.2"
+Braket = "0.3"
 Configurations = "0.17"
 DecFP = "1.1"
 GarishPrint = "0.5"

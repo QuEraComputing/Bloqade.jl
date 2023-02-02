@@ -97,8 +97,8 @@ function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=AutoVern9(R
         save_start = false,
         save_on = false,
         dense = false,
-        reltol=1e-8,
-        abstol=1e-8,
+        reltol=1e-10,
+        abstol=1e-10,
     )
     kw = pairs(merge(default_ode_options, kw))
 

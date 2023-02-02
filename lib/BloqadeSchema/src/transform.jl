@@ -548,6 +548,11 @@ machine is capable of executing as well as:
 * The 1-norm of the difference between the original and transformed waveforms
 which are all stored in a [`HardwareTransformInfo`](@ref) struct.
 
+Note that not all atom position constraints are accounted for, such as the maximum lattice width, lattice height, 
+and minimum supported spacings. Only position resolution is automatically accounted for.
+This may result in the [`validation`](@ref) function failing and requiring user intervention to modify the atom 
+positions such that they satisfy the other constraints.
+
 # Logs/Warnings/Exceptions
 
 Debug logs are *always* emitted containing the error (defined as the 1-norm of the difference between
@@ -570,7 +575,7 @@ julia> Δ = Ω = ϕ = sinusoidal(duration=2, amplitude=1.3*π);
 julia> h = rydberg_h(atom_positions; Ω=Ω,Δ=Δ,ϕ=ϕ)
 nqubits: 3
 +
-├─ [+] ∑ 2π ⋅ 8.627e5.0/|r_i-r_j|^6 n_i n_j
+├─ [+] ∑ 2π ⋅ 8.627e5.0/|x_i-x_j|^6 n_i n_j
 ├─ [+] Ω(t) ⋅∑ e^{ϕ(t) ⋅ im} |0⟩⟨1| + e^{-ϕ(t) ⋅ im} |1⟩⟨0|
 └─ [-] Δ(t) ⋅ ∑ n_i
 
@@ -578,7 +583,7 @@ nqubits: 3
 julia> hardware_transform(h)
 (nqubits: 3
 +
-├─ [+] ∑ 2π ⋅ 8.627e5.0/|r_i-r_j|^6 n_i n_j
+├─ [+] ∑ 2π ⋅ 8.627e5.0/|x_i-x_j|^6 n_i n_j
 ├─ [+] Ω(t) ⋅∑ e^{ϕ(t) ⋅ im} |0⟩⟨1| + e^{-ϕ(t) ⋅ im} |1⟩⟨0|
 └─ [-] Δ(t) ⋅ ∑ n_i
 , BloqadeSchema.HardwareTransformInfo(0.5386117854062276, 2.632451578170084, 0.06492452289703464, (Δ = Waveform(_, 2), δ = nothing, Δi = 1.0), 0.013333333333333197))

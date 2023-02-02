@@ -148,6 +148,7 @@ end
 
 using Plots: bar
     
+
 results_plot = bar(densities_QMC, label="")
 xlabel!("Site number")
 ylabel!("Occupation density")
@@ -271,6 +272,7 @@ for ii in 1:Δ_step
     energy_binned = measurement(mean(BD), std_error(BD)*sqrt(ratio)) 
     append!(order_param_QMC, measurement(mean(BD), std_error(BD)*sqrt(ratio)) )
 end
+
 
 fig_order = scatter(Δ/2π, value.(order_param_QMC); yerror=uncertainty.(order_param_QMC), label="", marker=:x);
 xlabel!("Δ/2π (MHz)")

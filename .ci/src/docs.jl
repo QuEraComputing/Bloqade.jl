@@ -39,6 +39,7 @@ function pages(; light = false)
             "GPU Acceleration" => "cuda.md",
             "3-Level Support and Quantum Gates" => "3-level.md",
             "Interacting with Neutral Atom Hardware" => "schema.md",
+            "Hardware Capabilities" => "capabilities.md"
         ],
     ]
 
@@ -77,7 +78,7 @@ function doc_build_script(pages, repo)
         format=Documenter.HTML(;
             prettyurls=get(ENV, "CI", "false") == "true",
             canonical="https://QuEraComputing.github.io/Bloqade.jl",
-            assets=String[indigo],
+            assets=String[indigo, "assets/favicon.ico"],
             sidebar_sitename=false,
         ),
         pages=$pages,

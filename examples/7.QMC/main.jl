@@ -148,10 +148,10 @@ end
 
 using Plots: bar
     
-bar = bar(densities_QMC, label="")
+results_plot = bar(densities_QMC, label="")
 xlabel!("Site number")
 ylabel!("Occupation density")
-bar
+results_plot
 
 # As expected, we see a $\mathbb{Z}_2$ pattern has emerged, just as we saw using the exact diagonalization method. So let's try an example that goes beyond what is feasible with ED. We run the same code as before, substituting the 1D chain with 9 atoms for a 2D square lattice with 100 atoms. (This should only take a minute or two to run on your laptop.)
 
@@ -204,9 +204,8 @@ for ii in 1:Δ_step
         ns[i] = mc_step_beta!(rng, ts_ii, h_ii_qmc, β, d_ii, eq=false)
     end
 
-    # Binning analysis 
+    BE = LogBinner(energy.(ns)) # Binning analysis 
     energy(x) = -x / β + h_ii_qmc.energy_shift  # The energy shift here ensures that all matrix elements are non-negative. See Merali et al for details.
-    BE = LogBinner(energy.(ns))
     τ_energy = tau(BE)
     ratio = 2 * τ_energy + 1
     energy_binned = measurement(mean(BE), std_error(BE)*sqrt(ratio)) 

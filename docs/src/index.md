@@ -68,14 +68,15 @@ More specifically, here are the steps to program neutral-atom quantum computers 
 
 The default units for various quantities are: 
 
-| Quantity      | Default Unit |
-| :---:         |    :----:   |
-| Length        |  μm         |
-| Time          |  μs         |
-| ``\Omega``    |  2π * MHz        |
-| ``\phi``      |  rad        |
-| ``\Delta``    |  2π * MHz        |
+|  Quantity  | Default Unit |
+|:----------:|:------------:|
+|   Length   |      μm      |
+|    Time    |      μs      |
+| ``\Omega`` |    rad/μs    |
+|  ``\phi``  |     rad      |
+| ``\Delta`` |    rad/μs    |
 
+You may often find ``\Omega`` and ``\Delta`` written in units of MHz. If you see something like “``\Omega`` is 4 MHz”, it means ``\Omega = 2\pi \times 4`` MHz ``= 25.13`` rad/μs. Using MHz also makes it very easy to understand the pulse time duration it takes to flip the atom from ``|g\rangle`` to ``|r\rangle`` (and vice versa), i.e., a π-pulse. For example, for a π-pulse which means ``\Omega\,t = \pi``, if ``\Omega = 2\pi \times 4`` MHz, then it takes ``t = 0.125`` μs to do the π-pulse.
 
 ## A Simple Example
 

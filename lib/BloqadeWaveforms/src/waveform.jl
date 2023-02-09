@@ -408,12 +408,10 @@ function Base.getindex(wf::Waveform{PiecewiseConstant{T},T}, slice::Interval{<:R
 
     idx_first = (isnothing(idx_first) ? length(wf.f.clocks)-1 : idx_first - 1)
 
-    println("$(slice.first)=>$idx_first, $(slice.last)=>$idx_last, $(wf.f.clocks)")
     clocks = deepcopy(wf.f.clocks[idx_first:idx_last])
     clocks[1] = slice.first
     clocks[end] = slice.last
     clocks .-= slice.first
-    println("$clocks, $(wf.f.values[idx_first:idx_last-1])")
     return piecewise_constant(;clocks=clocks,values=wf.f.values[idx_first:idx_last-1])
 end
 

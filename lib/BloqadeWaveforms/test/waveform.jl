@@ -175,7 +175,21 @@ end
     @test wfs(0.1) ≈ wf(0.6)
 
     @test_throws ArgumentError wf[0.5..(4π+2)]
+
+    pwc = piecewise_constant(;clocks=Float64[0,1,2,3],values=Float64[1,4,2])
+    @test pwc[0.25..2.0] ≈ piecewise_constant(;clocks=Float64[0,0.75,1.75],values=Float64[1,4])
+    @test pwc[1.0..3.0] ≈ piecewise_constant(;clocks=Float64[0.0,1.0,2.0],values=Float64[4,2])
+    @test pwc[1.5..2.5] ≈ piecewise_constant(;clocks=Float64[0.0,0.5,1.0],values=Float64[4,2])
+    @test typeof(pwc[0.25..2.0].f) <: BloqadeWaveforms.PiecewiseConstant 
+
+    pwl = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,4,2,4])
+    @test pwl[0.0..2.5] ≈ piecewise_linear(clocks=Float64[0,1,2,2.5],values=Float64[1,4,2,3])
+    @test pwl[0.25..3] ≈ piecewise_linear(clocks=Float64[0,0.75,1.75,2.75],values=Float64[1.75,4,2,4])
+    @test pwl[1.25..2.5] ≈ piecewise_linear(clocks=Float64[0.0,0.75,1.25],values=Float64[3.5,2,3])
+    @test typeof(pwl[0.25..2.0].f) <: BloqadeWaveforms.PiecewiseLinear
+
 end
+
 
 @testset "piecewise_constant/linear assertions" begin
     @test_throws ArgumentError piecewise_constant(clocks = [0, 1], values = [1, 2, 3])
@@ -233,4 +247,25 @@ end
     );
 
     @test wf(0.56) ≈ 0.0
+
+    wf = append(
+        piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,2,2,0]),
+        piecewise_linear(;clocks=Float64[0,1,3,4],values=Float64[0,1,1,0])
+    )
+    @test typeof(wf.f) <: BloqadeWaveforms.PiecewiseLinear
+    @test wf ≈ piecewise_linear(;clocks=Float64[0,1,2,3,4,6,7],values=Float64[1,2,2,0,1,1,0])
+
+    wf = append(
+        piecewise_linear(;clocks=Float64[0,1,3,4],values=Float64[0,1,1,0]),
+        piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,2,2,0])
+    )
+    @test !(typeof(wf.f) <: BloqadeWaveforms.PiecewiseLinear)
+
+    wf = append(
+        piecewise_constant(;clocks=Float64[0,1,2,3],values=Float64[1,2,2]),
+        piecewise_constant(;clocks=Float64[0,1,3,4],values=Float64[0,1,1])
+    )
+
+    @test typeof(wf.f) <: BloqadeWaveforms.PiecewiseConstant
+    @test wf ≈ piecewise_constant(;clocks=Float64[0,1,2,3,4,6,7],values=Float64[1,2,2,0,1,1])
 end

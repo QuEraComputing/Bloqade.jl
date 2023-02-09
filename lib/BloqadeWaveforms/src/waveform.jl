@@ -346,7 +346,8 @@ end
 
 function Base.getindex(wf::Waveform{PiecewiseLinear{T,Interp},T}, slice::Interval{<:Real,Closed,Closed}) where {T<:Real,Interp}
     issubset(slice, 0 .. wf.duration) || throw(ArgumentError("slice is not in $(wf.duration) range, got $slice"))
-    idx_first = findfirst(>(slice.first), wf.f.clocks)-1
+    idx_first = findfirst(>(slice.first), wf.f.clocks)
+    idx_first = (isnothing(idx_first) ? length(wf.f.clocks) - 1 : idx_first - 1)
     idx_last = findfirst(>=(slice.last), wf.f.clocks)
     values = deepcopy(wf.f.values[idx_first:idx_last])
     clocks = deepcopy(wf.f.clocks[idx_first:idx_last])
@@ -402,15 +403,18 @@ end
 
 function Base.getindex(wf::Waveform{PiecewiseConstant{T},T}, slice::Interval{<:Real,Closed,Closed}) where T<:Real
     issubset(slice, 0 .. wf.duration) || throw(ArgumentError("slice is not in $(wf.duration) range, got $slice"))
-    idx_first = findfirst(>=(slice.first), wf.f.clocks)
+    idx_first = findfirst(>(slice.first), wf.f.clocks)
     idx_last = findfirst(>=(slice.last), wf.f.clocks)
-    idx_first = (isnothing(idx_first) ? length(wf.f.clocks) - 1 : idx_first -1 )
-    idx_last = (isnothing(idx_last) ? length(wf.f.clocks) - 1 : idx_last - 1 ) 
-    clocks = deepcopy(wf.f.clocks[idx_first:idx_last+1])
+
+    idx_first = (isnothing(idx_first) ? length(wf.f.clocks)-1 : idx_first - 1)
+
+    println("$(slice.first)=>$idx_first, $(slice.last)=>$idx_last, $(wf.f.clocks)")
+    clocks = deepcopy(wf.f.clocks[idx_first:idx_last])
     clocks[1] = slice.first
     clocks[end] = slice.last
     clocks .-= slice.first
-    return piecewise_constant(;clocks=clocks,values=wf.f.values[idx_first:idx_last])
+    println("$clocks, $(wf.f.values[idx_first:idx_last-1])")
+    return piecewise_constant(;clocks=clocks,values=wf.f.values[idx_first:idx_last-1])
 end
 
 """

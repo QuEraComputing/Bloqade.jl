@@ -176,11 +176,23 @@ end
 
     @test_throws ArgumentError wf[0.5..(4π+2)]
 
+    pwc = piecewise_constant(;clocks=Float64[0,2.5],values=Float64[1])
+    @test pwc[0.25..2.0] ≈piecewise_constant(;clocks=Float64[0,1.75],values=Float64[1])
+    @test pwc[0.0..2.0] ≈piecewise_constant(;clocks=Float64[0,2.0],values=Float64[1])
+    @test pwc[0.0..2.5] ≈piecewise_constant(;clocks=Float64[0,2.5],values=Float64[1])
+    @test pwc[2.5..2.5] ≈ piecewise_constant(;clocks=Float64[0.0,0.0],values=Float64[1.0])
+
     pwc = piecewise_constant(;clocks=Float64[0,1,2,3],values=Float64[1,4,2])
     @test pwc[0.25..2.0] ≈ piecewise_constant(;clocks=Float64[0,0.75,1.75],values=Float64[1,4])
     @test pwc[1.0..3.0] ≈ piecewise_constant(;clocks=Float64[0.0,1.0,2.0],values=Float64[4,2])
     @test pwc[1.5..2.5] ≈ piecewise_constant(;clocks=Float64[0.0,0.5,1.0],values=Float64[4,2])
+
     @test typeof(pwc[0.25..2.0].f) <: BloqadeWaveforms.PiecewiseConstant 
+
+    pwl = piecewise_linear(;clocks=Float64[0,1],values=Float64[1,4])
+    @test pwl[0.0..0.5] ≈ piecewise_linear(clocks=Float64[0,0.5],values=Float64[1,2.5])
+    @test pwl[0.5..1.0] ≈ piecewise_linear(clocks=Float64[0,0.5],values=Float64[2.5,4])
+    @test pwl[1.0..1.0] ≈ piecewise_linear(clocks=Float64[0,0.0],values=Float64[4,4])
 
     pwl = piecewise_linear(;clocks=Float64[0,1,2,3],values=Float64[1,4,2,4])
     @test pwl[0.0..2.5] ≈ piecewise_linear(clocks=Float64[0,1,2,2.5],values=Float64[1,4,2,3])

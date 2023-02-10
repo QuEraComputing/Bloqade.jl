@@ -350,3 +350,280 @@ Bloqade.plot!(ax, Δ_final)
 ax.set_ylabel("Δ/2π (MHz)")
 ax.legend(["initial", "optimized"], loc = "lower right")
 fig
+
+# ## Applications in VLSI Chip Manufacturing 
+
+# ### Background
+
+# The Maximum Independent Set (MIS) tutorial above described how to use Bloqade to computed the MIS on arbitrary unit disk graphs. 
+# In this tutorial, we will use the same algorithm but also show how to map a problem with real-world applications to a problem 
+# that can be solved with Bloqade's features.  
+
+# Configurability is an approach to chip manufacturing in VLSI design. 
+# Ordinarily, copies of the entire chip and fabricated and on a wafer, the wafer is diced into chips using scribing corridors, 
+# and then faulty chips are marked and discarded. However, since the entire chip is being manufactured at once, this is wasteful because even 
+# if only a small portion of the chip is defective, it must be entirely discarded. 
+# According to [F. Berman et al.](https://core.ac.uk/download/pdf/4951484.pdf), "To use configurability, this process is changed somewhat. 
+# Special circuitry is added in the scribing corridors that enables adjacent chips to be connected. 
+# Then, after the wafer is tested, adjacent functional chips are connected into a group and the entire group is used as a single enlarged chip." 
+# In this way, even if a smaller chips becomes defective, the adjacent chips can be rewired so that they can still be used in the larger chip. 
+
+# A natural problem that arises from this setup is the _square packing_ problem. 
+# [D. Hochbaum and W. Maass](https://www.cs.du.edu/~snarayan/sada/research/docs/p130-hochbaum.pdf) summarizes an example problem: 
+# "64K RAM chips, some of which may be defective, are available on a rectilinear grid placed on a silicon wafer. 
+# 2 x 2 arrays of such nondefective chips could be wired together to produce 256K RAM chips.
+# In order to maximize yield, we want to pack a maximal number of such 2 X 2 arrays into the array of working chips on a wafer."
+
+# To solve this problem, let us start with the necessary imports:
+
+
+using Bloqade
+using GenericTensorNetworks
+using GenericTensorNetworks: unit_disk_graph
+using PythonCall
+using Random
+using Optim
+plt = pyimport("matplotlib.pyplot");
+patches = pyimport("matplotlib.patches");
+np = pyimport("numpy")
+
+# ### Setting up the Problem
+
+# We can visualize this problem as a grid of 64K RAM chips, where some of the grid cells are removed. 
+
+
+fig, ax = plt.subplots(figsize=(5, 5))
+
+G = 5 # grid size (G x G)
+defects = []
+for i in range(1, G*G//15)
+    push!(defects, ((rand(Int)%G+10) % G, (rand(Int)%G + 10) % G))
+end
+
+ax.grid(visible=true)
+plt.xticks(np.arange(1, G+1)) 
+plt.yticks(np.arange(1, G+1)) 
+
+grid = zeros((G, G))
+
+function plot_defects(defects)
+    for (x, y) in defects
+        ax.add_patch(patches.Rectangle((x, y), 1, 1, color="red"))
+        grid[x+1, y+1] = 1
+    end
+end
+
+plot_defects(defects)
+    
+fig
+
+# Wherever there is a 2x2 grid of non-defective chips, these grid cells can be wired together. 
+# This potential grouping of chips can be visualized as a unit disk which overlaps with the four grid cells that are being wired together.
+# For example, in the figure below, the four grid cells in the upper left corner could be wired together, 
+# so we would put a unit disk at (1, 9) with radius 1.
+
+# ![VLSI](../../../assets/vlsi.png)
+
+# The code below shows the unit disk corresponding to every possible wiring.
+# Overlapping unit disks represents two wirings which conflict with each other because they use the same chips. 
+# Our goal is to find the maximum number of non-conflicting wirings, i.e. the MIS.
+
+circs::Vector{Tuple{Int64, Int64}} = []
+Δ = [(0, 0) (0, 1) (1, 0) (1, 1)]
+
+function inrange(x, y)
+    return x>=1 && x<=G && y>=1 && y<=G
+end
+
+for x in 1:G-1
+    for y in 1:G-1
+        works = true
+        for (dx, dy) in Δ
+            if (inrange(x+dx,y+dy))
+                works &= grid[x+dx,y+dy]==0
+            end
+        end
+        if works
+            push!(circs, (x, y))
+        end
+    end
+end
+
+R_opt = sqrt(2sqrt(2))/2
+for circ in circs
+    patch = patches.Circle(circ, R_opt, fill=false)
+    ax.add_patch(patch)
+end
+
+fig
+
+# We can now use Bloqade, transforming this problem (which is a type of Diagonal-connected Unit-disk Grid Graph (DUGG)) into a lattice of atoms.
+# We want each atom to be positioned at the center of the unit disk and have a blockade radius of roughly 7.5 μm, reusing the methdology and values
+# given in the "Setting Up the Problem" section of the tutorial above which enables atoms that exist diagonally from the initial atom to fall within 
+# the Blockade radius.
+
+# We will scale the position of the atoms so that we get the desired unit disk overlaps with a radius of 7.5 μm: 
+
+function scalePos(pos, scale)::Vector{Tuple{Float64, Float64}}
+    npos = []
+    for (x, y) in pos
+        push!(npos, (x*scale, y*scale))
+    end
+    return npos
+end
+R = 7.5
+scale = 7.5/(2*R_opt)
+
+atoms = AtomList(scalePos(circs, scale))
+Bloqade.plot(atoms, blockade_radius = R)
+
+# We will first use classical algorithms to find the optimal solution to the problem:
+
+unit_graph = unit_disk_graph(atoms, R)
+configs = GenericTensorNetworks.solve(IndependentSet(unit_graph), ConfigsMax())[]
+MIS_config = configs.c[1]
+
+# We can visualize the solution on the atom lattice:
+
+Bloqade.plot(atoms, blockade_radius = R; colors = [iszero(b) ? "white" : "red" for b in MIS_config])
+
+# We can also visualize the solution on the chip grid:
+
+function clear_circ()
+    for i in 1:5
+        for patch in ax.patches
+            try
+                patch.radius
+                patch.remove()
+            catch
+                print(patch)
+            end
+        end
+    end
+end
+
+clear_circ()
+for (circ, used) in zip(circs, MIS_config)
+    if used == 1
+        patch = patches.Circle(circ, R_opt, fill=false)
+        ax.add_patch(patch)
+    end
+end
+
+fig
+
+
+# ### The Adiabatic Approach
+
+# Like with the Maximum Independent Set tutorial above, we can use an adiabatic algorithm to solve this problem. 
+# We can use the same pulse sequence for $\Omega$ and $\Delta$:
+
+T_max = 0.6
+Ω_max = 2π * 4
+Ω = piecewise_linear(clocks = [0.0, 0.1, 0.5, T_max], values = [0.0, Ω_max, Ω_max, 0])
+Δ_start = -2π * 13
+Δ_end = 2π * 11
+Δ = piecewise_linear(clocks = [0.0, 0.1, 0.5, T_max], values = [Δ_start, Δ_start, Δ_end, Δ_end])
+
+plot, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+Bloqade.plot!(ax1, Ω)
+ax1.set_ylabel("Ω/2π (MHz)")
+Bloqade.plot!(ax2, Δ)
+ax2.set_ylabel("Δ/2π (MHz)")
+plot
+
+# And construct the Hamiltonian:
+
+hamiltonian = rydberg_h(atoms; Ω = Ω, Δ = Δ, ϕ=Waveform(t->0.0, T_max))
+prob = SchrodingerProblem(zero_state(nqubits(hamiltonian)), T_max, hamiltonian)
+emulate!(prob)
+
+# We can see that our algorithm found the Maximum Independent Set by summing the probabilities of being in any one of the MIS configurations:
+
+function get_MIS_prob(reg::Union{ArrayReg, SubspaceArrayReg}, configs) # want to maxmimize this 
+    prob = 0
+    x = [parse(Int, reverse(string(x)); base=2) for x in configs.c]
+    for (c, amp) in BloqadeMIS.ConfigAmplitude(reg)
+        if c in x
+            prob+=abs2(amp)
+        end
+    end
+    return prob
+end
+
+get_MIS_prob(prob.reg, configs)
+
+# ### Optimization
+
+# For even better results, we can optimize the pulse sequence for $\Omega$ and $\Delta$.
+# We can parametrize the pulses by $t_{start}$ and $t_{end}$, which are the times spent in the initial and final state, respectively. 
+# We will also optimize the shape on the detuning pulse by modeling it as a piecewise linear function given by parameters that indicate 
+# what values it reaches at regular time intervals. We will optimize for the probabilitity that of getting one the MIS solutions without 
+# applying any classical postprocessing on the results of the stimulation. 
+
+
+function get_waves(params::Vector{Float64}) # returns the pulses as a function of certain parameters
+    t_start, t_end, scale... = params
+    t_start+=0.03
+    T_max = 0.6
+    t_end = T_max - t_end - 0.03
+    t_interval = (t_end - t_start) / (length(scale) + 1)
+    Ω_max = 4 * 2π
+    Δ_start = -13 * 2π
+    Δ_end = Δ0 = 11 * 2π
+    
+    Δ_clock = [0.0, t_start]
+    Δ_val = [Δ_start, Δ_start]
+    for i in 1:length(scale)
+        push!(Δ_val, Δ0*scale[i])
+        push!(Δ_clock, t_start + i*t_interval)
+    end
+    push!(Δ_val, Δ_end); push!(Δ_val, Δ_end)
+    push!(Δ_clock, t_end); push!(Δ_clock, T_max)
+    Δ = piecewise_linear(clocks = Δ_clock, values = Δ_val);
+    Ω = piecewise_linear(clocks = [0.0, t_start, t_end, T_max], values = [0, Ω_max, Ω_max, 0]);
+    return Ω, Δ
+end
+
+# The example below plots the pulse sequence that would be generated by the parameters given in `x0`:
+
+function plot_waves(params::Vector{Float64})
+    Ω, Δ = get_waves(params)
+
+    graph, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+    Bloqade.plot!(ax1, Ω)
+    ax1.set_ylabel("Ω/2π (MHz)")
+    Bloqade.plot!(ax2, Δ)
+    ax2.set_ylabel("Δ/2π (MHz)")
+    return graph
+end
+
+x0 = [0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+
+plot_waves(x0)
+
+# We can now run the optimization using the `Nelder-Mead` algorithm
+
+function loss(atoms::AtomList, x::Vector{Float64}, configs)
+    Ω, Δ = get_waves(x)
+    hamiltonian = rydberg_h(atoms; Ω = Ω, Δ = Δ)
+    subspace = blockade_subspace(atoms, 4.5)
+    prob = SchrodingerProblem(zero_state(subspace), T_max, hamiltonian)
+    emulate!(prob)
+    return -get_MIS_prob(prob.reg, configs), prob.reg, Δ
+end
+
+optresult = Optim.optimize(x -> loss(atoms, x, configs)[1], x0)
+
+# We can look at the new pulse sequence, which has a much better `get_MIS_prob`:
+
+plot_waves(optresult.minimizer)
+
+# The new parameters give much better results when we rerun the adiabtic algorithm: 
+
+Ω, Δ = get_waves(optresult.minimizer)
+hamiltonian = rydberg_h(atoms; Ω = Ω, Δ = Δ, ϕ=Waveform(t->0.0, T_max))
+prob = SchrodingerProblem(zero_state(nqubits(hamiltonian)), T_max, hamiltonian)
+emulate!(prob)
+
+bitstring_hist(prob.reg; nlargest = 20)

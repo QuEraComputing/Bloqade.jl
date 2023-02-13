@@ -167,12 +167,6 @@ end
     end
 end
 
-begin
-
-
-end
-
-
 @testset "slicing" begin
     wf = Waveform(sin, duration = 4π)
     wfs = wf[0.5..2π]

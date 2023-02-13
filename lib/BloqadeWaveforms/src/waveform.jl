@@ -348,23 +348,27 @@ function Base.getindex(wf::Waveform{PiecewiseLinear{T,Interp},T}, slice::Interva
     issubset(slice, 0 .. wf.duration) || throw(ArgumentError("slice is not in $(wf.duration) range, got $slice"))
     idx_first = findfirst(>(slice.first), wf.f.clocks)
 
-    idx_last = findfirst(>(slice.last), wf.f.clocks)
+    idx_last = findfirst(>=(slice.last), wf.f.clocks)
     
     idx_first = (isnothing(idx_first) ? length(wf.f.clocks) - 1 : idx_first - 1)
     idx_last = (isnothing(idx_last) ? length(wf.f.clocks) : idx_last)
 
+    if idx_first == idx_last
+        values = [wf(slice.first), wf(slice.last)]
+        clocks = [slice.first,slice.last]
+        return piecewise_linear(;clocks=clocks,values=values)
+    else
+        values = deepcopy(wf.f.values[idx_first:idx_last])
+        clocks = deepcopy(wf.f.clocks[idx_first:idx_last])
 
-    values = deepcopy(wf.f.values[idx_first:idx_last])
-    clocks = deepcopy(wf.f.clocks[idx_first:idx_last])
+        values[1] = wf(slice.first)
+        clocks[1] = slice.first
+        values[end] = wf(slice.last)
+        clocks[end] = slice.last
+        clocks .-= slice.first
 
-    values[1] = wf(slice.first)
-    clocks[1] = slice.first
-    values[end] = wf(slice.last)
-    clocks[end] = slice.last
-    clocks .-= slice.first
-
-    return piecewise_linear(;clocks=clocks,values=values)
-
+        return piecewise_linear(;clocks=clocks,values=values)
+    end
 end
 
 struct PiecewiseConstant{T<:Real}

@@ -2,48 +2,57 @@
 
 Although tools such as those that Bloqade offers in its [Schema](@ref schema) can automatically transform user-created Hamiltonians to conform to [QuEra's Quantum Processor *Aquila*](https://www.quera.com/aquila) requirements with minimal user intervention, the following information may still be helpful in designing Hamiltonians to run on hardware.
 
-### Unit Conversions
+## Programmatic Access
 
-The values below have been converted from their base SI unit representations (viewable in the `lib/BloqadeSchema/config/capabilities-qpu1-mock.json` file of the repository with units specified by `lib/BloqadeSchema/config/capabilities-qpu1-mock-units.json`) to the ones Bloqade uses by default. To display the converted results, the values have been rounded to two decimal places accompanied by the "≈" sign.
+You can obtain the values from the human-readable form below programmatically through the [`BloqadeSchema.get_device_capabilities`](@ref) function which returns `BloqadeSchema.DeviceCapabilities`, a named tuple.
+
+```@repl
+using BloqadeSchema
+device_capabilities = get_device_capabilities();
+BloqadeSchema.pprint(device_capabilities)
+device_capabilities.rydberg.global_value.detuning_max # get the maximum global detuning value
+```
+
+The field names for each value have been provided below but will require you to provide the proper prefix like in the example above (e.g. the Minimum Rabi Frequency is under `rabi_frequency_min` which exists under `global_value` under `rydberg` in the `DeviceCapabilities` tuple, and should be access via *`your_device_capabilities_instance`*`.rydberg.global_value.rabi_frequency_min`)
 
 ## *Aquila* Capabilities
 
 ### Task
 
-| Capability              | Value |
-|:------------------------|:------|
-| Minimum Number of Shots | 1     |
-| Maximum Number of Shots | 1000  |
+| Capability              | Field              | Value |
+|:------------------------|:-------------------|:------|
+| Minimum Number of Shots | `number_shots_min` | 1     |
+| Maximum Number of Shots | `number_shots_max` | 1000  |
 
 ### Lattice Geometry
 
-| Capability                              | Value  |
-|:----------------------------------------|:-------|
-| Maxmimum Number of Atoms                | 256    |
-| Maximum Lattice Area Width              | 75 µm  |
-| Maximum Lattice Area Height             | 76 µm  |
-| Minimum Radial Spacing between Qubits   | 4.0 µm |
-| Minimum Vertical Spacing between Qubits | 4.0 µm |
-| Position Resolution                     | 0.1 µm |
-| Maximum Number of Sites                 | 256    |
+| Capability                              | Field                  | Value   |
+|:----------------------------------------|:-----------------------|:--------|
+| Maximum Number of Qubits                | `number_qubits_max`    | 256     |
+| Maximum Lattice Area Width              | `width`                | 75.0 µm |
+| Maximum Lattice Area Height             | `height`               | 76.0 µm |
+| Minimum Radial Spacing between Qubits   | `spacing_radial_min`   | 4.0 µm  |
+| Minimum Vertical Spacing between Qubits | `spacing_vertical_min` | 4.0 µm  |
+| Position Resolution                     | `position_resolution`  | 0.1 µm  |
+| Maximum Number of Sites                 | `number_sites_max`     | 256     |
 
 ### Global Rydberg Values
 
-| Capability                       | Value                      |
-|:---------------------------------|:---------------------------|
-| Rydberg Interaction Constant     | ≈8.63×10⁻³¹ 2π × MHz × µm⁶ |
-| Minimum Rabi Frequency           | 0.00 2π × MHz              |
-| Maximum Rabi Frequency           | ≈2.51 2π × MHz             |
-| Rabi Frequency Resolution        | ≈6.37×10⁻⁵ 2π × MHz        |
-| Maximum Rabi Frequency Slew Rate | ≈39.79 2π × MHz/µs         |
-| Minimum Detuning                 | ≈-19.89 2π × MHz           |
-| Maximum Detuning                 | ≈19.89 2π × MHz            |
-| Detuning Resolution              | ≈3.18×10⁻⁸ 2π × MHz        |
-| Maximum Detuning Slew Rate       | ≈397.89 2π × MHz/µs        |
-| Minimum Phase                    | 99.0 rad                   |
-| Maximum Phase                    | 99.0 rad                   |
-| Phase Resolution                 | 5.0×10⁻⁷ rad               |
-| Minimum Time                     | 0.0 µs                     |
-| Maximum Time                     | 4.0 µs                     |
-| Time Resolution                  | 0.001 µs                   |
-| Minimum Time Delta               | 0.05 µs                    |
+| Capability                       | Field                          | Value                 |
+|:---------------------------------|:-------------------------------|:----------------------|
+| Rydberg Interaction Constant     | `c6_coefficient`               | 5.42×10⁶ rad/μs × µm⁶ |
+| Minimum Rabi Frequency           | `rabi_frequency_min`           | 0.00 rad/μs           |
+| Maximum Rabi Frequency           | `rabi_frequency_max`           | 15.8 rad/μs           |
+| Rabi Frequency Resolution        | `rabi_frequency_resolution`    | 0.0004 rad/μs         |
+| Maximum Rabi Frequency Slew Rate | `rabi_frequency_slew_rate_max` | 250.0 rad/µs²         |
+| Minimum Detuning                 | `detuning_min`                 | -125.0 rad/μs         |
+| Maximum Detuning                 | `detuning_max`                 | 125.0 rad/μs          |
+| Detuning Resolution              | `detuning_resolution`          | 2.0×10⁻⁷ rad/μs       |
+| Maximum Detuning Slew Rate       | `detuning_slew_rate_max`       | 2500.0 rad/µs²        |
+| Minimum Phase                    | `phase_min`                    | -99.0 rad             |
+| Maximum Phase                    | `phase_max`                    | 99.0 rad              |
+| Phase Resolution                 | `phase_resolution`             | 5.0×10⁻⁷ rad          |
+| Minimum Time                     | `time_min`                     | 0.0 µs                |
+| Maximum Time                     | `time_max`                     | 4.0 µs                |
+| Time Resolution                  | `time_resolution`              | 0.001 µs              |
+| Minimum Δt                       | `time_delta_min`               | 0.05 µs               |

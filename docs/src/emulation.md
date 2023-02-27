@@ -7,7 +7,7 @@ CurrentModule = Bloqade
 After we create the Rydberg Hamiltonian and the register for storing the quantum information, we can 
 simulate the quantum many-body dynamics. The coherent dynamics of
 the system is governed by the Schrödinger equation. The emulation interface of Bloqade is designed in a  
-define-and-run style.  With Bloqade, we have two major types of emulation:
+define-and-run style. With Bloqade, we have two major types of emulation:
 
 - ODE-solver based emulation for most of the problems.
 - Krylov based emulation for piecewise constant problems or QAOA-like problem.
@@ -17,12 +17,12 @@ define-and-run style.  With Bloqade, we have two major types of emulation:
 ### Define the ODE Emulation Problem
 
 ODE solvers are the major backend we use for most of the exact quantum 
-dynamics simulation. The ODE solvers for Bloqade are powered by the [DiffEq.jl package](https://diffeq.sciml.ai/).
+dynamics simulation. The ODE solvers for Bloqade are powered by the [DifferentialEquations.jl package](https://diffeq.sciml.ai/).
 
 Bloqade provides a special problem type [`SchrodingerProblem`](@ref)
 that supports most of the 
 [integrator interface](https://diffeq.sciml.ai/stable/basics/integrator/)
-of `DiffEq`, and most of
+of `DifferentialEquations`, and most of
 [the solver options](https://diffeq.sciml.ai/stable/basics/common_solver_opts/). Here, we introduce some common use cases of the integrator and solver options. For more advanced usage of the solvers,
 please refer to the above link.
 
@@ -40,7 +40,7 @@ you would like to run with via [`BloqadeODE.SchrodingerProblem`](@ref), and then
 emulate!
 ```
 
-For example, we can simulate the quantum dynamics of a time-dependent Hamiltonian by the following codes:
+For example, we can simulate the quantum dynamics of a time-dependent Hamiltonian with the following:
 
 ```@example evolution
 using Bloqade
@@ -66,7 +66,7 @@ for _ in TimeChoiceIterator(integrator, [0.1, 0.25])
 end
 ```
 
-You can use any function on the `reg` object.  For calculating observables, 
+You can use any function on the `reg` object. For calculating observables, 
 please see the [Registers and Observables](@ref observables) section.
 
 !!! tip
@@ -74,7 +74,8 @@ please see the [Registers and Observables](@ref observables) section.
     Remember to make sure your operation does not mutate your state so that
     it won't affect the evolution itself, since the entire time evolution
     is simulated by mutating the state vector stored in
-    `reg`. Thus, do not use any function that has a `!` in its name
+    `reg`. Avoid using any function that has a `!` in its name
+    (indicating that it mutates its arguments per [Julia convention](https://docs.julialang.org/en/v1/manual/style-guide/#bang-convention))
     on the register `info.reg` unless you are certain about what you are
     doing.
 
@@ -82,24 +83,27 @@ please see the [Registers and Observables](@ref observables) section.
 
 ## Choose an ODE Solver
 
-One of the most powerful tool of the Julia ecosystem is the DiffEq ecosystem
+One of the most powerful tools of the Julia ecosystem is the [DifferentialEquations](https://docs.sciml.ai/DiffEqDocs/stable/) ecosystem
 that implements many different solvers. These solvers have different advantages and trade-offs. Since simulating a quantum many-body Schrödinger equation has some
 special properties compared to a general ODE problem, we will discuss some
 general heuristics in this section on how to choose a good ODE solver and
-how to check if your simulation converges. Because many-body Schrödinger equation's stiffness is unknown, we will not be using stiff problem solvers, but instead using non-stiff problem algorithms or auto-switching algorithms.
+how to check if your simulation converges. Because the stiffness of the many-body Schrödinger equation is unknown, we will opt instead to use non-stiff problem algorithms or auto-switching algorithms.
 
 For most of the cases, one can use the `VCABM` solver for a large system simulation. However, this method requires more memory, which can be a bottleneck with GPUs.
 
-The `Vern` family is another set of solvers that is good for many-body
+The `Vern` family is another set of solvers that is good for the many-body
 Schrödinger equation, such as `Vern6`, `Vern7`, and `Vern8`. They also
-have relatively good memory usage when utilize GPUs.
+have relatively good memory usage when utilizing GPUs.
 
-For a more detailed list of solvers, please refer to [DiffEq:Full list of solvers](https://diffeq.sciml.ai/stable/solvers/ode_solve/#Full-List-of-Methods).
-For more detailed explanation on ODE solvers, please refer to [DiffEq:Recommended Methods](https://diffeq.sciml.ai/stable/solvers/ode_solve/#Recommended-Methods).
+For a more detailed list of solvers, please refer to [DifferentialEquations:Full List of Solvers](https://diffeq.sciml.ai/stable/solvers/ode_solve/#Full-List-of-Methods).
+For more detailed explanation on ODE solvers, please refer to [DifferentialEquations:Recommended Methods](https://diffeq.sciml.ai/stable/solvers/ode_solve/#Recommended-Methods).
+
+!!! tip "Default Solver and Auto-Switching"
+    Bloqade uses the Dormand-Prince solver (`DP8`) by default for all `SchrodingerProblem` instances. For dealing with potentially stiff equations one can take advantage of `DifferentialEquations` auto-switching algorithms where a default solver can be supplied but upon encountering stiffness can switch to a specific solver. A recommended combination for Bloqade is `AutoVern9(Rodas5)` although other combinations are possible (see [DifferentialEquations: Pre-Built Stiffness Detecting and Auto-Switching Algorithms](https://docs.sciml.ai/DiffEqDocs/stable/solvers/ode_solve/#Pre-Built-Stiffness-Detecting-and-Auto-Switching-Algorithms))
 
 If you are familiar with MATLAB or Python, you may wish to compare the same
 methods that you use in MATLAB or Python; you can find the corresponding
-solvers in Julia in [DiffEq:Translation from MATLAB/Python/R](https://diffeq.sciml.ai/stable/solvers/ode_solve/#Translations-from-MATLAB/Python/R).
+solvers in Julia in [DifferentialEquations:Translations from MATLAB/Python/R](https://diffeq.sciml.ai/stable/solvers/ode_solve/#Translations-from-MATLAB/Python/R).
 
 
 ## Adaptive Steps in ODE Solvers

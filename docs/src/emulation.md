@@ -114,10 +114,9 @@ However, if one expects to retrieve the results during the time evolution, e.g.,
 plotting Rydberg densities with the evolution time, fixed-step methods are sometimes 
 preferred.
 
-More specifically, when the adaptive steps are turned on, the time steps might be large,
-but if one is interested in measuring some observables in smaller time steps, then the adaptive step 
-method will not produce accurate results for the finer time step, but instead output results at the specific adaptive steps. 
-In this situation, it's better to use fixed-step methods at the clocks where the observables are measured.
+More specifically, when the adaptive steps are turned on the time steps can become large.
+However, if one is interested in measuring some observables in smaller time steps, then the adaptive step method will not produce accurate results for the finer time step, instead outputting results at the specific adaptive steps. 
+In this situation, it's better to use fixed-step methods at the times where the observables are measured.
 
 One can use the code below to turn off the adaptive steps when setting up the [`SchrodingerProblem`](@ref):
 
@@ -129,9 +128,7 @@ prob = SchrodingerProblem(reg, 3.0, h, adaptive = false, dt=1e-3);
 ```
 
 Here, we've specified the fixed time step as `dt = 1e-3`.
-If one only expects the final state of the evolution,
-or the intervals between each chosen clock is much larger than the maximum
-step size, then adaptive steps are preferred.
+If one only wants the final state of the evolution or if the intervals between each chosen time are much larger than the maximum step size, then adaptive steps are preferred.
 
 ### Define the Krylov Emulation Problem
 

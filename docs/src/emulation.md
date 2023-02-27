@@ -132,7 +132,7 @@ If one only wants the final state of the evolution or if the intervals between e
 
 ### Define the Krylov Emulation Problem
 
-The Krylov-based method expects time-independent Hamiltonians. One can define such a time evolution via [`KrylovEvolution`](@ref) object.
+The Krylov-based method expects time-independent Hamiltonians. One can define such a time evolution via a [`KrylovEvolution`](@ref) object.
 
 ```@docs
 KrylovEvolution
@@ -146,7 +146,7 @@ We can run the Krylov-based emulation in a similar way using [`emulate!`](@ref):
 emulate!(KrylovEvolution(reg, clocks, h))
 ```
 
-However, as its name suggests, the Krylov-based emulation is not a standard ODE problem that DiffEq  supports. Thus, it does not support the ODE problem interface, but it's more like a gate-based interface. For example, the object `KrylovEvolution` is iterable:
+However, as its name suggests, the Krylov-based emulation is not a standard ODE problem that DiffEq  supports. Thus, it does not support the ODE problem interface, but is more like a gate-based interface. For example, the object `KrylovEvolution` is iterable:
 
 ```@example evolution
 for (step, reg, duration) in KrylovEvolution(reg, clocks, h)

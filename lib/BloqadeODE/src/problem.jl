@@ -76,7 +76,7 @@ struct SchrodingerProblem{Reg,EquationType<:ODEFunction,uType,tType,Algo,Kwargs}
     p::Nothing # well make DiffEq happy
 end
 
-function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=AutoVern9(Rodas5(autodiff=false)), kw...)
+function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=DP8(), kw...)
     nqudits(reg) == nqudits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
     # remove this after ArrayReg start using AbstractVector
     state = statevec(reg)

@@ -132,13 +132,13 @@ end
     # initial value must be 0.0 radians
     Ω = piecewise_linear(;clocks=[0.0,0.1,1.0,2.0], values=[0.1,0.5,0.9,0.0])
     @test validate_Ω(Ω, rydberg_capabilities.Ω) == Set([
-        "Ω(t) start value with value 0.1 rad⋅MHz is not equal to the value of 0.0 rad⋅MHz"
+        "Ω(t) start value with value 0.1 rad/μs is not equal to the value of 0.0 rad/μs"
     ])
 
     # end value must be 0.0 radians
     Ω = piecewise_linear(;clocks=[0.0,0.1,1.0,2.0], values=[0.0,0.5,0.9,1.0])
     @test validate_Ω(Ω, rydberg_capabilities.Ω) == Set([
-        "Ω(t) end value with value 1.0 rad⋅MHz is not equal to the value of 0.0 rad⋅MHz"
+        "Ω(t) end value with value 1.0 rad/μs is not equal to the value of 0.0 rad/μs"
     ])
 
     supported_max_slope = rydberg_capabilities.Ω.max_slope
@@ -146,20 +146,20 @@ end
     slope = end_value/0.05
     Ω = piecewise_linear(clocks = [0.0, 0.05, 1.0, 4.0], values = [0.0, end_value, end_value, 0])
     @test validate_Ω(Ω, rydberg_capabilities.Ω) == Set([
-        "Ω(t) maximum slope with value $(slope) rad⋅MHz/μs exceeds maximum value of $supported_max_slope rad⋅MHz/μs"
+        "Ω(t) maximum slope with value $(slope) rad/μs² exceeds maximum value of $supported_max_slope rad/μs²"
     ])
 
     supported_min_value = rydberg_capabilities.Ω.min_value
     Ω = piecewise_linear(clocks = [0.0, 2.0, 4.0], values = [0.0, supported_min_value-0.1,0.0])
     @test validate_Ω(Ω, rydberg_capabilities.Ω) == Set([
-        "Ω(t) minimum value with value $(supported_min_value-0.1) rad⋅MHz below minimum value of $supported_min_value rad⋅MHz"
+        "Ω(t) minimum value with value $(supported_min_value-0.1) rad/μs below minimum value of $supported_min_value rad/μs"
     ])
 
     supported_max_value = rydberg_capabilities.Ω.max_value
     # cannot go below hardware supported minimum value
     Ω = piecewise_linear(;clocks=[0.0,2.0,4.0], values=[0.0, supported_max_value+0.1, 0.0])
     @test validate_Ω(Ω, rydberg_capabilities.Ω) == Set([
-        "Ω(t) maximum value with value $(supported_max_value+0.1) rad⋅MHz exceeds maximum value of $supported_max_value rad⋅MHz"
+        "Ω(t) maximum value with value $(supported_max_value+0.1) rad/μs exceeds maximum value of $supported_max_value rad/μs"
     ])
 
     # time values must be integer multiple of resolution (0.001 μs)
@@ -173,7 +173,7 @@ end
     value = round(11.4*resolution;sigdigits=14)
     Ω = piecewise_linear(;clocks=[0.0, 0.1, 0.2, 0.3], values=[0.0, 10*resolution, value, 0.0])
     @test validate_Ω(Ω, rydberg_capabilities.Ω) == Set([
-        "Ω(t) value $value rad is not consistent with resolution $resolution rad⋅MHz."
+        "Ω(t) value $value rad/μs is not consistent with resolution $resolution rad/μs."
     ])
 
 end
@@ -210,21 +210,21 @@ end
     slope = end_value/0.05
     Δ = piecewise_linear(clocks = [0.0, 0.05, 1.0, 4.0], values = [0.0, end_value, end_value, 0.0])
     @test validate_Δ(Δ, rydberg_capabilities.Δ) == Set([
-        "Δ(t) maximum value with value $end_value rad⋅MHz exceeds maximum value of $(rydberg_capabilities.Δ.max_value) rad⋅MHz",
-        "Δ(t) maximum slope with value $slope rad⋅MHz/μs exceeds maximum value of $supported_max_slope rad⋅MHz/μs"
+        "Δ(t) maximum value with value $end_value rad/μs exceeds maximum value of $(rydberg_capabilities.Δ.max_value) rad/μs",
+        "Δ(t) maximum slope with value $slope rad/μs² exceeds maximum value of $supported_max_slope rad/μs²"
     ])
 
     supported_min_value = rydberg_capabilities.Δ.min_value
     Δ = piecewise_linear(clocks = [0.0, 4.0], values = [0.0, supported_min_value-0.1])
     @test validate_Δ(Δ, rydberg_capabilities.Δ) == Set([
-        "Δ(t) minimum value with value $(supported_min_value-0.1) rad⋅MHz below minimum value of $supported_min_value rad⋅MHz"
+        "Δ(t) minimum value with value $(supported_min_value-0.1) rad/μs below minimum value of $supported_min_value rad/μs"
     ])
 
     supported_max_value = rydberg_capabilities.Δ.max_value
     # cannot go beyond hardware supported maximum Δ value
     Δ = piecewise_linear(;clocks=[0.0,4.0], values=[0.0, supported_max_value+0.1])
     @test validate_Δ(Δ, rydberg_capabilities.Δ) == Set([
-        "Δ(t) maximum value with value $(supported_max_value+0.1) rad⋅MHz exceeds maximum value of $supported_max_value rad⋅MHz"
+        "Δ(t) maximum value with value $(supported_max_value+0.1) rad/μs exceeds maximum value of $supported_max_value rad/μs"
     ])
 
     # time values must be integer multiple of resolution (0.001 μs)
@@ -238,7 +238,7 @@ end
     value = round(11.4*resolution;sigdigits=14)
     Δ = piecewise_linear(;clocks=[0.0, 0.1, 0.2, 0.3], values=[0.0, 10*resolution, value, 0.0])
     @test validate_Δ(Δ, rydberg_capabilities.Δ) == Set([
-        "Δ(t) value $value rad is not consistent with resolution $resolution rad⋅MHz."
+        "Δ(t) value $value rad/μs is not consistent with resolution $resolution rad/μs."
     ])
 end
 

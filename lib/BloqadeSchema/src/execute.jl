@@ -182,11 +182,11 @@ Violations include:
 * value is larger than largest supported value
 ## Ω Waveform specific constraints
 * Slope exceeds largest supported slope
-* Start and end values are not equal to 0.0 rad⋅MHz
+* Start and end values are not equal to 0.0 rad/μs
 ## Δ Waveform specific constraints
 * Slope exceeds largest supported slope
 ## ϕ Waveform specific constraints
-* start value is not equal to 0.0 rad⋅MHz
+* start value is not equal to 0.0 rad/μs
 ## Miscellaneous Violations
 * Number of shots is below minimum supported
 * Number of shots exceeds maximum supported
@@ -246,11 +246,11 @@ Violations include:
 * value is larger than largest supported value
 ## Ω Waveform specific constraints
 * Slope exceeds largest supported slope
-* Start and end values are not equal to 0.0 rad⋅MHz
+* Start and end values are not equal to 0.0 rad/μs
 ## Δ Waveform specific constraints
 * Slope exceeds largest supported slope
 ## ϕ Waveform specific constraints
-* start value is not equal to 0.0 rad⋅MHz
+* start value is not equal to 0.0 rad/μs
 ## Miscellaneous Violations
 * Number of shots is below minimum supported
 * Number of shots exceeds maximum supported
@@ -292,11 +292,11 @@ Violations include:
 * value is larger than largest supported value
 ## Ω Waveform specific constraints
 * Slope exceeds largest supported slope
-* Start and end values are not equal to 0.0 rad⋅MHz
+* Start and end values are not equal to 0.0 rad/μs
 ## Δ Waveform specific constraints
 * Slope exceeds largest supported slope
 ## ϕ Waveform specific constraints
-* start value is not equal to 0.0 rad⋅MHz
+* start value is not equal to 0.0 rad/μs
 ## Miscellaneous Violations
 * Number of shots is below minimum supported
 * Number of shots exceeds maximum supported
@@ -509,7 +509,7 @@ function to_hamiltonian(
             rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
                 global_value = RydbergRabiFrequencyAmplitudeGlobal(; 
                     times = convert_units.(Ω.clocks,μs,s), 
-                    values = convert_units.(Ω.values,rad*MHz,rad/s)
+                    values = convert_units.(Ω.values,rad/μs,rad/s)
                 ),
             ),
             rabi_frequency_phase = RydbergRabiFrequencyPhase(;
@@ -521,11 +521,11 @@ function to_hamiltonian(
             detuning = RydbergDetuning(;
                 global_value = RydbergDetuningGlobal(; 
                     times = convert_units.(Δ.clocks,μs,s), 
-                    values = convert_units.(Δ.values,rad*MHz,rad/s)
+                    values = convert_units.(Δ.values,rad/μs,rad/s)
                 ),
                 local_value = RydbergDetuningLocal(; 
                     times = convert_units.(δ.clocks,μs,s), 
-                    values = convert_units.(δ.values,rad*MHz,rad/s), 
+                    values = convert_units.(δ.values,rad/μs,rad/s), 
                     lattice_site_coefficients=Δ_i
                 )
             ),

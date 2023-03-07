@@ -130,54 +130,85 @@ function piecewise_linear_interpolate(wf::Waveform;
         error("Interpolation requires either a tolerance constraint or a slope and step constraint.")
     end
     
-    stack = NTuple{2,Float64}[(0.0,wf.duration)]
-    intervals = NTuple{4,Float64}[]
+    lb = 0
+    ub = wf.duration
+    lf = wf(lb)
+    uf = wf(ub)
 
-    while !isempty(stack)
-        lb,ub = pop!(stack)
+    slope = (uf-lf)/(ub-lb) 
+    
+    diff(t) = abs(slope * t + lf - wf(t))
+    global_error,_ = quadgk(diff,lb,ub;atol=sqrt(eps()))
 
-        interval = (ub-lb)
-        f_lb = wf(lb)
-        f_ub = wf(ub)
+    chunks = Dict{NTuple{3,Float64},NTuple{2,Float64}}((global_error,lb,ub)=>(lf,uf))
 
-        slope = (f_ub-f_lb)/interval
 
-        lin_f = t -> slope .* (t .- lb) .+ f_lb
+    while global_error > atol
+        # split interval that can be split in half and has the largest error
+        current_keys = collect(keys(chunks))
+        sort!(current_keys,by=ele->ele[1])
 
-        area,_ = quadgk(t -> abs.(lin_f(t) .- wf.(t)),lb,ub,atol=eps())
-        error_bound = max(atol*max(atol,interval),eps())
+        while length(current_keys) > 0
+            key = current_keys[end]
+            _,lb,ub = key
+            (lf,uf) = chunks[key]
+            
+            mb = (lb+ub)/2
+            mf = wf(mb)
 
-        if area*wf.duration > error_bound
-            mid = (ub+lb)/2
-            f_mid = wf(mid)
-
-            next_slope = 2*max(abs(f_mid - f_lb),abs(f_ub - f_mid))/interval
-            # only throw error if tolerance is non-zero
-            # if tolerance is 0 simply stop adding to stack
-            if next_slope > max_slope 
-                atol > 0 && error("Requested tolerance for interpolation violates the slope constraint.")
-                push!(intervals,(lb,ub,f_lb,slope))
-            elseif interval < 2*min_step
-                atol > 0 && error("Requested tolerance for interpolation violates the step size constraint.")
-                push!(intervals,(lb,ub,f_lb,slope))
+            next_slope = 2 * max(abs(mf-lf),abs(mf-uf)) / (ub-lb)
+            if (ub-lb) < 2*min_step || (next_slope > max_slope)
+                popfirst!(current_keys)
             else
-                push!(stack,(mid,ub))
-                push!(stack,(lb,mid))
+                break
             end
-
-        else
-            push!(intervals,(lb,ub,f_lb,slope))
         end
+
+        if length(current_keys) == 0
+            atol > 0 && error("Requested tolerance for interpolation violates the step size constraint.")
+            break
+        end
+
+        max_key = current_keys[end]
+        
+        (lf,uf) = pop!(chunks,max_key)
+        (old_error,lb,ub) = max_key
+        mb = (ub+lb)/2
+        mf = wf(mb)
+        lower_slope = (mf-lf)/(mb-lb)
+
+        lower_diff(t) = abs(lower_slope * (t-lb) + lf - wf(t))
+        lower_error,_ = quadgk(lower_diff,lb,mb;atol=sqrt(eps()))
+        upper_slope = (uf-mf)/(ub-mb)
+
+        upper_diff(t) = abs(upper_slope * (t - mb) + mf - wf(t))
+        upper_error,_ = quadgk(upper_diff,mb,ub;atol=sqrt(eps()))
+
+        chunks[(lower_error,lb,mb)] = (lf,mf)
+        chunks[(upper_error,mb,ub)] = (mf,uf)
+
+        # update global error
+        global_error = (global_error - old_error) + lower_error + upper_error
 
     end
 
-    intervals = sort(intervals,by=ele->ele[1])
+    
+    current_keys = collect(keys(chunks))
+    sort!(current_keys,by=ele->ele[2])
 
-    clocks = Float64[each[1] for each in intervals]
-    values = Float64[each[3] for each in intervals]
+    k = first(current_keys)
+    (_,lb,_) = k
+    (lf,_) = chunks[k]
 
-    push!(values,wf(wf.duration))
-    push!(clocks,wf.duration)
+    clocks = Float64[lb]
+    values = Float64[lf]
+    for k in current_keys
+        (_,_,ub) = k
+        (_,uf) = chunks[k]
+
+        push!(clocks,ub)
+        push!(values,uf)
+    end
 
     return piecewise_linear(;clocks=clocks,values=values)
 

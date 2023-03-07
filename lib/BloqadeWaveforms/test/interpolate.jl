@@ -1,7 +1,6 @@
 using Test
 using BloqadeWaveforms
 using QuadGK: quadgk
-using BenchmarkTools
 
 slope_msg = "Requested tolerance for interpolation violates the slope constraint."
 step_msg = "Requested tolerance for interpolation violates the step size constraint."
@@ -10,6 +9,8 @@ warn_msg = "negative tolerance provided, taking absolute value."
 
 
 #=
+using BenchmarkTools
+
 function benchmark_func(x::Vector{T}) where T 
     @assert length(x) == 3
 

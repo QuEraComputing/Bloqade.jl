@@ -1,16 +1,46 @@
 using Test
 using BloqadeWaveforms
 using QuadGK: quadgk
+using BenchmarkTools
 
 slope_msg = "Requested tolerance for interpolation violates the slope constraint."
 step_msg = "Requested tolerance for interpolation violates the step size constraint."
 constraint_msg = "Interpolation requires either a tolerance constraint or a slope and step constraint."
 warn_msg = "negative tolerance provided, taking absolute value."
 
-function benchmark_func() 
-    wf = Waveform(t->t^2,1)
-    new_wf = piecewise_constant_interpolate(wf; atol=0,min_step=1e-3)
+
+#=
+function benchmark_func(x::Vector{T}) where T 
+    @assert length(x) == 3
+
+    T_max = 4.0
+    Ω_max = 4 * 2π
+    Δ_start = -13 * 2π
+    Δ_end = 11 * 2π
+    Δ0 = 11 * 2π
+
+    # the strength of the detunings at each step takes the optimizing x as their input 
+    Δs = smooth(
+        piecewise_linear(
+            clocks = T[0.0, 0.05, 0.2, 0.3, 0.4, 0.55, T_max],
+            values = T[Δ_start, Δ_start, Δ0*x[1], Δ0*x[2], Δ0*x[3], Δ_end, Δ_end],
+        );
+        kernel_radius = 0.1,
+    )
+
+    Ωs = smooth(
+        piecewise_linear(clocks = [0.0,0.1,0.2,0.8,0.9,1.0] .* T_max, values = T[0, 0, Ω_max, Ω_max, 0, 0]);
+        kernel_radius = 0.02*T_max,
+    )
+
+    new_wf = piecewise_linear_interpolate(Δs; atol=0, min_step=0.05, max_slope = 250)
 end
+
+benchmark_func([1.0,-1.0,1.0])
+
+@benchmark $(benchmark_func(rand(3)))
+=#
+
 
 @testset "piecewise constant" begin
 

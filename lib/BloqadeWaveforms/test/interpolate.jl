@@ -75,7 +75,7 @@ benchmark_func([1.0,-1.0,1.0])
         @test wf == new_wf
 
         step_msg = "Waveform step smaller than constraint."
-        @test_logs (:warn,warn_msg) piecewise_constant_interpolate(wf;atol=-1e-5)
+        @test_logs (:warn,warn_msg) piecewise_constant_interpolate(wf;atol=-1e-2)
         @test_throws ErrorException piecewise_constant_interpolate(wf;atol=0)
         @test_throws ErrorException piecewise_constant_interpolate(wf;min_step=3.0)
     end
@@ -90,7 +90,7 @@ end
     slope_msg = "Waveform slope larger than constraint."
     step_msg = "Waveform step smaller than constraint."
     # test_log instead of test_warn for julia 1.6
-    @test_logs (:warn,warn_msg) piecewise_linear_interpolate(wf;atol=-1e-5)
+    @test_logs (:warn,warn_msg) piecewise_linear_interpolate(wf;atol=-1e-3)
     @test_throws ErrorException piecewise_linear_interpolate(wf;atol=0)
     @test_throws ErrorException piecewise_linear_interpolate(wf;min_step = 10.0)
     @test_throws ErrorException piecewise_linear_interpolate(wf;max_slope = 0.1)
@@ -126,13 +126,12 @@ end
         wf = Waveform(f,duration)
         new_wf = piecewise_linear_interpolate(wf;atol=atol)
 
-
         @test isapprox(wf,new_wf,atol=atol)
     end
 
     wf = Waveform(t->t^2,2)
 
-    @test_logs (:warn,warn_msg) piecewise_linear_interpolate(wf;atol=-1e-5)
+    @test_logs (:warn,warn_msg) piecewise_linear_interpolate(wf;atol=-atol)
     @test_throws ErrorException piecewise_linear_interpolate(wf;max_slope = 2.0)
     @test_throws ErrorException piecewise_linear_interpolate(wf;min_step = 0.1)
     @test_throws ErrorException piecewise_linear_interpolate(wf;atol=0)
@@ -141,6 +140,6 @@ end
 
 @testset "constraint terminated" begin
     wf = Waveform(t->t^2,1)
-    new_wf = piecewise_linear_interpolate(wf,atol=0,max_slope=100,min_step=1e-5)
+    new_wf = piecewise_linear_interpolate(wf,atol=0,max_slope=100,min_step=1e-2)
     @test norm(wf - new_wf) < 1e-3
 end

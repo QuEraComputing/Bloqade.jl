@@ -3,6 +3,7 @@ using BloqadeODE
 using BloqadeExpr
 using BloqadeMIS
 using BloqadeKrylov
+using BloqadeLattices
 using Test
 
 @testset "ODE problem interface" begin
@@ -87,4 +88,22 @@ end
     prob = SchrodingerProblem(reg, (0, pi/sqrt(2)), h)
     emulate!(prob)
     @test isapprox(state(reg), goal; atol = 1e-3)
+end
+
+@testset "Parallelization" begin
+    nsites = 10;
+    atoms = generate_sites(ChainLattice(), nsites, scale = 5.74)
+
+    h = rydberg_h(atoms; Ω = 4 * 2π, Δ = 0)
+
+    single_t_reg = zero_state(nsites)
+    multi_t_reg = zero_state(nsites)
+
+    single_t_prob = SchrodingerProblem(single_t_reg, 1.6, h)
+    multi_t_prob = ParallelSchrodingerProblem(multi_t_reg, 1.6, h)
+
+    emulate!(single_t_prob)
+    emulate!(multi_t_prob)
+
+    @test single_t_prob.reg.state == multi_t_prob.reg.state
 end

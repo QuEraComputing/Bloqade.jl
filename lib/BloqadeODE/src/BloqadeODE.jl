@@ -6,6 +6,8 @@ using SciMLBase
 using DiffEqBase
 using YaoArrayRegister
 using YaoSubspaceArrayReg
+using SparseMatricesCSR: SparseMatrixCSR
+using ThreadedSparseCSR: tmul!
 @reexport using BloqadeExpr
 @reexport using OrdinaryDiffEq
 using BloqadeExpr: Hamiltonian
@@ -48,7 +50,7 @@ using OrdinaryDiffEq:
     initialize_callbacks!,
     handle_dt!
 
-export SchrodingerProblem, SchrodingerEquation
+export SchrodingerProblem, SchrodingerEquation, ParallelSchrodingerProblem, ParallelSchrodingerEquation
 
 include("problem.jl")
 include("integrator_init.jl")

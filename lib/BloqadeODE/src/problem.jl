@@ -20,7 +20,21 @@ function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where {L}
     return
 end
 
-function Base.show(io::IO, mime::MIME"text/plain", eq::SchrodingerEquation)
+struct ParallelSchrodingerEquation{ExprType,H<:Hamiltonian}
+    expr::ExprType
+    hamiltonian::H
+end
+
+function (eq::ParallelSchrodingerEquation)(dstate, state, p, t::Number) where {L}
+    fill!(dstate, zero(eltype(dstate)))
+    for (f, term) in zip(eq.hamiltonian.fs, eq.hamiltonian.ts)
+        # change term into CSR matrix
+        tmul!(dstate, SparseMatrixCSR(transpose(conj(term))), state, -im * f(t), one(t))
+    end
+    return
+end
+
+function Base.show(io::IO, mime::MIME"text/plain", eq::Union{SchrodingerEquation, ParallelSchrodingerEquation})
     indent = get(io, :indent, 0)
     tab(indent) = " "^indent
     print(io, tab(indent), "storage size: ")
@@ -74,6 +88,44 @@ struct SchrodingerProblem{Reg,EquationType<:ODEFunction,uType,tType,Algo,Kwargs}
     kwargs::Kwargs
 
     p::Nothing # well make DiffEq happy
+end
+
+function ParallelSchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=DP8(), kw...)
+    nqudits(reg) == nqudits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
+    # remove this after ArrayReg start using AbstractVector
+    state = statevec(reg)
+    space = YaoSubspaceArrayReg.space(reg)
+    tspan = SciMLBase.promote_tspan(tspan)
+    # create term cache
+    # always follow register element-type
+    T = real(eltype(state))
+    T = isreal(expr) ? T : Complex{T}
+    eq = ParallelSchrodingerEquation(expr, Hamiltonian(T, expr, space)) # use parallelized mul! in here
+    ode_f = ODEFunction(eq)
+
+    tspan_type = promote_type(real(eltype(state)), eltype(tspan))
+    tspan = tspan_type.(tspan) # promote tspan to T so Dual number works
+
+    default_ode_options = (
+        save_everystep = false,
+        save_start = false,
+        save_on = false,
+        dense = false,
+        reltol=1e-10,
+        abstol=1e-10,
+    )
+    kw = pairs(merge(default_ode_options, kw))
+
+    return SchrodingerProblem{typeof(reg),typeof(ode_f),typeof(state),typeof(tspan),typeof(algo), typeof(kw)}(
+        reg,
+        ode_f,
+        state,
+        copy(state),
+        tspan,
+        algo,
+        kw,
+        nothing,
+    )
 end
 
 function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=DP8(), kw...)

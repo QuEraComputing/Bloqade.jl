@@ -154,6 +154,8 @@ emit_dynamic_terms(h::RydbergHamiltonian3) = emit_dynamic_terms(add_terms(h))
 
 Create a `Hamiltonian` from hamiltonian expr that has matrix element of type `Tv`.
 """
+struct MultiThreaded end 
+
 function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fullspace) where {Tv}
     fs, ts = [], []
     const_term = nothing
@@ -169,6 +171,32 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fulls
     isnothing(const_term) || push!(ts, mat(Tv, const_term, space))
     return Hamiltonian((fs...,), (ts...,))
 end
+
+function Hamiltonian(::MultiThreaded, ::Type{Tv}, ex::AsbstractBlock, space::AbstractSpace = fullspace) where {Tv}
+    # fs -> functional prefactors (think Ω(t), Δ(t), ϕ(t))
+    # ts -> the actual matrices
+    fs, ts = [], []
+    const_term = nothing
+    for (f, op) in emit_dynamic_terms(ex) # calls emit_dynamic_terms(add_terms(ex)), seems to split the hamiltonian into (f(t) * op) format
+        #=
+        IF the prefactor is just the multiplicate identity (literally "1")
+            If `const_term` is nothing, which is what it starts out as then set it equal to the op, otherwise add op to const_term
+        ELSE the prefactor is NOT Base.one
+            add the function to `fs`
+            convert the term to a matrix, then append to `ts`
+        =#
+        # this handles combining constant terms into one term
+        if f === Base.one 
+            const_term = isnothing(const_term) ? op : const_term + op
+        else
+            # for non-constant terms they have to be treated this way
+            push!(fs, f)
+            push!(ts, mat(Tv, op, space)) # args are: Type, ?op, AbstractSpace
+        end
+    end
+    push!(fs, Base.one) # add identity to the end of functions?
+    isnothing(const_term) || push!(ts, mat(Tv, const_term, space)) # at the very end, convert the combined constant terms into matrix
+    return Hamiltonian((fs...,), (ts...,))
 
 function YaoBlocks.Optimise.to_basictypes(h::SumOfXTypes)
     is_const_param(h.Ω) || throw(ArgumentError("expect constant hamiltonian"))

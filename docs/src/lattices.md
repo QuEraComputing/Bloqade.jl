@@ -120,9 +120,9 @@ Bloqade.plot(generate_sites(kagome, 5, 5); vectors=unitvectors(kagome), bond_lin
 ```
 
 
-## Sort Sites and Other Operations on Lattices
+## Sorting Sites and Other Operations on Lattices
 
-We also support different operations on the generated lattices. For instance,  one can apply some predefined filters, e.g. [`rescale_axes`](@ref), [`clip_axes`](@ref), [`offset_axes`](@ref), to manipulate atom locations:
+We also support different operations on the generated lattices. For instance, one can apply some predefined filters, e.g. [`rescale_axes`](@ref), [`clip_axes`](@ref), [`offset_axes`](@ref), to manipulate atom locations:
 
 ```@example quick-start
 atoms = generate_sites(HoneycombLattice(), 3, 5; scale = 4.5)
@@ -153,7 +153,15 @@ Then one can get the sorted atoms by typing:
 sorted_atoms = collect_atoms(atoms_in_grid)
 ```
 
-Note that the sorting has changed the index numbering of the atoms. 
+Note that the sorting will change the index numbering of the atoms. 
+
+You can also delete atoms given their index number:
+```@example quick-start
+deleteat!(atoms, 8, 9, 13, 14, 18, 20, 23)
+atoms
+```
+
+Note that this permanently changes the contents of `atoms` and just like sorting atoms, will change the index numbering albeit to preserve the integer sequence without gaps.
 
 
 

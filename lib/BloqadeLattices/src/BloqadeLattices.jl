@@ -8,6 +8,7 @@ using LuxorGraphPlot
 using LuxorGraphPlot: Point
 using LuxorGraphPlot.Luxor: Colors
 using LinearAlgebra
+import Base.deleteat!
 
 export # types
     AbstractLattice,
@@ -21,6 +22,7 @@ export # types
     RectangularLattice,
     # interfaces
     generate_sites,
+    deleteat!,
     offset_axes,
     random_dropout,
     rescale_axes,

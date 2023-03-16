@@ -52,6 +52,15 @@ end
     sites = AtomList([(0.2, 0.3), (0.4, 0.8)])
     @test (sites |> rescale_axes(2.0)) == [(0.4, 0.6), (0.8, 1.6)]
 
+    # delete atom positions
+    sites = generate_sites(SquareLattice(), 5, 5, scale=3)
+    deleteat!(sites, 1)
+    @test length(sites) == 24
+    deleteat!(sites, 12, 10, 11)
+    @test length(sites) == 21
+    deleteat!(sites, 1, 20)
+    @test length(sites) == 19
+
 end
 
 @testset "fix site ordering" begin

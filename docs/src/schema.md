@@ -155,7 +155,7 @@ Braket.state(task)
 To obtain results, the `result` function from `Braket.jl` can be used
 
 ```julia
-result = Braket.result(task)
+res = Braket.result(task)
 ```
 
 !!! info "Braket.result is Blocking"
@@ -163,10 +163,10 @@ result = Braket.result(task)
     is available, in which case the result is returned, or the task enters a
     terminal state without a result (`"FAILED"` or `"CANCELLED"`)...".
 
-To obtain the raw measurements (pre- and post-Hamiltonian application) of the atoms, the `get_measurements` function in `Braket.jl` can be used.
+To obtain the raw measurements (pre- and post-Hamiltonian application) of the atoms, the `measurements` field can be accessed:
 
 ```julia
-Braket.get_measurements(result)
+res.measurements
 ```
 
 ## Reference

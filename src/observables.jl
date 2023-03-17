@@ -17,6 +17,20 @@ Return the rydberg density at each site.
 rydberg_density(reg) = [rydberg_density(reg, i) for i in 1:nqubits(reg)]
 
 """
+    rydberg_density(task_res::AnalogHamiltonianSimulationQuantumTaskResult, i::Int) -> Real
+
+Calculate the Rydberg density at site `i`.
+"""
+rydberg_density(task_res::AnalogHamiltonianSimulationQuantumTaskResult, i::Int) = sum(map(x -> 1 - x.post_sequence[i], task_res.measurements)) / length(task_res.measurements)
+
+"""
+    rydberg_density(task_res::AnalogHamiltonianSimulationQuantumTaskResult) -> Real
+
+Return the rydberg density at each site.
+"""
+rydberg_density(task_res::AnalogHamiltonianSimulationQuantumTaskResult) = sum(map(x -> 1 .- x.post_sequence, task_res.measurements)) / length(task_res.measurements)
+
+"""
     rydberg_corr([op=Op.n], reg) -> Matrix
 
 Calculates the rydberg correlation matrix.

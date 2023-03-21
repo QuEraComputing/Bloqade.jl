@@ -26,4 +26,7 @@ bitstring_hist(r; nlargest = 10)
                  0.010593663461943981,
                  0.9721147069025007]
     @test_throws ArgumentError plot_densities(atoms, densities)
+
+    # should work without failure
+    plot_densities(generate_sites(SquareLattice(), 3, 3, scale=6.7), densities)
 end

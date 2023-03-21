@@ -52,7 +52,6 @@ function __init__()
 end
 
 using Colors, ColorSchemes
-using Braket: AnalogHamiltonianSimulationQuantumTaskResult
 
 include("plots/plots.jl")
 include("observables.jl")

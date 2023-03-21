@@ -1,4 +1,3 @@
-using Braket: AnalogHamiltonianSimulationTaskResult
 using Colors, ColorSchemes
 
 """

@@ -3,16 +3,12 @@ function plot(atoms::AtomList; kw...)
 end
 
 """
-    plot_densities(atoms::AtomList, reg; color_scheme = ColorSchemes.bwr)
-    plot_densities(atoms::AtomList, task_res::AnalogHamiltonianSimulationTaskResult; color_scheme = ColorSchemes.bwr)
+    plot_densities(atoms::AtomList, densities::AbstractVector; color_scheme=ColorSchemes.bwr)
 
-Given `atoms` which contains the coordinates for the atoms and either a register or `AnalogHamiltonianSimulationQuantumTaskResult` 
-from Braket.jl, plot the Rydberg densities over the atoms.
+Given `atoms` which contains the coordinates for the atoms and a vector containing the Rydberg densities,
+plot the Rydberg densities over the atoms.
 """
-function plot_densities(atoms::AtomList, reg; color_scheme=ColorSchemes.bwr)
-    plot(atoms, colors = "#" .* hex.(get(color_scheme, rydberg_density(reg), :clamp)))
-end
-
-function plot_densities(atoms::AtomList, task_res::AnalogHamiltonianSimulationTaskResult; color_scheme=ColorSchemes.bwr)
-    plot(atoms, colors = "#" .* hex.(get(color_scheme, rydberg_density(task_res), :clamp)))
+function plot_densities(atoms::AtomList, densities::AbstractVector; color_scheme=ColorSchemes.bwr)
+    length(atoms) == length(densities) || throw(ArgumentError("The number of atoms is not equal to the number of Rydberg density values."))
+    plot(atoms, colors = "#" .* hex.(get(color_scheme, densities, :clamp)))
 end

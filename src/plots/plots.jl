@@ -1,3 +1,5 @@
+using Colors, ColorSchemes
+
 """
     plot(object; kw...)
 
@@ -14,6 +16,8 @@ or [`Waveform`](@ref).
 function plot end
 
 function plot! end
+
+export plot_densities
 
 include("waveform.jl")
 include("lattices.jl")

@@ -51,5 +51,6 @@ include("transform.jl")
 include("execute.jl")
 include("to_braket_ahs_ir.jl")
 include("submit_to_braket.jl")
+include("observables.jl")
 
 end

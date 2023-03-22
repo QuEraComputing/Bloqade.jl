@@ -4,6 +4,12 @@ function YaoAPI.mat(::Type{T}, h::AbstractBlock, space::FullSpace) where {T}
     return YaoAPI.mat(T, h)
 end
 
+# sparse(I, J, V, [m, n, combine])
+# Create an m x n sparse matrix where S[I[k], J[k]] = V[k] (COO Format)
+# I - row indices
+# J - column indices
+# V - values
+
 YaoAPI.mat(::Type{T}, h::XPhase{P}) where {T, P} = PermMatrix([2, 1], T[exp(h.ϕ * im), exp(-h.ϕ * im)])
 YaoAPI.mat(::Type{T}, h::XPhase_01{P}) where {T, P} = PermMatrix([2, 1, 3], T[exp(h.ϕ * im), exp(-h.ϕ * im), 0])
 YaoAPI.mat(::Type{T}, h::XPhase_1r{P}) where {T, P} = PermMatrix([1, 3, 2], T[0, exp(h.ϕ * im), exp(-h.ϕ * im)])

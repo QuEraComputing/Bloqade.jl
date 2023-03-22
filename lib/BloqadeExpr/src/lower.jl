@@ -191,7 +191,7 @@ function Hamiltonian(::MultiThreaded, ::Type{Tv}, ex::AsbstractBlock, space::Abs
         else
             # for non-constant terms they have to be treated this way
             push!(fs, f)
-            push!(ts, mat(Tv, op, space)) # args are: Type, ?op, AbstractSpace
+            push!(ts, mat(Tv, op, space)) # args are: Type, ?op, AbstractSpace [CONVERT TO CSR HERE!]
         end
     end
     push!(fs, Base.one) # add identity to the end of functions?

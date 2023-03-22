@@ -5,7 +5,7 @@ Type for Schrodinger equation. A `SchrodingerEquation`
 object is a callable object that has method `f(dstate, state, p, t)`
 that fits into a standard ODE problem.
 """
-struct SchrodingerEquation{ExprType,H<:Hamiltonian}
+struct SchrodingerEquation{ExprType,H<:Hamiltonian, I<:Threading} # attempt dispatch on Hamiltonian type (or use Threading singleton type)
     expr::ExprType
     hamiltonian::H
 end

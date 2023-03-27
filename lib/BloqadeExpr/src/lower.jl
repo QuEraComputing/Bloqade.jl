@@ -154,7 +154,6 @@ emit_dynamic_terms(h::RydbergHamiltonian3) = emit_dynamic_terms(add_terms(h))
 
 Create a `Hamiltonian` from hamiltonian expr that has matrix element of type `Tv`.
 """
-struct MultiThreaded end 
 
 function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fullspace) where {Tv}
     fs, ts = [], []
@@ -172,7 +171,7 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fulls
     return Hamiltonian((fs...,), (ts...,))
 end
 
-function Hamiltonian(::MultiThreaded, ::Type{Tv}, ex::AsbstractBlock, space::AbstractSpace = fullspace) where {Tv}
+function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fullspace) where {Tv}
     # fs -> functional prefactors (think Ω(t), Δ(t), ϕ(t))
     # ts -> the actual matrices
     fs, ts = [], []
@@ -188,15 +187,19 @@ function Hamiltonian(::MultiThreaded, ::Type{Tv}, ex::AsbstractBlock, space::Abs
         # this handles combining constant terms into one term
         if f === Base.one 
             const_term = isnothing(const_term) ? op : const_term + op
+        elseif get(ENV, "BLOQADE_THREADS", 1) > 1 # user explicitly says number of threads greater than 1
+            push!(fs, f)
+            push!(ts, MultiThreadedMatrix(mat(Tv, op, space))) # Convert to CSR here, can be anything from LuxurySparse (Diagonal, PermMatrix) or AbstractMatrixCSC
         else
             # for non-constant terms they have to be treated this way
             push!(fs, f)
-            push!(ts, mat(Tv, op, space)) # args are: Type, ?op, AbstractSpace [CONVERT TO CSR HERE!]
+            push!(ts, mat(Tv, op, space))
         end
     end
     push!(fs, Base.one) # add identity to the end of functions?
-    isnothing(const_term) || push!(ts, mat(Tv, const_term, space)) # at the very end, convert the combined constant terms into matrix
+    isnothing(const_term) || (get(ENV, "BLOQADE_THREADS", 1) > 1 ? push!(ts, MultiThreadedMatrix(mat(Tv, const_term, space))) : push!(ts, mat(Tv, const_term, space))) # at the very end, convert the combined constant terms into matrix (should be CSR as well)
     return Hamiltonian((fs...,), (ts...,))
+end
 
 function YaoBlocks.Optimise.to_basictypes(h::SumOfXTypes)
     is_const_param(h.Ω) || throw(ArgumentError("expect constant hamiltonian"))

@@ -9,6 +9,9 @@ using LuxurySparse
 using MLStyle
 using BitBasis
 using LaTeXStrings
+using Preferences
+using SparseMatricesCSR
+using ThreadedSparseCSR, ParallelMergeCSR
 using Unitful: Quantity, NoUnits, MHz, µm, uconvert
 using InteractiveUtils: subtypes
 using Base.Cartesian: @nexprs

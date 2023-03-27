@@ -21,7 +21,7 @@ function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where {L}
 end
 
 
-function Base.show(io::IO, mime::MIME"text/plain", eq::Union{SchrodingerEquation, ParallelSchrodingerEquation})
+function Base.show(io::IO, mime::MIME"text/plain", eq::SchrodingerEquation)
     indent = get(io, :indent, 0)
     tab(indent) = " "^indent
     print(io, tab(indent), "storage size: ")
@@ -77,7 +77,7 @@ struct SchrodingerProblem{Reg,EquationType<:ODEFunction,uType,tType,Algo,Kwargs}
     p::Nothing # well make DiffEq happy
 end
 
-function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=DP8(), multithreaded=false, kw...)
+function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=DP8(), kw...)
     nqudits(reg) == nqudits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
     # remove this after ArrayReg start using AbstractVector
     state = statevec(reg)
@@ -85,8 +85,7 @@ function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=DP8(), mult
     tspan = SciMLBase.promote_tspan(tspan)
     T = real(eltype(state))
     T = isreal(expr) ? T : Complex{T}
-    # if there was different Hamiltonian type, could just keep the same constructor but feed different Hamiltonian in somehow
-    eq = multithreaded ? ParallelSchrodingerEquation(expr, Hamiltonian(::MultiThreaded, T, expr, space)) : SchrodingerEquation(expr, Hamiltonian(T, expr, space))
+    eq = SchrodingerEquation(expr, Hamiltonian(T, expr, space))
     ode_f = ODEFunction(eq)
 
     tspan_type = promote_type(real(eltype(state)), eltype(tspan))

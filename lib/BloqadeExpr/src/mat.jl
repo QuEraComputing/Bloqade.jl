@@ -4,12 +4,6 @@ function YaoAPI.mat(::Type{T}, h::AbstractBlock, space::FullSpace) where {T}
     return YaoAPI.mat(T, h)
 end
 
-# sparse(I, J, V, [m, n, combine])
-# Create an m x n sparse matrix where S[I[k], J[k]] = V[k] (COO Format)
-# I - row indices
-# J - column indices
-# V - values
-
 YaoAPI.mat(::Type{T}, h::XPhase{P}) where {T, P} = PermMatrix([2, 1], T[exp(h.ϕ * im), exp(-h.ϕ * im)])
 YaoAPI.mat(::Type{T}, h::XPhase_01{P}) where {T, P} = PermMatrix([2, 1, 3], T[exp(h.ϕ * im), exp(-h.ϕ * im), 0])
 YaoAPI.mat(::Type{T}, h::XPhase_1r{P}) where {T, P} = PermMatrix([1, 3, 2], T[0, exp(h.ϕ * im), exp(-h.ϕ * im)])
@@ -136,5 +130,54 @@ end
     quote
         @nexprs $N i -> I0 = I0 | (readbit(iindex, i) << (locs[i] - 1))
         return I0
+    end
+end
+
+
+
+# no `AbstractSparseMatrix` type constraint considering the LuxurySparse matrices
+# are subtypes ofr AbstractMatrix and NOT SparseAbstractMatrix
+struct MultiThreadedMatrix{M <: AbstractMatrix}
+    matrix::M
+end
+
+# constructors for MultiThreadedMatrix
+const backend = @load_preference("backend", "BloqadeExpr")
+
+function MultiThreadedMatrix(m::SparseMatrixCSC)
+    @static if backend == "ParallelMergeCSR" # should be conjugate transpose
+        return m |> conj |> transpose |> MultiThreadedMatrix
+    elseif backend == "ThreadedSparseCSR" # should be conjugate transpose, then turned into
+        return m |> conj |> transpose |> SparseMatrixCSR
+    elseif backend == "BloqadeExpr"
+        return m |> MultiThreadedMatrix
+    else
+        throw(ArgumentError("The backend selected is not supported."))
+    end
+end
+
+function MultiThreadedMatrix(m::Diagonal) # from LinearAlgebra
+    @static if backend == "ParallelMergeCSR"
+        # transpose of AbstractMatrixCSC 
+        return m.diag |> spdiagm |> conj |> transpose |> MultiThreadedMatrix
+    elseif backend == "ThreadedSparseCSR"
+        # SparseMatrixCSR
+        return m |> AbstractMatrixCSC |> conj |> transpose |> MultiThreadedMatrix
+    elseif backend == "BloqadeExpr"
+        return MultiThreadedMatrix(m)
+    else
+        throw(ArgumentError("The backend selected is not supported."))
+    end
+end
+
+function MultiThreadedMatrix(m::PermMatrix)
+    @static if backend == "ParallelMergeCSR"
+        return m |> SparseMatrixCSC |> conj |> transpose |> MultiThreadedMatrix
+    elseif backend == "ThreadedSparseCSR"
+        return m |> SparseMatrixCSC |> conj |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
+    elseif backend == "BloqadeExpr"
+        return MultiThreadedMatrix(m)
+    else
+        throw(ArgumentError("The backend selected is not supported."))
     end
 end

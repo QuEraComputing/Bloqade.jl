@@ -5,7 +5,7 @@ Type for Schrodinger equation. A `SchrodingerEquation`
 object is a callable object that has method `f(dstate, state, p, t)`
 that fits into a standard ODE problem.
 """
-struct SchrodingerEquation{ExprType,H<:Hamiltonian, I<:Threading} # attempt dispatch on Hamiltonian type (or use Threading singleton type)
+struct SchrodingerEquation{ExprType,H<:Hamiltonian}
     expr::ExprType
     hamiltonian::H
 end
@@ -20,19 +20,6 @@ function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where {L}
     return
 end
 
-struct ParallelSchrodingerEquation{ExprType,H<:Hamiltonian}
-    expr::ExprType
-    hamiltonian::H
-end
-
-function (eq::ParallelSchrodingerEquation)(dstate, state, p, t::Number) where {L}
-    fill!(dstate, zero(eltype(dstate)))
-    for (f, term) in zip(eq.hamiltonian.fs, eq.hamiltonian.ts)
-        # individual terms should become CSR matrices
-        tmul!(dstate, SparseMatrixCSR(transpose(conj(term))), state, -im * f(t), one(t))
-    end
-    return
-end
 
 function Base.show(io::IO, mime::MIME"text/plain", eq::Union{SchrodingerEquation, ParallelSchrodingerEquation})
     indent = get(io, :indent, 0)
@@ -98,6 +85,7 @@ function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=DP8(), mult
     tspan = SciMLBase.promote_tspan(tspan)
     T = real(eltype(state))
     T = isreal(expr) ? T : Complex{T}
+    # if there was different Hamiltonian type, could just keep the same constructor but feed different Hamiltonian in somehow
     eq = multithreaded ? ParallelSchrodingerEquation(expr, Hamiltonian(::MultiThreaded, T, expr, space)) : SchrodingerEquation(expr, Hamiltonian(T, expr, space))
     ode_f = ODEFunction(eq)
 

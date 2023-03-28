@@ -148,9 +148,9 @@ const backend = @load_preference("backend", "BloqadeExpr")
 
 function MultiThreadedMatrix(m::SparseMatrixCSC)
     @static if backend == "ParallelMergeCSR" # should be conjugate transpose
-        return m |> conj |> transpose |> MultiThreadedMatrix
+        return m |> conj! |> transpose |> MultiThreadedMatrix
     elseif backend == "ThreadedSparseCSR" # should be conjugate transpose, then turned into
-        return m |> conj |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
+        return m |> conj! |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
     elseif backend == "BloqadeExpr"
         return m |> MultiThreadedMatrix
     else
@@ -161,10 +161,10 @@ end
 function MultiThreadedMatrix(m::Diagonal) # from LinearAlgebra
     @static if backend == "ParallelMergeCSR"
         # transpose of AbstractMatrixCSC 
-        return m.diag |> spdiagm |> conj |> transpose |> MultiThreadedMatrix
+        return m.diag |> spdiagm |> conj! |> transpose |> MultiThreadedMatrix
     elseif backend == "ThreadedSparseCSR"
         # SparseMatrixCSR
-        return m |> SparseMatrixCSC |> conj |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
+        return m |> SparseMatrixCSC |> conj! |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
     elseif backend == "BloqadeExpr"
         return MultiThreadedMatrix(m)
     else
@@ -174,9 +174,9 @@ end
 
 function MultiThreadedMatrix(m::PermMatrix)
     @static if backend == "ParallelMergeCSR"
-        return m |> SparseMatrixCSC |> conj |> transpose |> MultiThreadedMatrix
+        return m |> SparseMatrixCSC |> conj! |> transpose |> MultiThreadedMatrix
     elseif backend == "ThreadedSparseCSR"
-        return m |> SparseMatrixCSC |> conj |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
+        return m |> SparseMatrixCSC |> conj! |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
     elseif backend == "BloqadeExpr"
         return MultiThreadedMatrix(m)
     else

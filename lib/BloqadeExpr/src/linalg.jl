@@ -7,9 +7,9 @@ function LinearAlgebra.mul!(C::AbstractVecOrMat, A::StepHamiltonian, B::Abstract
 end
 
  # default to BloqadeExpression
- const backend = @load_preference("backend", "BloqadeExpr")
+const backend = @load_preference("backend", "BloqadeExpr")
 
- function LinearAlgebra.mul!(C, A::MultiThreadedMatrix, B, α, β)
+function LinearAlgebra.mul!(C, A::MultiThreadedMatrix, B, α, β)
     @static if backend == "ParallelMergeCSR"
         ParallelMergeCSR.mul!(C, A.matrix, B, α, β)
     elseif backend == "ThreadedSparseCSR"
@@ -19,4 +19,12 @@ end
     else
         throw(ArgumentError("The backend selected is not supported."))
     end
+end
+
+# want a multithreaded mul! for: AbstractMatrixCSC (which just goes to CSR), (just use ThreadedSparseCSR for now)
+# want a multithreaded mul! for: Diagonal and PermMatrix
+
+function LinearAlgebra.mul!(C, A::Diagonal, B, α, β)
+   # C -> ABα + Cβ 
+    
 end

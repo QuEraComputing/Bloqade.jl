@@ -41,7 +41,8 @@ export rydberg_h,
     attime,
     matrix_to_positions,
     storage_size,
-    emulate!
+    emulate!,
+    set_backend
 
 include("assert.jl")
 include("space.jl")
@@ -53,5 +54,6 @@ include("lower.jl")
 include("units.jl")
 include("interface.jl")
 include("atoms.jl")
+include("preferences.jl")
 
 end

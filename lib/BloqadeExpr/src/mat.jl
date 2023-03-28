@@ -164,7 +164,7 @@ function MultiThreadedMatrix(m::Diagonal) # from LinearAlgebra
         return m.diag |> spdiagm |> conj |> transpose |> MultiThreadedMatrix
     elseif backend == "ThreadedSparseCSR"
         # SparseMatrixCSR
-        return m |> AbstractMatrixCSC |> conj |> transpose |> MultiThreadedMatrix
+        return m |> SparseMatrixCSC |> conj |> transpose |> MultiThreadedMatrix
     elseif backend == "BloqadeExpr"
         return MultiThreadedMatrix(m)
     else

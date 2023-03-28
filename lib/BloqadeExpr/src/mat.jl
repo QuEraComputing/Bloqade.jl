@@ -148,7 +148,7 @@ function MultiThreadedMatrix(m::SparseMatrixCSC)
     @static if backend == "ParallelMergeCSR" # should be conjugate transpose
         return m |> conj |> transpose |> MultiThreadedMatrix
     elseif backend == "ThreadedSparseCSR" # should be conjugate transpose, then turned into
-        return m |> conj |> transpose |> SparseMatrixCSR
+        return m |> conj |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
     elseif backend == "BloqadeExpr"
         return m |> MultiThreadedMatrix
     else

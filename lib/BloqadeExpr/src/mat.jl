@@ -141,6 +141,8 @@ struct MultiThreadedMatrix{M <: AbstractMatrix}
     matrix::M
 end
 
+Base.size(m::MultiThreadedMatrix) = size(m.matrix)
+
 # constructors for MultiThreadedMatrix
 const backend = @load_preference("backend", "BloqadeExpr")
 

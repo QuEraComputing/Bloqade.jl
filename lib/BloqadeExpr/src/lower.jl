@@ -156,22 +156,6 @@ Create a `Hamiltonian` from hamiltonian expr that has matrix element of type `Tv
 """
 
 function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fullspace) where {Tv}
-    fs, ts = [], []
-    const_term = nothing
-    for (f, op) in emit_dynamic_terms(ex)
-        if f === Base.one
-            const_term = isnothing(const_term) ? op : const_term + op
-        else
-            push!(fs, f)
-            push!(ts, mat(Tv, op, space))
-        end
-    end
-    push!(fs, Base.one)
-    isnothing(const_term) || push!(ts, mat(Tv, const_term, space))
-    return Hamiltonian((fs...,), (ts...,))
-end
-
-function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fullspace) where {Tv}
     # fs -> functional prefactors (think Ω(t), Δ(t), ϕ(t))
     # ts -> the actual matrices
     fs, ts = [], []
@@ -187,7 +171,7 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fulls
         # this handles combining constant terms into one term
         if f === Base.one 
             const_term = isnothing(const_term) ? op : const_term + op
-        elseif get(ENV, "BLOQADE_THREADS", 1) > 1 # user explicitly says number of threads greater than 1
+        elseif parse(Int, get(ENV, "BLOQADE_THREADS", 1)) > 1 # user explicitly says number of threads greater than 1
             push!(fs, f)
             push!(ts, MultiThreadedMatrix(mat(Tv, op, space))) # Convert to CSR here, can be anything from LuxurySparse (Diagonal, PermMatrix) or AbstractMatrixCSC
         else
@@ -197,7 +181,7 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fulls
         end
     end
     push!(fs, Base.one) # add identity to the end of functions?
-    isnothing(const_term) || (get(ENV, "BLOQADE_THREADS", 1) > 1 ? push!(ts, MultiThreadedMatrix(mat(Tv, const_term, space))) : push!(ts, mat(Tv, const_term, space))) # at the very end, convert the combined constant terms into matrix (should be CSR as well)
+    isnothing(const_term) || (parse(Int, (get(ENV, "BLOQADE_THREADS", 1))) > 1 ? push!(ts, MultiThreadedMatrix(mat(Tv, const_term, space))) : push!(ts, mat(Tv, const_term, space))) # at the very end, convert the combined constant terms into matrix (should be CSR as well)
     return Hamiltonian((fs...,), (ts...,))
 end
 

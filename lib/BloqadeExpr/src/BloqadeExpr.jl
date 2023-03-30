@@ -6,6 +6,12 @@ using Adapt
 using YaoAPI
 using YaoBlocks
 using LuxurySparse
+using SparseMatricesCSR
+using ThreadedSparseCSR, ParallelMergeCSR
+using Polyester
+using Base.Threads: nthreads
+using Polyester
+using Preferences
 using MLStyle
 using BitBasis
 using LaTeXStrings

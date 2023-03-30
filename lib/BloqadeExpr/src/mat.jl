@@ -132,3 +132,23 @@ end
         return I0
     end
 end
+
+struct ThreadedMatrix{M <: AbstractMatrix}
+    matrix::M
+end
+
+Base.size(m::ThreadedMatrix) = size(m.matrix)
+
+const backend = @load_preference("backend", "BloqadeExpr")
+
+function ThreadedMatrix(m::SparseMatrixCSC)
+    @static if backend == "ParallelMergeCSR" # should be conjugate transpose
+        return m |> conj! |> transpose |> ThreadedMatrix
+    elseif backend == "ThreadedSparseCSR" # should be conjugate transpose, then turned into
+        return m |> conj! |> transpose |> SparseMatrixCSR |> ThreadedMatrix
+    elseif backend == "BloqadeExpr"
+        return m |> ThreadedMatrix
+    else
+        throw(ArgumentError("The backend selected is not supported."))
+    end
+end

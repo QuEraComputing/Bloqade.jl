@@ -26,7 +26,7 @@ function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
                             region="us-east-1",
                             credentials::Union{AWSCredentials, Nothing}=nothing
                         ) 
-    # is a BloqadeSchema.TaskSpecification instance, can call the other function
+    # is a BloqadeSchema.QuEraTaskSpecification instance, can call the other function
     translation_params = BloqadeSchema.SchemaTranslationParams(
         n_shots,
         device_capabilities
@@ -70,9 +70,9 @@ function submit_to_braket(h::BloqadeExpr.RydbergHamiltonian,
 end
 
 """
-    sumbit_to_braket(ts:BloqadeSchema.TaskSpecification; <keyword arguments>)
+    sumbit_to_braket(ts:BloqadeSchema.QuEraTaskSpecification; <keyword arguments>)
 
-Submits a `BloqadeSchema.TaskSpecification` instance to Braket, returning an `AWS.AwsQuantumTask`.
+Submits a `BloqadeSchema.QuEraTaskSpecification` instance to Braket, returning an `AWS.AwsQuantumTask`.
 
 Credentials can be passed in explicitly through an `AWS.AWSCredentials` struct or by passing in 
 `nothing`, in which case credentials will be sought in the standard AWS locations.
@@ -86,7 +86,7 @@ Credentials can be passed in explicitly through an `AWS.AWSCredentials` struct o
 
 An `AWS.NoCredentials` exception is thrown containing a `message` string "Can't find AWS credentials!" if the credentials given are invalid.
 """
-function submit_to_braket(ts::BloqadeSchema.TaskSpecification; 
+function submit_to_braket(ts::BloqadeSchema.QuEraTaskSpecification; 
         arn="arn:aws:braket:us-east-1::device/qpu/quera/Aquila", 
         region="us-east-1",
         credentials::Union{AWSCredentials, Nothing}=nothing)

@@ -128,11 +128,11 @@ function Base.show(io::IO, ::MIME"text/plain", t::ValidationViolations)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", t::QuEraTaskSpecification)
-    GarishPrint.pprint_struct(t)
+    GarishPrint.pprint_struct(io, t)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", t::TaskOutput)
-    GarishPrint.pprint_struct(t)
+    GarishPrint.pprint_struct(io, t)
 end
 
 function Base.showerror(io::IO, e::ValidationException)

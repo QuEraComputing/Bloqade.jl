@@ -35,7 +35,7 @@ export get_device_capabilities,
     from_schema,
     execute,
     submit_to_braket,
-    TaskSpecification,
+    QuEraTaskSpecification,
     TaskOutput,
     ValidationViolations
 

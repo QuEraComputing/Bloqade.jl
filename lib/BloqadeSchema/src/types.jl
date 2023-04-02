@@ -55,7 +55,7 @@ end
 """
     struct TaskOutput <: QuEraSchema
 
-The result of executing a `TaskSpecification` on the machine.
+The result of executing a `QuEraTaskSpecification` on the machine.
 
 Output of [`execute`](@ref) function.
 
@@ -127,12 +127,12 @@ function Base.show(io::IO, ::MIME"text/plain", t::ValidationViolations)
     end
 end
 
-function Base.show(io::IO, ::MIME"text/plain", t::TaskSpecification)
-    GarishPrint.pprint_struct(t)
+function Base.show(io::IO, ::MIME"text/plain", t::QuEraTaskSpecification)
+    GarishPrint.pprint_struct(io, t)
 end
 
 function Base.show(io::IO, ::MIME"text/plain", t::TaskOutput)
-    GarishPrint.pprint_struct(t)
+    GarishPrint.pprint_struct(io, t)
 end
 
 function Base.showerror(io::IO, e::ValidationException)

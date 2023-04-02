@@ -58,7 +58,7 @@ end
         h_hw,info = hardware_transform(h)
         j = BloqadeSchema.to_json(h_hw)
 
-        t = Configurations.from_dict(BloqadeSchema.TaskSpecification, JSON.parse(j))
+        t = Configurations.from_dict(BloqadeSchema.QuEraTaskSpecification, JSON.parse(j))
 
         sites = [site for (i,site) in enumerate(t.lattice.sites) if t.lattice.filling[i] == 1]
         

@@ -8,45 +8,34 @@ abstract type QuEraSchema end
     filling::Vector{Int32}
 end
 
-@option struct RydbergRabiFrequencyAmplitudeGlobal <: QuEraSchema
+@option struct GlobalField <: QuEraSchema
     times::Vector{Float64}
     values::Vector{Float64}
 end
 
-@option struct RydbergRabiFrequencyAmplitude <: QuEraSchema
-    global_value::RydbergRabiFrequencyAmplitudeGlobal
-end
-
-@option struct RydbergRabiFrequencyPhaseGlobal <: QuEraSchema
-    times::Vector{Float64}
-    values::Vector{Float64}
-end
-
-@option struct RydbergRabiFrequencyPhase <: QuEraSchema
-    global_value::RydbergRabiFrequencyPhaseGlobal
-end
-
-@option struct RydbergDetuningGlobal <: QuEraSchema
-    times::Vector{Float64}
-    values::Vector{Float64}
-end
-
-@option struct RydbergDetuningLocal <: QuEraSchema
+@option struct LocalField <: QuEraSchema
     times::Vector{Float64}
     values::Vector{Float64}
     lattice_site_coefficients::Vector{Float64}
 end
 
+@option struct RabiFrequencyAmplitude <: QuEraSchema
+    global_value::GlobalField
+end
 
-@option struct RydbergDetuning <: QuEraSchema
-    global_value::RydbergDetuningGlobal
-    local_value::Maybe{RydbergDetuningLocal}
+@option struct RabiFrequencyPhase <: QuEraSchema
+    global_value::GlobalField
+end
+
+@option struct Detuning <: QuEraSchema
+    global_value::GlobalField
+    local_value::Maybe{LocalField}
 end
 
 @option struct RydbergHamiltonian <: QuEraSchema
-    rabi_frequency_amplitude::RydbergRabiFrequencyAmplitude
-    rabi_frequency_phase::RydbergRabiFrequencyPhase
-    detuning::RydbergDetuning
+    rabi_frequency_amplitude::RabiFrequencyAmplitude
+    rabi_frequency_phase::RabiFrequencyPhase
+    detuning::Detuning
 end
 
 @option struct EffectiveHamiltonian <: QuEraSchema
@@ -54,12 +43,12 @@ end
 end
 
 """
-    struct TaskSpecification <: QuEraSchema
+    struct QuEraTaskSpecification <: QuEraSchema
 
 The schema representation of a task for the machine.
 
 Is the output of [`to_schema`](@ref) and [`to_schema_no_validation`](@ref)
-as well as input to [`execute(task::TaskSpecification)`](@ref).
+as well as input to [`execute(task::QuEraTaskSpecification)`](@ref).
 
 # Fields
 - `nshots::Int`: Number of shots (number of times hamiltonian is executed)
@@ -67,7 +56,7 @@ as well as input to [`execute(task::TaskSpecification)`](@ref).
 - `effective_hamiltonian::EffectiveHamiltonian`: a `RydbergHamiltonian` instance 
 wrapped inside an `EffectiveHamiltonian`
 """
-@option struct TaskSpecification <: QuEraSchema
+@option struct QuEraTaskSpecification <: QuEraSchema
     nshots::Int
     lattice::Lattice
     effective_hamiltonian::EffectiveHamiltonian

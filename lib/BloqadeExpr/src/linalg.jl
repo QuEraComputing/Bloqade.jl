@@ -26,8 +26,8 @@ end
 
 # Parallelized Diagonal multiplication
 function bmul!(C, A::Diagonal, B, α, β)
-    @inbounds @batch for i in eachindex(B)
-            C[I] = A.diag[i] * B[i] * α + β * C[I] 
+    @batch for i in eachindex(B)
+            @inbounds C[I] = A.diag[i] * B[i] * α + β * C[I] 
     end
     return C
 end

@@ -144,9 +144,9 @@ struct MultiThreadedMatrix{M <: AbstractMatrix}
 
     function MultiThreadedMatrix(m::SparseMatrixCSC)
         @static if backend == "ParallelMergeCSR" # should be conjugate transpose
-            return m |> conj! |> transpose |> MultiThreadedMatrix
+            return m |> conj! |> transpose |> new
         elseif backend == "ThreadedSparseCSR" # should be conjugate transpose, then turned into
-            return m |> conj! |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
+            return m |> conj! |> transpose |> SparseMatrixCSR |> new
         elseif backend == "BloqadeExpr"
             return m |> new
         else
@@ -157,10 +157,10 @@ struct MultiThreadedMatrix{M <: AbstractMatrix}
     function MultiThreadedMatrix(m::Diagonal) # from LinearAlgebra
         @static if backend == "ParallelMergeCSR"
             # transpose of AbstractMatrixCSC 
-            return m.diag |> spdiagm |> conj! |> transpose |> MultiThreadedMatrix
+            return m.diag |> spdiagm |> conj! |> transpose |> new
         elseif backend == "ThreadedSparseCSR"
             # SparseMatrixCSR
-            return m |> SparseMatrixCSC |> conj! |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
+            return m |> SparseMatrixCSC |> conj! |> transpose |> SparseMatrixCSR |> new
         elseif backend == "BloqadeExpr"
             return m |> new
         else
@@ -170,9 +170,9 @@ struct MultiThreadedMatrix{M <: AbstractMatrix}
 
     function MultiThreadedMatrix(m::PermMatrix)
         @static if backend == "ParallelMergeCSR"
-            return m |> SparseMatrixCSC |> conj! |> transpose |> MultiThreadedMatrix
+            return m |> SparseMatrixCSC |> conj! |> transpose |> new
         elseif backend == "ThreadedSparseCSR"
-            return m |> SparseMatrixCSC |> conj! |> transpose |> SparseMatrixCSR |> MultiThreadedMatrix
+            return m |> SparseMatrixCSC |> conj! |> transpose |> SparseMatrixCSR |> new
         elseif backend == "BloqadeExpr"
             return m |> new
         else

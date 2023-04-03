@@ -20,11 +20,3 @@ function LinearAlgebra.mul!(C, A::MultiThreadedMatrix, B, α, β)
         throw(ArgumentError("The backend selected is not supported."))
     end
 end
-
-# want a multithreaded mul! for: AbstractMatrixCSC (which just goes to CSR), (just use ThreadedSparseCSR for now)
-# want a multithreaded mul! for: Diagonal and PermMatrix
-
-function LinearAlgebra.mul!(C, A::Diagonal, B, α, β)
-   # C -> ABα + Cβ 
-    
-end

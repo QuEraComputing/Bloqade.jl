@@ -169,7 +169,7 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fulls
         end
     end
     push!(fs, Base.one)
-    isnothing(const_term) || (get(ENV, "BLOQADE_THREADS", 1) > 1) ? push!(ts, ThreadedMatrix(mat(Tv, const_term, space))) : push!(ts, mat(Tv, const_term, space)) # at the very end, convert the combined constant terms into matrix (should be CSR as well)
+    isnothing(const_term) || (Parse(get(ENV, "BLOQADE_THREADS", "1")) > 1) ? push!(ts, ThreadedMatrix(mat(Tv, const_term, space))) : push!(ts, mat(Tv, const_term, space)) # at the very end, convert the combined constant terms into matrix (should be CSR as well)
     return Hamiltonian((fs...,), (ts...,))
 end
 

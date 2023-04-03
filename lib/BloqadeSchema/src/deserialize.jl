@@ -2,15 +2,16 @@ function Configurations.from_dict(::Type{Lattice}, ::Type{NTuple{2,Float64}}, x)
     return (x[1], x[2])
 end
 
-function Configurations.from_dict(::Type{RabiFrequencyAmplitude}, d::Dict{String,<:Any})
+function Configurations.from_dict(::Type{RabiFrequencyAmplitude}, d::AbstractDict{String,<:Any})
     return RabiFrequencyAmplitude(Configurations.from_dict(GlobalField, d["global"]))
 end
 
-function Configurations.from_dict(::Type{RabiFrequencyPhase}, d::Dict{String,<:Any})
+function Configurations.from_dict(::Type{RabiFrequencyPhase}, d::AbstractDict{String,<:Any})
     return RabiFrequencyPhase(Configurations.from_dict(GlobalField, d["global"]))
 end
 
-function Configurations.from_dict(::Type{Detuning}, d::Dict{String,<:Any})
+function Configurations.from_dict(::Type{Detuning}, d::AbstractDict{String,<:Any})
+
     return if haskey(d, "local")
         Detuning(
             global_value=Configurations.from_dict(GlobalField, d["global"]),
@@ -21,7 +22,7 @@ function Configurations.from_dict(::Type{Detuning}, d::Dict{String,<:Any})
     end
 end
 
-function Configurations.from_dict(::Type{RydbergCapabilities}, d::Dict{String,<:Any})
+function Configurations.from_dict(::Type{RydbergCapabilities}, d::AbstractDict{String,<:Any})
     return if haskey(d, "local")
         RydbergCapabilities(
             c6_coefficient=d["c6_coefficient"],

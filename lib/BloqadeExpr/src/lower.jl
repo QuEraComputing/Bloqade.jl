@@ -171,7 +171,7 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fulls
         # this handles combining constant terms into one term
         if f === Base.one 
             const_term = isnothing(const_term) ? op : const_term + op
-        elseif parse(Int, get(ENV, "BLOQADE_THREADS", 1)) > 1 # user explicitly says number of threads greater than 1
+        elseif parse(Int, get(ENV, "BLOQADE_THREADS", "1")) > 1 # user explicitly says number of threads greater than 1
             push!(fs, f)
             push!(ts, MultiThreadedMatrix(mat(Tv, op, space))) # Convert to CSR here, can be anything from LuxurySparse (Diagonal, PermMatrix) or AbstractMatrixCSC
         else
@@ -181,7 +181,7 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fulls
         end
     end
     push!(fs, Base.one) # add identity to the end of functions?
-    isnothing(const_term) || (parse(Int, (get(ENV, "BLOQADE_THREADS", 1))) > 1 ? push!(ts, MultiThreadedMatrix(mat(Tv, const_term, space))) : push!(ts, mat(Tv, const_term, space))) # at the very end, convert the combined constant terms into matrix (should be CSR as well)
+    isnothing(const_term) || (parse(Int, (get(ENV, "BLOQADE_THREADS", "1"))) > 1 ? push!(ts, MultiThreadedMatrix(mat(Tv, const_term, space))) : push!(ts, mat(Tv, const_term, space))) # at the very end, convert the combined constant terms into matrix (should be CSR as well)
     return Hamiltonian((fs...,), (ts...,))
 end
 

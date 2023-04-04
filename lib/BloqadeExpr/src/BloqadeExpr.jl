@@ -56,5 +56,6 @@ include("lower.jl")
 include("units.jl")
 include("interface.jl")
 include("atoms.jl")
+include("preferences.jl")
 
 end

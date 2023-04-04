@@ -138,6 +138,7 @@ const backend = @load_preference("backend", "BloqadeExpr")
 struct ThreadedMatrix{M <: AbstractMatrix}
     matrix::M
 
+    ThreadedMatrix(m::T) where {T<:AbstractMatrix} = new{typeof(m)}(m)
     function ThreadedMatrix(m::SparseMatrixCSC)
         @static if backend == "ParallelMergeCSR" # should be conjugate transpose
             transformed_matrix =  m |> conj! |> transpose

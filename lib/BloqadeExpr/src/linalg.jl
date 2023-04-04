@@ -8,7 +8,7 @@ end
 
 # if BloqadeExpr was the backend of choice, then ThreadedMatrix will have the SparseMatrixCSC type
 # in which case we just dispatch to standard mul!
-LinearAlgebra.mul!(C, A::ThreadedMatrix{<:SparseMatrixCSC}, B, α, β) = mul!(C, A.matrix, B, α, β) 
+LinearAlgebra.mul!(C, A::ThreadedMatrix{<:SparseMatrixCSC}, B, α, β) = SparseArrays.mul!(C, A.matrix, B, α, β) 
 # if PMCSR/TSCSR was the backend of choice, then direct to bmul!'s below
 LinearAlgebra.mul!(C, A::ThreadedMatrix, B, α, β) = bmul!(C, A.matrix, B, α, β)
 

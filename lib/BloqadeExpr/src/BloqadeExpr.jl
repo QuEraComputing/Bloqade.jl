@@ -7,7 +7,7 @@ using YaoAPI
 using YaoBlocks
 using LuxurySparse
 using SparseMatricesCSR
-using ThreadedSparseCSR, ParallelMergeCSR
+using ParallelMergeCSR
 using Polyester
 using Base.Threads: nthreads
 using Polyester

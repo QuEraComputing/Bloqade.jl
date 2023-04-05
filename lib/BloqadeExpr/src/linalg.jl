@@ -48,7 +48,7 @@ function bmul!(y::AbstractVector, A::SparseMatrixCSR, x::AbstractVector, alpha::
 
     o = getoffset(A)
     
-    @batch minbatch = size(y, 1) ÷ matmul_num_threads[] for row in 1:size(y, 1)
+    @batch minbatch = size(y, 1) ÷ nthreads() for row in 1:size(y, 1)
         @inbounds begin
             accu = zero(eltype(y))
             for nz in nzrange(A, row)

@@ -1,7 +1,13 @@
-name: CI
-on:
-  - push
-  - pull_request
+name: CIon:
+  pull_request:
+  push:
+    branches:
+      - main
+  schedule:
+  - cron: '00 01 * * *'
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 jobs:
   pre_job:
     # continue-on-error: true # Uncomment once integration is finished

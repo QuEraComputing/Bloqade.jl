@@ -32,16 +32,16 @@ end
 Executes a task given as a Dict in the task specification API format, and returns a JSON string of the result
 """
 function execute(dict::AbstractDict{String})
-    execute(Configurations.from_dict(BloqadeSchema.TaskSpecification,dict))
+    execute(Configurations.from_dict(BloqadeSchema.QuEraTaskSpecification,dict))
 end
 
 
 """
-    execute(j::TaskSpecification)
+    execute(j::QuEraTaskSpecification)
 
-Executes a task given as a TaskSpecification object in the task specification API format, and returns a JSON string of the result
+Executes a task given as a QuEraTaskSpecification object in the task specification API format, and returns a JSON string of the result
 """
-function execute(task::TaskSpecification)
+function execute(task::QuEraTaskSpecification)
     h = from_schema(task)
         
     atoms,ϕ,Ω,Δ = get_rydberg_params(h)
@@ -85,28 +85,28 @@ end
 """
     from_json(j::String)
 
-Convert the JSON representation of a [`TaskSpecification`](@ref) instance to a 
-[`TaskSpecification`](@ref)
+Convert the JSON representation of a [`QuEraTaskSpecification`](@ref) instance to a 
+[`QuEraTaskSpecification`](@ref)
 """
 from_json(j::String) = BloqadeSchema.from_dict(JSON.parse(j))
 
 """
     from_dict(d::AbstractDict{String})
 
-Convert the dictionary representation of a [`TaskSpecification`](@ref) instance, 
-into a [`TaskSpecification`](@ref).
+Convert the dictionary representation of a [`QuEraTaskSpecification`](@ref) instance, 
+into a [`QuEraTaskSpecification`](@ref).
 """
 function from_dict(d::AbstractDict{String})
-    t = Configurations.from_dict(BloqadeSchema.TaskSpecification, d)
+    t = Configurations.from_dict(BloqadeSchema.QuEraTaskSpecification, d)
     return from_schema(t)
 end
 
 """
-    from_schema(t::TaskSpecification)
+    from_schema(t::QuEraTaskSpecification)
 
 Converts `t` into valid `BloqadeExpr.RydbergHamiltonian` instance.
 """
-function from_schema(t::TaskSpecification)
+function from_schema(t::QuEraTaskSpecification)
     atoms = (site for (i,site) in enumerate(t.lattice.sites) if t.lattice.filling[i] == 1)
 
     atoms = map(atoms) do pos 
@@ -214,7 +214,7 @@ to_json(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_json(h,SchemaTranslationP
     to_dict(h::BloqadeExpr.RydbergHamiltonian; nshots::Int, device_capabilities::DeviceCapabilities=get_device_capabilities())
     to_dict(h::BloqadeExpr.RydbergHamiltonian,params::SchemaTranslationParams)
 
-Converts `h` and associated `params` into the dictionary representation of a [`TaskSpecification`](@ref).
+Converts `h` and associated `params` into the dictionary representation of a [`QuEraTaskSpecification`](@ref).
 If `params` is not explicitly provided as a `SchemaTranslationParams` instance, it is automatically built
 from `nshots` and `device_capabilities`.
 
@@ -262,7 +262,7 @@ to_dict(h::BloqadeExpr.RydbergHamiltonian; kw...) = to_dict(h,SchemaTranslationP
     to_schema(h::BloqadeExpr.RydbergHamiltonian; nshots::Int, device_capabilities::DeviceCapabilities=get_device_capabilities())
     to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationParams)
 
-Converts `h` to a `TaskSpecification` instance with `params`. If params is not explicitly constructed, 
+Converts `h` to a `QuEraTaskSpecification` instance with `params`. If params is not explicitly constructed, 
 it will be built automatically from `nshots` and `device_capabilities`. 
 
 Validation is performed to ensure `h` is capable of being run on the machine. This can cause an
@@ -349,7 +349,7 @@ function to_schema(h::BloqadeExpr.RydbergHamiltonian, params::SchemaTranslationP
         )
     end
 
-    return TaskSpecification(;
+    return QuEraTaskSpecification(;
         nshots=params.n_shots,
         lattice=to_lattice(atoms),
         effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ, δ, Δi)
@@ -364,7 +364,7 @@ end
         δ::Maybe{PiecewiseLinearWaveform}=nothing,
         Δi::Maybe{Vector{Number}}=nothing,kw...)
 
-Converts `lattice`, `ϕ`, `Δ`, `δ`, and `Δi` to a JSON representation of a `TaskSpecification` instance
+Converts `lattice`, `ϕ`, `Δ`, `δ`, and `Δi` to a JSON representation of a `QuEraTaskSpecification` instance
 WITHOUT ensuring the provided values are capable of being executed on the machine (fit within the 
 constraints of the device's capabilities)
 
@@ -397,7 +397,7 @@ end
         Δi::Maybe{Vector{Number}}, 
         params::SchemaTranslationParams)
 
-Converts `lattice`, `ϕ`, `Δ`, `δ`, and `Δi` to a `TaskSpecification` instance
+Converts `lattice`, `ϕ`, `Δ`, `δ`, and `Δi` to a `QuEraTaskSpecification` instance
 WITHOUT ensuring the provided values are capable of being executed on the machine (fit within the 
 constraints of the device's capabilities).
 
@@ -474,7 +474,7 @@ function to_schema_no_validation(lattice::Union{Vector,Lattice},
         )
     end
 
-    return TaskSpecification(;
+    return QuEraTaskSpecification(;
         nshots=params.n_shots,
         lattice=to_lattice(lattice),
         effective_hamiltonian=to_hamiltonian(Ω, ϕ, Δ, δ, Δi)
@@ -506,24 +506,24 @@ function to_hamiltonian(
 
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;
-            rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
-                global_value = RydbergRabiFrequencyAmplitudeGlobal(; 
+            rabi_frequency_amplitude = RabiFrequencyAmplitude(;
+                global_value = GlobalField(; 
                     times = convert_units.(Ω.clocks,μs,s), 
                     values = convert_units.(Ω.values,rad/μs,rad/s)
                 ),
             ),
-            rabi_frequency_phase = RydbergRabiFrequencyPhase(;
-                global_value = RydbergRabiFrequencyPhaseGlobal(; 
+            rabi_frequency_phase = RabiFrequencyPhase(;
+                global_value = GlobalField(; 
                     times = convert_units.(ϕ.clocks,μs,s),
                     values = convert_units.(ϕ.values,rad,rad)
                 ),
             ),
-            detuning = RydbergDetuning(;
-                global_value = RydbergDetuningGlobal(; 
+            detuning = Detuning(;
+                global_value = GlobalField(; 
                     times = convert_units.(Δ.clocks,μs,s), 
                     values = convert_units.(Δ.values,rad/μs,rad/s)
                 ),
-                local_value = RydbergDetuningLocal(; 
+                local_value = LocalField(; 
                     times = convert_units.(δ.clocks,μs,s), 
                     values = convert_units.(δ.values,rad/μs,rad/s), 
                     lattice_site_coefficients=Δ_i
@@ -542,20 +542,20 @@ function to_hamiltonian(
 
     return EffectiveHamiltonian(;
         rydberg = RydbergHamiltonian(;
-            rabi_frequency_amplitude = RydbergRabiFrequencyAmplitude(;
-                global_value = RydbergRabiFrequencyAmplitudeGlobal(; 
+            rabi_frequency_amplitude = RabiFrequencyAmplitude(;
+                global_value = GlobalField(; 
                     times = convert_units.(Ω.clocks,μs,s), 
                     values = convert_units.(Ω.values,rad/μs,rad/s)
                 ),
             ),
-            rabi_frequency_phase = RydbergRabiFrequencyPhase(;
-                global_value = RydbergRabiFrequencyPhaseGlobal(; 
+            rabi_frequency_phase = RabiFrequencyPhase(;
+                global_value = GlobalField(; 
                     times = convert_units.(ϕ.clocks,μs,s),
                     values = convert_units.(ϕ.values,rad,rad)
                 ),
             ),
-            detuning = RydbergDetuning(;
-                global_value = RydbergDetuningGlobal(; 
+            detuning = Detuning(;
+                global_value = GlobalField(; 
                     times = convert_units.(Δ.clocks,μs,s), 
                     values = convert_units.(Δ.values,rad/μs,rad/s)
                 )

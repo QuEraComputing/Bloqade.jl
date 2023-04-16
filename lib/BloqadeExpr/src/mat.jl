@@ -133,27 +133,3 @@ end
     end
 end
 
-const backend = @load_preference("backend", "BloqadeExpr")
-
-struct ThreadedMatrix{M <: AbstractMatrix}
-    matrix::M
-
-    # use Inner Constructor to avoid infinite loop of calling constructor on itself
-    ThreadedMatrix(m::T) where {T<:AbstractMatrix} = new{typeof(m)}(m)
-    function ThreadedMatrix(m::SparseMatrixCSC)
-        @static if backend == "ParallelMergeCSR" # should be conjugate transpose
-            transformed_matrix =  m |> conj! |> transpose
-        elseif backend == "ThreadedSparseCSR" # should be conjugate transpose, then turned into SparseMatrixCSR
-            transformed_matrix = m |> conj! |> transpose |> SparseMatrixCSR 
-        elseif backend == "BloqadeExpr"
-            transformed_matrix = m
-        else
-            throw(ArgumentError("The backend selected is not supported."))
-        end
-
-        return new{typeof(transformed_matrix)}(transformed_matrix)
-    end
-
-end
-
-Base.size(m::ThreadedMatrix) = size(m.matrix)

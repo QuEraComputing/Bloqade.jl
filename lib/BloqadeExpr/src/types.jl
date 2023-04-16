@@ -25,7 +25,7 @@ end
 Base.size(m::ThreadedMatrix) = size(m.matrix)
 Base.size(m::ThreadedMatrix, i) = size(m.matrix)[i]
 Base.:*(n, m::T) where {T <: ThreadedMatrix} = n * m.matrix
-# Base.pointer(m::T) where {T <: Diagonal} = pointer(m.diag)
+Base.pointer(m::T) where {T <: Diagonal} = pointer(m.diag)
 
 """
     struct Hamiltonian

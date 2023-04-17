@@ -13,21 +13,25 @@ LinearAlgebra.mul!(C, A::ThreadedMatrix{<:SparseMatrixCSC}, B, α, β) = SparseA
 LinearAlgebra.mul!(C, A::ThreadedMatrix, B, α, β) = bmul!(C, A.matrix, B, α, β)
 
 # Parallelized Permutation Matrix multiplication
-function bmul!(Y::AbstractVector, A::PermMatrix, X::AbstractVector, alpha::Number, beta::Number)
+function bmul!(C::AbstractVector, A::PermMatrix, B::AbstractVector, α::Number, β::Number)
 
-    length(X) == size(A, 2) || throw(DimensionMismatch("input X length does not match PermMatrix A"))
-    length(Y) == size(A, 2) || throw(DimensionMismatch("output Y length does not match PermMatrix A"))
-
-    @inbounds @batch for I in eachindex(X)
-        Y[I] = A.vals[I] * X[A.perm[I]] * alpha + beta * Y[I]
+    A_vals = A.vals
+    A_perm = A.perm
+    @batch for i in eachindex(B)
+        perm_mul!(C, A_vals, A_perm, B, α, β, i)
     end
-    return Y
+    return C
+end
+
+@inline function perm_mul!(C, A_vals, A_perm, B, α, β, i)
+    @inbounds C[i] = A_vals[i] * B[A_perm[i]] * α + β * C[i]
 end
 
 # Parallelized Diagonal multiplication
 function bmul!(C, A::Diagonal, B, α, β)
+    d = A.diag
     @batch for i in eachindex(B)
-        @inbounds C[i] = A.diag[i] * B[i] * α + β * C[i] 
+        @inbounds C[i] = d[i] * B[i] * α + β * C[i] 
     end
     return C
 end

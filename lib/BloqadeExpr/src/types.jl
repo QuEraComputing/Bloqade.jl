@@ -1,4 +1,31 @@
 # a linear map for low-level hamiltonian representation
+const backend = @load_preference("backend", "BloqadeExpr")
+
+struct ThreadedMatrix{M <: AbstractMatrix}
+    matrix::M
+
+    # use Inner Constructor to avoid infinite loop of calling constructor on itself
+    ThreadedMatrix(m::T) where {T<:AbstractMatrix} = new{typeof(m)}(m)
+    function ThreadedMatrix(m::SparseMatrixCSC)
+        @static if backend == "ParallelMergeCSR" # should be conjugate transpose
+            transformed_matrix =  m |> conj! |> transpose
+        elseif backend == "ThreadedSparseCSR" # should be conjugate transpose, then turned into SparseMatrixCSR
+            transformed_matrix = m |> conj! |> transpose |> SparseMatrixCSR 
+        elseif backend == "BloqadeExpr"
+            transformed_matrix = m
+        else
+            throw(ArgumentError("The backend selected is not supported."))
+        end
+
+        return new{typeof(transformed_matrix)}(transformed_matrix)
+    end
+
+end
+
+Base.size(m::ThreadedMatrix) = size(m.matrix)
+Base.size(m::ThreadedMatrix, i) = size(m.matrix)[i]
+Base.:*(n, m::T) where {T <: ThreadedMatrix} = n * m.matrix
+Base.pointer(m::T) where {T <: Diagonal} = pointer(m.diag)
 
 """
     struct Hamiltonian
@@ -874,6 +901,7 @@ Base.isreal(h::RydbergHamiltonian3) = !(h.rabi_term_hf isa SumOfXPhase_01) && !(
 
 
 storage_size(x) = sizeof(x)
+storage_size(H::T) where {T <: ThreadedMatrix} = storage_size(H.matrix)
 function storage_size(h::Hamiltonian)
     return sum(storage_size, h.ts)
 end

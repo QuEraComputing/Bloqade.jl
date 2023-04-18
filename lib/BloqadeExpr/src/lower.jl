@@ -158,15 +158,25 @@ function Hamiltonian(::Type{Tv}, ex::AbstractBlock, space::AbstractSpace = fulls
     fs, ts = [], []
     const_term = nothing
     for (f, op) in emit_dynamic_terms(ex)
-        if f === Base.one
+        if f === Base.one 
             const_term = isnothing(const_term) ? op : const_term + op
+        elseif nthreads() > 1
+            push!(fs, f)
+            push!(ts, ThreadedMatrix(mat(Tv, op, space))) 
         else
             push!(fs, f)
             push!(ts, mat(Tv, op, space))
         end
     end
     push!(fs, Base.one)
-    isnothing(const_term) || push!(ts, mat(Tv, const_term, space))
+
+    if !isnothing(const_term)
+        if nthreads() > 1
+            push!(ts, ThreadedMatrix(mat(Tv, const_term, space)))
+        else
+            push!(ts, mat(Tv, const_term, space))
+        end
+    end
     return Hamiltonian((fs...,), (ts...,))
 end
 

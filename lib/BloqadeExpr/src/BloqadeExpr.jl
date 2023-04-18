@@ -6,6 +6,12 @@ using Adapt
 using YaoAPI
 using YaoBlocks
 using LuxurySparse
+using SparseMatricesCSR
+using ParallelMergeCSR
+using Polyester
+using Base.Threads: nthreads
+using Polyester
+using Preferences
 using MLStyle
 using BitBasis
 using LaTeXStrings
@@ -50,5 +56,6 @@ include("lower.jl")
 include("units.jl")
 include("interface.jl")
 include("atoms.jl")
+include("preferences.jl")
 
 end

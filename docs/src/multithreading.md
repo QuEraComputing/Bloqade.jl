@@ -18,17 +18,17 @@ There are three backends to select from:
 
 `ThreadedSparseCSR` is ideal for smaller system sizes or if you are performing simulations with the full Hilbert space (in which case the Hamiltonian matrix has a rather even distribution of non-zero elements per row).
 
-`ParallelMergeCSR` is ideal for very large system sizes or if you are performing simulations using the Blockade subspace (@ref subspace) where the imbalance in the number of non-zero entries per row may be larger than if a full Hilbert space simulation was performed. ParallelMergeCSR performs some calculations before the actual matrix-vector multiplication occurs to find the ideal distribution of work across multiple threads which means for smaller system sizes more benefit might be obtained through `ThreadedSparseCSR`.
+`ParallelMergeCSR` is ideal for very large system sizes or if you are performing simulations using the Blockade [subspace](@ref subspace) where the imbalance in the number of non-zero entries per row may be larger than if a full Hilbert space simulation was performed. `ParallelMergeCSR` performs some calculations before the actual matrix-vector multiplication occurs to find the ideal distribution of work across multiple threads which means for smaller system sizes more benefit might be obtained through `ThreadedSparseCSR`.
 
 ## Using Multithreading
 
-To enabled multithreading you'll need to first import `BloqadeExpr`.
+To enabled multithreading you will need to first import `BloqadeExpr`.
 
 ```julia
 julia>using BloqadeExpr
 ```
 
-You can verify which backend you currently have through:
+You can verify which backend you currently have enabled through:
 
 ```julia
 BloqadeExpr.backend
@@ -46,4 +46,4 @@ You will be prompted to restart the Julia session upon which you should also lau
 julia -t num_threads
 ```
 
-All subsequent usage of Bloqade in the Julia session will now take advantage of the full available number of threads.
+So long as the backend is not explicitly changed again through `BloqadeExpr.set_backend`, the selected backend will persist.

@@ -36,6 +36,7 @@ function pages(; light = false)
             "Working with Subspace" => "subspace.md",
             "Working with Units" => "units.md",
             "Maximum Independent Set" => "mis.md",
+            "CPU Acceleration" => "multithreading.md",
             "GPU Acceleration" => "cuda.md",
             "3-Level Support and Quantum Gates" => "3-level.md",
             "Interacting with Neutral Atom Hardware" => "schema.md",

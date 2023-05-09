@@ -3,7 +3,7 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'G-SRKGL6MJHS', {'page_path': location.pathname + location.search + location.hash});
-</script><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://QuEraComputing.github.io/Bloqade.jl/tutorials/5.MIS/main/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/indigo.css" rel="stylesheet" type="text/css"/><link href="../../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../../"><img class="docs-light-only" src="../../../assets/logo.svg" alt="Bloqade.jl logo"/><img class="docs-dark-only" src="../../../assets/logo-dark.svg" alt="Bloqade.jl logo"/></a><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><a class="tocitem" href="../../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../../registers/">Registers and Observables</a></li><li><a class="tocitem" href="../../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../../../units/">Working with Units</a></li><li><a class="tocitem" href="../../../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../../../multithreading/">CPU Acceleration</a></li><li><a class="tocitem" href="../../../cuda/">GPU Acceleration</a></li><li><a class="tocitem" href="../../../3-level/">3-Level Support and Quantum Gates</a></li><li><a class="tocitem" href="../../../schema/">Interacting with Neutral Atom Hardware</a></li><li><a class="tocitem" href="../../../capabilities/">Hardware Capabilities</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../1.blockade/main/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../2.adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../../3.quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../../4.LGT/main/">Simulation of a Lattice Gauge Theory with Rydberg Atoms</a></li><li class="is-active"><a class="tocitem" href>The Maximum Independent Set Problem</a><ul class="internal"><li><a class="tocitem" href="#Background"><span>Background</span></a></li><li><a class="tocitem" href="#Setting-Up-the-Problem"><span>Setting Up the Problem</span></a></li><li><a class="tocitem" href="#The-Adiabatic-Approach"><span>The Adiabatic Approach</span></a></li><li><a class="tocitem" href="#QAOA-with-Piecewise-Constant-Pulses"><span>QAOA with Piecewise Constant Pulses</span></a></li><li><a class="tocitem" href="#Smoothened-Piecewise-Linear-Pulses"><span>Smoothened Piecewise Linear Pulses</span></a></li></ul></li><li><a class="tocitem" href="../../6.MWIS/main/">Maximum Weight Independent Set</a></li><li><a class="tocitem" href="../../7.QMC/main/">Quantum Monte Carlo Method</a></li></ul></li><li><a class="tocitem" href="../../../contrib/">Contributing to Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/QuEraComputing/Bloqade.jl/blob/master/examples/5.MIS/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="mis-tutorial"><a class="docs-heading-anchor" href="#mis-tutorial">The Maximum Independent Set Problem</a><a id="mis-tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#mis-tutorial" title="Permalink"></a></h1><h2 id="Background"><a class="docs-heading-anchor" href="#Background">Background</a><a id="Background-1"></a><a class="docs-heading-anchor-permalink" href="#Background" title="Permalink"></a></h2><p>In graph theory, an independent set is a set of vertices in a graph such that no two of which are connected by an edge. The problem of finding Maximum Independent Sets (MISs) is NP-hard, i.e., it is unlikely to be solved in a time polynomial to the problem size. Interestingly, there is a natural connection between the independent set constraint, and the <a href="../../1.blockade/main/#blockade">Rydberg Blockade</a> phenomenon in neutral-atom quantum computing using Rydberg states. More specifically, the Rydberg blockade implies that two atoms cannot be both excited to the Rydberg state <span>$\Ket{r}$</span> if they are close to each other, whereas the independent set constraint means two vertices cannot be both in the independent set when they are connected by an edge. Thus, one can consider atoms in the Rydberg state as vertices in an independent set. See the proposal in <a href="https://arxiv.org/pdf/1808.10816.pdf">H. Pichler et al. (10.48550/arXiv.1808.10816)</a> for more details.</p><p>In particular, one can use the ground state of the <a href="../../../hamiltonians/#Hamiltonians">Rydberg Hamiltonian</a> to encode the <a href="https://en.wikipedia.org/wiki/Independent_set_(graph_theory)">Maximum Independent Set problem</a>, which is to find the largest independent set of a given graph. For a particular subclass of geometric graphs, the so-called unit disk graphs, the Rydberg Hamiltonian can encode the solution without any overhead in the number of qubits. In fact, an experimental demonstration of quantum optimization has been realized in solving the Maximum Independent Set problem on up to 289 qubits in <a href="https://arxiv.org/abs/2202.09372">S. Ebadi et al. (10.48550/arXiv.2202.09372)</a>.</p><p>In this tutorial, we show how to solve the MIS problem using Bloqade. We focus on a particular subclass of unit disk graphs defined as Diagonal-connected Unit-disk Grid Graphs (DUGG). This is the class of graphs studied in the demonstration experiment <a href="https://arxiv.org/abs/2202.09372">S. Ebadi et al. (10.48550/arXiv.2202.09372)</a>. Although these graphs have highly constrained topologies, finding its MISs is still NP-hard. Here, we show how to use variational quantum algorithms with Rydberg Hamiltonians to solve the MIS problem on these graphs. The tutorial here strongly resembles the setup in <a href="https://arxiv.org/abs/2202.09372">S. Ebadi et al. (10.48550/arXiv.2202.09372)</a>, with the limitation that Bloqade can only simulate a much smaller problem.</p><p>For more details on the functionalities supported by Bloqade in studying independent set problems, please refer to the <a href="../../../mis/#mis">Maximum Independent Set</a> page in the Manual.</p><p>Let&#39;s start by importing the required libraries:</p><pre><code class="language-julia hljs">using Graphs
+</script><script data-outdated-warner src="../../../assets/warner.js"></script><link rel="canonical" href="https://QuEraComputing.github.io/Bloqade.jl/tutorials/5.MIS/main/"/><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.045/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.13.24/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../../assets/documenter.js"></script><script src="../../../siteinfo.js"></script><script src="../../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../../assets/themeswap.js"></script><link href="../../../assets/indigo.css" rel="stylesheet" type="text/css"/><link href="../../../assets/favicon.ico" rel="icon" type="image/x-icon"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../../../"><img class="docs-light-only" src="../../../assets/logo.svg" alt="Bloqade.jl logo"/><img class="docs-dark-only" src="../../../assets/logo-dark.svg" alt="Bloqade.jl logo"/></a><form class="docs-search" action="../../../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../../../">Home</a></li><li><a class="tocitem" href="../../../install/">Installation</a></li><li><a class="tocitem" href="../../../julia/">The Julia Programming Language</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../../lattices/">Lattices</a></li><li><a class="tocitem" href="../../../waveform/">Waveforms</a></li><li><a class="tocitem" href="../../../hamiltonians/">Hamiltonians</a></li><li><a class="tocitem" href="../../../registers/">Registers and Observables</a></li><li><a class="tocitem" href="../../../emulation/">Emulation</a></li><li><a class="tocitem" href="../../../subspace/">Working with Subspace</a></li><li><a class="tocitem" href="../../../units/">Working with Units</a></li><li><a class="tocitem" href="../../../mis/">Maximum Independent Set</a></li><li><a class="tocitem" href="../../../multithreading/">CPU Acceleration</a></li><li><a class="tocitem" href="../../../cuda/">GPU Acceleration</a></li><li><a class="tocitem" href="../../../3-level/">3-Level Support and Quantum Gates</a></li><li><a class="tocitem" href="../../../schema/">Interacting with Neutral Atom Hardware</a></li><li><a class="tocitem" href="../../../capabilities/">Hardware Capabilities</a></li></ul></li><li><span class="tocitem">Tutorials</span><ul><li><a class="tocitem" href="../../1.blockade/main/">Rydberg Blockade</a></li><li><a class="tocitem" href="../../2.adiabatic/main/">Adiabatic Evolution</a></li><li><a class="tocitem" href="../../3.quantum-scar/main/">Quantum Scar</a></li><li><a class="tocitem" href="../../4.LGT/main/">Simulation of a Lattice Gauge Theory with Rydberg Atoms</a></li><li class="is-active"><a class="tocitem" href>The Maximum Independent Set Problem</a><ul class="internal"><li><a class="tocitem" href="#Background"><span>Background</span></a></li><li><a class="tocitem" href="#Setting-Up-the-Problem"><span>Setting Up the Problem</span></a></li><li><a class="tocitem" href="#The-Adiabatic-Approach"><span>The Adiabatic Approach</span></a></li><li><a class="tocitem" href="#QAOA-with-Piecewise-Constant-Pulses"><span>QAOA with Piecewise Constant Pulses</span></a></li><li><a class="tocitem" href="#Smoothened-Piecewise-Linear-Pulses"><span>Smoothened Piecewise Linear Pulses</span></a></li><li><a class="tocitem" href="#Applications-in-VLSI-Chip-Manufacturing"><span>Applications in VLSI Chip Manufacturing</span></a></li></ul></li><li><a class="tocitem" href="../../6.MWIS/main/">Maximum Weight Independent Set</a></li><li><a class="tocitem" href="../../7.QMC/main/">Quantum Monte Carlo Method</a></li></ul></li><li><a class="tocitem" href="../../../contrib/">Contributing to Bloqade</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Tutorials</a></li><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>The Maximum Independent Set Problem</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/QuEraComputing/Bloqade.jl/blob/master/examples/5.MIS/main.jl" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="mis-tutorial"><a class="docs-heading-anchor" href="#mis-tutorial">The Maximum Independent Set Problem</a><a id="mis-tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#mis-tutorial" title="Permalink"></a></h1><h2 id="Background"><a class="docs-heading-anchor" href="#Background">Background</a><a id="Background-1"></a><a class="docs-heading-anchor-permalink" href="#Background" title="Permalink"></a></h2><p>In graph theory, an independent set is a set of vertices in a graph such that no two of which are connected by an edge. The problem of finding Maximum Independent Sets (MISs) is NP-hard, i.e., it is unlikely to be solved in a time polynomial to the problem size. Interestingly, there is a natural connection between the independent set constraint, and the <a href="../../1.blockade/main/#blockade">Rydberg Blockade</a> phenomenon in neutral-atom quantum computing using Rydberg states. More specifically, the Rydberg blockade implies that two atoms cannot be both excited to the Rydberg state <span>$\Ket{r}$</span> if they are close to each other, whereas the independent set constraint means two vertices cannot be both in the independent set when they are connected by an edge. Thus, one can consider atoms in the Rydberg state as vertices in an independent set. See the proposal in <a href="https://arxiv.org/pdf/1808.10816.pdf">H. Pichler et al. (10.48550/arXiv.1808.10816)</a> for more details.</p><p>In particular, one can use the ground state of the <a href="../../../hamiltonians/#Hamiltonians">Rydberg Hamiltonian</a> to encode the <a href="https://en.wikipedia.org/wiki/Independent_set_(graph_theory)">Maximum Independent Set problem</a>, which is to find the largest independent set of a given graph. For a particular subclass of geometric graphs, the so-called unit disk graphs, the Rydberg Hamiltonian can encode the solution without any overhead in the number of qubits. In fact, an experimental demonstration of quantum optimization has been realized in solving the Maximum Independent Set problem on up to 289 qubits in <a href="https://arxiv.org/abs/2202.09372">S. Ebadi et al. (10.48550/arXiv.2202.09372)</a>.</p><p>In this tutorial, we show how to solve the MIS problem using Bloqade. We focus on a particular subclass of unit disk graphs defined as Diagonal-connected Unit-disk Grid Graphs (DUGG). This is the class of graphs studied in the demonstration experiment <a href="https://arxiv.org/abs/2202.09372">S. Ebadi et al. (10.48550/arXiv.2202.09372)</a>. Although these graphs have highly constrained topologies, finding its MISs is still NP-hard. Here, we show how to use variational quantum algorithms with Rydberg Hamiltonians to solve the MIS problem on these graphs. The tutorial here strongly resembles the setup in <a href="https://arxiv.org/abs/2202.09372">S. Ebadi et al. (10.48550/arXiv.2202.09372)</a>, with the limitation that Bloqade can only simulate a much smaller problem.</p><p>For more details on the functionalities supported by Bloqade in studying independent set problems, please refer to the <a href="../../../mis/#mis">Maximum Independent Set</a> page in the Manual.</p><p>Let&#39;s start by importing the required libraries:</p><pre><code class="language-julia hljs">using Graphs
 using Bloqade
 using Random
 using GenericTensorNetworks
@@ -52,7 +52,7 @@ nqubits: 13
     abstol: 1.0e-10
 </code></pre><p>Finally, we can plot the most probable bitstrings by using the <a href="tutorials/5.MIS/@ref"><code>bitstring_hist</code></a> function on the resulting register (quantum state):</p><pre><code class="language-julia hljs">bitstring_hist(prob.reg; nlargest = 20)</code></pre><p><img src="../main-26.svg" alt/></p><p>We can see that some of the most probable configurations indeed have an independent set size 4 by counting the number of ones in the bitstring. The correctness of the output can be verified by comparing it to the classical solution:</p><pre><code class="language-julia hljs">best_bit_strings = most_probable(prob.reg, 2)
 all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), ConfigsMax())[]
-@assert all(bs -&gt; GenericTensorNetworks.StaticBitVector([bs...]) ∈ all_optimal_configs.c, best_bit_strings)</code></pre><p>We can also visualize these atoms and check them visually:</p><pre><code class="language-julia hljs">Bloqade.plot(atoms, blockade_radius = 7.5; colors = [iszero(b) ? &quot;white&quot; : &quot;red&quot; for b in best_bit_strings[1]])</code></pre><p><img src="../main-30.svg" alt/></p><pre><code class="language-julia hljs">Bloqade.plot(atoms, blockade_radius = 7.5; colors = [iszero(b) ? &quot;white&quot; : &quot;red&quot; for b in best_bit_strings[2]])</code></pre><p><img src="../main-31.svg" alt/></p><p>However, there are still some configurations that violate the blockade constraint, because the blockade interaction is not an ideal unit disk constraint (e.g. some bitstrings have a size 5). One can check whether the independence constraint is satisfied or not with the <a href="../../../mis/#BloqadeMIS.is_independent_set-Tuple{Any, Graphs.AbstractGraph}"><code>BloqadeMIS.is_independent_set</code></a> function:</p><pre><code class="language-julia hljs">best5_bit_strings = most_probable(prob.reg, 3)
+@assert all(bs -&gt; GenericTensorNetworks.StaticBitVector([bs...]) ∈ all_optimal_configs.c, best_bit_strings)</code></pre><p>We can also visualize these atoms and check them visually:</p><pre><code class="language-julia hljs">Bloqade.plot(atoms, blockade_radius = 7.5; colors = [iszero(b) ? &quot;white&quot; : &quot;red&quot; for b ∈ best_bit_strings[1]])</code></pre><p><img src="../main-30.svg" alt/></p><pre><code class="language-julia hljs">Bloqade.plot(atoms, blockade_radius = 7.5; colors = [iszero(b) ? &quot;white&quot; : &quot;red&quot; for b ∈ best_bit_strings[2]])</code></pre><p><img src="../main-31.svg" alt/></p><p>However, there are still some configurations that violate the blockade constraint, because the blockade interaction is not an ideal unit disk constraint (e.g. some bitstrings have a size 5). One can check whether the independence constraint is satisfied or not with the <a href="../../../mis/#BloqadeMIS.is_independent_set-Tuple{Any, Graphs.AbstractGraph}"><code>BloqadeMIS.is_independent_set</code></a> function:</p><pre><code class="language-julia hljs">best5_bit_strings = most_probable(prob.reg, 3)
 BloqadeMIS.is_independent_set.(best5_bit_strings, Ref(graph))</code></pre><pre><code class="nohighlight hljs">3-element BitVector:
  1
  1
@@ -71,8 +71,8 @@ fig</code></pre><p><img src="../main-41.svg" alt/></p><p>The <code>piecewise_con
 nsites = length(atoms)
 subspace = blockade_subspace(atoms, 7.5)  # we run our simulation within the blockade subspace
 prob2 = KrylovEvolution(zero_state(subspace), clocks, hamiltonian2)
-emulate!(prob2);</code></pre><p>We defined the loss function as the negative of the mean MIS size, which corresponds to the expectation value of the <a href="../../../hamiltonians/#BloqadeExpr.SumOfN"><code>SumOfN</code></a> operator. Thus, we can calculate the average loss function after the time evolution:</p><pre><code class="language-julia hljs">loss_MIS(reg) = -rydberg_density_sum(prob2.reg)
-loss_MIS(prob2.reg)</code></pre><pre><code class="nohighlight hljs">-2.5628869128026843</code></pre><p>The output shows the negative mean independent set size. This is because we have flipped its sign since most optimizers are set to minimize the loss function. This loss is equivalent to the <a href="../../../mis/#BloqadeMIS.rydberg_density_sum"><code>rydberg_density_sum</code></a> loss function in the <a href="tutorials/5.MIS/@ref"><code>BloqadeMIS</code></a> module. Alternative loss functions include the <a href="../../../mis/#BloqadeMIS.gibbs_loss-Tuple{Any, Real}"><code>gibbs_loss</code></a> and the <a href="../../../mis/#BloqadeMIS.independent_set_probabilities"><code>independent_set_probabilities</code></a>.</p><p>Here, the loss produced by the pulse sequence does not look very good. We can throw it into an optimizer and see if a classical optimizer can help. First, let us wrap up the above code into a loss function:</p><pre><code class="language-julia hljs">function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where {T}
+emulate!(prob2);</code></pre><p>We defined the loss function as the negative of the mean MIS size, which corresponds to the expectation value of the <a href="../../../hamiltonians/#BloqadeExpr.SumOfN"><code>SumOfN</code></a> operator. Thus, we can calculate the average loss function after the time evolution:</p><pre><code class="language-julia hljs">loss_MIS(reg) = -rydberg_density_sum(reg)
+loss_MIS(prob2.reg)</code></pre><pre><code class="nohighlight hljs">-2.5628869128026825</code></pre><p>The output shows the negative mean independent set size. This is because we have flipped its sign since most optimizers are set to minimize the loss function. This loss is equivalent to the <a href="../../../mis/#BloqadeMIS.rydberg_density_sum"><code>rydberg_density_sum</code></a> loss function in the <a href="tutorials/5.MIS/@ref"><code>BloqadeMIS</code></a> module. Alternative loss functions include the <a href="../../../mis/#BloqadeMIS.gibbs_loss-Tuple{Any, Real}"><code>gibbs_loss</code></a> and the <a href="../../../mis/#BloqadeMIS.independent_set_probabilities"><code>independent_set_probabilities</code></a>.</p><p>Here, the loss produced by the pulse sequence does not look very good. We can throw it into an optimizer and see if a classical optimizer can help. First, let us wrap up the above code into a loss function:</p><pre><code class="language-julia hljs">function loss_piecewise_constant(atoms::AtomList, x::AbstractVector{T}) where {T}
     @assert length(x) % 2 == 0
     Ω_max = 4 * 2π
     Δ_end = 11 * 2π
@@ -91,10 +91,10 @@ loss_MIS(prob2.reg)</code></pre><pre><code class="nohighlight hljs">-2.562886912
     return -rydberg_density_sum(prob.reg), prob.reg
 end</code></pre><pre><code class="nohighlight hljs">loss_piecewise_constant (generic function with 1 method)</code></pre><div class="admonition is-info"><header class="admonition-header">Note</header><div class="admonition-body"><p>Running the simulation in the subspace does not violate the independence constraints. If one uses fullspace simulation or runs it on the quantum computer, one may need to post-process the measured bitstrings to a get a correct measure of the loss if we do not set the blockade constraint. Related APIs include <a href="../../../mis/#BloqadeMIS.is_independent_set-Tuple{Any, Graphs.AbstractGraph}"><code>is_independent_set</code></a>, <a href="tutorials/5.MIS/@ref"><code>num_mis_violation</code></a>, and <a href="../../../mis/#BloqadeMIS.mis_postprocessing-Tuple{Any, Graphs.AbstractGraph}"><code>mis_postprocessing</code></a>.</p></div></div><p>Let us check the loss function again using the initial point above:</p><pre><code class="language-julia hljs">x0 = durations
 rydberg_density, reg1 = loss_piecewise_constant(atoms, x0)
-rydberg_density</code></pre><pre><code class="nohighlight hljs">-2.5628869128026843</code></pre><p>The most probable bitstrings are:</p><pre><code class="language-julia hljs">bitstring_hist(reg1; nlargest = 20)</code></pre><p><img src="../main-53.svg" alt/></p><p>We see that without optimization, many of these bitstrings are not the MIS solutions.</p><p>Let us now use the non-gradient-based optimizer <code>NelderMead</code> in the <code>Optim</code> package to optimize the loss function:</p><pre><code class="language-julia hljs">optresult = Optim.optimize(x -&gt; loss_piecewise_constant(atoms, x)[1], x0)
+rydberg_density</code></pre><pre><code class="nohighlight hljs">-2.5628869128026825</code></pre><p>The most probable bitstrings are:</p><pre><code class="language-julia hljs">bitstring_hist(reg1; nlargest = 20)</code></pre><p><img src="../main-53.svg" alt/></p><p>We see that without optimization, many of these bitstrings are not the MIS solutions.</p><p>Let us now use the non-gradient-based optimizer <code>NelderMead</code> in the <code>Optim</code> package to optimize the loss function:</p><pre><code class="language-julia hljs">optresult = Optim.optimize(x -&gt; loss_piecewise_constant(atoms, x)[1], x0)
 
 rydberg_density_final, reg1_final = loss_piecewise_constant(atoms, optresult.minimizer)
-rydberg_density_final</code></pre><pre><code class="nohighlight hljs">-3.0965910260012213</code></pre><p>We see that the loss is indeed improved, but still not very good. This is likely because the optimization is trapped in a local minimum:</p><pre><code class="language-julia hljs">bitstring_hist(reg1_final; nlargest = 20)</code></pre><p><img src="../main-58.svg" alt/></p><p>This example shows that the performance of the algorithm very much depends on the parametrization of the pulse sequences, the initialization of the variational parameters, and the classical optimizers. See <a href="https://arxiv.org/abs/2202.09372">S. Ebadi et al. (10.48550/arXiv.2202.09372)</a> for more in-depth comparison of different pulse parameterizations and tips on how to improve the performance.</p><p>In the example below, we show a better pulse parameterization using smoothened piecewise linear waveforms.</p><h2 id="Smoothened-Piecewise-Linear-Pulses"><a class="docs-heading-anchor" href="#Smoothened-Piecewise-Linear-Pulses">Smoothened Piecewise Linear Pulses</a><a id="Smoothened-Piecewise-Linear-Pulses-1"></a><a class="docs-heading-anchor-permalink" href="#Smoothened-Piecewise-Linear-Pulses" title="Permalink"></a></h2><p>A smoothened piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the <code>piecewise_linear</code> function. For example:</p><pre><code class="language-julia hljs">pulse_piecewise_linear = piecewise_linear(clocks = [0.0, 0.05, 0.1, 0.5, 0.55, T_max], values = [0, 0, 0.4, 0.4, 0, 0]);
+rydberg_density_final</code></pre><pre><code class="nohighlight hljs">-3.0965910260012155</code></pre><p>We see that the loss is indeed improved, but still not very good. This is likely because the optimization is trapped in a local minimum:</p><pre><code class="language-julia hljs">bitstring_hist(reg1_final; nlargest = 20)</code></pre><p><img src="../main-58.svg" alt/></p><p>This example shows that the performance of the algorithm very much depends on the parametrization of the pulse sequences, the initialization of the variational parameters, and the classical optimizers. See <a href="https://arxiv.org/abs/2202.09372">S. Ebadi et al. (10.48550/arXiv.2202.09372)</a> for more in-depth comparison of different pulse parameterizations and tips on how to improve the performance.</p><p>In the example below, we show a better pulse parameterization using smoothened piecewise linear waveforms.</p><h2 id="Smoothened-Piecewise-Linear-Pulses"><a class="docs-heading-anchor" href="#Smoothened-Piecewise-Linear-Pulses">Smoothened Piecewise Linear Pulses</a><a id="Smoothened-Piecewise-Linear-Pulses-1"></a><a class="docs-heading-anchor-permalink" href="#Smoothened-Piecewise-Linear-Pulses" title="Permalink"></a></h2><p>A smoothened piecewise linear waveform can be created by applying a Gaussian filter on a waveform created by the <code>piecewise_linear</code> function. For example:</p><pre><code class="language-julia hljs">pulse_piecewise_linear = piecewise_linear(clocks = [0.0, 0.05, 0.1, 0.5, 0.55, T_max], values = [0, 0, 0.4, 0.4, 0, 0]);
 pulse_smooth = smooth(pulse_piecewise_linear; kernel_radius = 0.02);
 
 fig, ax = plt.subplots()
@@ -153,4 +153,205 @@ Bloqade.plot!(ax, Δ_initial_smooth)
 Bloqade.plot!(ax, Δ_final)
 ax.set_ylabel(&quot;Δ/2π (MHz)&quot;)
 ax.legend([&quot;initial&quot;, &quot;optimized&quot;], loc = &quot;lower right&quot;)
-fig</code></pre><p><img src="../main-77.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../4.LGT/main/">« Simulation of a Lattice Gauge Theory with Rydberg Atoms</a><a class="docs-footer-nextpage" href="../../6.MWIS/main/">Maximum Weight Independent Set »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Tuesday 25 April 2023 14:21">Tuesday 25 April 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+fig</code></pre><p><img src="../main-77.svg" alt/></p><h2 id="Applications-in-VLSI-Chip-Manufacturing"><a class="docs-heading-anchor" href="#Applications-in-VLSI-Chip-Manufacturing">Applications in VLSI Chip Manufacturing</a><a id="Applications-in-VLSI-Chip-Manufacturing-1"></a><a class="docs-heading-anchor-permalink" href="#Applications-in-VLSI-Chip-Manufacturing" title="Permalink"></a></h2><h3 id="Background-2"><a class="docs-heading-anchor" href="#Background-2">Background</a><a class="docs-heading-anchor-permalink" href="#Background-2" title="Permalink"></a></h3><p>The Maximum Independent Set (MIS) tutorial above described how to use Bloqade to computed the MIS on arbitrary unit disk graphs. In this tutorial, we will use the same algorithm but also show how to map a problem with real-world applications to a problem that can be solved with Bloqade&#39;s features.</p><p>Configurability is an approach to chip manufacturing in VLSI design. Ordinarily, copies of the entire chip and fabricated and on a wafer, the wafer is diced into chips using scribing corridors, and then faulty chips are marked and discarded. However, since the entire chip is being manufactured at once, this is wasteful because even if only a small portion of the chip is defective, it must be entirely discarded. According to <a href="https://core.ac.uk/download/pdf/4951484.pdf">F. Berman et al.</a>, &quot;To use configurability, this process is changed somewhat. Special circuitry is added in the scribing corridors that enables adjacent chips to be connected. Then, after the wafer is tested, adjacent functional chips are connected into a group and the entire group is used as a single enlarged chip.&quot; In this way, even if a smaller chips becomes defective, the adjacent chips can be rewired so that they can still be used in the larger chip.</p><p>A natural problem that arises from this setup is the <em>square packing</em> problem. <a href="https://www.cs.du.edu/~snarayan/sada/research/docs/p130-hochbaum.pdf">D. Hochbaum and W. Maass</a> summarizes an example problem: &quot;64K RAM chips, some of which may be defective, are available on a rectilinear grid placed on a silicon wafer. 2 x 2 arrays of such nondefective chips could be wired together to produce 256K RAM chips. In order to maximize yield, we want to pack a maximal number of such 2 X 2 arrays into the array of working chips on a wafer.&quot;</p><p>To solve this problem, let us start with the necessary imports:</p><pre><code class="language-julia hljs">using Bloqade
+using GenericTensorNetworks
+using GenericTensorNetworks: unit_disk_graph
+using PythonCall
+using Random
+using Optim
+plt = pyimport(&quot;matplotlib.pyplot&quot;);
+patches = pyimport(&quot;matplotlib.patches&quot;);
+np = pyimport(&quot;numpy&quot;)</code></pre><pre><code class="nohighlight hljs">Python module: &lt;module &#39;numpy&#39; from &#39;/home/runner/work/Bloqade.jl/Bloqade.jl/examples/1.blockade/.CondaPkg/env/lib/python3.10/site-packages/numpy/__init__.py&#39;&gt;</code></pre><h3 id="Setting-up-the-Problem"><a class="docs-heading-anchor" href="#Setting-up-the-Problem">Setting up the Problem</a><a id="Setting-up-the-Problem-1"></a><a class="docs-heading-anchor-permalink" href="#Setting-up-the-Problem" title="Permalink"></a></h3><p>We can visualize this problem as a grid of 64K RAM chips, where some of the grid cells are removed.</p><pre><code class="language-julia hljs">fig, ax = plt.subplots(figsize=(5, 5))
+
+G = 5 # grid size (G x G)
+defects = []
+for i in range(1, G*G//15)
+    push!(defects, ((rand(Int)%G+10) % G, (rand(Int)%G + 10) % G))
+end
+
+ax.grid(visible=true)
+plt.xticks(1:G)
+plt.yticks(1:G)
+
+grid = zeros((G, G))
+
+function plot_defects(defects)
+    for (x, y) in defects
+        ax.add_patch(patches.Rectangle((x, y), 1, 1, color=&quot;red&quot;))
+        grid[x+1, y+1] = 1
+    end
+end
+
+plot_defects(defects)
+
+fig</code></pre><p><img src="../main-87.svg" alt/></p><p>Wherever there is a 2x2 grid of non-defective chips, these grid cells can be wired together. This potential grouping of chips can be visualized as a unit disk which overlaps with the four grid cells that are being wired together. For example, in the figure below, the four grid cells in the upper left corner could be wired together, so we would put a unit disk at (1, 9) with radius 1.</p><p><img src="../../../assets/vlsi.png" alt="VLSI"/></p><p>The code below shows the unit disk corresponding to every possible wiring. Overlapping unit disks represents two wirings which conflict with each other because they use the same chips. Our goal is to find the maximum number of non-conflicting wirings, i.e. the MIS.</p><pre><code class="language-julia hljs">circs::Vector{Tuple{Int64, Int64}} = []
+Δ = [(0, 0) (0, 1) (1, 0) (1, 1)]
+
+for x in 1:G-1
+    for y in 1:G-1
+        works = true
+        for (dx, dy) in Δ
+            if 1 ≤ x+dx ≤ G &amp;&amp; 1 ≤ y + dy ≤ G
+                works &amp;= grid[x+dx,y+dy]==0
+            end
+        end
+        if works
+            push!(circs, (x, y))
+        end
+    end
+end
+
+R_opt = sqrt(2sqrt(2))/2
+for circ in circs
+    patch = patches.Circle(circ, R_opt, fill=false)
+    ax.add_patch(patch)
+end
+
+fig</code></pre><p><img src="../main-91.svg" alt/></p><p>We can now use Bloqade, transforming this problem (which is a type of Diagonal-connected Unit-disk Grid Graph (DUGG)) into a lattice of atoms. We want each atom to be positioned at the center of the unit disk and have a blockade radius of roughly 7.5 μm, reusing the methdology and values given in the &quot;Setting Up the Problem&quot; section of the tutorial above which enables atoms that exist diagonally from the initial atom to fall within the Blockade radius.</p><p>We will scale the position of the atoms so that we get the desired unit disk overlaps with a radius of 7.5 μm:</p><pre><code class="language-julia hljs">function scalePos(pos, scale)::Vector{Tuple{Float64, Float64}}
+    npos = []
+    for (x, y) in pos
+        push!(npos, (x*scale, y*scale))
+    end
+    return npos
+end
+R = 7.5
+scale = 7.5/(2*R_opt)
+
+atoms = AtomList(scalePos(circs, scale))
+Bloqade.plot(atoms, blockade_radius = R)</code></pre><p><img src="../main-94.svg" alt/></p><p>We will first use classical algorithms to find the optimal solution to the problem:</p><pre><code class="language-julia hljs">unit_graph = unit_disk_graph(atoms, R)
+configs = GenericTensorNetworks.solve(IndependentSet(unit_graph), ConfigsMax())[]
+MIS_config = configs.c[1]</code></pre><pre><code class="nohighlight hljs">01100000001001</code></pre><p>We can visualize the solution on the atom lattice:</p><pre><code class="language-julia hljs">Bloqade.plot(atoms, blockade_radius = R; colors = [iszero(b) ? &quot;white&quot; : &quot;red&quot; for b in MIS_config])</code></pre><p><img src="../main-98.svg" alt/></p><p>We can also visualize the solution on the chip grid:</p><pre><code class="language-julia hljs">function clear_circ()
+    for i in 1:5
+        for patch in ax.patches
+            try
+                patch.radius
+                patch.remove()
+            catch
+                print(patch)
+            end
+        end
+    end
+end
+
+clear_circ()
+for (circ, used) in zip(circs, MIS_config)
+    if used == 1
+        patch = patches.Circle(circ, R_opt, fill=false)
+        ax.add_patch(patch)
+    end
+end
+
+fig</code></pre><p><img src="../main-100.svg" alt/></p><h3 id="The-Adiabatic-Approach-2"><a class="docs-heading-anchor" href="#The-Adiabatic-Approach-2">The Adiabatic Approach</a><a class="docs-heading-anchor-permalink" href="#The-Adiabatic-Approach-2" title="Permalink"></a></h3><p>Like with the Maximum Independent Set tutorial above, we can use an adiabatic algorithm to solve this problem. We can use the same pulse sequence for <span>$\Omega$</span> and <span>$\Delta$</span>:</p><pre><code class="language-julia hljs">T_max = 0.6
+Ω_max = 2π * 4
+Ω = piecewise_linear(clocks = [0.0, 0.1, 0.5, T_max], values = [0.0, Ω_max, Ω_max, 0])
+Δ_start = -2π * 13
+Δ_end = 2π * 11
+Δ = piecewise_linear(clocks = [0.0, 0.1, 0.5, T_max], values = [Δ_start, Δ_start, Δ_end, Δ_end])
+
+plot, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+Bloqade.plot!(ax1, Ω)
+ax1.set_ylabel(&quot;Ω/2π (MHz)&quot;)
+Bloqade.plot!(ax2, Δ)
+ax2.set_ylabel(&quot;Δ/2π (MHz)&quot;)
+plot</code></pre><p><img src="../main-103.svg" alt/></p><p>And construct the Hamiltonian:</p><pre><code class="language-julia hljs">hamiltonian = rydberg_h(atoms; Ω = Ω, Δ = Δ, ϕ=Waveform(t-&gt;0.0, T_max))
+prob = SchrodingerProblem(zero_state(nqubits(hamiltonian)), T_max, hamiltonian)
+emulate!(prob)</code></pre><pre><code class="nohighlight hljs">SchrodingerProblem:
+  register info:
+    type: YaoArrayRegister.ArrayReg{2, ComplexF64, Matrix{ComplexF64}}
+    storage size: 8 bytes
+
+  time span (μs): (0.0, 0.6)
+
+  equation: 
+    storage size: 5.500 MiB
+    expression:
+nqubits: 14
++
+├─ [+] ∑ 2π ⋅ 8.627e5.0/|x_i-x_j|^6 n_i n_j
+├─ [+] Ω(t) ⋅∑ e^{ϕ(t) ⋅ im} |0⟩⟨1| + e^{-ϕ(t) ⋅ im} |1⟩⟨0|
+└─ [-] Δ(t) ⋅ ∑ n_i
+
+
+    algorithm: DP8(stage_limiter! = trivial_limiter!, step_limiter! = trivial_limiter!, thread = static(false))
+  options:
+    save_everystep: false
+    save_start: false
+    save_on: false
+    dense: false
+    reltol: 1.0e-10
+    abstol: 1.0e-10
+</code></pre><p>We can see that our algorithm found the Maximum Independent Set by summing the probabilities of being in any one of the MIS configurations:</p><pre><code class="language-julia hljs">function get_MIS_prob(reg::Union{ArrayReg, SubspaceArrayReg}, configs) # want to maxmimize this
+    prob = 0
+    x = [parse(Int, reverse(string(x)); base=2) for x in configs.c]
+    for (c, amp) in BloqadeMIS.ConfigAmplitude(reg)
+        if c in x
+            prob+=abs2(amp)
+        end
+    end
+    return prob
+end
+
+get_MIS_prob(prob.reg, configs)</code></pre><pre><code class="nohighlight hljs">0.8652655503921888</code></pre><h3 id="Optimization"><a class="docs-heading-anchor" href="#Optimization">Optimization</a><a id="Optimization-1"></a><a class="docs-heading-anchor-permalink" href="#Optimization" title="Permalink"></a></h3><p>For even better results, we can optimize the pulse sequence for <span>$\Omega$</span> and <span>$\Delta$</span>. We can parametrize the pulses by <span>$t_{start}$</span> and <span>$t_{end}$</span>, which are the times spent in the initial and final state, respectively. We will also optimize the shape on the detuning pulse by modeling it as a piecewise linear function given by parameters that indicate what values it reaches at regular time intervals. We will optimize for the probabilitity that of getting one the MIS solutions without applying any classical postprocessing on the results of the stimulation.</p><pre><code class="language-julia hljs">function get_waves(params::Vector{Float64}) # returns the pulses as a function of certain parameters
+    t_start, t_end, scale... = params
+    t_start+=0.03
+    T_max = 0.6
+    t_end = T_max - t_end - 0.03
+    t_interval = (t_end - t_start) / (length(scale) + 1)
+    Ω_max = 4 * 2π
+    Δ_start = -13 * 2π
+    Δ_end = Δ0 = 11 * 2π
+
+    Δ_clock = [0.0, t_start]
+    Δ_val = [Δ_start, Δ_start]
+    for i in 1:length(scale)
+        push!(Δ_val, Δ0*scale[i])
+        push!(Δ_clock, t_start + i*t_interval)
+    end
+    push!(Δ_val, Δ_end); push!(Δ_val, Δ_end)
+    push!(Δ_clock, t_end); push!(Δ_clock, T_max)
+    Δ = piecewise_linear(clocks = Δ_clock, values = Δ_val);
+    Ω = piecewise_linear(clocks = [0.0, t_start, t_end, T_max], values = [0, Ω_max, Ω_max, 0]);
+    return Ω, Δ
+end</code></pre><pre><code class="nohighlight hljs">get_waves (generic function with 1 method)</code></pre><p>The example below plots the pulse sequence that would be generated by the parameters given in <code>x0</code>:</p><pre><code class="language-julia hljs">function plot_waves(params::Vector{Float64})
+    Ω, Δ = get_waves(params)
+
+    graph, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+    Bloqade.plot!(ax1, Ω)
+    ax1.set_ylabel(&quot;Ω/2π (MHz)&quot;)
+    Bloqade.plot!(ax2, Δ)
+    ax2.set_ylabel(&quot;Δ/2π (MHz)&quot;)
+    return graph
+end
+
+x0 = [0.1, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]
+
+plot_waves(x0)</code></pre><p><img src="../main-112.svg" alt/></p><p>We can now run the optimization using the <code>Nelder-Mead</code> algorithm</p><pre><code class="language-julia hljs">function loss(atoms::AtomList, x::Vector{Float64}, configs)
+    Ω, Δ = get_waves(x)
+    hamiltonian = rydberg_h(atoms; Ω = Ω, Δ = Δ)
+    subspace = blockade_subspace(atoms, 4.5)
+    prob = SchrodingerProblem(zero_state(subspace), T_max, hamiltonian)
+    emulate!(prob)
+    return -get_MIS_prob(prob.reg, configs), prob.reg, Δ
+end
+
+optresult = Optim.optimize(x -&gt; loss(atoms, x, configs)[1], x0)</code></pre><pre><code class="nohighlight hljs"> * Status: success
+
+ * Candidate solution
+    Final objective value:     -9.676880e-01
+
+ * Found with
+    Algorithm:     Nelder-Mead
+
+ * Convergence measures
+    √(Σ(yᵢ-ȳ)²)/n ≤ 1.0e-08
+
+ * Work counters
+    Seconds run:   86  (vs limit Inf)
+    Iterations:    463
+    f(x) calls:    735
+</code></pre><p>We can look at the new pulse sequence, which has a much better <code>get_MIS_prob</code>:</p><pre><code class="language-julia hljs">plot_waves(optresult.minimizer)</code></pre><p><img src="../main-116.svg" alt/></p><p>The new parameters give much better results when we rerun the adiabtic algorithm:</p><pre><code class="language-julia hljs">Ω, Δ = get_waves(optresult.minimizer)
+hamiltonian = rydberg_h(atoms; Ω = Ω, Δ = Δ, ϕ=Waveform(t-&gt;0.0, T_max))
+prob = SchrodingerProblem(zero_state(nqubits(hamiltonian)), T_max, hamiltonian)
+emulate!(prob)
+
+bitstring_hist(prob.reg; nlargest = 20)</code></pre><p><img src="../main-118.svg" alt/></p><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../../4.LGT/main/">« Simulation of a Lattice Gauge Theory with Rydberg Atoms</a><a class="docs-footer-nextpage" href="../../6.MWIS/main/">Maximum Weight Independent Set »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Tuesday 9 May 2023 21:12">Tuesday 9 May 2023</span>. Using Julia version 1.9.0.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>

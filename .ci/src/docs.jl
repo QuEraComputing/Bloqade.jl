@@ -36,6 +36,7 @@ function pages(; light = false)
             "Working with Subspace" => "subspace.md",
             "Working with Units" => "units.md",
             "Maximum Independent Set" => "mis.md",
+            "CPU Acceleration" => "multithreading.md",
             "GPU Acceleration" => "cuda.md",
             "3-Level Support and Quantum Gates" => "3-level.md",
             "Interacting with Neutral Atom Hardware" => "schema.md",
@@ -78,6 +79,7 @@ function doc_build_script(pages, repo)
         format=Documenter.HTML(;
             prettyurls=get(ENV, "CI", "false") == "true",
             canonical="https://QuEraComputing.github.io/Bloqade.jl",
+            analytics="G-SRKGL6MJHS",
             assets=String[indigo, "assets/favicon.ico"],
             sidebar_sitename=false,
         ),

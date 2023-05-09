@@ -1,9 +1,9 @@
 """
-    function to_braket_ahs_ir(local_value::BloqadeSchema.RydbergDetuningLocal)
+    function to_braket_ahs_ir(local_value::BloqadeSchema.LocalField)
 
 Converts `local_value` to `Braket.IR.PhysicalField`
 """
-function to_braket_ahs_ir(local_value::BloqadeSchema.RydbergDetuningLocal)
+function to_braket_ahs_ir(local_value::BloqadeSchema.LocalField)
 
     # should also be a PhysicalField
     time_series = Braket.IR.TimeSeries(
@@ -18,15 +18,11 @@ function to_braket_ahs_ir(local_value::BloqadeSchema.RydbergDetuningLocal)
 end
 
 """
-    function to_braket_ahs_ir(global_values::Union{BloqadeSchema.RydbergRabiFrequencyAmplitudeGlobal,
-    BloqadeSchema.RydbergRabiFrequencyPhaseGlobal,
-    BloqadeSchema.RydbergDetuningGlobal})
+    function to_braket_ahs_ir(global_values::BloqadeSchema.GlobalField)
 
 Converts `global_values` to `Braket.IR.PhysicalField`
 """
-function to_braket_ahs_ir(global_values::Union{BloqadeSchema.RydbergRabiFrequencyAmplitudeGlobal,
-                                               BloqadeSchema.RydbergRabiFrequencyPhaseGlobal,
-                                               BloqadeSchema.RydbergDetuningGlobal})
+function to_braket_ahs_ir(global_values::BloqadeSchema.GlobalField)
 
     time_series = Braket.IR.TimeSeries(
         Dec128.(string.(global_values.values)),
@@ -40,28 +36,26 @@ function to_braket_ahs_ir(global_values::Union{BloqadeSchema.RydbergRabiFrequenc
 end
 
 """
-    function to_braket_ahs_ir(amplitude_or_phase::Union{BloqadeSchema.RydbergRabiFrequencyAmplitude,
-    BloqadeSchema.RydbergRabiFrequencyPhase})
+    function to_braket_ahs_ir(amplitude_or_phase::Union{BloqadeSchema.RabiFrequencyAmplitude,
+    BloqadeSchema.RabiFrequencyPhase})
                                            
 Unwraps `amplitude_or_phase` to extract their `global_value` fields which are 
-immediately evaluated by `function to_braket_ahs_ir(global_values::Union{BloqadeSchema.RydbergRabiFrequencyAmplitudeGlobal,
-BloqadeSchema.RydbergRabiFrequencyPhaseGlobal,
-BloqadeSchema.RydbergDetuningGlobal})`
+immediately evaluated by `function to_braket_ahs_ir(global_values::BloqadeSchema.GlobalField)`
 """
-to_braket_ahs_ir(amplitude_or_phase::Union{BloqadeSchema.RydbergRabiFrequencyAmplitude,
-                                           BloqadeSchema.RydbergRabiFrequencyPhase}) = to_braket_ahs_ir(amplitude_or_phase.global_value)
+to_braket_ahs_ir(amplitude_or_phase::Union{BloqadeSchema.RabiFrequencyAmplitude,
+                                           BloqadeSchema.RabiFrequencyPhase}) = to_braket_ahs_ir(amplitude_or_phase.global_value)
 
 """
-    function to_braket_ahs_ir(detuning::BloqadeSchema.RydbergDetuning)
+    function to_braket_ahs_ir(detuning::BloqadeSchema.Detuning)
 
 Converts `detuning` to `Braket.IR.PhysicalField`'s for the `global_value`
 and `local_value` fields of `detuning`. Returns the converted `global_value` first 
 followed by the `local_value`. 
 ``
 """
-function to_braket_ahs_ir(detuning::BloqadeSchema.RydbergDetuning)
+function to_braket_ahs_ir(detuning::BloqadeSchema.Detuning)
     Δ = to_braket_ahs_ir(detuning.global_value)
-    # local_value is Maybe{RydbergDetuningLocal} so chance that 
+    # local_value is Maybe{LocalField} so chance that 
     # it's `nothing` or the actual value
     δ = nothing
     if detuning.local_value !== nothing
@@ -129,16 +123,16 @@ to_braket_ahs_ir(hamiltonian::BloqadeSchema.EffectiveHamiltonian) = to_braket_ah
 
 # Public API, *THE* main function users should use
 """
-   function to_braket_ahs_ir(bloqade_task::BloqadeSchema.TaskSpecification)
+   function to_braket_ahs_ir(bloqade_task::BloqadeSchema.QuEraTaskSpecification)
 
 Converts a `bloqade_task` into a `Braket.IR.AHSProgram`
 capable of being submitted to AWS Braket for execution on a QPU.
 
-NOTE: `BloqadeSchema.TaskSpecification` contains a field `nshots` which
+NOTE: `BloqadeSchema.QuEraTaskSpecification` contains a field `nshots` which
 does not have a corresponding field in `Braket.IR.AHSProgram`. This value must be
 fed as a keyword argument to a `Braket.AwsDevice` instance separately.
 """
-function to_braket_ahs_ir(bloqade_task::BloqadeSchema.TaskSpecification)
+function to_braket_ahs_ir(bloqade_task::BloqadeSchema.QuEraTaskSpecification)
     braket_schema_header = Braket.IR.braketSchemaHeader("braket.ir.ahs.program",
                                                         "1")
     setup = to_braket_ahs_ir(bloqade_task.lattice)

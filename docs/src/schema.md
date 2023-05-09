@@ -20,8 +20,10 @@ h = rydberg_h(atoms; Δ = Δ, Ω = Ω, ϕ = ϕ)
 
 To transform the Hamiltonian into something the hardware is capable of supporting, we can pass it through [`hardware_transform`](@ref).
 
-!!! warning "Limitations on Atom Position Transformations"
+!!! warning "Limitations on Transformations"
     While `hardware_transform` may attempt to adjust atom positions so that they conform to hardware position resolution capabilities, the function will NOT move atoms such that they satisfy minimum spacing constraints. The `validate` function presented later will explicitly indicate which atoms are in violation of the position constraints but will require the user to make the necessary changes.
+
+    Furthermore, `hardware_transform` requires that all waveforms the Hamiltonian could use (Rabi frequency, detuning, and phase) are explicitly specified even if they are not used. To indicate non-use of a waveform, [`BloqadeWaveforms.constant`](@ref) should be used with the value set to zero.
 
 `hardware_transform` accepts information from [`get_device_capabilities`](@ref) (already called as a default argument) which provides information on the machine's capabilities and returns the transformed hamiltonian along with additional information regarding the difference (error) between the originally defined lattice geometry and waveforms versus their transformed versions through a [`HardwareTransformInfo`](@ref) instance.
 
@@ -153,7 +155,7 @@ Braket.state(task)
 To obtain results, the `result` function from `Braket.jl` can be used
 
 ```julia
-result = Braket.result(task)
+res = Braket.result(task)
 ```
 
 !!! info "Braket.result is Blocking"
@@ -161,10 +163,10 @@ result = Braket.result(task)
     is available, in which case the result is returned, or the task enters a
     terminal state without a result (`"FAILED"` or `"CANCELLED"`)...".
 
-To obtain the raw measurements (pre- and post-Hamiltonian application) of the atoms, the `get_measurements` function in `Braket.jl` can be used.
+To obtain the raw measurements (pre- and post-Hamiltonian application) of the atoms, the `measurements` field can be accessed:
 
 ```julia
-Braket.get_measurements(result)
+res.measurements
 ```
 
 ## Reference

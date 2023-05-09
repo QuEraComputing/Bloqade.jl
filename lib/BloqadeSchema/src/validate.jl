@@ -133,11 +133,11 @@ function validate_Ω(wf,expected)
         ("duration",max_time,>,expected.max_time,"μs"),
         ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
-        ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
-        ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
-        ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
-        ("start value",start_value,!=,0.0,"rad⋅MHz"),
-        ("end value",end_value,!=,0.0,"rad⋅MHz"),
+        ("maximum slope",max_slope,>,expected.max_slope,"rad/μs²"),
+        ("minimum value",min_value,<,expected.min_value,"rad/μs"),
+        ("maximum value",max_value,>,expected.max_value,"rad/μs"),
+        ("start value",start_value,!=,0.0,"rad/μs"),
+        ("end value",end_value,!=,0.0,"rad/μs"),
     ]
     #("duration", max_time, < expected.min_time_step, "μs")
     violations = Set([])
@@ -151,7 +151,7 @@ function validate_Ω(wf,expected)
     end
 
     foreach(wf.f.values) do value
-        check_resolution(expected.value_resolution,value) && push!(violations,"Ω(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
+        check_resolution(expected.value_resolution,value) && push!(violations,"Ω(t) value $value rad/μs is not consistent with resolution $(expected.value_resolution) rad/μs.")
     end
 
     return violations
@@ -171,9 +171,9 @@ function validate_Δ(wf,expected)
         ("duration",max_time,>,expected.max_time,"μs"),
         ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
-        ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
-        ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
-        ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
+        ("maximum slope",max_slope,>,expected.max_slope,"rad/μs²"),
+        ("minimum value",min_value,<,expected.min_value,"rad/μs"),
+        ("maximum value",max_value,>,expected.max_value,"rad/μs"),
     ]
 
     violations = Set([])
@@ -187,7 +187,7 @@ function validate_Δ(wf,expected)
     end
 
     foreach(wf.f.values) do value
-        check_resolution(expected.value_resolution,value) && push!(violations,"Δ(t) value $value rad is not consistent with resolution $(expected.value_resolution) rad⋅MHz.")
+        check_resolution(expected.value_resolution,value) && push!(violations,"Δ(t) value $value rad/μs is not consistent with resolution $(expected.value_resolution) rad/μs.")
     end
 
     return violations
@@ -243,9 +243,9 @@ function validate_δ(wf,Δi,expected)
         ("duration",max_time,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,<,expected.min_time_step,"μs"),
         ("minimum step",min_time_step,>,max_time,"μs"),
-        ("maximum slope",max_slope,>,expected.max_slope,"rad⋅MHz/μs"),
-        ("minimum value",min_value,<,expected.min_value,"rad⋅MHz"),
-        ("maximum value",max_value,>,expected.max_value,"rad⋅MHz"),
+        ("maximum slope",max_slope,>,expected.max_slope,"rad/μs²"),
+        ("minimum value",min_value,<,expected.min_value,"rad/μs"),
+        ("maximum value",max_value,>,expected.max_value,"rad/μs"),
     ]
 
     violations = Set([])
@@ -352,11 +352,11 @@ Violations include:
 * value is larger than largest supported value
 ## Ω Waveform specific constraints
 * Slope exceeds largest supported slope
-* Start and end values are not equal to 0.0 rad⋅MHz
+* Start and end values are not equal to 0.0 rad/μs
 ## Δ Waveform specific constraints
 * Slope exceeds largest supported slope
 ## ϕ Waveform specific constraints
-* start value is not equal to 0.0 rad⋅MHz
+* start value is not equal to 0.0 rad/μs
 
 # Logs/Warnings/Exceptions
 

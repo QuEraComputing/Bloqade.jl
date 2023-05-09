@@ -2,6 +2,7 @@ module Bloqade
 
 using Reexport
 
+
 @reexport using Yao
 @reexport using BloqadeMIS
 @reexport using BloqadeODE
@@ -49,6 +50,8 @@ function __init__()
     PythonCall.pycopy!(plt, pyimport("matplotlib.pyplot"))
     return
 end
+
+using Colors, ColorSchemes
 
 include("plots/plots.jl")
 include("observables.jl")

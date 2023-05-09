@@ -27,14 +27,14 @@ lattice = BloqadeSchema.Lattice(
 end
 
 
-local_detuning = BloqadeSchema.RydbergDetuningLocal(
+local_detuning = BloqadeSchema.LocalField(
     random_times,
     random_values,
     random_coefficients
 )
-@testset "RydbergDetuningLocal" begin
+@testset "LocalField" begin
     
-    # to_braket_ahs_ir(local_value::BloqadeSchema.RydbergDetuningLocal)
+    # to_braket_ahs_ir(local_value::BloqadeSchema.LocalField)
 
     physical_field = to_braket_ahs_ir(local_detuning)
     # check that values remain consistent
@@ -45,25 +45,25 @@ local_detuning = BloqadeSchema.RydbergDetuningLocal(
 
 end
 
-amplitude_global = BloqadeSchema.RydbergRabiFrequencyAmplitudeGlobal(
+amplitude_global = BloqadeSchema.GlobalField(
     random_times,
     random_values
 )
 
-global_phase = BloqadeSchema.RydbergRabiFrequencyPhaseGlobal(
+global_phase = BloqadeSchema.GlobalField(
     random_times,
     random_values
 )
-global_detuning = BloqadeSchema.RydbergDetuningGlobal(
+global_detuning = BloqadeSchema.GlobalField(
     random_times,
     random_values
 )
 @testset "Globals" begin
 
-    # to_braket_ahs_ir(global_values::Union{BloqadeSchema.RydbergRabiFrequencyAmplitudeGlobal,
-    # BloqadeSchema.RydbergRabiFrequencyPhaseGlobal,
-    # BloqadeSchema.RydbergDetuningGlobal})
-    @testset "RydbergRabiFrequencyAmplitudeGlobal" begin
+    # to_braket_ahs_ir(global_values::Union{BloqadeSchema.GlobalField,
+    # BloqadeSchema.GlobalField,
+    # BloqadeSchema.GlobalField})
+    @testset "GlobalField" begin
 
         physical_field = to_braket_ahs_ir(amplitude_global)
         @test Dec128.(string.(random_times)) == physical_field.time_series.times
@@ -71,14 +71,14 @@ global_detuning = BloqadeSchema.RydbergDetuningGlobal(
         @test "uniform" == physical_field.pattern
     end
 
-    @testset "RydbergRabiFrequencyPhaseGlobal" begin
+    @testset "GlobalField" begin
         physical_field = to_braket_ahs_ir(global_phase)
         @test Dec128.(string.(random_times)) == physical_field.time_series.times
         @test Dec128.(string.(random_values)) == physical_field.time_series.values
         @test "uniform" == physical_field.pattern
     end
 
-    @testset "RydbergDetuningGlobal" begin
+    @testset "GlobalField" begin
         physical_field = to_braket_ahs_ir(global_detuning)
         @test Dec128.(string.(random_times)) == physical_field.time_series.times
         @test Dec128.(string.(random_values)) == physical_field.time_series.values
@@ -87,17 +87,17 @@ global_detuning = BloqadeSchema.RydbergDetuningGlobal(
 
 end
 
-rydberg_amplitude = BloqadeSchema.RydbergRabiFrequencyAmplitude(amplitude_global)
-rydberg_phase = BloqadeSchema.RydbergRabiFrequencyPhase(global_phase)
+rydberg_amplitude = BloqadeSchema.RabiFrequencyAmplitude(amplitude_global)
+rydberg_phase = BloqadeSchema.RabiFrequencyPhase(global_phase)
 @testset "Unwrap Globals" begin
 
-    # to_braket_ahs_ir(amplitude_or_phase::Union{BloqadeSchema.RydbergRabiFrequencyAmplitude,
-    # BloqadeSchema.RydbergRabiFrequencyPhase})
+    # to_braket_ahs_ir(amplitude_or_phase::Union{BloqadeSchema.RabiFrequencyAmplitude,
+    # BloqadeSchema.RabiFrequencyPhase})
 
     random_times  = collect(0:9)
     random_values = rand(-10:10e-5:100,10)
 
-    @testset "RydbergRabiFrequencyAmplitude" begin
+    @testset "RabiFrequencyAmplitude" begin
 
         physical_field = to_braket_ahs_ir(rydberg_amplitude)
         @test Dec128.(string.(random_times)) == physical_field.time_series.times
@@ -105,7 +105,7 @@ rydberg_phase = BloqadeSchema.RydbergRabiFrequencyPhase(global_phase)
         @test "uniform" == physical_field.pattern
     end
 
-    @testset "RydbergRabiFrequencyPhase" begin
+    @testset "RabiFrequencyPhase" begin
 
         physical_field = to_braket_ahs_ir(rydberg_phase)
         @test Dec128.(string.(random_times)) == physical_field.time_series.times
@@ -114,22 +114,22 @@ rydberg_phase = BloqadeSchema.RydbergRabiFrequencyPhase(global_phase)
     end
 end
 
-detunings_without_local = BloqadeSchema.RydbergDetuning(
+detunings_without_local = BloqadeSchema.Detuning(
                             global_detuning,
                             nothing
                         )
 
-detunings_with_local = BloqadeSchema.RydbergDetuning(
+detunings_with_local = BloqadeSchema.Detuning(
                             global_detuning,
                             local_detuning
                         )
-BloqadeSchema.RydbergDetuningLocal(
+BloqadeSchema.LocalField(
                             random_times, 
                             random_values,
                             random_coefficients
                         )
-@testset "RydbergDetuning" begin
-    # function to_braket_ahs_ir(detuning::BloqadeSchema.RydbergDetuning) 
+@testset "Detuning" begin
+    # function to_braket_ahs_ir(detuning::BloqadeSchema.Detuning) 
 
     @testset "without local detuning" begin
         Δ, δ = to_braket_ahs_ir(detunings_without_local)
@@ -217,8 +217,8 @@ end
     @test "uniform" == h_detuning.pattern
 end
 
-@testset "TaskSpecification" begin
-    task_specification = BloqadeSchema.TaskSpecification(
+@testset "QuEraTaskSpecification" begin
+    task_specification = BloqadeSchema.QuEraTaskSpecification(
                             1000,
                             lattice,
                             effective_hamiltonian

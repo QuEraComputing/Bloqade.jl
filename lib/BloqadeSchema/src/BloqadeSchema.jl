@@ -35,7 +35,7 @@ export get_device_capabilities,
     from_schema,
     execute,
     submit_to_braket,
-    TaskSpecification,
+    QuEraTaskSpecification,
     TaskOutput,
     ValidationViolations
 
@@ -51,5 +51,6 @@ include("transform.jl")
 include("execute.jl")
 include("to_braket_ahs_ir.jl")
 include("submit_to_braket.jl")
+include("observables.jl")
 
 end

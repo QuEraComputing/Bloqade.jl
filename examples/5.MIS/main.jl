@@ -115,9 +115,9 @@ all_optimal_configs = GenericTensorNetworks.solve(IndependentSet(graph), Configs
 @assert all(bs -> GenericTensorNetworks.StaticBitVector([bs...]) ∈ all_optimal_configs.c, best_bit_strings)
 
 # We can also visualize these atoms and check them visually:
-Bloqade.plot(atoms, blockade_radius = 7.5; colors = [iszero(b) ? "white" : "red" for b in best_bit_strings[1]])
+Bloqade.plot(atoms, blockade_radius = 7.5; colors = [iszero(b) ? "white" : "red" for b ∈ best_bit_strings[1]])
 #
-Bloqade.plot(atoms, blockade_radius = 7.5; colors = [iszero(b) ? "white" : "red" for b in best_bit_strings[2]])
+Bloqade.plot(atoms, blockade_radius = 7.5; colors = [iszero(b) ? "white" : "red" for b ∈ best_bit_strings[2]])
 
 # However, there are still some configurations that violate the blockade constraint, 
 # because the blockade interaction is not an ideal unit disk constraint (e.g. some bitstrings have a size 5).
@@ -193,7 +193,7 @@ emulate!(prob2);
 # We defined the loss function as the negative of the mean MIS size, 
 # which corresponds to the expectation value of the [`SumOfN`](@ref) operator.
 # Thus, we can calculate the average loss function after the time evolution:  
-loss_MIS(reg) = -rydberg_density_sum(prob2.reg)
+loss_MIS(reg) = -rydberg_density_sum(reg)
 loss_MIS(prob2.reg)
 
 # The output shows the negative mean independent set size. 
@@ -401,8 +401,8 @@ for i in range(1, G*G//15)
 end
 
 ax.grid(visible=true)
-plt.xticks(np.arange(1, G+1)) 
-plt.yticks(np.arange(1, G+1)) 
+plt.xticks(1:G) 
+plt.yticks(1:G) 
 
 grid = zeros((G, G))
 
@@ -431,15 +431,11 @@ fig
 circs::Vector{Tuple{Int64, Int64}} = []
 Δ = [(0, 0) (0, 1) (1, 0) (1, 1)]
 
-function inrange(x, y)
-    return x>=1 && x<=G && y>=1 && y<=G
-end
-
 for x in 1:G-1
     for y in 1:G-1
         works = true
         for (dx, dy) in Δ
-            if (inrange(x+dx,y+dy))
+            if 1 ≤ x+dx ≤ G && 1 ≤ y + dy ≤ G
                 works &= grid[x+dx,y+dy]==0
             end
         end

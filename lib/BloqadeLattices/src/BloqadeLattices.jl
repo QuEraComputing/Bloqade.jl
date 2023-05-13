@@ -10,6 +10,8 @@ using LuxorGraphPlot.Luxor: Colors
 using LinearAlgebra
 import Base.deleteat!
 
+UNICODE_ENABLED = Ref(true)
+
 export # types
     AbstractLattice,
     HoneycombLattice,

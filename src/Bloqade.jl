@@ -51,16 +51,6 @@ function __init__()
     return
 end
 
-function enable_unicode!()
-    BloqadeWaveforms.UNICODE_ENABLED[] = true
-    BloqadeLattices.UNICODE_ENABLED[] = true
-end
-
-function disable_unicode!()
-    BloqadeWaveforms.UNICODE_ENABLED[] = false
-    BloqadeLattices.UNICODE_ENABLED[] = false
-end
-
 using Colors, ColorSchemes
 
 include("plots/plots.jl")

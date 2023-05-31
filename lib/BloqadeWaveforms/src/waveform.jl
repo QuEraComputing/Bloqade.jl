@@ -196,7 +196,6 @@ function Base.show(io::IO, mime::MIME"text/plain", wf::Waveform)
         clocks,
         _rm_err.(sample_values(wf, clocks) ./ (2π));
         title = "Waveform{_, $(eltype(wf))}",
-        canvas = UNICODE_ENABLED[] ? UnicodePlots.BrailleCanvas : UnicodePlots.DotCanvas,
         # TODO: decide the unit?
         xlabel = "clock (μs)",
         ylabel = "value / 2π (MHz)",

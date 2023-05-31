@@ -134,6 +134,8 @@ function img_atoms(
     xmin, ymin, xmax, ymax = LuxorGraphPlot.get_bounding_box(atoms)
     auto = config_plotting(atoms, xpad, ypad)
     config = LatticeDisplayConfig(; auto..., kwargs...)
+    # determine if you should use μm or um depending on Unicode support
+    config.axes_unit = UNICODE_ENABLED[] ? "μm" : "um"
     Dx, Dy = ((xmax-xmin)+2*auto.xpad)*config.scale*config.unit, ((ymax-ymin)+2*auto.ypad)*config.scale*config.unit
     transform(loc) = config.scale .* (loc[1]-xmin+auto.xpad, loc[2]-ymin+auto.ypad)
     LuxorGraphPlot._draw(Dx, Dy; format, filename) do

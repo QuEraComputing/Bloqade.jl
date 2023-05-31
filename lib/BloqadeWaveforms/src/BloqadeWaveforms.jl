@@ -10,8 +10,6 @@ using Optim: optimize,Brent
 using BloqadeExpr: default_unit
 using OrderedCollections: OrderedDict
 
-UNICODE_ENABLED = Ref(true)
-
 export Waveform,
     sample_values,
     sample_clock,

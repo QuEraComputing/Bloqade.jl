@@ -1,0 +1,9 @@
+[OrdinaryDiffEq]
+PrecompileAutoSpecialize = false
+PrecompileAutoSwitch = false
+PrecompileDefaultSpecialize = false
+PrecompileFunctionWrapperSpecialize = false
+PrecompileNoSpecialize = false
+PrecompileNonStiff = false
+PrecompileStiff = false
+precompile_workload = false

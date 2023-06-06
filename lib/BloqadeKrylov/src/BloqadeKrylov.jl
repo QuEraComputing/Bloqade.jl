@@ -10,13 +10,21 @@ using BloqadeExpr: Hamiltonian, StepHamiltonian
 using ExponentialUtilities
 using ProgressLogging
 
-export KrylovEvolution, emulate!, emulate_step!
+export emulate!, emulate_step!
+export KrylovEvolution, Magnus4Evolution, CFET42Evolution
+
 
 include("expmv.jl")
-include("emulate.jl")
+include("common.jl")
+include("krylov.jl")
+include("magnus.jl")
+include("cfet.jl")
+
 
 if VERSION < v"1.7"
     include("patch.jl")
 end
+
+
 
 end

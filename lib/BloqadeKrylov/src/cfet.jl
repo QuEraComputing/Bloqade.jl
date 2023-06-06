@@ -106,7 +106,7 @@ function CFET42Evolution(reg::AbstractRegister, clocks, h; kw...)
     start_clock, durations = first(clocks), diff(clocks)
     
     ## checking if it is equal time:
-    if length(unique(durations)) != 1
+    if length(unique(round.(durations,digits = 14) ) ) != 1
         throw(ArgumentError("durations must be equal (time slice must be equal)"))
     end 
 

@@ -8,6 +8,10 @@ if "docstring" in ARGS
 end
 
 
+@testset "cfet42_sinX" begin
+    include("cfet42_sinX.jl")
+end
+#=
 @testset "expmv" begin
     include("expmv.jl")
 end
@@ -29,3 +33,4 @@ end
 @testset "forwarddiff" begin
     include("forwarddiff.jl")
 end
+=#

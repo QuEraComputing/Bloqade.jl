@@ -127,7 +127,7 @@ function emulate_step!(prob::Magnus4Evolution, step::Int, clock::Real, duration:
     expmv!(-im*duration, Ω4, state; prob.options.tol) 
 
     # do we need this normalization? 
-    #=
+    
     if mod(step, prob.options.normalize_step) == 0
         normalize!(prob.reg)
     end
@@ -135,7 +135,7 @@ function emulate_step!(prob::Magnus4Evolution, step::Int, clock::Real, duration:
     if prob.options.normalize_finally && step == length(prob.durations)
         normalize!(prob.reg)
     end
-    =#
+    
     return prob
 end
 

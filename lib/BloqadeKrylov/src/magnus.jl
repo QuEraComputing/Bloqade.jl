@@ -115,10 +115,13 @@ function Magnus4Evolution(reg::AbstractRegister, clocks, h; kw...)
     return Magnus4Evolution(reg, start_clock, durations, Hamiltonian(T, h, space(reg)), options)
 end
 
+
+
+# simple version
 function emulate_step!(prob::Magnus4Evolution, step::Int, clock::Real, duration::Real)
     state = statevec(prob.reg)
     h = prob.hamiltonian
-
+    
     A1 = BloqadeExpr.to_matrix(h(clock + (0.5-√3/6)*duration))
     A2 = BloqadeExpr.to_matrix(h(clock + (0.5+√3/6)*duration)) 
     

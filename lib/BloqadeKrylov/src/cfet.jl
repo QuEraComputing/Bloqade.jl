@@ -113,6 +113,9 @@ function CFET42Evolution(reg::AbstractRegister, clocks, h; kw...)
     return CFET42Evolution(reg, start_clock, durations, Hamiltonian(T, h, space(reg)), options)
 end
 
+
+#=
+# this is the naive implementation of CFET42Evolution
 function emulate_step!(prob::CFET42Evolution, step::Int, clock::Real, duration::Real)
     state = statevec(prob.reg)
     h = prob.hamiltonian
@@ -132,7 +135,6 @@ function emulate_step!(prob::CFET42Evolution, step::Int, clock::Real, duration::
     expmv!(-im*duration, Ω4, state; prob.options.tol) 
 
     # do we need this normalization? 
-    
     if mod(step, prob.options.normalize_step) == 0
         normalize!(prob.reg)
     end
@@ -143,5 +145,61 @@ function emulate_step!(prob::CFET42Evolution, step::Int, clock::Real, duration::
     
     return prob
 end
+=#
+
+# optimize by putting addition of two hamiltonians 
+# into the fs(t) coefficients at time t1 & t2
+function emulate_step!(prob::CFET42Evolution, step::Int, clock::Real, duration::Real)
+
+    state = statevec(prob.reg)
+    h = prob.hamiltonian
+
+    t1 = clock + (0.5-√3/6)*duration
+    t2 = clock + (0.5+√3/6)*duration
+    
+    #for i in range(size(A1.h.fs)):
+    a1 = collect(map(h.fs) do f 
+                    return f(t1)
+                end
+                )
+    a2 = collect(map(h.fs) do f 
+                    return f(t2)
+                end
+                )
+
+    s1 = (3 + 2*√3)/12
+    s2 = (3 - 2*√3)/12
+
+    # exp stage 1
+    #Ω4 = s1*A1 + s2*A2
+    a = s1*a1 + s2*a2
+
+    # construct matrix:
+    Ω4 = sum(zip(a, h.ts)) do (a, t)
+        return a * t
+    end
+    BloqadeKrylov.expmv!(-im*duration, Ω4, state; prob.options.tol) 
+
+    # exp stage 2
+    #Ω4 = s2*A1 + s1*A2
+    a = s2*a1 + s1*a2
+
+    # construct matrix:
+    Ω4 = sum(zip(a, h.ts)) do (a, t)
+        return a * t
+    end
+    BloqadeKrylov.expmv!(-im*duration, Ω4, state; prob.options.tol) 
+
+    # do we need this normalization? 
+    if mod(step, prob.options.normalize_step) == 0
+        normalize!(prob.reg)
+    end
+
+    if prob.options.normalize_finally && step == length(prob.durations)
+        normalize!(prob.reg)
+    end
+    
+    return prob
 
 
+end

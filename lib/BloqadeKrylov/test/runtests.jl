@@ -8,8 +8,10 @@ if "docstring" in ARGS
 end
 
 
-@testset "cfet42_sinX" begin
-    include("cfet42_sinX.jl")
+
+
+@testset "ValHamiltonian" begin
+    include("utils.jl")
 end
 
 @testset "expmv" begin
@@ -20,6 +22,10 @@ end
     include("emulate.jl")
 end
 
+
+@testset "cfet42_sinX" begin
+    include("cfet42_sinX.jl")
+end
 
 @testset "krylov_sinX" begin
     include("krylov_sinX.jl")

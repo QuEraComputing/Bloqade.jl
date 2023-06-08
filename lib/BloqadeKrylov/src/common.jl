@@ -17,7 +17,6 @@ end
 abstract type Evolver end
 
 
-
 # These are common parts shared by all the evolvers
 Base.length(prob::Evolver) = length(prob.durations) + 1
 
@@ -58,7 +57,11 @@ tab(indent) = " "^indent
 
 function Base.show(io::IO, mime::MIME"text/plain", prob::Evolver)
     indent = get(io, :indent, 0)
-    println(io, tab(indent), Base.typename(typeof(prob)).wrapper, ":")
+    if typeof(prob) <: CFETEvolution
+        println(io, tab(indent), "CFETEvolution", "<",Base.typename(typeof(prob.alg_table)).wrapper, ">:")
+    else
+        println(io, tab(indent), Base.typename(typeof(prob)).wrapper, ":")
+    end
     # state info
     print_state_info(io, prob)
     println(io)

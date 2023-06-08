@@ -1,12 +1,12 @@
-
+abstract type CFETTables end
 
 """
-    struct CFET42Evolution
-        CFET42Evolution(reg::AbstractRegister, clocks, h; kw...)
+    struct CFETEvolution
+        CFETEvolution(reg::AbstractRegister, clocks, h, algo; kw...)
 
-Create a `CFET42Evolution` object that describes a time evolution
-using commutation-free 4th order Magnus method with 2 exponentials.
-https://arxiv.org/pdf/1102.5071.pdf (eq.61) (also eq.38)
+Create a `CFETEvolution` object that describes a time evolution
+using commutation-free Magnus method with s exponentials.
+https://arxiv.org/pdf/1102.5071.pdf (eq.58-61) 
 
 
 # Arguments
@@ -14,6 +14,7 @@ https://arxiv.org/pdf/1102.5071.pdf (eq.61) (also eq.38)
 - `reg`: a register, should be a subtype of `AbstractRegister`.
 - `clocks`: the clocks of this time evolution at each step.
 - `h`: a hamiltonian expression.
+- `algo`: the algorithm (different orders to use), should be a subtype of `CFETTables`. default is `CFET42`
 
 # Keyword Arguments
 
@@ -23,9 +24,10 @@ https://arxiv.org/pdf/1102.5071.pdf (eq.61) (also eq.38)
 - `normalize_finally`: wether normalize the state in the end of evolution, default is `true`.
 - `tol`: tolerance of the Krylov-expmv evaluation method, default is `1e-7`
 
+
 # Examples
 
-The following is the simplest way of using `CFET42Evolution`
+The following is the simplest way of using `CFETEvolution`
 via [`emulate!`](@ref). For more advanced usage, please refer
 to documentation page [Emulation](@ref emulation).
 
@@ -52,29 +54,30 @@ nqubits: 5
 └─ [+] Ω(t) ⋅ ∑ σ^x_i
 
 
-julia> prob = CFET42Evolution(r, 0.0:1e-2:0.1, h);
+julia> prob = CFETEvolution(r, 0.0:1e-2:0.1, h, CFET42());
 
 julia> emulate!(prob); # run the emulation
 ```
 """
-struct CFET42Evolution{Reg<:AbstractRegister,T<:Real,H<:Hamiltonian} <: Evolver
+struct CFETEvolution{Reg<:AbstractRegister,T<:Real,H<:Hamiltonian,ALGTBL<:CFETTables} <: Evolver
     reg::Reg
     start_clock::T
     durations::Vector{T}
     hamiltonian::H
     options::KrylovOptions
+    alg_table::ALGTBL
 
-    function CFET42Evolution{Reg,T,H}(reg, start_clock, durations, hamiltonian, options) where {Reg,T,H}
+    function CFETEvolution{Reg,T,H,ALGTBL}(reg, start_clock, durations, hamiltonian, options, algo) where {Reg,T,H,ALGTBL}
         start_clock ≥ 0 || throw(ArgumentError("start clock must not be negative"))
         all(≥(0), durations) || throw(ArgumentError("durations must not be negative"))
-        return new{Reg,T,H}(reg, start_clock, durations, hamiltonian, options)
+        return new{Reg,T,H,ALGTBL}(reg, start_clock, durations, hamiltonian, options, algo)
     end
 end
 
 """
-    CFET42Evolution(reg, start_clock, durations, hamiltonian, options)
+    CFETEvolution(reg, start_clock, durations, hamiltonian, options)
 
-Create a `CFET42Evolution` object.
+Create a `CFETEvolution` object.
 
 # Arguments
 
@@ -84,21 +87,22 @@ Create a `CFET42Evolution` object.
 - `hamiltonian`: low-level hamiltonian object of type [`Hamiltonian`](@ref).
 - `options`: options of the evolution in type [`KrylovOptions`](@ref).
 """
-function CFET42Evolution(reg, start_clock, durations, hamiltonian, options)
-    return CFET42Evolution{typeof(reg),typeof(start_clock),typeof(hamiltonian)}(
+function CFETEvolution(reg, start_clock, durations, hamiltonian, options, algo)
+    return CFETEvolution{typeof(reg),typeof(start_clock),typeof(hamiltonian),typeof(algo)}(
         reg,
         start_clock,
         durations,
         hamiltonian,
         options,
+        algo,
     )
 end
 
-function Adapt.adapt_structure(to, x::CFET42Evolution)
-    return CFET42Evolution(adapt(to, x.reg), x.start_clock, x.durations, adapt(to, x.hamiltonian), x.options)
+function Adapt.adapt_structure(to, x::CFETEvolution)
+    return CFETEvolution(adapt(to, x.reg), x.start_clock, x.durations, adapt(to, x.hamiltonian), x.options, x.alg_table)
 end
 
-function CFET42Evolution(reg::AbstractRegister, clocks, h; kw...)
+function CFETEvolution(reg::AbstractRegister, clocks, h, algo::CFETTables = CFET42(); kw...)
     all(≥(0), clocks) || throw(ArgumentError("clocks must not be negative"))
     options = from_kwargs(KrylovOptions; kw...)
     P = real(eltype(statevec(reg)))
@@ -110,85 +114,42 @@ function CFET42Evolution(reg::AbstractRegister, clocks, h; kw...)
         throw(ArgumentError("durations must be equal (time slice must be equal)"))
     end 
 
-    return CFET42Evolution(reg, start_clock, durations, Hamiltonian(T, h, space(reg)), options)
+    return CFETEvolution(reg, start_clock, durations, Hamiltonian(T, h, space(reg)), options, algo)
+end
+
+## given Hamiltonian, current time `t` and duration `dt`, plus a CFETTable, 
+# output generator Ω at certain ETstep (exponential time propogator) 
+## t + xs[i]dt
+function __construct_Ω(h::Hamiltonian, t::Real, dt::Real, Tbl::CFETTables, ETStep::Int)
+    
+    gs = Tbl.Gs[ETStep]
+    xs = Tbl.xs 
+    
+    fs = gs[1]*get_f(h(t + xs[1]*dt))
+
+    for i in 2:length(gs)      
+        fs += gs[i]*get_f(h(t + xs[i]*dt))
+    end
+
+    return ValHamiltonian(fs, h)
 end
 
 
-#=
-# this is the naive implementation of CFET42Evolution
-function emulate_step!(prob::CFET42Evolution, step::Int, clock::Real, duration::Real)
-    state = statevec(prob.reg)
-    h = prob.hamiltonian
-
-    A1 = BloqadeExpr.to_matrix(h(clock + (0.5-√3/6)*duration))
-    A2 = BloqadeExpr.to_matrix(h(clock + (0.5+√3/6)*duration)) 
-    
-    s1 = (3 + 2*√3)/12
-    s2 = (3 - 2*√3)/12
-
-    # exp stage 1
-    Ω4 = s1*A1 + s2*A2
-    expmv!(-im*duration, Ω4, state; prob.options.tol) 
-
-    # exp stage 2
-    Ω4 = s2*A1 + s1*A2
-    expmv!(-im*duration, Ω4, state; prob.options.tol) 
-
-    # do we need this normalization? 
-    if mod(step, prob.options.normalize_step) == 0
-        normalize!(prob.reg)
-    end
-
-    if prob.options.normalize_finally && step == length(prob.durations)
-        normalize!(prob.reg)
-    end
-    
-    return prob
-end
-=#
-
-# optimize by putting addition of two hamiltonians 
-# into the fs(t) coefficients at time t1 & t2
-function emulate_step!(prob::CFET42Evolution, step::Int, clock::Real, duration::Real)
+function emulate_step!(prob::CFETEvolution, step::Int, clock::Real, duration::Real)
 
     state = statevec(prob.reg)
-    h = prob.hamiltonian
-
-    t1 = clock + (0.5-√3/6)*duration
-    t2 = clock + (0.5+√3/6)*duration
+    Ham = prob.hamiltonian
     
-    #for i in range(size(A1.h.fs)):
-    a1 = collect(map(h.fs) do f 
-                    return f(t1)
-                end
-                )
-    a2 = collect(map(h.fs) do f 
-                    return f(t2)
-                end
-                )
+    ## each exponential-time prop. 
+    for i in 1:length(prob.alg_table.Gs)
+        
+        #construct Ωi:
+        Ωi = __construct_Ω(Ham, clock, duration, prob.alg_table, i)
+        
+        # perform evolution:
+        BloqadeKrylov.expmv!(-im*duration, Ωi, state; prob.options.tol)
 
-    s1 = (3 + 2*√3)/12
-    s2 = (3 - 2*√3)/12
-
-    # exp stage 1
-    #Ω4 = s1*A1 + s2*A2
-    a = s1*a1 + s2*a2
-
-    # construct matrix:
-    Ω4 = sum(zip(a, h.ts)) do (a, t)
-        return a * t
     end
-    BloqadeKrylov.expmv!(-im*duration, Ω4, state; prob.options.tol) 
-
-    # exp stage 2
-    #Ω4 = s2*A1 + s1*A2
-    a = s2*a1 + s1*a2
-
-    # construct matrix:
-    Ω4 = sum(zip(a, h.ts)) do (a, t)
-        return a * t
-    end
-    BloqadeKrylov.expmv!(-im*duration, Ω4, state; prob.options.tol) 
 
     # do we need this normalization? 
     if mod(step, prob.options.normalize_step) == 0
@@ -201,5 +162,5 @@ function emulate_step!(prob::CFET42Evolution, step::Int, clock::Real, duration::
     
     return prob
 
-
 end
+

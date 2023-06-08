@@ -9,7 +9,7 @@ using BloqadeODE
 using Yao
 
 @testset "cfet42_sinX" begin
-
+    
     atoms = generate_sites(ChainLattice(), 1, scale = 1)
     wf = Waveform(t->2.2*2π*sin(2π*t), duration = 1.3);
     h = rydberg_h(atoms; Ω = wf)
@@ -17,7 +17,7 @@ using Yao
     ## do magnus4
     reg = zero_state(length(atoms))
     clocks = collect(0:1e-3:1.3)
-    prob = CFET42Evolution(reg, clocks, h)
+    prob = CFETEvolution(reg, clocks, h, CFET42())
     show(stdout, MIME"text/plain"(), prob)
     #@test_throws ArgumentError KrylovEvolution(reg, [-0.1, 0.1], h)
     emulate!(prob)
@@ -31,8 +31,10 @@ using Yao
 
     @test prob.reg.state ≈ ODEprob.reg.state 
 
-    prob = CFET42Evolution(reg, clocks, h)
+    prob = CFETEvolution(reg, clocks, h, CFET42())
     for info in prob
         @test info.clock == clocks[info.step]
     end
+    
+
 end

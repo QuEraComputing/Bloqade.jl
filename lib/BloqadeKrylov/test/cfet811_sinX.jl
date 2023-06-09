@@ -8,7 +8,7 @@ using BloqadeExpr: Hamiltonian
 using BloqadeODE
 using Yao
 
-@testset "cfet65_sinX" begin
+@testset "cfet811_sinX" begin
     
     atoms = generate_sites(ChainLattice(), 1, scale = 1)
     wf = Waveform(t->2.2*2π*sin(2π*t), duration = 1.3);
@@ -17,11 +17,11 @@ using Yao
     ## do magnus4
     reg = zero_state(length(atoms))
     clocks = collect(0:1e-3:1.3)
-    prob = CFETEvolution(reg, clocks, h, CFET6_5())
+    prob = CFETEvolution(reg, clocks, h, CFET8_11())
     show(stdout, MIME"text/plain"(), prob)
     #@test_throws ArgumentError KrylovEvolution(reg, [-0.1, 0.1], h)
     emulate!(prob)
-
+    
     
     #benchmark against ODE solver:
     odereg = zero_state(length(atoms))
@@ -31,7 +31,7 @@ using Yao
 
     @test prob.reg.state ≈ ODEprob.reg.state 
 
-    prob = CFETEvolution(reg, clocks, h, CFET6_5())
+    prob = CFETEvolution(reg, clocks, h, CFET8_11())
     for info in prob
         @test info.clock == clocks[info.step]
     end

@@ -164,3 +164,39 @@ function emulate_step!(prob::CFETEvolution, step::Int, clock::Real, duration::Re
 
 end
 
+##==========================================================
+#  Following are helper functions for calculating cfet tables
+##==========================================================
+
+function Lagendre(n::Int, x::Real)
+    if n == 0
+        return 1
+    elseif n == 1
+        return 2*x-1
+    else
+        return ((2n-1)*(2x-1)*Lagendre(n-1,x) - (n-1)*Lagendre(n-2,x))/n
+    end
+end
+
+## arXiv:1102.5071 eq.(60)
+#  Given Fs table, and Gaussian quadrature points xs and weights weights,
+#  Generate Gs table with size (# of exponential time steps) x (# of quadrature points)
+#  1. Fs have to be size (# of exponential time steps) x (# of order N/2+1)
+#  2. (generally second axes of Fs it can be up to N but (R2) providing high order term can be ignore)
+
+## TODO: calculate Lagendre on the fly
+function __get_Gs(Fs::Vector{Vector{Float64}}, xs::Vector{Float64}, ws::Vector{Float64})
+    
+    Gs = Vector{Vector{Float64}}([zeros(length(xs)) for i in 1:length(Fs)])
+    Nm = length(Fs[1])
+    FL = length(Fs)
+
+    ## Gs is filled in reverse order opposed from the definition becase eval of expm is in reverse order (right to left)
+    for i in 1:FL
+        for m in 1:length(xs)
+            Gs[FL+1-i][m] = ws[m]*sum(Fs[i][n]*(2n-1)*Lagendre(n-1,xs[m]) for n in 1:Nm)
+        end
+    end
+    return Gs
+
+end

@@ -8,6 +8,10 @@ if "docstring" in ARGS
 end
 
 
+@testset "cfet65_sinX" begin
+    include("cfet65_sinX.jl")
+end
+
 
 
 @testset "ValHamiltonian" begin

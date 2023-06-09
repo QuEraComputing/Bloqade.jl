@@ -65,3 +65,7 @@ function Base.:-(a::ValHamiltonian, b::ValHamiltonian)
     return ValHamiltonian(a.fvals - b.fvals, a.h)
 end
 
+##==========================================================
+#  Following are helper functions for cfet
+#
+#

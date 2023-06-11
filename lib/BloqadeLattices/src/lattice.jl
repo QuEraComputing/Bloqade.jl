@@ -72,13 +72,12 @@ lattice_sites(general_lattice::GeneralLattice) = general_lattice.sites
 
 Type representing 2D Honeycomb Lattice.
 
+Used as an argument of generate_sites function to produce tiling in a honeycomb pattern, 
+    with number of site repetitions being specified by other arguments of generate_sites.
+
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::HoneycombLattice)`](@ref) and
 [`lattice_sites(::HoneycombLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct HoneycombLattice <: AbstractLattice{2} end
 
@@ -111,13 +110,12 @@ lattice_sites(::HoneycombLattice) = ((0.0, 0.0), (0.5, 0.5 / sqrt(3)))
 
 Type representing 2D Square Lattice.
 
+Used as an argument of generate_sites function to produce tiling in a square pattern, 
+    with number of site repetitions being specified by other arguments of generate_sites.
+
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::SquareLattice)`](@ref) and
 [`lattice_sites(::SquareLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct SquareLattice <: AbstractLattice{2} end
 
@@ -149,13 +147,12 @@ lattice_sites(::SquareLattice) = ((0.0, 0.0),)
 
 Type representing 2D Square Lattice.
 
+Used as an argument of generate_sites function to produce tiling in a triangular pattern, 
+    with number of site repetitions being specified by other arguments of generate_sites.
+
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::TriangularLattice)`](@ref) and
 [`lattice_sites(::TriangularLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct TriangularLattice <: AbstractLattice{2} end
 
@@ -187,13 +184,12 @@ lattice_sites(::TriangularLattice) = ((0.0, 0.0),)
 
 Type representing 1D Chain Lattice.
 
+Used as an argument of generate_sites function to produce tiling resembling a chain, 
+    with number of site repetitions being specified by other the argument of generate_sites.
+
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::ChainLattice)`](@ref) and
 [`lattice_sites(::ChainLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct ChainLattice <: AbstractLattice{1} end
 
@@ -222,15 +218,15 @@ lattice_sites(::ChainLattice) = ((0.0,),)
 """
     struct LiebLattice <: AbstractLattice{2}
 
-Type representing 1D Chain Lattice.
+Type representing 2D Lieb Lattice.
+
+Used as an argument of generate_sites function to produce tiling in a Lieb pattern 
+    (which is a square-depleted lattice), with number of site repetitions 
+    being specified by other arguments of generate_sites.
 
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::LiebLattice)`](@ref) and
 [`lattice_sites(::LiebLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct LiebLattice <: AbstractLattice{2} end
 
@@ -264,13 +260,12 @@ lattice_sites(::LiebLattice) = ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5))
 
 Type representing 2D Kagome Lattice.
 
+Used as an argument of generate_sites function to produce tiling in a Kagome Lattice pattern, 
+    with number of site repetitions being specified by other arguments of generate_sites.
+
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::KagomeLattice)`](@ref) and
 [`lattice_sites(::KagomeLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct KagomeLattice <: AbstractLattice{2} end
 
@@ -304,13 +299,12 @@ lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25 * sqrt(3)), (0.75, 0.2
 
 Type representing 2D Rectangular Lattice.
 
+Used as an argument of generate_sites function to produce tiling in a rectangular pattern, 
+    with number of site repetitions being specified by other arguments of generate_sites.
+
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::RectangularLattice)`](@ref) and
 [`lattice_sites(::RectangularLattice)`](@ref).
-
-# Fields
-- `aspect_ratio::Float64`: defines the length of one of the Bravais lattice vectors
-(see [`lattice_vectors(r::RectangularLattice)`](@ref))
 """
 struct RectangularLattice <: AbstractLattice{2}
     aspect_ratio::Float64

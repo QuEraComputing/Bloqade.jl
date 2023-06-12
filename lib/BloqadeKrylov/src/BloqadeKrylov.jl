@@ -15,7 +15,7 @@ export emulate!, emulate_step!
 export KrylovEvolution, Magnus4Evolution
 
 export CFETEvolution
-export CFET4_2, CFET6_5, CFET8_11
+export CFET2_1, CFET4_2, CFET6_5, CFET8_11
 
 # utils.jl introduce a new type of Hamiltonian called ValHamiltonian:
 # BloqadeExpr.Hamiltonian 

@@ -54,7 +54,7 @@ nqubits: 5
 └─ [+] Ω(t) ⋅ ∑ σ^x_i
 
 
-julia> prob = CFETEvolution(r, 0.0:1e-2:0.1, h, CFET42());
+julia> prob = CFETEvolution(r, 0.0:1e-2:0.1, h, CFET4_2());
 
 julia> emulate!(prob); # run the emulation
 ```

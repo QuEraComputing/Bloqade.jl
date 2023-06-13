@@ -72,13 +72,25 @@ lattice_sites(general_lattice::GeneralLattice) = general_lattice.sites
 
 Type representing 2D Honeycomb Lattice.
 
+Used as an argument of [`generate_sites`](@ref) function to produce tiling in a honeycomb pattern, 
+with number of site repetitions being specified by additional arguments of [`generate_sites`](@ref).
+Honeycomb is a 2D Lattice, so there must be two integer arguments as additional inputs.
+
+# Example
+
+```julia-repl
+julia> generate_sites(HoneycombLattice(), 5, 5)
+50-element AtomList{2, Float64}:
+ (0.0, 0.0)
+ (0.5, 0.2886751345948129)
+...
+ (6.0, 3.4641016151377544)
+ (6.5, 3.7527767497325675)
+
+```
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::HoneycombLattice)`](@ref) and
 [`lattice_sites(::HoneycombLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct HoneycombLattice <: AbstractLattice{2} end
 
@@ -111,13 +123,25 @@ lattice_sites(::HoneycombLattice) = ((0.0, 0.0), (0.5, 0.5 / sqrt(3)))
 
 Type representing 2D Square Lattice.
 
+Used as an argument of [`generate_sites`](@ref) function to produce tiling in a square pattern,
+with number of site repetitions being specified by additional arguments of [`generate_sites`](@ref).
+Square is a 2D Lattice, so there must be two integer arguments as additional inputs.
+
+# Example
+
+```julia-repl
+julia> generate_sites(SquareLattice(), 4, 4)
+16-element AtomList{2, Float64}:
+ (0.0, 0.0)
+ (1.0, 0.0)
+ ...
+ (2.0, 3.0)
+ (3.0, 3.0)
+
+```
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::SquareLattice)`](@ref) and
 [`lattice_sites(::SquareLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct SquareLattice <: AbstractLattice{2} end
 
@@ -149,13 +173,25 @@ lattice_sites(::SquareLattice) = ((0.0, 0.0),)
 
 Type representing 2D Square Lattice.
 
+Used as an argument of [`generate_sites`](@ref) function to produce tiling in a triangle pattern, 
+with number of site repetitions being specified by additional arguments of [`generate_sites`](@ref).
+Triangle is a 2D Lattice, so there must be two integer arguments as additional inputs.
+
+# Example
+
+```julia-repl
+julia> generate_sites(TriangularLattice(), 3, 3)
+9-element AtomList{2, Float64}:
+ (0.0, 0.0)
+ (1.0, 0.0)
+ ...
+ (2.0, 1.7320508075688772)
+ (3.0, 1.7320508075688772)
+
+```
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::TriangularLattice)`](@ref) and
 [`lattice_sites(::TriangularLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct TriangularLattice <: AbstractLattice{2} end
 
@@ -187,13 +223,24 @@ lattice_sites(::TriangularLattice) = ((0.0, 0.0),)
 
 Type representing 1D Chain Lattice.
 
+Used as an argument of [`generate_sites`](@ref) function to produce tiling in a chain pattern, 
+with number of site repetitions being specified by the additional argument of [`generate_sites`](@ref).
+Chain is a 1D Lattice, so there must be one integer argument as additional inputs.
+
+# Example
+
+```julia-repl
+julia> generate_sites(ChainLattice(), 5)
+5-element AtomList{1, Float64}:
+ (0.0,)
+ (1.0,)
+ (2.0,)
+ (3.0,)
+ (4.0,)
+```
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::ChainLattice)`](@ref) and
 [`lattice_sites(::ChainLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct ChainLattice <: AbstractLattice{1} end
 
@@ -222,15 +269,26 @@ lattice_sites(::ChainLattice) = ((0.0,),)
 """
     struct LiebLattice <: AbstractLattice{2}
 
-Type representing 1D Chain Lattice.
+Type representing 2D Lieb Lattice.
 
+Used as an argument of [`generate_sites`](@ref) function to produce tiling in a Lieb (square-depleted) pattern, 
+with number of site repetitions being specified by additional arguments of [`generate_sites`](@ref).
+Lieb is a 2D Lattice, so there must be two integer arguments as additional inputs.
+
+# Example
+
+```julia-repl
+julia> generate_sites(LiebLattice(), 3, 3)
+27-element AtomList{2, Float64}:
+ (0.0, 0.0)
+ (0.5, 0.0)
+...
+ (2.5, 2.0)
+ (2.0, 2.5)
+```
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::LiebLattice)`](@ref) and
 [`lattice_sites(::LiebLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct LiebLattice <: AbstractLattice{2} end
 
@@ -264,13 +322,24 @@ lattice_sites(::LiebLattice) = ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5))
 
 Type representing 2D Kagome Lattice.
 
+Used as an argument of [`generate_sites`](@ref) function to produce tiling in a Kagome pattern, 
+with number of site repetitions being specified by additional arguments of [`generate_sites`](@ref).
+Kagome is a 2D Lattice, so there must be two integer arguments as additional inputs.
+
+# Example
+
+```julia-repl
+julia> generate_sites(KagomeLattice(), 3, 3)
+27-element AtomList{2, Float64}:
+ (0.0, 0.0)
+ (0.25, 0.4330127018922193)
+ ...
+ (3.25, 2.1650635094610964)
+ (3.75, 2.1650635094610964)
+```
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::KagomeLattice)`](@ref) and
 [`lattice_sites(::KagomeLattice)`](@ref).
-
-# Fields
-
-None
 """
 struct KagomeLattice <: AbstractLattice{2} end
 
@@ -304,13 +373,25 @@ lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25 * sqrt(3)), (0.75, 0.2
 
 Type representing 2D Rectangular Lattice.
 
+Used as an argument of [`generate_sites`](@ref) function to produce tiling in a Rectangular pattern, 
+with number of site repetitions being specified by additional arguments of [`generate_sites`](@ref).
+Rectangular is a 2D Lattice, so there must be two integer arguments as additional inputs.
+This type also enables the user to modify the length of one of the Bravais lattice vectors, 
+by passing a single integer on construction as the aspect ratio.
+
+# Example
+
+```julia-repl
+julia> generate_sites(RectangularLattice(2.0), 2, 2)
+4-element AtomList{2, Float64}:
+ (0.0, 0.0)
+ (1.0, 0.0)
+ (0.0, 2.0)
+ (1.0, 2.0)
+```
 Overriden functions to return lattice vectors and sites exists as 
 [`lattice_vectors(::RectangularLattice)`](@ref) and
 [`lattice_sites(::RectangularLattice)`](@ref).
-
-# Fields
-- `aspect_ratio::Float64`: defines the length of one of the Bravais lattice vectors
-(see [`lattice_vectors(r::RectangularLattice)`](@ref))
 """
 struct RectangularLattice <: AbstractLattice{2}
     aspect_ratio::Float64

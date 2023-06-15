@@ -3,6 +3,7 @@
 module BloqadeLattices
 
 using NearestNeighbors
+using UnicodePlots
 using StatsBase
 using LuxorGraphPlot
 using LuxorGraphPlot: Point

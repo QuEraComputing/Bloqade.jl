@@ -7,11 +7,7 @@ using YaoAPI
 using YaoBlocks
 using LuxurySparse
 using SparseMatricesCSR
-using ParallelMergeCSR
-using Polyester
 using Base.Threads: nthreads
-using Polyester
-using Preferences
 using MLStyle
 using BitBasis
 using LaTeXStrings
@@ -20,6 +16,10 @@ using InteractiveUtils: subtypes
 using Base.Cartesian: @nexprs
 using YaoBlocks: ChainBlock, PutBlock, TrivialGate, Subroutine, Scale, Daggered, Add, ControlBlock, TimeEvolution
 using BloqadeLattices: BoundedLattice, rydberg_interaction_matrix
+
+
+include("Operator/Operator.jl")
+using .Operator: Hamiltonian, StepHamiltonian, ThreadedMatrix, storage_size, to_matrix
 
 export rydberg_h,
     rydberg_h_3,
@@ -51,11 +51,14 @@ include("space.jl")
 include("types.jl")
 include("printings.jl")
 include("mat.jl")
-include("linalg.jl")
+
+
 include("lower.jl")
 include("units.jl")
+
+
 include("interface.jl")
 include("atoms.jl")
-include("preferences.jl")
+
 
 end

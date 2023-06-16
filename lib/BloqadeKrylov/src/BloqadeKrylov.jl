@@ -20,7 +20,7 @@ export CFET2_1, CFET4_2, CFET6_5, CFET8_11
 # utils.jl introduce a new type of Hamiltonian called ValHamiltonian:
 # BloqadeExpr.Hamiltonian 
 #   |-> BloqadeExpr.StepHamiltonian
-#         |-> BloqadeKrylov.ValHamiltonian
+#         |-> BloqadeKrylov.ValHamiltonian (new)
 include("utils.jl")
 
 include("expmv.jl")

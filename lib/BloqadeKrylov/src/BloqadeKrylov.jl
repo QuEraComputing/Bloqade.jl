@@ -6,7 +6,7 @@ using LinearAlgebra
 using Configurations
 using YaoArrayRegister
 using YaoSubspaceArrayReg
-using BloqadeExpr: Hamiltonian, StepHamiltonian
+using BloqadeExpr: Hamiltonian, StepHamiltonian, ValHamiltonian
 using ExponentialUtilities
 using ProgressLogging
 using GaussQuadrature
@@ -21,7 +21,7 @@ export CFET2_1, CFET4_2, CFET6_5, CFET8_11
 # BloqadeExpr.Hamiltonian 
 #   |-> BloqadeExpr.StepHamiltonian
 #         |-> BloqadeKrylov.ValHamiltonian (new)
-include("utils.jl")
+#include("utils.jl")
 
 include("expmv.jl")
 include("common.jl")

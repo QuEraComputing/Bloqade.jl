@@ -61,6 +61,6 @@ end
 # dispatch to ParallelMergeCSR
 #bmul!(C, A::Transpose{<:Any, <:SparseMatrixCSC}, B, α, β) = ParallelMergeCSR.mul!(C, A, B, α, β) 
 function bmul!(C, A::Transpose{<:Any, <:SparseMatrixCSC}, B, α, β)
-    println("calling PMCSR.mul!")
+    #println("calling PMCSR.mul!")
     return ParallelMergeCSR.mul!(C, A, B, α, β) 
 end

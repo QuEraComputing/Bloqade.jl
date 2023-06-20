@@ -3,7 +3,7 @@
 # LinearAlgebra.tr(M::Diagonal)  
 LinearAlgebra.tr(M::PermMatrix) = trace(M)
 LinearAlgebra.tr(M::SparseMatrixCSC) = trace(M)
-
+LinearAlgebra.tr(M::SparseMatrixCSR) = trace(M)
 
 function trace(A::PermMatrix)
     A_vals = A.vals

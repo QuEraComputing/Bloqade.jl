@@ -19,7 +19,7 @@ export precision_type, highest_type
 include("types.jl")
 include("printings.jl")
 
-## things related to low-level linalg of three types:
+## things related to low-level linalg of 4 data types:
 #  1. PermMatrix
 #  2. Diagonal
 #  3. SparseMatrixCSC

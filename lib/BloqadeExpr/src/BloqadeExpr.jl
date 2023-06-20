@@ -18,8 +18,8 @@ using YaoBlocks: ChainBlock, PutBlock, TrivialGate, Subroutine, Scale, Daggered,
 using BloqadeLattices: BoundedLattice, rydberg_interaction_matrix
 
 
-include("Operator/Operator.jl")
-using .Operator: Hamiltonian, StepHamiltonian, ThreadedMatrix, storage_size, to_matrix
+include("Lowlevel/Lowlevel.jl")
+using .Lowlevel: Hamiltonian, StepHamiltonian, ThreadedMatrix, storage_size, to_matrix
 
 export rydberg_h,
     rydberg_h_3,

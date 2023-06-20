@@ -1,16 +1,3 @@
-function LinearAlgebra.mul!(C::AbstractVecOrMat, A::StepHamiltonian, B::AbstractVecOrMat)
-    fill!(C, zero(eltype(C)))
-    for (f, term) in zip(A.h.fs, A.h.ts)
-        mul!(C, term, B, f(A.t), one(A.t))
-    end
-    return C
-end
-
-# if BloqadeExpr was the backend of choice, then ThreadedMatrix will have the SparseMatrixCSC type
-# in which case we just dispatch to standard mul!
-LinearAlgebra.mul!(C, A::ThreadedMatrix{<:SparseMatrixCSC}, B, α, β) = SparseArrays.mul!(C, A.matrix, B, α, β) 
-# if PMCSR/TSCSR was the backend of choice, then direct to bmul!'s below
-LinearAlgebra.mul!(C, A::ThreadedMatrix, B, α, β) = bmul!(C, A.matrix, B, α, β)
 
 # Parallelized Permutation Matrix multiplication
 function bmul!(C::AbstractVector, A::PermMatrix, B::AbstractVector, α::Number, β::Number)
@@ -22,7 +9,6 @@ function bmul!(C::AbstractVector, A::PermMatrix, B::AbstractVector, α::Number, 
     end
     return C
 end
-
 @inline function perm_mul!(C, A_vals, A_perm, B, α, β, i)
     @inbounds C[i] = A_vals[i] * B[A_perm[i]] * α + β * C[i]
 end
@@ -35,6 +21,8 @@ function bmul!(C, A::Diagonal, B, α, β)
     end
     return C
 end
+
+
 
 # Taken directly from ThreadedSparseCSR. ThreadedSparseCSR currently only works with Polyester 0.5, which
 # has known issues with thread count > 64. Moving it here allows us to support more recent versions of
@@ -68,7 +56,12 @@ function bmul!(y::AbstractVector, A::SparseMatrixCSR, x::AbstractVector, alpha::
 
 end
 
+
 # dispatch to ThreadedSparseCSR
 # bmul!(C, A::SparseMatrixCSR, B, α, β) = ThreadedSparseCSR.bmul!(C, A, B, α, β) 
 # dispatch to ParallelMergeCSR
-bmul!(C, A::Transpose{<:Any, <:SparseMatrixCSC}, B, α, β) = ParallelMergeCSR.mul!(C, A, B, α, β) 
+#bmul!(C, A::Transpose{<:Any, <:SparseMatrixCSC}, B, α, β) = ParallelMergeCSR.mul!(C, A, B, α, β) 
+function bmul!(C, A::Transpose{<:Any, <:SparseMatrixCSC}, B, α, β)
+    println("calling PMCSR.mul!")
+    return ParallelMergeCSR.mul!(C, A, B, α, β) 
+end

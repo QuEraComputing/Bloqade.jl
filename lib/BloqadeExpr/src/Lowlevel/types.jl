@@ -27,6 +27,13 @@ Base.size(m::ThreadedMatrix, i) = size(m.matrix)[i]
 Base.:*(n, m::T) where {T <: ThreadedMatrix} = n * m.matrix
 Base.pointer(m::T) where {T <: Diagonal} = pointer(m.diag)
 
+precision_type(m::T) where {T <: Diagonal} = real(eltype(m))
+precision_type(m::T) where {T <: PermMatrix} = real(eltype(m))
+precision_type(m::T) where {T <: SparseMatrixCSR} = real(eltype(m))
+precision_type(m::T) where {T <: SparseMatrixCSC} = real(eltype(m))
+precision_type(m::T) where {T <: ThreadedMatrix} = real(eltype(m.matrix))
+
+
 """
     struct Hamiltonian
 
@@ -46,6 +53,15 @@ end
 
 Base.size(h::Hamiltonian) = size(h.ts[1])
 Base.size(h::Hamiltonian, idx::Int) = size(h.ts[1], idx)
+function precision_type(h::Hamiltonian) 
+    tp = unique(precision_type.(h.ts))
+    return Union{tp...}
+end
+function highest_type(h::Hamiltonian)
+    tp = unique(eltype.(h.ts))
+    return promote_type(tp...)
+end
+
 
 Adapt.@adapt_structure Hamiltonian
 
@@ -63,6 +79,8 @@ end
 
 Base.size(h::StepHamiltonian, idx::Int) = size(h.h, idx)
 Base.size(h::StepHamiltonian) = size(h.h)
+precision_type(h::StepHamiltonian) = precision_type(h.h)
+highest_type(h::StepHamiltonian) = highest_type(h.h)
 
 function to_matrix(h::StepHamiltonian)
     return sum(zip(h.h.fs, h.h.ts)) do (f, t)

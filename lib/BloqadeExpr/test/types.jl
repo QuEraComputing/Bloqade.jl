@@ -88,6 +88,16 @@ end
     @test size(step_hamiltonian, 2) == 64
 end
 
+@testset "Hamiltonian/StepHamiltonian type" begin
+    hamiltonian = BloqadeExpr.Hamiltonian(Float64, SumOfX(6, sin) + SumOfZ(6, cos))
+    @test precision_type(hamiltonian) == Float64
+    @test highest_type(hamiltonian) == Float64
+    
+    step_hamiltonian = hamiltonian(0.1)
+    @test precision_type(step_hamiltonian) == Float64
+    @test highest_type(step_hamiltonian) == Float64
+end
+
 @testset "Step Hamiltonian Norm" begin 
     hamiltonian = BloqadeExpr.Hamiltonian(Float64, SumOfZ(1, sin))
     step_hamiltonian = hamiltonian(π/2)

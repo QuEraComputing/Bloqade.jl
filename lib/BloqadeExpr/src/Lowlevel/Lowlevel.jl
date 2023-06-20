@@ -14,6 +14,7 @@ export Hamiltonian, StepHamiltonian
 export ThreadedMatrix
 export set_backend
 export storage_size, to_matrix
+export precision_type, highest_type
 
 include("types.jl")
 include("printings.jl")

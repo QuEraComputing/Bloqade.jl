@@ -23,7 +23,6 @@ function bmul!(C, A::Diagonal, B, α, β)
 end
 
 
-
 # Taken directly from ThreadedSparseCSR. ThreadedSparseCSR currently only works with Polyester 0.5, which
 # has known issues with thread count > 64. Moving it here allows us to support more recent versions of
 # Polyester.

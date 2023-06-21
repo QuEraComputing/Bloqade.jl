@@ -15,7 +15,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 BloqadeExpr = "0.1"
-Interpolations = "0.13"
+Interpolations = "0.13, 0.14"
 Intervals = "1"
 Optim = "1"
 OrderedCollections = "1"

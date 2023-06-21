@@ -24,7 +24,6 @@ end
 
 Base.size(m::ThreadedMatrix) = size(m.matrix)
 Base.size(m::ThreadedMatrix, i) = size(m.matrix)[i]
-Base.:*(n, m::T) where {T <: ThreadedMatrix} = n * m.matrix
 Base.pointer(m::T) where {T <: Diagonal} = pointer(m.diag)
 
 precision_type(m::T) where {T <: Diagonal} = real(eltype(m))
@@ -87,11 +86,6 @@ function to_matrix(h::StepHamiltonian)
         return f(h.t) * t
     end
 end
-
-function LinearAlgebra.opnorm(h::StepHamiltonian, p = 2)
-    return opnorm(to_matrix(h), p)
-end
-
 (h::Hamiltonian)(t::Real) = StepHamiltonian(t, h)
 
 
@@ -120,10 +114,6 @@ function to_matrix(h::ValHamiltonian)
     end
 end
 
-function LinearAlgebra.opnorm(h::ValHamiltonian, p = 2)
-    return opnorm(to_matrix(h), p)
-end
-
 function get_f(h::StepHamiltonian) 
     return collect(map(h.h.fs) do f 
         return f(h.t)
@@ -136,34 +126,6 @@ function ValH(h::StepHamiltonian)
     # get values of fs:
     return ValHamiltonian(get_f(h),h.h)
 end
-
-
-function LinearAlgebra.mul!(C::AbstractVecOrMat, A::ValHamiltonian, B::AbstractVecOrMat)
-    fill!(C, zero(eltype(C)))
-    for (f, term) in zip(A.fvals, A.h.ts)
-        mul!(C, term, B, f, one(f))
-    end
-    return C
-end
-
-function Base.:*(a::Number, b::ValHamiltonian)
-    return ValHamiltonian(b.fvals .* a, b.h)
-end
-
-function Base.:+(a::ValHamiltonian, b::ValHamiltonian)
-    if !(a === b)
-        error("two ValHamiltonian must share the same static terms ")
-    end
-    return ValHamiltonian(a.fvals + b.fvals, a.h)
-end
-
-function Base.:-(a::ValHamiltonian, b::ValHamiltonian)
-    if !(a === b)
-        error("two ValHamiltonian must share the same static terms ")
-    end
-    return ValHamiltonian(a.fvals - b.fvals, a.h)
-end
-
 
 
 

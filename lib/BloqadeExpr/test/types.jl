@@ -101,7 +101,14 @@ end
 @testset "Step Hamiltonian Norm" begin 
     hamiltonian = BloqadeExpr.Hamiltonian(Float64, SumOfZ(1, sin))
     step_hamiltonian = hamiltonian(π/2)
-    @test LinearAlgebra.opnorm(step_hamiltonian) == 1.0
+    @test LinearAlgebra.opnorm(step_hamiltonian,1) == 1.0
+end
+
+
+@testset "Val Hamiltonian Norm" begin 
+    hamiltonian = BloqadeExpr.Hamiltonian(Float64, SumOfZ(1, sin))
+    val_hamiltonian = ValH(hamiltonian(π/2))
+    @test LinearAlgebra.opnorm(val_hamiltonian,1) == 1.0
 end
 
 @testset "ValHamiltonian" begin

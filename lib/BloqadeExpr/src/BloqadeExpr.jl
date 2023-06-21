@@ -47,7 +47,7 @@ export rydberg_h,
     emulate!,
     precision_type,
     highest_type,
-    ValH, get_f
+    ValH, get_f, to_matrix
 
 include("assert.jl")
 include("space.jl")

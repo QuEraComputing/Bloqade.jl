@@ -20,7 +20,7 @@ Intervals = "1"
 Optim = "1"
 OrderedCollections = "1"
 QuadGK = "2"
-UnicodePlots = "2"
+UnicodePlots = "2, 3"
 Unitful = "1"
 julia = "1.6"
 

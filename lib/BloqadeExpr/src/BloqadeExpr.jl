@@ -19,7 +19,7 @@ using BloqadeLattices: BoundedLattice, rydberg_interaction_matrix
 
 
 include("Lowlevel/Lowlevel.jl")
-using .Lowlevel: Hamiltonian, StepHamiltonian, ValHamiltonian, ThreadedMatrix, storage_size, to_matrix, precision_type, highest_type, ValH, get_f
+using .Lowlevel: Hamiltonian, SumOfLinop, ThreadedMatrix, storage_size, to_matrix, precision_type, highest_type
 
 export rydberg_h,
     rydberg_h_3,
@@ -47,7 +47,7 @@ export rydberg_h,
     emulate!,
     precision_type,
     highest_type,
-    ValH, get_f, to_matrix
+    to_matrix
 
 include("assert.jl")
 include("space.jl")

@@ -8,14 +8,7 @@
 
 ## mul!
 #--------------------------------
-function LinearAlgebra.mul!(C::AbstractVecOrMat, A::StepHamiltonian, B::AbstractVecOrMat)
-    fill!(C, zero(eltype(C)))
-    for (f, term) in zip(A.h.fs, A.h.ts)
-        mul!(C, term, B, f(A.t), one(A.t))
-    end
-    return C
-end
-function LinearAlgebra.mul!(C::AbstractVecOrMat, A::ValHamiltonian, B::AbstractVecOrMat)
+function LinearAlgebra.mul!(C::AbstractVecOrMat, A::SumOfLinop, B::AbstractVecOrMat)
     fill!(C, zero(eltype(C)))
     for (f, term) in zip(A.fvals, A.h.ts)
         mul!(C, term, B, f, one(f))
@@ -24,23 +17,23 @@ function LinearAlgebra.mul!(C::AbstractVecOrMat, A::ValHamiltonian, B::AbstractV
 end
 
 ## additionals, maybe we don't need this.
-function Base.:*(a::Number, b::ValHamiltonian)
-    return ValHamiltonian(b.fvals .* a, b.h)
+function Base.:*(a::Number, b::SumOfLinop)
+    return SumOfLinop(b.fvals .* a, b.h)
 end
 Base.:*(n, m::T) where {T <: ThreadedMatrix} = n * m.matrix
 
-function Base.:+(a::ValHamiltonian, b::ValHamiltonian)
+function Base.:+(a::SumOfLinop, b::SumOfLinop)
     if !(a === b)
-        error("two ValHamiltonian must share the same static terms ")
+        error("two SumOfLinop must share the same static terms ")
     end
-    return ValHamiltonian(a.fvals + b.fvals, a.h)
+    return SumOfLinop(a.fvals + b.fvals, a.h)
 end
 
-function Base.:-(a::ValHamiltonian, b::ValHamiltonian)
+function Base.:-(a::SumOfLinop, b::SumOfLinop)
     if !(a === b)
-        error("two ValHamiltonian must share the same static terms ")
+        error("two SumOfLinop must share the same static terms ")
     end
-    return ValHamiltonian(a.fvals - b.fvals, a.h)
+    return SumOfLinop(a.fvals - b.fvals, a.h)
 end
 
 
@@ -56,10 +49,7 @@ LinearAlgebra.mul!(C, A::ThreadedMatrix, B, α, β) = bmul!(C, A.matrix, B, α, 
 
 ## opnorm()
 # --------------------------------
-function LinearAlgebra.opnorm(h::StepHamiltonian, p = 2)
-    return opnorm(to_matrix(h), p)
-end
-function LinearAlgebra.opnorm(h::ValHamiltonian, p = 2)
+function LinearAlgebra.opnorm(h::SumOfLinop, p = 2)
     return opnorm(to_matrix(h), p)
 end
 
@@ -68,12 +58,7 @@ end
 
 ## tr()
 # --------------------------------
-function LinearAlgebra.tr(A::StepHamiltonian)
-    return sum(zip(A.h.fs, A.h.ts)) do (f, t)
-        return f(A.t) * tr(t)
-    end
-end
-function LinearAlgebra.tr(A::ValHamiltonian)
+function LinearAlgebra.tr(A::SumOfLinop)
     return sum(zip(A.fvals, A.h.ts)) do (f, t)
         return f * tr(t)
     end

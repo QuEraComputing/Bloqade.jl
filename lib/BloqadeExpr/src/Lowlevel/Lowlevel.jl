@@ -10,12 +10,12 @@ using Adapt
 using LaTeXStrings
 using LinearAlgebra
 
-export Hamiltonian, StepHamiltonian, ValHamiltonian
+export Hamiltonian, SumOfLinop
 export ThreadedMatrix
 export set_backend
 export storage_size, to_matrix
 export precision_type, highest_type
-export ValH, get_f # convert StepHamiltonian to ValHamiltonian
+#export ValH, get_f # convert StepHamiltonian to ValHamiltonian
 
 include("types.jl")
 include("printings.jl")

@@ -61,9 +61,43 @@ function highest_type(h::Hamiltonian)
     return promote_type(tp...)
 end
 
-
 Adapt.@adapt_structure Hamiltonian
 
+"""
+    struct SumOfLinop
+A low-level linear-map object that explicitly evaluate time dependent 
+coefficients at given time `t` fvals = fs(t) of Hamiltonian. 
+
+This object supports the linear map interface `mul!(Y, H, X)`.
+"""
+struct SumOfLinop{VS,FS,TS}
+    fvals::VS
+    h::Hamiltonian{FS,TS}
+end
+
+Base.size(h::SumOfLinop, idx::Int) = size(h.h, idx)
+Base.size(h::SumOfLinop) = size(h.h)
+precision_type(h::SumOfLinop) = precision_type(h.h)
+highest_type(h::SumOfLinop) = highest_type(h.h)
+
+function to_matrix(h::SumOfLinop)
+    return sum(zip(h.fvals, h.h.ts)) do (f, t)
+        return f * t
+    end
+end
+
+function _getf(h::Hamiltonian,t) 
+    return collect(map(h.fs) do f 
+        return f(t)
+    end
+    )
+end
+
+(h::Hamiltonian)(t::Real) = SumOfLinop(_getf(h,t), h)
+
+
+
+#= 
 """
     struct StepHamiltonian
 
@@ -126,7 +160,7 @@ function ValH(h::StepHamiltonian)
     # get values of fs:
     return ValHamiltonian(get_f(h),h.h)
 end
-
+=#
 
 
 

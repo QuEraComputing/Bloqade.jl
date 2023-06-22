@@ -6,7 +6,7 @@ using LinearAlgebra
 using Configurations
 using YaoArrayRegister
 using YaoSubspaceArrayReg
-using BloqadeExpr: Hamiltonian, StepHamiltonian, ValHamiltonian
+using BloqadeExpr: Hamiltonian, SumOfLinop
 using ExponentialUtilities
 using ProgressLogging
 using GaussQuadrature

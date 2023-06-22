@@ -39,7 +39,7 @@ end
         A_dense = Matrix(A)
         A_threaded = BloqadeExpr.ThreadedMatrix(transpose(A))
         
-        @test tr(A_dense) ≈ BloqadeExpr.tr(A_threaded)
+        @test tr(A_dense) ≈ tr(A_threaded)
         
     end
 
@@ -50,7 +50,7 @@ end
         A_dense = Matrix(A)
         A_threaded = A |> transpose |> SparseMatrixCSR |>  BloqadeExpr.ThreadedMatrix
 
-        @test tr(transpose(A_dense)) ≈ BloqadeExpr.tr(A_threaded)
+        @test tr(transpose(A_dense)) ≈ tr(A_threaded)
 
     end
 
@@ -61,7 +61,7 @@ end
         A_dense = Matrix(A)
         A_threaded = A |> BloqadeExpr.ThreadedMatrix
 
-        @test tr(A_dense) ≈ BloqadeExpr.tr(A_threaded)
+        @test tr(A_dense) ≈ tr(A_threaded)
 
     end
 
@@ -72,7 +72,7 @@ end
         A_dense = Matrix(A)
         A_threaded = A |> BloqadeExpr.ThreadedMatrix
        
-        @test tr(A_dense) ≈ BloqadeExpr.tr(A_threaded)
+        @test tr(A_dense) ≈ tr(A_threaded)
         
     end
 

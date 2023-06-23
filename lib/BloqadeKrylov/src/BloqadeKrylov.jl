@@ -32,6 +32,9 @@ include("magnus.jl")
 include("cfet.jl")
 include("tables/cfet_tbl.jl")
 
+## following are expm_multiply
+include("onenormest.jl")
+include("expm_multiply.jl")
 
 if VERSION < v"1.7"
     include("patch.jl")

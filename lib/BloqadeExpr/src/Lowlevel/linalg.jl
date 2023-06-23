@@ -1,6 +1,6 @@
 #**************************************************************
 #  Here, one can find the linalg API for  
-#  1. Hamiltonian/StepHamiltonian/ValHamiltonian 
+#  1. Hamiltonian/SumOfLinop
 #  2. Binding of standard LinearAlgebra functions 
 #     to the backend of choice for ThreadedMatrix
 #**************************************************************

@@ -432,7 +432,7 @@ function DiffEqBase.__init(
         stop_at_next_tstop,
     )
 
-    destats = DiffEqBase.DEStats(0)
+    stats = DiffEqBase.Stats(0)
 
     if typeof(_alg) <: OrdinaryDiffEqCompositeAlgorithm
         id = CompositeInterpolationData(f, timeseries, ts, ks, alg_choice, dense, cache)
@@ -446,7 +446,7 @@ function DiffEqBase.__init(
             interp = id,
             alg_choice = alg_choice,
             calculate_error = false,
-            destats = destats,
+            stats = stats,
         )
     else
         id = InterpolationData(f, timeseries, ts, ks, dense, cache)
@@ -459,7 +459,7 @@ function DiffEqBase.__init(
             k = ks,
             interp = id,
             calculate_error = false,
-            destats = destats,
+            stats = stats,
         )
     end
 
@@ -572,7 +572,7 @@ function DiffEqBase.__init(
         reinitiailize,
         isdae,
         opts,
-        destats,
+        stats,
         initializealg,
     )
 

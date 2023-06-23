@@ -3,6 +3,7 @@ using BloqadeExpr, YaoBlocks, YaoAPI, BitBasis
 using SparseArrays
 using LinearAlgebra
 
+
 @testset "getindex" begin
     pb = rydberg_h([(5*randn(), 5*randn()) for i=1:5]; Ω=0.3, Δ=0.5)
     mpb = mat(pb)
@@ -81,8 +82,13 @@ end
     hamiltonian = BloqadeExpr.Hamiltonian(Float64, SumOfX(6, sin) + SumOfZ(6, cos))
     @test size(hamiltonian) == (64, 64)
     @test size(hamiltonian, 2) == 64
-    @test storage_size(hamiltonian) == 6672
-    
+
+    #if REPL is 32bit or 64bit Int for sparse will have differet size:
+    if sizeof(Int) == 8
+        @test storage_size(hamiltonian) == 6672
+    else
+        @test storage_size(hamiltonian) == 4872
+    end
     step_hamiltonian = hamiltonian(0.1)
     @test size(step_hamiltonian) == (64, 64)
     @test size(step_hamiltonian, 2) == 64

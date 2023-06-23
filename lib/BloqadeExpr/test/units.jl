@@ -9,9 +9,13 @@ using Unitful: kHz, µHz, Hz, MHz, µm, m, mm, cm
     @test SumOfZ(5, 2kHz).Δ ≈ 0.002
     @test SumOfN(5, 2kHz).Δ ≈ 0.002
     @test SumOfXPhase(5, 2kHz, 2.0).ϕ ≈ 2.0
-
-    @test SumOfX(3, [2μHz,2Hz,2MHz]).Ω ≈ [2*1e-12,2*1e-6,2]
-
+    
+    # if its 32bit, use different test set for avoid overflow
+    if sizeof(Int) == 8
+        @test SumOfX(3, [2μHz,2Hz,2MHz]).Ω ≈ [2*1e-12,2*1e-6,2]
+    else
+        @test SumOfX(3, [0.5μHz,0.5Hz,0.5MHz]).Ω ≈ [5*1e-13,5*1e-7,0.5]
+    end
     h = RydInteract(atoms = [(1,), (2,), (3,), (4)], C = 109.2kHz * µm^6)
     @test h.C ≈ 0.1092
     h = rydberg_h([(1,), (2,)], C = 109.2kHz * µm^6)

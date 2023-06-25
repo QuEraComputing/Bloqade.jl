@@ -176,7 +176,8 @@ function _viz_axes(; transform, xmin, xmax, ymin, ymax,
     locs = [[coo(x, ymax+axes_y_offset) for x in xs]...,
         [coo(xmin-axes_x_offset, y) for y in ys]...]
     for (x, loc) in zip(xys, locs)
-        LuxorGraphPlot.draw_text(loc, "$(round(x; digits=2))$(axes_unit)"; color=axes_text_color, fontsize=axes_text_fontsize*unit/60)
+        LuxorGraphPlot.draw_text(loc, "$(round(x; digits=2))$(axes_unit)";
+            color=axes_text_color, fontsize=axes_text_fontsize*unit/60, fontface="")
     end
 end
 
@@ -238,7 +239,7 @@ function _viz_atoms(locs, edges, colors, vectors, texts, config)
             xpad=config.xpad, ypad=config.ypad, xpad_right=config.xpad, ypad_bottom=config.ypad,
             #vertex_stroke_opacity=config.blockade_fill_opacity,
             unit=config.unit)
-        LuxorGraphPlot._show_graph(locs, Tuple{Int,Int}[], nothing, nothing, nothing, nothing, nothing, nothing, texts, blockadeconfig)
+        LuxorGraphPlot.unitless_show_graph(locs, Tuple{Int,Int}[], nothing, nothing, nothing, nothing, nothing, nothing, texts, blockadeconfig)
     end
 
     # show the arrows
@@ -253,7 +254,7 @@ function _viz_atoms(locs, edges, colors, vectors, texts, config)
         vertex_text_color=config.node_text_color, fontsize=config.node_text_fontsize,
         xpad=config.xpad, ypad=config.ypad, xpad_right=config.xpad, ypad_bottom=config.ypad,
         edge_color=config.bond_color, edge_line_width=config.bond_linewidth, unit=config.unit)
-    LuxorGraphPlot._show_graph(locs, edges, colors, nothing, nothing, nothing, nothing, nothing, texts, graphconfig)
+    LuxorGraphPlot.unitless_show_graph(locs, edges, colors, nothing, nothing, nothing, nothing, nothing, texts, graphconfig)
 end
 
 struct ByDensity

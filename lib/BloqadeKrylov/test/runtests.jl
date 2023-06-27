@@ -12,18 +12,13 @@ end
 
 end
 
-#=
+
 @testset "expm_multiply" begin
     include("expm_multiply.jl")
 end
 
 
-@testset "ValHamiltonian" begin
-    include("utils.jl")
-end
-=#
 
-#=
 @testset "expmv" begin
     include("expmv.jl")
 end
@@ -58,4 +53,3 @@ end
 @testset "forwarddiff" begin
     include("forwarddiff.jl")
 end
-=#

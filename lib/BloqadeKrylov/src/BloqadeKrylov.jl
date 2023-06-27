@@ -33,6 +33,7 @@ include("cfet.jl")
 include("tables/cfet_tbl.jl")
 
 ## following are expm_multiply
+export onenormest, expm_multiply
 include("onenormest.jl")
 include("expm_multiply.jl")
 

@@ -128,7 +128,8 @@ end
 
 function calc_d(A,p::Int,ell::Int)
     @warn "using explicit onenormest is slow!"
-    est = onenormest_explicit(A,p)
+    #est = onenormest_explicit(A,p)
+    est = onenormest(A,p)
     return est^(1.0/p)
 end 
 

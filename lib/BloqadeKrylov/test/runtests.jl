@@ -7,11 +7,17 @@ if "docstring" in ARGS
     exit()
 end
 
+@testset "onenormest" begin
+    include("onenormest.jl")
+
+end
+
+#=
 @testset "expm_multiply" begin
     include("expm_multiply.jl")
 end
 
-#=
+
 @testset "ValHamiltonian" begin
     include("utils.jl")
 end

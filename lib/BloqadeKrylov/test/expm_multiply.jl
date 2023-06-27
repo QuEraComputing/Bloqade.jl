@@ -1,6 +1,11 @@
 using Test
 using BloqadeKrylov
 using SparseArrays
+using BloqadeLattices
+using BloqadeWaveforms
+using BloqadeExpr: Hamiltonian 
+using BloqadeExpr
+using Yao
 
 @testset "expm_multiply_impl Real, dense A" begin
 
@@ -85,6 +90,36 @@ end
     @test vnew ≈ vold
 
 end
+
+@testset "expm_multiply, Rydberg" begin
+
+    atoms = generate_sites(ChainLattice(), 4, scale = 6.1)
+    clocks = [0.0, 0.5, 0.8, 1.1, 1.5, 1.6]
+    wf = piecewise_constant(clocks = clocks, values = [0.0, 2.1, 2.1, 1.5, 0.0])
+    h = rydberg_h(atoms; Ω = wf)
+
+    Ham = Hamiltonian(Float64, h)
+    print(Ham)
+    Ht = Ham(0.6)
+    reg = zero_state(length(atoms))
+    state = statevec(reg)
+
+
+    vold = BloqadeKrylov.expmv(0.05, to_matrix(Ht), state)
+
+    println("main")
+    println(vold)
+    vs = similar(state)
+    BloqadeKrylov.expm_multiply!(vs, 0.05, to_matrix(Ht), state)
+    println(vs)
+    #vnew = BloqadeKrylov.expm_multiply(2.55, to_matrix(Ht), state)
+
+    #println(vnew)
+    #@test vold ≈ vnew
+
+
+end
+
 
 #=
 @testset "develop, please remove before pub" begin

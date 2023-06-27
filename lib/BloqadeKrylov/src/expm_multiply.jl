@@ -66,16 +66,29 @@ function get_optimal_sm(t::Number, A::AbstractMatrix, m_max::Int=55, ell::Int=2)
     traceA = LinearAlgebra.tr(A)
     n = size(A,1)
     μ = traceA/size(A,1) 
-    A_1norm = opnorm(A,1)
+    
     As = A - μ*LinearAlgebra.I(n)
+    A_1norm = opnorm(As,1)
 
     m_star::Int = 1
     s::Int = 1
     if t*A_1norm != 0
-        m_star, s = _calc_optimal_sm(As, t*A_1norm, m_max, ell)
+        m_star, s = _calc_optimal_sm(t*As, t*A_1norm, m_max, ell)
     end
 
     return m_star, s, μ, A_1norm, As
+end
+
+function expm_multiply(t::Number,
+                       A,
+                       v::AbstractVector{T},
+                       tol = nothing) where {T}
+    v_prom = similar(v, promote_type(eltype(A), T, typeof(t)))
+    copyto!(v_prom, v)
+
+    out = similar(v_prom)
+    expm_multiply!(out, t, A, v_prom, tol)
+    return out
 end
 
 
@@ -105,6 +118,7 @@ function expm_multiply!(w::AbstractVector{T},
     # 1) get the optimal s and m_star, and As--shifted A
     m_star, s, μ, A_1norm, As = get_optimal_sm(t,A)
 
+    println(m_star, " " , s, "endl")
     # 3) here lies the impl call:
     _expm_multiply_impl!(w, t, As, v, μ, s, m_star, tol)
     return w 
@@ -127,9 +141,11 @@ end
 
 
 function calc_d(A,p::Int,ell::Int)
-    @warn "using explicit onenormest is slow!"
-    #est = onenormest_explicit(A,p)
+    #@warn "using explicit onenormest is slow!"
+    exp = onenormest_explicit(A,p)
+    println(exp)
     est = onenormest(A,p)
+    println(est)
     return est^(1.0/p)
 end 
 
@@ -166,7 +182,7 @@ function _calc_optimal_sm(As, tA_1norm, m_max::Int=55, ell::Int=2)
             d = d1
             for m in p*(p-1):m_max
                 if m in θ_tbl.ms
-                    s = int(np.ceil(αp / get_theta(θ_tbl,m))) #compute_cost_div_m
+                    s = Int(ceil(αp / get_theta(θ_tbl,m))) #compute_cost_div_m
                     if m_star === nothing
                         m_star = m
                         s_star = s
@@ -209,7 +225,6 @@ function _expm_multiply_impl!(w::AbstractVector{T},
                              m_star::Int,
                              tol::Real,
                             ) where {T}
-
     F = deepcopy(v)
     vs = deepcopy(v)
     η = exp(t*mu/s)

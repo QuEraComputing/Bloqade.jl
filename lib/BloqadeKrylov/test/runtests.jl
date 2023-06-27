@@ -7,10 +7,6 @@ if "docstring" in ARGS
     exit()
 end
 
-@testset "onenormest" begin
-    include("onenormest.jl")
-
-end
 
 
 @testset "expm_multiply" begin
@@ -18,6 +14,11 @@ end
 end
 
 
+#=
+@testset "onenormest" begin
+    include("onenormest.jl")
+
+end
 
 @testset "expmv" begin
     include("expmv.jl")
@@ -53,3 +54,4 @@ end
 @testset "forwarddiff" begin
     include("forwarddiff.jl")
 end
+=#

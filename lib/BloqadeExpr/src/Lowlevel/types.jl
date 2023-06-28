@@ -32,7 +32,7 @@ precision_type(m::T) where {T <: SparseMatrixCSR} = real(eltype(m))
 precision_type(m::T) where {T <: SparseMatrixCSC} = real(eltype(m))
 precision_type(m::T) where {T <: ThreadedMatrix} = real(eltype(m.matrix))
 
-
+ 
 """
     struct Hamiltonian
 
@@ -61,6 +61,9 @@ function highest_type(h::Hamiltonian)
     return promote_type(tp...)
 end
 
+Base.eltype(h::Hamiltonian) = highest_type(h)
+
+
 Adapt.@adapt_structure Hamiltonian
 
 """
@@ -70,18 +73,25 @@ coefficients at given time `t` fvals = fs(t) of Hamiltonian.
 
 This object supports the linear map interface `mul!(Y, H, X)`.
 """
-struct SumOfLinop{VS,FS,TS}
+struct SumOfLinop{VS,TS}
     fvals::VS
-    h::Hamiltonian{FS,TS}
+    ts::TS
 end
 
-Base.size(h::SumOfLinop, idx::Int) = size(h.h, idx)
-Base.size(h::SumOfLinop) = size(h.h)
-precision_type(h::SumOfLinop) = precision_type(h.h)
-highest_type(h::SumOfLinop) = highest_type(h.h)
+Base.size(h::SumOfLinop, idx::Int) = size(h.ts[1], idx)
+Base.size(h::SumOfLinop) = size(h.ts[1])
+function precision_type(h::SumOfLinop)
+    tp = unique(precision_type.(h.ts))
+    return Union{tp...}
+end
+function highest_type(h::SumOfLinop)
+    tp = unique(eltype.(h.ts))
+    return promote_type(tp...)
+end
+Base.eltype(h::SumOfLinop) = highest_type(h)
 
 function to_matrix(h::SumOfLinop)
-    return sum(zip(h.fvals, h.h.ts)) do (f, t)
+    return sum(zip(h.fvals, h.ts)) do (f, t)
         return f * t
     end
 end
@@ -93,74 +103,7 @@ function _getf(h::Hamiltonian,t)
     )
 end
 
-(h::Hamiltonian)(t::Real) = SumOfLinop(_getf(h,t), h)
-
-
-
-#= 
-"""
-    struct StepHamiltonian
-
-A low-level linear-map object that encodes time-dependent
-hamiltonian at time step `t`. This object supports the
-linear map interface `mul!(Y, H, X)`.
-"""
-struct StepHamiltonian{T,FS,TS}
-    t::T # clock
-    h::Hamiltonian{FS,TS}
-end
-
-Base.size(h::StepHamiltonian, idx::Int) = size(h.h, idx)
-Base.size(h::StepHamiltonian) = size(h.h)
-precision_type(h::StepHamiltonian) = precision_type(h.h)
-highest_type(h::StepHamiltonian) = highest_type(h.h)
-
-function to_matrix(h::StepHamiltonian)
-    return sum(zip(h.h.fs, h.h.ts)) do (f, t)
-        return f(h.t) * t
-    end
-end
-(h::Hamiltonian)(t::Real) = StepHamiltonian(t, h)
-
-
-"""
-    struct ValHamiltonian
-
-A low-level linear-map object that explicitly evaluate time dependent 
-coefficients at given time `t` fvals = fs(t) of StepHamiltonian. 
-
-This object supports the linear map interface `mul!(Y, H, X)`.
-
-"""
-struct ValHamiltonian{VS,FS,TS}
-    fvals::VS
-    h::Hamiltonian{FS,TS}
-end
-
-Base.size(h::ValHamiltonian, idx::Int) = size(h.h, idx)
-Base.size(h::ValHamiltonian) = size(h.h)
-precision_type(h::ValHamiltonian) = precision_type(h.h)
-highest_type(h::ValHamiltonian) = highest_type(h.h)
-
-function to_matrix(h::ValHamiltonian)
-    return sum(zip(h.fvals, h.h.ts)) do (f, t)
-        return f * t
-    end
-end
-
-function get_f(h::StepHamiltonian) 
-    return collect(map(h.h.fs) do f 
-        return f(h.t)
-    end
-    )
-end
-
-## convert StepHamiltonian to ValHamiltonian 
-function ValH(h::StepHamiltonian)
-    # get values of fs:
-    return ValHamiltonian(get_f(h),h.h)
-end
-=#
+(h::Hamiltonian)(t::Real) = SumOfLinop(_getf(h,t), h.ts)
 
 
 

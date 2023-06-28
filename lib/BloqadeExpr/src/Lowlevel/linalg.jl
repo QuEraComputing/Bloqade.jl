@@ -10,7 +10,7 @@
 #--------------------------------
 function LinearAlgebra.mul!(C::AbstractVecOrMat, A::SumOfLinop, B::AbstractVecOrMat)
     fill!(C, zero(eltype(C)))
-    for (f, term) in zip(A.fvals, A.h.ts)
+    for (f, term) in zip(A.fvals, A.ts)
         mul!(C, term, B, f, one(f))
     end
     return C
@@ -18,22 +18,22 @@ end
 
 ## additionals, maybe we don't need this.
 function Base.:*(a::Number, b::SumOfLinop)
-    return SumOfLinop(b.fvals .* a, b.h)
+    return SumOfLinop(b.fvals .* a, b.ts)
 end
 Base.:*(n, m::T) where {T <: ThreadedMatrix} = n * m.matrix
 
 function Base.:+(a::SumOfLinop, b::SumOfLinop)
-    if !(a === b)
+    if !(a.ts === b.ts)
         error("two SumOfLinop must share the same static terms ")
     end
-    return SumOfLinop(a.fvals + b.fvals, a.h)
+    return SumOfLinop(a.fvals + b.fvals, a.ts)
 end
 
 function Base.:-(a::SumOfLinop, b::SumOfLinop)
-    if !(a === b)
+    if !(a.ts === b.ts)
         error("two SumOfLinop must share the same static terms ")
     end
-    return SumOfLinop(a.fvals - b.fvals, a.h)
+    return SumOfLinop(a.fvals - b.fvals, a.ts)
 end
 
 
@@ -59,7 +59,7 @@ end
 ## tr()
 # --------------------------------
 function LinearAlgebra.tr(A::SumOfLinop)
-    return sum(zip(A.fvals, A.h.ts)) do (f, t)
+    return sum(zip(A.fvals, A.ts)) do (f, t)
         return f * tr(t)
     end
 end

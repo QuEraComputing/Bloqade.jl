@@ -110,7 +110,7 @@ end
     @test LinearAlgebra.opnorm(step_hamiltonian,1) == 1.0
 end
 
-@testset "ValHamiltonian" begin
+@testset "SumOfLinop " begin
 
     Ham = BloqadeExpr.Hamiltonian(Float64, SumOfX(1, sin) + SumOfZ(1,cos))
 
@@ -120,36 +120,36 @@ end
 
 
     # check coefficents:
-    for (i,f) in enumerate(StepHam.h.fs)
+    for (i,f) in enumerate(Ham.fs)
         @test f(t) == StepHam.fvals[i]
     end
-    @test StepHam.h === Ham
+    @test StepHam.ts === Ham.ts
 
 
     # check basic algos :+
     AddOp = StepHam + StepHam
-    @test AddOp.h === StepHam.h
-    @test AddOp.h === Ham
+    @test AddOp.ts === StepHam.ts
+    @test AddOp.ts === Ham.ts
 
-    for (i,f) in enumerate(StepHam.h.fs)
+    for (i,f) in enumerate(Ham.fs)
         @test AddOp.fvals[i] == f(t) + f(t)
     end
 
     # check basic algos :-
     SubVHam = StepHam - StepHam
-    @test SubVHam.h === StepHam.h
-    @test SubVHam.h === Ham
+    @test SubVHam.ts === StepHam.ts
+    @test SubVHam.ts === Ham.ts
 
-    for (i,f) in enumerate(StepHam.h.fs)
+    for (i,f) in enumerate(Ham.fs)
         @test SubVHam.fvals[i] == f(t) - f(t)
     end
 
     # check basic algos :*
     MulVHam = 0.5*StepHam 
-    @test MulVHam.h === StepHam.h
-    @test MulVHam.h === Ham
+    @test MulVHam.ts === StepHam.ts
+    @test MulVHam.ts === Ham.ts
 
-    for (i,f) in enumerate(StepHam.h.fs)
+    for (i,f) in enumerate(Ham.fs)
         @test MulVHam.fvals[i] == 0.5*f(t)
     end
 

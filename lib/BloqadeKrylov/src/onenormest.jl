@@ -1,5 +1,5 @@
 
-function onenormest_explicit(A::AbstractMatrix, p::Int=1)
+function onenormest_explicit(A, p::Int=1)
     if p <=0
        error("p must be positive") 
     end
@@ -64,7 +64,7 @@ end
 
     
 """
-function onenormest(A::AbstractMatrix, p::Int=1, t::Int=2, itmax::Int=5)
+function onenormest(A, p::Int=1, t::Int=2, itmax::Int=5)
     if size(A,1) != size(A,2)
         error("expect square matrix.")
     end
@@ -79,7 +79,7 @@ end
 ## _mulp! 
 ## Y = A^p * X
 ## p must be positive >=1
-function _mulp!(Y::AbstractVecOrMat, A::AbstractMatrix, X::AbstractVecOrMat, p::Int)
+function _mulp!(Y::AbstractVecOrMat, A, X::AbstractVecOrMat, p::Int)
     
     # allocate tempo space
     w = similar(X)
@@ -190,7 +190,7 @@ end
     [Note] This is algorithm 2.4.
 
 """
-function _onenormest_impl(A::AbstractMatrix{T}, AT::AbstractMatrix{T}, p::Int=1, t::Int=2, itmax::Int=5) where {T}
+function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5) 
     if itmax < 2
         error("itmax must be at least 2")
     end
@@ -203,6 +203,8 @@ function _onenormest_impl(A::AbstractMatrix{T}, AT::AbstractMatrix{T}, p::Int=1,
     if t >= n
         error("t must be less than the order of A")
     end
+
+    T = eltype(A)
 
     nmults::Int = 0
     nresamples::Int = 0

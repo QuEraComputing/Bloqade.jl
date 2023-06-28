@@ -54,7 +54,7 @@ function get_theta(θ_tbl::θ_table, m::Int)
     return θ_tbl.θs[indexin(m, θ_tbl.ms)[1]]
 end
 
-function get_optimal_sm(t::Number, A::AbstractMatrix, m_max::Int=55, ell::Int=2)
+function get_optimal_sm(t::Number, A, m_max::Int=55, ell::Int=2)
     """
         given an matrix A and t, find the optimal s and m_star for expm_multiply.
         [return] m_star, s, μ, A_1norm, As

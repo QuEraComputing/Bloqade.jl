@@ -99,7 +99,7 @@ end
     h = rydberg_h(atoms; Ω = wf)
 
     Ham = Hamiltonian(Float64, h)
-    print(Ham)
+    #print(Ham)
     Ht = Ham(0.6)
     reg = zero_state(length(atoms))
     state = statevec(reg)
@@ -111,11 +111,11 @@ end
     println(vold)
     vs = similar(state)
     BloqadeKrylov.expm_multiply!(vs, 0.05, to_matrix(Ht), state)
-    println(vs)
+    #println(vs)
     #vnew = BloqadeKrylov.expm_multiply(2.55, to_matrix(Ht), state)
 
     #println(vnew)
-    #@test vold ≈ vnew
+    @test vold ≈ vs
 
 
 end

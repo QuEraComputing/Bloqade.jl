@@ -40,6 +40,8 @@ precision_type(m::T) where {T <: ThreadedMatrix} = real(eltype(m.matrix))
 The actual hamiltonian is the sum of `f_i(t) * t_i` where
 `f_i` and `t_i` are entries of `fs` and `ts`.
 """
++
+
 struct Hamiltonian{FS<:Tuple,TS<:Tuple}
     fs::FS # prefactor of each term
     ts::TS # const linear map of each term
@@ -66,6 +68,16 @@ Base.eltype(h::Hamiltonian) = highest_type(h)
 
 Adapt.@adapt_structure Hamiltonian
 
+
+
+
+abstract type RegularLinop end
+abstract type SkewHermitian end
+
+anti_type(::Type{LinearAlgebra.Hermitian}) = SkewHermitian
+anti_type(::Type{SkewHermitian}) = LinearAlgebra.Hermitian
+anti_type(::Type{RegularLinop}) = RegularLinop
+
 """
     struct SumOfLinop
 A low-level linear-map object that explicitly evaluate time dependent 
@@ -73,9 +85,12 @@ coefficients at given time `t` fvals = fs(t) of Hamiltonian.
 
 This object supports the linear map interface `mul!(Y, H, X)`.
 """
-struct SumOfLinop{VS,TS}
+struct SumOfLinop{OPTYPE, VS,TS}
     fvals::VS
     ts::TS
+    function SumOfLinop{OPTYPE}(fvals::VS, ts::TS) where {OPTYPE, VS, TS}
+        return new{OPTYPE,VS,TS}(fvals, ts)
+    end
 end
 
 Base.size(h::SumOfLinop, idx::Int) = size(h.ts[1], idx)
@@ -103,7 +118,8 @@ function _getf(h::Hamiltonian,t)
     )
 end
 
-(h::Hamiltonian)(t::Real) = SumOfLinop(_getf(h,t), h.ts)
+## lowering by Hamiltonian, so its Hermitian type
+(h::Hamiltonian)(t::Real) = SumOfLinop{LinearAlgebra.Hermitian}(_getf(h,t), h.ts)
 
 
 

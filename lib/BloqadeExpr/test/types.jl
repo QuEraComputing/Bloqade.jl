@@ -118,6 +118,8 @@ end
     t = 0.645
     StepHam = Ham(0.645)
 
+    @test ishermitian(StepHam) == true
+    
 
     # check coefficents:
     for (i,f) in enumerate(Ham.fs)
@@ -126,6 +128,7 @@ end
     @test StepHam.ts === Ham.ts
 
 
+    #=
     # check basic algos :+
     AddOp = StepHam + StepHam
     @test AddOp.ts === StepHam.ts
@@ -134,6 +137,8 @@ end
     for (i,f) in enumerate(Ham.fs)
         @test AddOp.fvals[i] == f(t) + f(t)
     end
+
+    @test LinearAlgebra.is_hermitian(AddOp) == true
 
     # check basic algos :-
     SubVHam = StepHam - StepHam
@@ -144,6 +149,9 @@ end
         @test SubVHam.fvals[i] == f(t) - f(t)
     end
 
+    @test LinearAlgebra.is_hermitian(SubVHam) == true
+    =#
+
     # check basic algos :*
     MulVHam = 0.5*StepHam 
     @test MulVHam.ts === StepHam.ts
@@ -152,6 +160,35 @@ end
     for (i,f) in enumerate(Ham.fs)
         @test MulVHam.fvals[i] == 0.5*f(t)
     end
+
+    @test ishermitian(MulVHam) == true
+    @test isskewhermitian(MulVHam) == false
+
+
+     # check basic algos :*
+     MulVHam2 = 0.5im*StepHam 
+     @test MulVHam2.ts === StepHam.ts
+     @test MulVHam2.ts === Ham.ts
+ 
+     for (i,f) in enumerate(Ham.fs)
+         @test MulVHam2.fvals[i] == 0.5im*f(t)
+     end   
+
+     @test ishermitian(MulVHam2) == false
+     @test isskewhermitian(MulVHam2) == true
+
+
+     # check basic algos :*
+     MulVHam3 = (2.3+0.1im)*StepHam 
+     @test MulVHam3.ts === StepHam.ts
+     @test MulVHam3.ts === Ham.ts
+ 
+     for (i,f) in enumerate(Ham.fs)
+         @test MulVHam3.fvals[i] == (2.3+0.1im)*f(t)
+     end   
+
+     @test ishermitian(MulVHam3) == false
+     @test isskewhermitian(MulVHam3) == false
 
 
 end

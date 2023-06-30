@@ -15,6 +15,9 @@ end
     include("linalg_tr.jl")
 end
 
+@testset "linear algebra add_I()" begin
+    include("linalg_addI.jl")
+end
 
 @testset "assertions" begin
     include("assert.jl")

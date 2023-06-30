@@ -54,7 +54,7 @@ function get_theta(θ_tbl::θ_table, m::Int)
     return θ_tbl.θs[indexin(m, θ_tbl.ms)[1]]
 end
 
-function get_optimal_sm(t::Number, A, m_max::Int=55, ell::Int=2)
+function get_optimal_sm(t::Real, A::T, m_max::Int=55, ell::Int=2) where {T}
     """
         given an matrix A and t, find the optimal s and m_star for expm_multiply.
         [return] m_star, s, μ, A_1norm, As
@@ -62,24 +62,33 @@ function get_optimal_sm(t::Number, A, m_max::Int=55, ell::Int=2)
         A_1norm is the 1-norm of A
         As is the shifted A, As = A - mu*I
     """
+
+
      # 1) shift the A:
     traceA = LinearAlgebra.tr(A)
     n = size(A,1)
     μ = traceA/size(A,1) 
     
-    As = A - μ*LinearAlgebra.I(n)
-    A_1norm = opnorm(As,1)
+    #As = A - μ*LinearAlgebra.I(n)
+    As = BloqadeExpr.add_I(A,-μ)
+
+
+    #A_1norm = opnorm(As,1)
+    A_1norm = onenormest(As,1)
+
+    
+    #println("est 1norm ", A_1norm_expl, " ", A_1norm)
 
     m_star::Int = 1
     s::Int = 1
     if t*A_1norm != 0
-        m_star, s = _calc_optimal_sm(t*As, t*A_1norm, m_max, ell)
+        m_star, s = _calc_optimal_sm(As, A_1norm, t, m_max, ell)
     end
-
+    
     return m_star, s, μ, A_1norm, As
 end
 
-function expm_multiply(t::Number,
+function expm_multiply(t::Real,
                        A,
                        v::AbstractVector{T},
                        tol = nothing) where {T}
@@ -91,9 +100,18 @@ function expm_multiply(t::Number,
     return out
 end
 
+function expm_multiply!(t::Real,
+                        A,
+                        v::AbstractVector{T},
+                        tol = nothing) where {T}
+
+    w = similar(v)
+    expm_multiply!(w, t, A, v, tol)
+    copyto!(v,w)
+end 
 
 function expm_multiply!(w::AbstractVector{T}, 
-                       t::Number,
+                       t::Real,
                        A,
                        v::AbstractVector{T},
                        tol = nothing
@@ -116,9 +134,10 @@ function expm_multiply!(w::AbstractVector{T},
     end
     
     # 1) get the optimal s and m_star, and As--shifted A
+    # note that here we use abs(t) instead of t so the A_T on onenormest is lazy evaluated.
     m_star, s, μ, A_1norm, As = get_optimal_sm(t,A)
 
-    println(m_star, " " , s, "endl")
+    #println("m*: ", m_star, " s: " , s)
     # 3) here lies the impl call:
     _expm_multiply_impl!(w, t, As, v, μ, s, m_star, tol)
     return w 
@@ -142,14 +161,18 @@ end
 
 function calc_d(A,p::Int,ell::Int)
     #@warn "using explicit onenormest is slow!"
-    exp = onenormest_explicit(A,p)
-    println(exp)
+    #exp = onenormest_explicit(A,p)
+
     est = onenormest(A,p)
-    println(est)
+    #println("calc_d",exp, " ",est)
     return est^(1.0/p)
 end 
 
-function _calc_optimal_sm(As, tA_1norm, m_max::Int=55, ell::Int=2) 
+function _calc_optimal_sm(A, A_1norm, t::Real, m_max::Int=55, ell::Int=2) 
+
+    As = t*A
+    tA_1norm = t*A_1norm
+
     θ_tbl = θ_table()
     if m_max > θ_tbl.max_m
         error("m_max > ",θ_tbl.max_m, " is not supported")
@@ -217,7 +240,7 @@ end
 
 """
 function _expm_multiply_impl!(w::AbstractVector{T},
-                             t::Number,
+                             t::Real,
                              As, 
                              v::AbstractVector{T},
                              mu::Number, #shift parameter
@@ -225,6 +248,7 @@ function _expm_multiply_impl!(w::AbstractVector{T},
                              m_star::Int,
                              tol::Real,
                             ) where {T}
+    #println(typeof(As))
     F = deepcopy(v)
     vs = deepcopy(v)
     η = exp(t*mu/s)
@@ -233,6 +257,8 @@ function _expm_multiply_impl!(w::AbstractVector{T},
         for j in 1:m_star
             coef = t / (s*j)
             mul!(vs, As, coef*vs)
+            #println(typeof(As))
+            #println(As.counter)
             c2 = norm(vs,Inf)
             F.+=vs
             if c1+c2 <= tol*norm(F,Inf)

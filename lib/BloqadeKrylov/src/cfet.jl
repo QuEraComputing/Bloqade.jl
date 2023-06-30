@@ -131,7 +131,7 @@ function __construct_Ω(h::Hamiltonian, t::Real, dt::Real, Tbl::CFETTables, ETSt
         fs += gs[i]*h(t + xs[i]*dt).fvals
     end
 
-    return SumOfLinop(fs, h.ts)
+    return SumOfLinop{LinearAlgebra.Hermitian}(fs, h.ts)
 end
 
 

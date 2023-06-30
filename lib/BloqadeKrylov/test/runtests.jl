@@ -14,7 +14,6 @@ end
 end
 
 
-#=
 @testset "onenormest" begin
     include("onenormest.jl")
 
@@ -54,4 +53,3 @@ end
 @testset "forwarddiff" begin
     include("forwarddiff.jl")
 end
-=#

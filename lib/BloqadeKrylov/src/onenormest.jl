@@ -70,7 +70,8 @@ function onenormest(A, p::Int=1, t::Int=2, itmax::Int=5)
     end
 
     est, nmults, nresamples = _onenormest_impl(A, adjoint(A), p, t, itmax)
-
+    
+    #println("[one norm est] nmults: ", nmults*p)
     return est
 end
 
@@ -211,6 +212,7 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
 
     X = ones(T,n,1)
     if t > 1
+        #X = hcat(X,[1.,1.,1.,-1.,1.,-1.,-1.,-1.,1.,-1.]) # testing
         X = hcat(X,rand((1.,-1.),n,t-1))
         ## checking with previous col, to see if resample is needed
         for i in 2:t
@@ -225,19 +227,27 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
     # normalize for each column to be unit 1-norm
     X ./= n
 
+    est =0
     est_old = 0
-    est = 0
+    ind_hist = Vector{Int}(undef,0)
     k::Int = 1
     S = zeros(T,n,t)
+    
     ind = nothing
     ind_best = nothing
     
     while true
+        #@show X
         Y = similar(X)
         _mulp!(Y,A,X,p) # mulp: Y = A^p * X
+        #@show Y
+
         nmults += 1
         mags = collect( norm(Y[:,j],1) for j in 1:t )
         est, best_j = findmax(mags)
+        #println(mags)
+        #println(est)
+        #println(best_j)
         if (est > est_old) || (k==2)
             if k >= 2
                 ind_best = ind[best_j]
@@ -257,7 +267,8 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
         end
 
         S = _sign_roundup.(Y)
-        
+
+        #@show S
 
         #(2)
         if _check_cols_parallel(S, S_old)
@@ -276,21 +287,34 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
 
         #(3), reuse Y: (note Y is the Z)
         _mulp!(Y,AT,S,p) # mulp: Y = A^p * X
+
+        #display(Y)
+
+
         nmults += 1
         Y = abs.(Y)
-        h = collect( maximum(Y[:,j]) for j in 1:t )
-        ind_hist = Vector{Int}(undef,0)
+
+        h = collect( maximum(Y[j,:]) for j in 1:n )
+        #println("h")
+        #display(h)
+
+
         Y = nothing
+
         
+
         #(4) 
-        if (k >= 2)  && (maximum(h) == h[ind_best])       
-            break
+        if (k >= 2)  
+            if(maximum(h) == h[ind_best])       
+                break
+            end
         end
 
         ## sort h in descending order, and re-order ind correspondingly.
         ind = reverse(sortperm(h))[1:t+length(ind_hist)]
         
         h = nothing
+
         if t > 1
             # (5)
             
@@ -305,15 +329,16 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
 
         fill!(X,0)
         for j in 1:t 
-            X[ind[j],j] = 1
+            X[ind[j],j] = 1.
         end
 
-        new_ind = (ind[1:t])[map(!,seen[1:t])]
+        seen = collect(elem in ind_hist for elem in ind[1:t])
+        new_ind = (ind[1:t])[map(!,seen)]
         ind_hist = vcat(ind_hist, new_ind)
         k += 1
 
     end
-    
+    #println(ind_best)
     return est, nmults, nresamples 
 
 end

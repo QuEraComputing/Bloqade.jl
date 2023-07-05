@@ -10,7 +10,9 @@
 #--------------------------------
 function LinearAlgebra.mul!(C::AbstractVecOrMat, A::SumOfLinop, B::AbstractVecOrMat)
     fill!(C, zero(eltype(C)))
+    #print(eltype(C))
     for (f, term) in zip(A.fvals, A.ts)
+        #println("terms:", typeof(term), " ", typeof(f))
         mul!(C, term, B, f, one(f))
     end
     return C

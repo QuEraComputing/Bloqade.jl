@@ -77,17 +77,13 @@ function get_optimal_sm(t::Real, A::T, m_max::Int=55, ell::Int=2) where {T}
     #As = A - μ*LinearAlgebra.I(n)
     As = BloqadeExpr.add_I(A,-μ)
 
-
     #using onenormest to get 1-norm of As
     A_1norm = onenormest(As,1)
-
-    
-    #println("est 1norm ", A_1norm_expl, " ", A_1norm)
 
     m_star::Int = 1
     s::Int = 1
     if t*A_1norm != 0
-        m_star, s = _calc_optimal_sm(As, A_1norm, t, m_max, ell)
+        m_star, s = _calc_optimal_sm(As, A_1norm, abs(t), m_max, ell)
     end
     
     return m_star, s, μ, A_1norm, As
@@ -95,30 +91,30 @@ end
 
 function expm_multiply(t::Real,
                        A,
-                       v::AbstractVector{T},
+                       v::AbstractVector{T};
                        tol = nothing) where {T}
     v_prom = similar(v, promote_type(eltype(A), T, typeof(t)))
     copyto!(v_prom, v)
 
     out = similar(v_prom)
-    expm_multiply!(out, t, A, v_prom, tol)
+    expm_multiply!(out, t, A, v_prom; tol)
     return out
 end
 
 function expm_multiply!(t::Real,
                         A,
-                        v::AbstractVector{T},
+                        v::AbstractVector{T};
                         tol = nothing) where {T}
 
     w = similar(v)
-    expm_multiply!(w, t, A, v, tol)
+    expm_multiply!(w, t, A, v; tol)
     copyto!(v,w)
 end 
 
 function expm_multiply!(w::AbstractVector{T}, 
                        t::Real,
                        A,
-                       v::AbstractVector{T},
+                       v::AbstractVector{T};
                        tol = nothing
                        ) where {T}
     if size(v, 1) != size(A, 2)
@@ -142,7 +138,7 @@ function expm_multiply!(w::AbstractVector{T},
     # note that here we use abs(t) instead of t so the A_T on onenormest is lazy evaluated.
     m_star, s, μ, A_1norm, As = get_optimal_sm(t,A)
 
-    
+
     # 3) here lies the impl call:
     _expm_multiply_impl!(w, t, As, v, μ, s, m_star, tol)
     return w 

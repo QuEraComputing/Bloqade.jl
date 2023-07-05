@@ -23,7 +23,7 @@ nsites = 9
 
 T = 2.9
 Nt = 1000
-scale = 3.0
+scale = 2.0
 
 atoms, h = H2_Square(T,scale)
 dt = T/Nt
@@ -42,8 +42,8 @@ nmul_overhead, nmul_impl = testing_expm_multiply!(H, tspan, reg1)
 
 
 #checking
-#print(statevec(reg1))
-#print(statevec(reg))
+print(statevec(reg1)[1:10])
+print(statevec(reg)[1:10])
 println(statevec(reg) .≈ statevec(reg1))
 
 

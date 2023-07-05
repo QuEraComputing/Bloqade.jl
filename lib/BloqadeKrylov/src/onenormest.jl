@@ -69,7 +69,12 @@ function onenormest(A, p::Int=1, t::Int=2, itmax::Int=5)
         error("expect square matrix.")
     end
 
-    est, nmults, nresamples = _onenormest_impl(A, adjoint(A), p, t, itmax)
+    ## if t is larger than the order of A, then set it to the order of A-1
+    t_in = min(t, size(A,1)-1)
+    t_in = t_in == 0 ? 1 : t_in
+    
+    
+    est, nmults, nresamples = _onenormest_impl(A, adjoint(A), p, t_in, itmax)
     
     return est
 end
@@ -198,10 +203,11 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
     n = size(A,1)
 
     if t >= n
-        error("t must be less than the order of A")
+        error("t must be less than the order of A: t=$t n=$n")
     end
 
     T = eltype(A)
+    
 
     nmults::Int = 0
     nresamples::Int = 0

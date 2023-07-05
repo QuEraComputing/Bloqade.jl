@@ -26,6 +26,7 @@ Base.size(m::ThreadedMatrix) = size(m.matrix)
 Base.size(m::ThreadedMatrix, i) = size(m.matrix)[i]
 Base.pointer(m::T) where {T <: Diagonal} = pointer(m.diag)
 
+precision_type(m::T) where {T <: Number} = real(typeof(m))
 precision_type(m::T) where {T <: Diagonal} = real(eltype(m))
 precision_type(m::T) where {T <: PermMatrix} = real(eltype(m))
 precision_type(m::T) where {T <: SparseMatrixCSR} = real(eltype(m))
@@ -97,11 +98,14 @@ Base.size(h::SumOfLinop, idx::Int) = size(h.ts[1], idx)
 Base.size(h::SumOfLinop) = size(h.ts[1])
 function precision_type(h::SumOfLinop)
     tp = unique(precision_type.(h.ts))
+    tp2 = unique(precision_type.(h.fvals))
+    tp = unique((tp...,tp2...))
     return Union{tp...}
 end
 function highest_type(h::SumOfLinop)
     tp = unique(eltype.(h.ts))
-    return promote_type(tp...)
+    tp2 = unique(typeof.(h.fvals))
+    return promote_type(tp...,tp2...)
 end
 Base.eltype(h::SumOfLinop) = highest_type(h)
 

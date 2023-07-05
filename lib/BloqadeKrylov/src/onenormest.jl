@@ -71,7 +71,6 @@ function onenormest(A, p::Int=1, t::Int=2, itmax::Int=5)
 
     est, nmults, nresamples = _onenormest_impl(A, adjoint(A), p, t, itmax)
     
-    #println("[one norm est] nmults: ", nmults*p)
     return est
 end
 
@@ -100,12 +99,8 @@ end
     provided that sign(A) is redefined as the matrix (aij / |aij|)
     (and sign(0) = 1) transposes are replaced by conjugate transposes."
 """
-function _sign_roundup(X::T) where {T <: Number} 
-    if X == 0
-        return T(1)
-    else
-        return X / abs(X)
-    end
+@inline function _sign_roundup(X::T) where {T <: Number} 
+    X == 0 ? T(1) : X / abs(X)
 end
 
 
@@ -195,6 +190,7 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
     if itmax < 2
         error("itmax must be at least 2")
     end
+
     if t < 1
         error("must be at least one column, t>=1")
     end
@@ -212,7 +208,6 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
 
     X = ones(T,n,1)
     if t > 1
-        #X = hcat(X,[1.,1.,1.,-1.,1.,-1.,-1.,-1.,1.,-1.]) # testing
         X = hcat(X,rand((1.,-1.),n,t-1))
         ## checking with previous col, to see if resample is needed
         for i in 2:t
@@ -237,17 +232,15 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
     ind_best = nothing
     
     while true
-        #@show X
+        
         Y = similar(X)
         _mulp!(Y,A,X,p) # mulp: Y = A^p * X
-        #@show Y
+        
 
         nmults += 1
         mags = collect( norm(Y[:,j],1) for j in 1:t )
         est, best_j = findmax(mags)
-        #println(mags)
-        #println(est)
-        #println(best_j)
+ 
         if (est > est_old) || (k==2)
             if k >= 2
                 ind_best = ind[best_j]
@@ -268,8 +261,6 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
 
         S = _sign_roundup.(Y)
 
-        #@show S
-
         #(2)
         if _check_cols_parallel(S, S_old)
             break
@@ -288,20 +279,13 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
         #(3), reuse Y: (note Y is the Z)
         _mulp!(Y,AT,S,p) # mulp: Y = A^p * X
 
-        #display(Y)
-
 
         nmults += 1
         Y = abs.(Y)
 
         h = collect( maximum(Y[j,:]) for j in 1:n )
-        #println("h")
-        #display(h)
-
 
         Y = nothing
-
-        
 
         #(4) 
         if (k >= 2)  
@@ -338,7 +322,7 @@ function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5)
         k += 1
 
     end
-    #println(ind_best)
+    
     return est, nmults, nresamples 
 
 end

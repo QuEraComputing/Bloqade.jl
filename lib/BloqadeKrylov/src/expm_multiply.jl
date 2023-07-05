@@ -1,4 +1,9 @@
-## loop up table for now, move to const stack later
+## look up table for now
+# [This table is calculated for Float64 precision 2^-53]
+# App. Table A.3
+# Computing Matrix Functions
+# Higham, Nicholas J. and Al-Mohy, Awad H.
+# 2010
 struct θ_table
     ms::Vector{Int}
     θs::Vector{Float64}
@@ -73,7 +78,7 @@ function get_optimal_sm(t::Real, A::T, m_max::Int=55, ell::Int=2) where {T}
     As = BloqadeExpr.add_I(A,-μ)
 
 
-    #A_1norm = opnorm(As,1)
+    #using onenormest to get 1-norm of As
     A_1norm = onenormest(As,1)
 
     
@@ -137,7 +142,7 @@ function expm_multiply!(w::AbstractVector{T},
     # note that here we use abs(t) instead of t so the A_T on onenormest is lazy evaluated.
     m_star, s, μ, A_1norm, As = get_optimal_sm(t,A)
 
-    #println("m*: ", m_star, " s: " , s)
+    
     # 3) here lies the impl call:
     _expm_multiply_impl!(w, t, As, v, μ, s, m_star, tol)
     return w 
@@ -159,12 +164,8 @@ function _condition_3_13(θ_tbl, tA_1norm, m_max::Int, ell::Int)
 end
 
 
-function calc_d(A,p::Int,ell::Int)
-    #@warn "using explicit onenormest is slow!"
-    #exp = onenormest_explicit(A,p)
-
+function calc_d(A,p::Int)
     est = onenormest(A,p)
-    #println("calc_d",exp, " ",est)
     return est^(1.0/p)
 end 
 
@@ -186,7 +187,7 @@ function _calc_optimal_sm(A, A_1norm, t::Real, m_max::Int=55, ell::Int=2)
         for (i, θ) in enumerate(θ_tbl.θs)
             m = θ_tbl.ms[i]
             s = Int(ceil(tA_1norm/θ))
-            #println(tA_1norm, " ", θ, " ", m*s)
+            
             if m_star === nothing
                 m_star = m
                 s_star = s
@@ -197,10 +198,10 @@ function _calc_optimal_sm(A, A_1norm, t::Real, m_max::Int=55, ell::Int=2)
         end
     else
         # eq(3.11)
-        d = calc_d(As, 2, ell)
+        d = calc_d(As, 2)
         for p in 2:p_max
             # compute d_p+1
-            d1 = calc_d(As, p+1, ell)
+            d1 = calc_d(As, p+1)
             αp = max(d,d1)
             d = d1
             for m in p*(p-1):m_max
@@ -225,7 +226,7 @@ end
 
 """
     _expm_multiply_impl!(w::AbstractVector{T}
-                         t::Number,
+                         t::Real,
                          As, 
                          v::AbstractVector{T},
                          mu::Real, #shift parameter
@@ -257,8 +258,6 @@ function _expm_multiply_impl!(w::AbstractVector{T},
         for j in 1:m_star
             coef = t / (s*j)
             mul!(vs, As, coef*vs)
-            #println(typeof(As))
-            #println(As.counter)
             c2 = norm(vs,Inf)
             F.+=vs
             if c1+c2 <= tol*norm(F,Inf)

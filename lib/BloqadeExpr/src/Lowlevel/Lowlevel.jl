@@ -9,6 +9,7 @@ using Preferences
 using Adapt
 using LaTeXStrings
 using LinearAlgebra
+using ForwardDiff
 using Base.Threads: nthreads
 
 export Hamiltonian, SumOfLinop

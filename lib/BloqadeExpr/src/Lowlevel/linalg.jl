@@ -10,9 +10,7 @@
 #--------------------------------
 function LinearAlgebra.mul!(C::AbstractVecOrMat, A::SumOfLinop, B::AbstractVecOrMat)
     fill!(C, zero(eltype(C)))
-    #print(eltype(C))
     for (f, term) in zip(A.fvals, A.ts)
-        #println("terms:", typeof(term), " ", typeof(f))
         mul!(C, term, B, f, one(f))
     end
     return C
@@ -193,4 +191,20 @@ function add_I(A::SumOfLinop{<:SkewHermitian}, c::Complex)
         return SumOfLinop{OPTYPE}((A.fvals...,c),(A.ts...,Iop))
     end
 
+end
+
+
+
+## taking derivative of Hamiltonian and evaluate at time 
+## H'(t)
+## this returns a SumOfLinop with fvals being the derivative
+#function derivative(h::Hamiltonian, t::Real)
+#    return SumOfLinop{Hermitian}(ForwardDiff.derivative.(h.fs,t), h.ts)
+#end
+
+function derivative(h::Hamiltonian, t::Real)
+    ## remove terms that are zero
+    fvals = ForwardDiff.derivative.(h.fs,t)
+    mask = collect(fvals .!= 0)
+    return SumOfLinop{Hermitian}(fvals[mask],h.ts[mask])
 end

@@ -3,7 +3,7 @@ using Plots
 using LaTeXStrings
 
 Nt = 1000
-scale = 6.7
+scale = 6.0
 
 f = open("3-by-3.$(Nt)._$(scale)_.ts","r")
 ts = convert(Array{Float64,1}, collect(readeach(f,Float64)))

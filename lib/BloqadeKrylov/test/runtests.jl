@@ -16,7 +16,7 @@ end
 
 @testset "onenormest" begin
     include("onenormest.jl")
-
+end
 
 @testset "expmv" begin
     include("expmv.jl")

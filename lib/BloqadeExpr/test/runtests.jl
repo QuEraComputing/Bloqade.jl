@@ -7,6 +7,15 @@ if "docstring" in ARGS
     exit()
 end
 
+@testset "linear algebra on linear map: mul!()" begin
+    include("linalg_mul.jl")
+end
+
+@testset "linear algebra on trace: tr()" begin
+    include("linalg_tr.jl")
+end
+
+
 @testset "assertions" begin
     include("assert.jl")
 end
@@ -23,9 +32,7 @@ end
     include("lower.jl")
 end
 
-@testset "linear algebra on linear map" begin
-    include("linalg.jl")
-end
+
 
 @testset "matrix construction" begin
     include("mat.jl")

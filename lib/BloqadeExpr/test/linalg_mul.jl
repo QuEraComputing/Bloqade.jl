@@ -27,28 +27,30 @@ B = rand(ComplexF64, 1 << 5)
   # ThreadedMatrix with SparseMatrixCSC
   # Threaded Matrix with CSR and Diagonal matrix inside
 
-@testset "ThreadedMatrix for Parallel Emulation" begin
+@testset "ThreadedMatrix for Parallel Emulation mul" begin
 
     # these values are not mutated and can be re-used throughout the unit tests
     B = rand(ComplexF64, 10)
     α = 0.5 + 1.0im
     β = 2.1 + 3.3im
 
-    @testset "Transposed SparseMatrixCSC Matrix" begin
+    @testset "Transposed SparseMatrixCSC Matrix (mul)" begin
 
         C_original = rand(ComplexF64, 10)
         C_copy = deepcopy(C_original)
 
-        A = sprand(ComplexF64, 10, 10, 0.1)
-        A_threaded = BloqadeExpr.ThreadedMatrix(transpose(A))
+        Asrc = sprand(ComplexF64, 10, 10, 0.1)
+        A = transpose(Asrc)
+        A_threaded = BloqadeExpr.ThreadedMatrix(transpose(Asrc))
+
 
         SparseArrays.mul!(C_original, A, B, α, β) # C -> A B α + C β 
-        BloqadeExpr.mul!(C_copy, A, B, α, β)
+        BloqadeExpr.mul!(C_copy, A_threaded, B, α, β)
 
         @test C_original == C_copy
     end
 
-    @testset "CSR-format Matrix" begin
+    @testset "CSR-format Matrix (mul)" begin
 
         C_original = rand(ComplexF64, 10)
         C_copy = deepcopy(C_original)
@@ -62,7 +64,7 @@ B = rand(ComplexF64, 1 << 5)
         @test C_original == C_copy
     end
 
-    @testset "Diagonal Matrix" begin
+    @testset "Diagonal Matrix (mul)" begin
 
         C_original = rand(ComplexF64, 10)
         C_copy = deepcopy(C_original)
@@ -76,7 +78,7 @@ B = rand(ComplexF64, 1 << 5)
         @test C_original == C_copy
     end
 
-    @testset "Permutation Matrix" begin
+    @testset "Permutation Matrix (mul)" begin
 
         C_original = rand(ComplexF64, 10)
         C_copy = deepcopy(C_original)

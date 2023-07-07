@@ -120,7 +120,7 @@ end
     t = 0.645
     StepHam = Ham(0.645)
 
-<<<<<<< HEAD
+
     @test ishermitian(StepHam) == true
     
 

@@ -110,7 +110,9 @@ end
     @test LinearAlgebra.opnorm(step_hamiltonian,1) == 1.0
 end
 
+
 @testset "SumOfLinop " begin
+
 
     Ham = BloqadeExpr.Hamiltonian(Float64, SumOfX(1, sin) + SumOfZ(1,cos))
 
@@ -118,6 +120,7 @@ end
     t = 0.645
     StepHam = Ham(0.645)
 
+<<<<<<< HEAD
     @test ishermitian(StepHam) == true
     
 
@@ -189,6 +192,7 @@ end
 
      @test ishermitian(MulVHam3) == false
      @test isskewhermitian(MulVHam3) == false
+
 
 
 end

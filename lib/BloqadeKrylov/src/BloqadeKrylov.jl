@@ -23,7 +23,12 @@ export CFET2_1, CFET4_2, CFET6_5, CFET8_11
 #         |-> BloqadeKrylov.ValHamiltonian (new)
 #include("utils.jl")
 
+## following are expm_multiply
+export onenormest, expm_multiply!, expmv!
+include("onenormest.jl")
+include("expm_multiply.jl")
 include("expmv.jl")
+
 include("common.jl")
 include("krylov.jl")
 include("magnus.jl")
@@ -32,10 +37,7 @@ include("magnus.jl")
 include("cfet.jl")
 include("tables/cfet_tbl.jl")
 
-## following are expm_multiply
-export onenormest, expm_multiply
-include("onenormest.jl")
-include("expm_multiply.jl")
+
 
 if VERSION < v"1.7"
     include("patch.jl")

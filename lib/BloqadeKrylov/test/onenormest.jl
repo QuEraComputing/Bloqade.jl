@@ -2,6 +2,8 @@ using Test
 using BloqadeKrylov
 using LinearAlgebra
 using SparseArrays
+using BloqadeExpr
+
 
 
 @testset "internal _mulp!" begin

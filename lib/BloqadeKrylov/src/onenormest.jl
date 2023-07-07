@@ -1,5 +1,5 @@
 
-function onenormest_explicit(A::AbstractMatrix, p::Int=1)
+function onenormest_explicit(A, p::Int=1)
     if p <=0
        error("p must be positive") 
     end
@@ -64,13 +64,18 @@ end
 
     
 """
-function onenormest(A::AbstractMatrix, p::Int=1, t::Int=2, itmax::Int=5)
+function onenormest(A, p::Int=1, t::Int=2, itmax::Int=5)
     if size(A,1) != size(A,2)
         error("expect square matrix.")
     end
 
-    est, nmults, nresamples = _onenormest_impl(A, adjoint(A), p, t, itmax)
-
+    ## if t is larger than the order of A, then set it to the order of A-1
+    t_in = min(t, size(A,1)-1)
+    t_in = t_in == 0 ? 1 : t_in
+    
+    
+    est, nmults, nresamples = _onenormest_impl(A, adjoint(A), p, t_in, itmax)
+    
     return est
 end
 
@@ -79,7 +84,7 @@ end
 ## _mulp! 
 ## Y = A^p * X
 ## p must be positive >=1
-function _mulp!(Y::AbstractVecOrMat, A::AbstractMatrix, X::AbstractVecOrMat, p::Int)
+function _mulp!(Y::AbstractVecOrMat, A, X::AbstractVecOrMat, p::Int)
     
     # allocate tempo space
     w = similar(X)
@@ -99,12 +104,8 @@ end
     provided that sign(A) is redefined as the matrix (aij / |aij|)
     (and sign(0) = 1) transposes are replaced by conjugate transposes."
 """
-function _sign_roundup(X::T) where {T <: Number} 
-    if X == 0
-        return T(1)
-    else
-        return X / abs(X)
-    end
+@inline function _sign_roundup(X::T) where {T <: Number} 
+    X == 0 ? T(1) : X / abs(X)
 end
 
 
@@ -190,10 +191,11 @@ end
     [Note] This is algorithm 2.4.
 
 """
-function _onenormest_impl(A::AbstractMatrix{T}, AT::AbstractMatrix{T}, p::Int=1, t::Int=2, itmax::Int=5) where {T}
+function _onenormest_impl(A, AT, p::Int=1, t::Int=2, itmax::Int=5) 
     if itmax < 2
         error("itmax must be at least 2")
     end
+
     if t < 1
         error("must be at least one column, t>=1")
     end
@@ -201,8 +203,11 @@ function _onenormest_impl(A::AbstractMatrix{T}, AT::AbstractMatrix{T}, p::Int=1,
     n = size(A,1)
 
     if t >= n
-        error("t must be less than the order of A")
+        error("t must be less than the order of A: t=$t n=$n")
     end
+
+    T = eltype(A)
+    
 
     nmults::Int = 0
     nresamples::Int = 0
@@ -223,19 +228,25 @@ function _onenormest_impl(A::AbstractMatrix{T}, AT::AbstractMatrix{T}, p::Int=1,
     # normalize for each column to be unit 1-norm
     X ./= n
 
+    est =0
     est_old = 0
-    est = 0
+    ind_hist = Vector{Int}(undef,0)
     k::Int = 1
     S = zeros(T,n,t)
+    
     ind = nothing
     ind_best = nothing
     
     while true
+        
         Y = similar(X)
         _mulp!(Y,A,X,p) # mulp: Y = A^p * X
+        
+
         nmults += 1
         mags = collect( norm(Y[:,j],1) for j in 1:t )
         est, best_j = findmax(mags)
+ 
         if (est > est_old) || (k==2)
             if k >= 2
                 ind_best = ind[best_j]
@@ -255,7 +266,6 @@ function _onenormest_impl(A::AbstractMatrix{T}, AT::AbstractMatrix{T}, p::Int=1,
         end
 
         S = _sign_roundup.(Y)
-        
 
         #(2)
         if _check_cols_parallel(S, S_old)
@@ -274,21 +284,27 @@ function _onenormest_impl(A::AbstractMatrix{T}, AT::AbstractMatrix{T}, p::Int=1,
 
         #(3), reuse Y: (note Y is the Z)
         _mulp!(Y,AT,S,p) # mulp: Y = A^p * X
+
+
         nmults += 1
         Y = abs.(Y)
-        h = collect( maximum(Y[:,j]) for j in 1:t )
-        ind_hist = Vector{Int}(undef,0)
+
+        h = collect( maximum(Y[j,:]) for j in 1:n )
+
         Y = nothing
-        
+
         #(4) 
-        if (k >= 2)  && (maximum(h) == h[ind_best])       
-            break
+        if (k >= 2)  
+            if(maximum(h) == h[ind_best])       
+                break
+            end
         end
 
         ## sort h in descending order, and re-order ind correspondingly.
         ind = reverse(sortperm(h))[1:t+length(ind_hist)]
         
         h = nothing
+
         if t > 1
             # (5)
             
@@ -303,10 +319,11 @@ function _onenormest_impl(A::AbstractMatrix{T}, AT::AbstractMatrix{T}, p::Int=1,
 
         fill!(X,0)
         for j in 1:t 
-            X[ind[j],j] = 1
+            X[ind[j],j] = 1.
         end
 
-        new_ind = (ind[1:t])[map(!,seen[1:t])]
+        seen = collect(elem in ind_hist for elem in ind[1:t])
+        new_ind = (ind[1:t])[map(!,seen)]
         ind_hist = vcat(ind_hist, new_ind)
         k += 1
 

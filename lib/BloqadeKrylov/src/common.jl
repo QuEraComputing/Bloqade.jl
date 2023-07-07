@@ -10,6 +10,7 @@ Krylov evolution options.
     normalize_step::Int = 5
     normalize_finally::Bool = true
     tol::Float64 = 1e-7
+    expmv_backend = expmv!
 end
 
 ## this is the abstract type for all evolvers 

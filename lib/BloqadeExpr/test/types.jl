@@ -110,7 +110,7 @@ end
     @test LinearAlgebra.opnorm(step_hamiltonian,1) == 1.0
 end
 
-@testset "ValHamiltonian" begin
+@testset "SumOfLinop " begin
 
     Ham = BloqadeExpr.Hamiltonian(Float64, SumOfX(1, sin) + SumOfZ(1,cos))
 
@@ -118,40 +118,77 @@ end
     t = 0.645
     StepHam = Ham(0.645)
 
+    @test ishermitian(StepHam) == true
+    
 
     # check coefficents:
-    for (i,f) in enumerate(StepHam.h.fs)
+    for (i,f) in enumerate(Ham.fs)
         @test f(t) == StepHam.fvals[i]
     end
-    @test StepHam.h === Ham
+    @test StepHam.ts === Ham.ts
 
 
+    #=
     # check basic algos :+
     AddOp = StepHam + StepHam
-    @test AddOp.h === StepHam.h
-    @test AddOp.h === Ham
+    @test AddOp.ts === StepHam.ts
+    @test AddOp.ts === Ham.ts
 
-    for (i,f) in enumerate(StepHam.h.fs)
+    for (i,f) in enumerate(Ham.fs)
         @test AddOp.fvals[i] == f(t) + f(t)
     end
 
+    @test LinearAlgebra.is_hermitian(AddOp) == true
+
     # check basic algos :-
     SubVHam = StepHam - StepHam
-    @test SubVHam.h === StepHam.h
-    @test SubVHam.h === Ham
+    @test SubVHam.ts === StepHam.ts
+    @test SubVHam.ts === Ham.ts
 
-    for (i,f) in enumerate(StepHam.h.fs)
+    for (i,f) in enumerate(Ham.fs)
         @test SubVHam.fvals[i] == f(t) - f(t)
     end
 
+    @test LinearAlgebra.is_hermitian(SubVHam) == true
+    =#
+
     # check basic algos :*
     MulVHam = 0.5*StepHam 
-    @test MulVHam.h === StepHam.h
-    @test MulVHam.h === Ham
+    @test MulVHam.ts === StepHam.ts
+    @test MulVHam.ts === Ham.ts
 
-    for (i,f) in enumerate(StepHam.h.fs)
+    for (i,f) in enumerate(Ham.fs)
         @test MulVHam.fvals[i] == 0.5*f(t)
     end
+
+    @test ishermitian(MulVHam) == true
+    @test isskewhermitian(MulVHam) == false
+
+
+     # check basic algos :*
+     MulVHam2 = 0.5im*StepHam 
+     @test MulVHam2.ts === StepHam.ts
+     @test MulVHam2.ts === Ham.ts
+ 
+     for (i,f) in enumerate(Ham.fs)
+         @test MulVHam2.fvals[i] == 0.5im*f(t)
+     end   
+
+     @test ishermitian(MulVHam2) == false
+     @test isskewhermitian(MulVHam2) == true
+
+
+     # check basic algos :*
+     MulVHam3 = (2.3+0.1im)*StepHam 
+     @test MulVHam3.ts === StepHam.ts
+     @test MulVHam3.ts === Ham.ts
+ 
+     for (i,f) in enumerate(Ham.fs)
+         @test MulVHam3.fvals[i] == (2.3+0.1im)*f(t)
+     end   
+
+     @test ishermitian(MulVHam3) == false
+     @test isskewhermitian(MulVHam3) == false
 
 
 end

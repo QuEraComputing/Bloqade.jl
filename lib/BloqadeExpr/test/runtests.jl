@@ -7,6 +7,11 @@ if "docstring" in ARGS
     exit()
 end
 
+@testset "linear algebra on derivative of H" begin
+    include("linalg_derivative.jl")
+end
+
+
 @testset "linear algebra on linear map: mul!()" begin
     include("linalg_mul.jl")
 end
@@ -15,6 +20,9 @@ end
     include("linalg_tr.jl")
 end
 
+@testset "linear algebra add_I()" begin
+    include("linalg_addI.jl")
+end
 
 @testset "assertions" begin
     include("assert.jl")
@@ -57,3 +65,4 @@ end
 @testset "3-level supports" begin
     include("3-level_supports.jl")
 end
+

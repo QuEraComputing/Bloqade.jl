@@ -139,4 +139,3 @@ end
 function storage_size(H::SparseMatrixCSC)
     return sizeof(H.colptr) + sizeof(H.rowval) + sizeof(H.nzval)
 end
-

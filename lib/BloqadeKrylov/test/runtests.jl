@@ -9,7 +9,6 @@ end
 
 
 
-<<<<<<< HEAD
 @testset "expm_multiply" begin
     include("expm_multiply.jl")
 end
@@ -18,13 +17,6 @@ end
 @testset "onenormest" begin
     include("onenormest.jl")
 
-=======
-#=
-@testset "ValHamiltonian" begin
-    include("utils.jl")
->>>>>>> 986e03ee (Refactor Expr (#572))
-end
-=#
 
 @testset "expmv" begin
     include("expmv.jl")

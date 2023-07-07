@@ -14,7 +14,7 @@ https://arxiv.org/pdf/1102.5071.pdf (eq.58-61)
 - `reg`: a register, should be a subtype of `AbstractRegister`.
 - `clocks`: the clocks of this time evolution at each step.
 - `h`: a hamiltonian expression.
-- `algo`: the algorithm (different orders to use), should be a subtype of `CFETTables`. default is `CFET42`
+- `algo`: the algorithm (different orders to use), should be a subtype of `CFETTables`. default is `CFET4_2`
 
 # Keyword Arguments
 
@@ -102,7 +102,7 @@ function Adapt.adapt_structure(to, x::CFETEvolution)
     return CFETEvolution(adapt(to, x.reg), x.start_clock, x.durations, adapt(to, x.hamiltonian), x.options, x.alg_table)
 end
 
-function CFETEvolution(reg::AbstractRegister, clocks, h, algo::CFETTables = CFET42(); kw...)
+function CFETEvolution(reg::AbstractRegister, clocks, h, algo::CFETTables = CFET4_2(); kw...)
     all(≥(0), clocks) || throw(ArgumentError("clocks must not be negative"))
     options = from_kwargs(KrylovOptions; kw...)
     P = real(eltype(statevec(reg)))

@@ -11,6 +11,7 @@ using Base.Threads: nthreads
 using MLStyle
 using BitBasis
 using LaTeXStrings
+using ForwardDiff
 using Unitful: Quantity, NoUnits, MHz, µm, uconvert
 using InteractiveUtils: subtypes
 using Base.Cartesian: @nexprs
@@ -20,7 +21,7 @@ using BloqadeLattices: BoundedLattice, rydberg_interaction_matrix
 
 include("Lowlevel/Lowlevel.jl")
 
-using .Lowlevel: Hamiltonian, SumOfLinop, ThreadedMatrix, storage_size, to_matrix, precision_type, highest_type, add_I, derivative, RegularLinop, isskewhermitian
+using .Lowlevel: Hamiltonian, SumOfLinop, ThreadedMatrix, storage_size, to_matrix, precision_type, highest_type, add_I, RegularLinop, isskewhermitian
 
 
 export rydberg_h,
@@ -52,7 +53,6 @@ export rydberg_h,
 
     to_matrix,
     add_I,
-    derivative,
     RegularLinop,  # abstype
     SkewHermitian, # abstype
     isskewhermitian

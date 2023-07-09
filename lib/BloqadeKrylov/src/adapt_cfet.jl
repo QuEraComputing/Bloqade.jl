@@ -68,14 +68,18 @@ mutable struct ACFETEvolution{Reg<:AbstractRegister,T<:Real,H<:Hamiltonian,ALGTB
     hamiltonian::H
     options::KrylovOptions
     alg_table::ALGTBL
+    step_tol::T
 
-    function ACFETEvolution{Reg,T,H,ALGTBL}(reg, start_clock, end_clock, step_size,hamiltonian, options, algo) where {Reg,T,H,ALGTBL}
+    function ACFETEvolution{Reg,T,H,ALGTBL}(reg, start_clock, end_clock, step_size, hamiltonian, options, algo,step_tol) where {Reg,T,H,ALGTBL}
         start_clock ≥ 0 || throw(ArgumentError("start clock must not be negative"))
         end_clock ≥ 0 || throw(ArgumentError("end clock must not be negative"))
 
         end_clock ≥ start_clock || throw(ArgumentError("end clock must be larger than start clock"))
         step_size ≤ end_clock-start_clock || throw(ArgumentError("initial step size cannot be larger than the whole evolution time"))
-        return new{Reg,T,H,ALGTBL}(reg, start_clock, end_clock, step_size, hamiltonian, options, algo)
+        step_tol ≥ 0 || throw(ArgumentError("step tolerance must be positive"))
+
+        #min_step_size > 0 || throw(ArgumentError("minimum step size must be positive and >0."))
+        return new{Reg,T,H,ALGTBL}(reg, start_clock, end_clock, step_size, hamiltonian, options, algo,step_tol)
     end
 end
 
@@ -92,7 +96,7 @@ Create a `ACFETEvolution` object.
 - `hamiltonian`: low-level hamiltonian object of type [`Hamiltonian`](@ref).
 - `options`: options of the evolution in type [`KrylovOptions`](@ref).
 """
-function ACFETEvolution(reg, start_clock, end_clock, step_size,hamiltonian, options, algo)
+function ACFETEvolution(reg, start_clock, end_clock, step_size, hamiltonian, options, algo,step_tol)
     return ACFETEvolution{typeof(reg),typeof(start_clock),typeof(hamiltonian),typeof(algo)}(
         reg,
         start_clock,
@@ -101,25 +105,27 @@ function ACFETEvolution(reg, start_clock, end_clock, step_size,hamiltonian, opti
         hamiltonian,
         options,
         algo,
+        step_tol
     )
 end
 
 function Adapt.adapt_structure(to, x::ACFETEvolution)
-    return ACFETEvolution(adapt(to, x.reg), x.start_clock, x.end_clock, x.step_size, adapt(to, x.hamiltonian), x.options, x.alg_table)
+    return ACFETEvolution(adapt(to, x.reg), x.start_clock, x.end_clock, x.step_size, adapt(to, x.hamiltonian), x.options, x.alg_table,x.step_tol)
 end
 
-function ACFETEvolution(reg::AbstractRegister, start_clock, end_clock , h, algo::CFETTables = CFET2_1(); step_size=1e-7, kw...)
-    all(≥(0), clocks) || throw(ArgumentError("clocks must not be negative"))
+function ACFETEvolution(reg::AbstractRegister, start_clock, end_clock , h, algo::CFETTables = CFET2_1(); step_size=1e-7, step_tol=1e-7, kw...)
+    #all(≥(0), clocks) || throw(ArgumentError("clocks must not be negative"))
     options = from_kwargs(KrylovOptions; kw...)
     P = real(eltype(statevec(reg)))
     T = isreal(h) ? P : Complex{P}
     
-    return ACFETEvolution(reg, start_clock, end_clock, step_size, Hamiltonian(T, h, space(reg)), options, algo)
+    return ACFETEvolution(reg, start_clock, end_clock, step_size, Hamiltonian(T, h, space(reg)), options, algo, step_tol)
 end
 
 ## given Hamiltonian, current time `t` and duration `dt`, plus a CFETTable, 
 # output generator Ω at certain ETstep (exponential time propogator) 
 ## t + xs[i]dt
+#=
 function __construct_Ω(h::Hamiltonian, t::Real, dt::Real, Tbl::CFETTables, ETStep::Int)
     
     gs = Tbl.Gs[ETStep]
@@ -133,16 +139,17 @@ function __construct_Ω(h::Hamiltonian, t::Real, dt::Real, Tbl::CFETTables, ETSt
 
     return SumOfLinop{LinearAlgebra.Hermitian}(fs, h.ts)
 end
+=#
 
 function __construct_dΩ(h::Hamiltonian, t::Real, dt::Real, Tbl::CFETTables, ETStep::Int)
     
     gs = Tbl.Gs[ETStep]
     xs = Tbl.xs 
     
-    fs = gs[1]*xs[1]*derivative.(h.fs,t + xs[1]*dt)
+    fs = gs[1]*xs[1]*collect(ForwardDiff.derivative.(h.fs,t + xs[1]*dt))
 
     for i in 2:length(gs)      
-        fs += gs[i]*xs[i]*derivative.(h.fs,t + xs[i]*dt)
+        fs += gs[i]*xs[i]*collect(ForwardDiff.derivative.(h.fs,t + xs[i]*dt))
     end
 
     return SumOfLinop{LinearAlgebra.Hermitian}(fs, h.ts)
@@ -153,7 +160,7 @@ end
 end
 
 ## here, since generic algo for defect is unclear, we specialize it for each support types:
-function emulate_step!(prob::ACFETEvolution{<:Any,<:Any,<:Any,ALGTBL<:CFET2_1}, step::Int, clock::Real, tol::Real)
+function emulate_step!(prob::ACFETEvolution{<:Any,<:Any,<:Any,<:CFET2_1}, step::Int, clock::Real, tol::Real)
     state = statevec(prob.reg)
     Ham = prob.hamiltonian
 
@@ -185,28 +192,36 @@ function emulate_step!(prob::ACFETEvolution{<:Any,<:Any,<:Any,ALGTBL<:CFET2_1}, 
     dest .+= (duration^2/2)*(Bv - dBv)
 
     ## -A(t+τ)v
-    mul!(tmp, Ham(clock+duration), state)
+    t_curr = clock+duration
+    mul!(tmp, -im*Ham(clock+duration), state)
     dest .-= tmp
 
     ϵ = norm(dest)
 
+    sp = scale_factor(0.25, 4.0 , 0.9, ϵ, tol, 2)
     ## calculate and update next step size:
-    prob.step_size = duration*scale_factor(0.25, 4.0 , 0.9, ϵ, tol, p)
+    @debug println("eps: $ϵ scale factor: $sp")
+    prob.step_size = duration*sp
+
+    ## if the next step_size will exceed the end_clock then set to the remainder
+    if t_curr + prob.step_size > prob.end_clock
+        prob.step_size = prob.end_clock - t_curr
+    end
 
 
-    # do we need this normalization? 
+    # normalization
     if mod(step, prob.options.normalize_step) == 0
         normalize!(prob.reg)
     end
 
-    if prob.options.normalize_finally && step == length(prob.durations)
+    if prob.options.normalize_finally && t_curr == prob.end_clock
         normalize!(prob.reg)
     end
     
     return prob
 end
 
-function emulate_step!(prob::ACFETEvolution, step::Int, clock::Real, duration::Real)
+function emulate_step!(prob::ACFETEvolution{<:Any,<:Any,<:Any,<:Any}, step::Int, clock::Real, duration::Real)
     error("unsupported CFET algo for adaptive step-size")
 end
 

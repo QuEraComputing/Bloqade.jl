@@ -11,6 +11,11 @@ end
     include("acfet21_sinX.jl")
 end
 
+@testset "acfet42_sinX" begin
+    include("acfet42_sinX.jl")
+end
+
+
 
 @testset "expm_multiply" begin
     include("expm_multiply.jl")

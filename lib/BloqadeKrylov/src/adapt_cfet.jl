@@ -113,7 +113,7 @@ function Adapt.adapt_structure(to, x::ACFETEvolution)
     return ACFETEvolution(adapt(to, x.reg), x.start_clock, x.end_clock, x.step_size, adapt(to, x.hamiltonian), x.options, x.alg_table,x.step_tol)
 end
 
-function ACFETEvolution(reg::AbstractRegister, start_clock, end_clock , h, algo::CFETTables = CFET2_1(); step_size=1e-7, step_tol=1e-7, kw...)
+function ACFETEvolution(reg::AbstractRegister, start_clock, end_clock , h, algo::CFETTables = CFET2_1(); step_size=1e-7, step_tol=1e-12, kw...)
     #all(≥(0), clocks) || throw(ArgumentError("clocks must not be negative"))
     options = from_kwargs(KrylovOptions; kw...)
     P = real(eltype(statevec(reg)))
@@ -161,6 +161,7 @@ end
 
 ## here, since generic algo for defect is unclear, we specialize it for each support types:
 function emulate_step!(prob::ACFETEvolution{<:Any,<:Any,<:Any,<:CFET2_1}, step::Int, clock::Real, tol::Real)
+    p = 2
     state = statevec(prob.reg)
     Ham = prob.hamiltonian
 
@@ -196,9 +197,9 @@ function emulate_step!(prob::ACFETEvolution{<:Any,<:Any,<:Any,<:CFET2_1}, step::
     mul!(tmp, -im*Ham(clock+duration), state)
     dest .-= tmp
 
-    ϵ = norm(dest)
+    ϵ = norm(dest)*duration/(p+1)
 
-    sp = scale_factor(0.25, 4.0 , 0.9, ϵ, tol, 2)
+    sp = scale_factor(0.25, 4.0 , 0.9, ϵ, tol, p)
     ## calculate and update next step size:
     @debug println("eps: $ϵ scale factor: $sp")
     prob.step_size = duration*sp
@@ -221,7 +222,150 @@ function emulate_step!(prob::ACFETEvolution{<:Any,<:Any,<:Any,<:CFET2_1}, step::
     return prob
 end
 
+
+## here, we just implemented in dump way, since we only need a few orders.
+## we can implement a generic way to do this, using recursive function.
+
+## tmp is the workspace for intermediate results
+function _comm_rk1(X,Y,state)
+    # this caluclate [X,Y]state
+    u = similar(state)
+    v = similar(state)
+    tmp = similar(v)
+
+    mul!(v,X,state); # v = Xψ 
+    mul!(u,Y,state); # u = Yψ
+
+    mul!(tmp,X,u); copyto!(u,tmp) # Xu = XYψ -> u
+    mul!(tmp,Y,v); copyto!(v,tmp) # Yv = YXψ -> v
+
+    tmp = nothing
+
+    return u .- v # u - v = [X,Y]ψ
+end
+
+function _comm_rk2(X,Y,state)
+    # this calculate [X,[X,Y]]v
+    tmp = similar(state)
+
+    w = _comm_rk1(X,Y,state) # w = [X,Y]state
+    mul!(tmp,X,w); copyto!(w,tmp) # w = X[X,Y]state
+
+    mul!(tmp,X,state) # tmp = Xstate 
+    r = _comm_rk1(X,Y,tmp) # r = [X,Y]Xstate
+
+    return w.-r 
+
+end
+
+function _comm_rk3(X,Y,state)
+    # this calculate [X,[X,[X,Y]]]v
+    tmp = similar(state)
+
+    w = _comm_rk2(X,Y,state) 
+    mul!(tmp,X,w); copyto!(w,tmp)
+
+    mul!(tmp,X,state)  
+    r = _comm_rk2(X,Y,tmp) 
+
+    return w.-r 
+
+end
+
+function _comm_rk4(X,Y,state)
+    # this calculate [X,[X,[X,Y]]]v
+    tmp = similar(state)
+
+    w = _comm_rk3(X,Y,state) 
+    mul!(tmp,X,w); copyto!(w,tmp)
+
+    mul!(tmp,X,state)  
+    r = _comm_rk3(X,Y,tmp) 
+
+    return w.-r 
+
+end
+
+
+function _gamma_p4(X,Y,t,state)
+    # Y = X'
+    tmp = similar(state)
+    dest = similar(state)
+
+    mul!(dest,X,state) #Xv
+    mul!(tmp,Y,state)
+
+    dest .+= t*tmp
+    tmp = nothing
+
+    dest .+= t^2/2*_comm_rk1(X,Y,state)
+    dest .+= t^3/6*_comm_rk2(X,Y,state)
+    dest .+= t^4/24*_comm_rk3(X,Y,state)
+    return dest
+end
+    
+
+
+## here, since generic algo for defect is unclear, we specialize it for each support types:
+function emulate_step!(prob::ACFETEvolution{<:Any,<:Any,<:Any,<:CFET4_2}, step::Int, clock::Real, tol::Real)
+    p = 4
+    state = statevec(prob.reg)
+    Ham = prob.hamiltonian
+
+    duration = prob.step_size # get duration 
+
+    #construct Ωi:
+    Ω1 = -im*__construct_Ω(Ham, clock, duration, prob.alg_table, 1)
+    dΩ1 = -im*__construct_dΩ(Ham, clock, duration, prob.alg_table, 1)
+    Ω2 = -im*__construct_Ω(Ham, clock, duration, prob.alg_table, 2)
+    dΩ2 = -im*__construct_dΩ(Ham, clock, duration, prob.alg_table, 2)
+
+    # perform evolution:
+    ## each exponential-time prop. 
+    prob.options.expmv_backend(duration, Ω1, state; prob.options.tol)
+
+    d = _gamma_p4(Ω1, dΩ1, duration, state)
+    prob.options.expmv_backend(duration, Ω2, d; prob.options.tol)
+    
+    prob.options.expmv_backend(duration, Ω2, state; prob.options.tol) ## this update state to the final results 
+
+
+    
+    tmp = similar(state)
+    mul!(tmp, -im*Ham(clock+duration), state)
+    d .-= tmp
+    tmp = nothing
+    d .+= _gamma_p4(Ω2, dΩ2, duration, state)
+
+    t_curr = clock+duration
+    ϵ = norm(d)*duration/(p+1)
+
+    sp = scale_factor(0.25, 4.0 , 0.9, ϵ, tol, p)
+    ## calculate and update next step size:
+    @debug println("eps: $ϵ scale factor: $sp")
+    prob.step_size = duration*sp
+
+    ## if the next step_size will exceed the end_clock then set to the remainder
+    if t_curr + prob.step_size > prob.end_clock
+        prob.step_size = prob.end_clock - t_curr
+    end
+
+
+    # normalization
+    if mod(step, prob.options.normalize_step) == 0
+        normalize!(prob.reg)
+    end
+
+    if prob.options.normalize_finally && t_curr == prob.end_clock
+        normalize!(prob.reg)
+    end
+    
+    return prob
+end
+
+
+
 function emulate_step!(prob::ACFETEvolution{<:Any,<:Any,<:Any,<:Any}, step::Int, clock::Real, duration::Real)
-    error("unsupported CFET algo for adaptive step-size")
+    error("unsupported CFET algo for adaptive step-size. please choose from [CFET2_1, CFET4_2]")
 end
 

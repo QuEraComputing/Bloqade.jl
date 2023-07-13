@@ -94,11 +94,68 @@ end
     @test size(step_hamiltonian, 2) == 64
 end
 
-@testset "Step Hamiltonian Norm" begin 
+@testset "Hamiltonian/SumOfLinop type" begin
+    hamiltonian = BloqadeExpr.Hamiltonian(Float64, SumOfX(6, sin) + SumOfZ(6, cos))
+    @test precision_type(hamiltonian) == Float64
+    @test highest_type(hamiltonian) == Float64
+    
+    step_hamiltonian = hamiltonian(0.1)
+    @test precision_type(step_hamiltonian) == Float64
+    @test highest_type(step_hamiltonian) == Float64
+end
+
+@testset "SumOfLinop Norm" begin 
     hamiltonian = BloqadeExpr.Hamiltonian(Float64, SumOfZ(1, sin))
     step_hamiltonian = hamiltonian(π/2)
-    @test LinearAlgebra.opnorm(step_hamiltonian) == 1.0
+    @test LinearAlgebra.opnorm(step_hamiltonian,1) == 1.0
 end
+
+@testset "ValHamiltonian" begin
+
+    Ham = BloqadeExpr.Hamiltonian(Float64, SumOfX(1, sin) + SumOfZ(1,cos))
+
+
+    t = 0.645
+    StepHam = Ham(0.645)
+
+
+    # check coefficents:
+    for (i,f) in enumerate(StepHam.h.fs)
+        @test f(t) == StepHam.fvals[i]
+    end
+    @test StepHam.h === Ham
+
+
+    # check basic algos :+
+    AddOp = StepHam + StepHam
+    @test AddOp.h === StepHam.h
+    @test AddOp.h === Ham
+
+    for (i,f) in enumerate(StepHam.h.fs)
+        @test AddOp.fvals[i] == f(t) + f(t)
+    end
+
+    # check basic algos :-
+    SubVHam = StepHam - StepHam
+    @test SubVHam.h === StepHam.h
+    @test SubVHam.h === Ham
+
+    for (i,f) in enumerate(StepHam.h.fs)
+        @test SubVHam.fvals[i] == f(t) - f(t)
+    end
+
+    # check basic algos :*
+    MulVHam = 0.5*StepHam 
+    @test MulVHam.h === StepHam.h
+    @test MulVHam.h === Ham
+
+    for (i,f) in enumerate(StepHam.h.fs)
+        @test MulVHam.fvals[i] == 0.5*f(t)
+    end
+
+
+end
+
 
 @testset "is_time_dependent" begin
     nsites = 3

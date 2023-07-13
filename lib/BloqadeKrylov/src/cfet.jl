@@ -125,13 +125,13 @@ function __construct_Ω(h::Hamiltonian, t::Real, dt::Real, Tbl::CFETTables, ETSt
     gs = Tbl.Gs[ETStep]
     xs = Tbl.xs 
     
-    fs = gs[1]*get_f(h(t + xs[1]*dt))
+    fs = gs[1]*h(t + xs[1]*dt).fvals
 
     for i in 2:length(gs)      
-        fs += gs[i]*get_f(h(t + xs[i]*dt))
+        fs += gs[i]*h(t + xs[i]*dt).fvals
     end
 
-    return ValHamiltonian(fs, h)
+    return SumOfLinop(fs, h)
 end
 
 

@@ -83,7 +83,7 @@ end
     atoms = [v_1,v_2]
     violations = validate_lattice(atoms,dc)
     @test violations == Set([
-        "positions {1 => $v_1, 2 => $v_2} violate y minimum value of $vertical_resolution μs",
+        "positions {1 => $v_1, 2 => $v_2} violate y minimum value of $vertical_resolution μm",
         "positions 1 => $v_1 and 2 => $v_2 are a distance of $radial_spacing μm apart which is $(message(<)) value of $radial_spacing_min μm",
     ])
 
@@ -96,7 +96,7 @@ end
     error_sites = join([site=>atoms[site] for site in [1,3,4]],", ")
     violations = validate_lattice(atoms,dc)
         
-    @test violations == Set(["positions {$(error_sites)} violate y minimum value of $vertical_resolution μs"])
+    @test violations == Set(["positions {$(error_sites)} violate y minimum value of $vertical_resolution μm"])
 
 
 end

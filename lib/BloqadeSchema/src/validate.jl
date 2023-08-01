@@ -105,7 +105,7 @@ function validate_lattice(positions,dc::DeviceCapabilities)
             sorted_sites = sort(sites)
             error_sites = join([site=>positions[site] for site in sorted_sites],", ")
             push!(violations,
-                "positions {$(error_sites)} violate y minimum value of $vertical_resolution μs"
+                "positions {$(error_sites)} violate y minimum value of $vertical_resolution μm"
             )
 
         end

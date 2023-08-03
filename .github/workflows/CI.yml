@@ -40,7 +40,6 @@ jobs:
         os:
           - ubuntu-latest
         arch:
-          - x86
           - x64
         package:
           - '.'

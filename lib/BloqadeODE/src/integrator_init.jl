@@ -9,6 +9,19 @@
 # TODOs
 # we should have the default options directly be our preferred (save_everystep=false, etc.)
 # but this should just be inside the problem type instead of the init function.
+using Pkg
+get_ver = pkg_name -> filter(x-> x.second.name == pkg_name, Pkg.dependencies()) |> x -> first(x)[2].version   
+
+
+vname = :(destats)
+mname = :(DEStats)
+begin
+    if get_ver("DiffEqBase") >= v"6.122.0"
+        vname = :(stats)
+        mname = :(Stats)
+    end
+end
+
 
 function DiffEqBase.__init(
     prob::SchrodingerProblem,
@@ -432,34 +445,45 @@ function DiffEqBase.__init(
         stop_at_next_tstop,
     )
 
-    stats = DiffEqBase.Stats(0)
+    eval( :($vname = DiffEqBase.$mname(0)) )
+    #stats = DiffEqBase.Stats(0)
 
     if typeof(_alg) <: OrdinaryDiffEqCompositeAlgorithm
         id = CompositeInterpolationData(f, timeseries, ts, ks, alg_choice, dense, cache)
-        sol = DiffEqBase.build_solution(
-            prob,
-            _alg,
-            ts,
-            timeseries,
-            dense = dense,
-            k = ks,
-            interp = id,
-            alg_choice = alg_choice,
-            calculate_error = false,
-            stats = stats,
+        eval(
+            quote
+                sol = DiffEqBase.build_solution(
+                    $prob,
+                    $_alg,
+                    $ts,
+                    $timeseries,
+                    dense = $dense,
+                    k = $ks,
+                    interp = $id,
+                    alg_choice = $alg_choice,
+                    calculate_error = false,
+                    $vname = $vname,
+                    #stats = stats,
+                )
+            end
         )
     else
         id = InterpolationData(f, timeseries, ts, ks, dense, cache)
-        sol = DiffEqBase.build_solution(
-            prob,
-            _alg,
-            ts,
-            timeseries,
-            dense = dense,
-            k = ks,
-            interp = id,
-            calculate_error = false,
-            stats = stats,
+        eval(
+            quote
+                sol = DiffEqBase.build_solution(
+                    $prob,
+                    $_alg,
+                    $ts,
+                    $timeseries,
+                    dense = $dense,
+                    k = $ks,
+                    interp = $id,
+                    calculate_error = false,
+                    $vname = $vname,
+                    #stats = stats,
+                )
+            end
         )
     end
 
@@ -572,7 +596,8 @@ function DiffEqBase.__init(
         reinitiailize,
         isdae,
         opts,
-        stats,
+        eval(vname),
+        #stats,
         initializealg,
     )
 

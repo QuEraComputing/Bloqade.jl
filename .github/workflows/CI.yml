@@ -54,6 +54,7 @@ jobs:
           - 'lib/BloqadeSchema'
           - 'lib/BloqadeWaveforms'
           - 'lib/YaoSubspaceArrayReg'
+          - 'lib/BloqadeNoisy'
     steps:
       - uses: actions/checkout@v2
       - uses: julia-actions/setup-julia@v1

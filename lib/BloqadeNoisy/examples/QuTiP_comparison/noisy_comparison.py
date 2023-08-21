@@ -57,7 +57,7 @@ sol_noisy = qt.mesolve(
 sol = qt.sesolve(
     h,
     state(*np.zeros(N, dtype = int)),
-    [0, 2],
+    times,
     e_ops = [put(N, i, n()) for i in range(3)]
 )
 

@@ -102,7 +102,7 @@ function expectation_value_noisy(
     cmat = noise_model.confusion_mat(nqubits) #generate confusion matrix
     w = Weights(cmat * amps) #create weights representing measurement probabilities
     S = [real(op.diag[sample(w)]) for i in 1:shots]
-    return if errs === true
+    return if errs === false
         mean(S)
     else
         (

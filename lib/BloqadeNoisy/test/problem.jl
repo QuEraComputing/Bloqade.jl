@@ -1,10 +1,10 @@
 using BloqadeNoisy
 using BloqadeExpr
+using BloqadeWaveforms
 using Kronecker
 using StatsBase
 using SciMLBase
 using YaoArrayRegister
-using YaoAPI
 using YaoBlocks
 using LinearAlgebra
 
@@ -12,7 +12,7 @@ using LinearAlgebra
     reg = zero_state(1)
     h = rydberg_h([(0, 0)], Ω=2π, Δ=0)
     save_times = LinRange(0.0, 1.0, 10)
-    @test_nowarn ns = NoisySchrodingerProblem(reg, save_times, h, Aquila())
+    ns = @test_nowarn NoisySchrodingerProblem(reg, save_times, h, Aquila())
 end
 
 @testset "emulation" begin
@@ -24,6 +24,23 @@ end
     sim = @test_nowarn emulate(ns, 1)
     @test length(sim) == length(save_times)
     @test length(first(sim)) == length(reg.state)
+end
+
+@testset "Hamiltonian sampling" begin
+    h = rydberg_h(
+        [(0.0,)];
+        Ω = Waveform(sin, 4),
+        Δ = piecewise_constant(
+            clocks = [0, 4],
+            values = [2π],
+        ),
+        ϕ = piecewise_constant(
+            clocks = [0, 4],
+            values = [0]
+        )
+    )
+    sampler = Aquila().coherent_noise(h)
+    @test_nowarn solve(SchrodingerProblem(zero_state(1), 4.0, sampler()), DP8())
 end
 
 @testset "noisy measurements" begin
@@ -47,6 +64,16 @@ end
     p01 = Aquila().confusion_mat(1)[2, 1]
     sim = emulate(ns, 1, [mat(Z)]; readout_error=true)
     @test sim[1][1] == 1 - 2 * p01
+    p = [[.5]; [.5]]
+    p_ro = Aquila().confusion_mat(1) * p
+    Zexpec = expectation_value_noisy(Aquila(), p, mat(Z))
+    @test Zexpec == p_ro[1] - p_ro[2]
+    Zexpec = expectation_value_noisy(Aquila(), p, mat(Z), errs = [.05, .05])
+    e_t = Aquila().confusion_mat(1) * [[.05]; [.05]]
+    @test Zexpec.propagated_err == norm(e_t)
+    Z_shots = expectation_value_noisy(Aquila(), p, mat(Z), 1000)
+    @test isapprox(Z_shots, Zexpec.expectation, atol = 4/sqrt(1000))
+    @test expectation_value_noisy(Aquila(), p, mat(Z), 1000; errs = true).sample_err < .1
 end
 
 @testset "emulation arguments" begin

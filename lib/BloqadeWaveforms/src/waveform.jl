@@ -302,7 +302,7 @@ struct PiecewiseLinear{T<:Real,Interp}
         length(clocks) == length(values) || throw(ArgumentError("clocks must have the same length as values"))
         T = promote_type(eltype(clocks), eltype(values))
         clocks = Vector{T}(clocks); values = Vector{T}(values);
-        interp = LinearInterpolation(clocks, values)
+        interp = linear_interpolation(clocks, values)
         return new{eltype(values),typeof(interp)}(clocks, values, interp)
     end
 end

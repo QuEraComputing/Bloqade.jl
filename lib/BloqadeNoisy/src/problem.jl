@@ -72,7 +72,7 @@ function NoisySchrodingerProblem(
     nqudits(reg) == nqudits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
 
     issorted(save_times) || throw(ArgumentError("save_times must be sorted"))
-    tspan = (first(save_times), last(save_times))
+    tspan = (0.0, last(save_times)) #Always starting at t=0 to avoid silly mistakes
 
     state = statevec(reg) #get initial statevector
     space = YaoSubspaceArrayReg.space(reg) #BloqadeNoisy does not currently support subspaces
@@ -306,7 +306,7 @@ where each array contains the output of output_func on the timeseries correspond
 - `output_func`: Vector{Complex}->Any - Transformation of the statevector array to save
 - `ensemble_algo`: See EnsembleProblem documentation. Common choices are EnsembleSerial and EnsembleThreaded
 """
-function emulate(
+function emulate_noisy(
     prob::NoisySchrodingerProblem,
     ntraj::Int,
     output_func::Function;
@@ -331,7 +331,7 @@ Emulate an ensemble and return the ensemble average over bitstring distribution.
 - `report_error`: Returns 2σ estimated from the sample
 - `ensemble_algo`: What type of parallelization is desired. See EnsembleSimulation documentation
 """
-function emulate(
+function emulate_noisy(
     prob::NoisySchrodingerProblem,
     ntraj::Int;
     report_error=false,
@@ -339,7 +339,7 @@ function emulate(
 )
 
     output_func = sol -> [abs.(u) .^ 2 for u in sol] #store the probability distribution
-    sim = emulate(prob, ntraj, output_func; ensemble_algo=ensemble_algo) #call up
+    sim = emulate_noisy(prob, ntraj, output_func; ensemble_algo=ensemble_algo) #call up
     return if report_error
         (
             amps=simulation_series_mean(sim),
@@ -363,7 +363,7 @@ Emulate an ensemble and return the ensemble average of a set of expectation valu
 - `report_error`: Returns 2σ estimated from the sample. Requires expectation values to be diagonal in computational basis
 - `ensemble_algo`: What type of parallelization is desired. See EnsembleSimulation documentation
 """
-function emulate(
+function emulate_noisy(
     prob::NoisySchrodingerProblem,
     ntraj::Int,
     expectations::Array;
@@ -377,7 +377,7 @@ function emulate(
 
     if !readout_error #Was not sure how to do this cleanly because multiple dispatch does not account for different kwargs...
         output_func = (sol) -> [[real(u' * (e * u)) for e in expectations] for u in sol]
-        sim = emulate(prob, ntraj, output_func; ensemble_algo=ensemble_algo)
+        sim = emulate_noisy(prob, ntraj, output_func; ensemble_algo=ensemble_algo)
 
         return if report_error
             (
@@ -390,7 +390,7 @@ function emulate(
     else
         @assert all([typeof(e) <: Diagonal for e in expectations])
 
-        sim = emulate(prob, ntraj; report_error=true, ensemble_algo=ensemble_algo)
+        sim = emulate_noisy(prob, ntraj; report_error=true, ensemble_algo=ensemble_algo)
         amps = sim.amps
         amps_err = sim.twosigma
 

@@ -21,7 +21,7 @@ end
     ns = NoisySchrodingerProblem(
         reg, save_times, rydberg_h([(0, 0)], Ω=2π, Δ=0), Aquila()
     )
-    sim = @test_nowarn emulate(ns, 1)
+    sim = @test_nowarn emulate_noisy(ns, 1)
     @test length(sim) == length(save_times)
     @test length(first(sim)) == length(reg.state)
 end
@@ -52,7 +52,7 @@ end
     ns = NoisySchrodingerProblem(
         zero_state(1), [0.0, 4.0], rydberg_h([(0, 0)], Ω=2π, Δ=0), Aquila()
     )
-    sim = @test_nowarn emulate(ns, 1, mat.([X, Z]))
+    sim = @test_nowarn emulate_noisy(ns, 1, mat.([X, Z]))
     @test sim[1][1] == 0.0
     @test sim[2][1] == 1.0
 end
@@ -62,7 +62,7 @@ end
         zero_state(1), [0.0, 4.0], rydberg_h([(0, 0)], Ω=2π, Δ=0), Aquila()
     )
     p01 = Aquila().confusion_mat(1)[2, 1]
-    sim = emulate(ns, 1, [mat(Z)]; readout_error=true)
+    sim = emulate_noisy(ns, 1, [mat(Z)]; readout_error=true)
     @test sim[1][1] == 1 - 2 * p01
     p = [[.5]; [.5]]
     p_ro = Aquila().confusion_mat(1) * p
@@ -81,16 +81,16 @@ end
     reg = zero_state(3)
     save_times = LinRange(0.0, 1.0, 5)
     ns = NoisySchrodingerProblem(reg, save_times, h, Aquila())
-    sim1 = @test_nowarn emulate(ns, 1, [mat(put(3, i => Z)) for i in 1:3];
+    sim1 = @test_nowarn emulate_noisy(ns, 1, [mat(put(3, i => Z)) for i in 1:3];
         report_error=true
     )
-    sim2 = @test_nowarn emulate(ns, 2, [mat(put(3, 1 => Z))];
+    sim2 = @test_nowarn emulate_noisy(ns, 2, [mat(put(3, 1 => Z))];
         report_error=true, ensemble_algo=EnsembleThreads()
     )
-    sim_ro = @test_nowarn emulate(ns, 2, [mat(put(3, 1 => Z))];
+    sim_ro = @test_nowarn emulate_noisy(ns, 2, [mat(put(3, 1 => Z))];
         readout_error=true, report_error=true
     )
-    sim = @test_nowarn emulate(ns, 1, [mat(put(3, i => Z)) for i in 1:3];
+    sim = @test_nowarn emulate_noisy(ns, 1, [mat(put(3, i => Z)) for i in 1:3];
         readout_error=true, report_error=true, shots=10
     )
 end
@@ -99,7 +99,7 @@ end
     ns = NoisySchrodingerProblem(
         zero_state(1), [0.0, 4.0], rydberg_h([(0, 0)], Ω=2π, Δ=0), Aquila()
     )
-    sim = emulate(ns, 2, sol -> [abs(u[1])^2 for u in sol])
+    sim = emulate_noisy(ns, 2, sol -> [abs(u[1])^2 for u in sol])
     @test values = simulation_series_mean(sim; index = 1)[end] ==
                    mean([s[end] for s in sim])
     @test simulation_series_err(sim; index=1, factor=3)[end] ==
@@ -127,7 +127,7 @@ end
         h -> (() -> h)
     )
     ns = NoisySchrodingerProblem(reg, save_times, h, trivial_error_model)
-    sim = emulate(ns, 10, sol -> sol[end])
+    sim = emulate_noisy(ns, 10, sol -> sol[end])
     ψ = first(solve(SchrodingerProblem(reg, 4, h), DP8()).u)
     @test all(map(sim) do u; u ≈ ψ; end)
 end
@@ -155,5 +155,5 @@ end
         coherent_noise
     )
     ns = NoisySchrodingerProblem(zero_state(2), 0:1.0f-2:1, rydberg_h([(0,), (8)]; Ω=15), better_error_model)
-    sim = @test_nowarn emulate(ns, 1, [mat(put(2, 1 => X)), mat(kron(X, X))])
+    sim = @test_nowarn emulate_noisy(ns, 1, [mat(put(2, 1 => X)), mat(kron(X, X))])
 end

@@ -25,11 +25,12 @@ export NoisySchrodingerEquation,
     Aquila,
     measure_noisy,
     expectation_value_noisy,
-    emulate,
+    emulate_noisy,
     simulation_series_mean,
     simulation_series_err,
     randomize,
-    load_error_model
+    load_error_model,
+    AQUILA
 
 include("error_model.jl")
 include("noise_models.jl")

@@ -119,7 +119,7 @@ end
 
 @testset "trivial noise model" begin
     reg = zero_state(1)
-    save_times = [0, 4]
+    save_times = [0.0, 4.0]
     h = rydberg_h([(0, 0)]; Ω=2π)
     trivial_error_model = ErrorModel(
         n -> I,
@@ -133,7 +133,7 @@ end
 end
 
 @testset "custom collapse operators" begin
-    save_times = [0, 4]
+    save_times = [0.0, 4.0]
     h = rydberg_h([(0, 0)]; Ω=2π)
     rate = 1 / 10
     c_ops = [sqrt(rate) * mat((X + im * Y) / 2)]
@@ -154,6 +154,6 @@ end
         bitflip_model,
         coherent_noise
     )
-    ns = NoisySchrodingerProblem(zero_state(2), 0:1.0f-2:1, rydberg_h([(0,), (8)]; Ω=15), better_error_model)
+    ns = NoisySchrodingerProblem(zero_state(2), LinRange(0,2,100), rydberg_h([(0,),(8,)]; Ω=15), better_error_model)
     sim = @test_nowarn emulate_noisy(ns, 1, [mat(put(2, 1 => X)), mat(kron(X, X))])
 end

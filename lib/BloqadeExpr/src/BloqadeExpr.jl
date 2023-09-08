@@ -29,7 +29,6 @@ using .Lowlevel: Hamiltonian,
     precision_type, 
     highest_type, 
     add_I, 
-    derivative, 
     RegularLinop, 
     isskewhermitian
 
@@ -62,7 +61,6 @@ export rydberg_h,
     highest_type,
     to_matrix,
     add_I,
-    derivative,
     RegularLinop,  # abstype
     SkewHermitian, # abstype
     isskewhermitian

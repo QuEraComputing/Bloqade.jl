@@ -40,7 +40,6 @@ jobs:
         os:
           - ubuntu-latest
         arch:
-          - x86
           - x64
         package:
           - '.'
@@ -71,7 +70,7 @@ jobs:
             ${{ runner.os }}-test-
             ${{ runner.os }}-
       - name: "develop lib packages"
-        run: .ci/run dev ${{ matrix.package }}
+        run: .ci/run dev 
       - name: "run tests"
         run: .ci/run test ${{ matrix.package }} --coverage
       - uses: codecov/codecov-action@v1

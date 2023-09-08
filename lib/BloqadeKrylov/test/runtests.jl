@@ -16,7 +16,6 @@ end
 
 @testset "onenormest" begin
     include("onenormest.jl")
-
 end
 
 @testset "expmv" begin
@@ -53,4 +52,8 @@ end
 
 @testset "forwarddiff" begin
     include("forwarddiff.jl")
+end
+
+@testset "3-level supports" begin
+    include("3-level_supports.jl")
 end

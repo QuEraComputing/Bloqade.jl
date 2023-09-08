@@ -17,6 +17,7 @@ function LinearAlgebra.mul!(C::AbstractVecOrMat, A::SumOfLinop, B::AbstractVecOr
 end
 
 ## additionals, maybe we don't need this.
+
 function Base.:*(a::Number,b::SumOfLinop)
     return SumOfLinop{RegularLinop}(b.fvals .* a, b.ts)
 end
@@ -65,9 +66,6 @@ LinearAlgebra.mul!(C, A::ThreadedMatrix, B, α, β) = bmul!(C, A.matrix, B, α, 
 ##-------------------------------- mul!
 
 
-
-
-
 ## opnorm()
 # --------------------------------
 function LinearAlgebra.opnorm(h::SumOfLinop, p = 2)
@@ -98,6 +96,7 @@ end
 LinearAlgebra.tr(A::ThreadedMatrix) = tr(A.matrix)
 
 ##--------------------------------  tr()
+
 
 ## check if is hermitian. 
 # --------------------------------

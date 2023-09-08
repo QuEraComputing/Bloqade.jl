@@ -109,11 +109,6 @@ function CFETEvolution(reg::AbstractRegister, clocks, h, algo::CFETTables = CFET
     T = isreal(h) ? P : Complex{P}
     start_clock, durations = first(clocks), diff(clocks)
     
-    ## checking if it is equal time:
-    if length(unique(round.(durations,digits = 14) ) ) != 1
-        throw(ArgumentError("durations must be equal (time slice must be equal)"))
-    end 
-
     return CFETEvolution(reg, start_clock, durations, Hamiltonian(T, h, space(reg)), options, algo)
 end
 

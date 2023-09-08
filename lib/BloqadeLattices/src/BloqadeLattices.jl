@@ -3,6 +3,7 @@
 module BloqadeLattices
 
 using NearestNeighbors
+using UnicodePlots
 using StatsBase
 using LuxorGraphPlot
 using LuxorGraphPlot: Point
@@ -64,5 +65,6 @@ include("bounded_lattice.jl")
 include("interact.jl")
 include("neighbors.jl")
 include("visualize.jl")
+
 
 end

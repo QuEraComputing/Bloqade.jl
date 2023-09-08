@@ -384,3 +384,24 @@ function lighttheme!()
     DEFAULT_TEXT_COLOR[] = "#000000"
     #DEFAULT_NODE_COLOR[] = "#FFFFFF"
 end
+
+function Base.show(io::IO, mime::MIME"text/plain", atoms::AtomList)
+
+    # convert list of tuples into two separate lists
+    x = Float64[]
+    y = Float64[]
+    for coord in atoms
+        push!(x, coord[1])
+        push!(y, coord[2])
+    end
+
+    plt = scatterplot(
+        x, 
+        y, 
+        title = "Approximate Atom Positions",
+        xlabel = "μm", 
+        ylabel = "μm",
+        marker = :circle)
+
+    return show(io, mime, plt)
+end

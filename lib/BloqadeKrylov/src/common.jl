@@ -10,25 +10,43 @@ Krylov evolution options.
     normalize_step::Int = 5
     normalize_finally::Bool = true
     tol::Float64 = 1e-7
+    expmv_backend = expmv!
 end
 
 ## this is the abstract type for all evolvers 
-## KrylovEvolution, Magnus4Evolution, CFET42Evolution
+## KrylovEvolution, Magnus4Evolution, CFETEvolution
 abstract type Evolver end
 
+## ACFET21Evolution, ACFET42Evolution, ACFET65Evolution
+abstract type ADEvolver end ## adaptive 
 
 # These are common parts shared by all the evolvers
 Base.length(prob::Evolver) = length(prob.durations) + 1
+#Base.length(prob::ADEvolver) = nothing
 
 function Base.iterate(prob::Evolver)
     info = (; step = 1, reg = prob.reg, clock = prob.start_clock, duration = zero(prob.start_clock))
     return info, (2, prob.start_clock)
 end
+#function Base.iterate(prob::ADEvolver)
+#    info = (; step = 1, reg = prob.reg, clock = prob.start_clock, duration = zero(prob.start_clock))
+#    return info, (2, prob.start_clock)
+#end
 
 Base.@propagate_inbounds function Base.iterate(prob::Evolver, (step, clock))
     step > length(prob) && return
 
     duration = prob.durations[step-1]
+    emulate_step!(prob, step, clock, duration)
+
+    info = (; step, reg = prob.reg, clock = clock + duration, duration)
+    return info, (step + 1, clock + duration)
+end
+
+Base.@propagate_inbounds function Base.iterate(prob::ADEvolver, (step, clock))
+    clock >= prob.end_clock && return
+
+    duration = prob.step_size
     emulate_step!(prob, step, clock, duration)
 
     info = (; step, reg = prob.reg, clock = clock + duration, duration)

@@ -9,12 +9,17 @@ using Preferences
 using Adapt
 using LaTeXStrings
 using LinearAlgebra
+using ForwardDiff
+using Base.Threads: nthreads
+
 
 export Hamiltonian, SumOfLinop
 export ThreadedMatrix
 export set_backend
 export storage_size, to_matrix
 export precision_type, highest_type
+export add_I, isskewhermitian
+
 #export ValH, get_f # convert StepHamiltonian to ValHamiltonian
 
 include("types.jl")

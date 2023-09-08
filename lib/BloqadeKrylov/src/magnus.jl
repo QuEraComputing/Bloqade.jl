@@ -127,7 +127,7 @@ function emulate_step!(prob::Magnus4Evolution, step::Int, clock::Real, duration:
     
     Ω4 = 0.5 * (A1 + A2) - duration*√3/12 * commutator(A1, A2)
     
-    expmv!(-im*duration, Ω4, state; prob.options.tol) 
+    prob.options.expmv_backend(-duration, im*Ω4, state; prob.options.tol) 
 
     # do we need this normalization? 
     

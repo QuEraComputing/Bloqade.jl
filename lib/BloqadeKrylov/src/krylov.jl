@@ -107,7 +107,8 @@ function emulate_step!(prob::KrylovEvolution, step::Int, clock::Real, duration::
     state = statevec(prob.reg)
     h = prob.hamiltonian
 
-    expmv!(-duration * im, h(clock), state; prob.options.tol)
+    prob.options.expmv_backend(-duration , im*h(clock), state; prob.options.tol)
+
     if mod(step, prob.options.normalize_step) == 0
         normalize!(prob.reg)
     end

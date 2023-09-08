@@ -21,7 +21,9 @@ end
 
 C = zeros(ComplexF64, 1 << 5)
 B = rand(ComplexF64, 1 << 5)
-@test mul!(zeros(ComplexF64, 1 << 5), hlist(0.1), B) ≈ H * B
+ot = zeros(ComplexF64, 1 << 5)
+mul!(ot, hlist(0.1), B)
+@test  ot ≈ H * B
 
 # ThreadedMatrix unit tests
   # ThreadedMatrix with SparseMatrixCSC

@@ -14,7 +14,7 @@ https://arxiv.org/pdf/1102.5071.pdf (eq.58-61)
 - `reg`: a register, should be a subtype of `AbstractRegister`.
 - `clocks`: the clocks of this time evolution at each step.
 - `h`: a hamiltonian expression.
-- `algo`: the algorithm (different orders to use), should be a subtype of `CFETTables`. default is `CFET42`
+- `algo`: the algorithm (different orders to use), should be a subtype of `CFETTables`. default is `CFET4_2`
 
 # Keyword Arguments
 
@@ -22,8 +22,8 @@ https://arxiv.org/pdf/1102.5071.pdf (eq.58-61)
 - `progress_name`: progress bar name, default is `"emulating"`.
 - `normalize_step`: normalize the state every `normalize_step`.
 - `normalize_finally`: wether normalize the state in the end of evolution, default is `true`.
-- `tol`: tolerance of the Krylov-expmv evaluation method, default is `1e-7`
-
+- `tol`: tolerance of the exponential time propogator evaluation method, default is `1e-7`
+- `expmv_backend`: the backend for evaluate exponential time propogator, default is `expmv!` (other option: `expm_multiply!`).
 
 # Examples
 
@@ -102,18 +102,13 @@ function Adapt.adapt_structure(to, x::CFETEvolution)
     return CFETEvolution(adapt(to, x.reg), x.start_clock, x.durations, adapt(to, x.hamiltonian), x.options, x.alg_table)
 end
 
-function CFETEvolution(reg::AbstractRegister, clocks, h, algo::CFETTables = CFET42(); kw...)
+function CFETEvolution(reg::AbstractRegister, clocks, h, algo::CFETTables = CFET4_2(); kw...)
     all(≥(0), clocks) || throw(ArgumentError("clocks must not be negative"))
     options = from_kwargs(KrylovOptions; kw...)
     P = real(eltype(statevec(reg)))
     T = isreal(h) ? P : Complex{P}
     start_clock, durations = first(clocks), diff(clocks)
     
-    ## checking if it is equal time:
-    if length(unique(round.(durations,digits = 14) ) ) != 1
-        throw(ArgumentError("durations must be equal (time slice must be equal)"))
-    end 
-
     return CFETEvolution(reg, start_clock, durations, Hamiltonian(T, h, space(reg)), options, algo)
 end
 
@@ -131,7 +126,9 @@ function __construct_Ω(h::Hamiltonian, t::Real, dt::Real, Tbl::CFETTables, ETSt
         fs += gs[i]*h(t + xs[i]*dt).fvals
     end
 
-    return SumOfLinop(fs, h)
+
+    return SumOfLinop{LinearAlgebra.Hermitian}(fs, h.ts)
+
 end
 
 
@@ -147,7 +144,7 @@ function emulate_step!(prob::CFETEvolution, step::Int, clock::Real, duration::Re
         Ωi = __construct_Ω(Ham, clock, duration, prob.alg_table, i)
         
         # perform evolution:
-        BloqadeKrylov.expmv!(-im*duration, Ωi, state; prob.options.tol)
+        prob.options.expmv_backend(-duration, im*Ωi, state; prob.options.tol)
 
     end
 

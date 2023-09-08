@@ -24,8 +24,11 @@ end
 
 Base.size(m::ThreadedMatrix) = size(m.matrix)
 Base.size(m::ThreadedMatrix, i) = size(m.matrix)[i]
+Base.eltype(m::ThreadedMatrix) = eltype(m.matrix)
 Base.pointer(m::T) where {T <: Diagonal} = pointer(m.diag)
 
+
+precision_type(m::T) where {T <: Number} = real(typeof(m))
 precision_type(m::T) where {T <: Diagonal} = real(eltype(m))
 precision_type(m::T) where {T <: PermMatrix} = real(eltype(m))
 precision_type(m::T) where {T <: SparseMatrixCSR} = real(eltype(m))
@@ -61,7 +64,22 @@ function highest_type(h::Hamiltonian)
     return promote_type(tp...)
 end
 
+
+Base.eltype(h::Hamiltonian) = highest_type(h)
+
+
 Adapt.@adapt_structure Hamiltonian
+
+
+
+
+abstract type RegularLinop end
+abstract type SkewHermitian end
+
+anti_type(::Type{LinearAlgebra.Hermitian}) = SkewHermitian
+anti_type(::Type{SkewHermitian}) = LinearAlgebra.Hermitian
+anti_type(::Type{RegularLinop}) = RegularLinop
+
 
 """
     struct SumOfLinop
@@ -70,18 +88,32 @@ coefficients at given time `t` fvals = fs(t) of Hamiltonian.
 
 This object supports the linear map interface `mul!(Y, H, X)`.
 """
-struct SumOfLinop{VS,FS,TS}
+
+struct SumOfLinop{OPTYPE, VS,TS}
     fvals::VS
-    h::Hamiltonian{FS,TS}
+    ts::TS
+    function SumOfLinop{OPTYPE}(fvals::VS, ts::TS) where {OPTYPE, VS, TS}
+        return new{OPTYPE,VS,TS}(fvals, ts)
+    end
 end
 
-Base.size(h::SumOfLinop, idx::Int) = size(h.h, idx)
-Base.size(h::SumOfLinop) = size(h.h)
-precision_type(h::SumOfLinop) = precision_type(h.h)
-highest_type(h::SumOfLinop) = highest_type(h.h)
+Base.size(h::SumOfLinop, idx::Int) = size(h.ts[1], idx)
+Base.size(h::SumOfLinop) = size(h.ts[1])
+function precision_type(h::SumOfLinop)
+    tp = unique(precision_type.(h.ts))
+    tp2 = unique(precision_type.(h.fvals))
+    tp = unique((tp...,tp2...))
+    return Union{tp...}
+end
+function highest_type(h::SumOfLinop)
+    tp = unique(eltype.(h.ts))
+    tp2 = unique(typeof.(h.fvals))
+    return promote_type(tp...,tp2...)
+end
+Base.eltype(h::SumOfLinop) = highest_type(h)
 
 function to_matrix(h::SumOfLinop)
-    return sum(zip(h.fvals, h.h.ts)) do (f, t)
+    return sum(zip(h.fvals, h.ts)) do (f, t)
         return f * t
     end
 end
@@ -93,9 +125,9 @@ function _getf(h::Hamiltonian,t)
     )
 end
 
-(h::Hamiltonian)(t::Real) = SumOfLinop(_getf(h,t), h)
 
-
+## lowering by Hamiltonian, so its Hermitian type
+(h::Hamiltonian)(t::Real) = SumOfLinop{LinearAlgebra.Hermitian}(_getf(h,t), h.ts)
 
 
 

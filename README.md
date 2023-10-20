@@ -44,6 +44,10 @@ pkg> add Bloqade#master
 
 You can join QuEra's Slack workspace with this [link](https://join.slack.com/t/querapublic/shared_invite/zt-1d5jjy2kl-_BxvXJQ4_xs6ZoUclQOTJg). Join the `#bloqade` channel to discuss anything related to Bloqade.
 
+## 🚀 Bloqade SDK for Python 🚀
+
+We're very happy to annouce the Alpha release of [Bloqade for Python](https://github.com/QuEraComputing/bloqade-python)! Check the documentation to [get started](https://bloqade.quera.com/0.8.0/#how-do-i-get-started). We are in active development of this new package so we appreciate [feedback](https://bloqade.quera.com/0.8.0/contributing/providing-feedback/) during the Alpha phase.
+
 ## Citation
 
 If you use Bloqade for a publication, we would kindly ask you to cite our work using the following bibtex citation:

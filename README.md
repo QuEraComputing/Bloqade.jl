@@ -50,7 +50,7 @@ While you're checking out this version of Bloqade, we encourage you to also give
 
 ### What About Bloqade.jl?
 
-Bloqade.jl will not go away any time soon because of Bloqade Python's existence. In fact, plans are underway to allow Bloqade.jl to become a high-performance emulator that the Python version of Bloqade can interface to, giving you unparalleled emulation power to test your ideas on top of a syntax designed to make designing programs for neutral atom hardware easier than ever.
+Bloqade.jl will not go away any time soon because of Bloqade for Python's existence. In fact, plans are underway to allow Bloqade.jl to become a high-performance emulator that the Python version of Bloqade can interface to, giving you unparalleled emulation power to test your ideas on top of a syntax designed to make designing programs for neutral atom hardware easier than ever.
 
 ## Citation
 

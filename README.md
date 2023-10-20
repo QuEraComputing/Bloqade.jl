@@ -46,7 +46,11 @@ You can join QuEra's Slack workspace with this [link](https://join.slack.com/t/q
 
 ## 🚀 Bloqade SDK for Python 🚀
 
-We're very happy to annouce the Alpha release of [Bloqade for Python](https://github.com/QuEraComputing/bloqade-python)! Check the documentation to [get started](https://bloqade.quera.com/0.8.0/#how-do-i-get-started). We are in active development of this new package so we appreciate [feedback](https://bloqade.quera.com/0.8.0/contributing/providing-feedback/) during the Alpha phase.
+While you're checking out this version of Bloqade, we encourage you to also give [Bloqade for Python](https://github.com/QuEraComputing/bloqade-python) a spin, currently in the Alpha phase of development. Check the documentation to [get started](https://bloqade.quera.com/0.8.0/#how-do-i-get-started). We are in active development of this new package so we appreciate [feedback](https://bloqade.quera.com/0.8.0/contributing/providing-feedback/) during the Alpha phase.
+
+### What About Bloqade.jl?
+
+Bloqade.jl will not go away any time soon because of Bloqade Python's existence. In fact, plans are underway to allow Bloqade.jl to become a high-performance emulator that the Python version of Bloqade can interface to, giving you unparalleled emulation power to test your ideas on top of a syntax designed to make designing programs for neutral atom hardware easier than ever.
 
 ## Citation
 

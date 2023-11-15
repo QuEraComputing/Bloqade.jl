@@ -51,6 +51,6 @@ using OrdinaryDiffEq:
 export SchrodingerProblem, SchrodingerEquation
 
 include("problem.jl")
-include("integrator_init.jl")
+# include("integrator_init.jl")
 
 end

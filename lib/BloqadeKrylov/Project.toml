@@ -29,8 +29,6 @@ YaoSubspaceArrayReg = "0.1"
 julia = "1.6"
 
 [extras]
-BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
-BloqadeWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
 ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
 Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"

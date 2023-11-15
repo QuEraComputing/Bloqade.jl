@@ -36,4 +36,4 @@ Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 
 [targets]
-test = ["Test", "BloqadeLattices", "BloqadeWaveforms", "ForwardDiff", "Random", "SparseArrays", "Yao"]
+test = ["Test", "ForwardDiff", "Random", "SparseArrays", "Yao"]

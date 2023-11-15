@@ -5,7 +5,6 @@ using BloqadeWaveforms
 using BloqadeKrylov
 using BloqadeLattices
 using BloqadeExpr: Hamiltonian
-using BloqadeODE
 using Yao
 
 @testset "magnus4_sinX" begin
@@ -21,18 +20,11 @@ using Yao
     show(stdout, MIME"text/plain"(), prob)
     #@test_throws ArgumentError KrylovEvolution(reg, [-0.1, 0.1], h)
     emulate!(prob)
+    @test prob.reg.state ≈ solution(1.3)
 
-    
-    #benchmark against ODE solver:
-    odereg = zero_state(length(atoms))
-    ODEprob = SchrodingerProblem(odereg,1.3,h)
-    show(stdout, MIME"text/plain"(), ODEprob)
-    emulate!(ODEprob)
-
-    @test prob.reg.state ≈ ODEprob.reg.state 
-
+    reg = zero_state(length(atoms))
     prob = Magnus4Evolution(reg, clocks, h)
     for info in prob
-        @test info.clock == clocks[info.step]
+        @test info.reg.state ≈ solution(info.clock)
     end
 end

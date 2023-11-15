@@ -5,7 +5,6 @@ using BloqadeWaveforms
 using BloqadeKrylov
 using BloqadeLattices
 using BloqadeExpr: Hamiltonian
-using BloqadeODE
 using Yao
 
 
@@ -20,24 +19,16 @@ using Yao
     clocks = collect(0:1e-3:1.3)
     prob = CFETEvolution(reg, clocks, h, CFET4_2())
     show(stdout, MIME"text/plain"(), prob)
-    #@test_throws ArgumentError KrylovEvolution(reg, [-0.1, 0.1], h)
     emulate!(prob)
 
-    
-    #benchmark against ODE solver:
-    odereg = zero_state(length(atoms))
-    ODEprob = SchrodingerProblem(odereg,1.3,h)
-    show(stdout, MIME"text/plain"(), ODEprob)
-    emulate!(ODEprob)
+    @test prob.reg.state ≈ solution(1.3)
 
-    @test prob.reg.state ≈ ODEprob.reg.state 
-
+    reg = zero_state(length(atoms))
     prob = CFETEvolution(reg, clocks, h, CFET4_2())
     for info in prob
-        @test info.clock == clocks[info.step]
+        @test info.reg.state ≈ solution(info.clock)
     end
     
-
 end
 
 
@@ -55,19 +46,12 @@ end
     #@test_throws ArgumentError KrylovEvolution(reg, [-0.1, 0.1], h)
     emulate!(prob)
 
-    
-    #benchmark against ODE solver:
-    odereg = zero_state(length(atoms))
-    ODEprob = SchrodingerProblem(odereg,1.3,h)
-    show(stdout, MIME"text/plain"(), ODEprob)
-    emulate!(ODEprob)
+    @test prob.reg.state ≈ solution(1.3)
 
-    @test prob.reg.state ≈ ODEprob.reg.state 
-
-    prob = CFETEvolution(reg, clocks, h, CFET4_2())
+    reg = zero_state(length(atoms))
+    prob = CFETEvolution(reg, clocks, h, CFET4_2(), expmv_backend = expm_multiply!)
     for info in prob
-        @test info.clock == clocks[info.step]
+        @test info.reg.state ≈ solution(info.clock)
     end
-    
 
 end

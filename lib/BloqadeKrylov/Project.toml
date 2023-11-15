@@ -5,8 +5,6 @@ version = "0.1.8"
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
-BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
-BloqadeWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
 Configurations = "5218b696-f38b-4ac9-8b61-a12ec717816d"
 ExponentialUtilities = "d4d017d3-3776-5f7e-afef-a10c40355c18"
 GaussQuadrature = "d54b0c1a-921d-58e0-8e36-89d8069c0969"
@@ -18,8 +16,6 @@ YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 [compat]
 Adapt = "3"
 BloqadeExpr = "0.1"
-BloqadeLattices = "0.1"
-BloqadeWaveforms = "0.1"
 Configurations = "0.17"
 ExponentialUtilities = "1"
 GaussQuadrature = "0.5"
@@ -27,3 +23,15 @@ ProgressLogging = "0.1"
 YaoArrayRegister = "0.9"
 YaoSubspaceArrayReg = "0.1"
 julia = "1.6"
+
+[extras]
+BloqadeLattices = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe4"
+BloqadeWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
+
+[targets]
+test = ["Test", "BloqadeLattices", "BloqadeWaveforms", "ForwardDiff", "Random", "SparseArrays", "Yao"]

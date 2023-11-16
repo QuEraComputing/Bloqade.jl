@@ -1,6 +1,8 @@
 using Test
 using BloqadeKrylov
 
+include("exact_sol_sinX.jl")
+
 
 if "docstring" in ARGS
     # include("docstrings.jl")

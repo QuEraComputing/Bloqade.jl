@@ -5,7 +5,6 @@ using BloqadeWaveforms
 using BloqadeKrylov
 using BloqadeLattices
 using BloqadeExpr: Hamiltonian
-using BloqadeODE
 using Yao
 
 @testset "cfet811_sinX" begin
@@ -21,20 +20,13 @@ using Yao
     show(stdout, MIME"text/plain"(), prob)
     #@test_throws ArgumentError KrylovEvolution(reg, [-0.1, 0.1], h)
     emulate!(prob)
-    
-    
-    #benchmark against ODE solver:
-    odereg = zero_state(length(atoms))
-    ODEprob = SchrodingerProblem(odereg,1.3,h)
-    show(stdout, MIME"text/plain"(), ODEprob)
-    emulate!(ODEprob)
 
-    @test prob.reg.state ≈ ODEprob.reg.state 
+    @test prob.reg.state ≈ solution(1.3)
 
+    reg = zero_state(length(atoms))
     prob = CFETEvolution(reg, clocks, h, CFET8_11())
     for info in prob
-        @test info.clock == clocks[info.step]
+        @test info.reg.state ≈ solution(info.clock)
     end
     
-
 end

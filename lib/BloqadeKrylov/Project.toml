@@ -27,3 +27,13 @@ ProgressLogging = "0.1"
 YaoArrayRegister = "0.9"
 YaoSubspaceArrayReg = "0.1"
 julia = "1.6"
+
+[extras]
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
+SparseArrays = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
+
+[targets]
+test = ["Test", "ForwardDiff", "Random", "SparseArrays", "Yao"]

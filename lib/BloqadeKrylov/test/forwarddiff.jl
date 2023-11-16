@@ -30,7 +30,7 @@ using ExponentialUtilities
         return abs2(statevec(reg)[1])
     end
     ps = rand(nsites, 2) * scale
-     ForwardDiff.gradient(loss_atoms, ps)
+    ForwardDiff.gradient(loss_atoms, ps)
 end
 
 @testset "ForwardDiff broken" begin

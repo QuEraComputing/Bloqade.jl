@@ -21,7 +21,7 @@ YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
 Adapt = "3"
-BloqadeExpr = "0.1"
+BloqadeExpr = "0.2"
 BloqadeKrylov = "0.1"
 BloqadeMIS = "0.1"
 Configurations = "0.17"

@@ -55,12 +55,3 @@ function bmul!(y::AbstractVector, A::SparseMatrixCSR, x::AbstractVector, alpha::
 
 end
 
-
-# dispatch to ThreadedSparseCSR
-# bmul!(C, A::SparseMatrixCSR, B, α, β) = ThreadedSparseCSR.bmul!(C, A, B, α, β) 
-# dispatch to ParallelMergeCSR
-#bmul!(C, A::Transpose{<:Any, <:SparseMatrixCSC}, B, α, β) = ParallelMergeCSR.mul!(C, A, B, α, β) 
-function bmul!(C, A::Transpose{<:Any, <:SparseMatrixCSC}, B, α, β)
-    #println("calling PMCSR.mul!")
-    return ParallelMergeCSR.mul!(C, A, B, α, β) 
-end

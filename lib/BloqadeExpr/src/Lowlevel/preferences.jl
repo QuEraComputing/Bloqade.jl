@@ -1,6 +1,6 @@
 function set_backend(backend::String)
-    if !(backend in ("ParallelMergeCSR", "ThreadedSparseCSR", "BloqadeExpr" ))
-        throw(ArgumentError("Invalid Backend provided, please select from \"ParallelMergeCSR\", \"ThreadedSparseCSR\", \"BloqadeExpr\""))
+    if !(backend in ("ThreadedSparseCSR", "BloqadeExpr" ))
+        throw(ArgumentError("Invalid Backend provided, please select from, \"ThreadedSparseCSR\", \"BloqadeExpr\""))
     end
 
     @set_preferences!("backend" => backend)

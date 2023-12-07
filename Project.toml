@@ -19,7 +19,7 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
-BloqadeExpr = "0.2"
+BloqadeExpr = "0.1"
 BloqadeKrylov = "0.1"
 BloqadeLattices = "0.1"
 BloqadeMIS = "0.1"

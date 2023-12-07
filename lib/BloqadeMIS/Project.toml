@@ -18,7 +18,7 @@ YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
 BitBasis = "0.8"
-BloqadeExpr = "0.2"
+BloqadeExpr = "0.1"
 BloqadeLattices = "0.1"
 EliminateGraphs = "0.2"
 Graphs = "1"

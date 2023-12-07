@@ -22,7 +22,7 @@ Yao = "5872b779-8223-5990-8dd0-5abbb0748c8c"
 [compat]
 AWS = "1.78"
 BitBasis = "0.8"
-BloqadeExpr = "0.2"
+BloqadeExpr = "0.1"
 BloqadeODE = "0.1"
 BloqadeWaveforms = "0.1"
 Braket = "0.7"

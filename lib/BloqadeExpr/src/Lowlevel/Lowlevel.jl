@@ -3,7 +3,6 @@ module Lowlevel
 using SparseArrays
 using LuxurySparse
 using SparseMatricesCSR
-using ParallelMergeCSR
 using Polyester
 using Preferences
 using Adapt

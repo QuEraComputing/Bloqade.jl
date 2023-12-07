@@ -36,22 +36,6 @@ mul!(ot, hlist(0.1), B)
     α = 0.5 + 1.0im
     β = 2.1 + 3.3im
 
-    @testset "Transposed SparseMatrixCSC Matrix (mul)" begin
-
-        C_original = rand(ComplexF64, 10)
-        C_copy = deepcopy(C_original)
-
-        Asrc = sprand(ComplexF64, 10, 10, 0.1)
-        A = transpose(Asrc)
-        A_threaded = BloqadeExpr.ThreadedMatrix(transpose(Asrc))
-
-
-        SparseArrays.mul!(C_original, A, B, α, β) # C -> A B α + C β 
-        BloqadeExpr.mul!(C_copy, A_threaded, B, α, β)
-
-        @test C_original == C_copy
-    end
-
     @testset "CSR-format Matrix (mul)" begin
 
         C_original = rand(ComplexF64, 10)

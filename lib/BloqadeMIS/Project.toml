@@ -1,6 +1,6 @@
 name = "BloqadeMIS"
 uuid = "bd27d05e-4ce1-5e74-84dd-c5d7d508bbe2"
-version = "0.1.7"
+version = "0.2.0"
 
 [deps]
 BitBasis = "50ba71b6-fa0f-514d-ae9a-0916efc90dcf"
@@ -19,7 +19,7 @@ YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 [compat]
 BitBasis = "0.8"
 BloqadeExpr = "0.2"
-BloqadeLattices = "0.1"
+BloqadeLattices = "0.2"
 EliminateGraphs = "0.2"
 Graphs = "1"
 Statistics = "1"

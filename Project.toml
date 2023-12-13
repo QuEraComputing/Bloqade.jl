@@ -21,7 +21,7 @@ YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 [compat]
 BloqadeExpr = "0.2"
 BloqadeKrylov = "0.2"
-BloqadeLattices = "0.1"
+BloqadeLattices = "0.2"
 BloqadeMIS = "0.2"
 BloqadeODE = "0.2"
 BloqadeWaveforms = "0.2"

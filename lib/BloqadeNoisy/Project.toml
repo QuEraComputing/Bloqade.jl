@@ -1,6 +1,5 @@
 name = "BloqadeNoisy"
 uuid = "7534646f-0cda-4b9e-a311-3a9166d831c9"
-authors = ["ben mcdonough"]
 version = "0.1.0"
 
 [deps]

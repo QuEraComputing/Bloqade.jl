@@ -1,6 +1,6 @@
 name = "BloqadeODE"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe5"
-version = "0.1.12"
+version = "0.2.0"
 
 [deps]
 Adapt = "79e6a3ab-5dfb-504d-930d-738a2a938a0e"
@@ -23,8 +23,8 @@ YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 [compat]
 Adapt = "3"
 BloqadeExpr = "0.2"
-BloqadeKrylov = "0.1"
-BloqadeMIS = "0.1"
+BloqadeKrylov = "0.2"
+BloqadeMIS = "0.2"
 Configurations = "0.17"
 DiffEqBase = "6"
 DiffEqCallbacks = "2"
@@ -33,7 +33,7 @@ Reexport = "1"
 SciMLBase = "1"
 Yao = "0.8"
 YaoArrayRegister = "0.9"
-YaoSubspaceArrayReg = "0.1"
+YaoSubspaceArrayReg = "0.2"
 julia = "1.6"
 
 [extras]

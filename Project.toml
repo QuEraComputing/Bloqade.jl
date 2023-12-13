@@ -1,6 +1,6 @@
 name = "Bloqade"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe1"
-version = "0.1.25"
+version = "0.2.0"
 
 [deps]
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
@@ -20,11 +20,11 @@ YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
 BloqadeExpr = "0.2"
-BloqadeKrylov = "0.1"
+BloqadeKrylov = "0.2"
 BloqadeLattices = "0.1"
-BloqadeMIS = "0.1"
-BloqadeODE = "0.1"
-BloqadeWaveforms = "0.1"
+BloqadeMIS = "0.2"
+BloqadeODE = "0.2"
+BloqadeWaveforms = "0.2"
 ColorSchemes = "3"
 Colors = "0.12"
 ForwardDiff = "0.10"
@@ -32,7 +32,7 @@ Measurements = "2"
 PythonCall = "0.8,0.9"
 Reexport = "1"
 Yao = "0.8"
-YaoSubspaceArrayReg = "0.1"
+YaoSubspaceArrayReg = "0.2"
 julia = "1.6.3"
 
 [extras]

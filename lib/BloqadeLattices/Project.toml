@@ -11,7 +11,7 @@ UnicodePlots = "b8865327-cd53-5732-bb35-84acbb429228"
 
 [compat]
 LinearAlgebra = "1.6"
-LuxorGraphPlot = "0.2"
+LuxorGraphPlot = "0.2, 0.3"
 NearestNeighbors = "0.4"
 StatsBase = "0.33, 0.34"
 UnicodePlots = "3.6"

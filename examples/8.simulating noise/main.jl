@@ -98,7 +98,8 @@ pythonplot()
 Ω = 2π
 γ = 0.1
 
-e_observable = [mat(Op.n)]
+collapse_operator = sqrt(γ) .* mat.([X, Y, Z]) 
+e_observable = [mat(Op.n)] #expectation values
 
 h = rydberg_h([(0.0,)]; Ω = Ω)
 save_times = LinRange(0, 10, 200)

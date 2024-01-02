@@ -98,22 +98,21 @@ pythonplot()
 Ω = 2π
 γ = 0.1
 
-c_ops = sqrt(γ) .* mat.([X, Y, Z]) #collapse operators
-e_ops = [mat(Op.n)] #expectation values
+collapse_operator = sqrt(γ) .* mat.([X, Y, Z]) 
+e_observable = [mat(Op.n)] #expectation values
 
 h = rydberg_h([(0.0,)]; Ω = Ω)
 save_times = LinRange(0, 10, 200)
 
-#Construct noisy problem
 prob = NoisySchrodingerProblem(
     zero_state(1), 
     save_times, 
     h, 
-    c_ops
+    collapse_operator
 )
 
 sol = emulate_noisy(
-    prob, 2000, e_ops;
+    prob, 2000, e_observable;
     ensemble_algo = EnsembleThreads(),
     report_error = true
 )
@@ -161,14 +160,13 @@ ylims!(0,1)
 h = rydberg_h([(0.0,)]; Ω = Ω)
 times = LinRange(0,5,400)
 
-#construct error model
 em = ErrorModel(
     n->I,
-    n->[sqrt(γ) * mat(op) for op in [X, Y, Z]], #depolarizing noise
+    n->[sqrt(γ) * mat(op) for op in [X, Y, Z]], 
     h->(()->rydberg_h(
         [(0.0,)]; 
         Ω = Ω + σ*randn())
-    ) #G(Ω)
+    ) 
 )
 
 prob = NoisySchrodingerProblem(zero_state(1), times, h, em)
@@ -273,23 +271,23 @@ atoms = generate_sites(ChainLattice(), N, scale = .65*Rb)
 μ_i = -.76 * 2π
 μ_f = 1.6 * 2π
 
-t1 = 2 #adiabatic prep time
-t2 = 2 #quench time
+t_prep = 2 
+t_quench = 2 
 
-Δ_ad = piecewise_linear(clocks = [0, t1], values = [-40*2π, Δ_NNN - μ_i])
-Δ_quench = piecewise_constant(clocks = [0, t2], values = [Δ_NNN - μ_f])
+Δ_ad = piecewise_linear(clocks = [0, t_prep], values = [-40*2π, Δ_NNN - μ_i])
+Δ_quench = piecewise_constant(clocks = [0, t_quench], values = [Δ_NNN - μ_f])
 Δ = append(Δ_ad, Δ_quench)
 
-times = LinRange(t1, t1+t2, 200)
+times = LinRange(t_prep, t_prep+t_quench, 200)
 H = rydberg_h(atoms; Ω = Ω, Δ = Δ)
 ψ = solve(
-    SchrodingerProblem(zero_state(N), t1+t2, H;
+    SchrodingerProblem(zero_state(N), t_prep+t_quench, H;
         save_on = true, saveat = times, save_start = false
     ),
     DP8()
 );
 
-expt_times = LinRange(t1, t1+t2, 70)
+expt_times = LinRange(t_prep, t_prep+t_quench, 70)
 prob = NoisySchrodingerProblem(zero_state(N), expt_times, H, Aquila())
 @time sim = emulate_noisy(prob, 500, [mat(chain(igate(N)-put(N, i=>Op.n) for i in 1:N))];
     readout_error = true, report_error = true, shots = 1000,

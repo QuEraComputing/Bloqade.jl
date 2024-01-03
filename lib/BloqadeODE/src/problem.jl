@@ -20,6 +20,15 @@ function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where {L}
     return
 end
 
+# define interface for DormandPrince.jl
+function (eq::SchrodingerEquation)(t::Number, state, dstate)
+    fill!(dstate, zero(eltype(dstate)))
+    for (f, term) in zip(eq.hamiltonian.fs, eq.hamiltonian.ts)
+        mul!(dstate, term, state, -im * f(t), one(t))
+    end
+    return
+end
+
 function Base.show(io::IO, mime::MIME"text/plain", eq::SchrodingerEquation)
     indent = get(io, :indent, 0)
     tab(indent) = " "^indent

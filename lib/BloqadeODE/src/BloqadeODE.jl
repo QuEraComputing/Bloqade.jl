@@ -6,6 +6,9 @@ using SciMLBase
 using DiffEqBase
 using YaoArrayRegister
 using YaoSubspaceArrayReg
+using DormandPrince: DormandPrince, integrate_core!
+
+@reexport using DormandPrince
 @reexport using BloqadeExpr
 @reexport using OrdinaryDiffEq
 using BloqadeExpr: Hamiltonian
@@ -51,5 +54,6 @@ using OrdinaryDiffEq:
 export SchrodingerProblem, SchrodingerEquation
 
 include("problem.jl")
+include("dormandp.jl")
 
 end

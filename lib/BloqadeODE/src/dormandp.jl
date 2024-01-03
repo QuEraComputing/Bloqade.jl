@@ -26,6 +26,7 @@ function BloqadeSolver(reg::AbstractRegister, tstart::Real, expr; solver_type=DP
     BloqadeSolver(reg, solver)
 end
 
+# implement DormandPrince API for BloqadeSolver
 DormandPrince.get_current_state(solver::BloqadeSolver) = solver.reg
 DormandPrince.integrate_core!(solver::BloqadeSolver, time::Real) = integrate_core!(solver.dp_solver, time)
     

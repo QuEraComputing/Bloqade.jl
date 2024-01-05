@@ -5,6 +5,10 @@ if "docstring" in ARGS
     exit()
 end
 
+@testset "dormandp" begin
+    include("dormandp.jl")
+end
+
 @testset "problem" begin
     include("problem.jl")
 end
@@ -12,3 +16,5 @@ end
 @testset "forward diff" begin
     include("forwarddiff.jl")
 end
+
+

@@ -1,9 +1,9 @@
 using Test
 using LinearAlgebra
 
-using BloqadeODE: BloqadeSolver, DP8Solver, DP5Solver, SolverIterator, integrate!
-using BloqadeExpr: rydberg_h, nqudits
-using Bloqade
+using BloqadeODE
+using BloqadeWaveforms
+using BloqadeExpr: rydberg_h
 using YaoArrayRegister
 
 
@@ -88,13 +88,3 @@ end
     # strong equality
     @test dp_reg === get_current_state(bs)
 end
-
-#=
-h = rydberg_h([(0,0), (0,6)], Ω=t -> sin(t))
-reg = zero_state(nqudits(h))
-
-
-integrate!(BloqadeSolver(reg, 0, h), collect(0:0.01:1.0)) do t, state
-    [rydberg_density(state, i) for i in 1:nqudits(h)]
-end
-=#

@@ -51,7 +51,7 @@ using OrdinaryDiffEq:
     initialize_callbacks!,
     handle_dt!
 
-export SchrodingerProblem, SchrodingerEquation
+export SchrodingerProblem, SchrodingerEquation, BloqadeSolver
 
 include("problem.jl")
 include("dormandp.jl")

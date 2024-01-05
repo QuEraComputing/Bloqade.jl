@@ -22,7 +22,7 @@ function BloqadeSolver(reg::AbstractRegister, tstart::Real, expr; solver_type=DP
     T = isreal(expr) ? T : Complex{T}
     eq = SchrodingerEquation(expr, Hamiltonian(T, expr, space))
 
-    solver = solver_type(eq, convert(T, tstart), state; kw...)
+    solver = solver_type(eq, convert(real(T), tstart), state; kw...)
     BloqadeSolver(reg, solver)
 end
 

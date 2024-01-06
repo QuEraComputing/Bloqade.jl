@@ -1,29 +1,11 @@
 using Test
+using BloqadeExpr
+using BloqadeWaveforms
+using YaoArrayRegister
 using LinearAlgebra
 
-using BloqadeODE
-using BloqadeWaveforms
-using BloqadeExpr: rydberg_h
-using YaoArrayRegister
 
 
-@testset "Single End Time Interface" begin
-    atoms = [(i,) for i in 1:5]
-    h = rydberg_h(atoms; C = 2π * 109.16, Ω = sin, ϕ = cos)
-
-    # DormandPrince.jl 
-    dp_reg = zero_state(5)
-    bs = BloqadeSolver(dp_reg, 0, h; solver_type=DP5Solver)
-    integrate!(bs, 1.0)
-
-    # OrdinaryDiffEq 
-    tspan = (0, 1.0)
-    ode_reg = zero_state(5)
-    problem = SchrodingerProblem(ode_reg, tspan, h; algo=DP5())
-    emulate!(problem)
-
-    @test get_current_state(bs) ≈ ode_reg 
-end
 
 @testset "Multiple End Time Interface" begin
 
@@ -78,13 +60,6 @@ end
     bs = BloqadeSolver(dp_reg, 0, h; copy_init=false)
     integrate!(bs, 1.0)
 
-    # OrdinaryDiffEq 
-    tspan = (0, 1.0)
-    ode_reg = zero_state(5)
-    problem = SchrodingerProblem(ode_reg, tspan, h)
-    emulate!(problem)
-
-    @test dp_reg ≈ ode_reg 
     # strong equality
     @test dp_reg === get_current_state(bs)
 end

@@ -1,10 +1,16 @@
 module BloqadeExpr
 
+using Reexport: @reexport
+@reexport using DormandPrince
+using DormandPrince: integrate_core!
+
 using SparseArrays
 using LinearAlgebra
 using Adapt
 using YaoAPI
 using YaoBlocks
+using YaoArrayRegister
+using YaoSubspaceArrayReg
 using LuxurySparse
 using SparseMatricesCSR
 using Base.Threads: nthreads
@@ -55,8 +61,9 @@ export rydberg_h,
     derivative,
     RegularLinop,  # abstype
     SkewHermitian, # abstype
-    isskewhermitian
+    isskewhermitian,
 
+    BloqadeSolver
 
 include("assert.jl")
 include("space.jl")

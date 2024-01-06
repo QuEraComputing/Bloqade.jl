@@ -83,7 +83,7 @@ end
 
 Adapt.@adapt_structure SchrodingerEquation
 
-function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where {L}
+function (eq::SchrodingerEquation)(dstate, state, p, t::Number) 
     fill!(dstate, zero(eltype(dstate)))
     for (f, term) in zip(eq.hamiltonian.fs, eq.hamiltonian.ts)
         mul!(dstate, term, state, -im * f(t), one(t))

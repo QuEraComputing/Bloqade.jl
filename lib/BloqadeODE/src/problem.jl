@@ -1,45 +1,4 @@
-"""
-    struct SchrodingerEquation
 
-Type for Schrodinger equation. A `SchrodingerEquation`
-object is a callable object that has method `f(dstate, state, p, t)`
-that fits into a standard ODE problem.
-"""
-struct SchrodingerEquation{ExprType,H<:Hamiltonian}
-    expr::ExprType
-    hamiltonian::H
-end
-
-Adapt.@adapt_structure SchrodingerEquation
-
-function (eq::SchrodingerEquation)(dstate, state, p, t::Number) where {L}
-    fill!(dstate, zero(eltype(dstate)))
-    for (f, term) in zip(eq.hamiltonian.fs, eq.hamiltonian.ts)
-        mul!(dstate, term, state, -im * f(t), one(t))
-    end
-    return
-end
-
-# define interface for DormandPrince.jl
-function (eq::SchrodingerEquation)(t::Number, state, dstate)
-    fill!(dstate, zero(eltype(dstate)))
-    for (f, term) in zip(eq.hamiltonian.fs, eq.hamiltonian.ts)
-        mul!(dstate, term, state, -im * f(t), one(t))
-    end
-    return
-end
-
-function Base.show(io::IO, mime::MIME"text/plain", eq::SchrodingerEquation)
-    indent = get(io, :indent, 0)
-    tab(indent) = " "^indent
-    print(io, tab(indent), "storage size: ")
-    printstyled(io, Base.format_bytes(storage_size(eq.hamiltonian)); color = :yellow)
-    println(io)
-    println(io, tab(indent), "expression:")
-    show(IOContext(io, :indent => indent + 2), eq.expr)
-    println(io)
-    return println(io)
-end
 
 """
     struct SchrodingerProblem

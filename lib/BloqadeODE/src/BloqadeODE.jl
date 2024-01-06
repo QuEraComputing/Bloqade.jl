@@ -11,7 +11,7 @@ using DormandPrince: DormandPrince, integrate_core!
 @reexport using DormandPrince
 @reexport using BloqadeExpr
 @reexport using OrdinaryDiffEq
-using BloqadeExpr: Hamiltonian
+using BloqadeExpr: Hamiltonian, SchrodingerEquation
 using OrdinaryDiffEq: AutoSwitchCache, CompositeInterpolationData
 using LinearAlgebra
 
@@ -51,8 +51,7 @@ using OrdinaryDiffEq:
     initialize_callbacks!,
     handle_dt!
 
-export SchrodingerProblem, SchrodingerEquation, BloqadeSolver
-
+export SchrodingerProblem
 include("problem.jl")
 include("dormandp.jl")
 

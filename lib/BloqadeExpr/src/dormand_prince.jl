@@ -1,3 +1,8 @@
+module DormandPrinceInterface
+
+using .BloqadeExpr: Hamiltonian, SchrodingerEquation
+
+
 
 struct BloqadeSolver{Reg <: AbstractRegister, T, StateType, F, DPSolverType <: AbstractDPSolver{T, StateType, F}} <: AbstractDPSolver{T, StateType, F}
     reg::Reg
@@ -30,3 +35,9 @@ end
 DormandPrince.get_current_state(solver::BloqadeSolver) = solver.reg
 DormandPrince.integrate_core!(solver::BloqadeSolver, time::Real) = integrate_core!(solver.dp_solver, time)
     
+
+
+
+
+
+end

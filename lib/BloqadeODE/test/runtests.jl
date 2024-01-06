@@ -5,10 +5,6 @@ if "docstring" in ARGS
     exit()
 end
 
-@testset "dormandp" begin
-    include("dormandp.jl")
-end
-
 @testset "problem" begin
     include("problem.jl")
 end

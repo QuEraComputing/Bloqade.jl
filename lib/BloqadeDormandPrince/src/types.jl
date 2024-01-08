@@ -14,7 +14,7 @@ struct BloqadeDPSolver{Reg <: AbstractRegister, T, StateType, F, DPSolverType <:
 end
 
 promote_tspan(tspan) = (zero(tspan), tspan)
-promote_tspan(tspan::Tuple{A, B}) where {A, B} = tspan 
+promote_tspan(tspan::Tuple{A, B}) where {A, B} = promote_type(A, B).(tspan) 
 
 
 function BloqadeDPSolver(reg::AbstractRegister, tspan, expr; solver_type=DP8Solver, copy_init=true,  kw...)

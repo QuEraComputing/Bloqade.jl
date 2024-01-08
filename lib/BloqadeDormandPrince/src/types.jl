@@ -49,29 +49,3 @@ function (eq::SchrodingerEquation)(t::Real, state, dstate)
     end
     return
 end
-
-
-struct DormandPrinceProblem{T}
-    tend::T
-    solver::BloqadeDPSolver{T}
-    function DormandPrinceProblem(tend::Real, solver::BloqadeDPSolver{T}) where T<:Real
-        new{T}(convert(T, tend), solver)
-    end
-end
-
-
-
-
-function DormandPrinceProblem(
-    reg::AbstractRegister, 
-    tspan,
-    expr; 
-    solver_type=DP8Solver, 
-    copy_init=true,  
-    kw...
-)    
-    solver = BloqadeDPSolver(reg, tspan, expr; solver_type=solver_type, copy_init=copy_init, kw...)
-    return DormandPrinceProblem(tend, solver)
-end
-
-

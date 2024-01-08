@@ -45,6 +45,7 @@ jobs:
           - '.'
           - 'lib/BloqadeGates'
           - 'lib/BloqadeExpr'
+          - 'lib/BloqadeDormandPrince'
           - 'lib/BloqadeKrylov'
           - 'lib/BloqadeLattices'
           - 'lib/BloqadeMIS'

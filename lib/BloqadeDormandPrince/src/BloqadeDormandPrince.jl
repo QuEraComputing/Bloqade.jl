@@ -8,7 +8,7 @@ using Reexport: @reexport
 using DormandPrince: integrate_core!
 using LinearAlgebra: mul!
 
-export SchrodingerProblem
+export DormandPrinceProblem, BloqadeDPSolver
 
 include("types.jl")
 include("impl.jl")

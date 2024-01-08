@@ -51,10 +51,10 @@ function (eq::SchrodingerEquation)(t::Real, state, dstate)
 end
 
 
-struct SchrodingerProblem{T}
+struct DormandPrinceProblem{T}
     tend::T
     solver::BloqadeDPSolver{T}
-    function SchrodingerProblem(tend::Real, solver::BloqadeDPSolver{T}) where T<:Real
+    function DormandPrinceProblem(tend::Real, solver::BloqadeDPSolver{T}) where T<:Real
         new{T}(convert(T, tend), solver)
     end
 end
@@ -62,7 +62,7 @@ end
 
 
 
-function SchrodingerProblem(
+function DormandPrinceProblem(
     reg::AbstractRegister, 
     tspan,
     expr; 
@@ -71,7 +71,7 @@ function SchrodingerProblem(
     kw...
 )    
     solver = BloqadeDPSolver(reg, tspan, expr; solver_type=solver_type, copy_init=copy_init, kw...)
-    return SchrodingerProblem(tend, solver)
+    return DormandPrinceProblem(tend, solver)
 end
 
 

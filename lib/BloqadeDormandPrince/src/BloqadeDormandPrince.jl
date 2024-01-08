@@ -1,6 +1,6 @@
 module BloqadeDormandPrince
 
-using BloqadeExpr: Hamiltonian, nqudits
+using BloqadeExpr: BloqadeExpr, Hamiltonian, nqudits
 using YaoArrayRegister: AbstractRegister, ArrayReg, statevec
 using YaoSubspaceArrayReg: YaoSubspaceArrayReg
 using Reexport: @reexport
@@ -8,8 +8,9 @@ using Reexport: @reexport
 using DormandPrince: integrate_core!
 using LinearAlgebra: mul!
 
-export BloqadeDPSolver
+export SchrodingerProblem
 
+include("types.jl")
 include("impl.jl")
 
 end # BloqadeDormandPrince

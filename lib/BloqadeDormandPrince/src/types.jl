@@ -6,10 +6,11 @@ struct BloqadeDPSolver{Reg <: AbstractRegister, T, StateType, F, DPSolverType <:
     reg::Reg
     dp_solver::DPSolverType
     function BloqadeDPSolver(
+        tend::T,
         reg,
         dp_solver::AbstractDPSolver{T, StateType, F}
     ) where {T, StateType, F}
-        new{typeof(reg), T, StateType, F, typeof(dp_solver)}(reg, dp_solver)
+        new{typeof(reg), T, StateType, F, typeof(dp_solver)}(tend, reg, dp_solver)
     end
 end
 
@@ -20,6 +21,7 @@ promote_tspan(tspan::Tuple{A, B}) where {A, B} = promote_type(A, B).(tspan)
 function BloqadeDPSolver(reg::AbstractRegister, tspan, expr; solver_type=DP8Solver, copy_init=true,  kw...)
     nqudits(reg) == nqudits(expr) || throw(ArgumentError("number of qubits/sites does not match!"))
     reg = copy_init ? copy(reg) : reg
+    tspan = promote_tspan(tspan)
 
     state = statevec(reg)
     space = YaoSubspaceArrayReg.space(reg)

@@ -42,7 +42,7 @@ using LinearAlgebra
 
     # Bloqade/Dormand Prince multiple end times interface
     dp_vals = []
-    integrate!(BloqadeDPSolver(zero_state(1), 0, h), times) do t, state
+    integrate!(BloqadeDPSolver(zero_state(1), (0, 4), h), times) do t, state
         push!(dp_vals, statevec(copy(state)))# register instance returned, get underlying vector out
     end
 
@@ -58,10 +58,12 @@ end
 
     # DormandPrince.jl 
     dp_reg = zero_state(5)
-    bs = BloqadeDPSolver(dp_reg, 0, h; copy_init=false)
+    bs = BloqadeDPSolver(dp_reg, (0, 10), h; copy_init=false)
     integrate!(bs, 1.0)
 
     # strong equality
     @test dp_reg === get_current_state(bs)
+    @test dp_reg === register(bs)
+    @test emulate!(bs) === bs
 end
 

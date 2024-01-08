@@ -21,7 +21,10 @@ julia = "1.6"
 
 [extras]
 BloqadeWaveforms = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
+FiniteDifferences = "26cc04aa-876d-5657-8c51-4c34ba976000"
+ForwardDiff = "f6369f11-7733-5829-9624-2563aa707210"
+Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test", "BloqadeWaveforms"]
+test = ["Test", "BloqadeWaveforms", "ForwardDiff", "FiniteDifferences", "Random"]

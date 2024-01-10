@@ -1,6 +1,6 @@
 name = "BloqadeNoisy"
 uuid = "7534646f-0cda-4b9e-a311-3a9166d831c9"
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"

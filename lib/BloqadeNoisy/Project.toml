@@ -1,6 +1,6 @@
 name = "BloqadeNoisy"
 uuid = "7534646f-0cda-4b9e-a311-3a9166d831c9"
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"
@@ -30,7 +30,7 @@ JSON = "0.21"
 Kronecker = "0.5"
 OrdinaryDiffEq = "6"
 Reexport = "1.2"
-SciMLBase = "1"
+SciMLBase = "2"
 StatsBase = "0.34"
 YaoArrayRegister = "0.9"
 YaoBlocks = "0.13"

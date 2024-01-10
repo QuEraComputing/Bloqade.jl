@@ -695,6 +695,7 @@ struct DivByTwo{F}
 end
 
 @inline (Func::DivByTwo)(t::Real) = Func.f(t)/2
+#ForwardDiff.derivative(Func::DivByTwo,t) = ForwardDiff.derivative(Func.f,t)/2
 
 
 const RabiTypes = Union{Nothing,SumOfX,SumOfXPhase}

@@ -6,6 +6,7 @@ using LinearAlgebra
 using Configurations
 using YaoArrayRegister
 using YaoSubspaceArrayReg
+using ForwardDiff
 using BloqadeExpr: Hamiltonian, SumOfLinop
 using ExponentialUtilities
 using ProgressLogging
@@ -14,7 +15,7 @@ using GaussQuadrature
 export emulate!, emulate_step!
 export KrylovEvolution, Magnus4Evolution
 
-export CFETEvolution
+export CFETEvolution, ACFETEvolution
 export CFET2_1, CFET4_2, CFET6_5, CFET8_11
 
 # utils.jl introduce a new type of Hamiltonian called ValHamiltonian:
@@ -37,6 +38,9 @@ include("magnus.jl")
 include("cfet.jl")
 include("tables/cfet_tbl.jl")
 
+
+## adaptive CFET 
+include("adapt_cfet.jl")
 
 
 if VERSION < v"1.7"

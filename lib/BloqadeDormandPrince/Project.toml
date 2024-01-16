@@ -13,7 +13,7 @@ YaoSubspaceArrayReg = "bd27d05e-4ce1-5e79-84dd-c5d7d508ade2"
 
 [compat]
 BloqadeExpr = "0.2.1"
-DormandPrince = "0.5.1"
+DormandPrince = "0.5.2"
 Reexport = "1.2"
 YaoArrayRegister = "0.9"
 YaoSubspaceArrayReg = "0.2"

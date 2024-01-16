@@ -12,5 +12,6 @@ export BloqadeDPSolver, register
 
 include("types.jl")
 include("impl.jl")
+include("show.jl")
 
 end # BloqadeDormandPrince

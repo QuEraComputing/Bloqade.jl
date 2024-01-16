@@ -67,3 +67,10 @@ end
     @test emulate!(bs) === bs
 end
 
+@testset "Solver Pretty Printing" begin
+    atoms = [(i,) for i in 1:10]
+    h = rydberg_h(atoms; C = 2π * 109.16, Ω = sin, ϕ = cos)
+    solver = BloqadeDPSolver(zero_state(10), 1.5 , h)
+
+    show(stdout, MIME"text/plain"(), solver)
+end

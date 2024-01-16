@@ -72,5 +72,5 @@ end
     h = rydberg_h(atoms; C = 2π * 109.16, Ω = sin, ϕ = cos)
     solver = BloqadeDPSolver(zero_state(10), 1.5 , h)
 
-    show(stdout, MIME"text/plain"(), solver)
+    show(IOContext(stdout, :limit => true), MIME"text/plain"(), solver)
 end

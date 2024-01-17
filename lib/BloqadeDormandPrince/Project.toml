@@ -1,7 +1,7 @@
 name = "BloqadeDormandPrince"
 uuid = "19133132-2f02-44a9-8d8c-5915d2e7e792"
 authors = ["Phillip Weinberg<weinbe58@gmail.com>"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"

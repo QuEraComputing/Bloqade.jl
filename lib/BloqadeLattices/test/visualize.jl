@@ -3,7 +3,7 @@ using BloqadeLattices
 using LuxorGraphPlot
 using Documenter
 
-@testset "visualize" begin
+@testset "visualize (image)" begin
     BloqadeLattices.darktheme!()
     lt = generate_sites(KagomeLattice(), 5, 5, scale = 1.5)
     blt = parallelepiped_region(KagomeLattice(), (5,0),(0,5);scale=1.5)
@@ -28,4 +28,19 @@ using Documenter
     BloqadeLattices.lighttheme!()
     @test img_atoms(lt; colors = nothing) isa LuxorGraphPlot.Drawing
     @test show(IOBuffer(), MIME"image/svg+xml"(), lt) === nothing
+end
+
+
+@testset "visualize (text)" begin
+
+    @testset "single x value" begin
+        lt = generate_sites(ChainLattice(), 10, scale=5.74)
+        show(stdout, MIME"text/plain"(), lt)
+    end 
+
+    @testset "x and y values" begin
+        lt = generate_sites(SquareLattice(), 5, 5, scale=5.74)
+        show(stdout, MIME"text/plain"(), lt)
+    end
+
 end

@@ -133,7 +133,11 @@ plot!(
 )
 ylims!(0,1)
 
-# ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_depolarizingrabi.png")
+
+
+
+
+# ![BloqadeNoisy](../../../assets/BloqadeNoisy_tutorial/noisy_depolarizingrabi.png)
 
 # ## Coherent noise in neutral atom simulators
 # One of the advantages of neutral atoms is that they couple weakly to their environment. This means that incoherent noise is supressed. A more dominant source of noise is due to imperfect control, which causes fluctuation the Rabi power ``\Omega``, detuning ``\Delta``, and atoms positions ``\vec r_{ij}`` between shots. This is referred to as "coherent" noise because it preserves the coherence over a single shot, but averaging over many shots still produces a mixed state. This noise afffects the system globally and is distinct from noise due to coupling to a bath.
@@ -183,7 +187,7 @@ plot!(
     label = "analytic"
 )
 
-# ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_coherentnoise_rabi.png")
+# ![BloqadeNoisy](../../../assets/BloqadeNoisy_tutorial/noisy_coherentnoise_rabi.png)
 
 # ## Noise on Aquila
 # Aquila's noise model was calibrated using experimental data, and the parameters that are modelled are the following:
@@ -214,7 +218,13 @@ plot!(
 # ### Experimental validation
 # The experimental data used to calibrate the noise model is taken from the Aquila whitepaper [3]. Readout error can be added to expectation values in the computational basis by passing `readout = true` to `emulate`. The operators must be of type `Diagonal`. Below, we show the estimation of a noisy expectation value incorporating the effect of readout error and compare to the experimental whitepaper data.
 
-whitepaper_data = CSV.read("/Bloqade.jl/lib/BloqadeNoisy/examples/whitepaper_comparison/data/15MHz_long.csv", DataFrame, delim = ",", header = false)
+
+dir = @__DIR__
+filedir = joinpath(dir, "15MHz_long.csv")
+whitepaper_data = CSV.read(filedir, DataFrame, delim = ",", header = false)
+
+
+
 times = collect(whitepaper_data[1,:])
 data = collect(whitepaper_data[2,:])
 save_times = LinRange(0, last(times), 400)
@@ -233,7 +243,7 @@ plot(times, data, marker = :diamond,
 )
 plot!(save_times, sim[1], color = :blue, label = "Sim")
 
-# ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_whitepapercomparison.png")
+# ![BloqadeNoisy](../../../assets/BloqadeNoisy_tutorial/noisy_whitepapercomparison.png)
 
 # The `Aquila()` method is shorthand for `load_error_model(JSON.parse(AQUILA))`. The `AQUILA` string is a JSON dictionary containing the preconfigured noise model, and this syntax allows the noise model to be modified.
 
@@ -305,7 +315,7 @@ scatter!(expt_times, sim.expectations,
     label = "noisy", color = :red,
 )
 
-# ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_manybodyscar.png")
+# ![BloqadeNoisy](../../../assets/BloqadeNoisy_tutorial/noisy_manybodyscar.png)
 
 # ## Manybody Fidelity
 # A Haar-random pure state ``|\psi\rangle`` from a Hilbert space with dimension ``D = 2^N`` produces probability amplitudes ``p(z) = |\langle z |\psi\rangle|^2`` that are distributed exponentially according to the Porter-Thomas distribution ``P_1(p) = De^{-Dp}`` in the limit of large ``D``. Haar-random sates are produced by chaotic quantum evolution, which we can achieve by randomly spacing ``N`` atoms and choosing ``\Omega(t)`` to be strong relative to the coupling and vary sufficiently over the interval. Under the influence of noise, the evolution can be desribed by
@@ -348,7 +358,7 @@ function sim_depol(γ)
         h, 
         depol(γ, N)
     )
-    sim = emulate_noisy(prob, 1000, 
+    sim = emulate_noisy(prob, 500, 
         sol -> [
             abs.(sol[end]).^2, 
             abs(sol[end]' * ψ)^2
@@ -379,7 +389,7 @@ end
 ylims!(10, 2f4)
 xlims!(0, .0015)
 
-# ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_depol_dists.png")
+# ![BloqadeNoisy](../../../assets/BloqadeNoisy_tutorial/noisy_depol_dists.png)
 
 # We can examine three different measures of fidelity: First, we have the actual state fidelity ``F = \langle \psi | \rho |\psi \rangle`` which is saved in the simulation. Next, we have the prediction from the depolarizing model ``F = e^{-3N\gamma t}``. Lastly, there is another quantity called the linear cross-entropy which acts as a proxy for the fidelity with chaotic Hamiltonians. The cross entropy is defined
 # ```math
@@ -403,7 +413,7 @@ plot(depol_strengths, [p[i][1][2] for i in 1:3], title = "Depolarizing fidelity 
 plot!(depol_strengths, exp.(-3N * tend .* depol_strengths), label = L"e^{-3\gamma N T}")
 plot!(depol_strengths, [(2^N*sum(p[i][1][1] .* abs.(ψ).^2)-1) for i in 1:3], label = "XEB")
 
-# ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_fidelitymeasures.png")
+# ![BloqadeNoisy](../../../assets/BloqadeNoisy_tutorial/noisy_fidelitymeasures.png)
 
 # ## Memory constraints
 # When simulating large systems, memory can be an issue. The `NoisySchrodingerProblem` can also be used directly with the `DifferentialEquations` interface to simulate each trajectory manually if more control is required. The `randomize` function reinitializes the trajectory with a new sample from the specified distirbution of Hamiltonian parameters and chooses a random initial condition.
@@ -438,7 +448,7 @@ scatter(
 scatter!([expectation_value_noisy(Aquila(), p, mat(put(N, i=>Op.n))) for i in 1:N], marker = :square, markersize = 6, label = "noisy")
 ylims!(0,1)
 
-# ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_numberdensity.png")
+# ![BloqadeNoisy](../../../assets/BloqadeNoisy_tutorial/noisy_numberdensity.png)
 
 # ## References & Further Reading
 # [1] https://qutip.org/docs/latest/guide/dynamics/dynamics-monte.html

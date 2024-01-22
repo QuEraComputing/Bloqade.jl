@@ -392,7 +392,15 @@ function Base.show(io::IO, mime::MIME"text/plain", atoms::AtomList)
     y = Float64[]
     for coord in atoms
         push!(x, coord[1])
-        push!(y, coord[2])
+        
+        # Could be the case that coordinate only has single x value
+        # in which case we set the y value to 0
+        if length(coord) == 1
+            push!(y, 0)
+        else
+            push!(y, coord[2])
+        end
+
     end
 
     plt = scatterplot(

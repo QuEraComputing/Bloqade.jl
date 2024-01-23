@@ -220,7 +220,7 @@ plot!(
 
 
 dir = @__DIR__
-filedir = joinpath(dir, "15MHz_long.csv")
+filedir = joinpath(dir, "data", "15MHz_long.csv")
 whitepaper_data = CSV.read(filedir, DataFrame, delim = ",", header = false)
 
 

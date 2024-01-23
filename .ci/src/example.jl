@@ -164,11 +164,11 @@ in parallel.
     # then we run the build in one process
     # so that we can share compile results
     foreach_example() do path
-        tutorial_dir = splitpath(path)[end]
+        example_dir = splitpath(path)[end]
         for subdir in readdir(path)
             fullpath = joinpath(path, subdir)
             tutorial_path = 
-            isdir(fullpath) && subdir == "data" && run(`cp -r $fullpath $(joinpath(build_dir, tutorial_dir))`)
+            isdir(fullpath) && subdir == "data" && run(`cp -r $fullpath $(joinpath(build_dir, example_dir))`)
         end
         return dev(path)
     end

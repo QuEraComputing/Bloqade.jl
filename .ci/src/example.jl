@@ -164,6 +164,12 @@ in parallel.
     # then we run the build in one process
     # so that we can share compile results
     foreach_example() do path
+        tutorial_dir = splitpath(path)[end]
+        for subdir in readdir(path)
+            fullpath = joinpath(path, subdir)
+            tutorial_path = 
+            isdir(fullpath) && subdir == "data" && run(`cp -r $fullpath $(joinpath(build_dir, tutorial_dir))`)
+        end
         return dev(path)
     end
     return run(`$(Base.julia_exename()) --project=$ci_dir -e $script`)

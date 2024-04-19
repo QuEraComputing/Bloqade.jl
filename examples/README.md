@@ -49,7 +49,9 @@ do this, just run the following in your terminal:
 .ci/run dev <path/to/your/example>
 ```
 
-This will add the local packages into your example environments.
+This will add the local packages into your example environments. 
+
+If you have any auxiliary files that are accessed from the julia code, put them inside a directory named `data` in your example folder. This directory will be copied to the build directory and can be accessed via a relative path in the script.
 
 ### Create a new example
 
@@ -61,4 +63,5 @@ with the corresponding environment using the following:
 .ci/run create <name>
 ```
 
-which will create `examples/<name>`.
+which will create `examples/<name>`. Note that the name should be
+unique, and should not contain any whitespaces.

@@ -147,6 +147,17 @@ in parallel.
         project_dir = joinpath(\"$example_dir\", name)
         isdir(project_dir) || continue
 
+        build_dir = joinpath(\"$build_dir\", name)
+        run(`mkdir -p  \$build_dir`)
+
+        for sub_dir in readdir(project_dir)
+            abs_path = joinpath(project_dir, sub_dir)
+            if isdir(abs_path) && sub_dir == "data"
+                @info "copying \$abs_path to build \$build_dir" 
+                run(`cp -r \$abs_path \$build_dir`)
+            end
+        end
+
         Pkg.activate(project_dir)
         Pkg.instantiate()
         CondaPkg.resolve()
@@ -154,7 +165,7 @@ in parallel.
         @info "building" project_dir
         Literate.$target(
             joinpath(project_dir, "main.jl"),
-            joinpath(\"$build_dir\", name),
+            build_dir,
             ;execute=$eval
         )
     end

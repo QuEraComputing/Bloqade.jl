@@ -33,7 +33,7 @@ JSON = "0.21"
 OrderedCollections = "1.5"
 Roots = "2"
 Unitful = "1"
-Yao = "0.8"
+Yao = "0.8, 0.9"
 julia = "1.6"
 
 [extras]

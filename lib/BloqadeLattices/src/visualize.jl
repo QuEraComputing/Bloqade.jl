@@ -6,10 +6,9 @@ const DEFAULT_BACKGROUND_COLOR = Ref("transparent")
 const CONFIGHELP = """
 ### Extra Keyword Arguments
 * `background_color = DEFAULT_BACKGROUND_COLOR[]`
-* `scale::Float64 = 1` is a multiplicative factor to rescale the atom distance for better visualization
+* `scale::Int = 60.0` is the number of pixel per unit distance
 * `xpad::Float64 = 2.5` is the padding space in x axis
 * `ypad::Float64 = 1.5` is the padding space in y axis
-* `unit::Int = 60` is the number of pixel per unit distance
 
 ##### axes
 * `axes_text_color = DEFAULT_TEXT_COLOR[]`
@@ -50,38 +49,14 @@ const CONFIGHELP = """
 * `grid_stroke_style::String="dashed"`
 """
 
-
-function config_plotting(sites, xpad, ypad)
-    xmin, ymin, xmax, ymax = LuxorGraphPlot.get_bounding_box(sites)
-
-    # compute the shortest distance
-    n = length(sites)
-    if n <= 1
-        shortest_distance = 1.0
-    else
-        shortest_distance = Inf
-        for i in 1:n
-            for j in i+1:n
-                shortest_distance = min(sqrt(sum(abs2, sites[i] .- sites[j])), shortest_distance)
-            end
-        end
-    end
-    scale = 1/shortest_distance
-    xpad = xpad === nothing ? (xmax - xmin) * 0.2 + shortest_distance : xpad
-    ypad = ypad === nothing ? (ymax - ymin) * 0.2 + shortest_distance : ypad
-    axes_x_offset = 0.5 * xpad
-    axes_y_offset = 0.4 * ypad
-
-    axes_num_of_yticks = ceil(Int, min((ymax - ymin + 1e-5)*scale, 5))
-    axes_num_of_xticks = ceil(Int, min((xmax - xmin + 1e-5)*scale, 5))
-    return (;
-        scale,
-        xpad, ypad,
-        axes_x_offset,
-        axes_y_offset,
-        axes_num_of_xticks,
-        axes_num_of_yticks,
-    )
+Base.@kwdef mutable struct AxisDisplayConfig
+    axes_text_color::String = DEFAULT_TEXT_COLOR[]
+    axes_text_fontsize::Float64 = 16.0
+    axes_num_of_xticks::Int = 5
+    axes_num_of_yticks::Int = 5
+    axes_x_offset::Float64 = 0.1
+    axes_y_offset::Float64 = 0.06
+    axes_unit::String = "μm"
 end
 
 """
@@ -120,30 +95,34 @@ $CONFIGHELP
 """
 function img_atoms(
         atoms::AtomList{2};
+        # vertex features
         colors = nothing,
         texts = nothing,
         vectors = [],
-        xpad=nothing,
-        ypad=nothing,
+        # IO
         format = :svg,
         filename = nothing,
-        kwargs...,
+        # config
+        kwargs...
     )
-    length(atoms) == 0 && return LuxorGraphPlot._draw(()->nothing, 100, 100; format, filename)
+    # config
+    config = LatticeDisplayConfig(; kwargs...)
 
-    xmin, ymin, xmax, ymax = LuxorGraphPlot.get_bounding_box(atoms)
-    auto = config_plotting(atoms, xpad, ypad)
-    config = LatticeDisplayConfig(; auto..., kwargs...)
-    Dx, Dy = ((xmax-xmin)+2*auto.xpad)*config.scale*config.unit, ((ymax-ymin)+2*auto.ypad)*config.scale*config.unit
-    transform(loc) = config.scale .* (loc[1]-xmin+auto.xpad, loc[2]-ymin+auto.ypad)
-    LuxorGraphPlot._draw(Dx, Dy; format, filename) do
-        LuxorGraphPlot.background(config.background_color)
-        _viz_atoms(transform.(atoms), _edges(atoms, config.blockade_radius),
-            colors, map(ab->transform.(ab), vectors), texts, config)
-        _viz_axes(; transform, xmin, ymin, xmax, ymax,
-            axes_x_offset=config.axes_x_offset, axes_y_offset=config.axes_y_offset,
-            axes_num_of_xticks=config.axes_num_of_xticks, axes_num_of_yticks=config.axes_num_of_yticks,
-            axes_text_fontsize=config.axes_text_fontsize, axes_text_color=config.axes_text_color, axes_unit=config.axes_unit, unit=config.unit)
+    #length(atoms) == 0 && return LuxorGraphPlot._draw(()->nothing, 100, 100; format, filename)
+    edges = _edges(atoms, config.blockade_radius)
+    atoms_config = config.blockade_radius > config.node_size ? extract_blockade_graph_display_config(config) : extract_atom_graph_display_config(config)
+    diag = LuxorGraphPlot.diagram(map(a->a .* config.scale, atoms), edges; config=atoms_config)
+    xpad, ypad = config.xpad * config.scale, config.ypad * config.scale
+    with_nodes(diag; format, filename,
+                    padding_bottom = ypad,
+                    padding_left = xpad,
+                    padding_right = xpad,
+                    padding_top = ypad,
+                    background = config.background_color
+                ) do
+        _viz_atoms(diag, colors, vectors .* config.scale, texts, config)
+        xmin, xmax, ymin, ymax = minimum(a->a[1], atoms), maximum(a->a[1], atoms), minimum(a->a[2], atoms), maximum(a->a[2], atoms)
+        _viz_axes(xmin-config.xpad/2, ymin-config.ypad/2, xmax+config.xpad/2, ymax+config.ypad/2, config.scale, axes_config)
     end
 end
 img_atoms(atoms::AtomList{1}; kwargs...) = img_atoms(padydim(atoms); kwargs...)
@@ -163,31 +142,30 @@ function _edges(atoms, blockade_radius)
 end
 
 _LinRange(x, y, n) = n > 1 ? LinRange(x, y, n) : (x + y) / 2
-function _viz_axes(; transform, xmin, xmax, ymin, ymax,
-        axes_num_of_xticks, axes_num_of_yticks, axes_text_fontsize, axes_text_color, axes_unit, unit,
-        axes_x_offset, axes_y_offset
-        )
+function _viz_axes(xmin, xmax, ymin, ymax, scale, config::AxisDisplayConfig)
     # the true coordinates
-    xs = _LinRange(xmin, xmax, axes_num_of_xticks)
-    ys = _LinRange(ymin, ymax, axes_num_of_yticks)
-    coo(x, y) = Point(transform((x, y)))*unit
+    xs = _LinRange(xmin, xmax, config.axes_num_of_xticks)
+    ys = _LinRange(ymin, ymax, config.axes_num_of_yticks)
+    coo(x, y) = Point((x, y)) * scale
     xys = [xs..., ys...]
     # the display coordinates of axes labels
-    locs = [[coo(x, ymax+axes_y_offset) for x in xs]...,
-        [coo(xmin-axes_x_offset, y) for y in ys]...]
-    for (x, loc) in zip(xys, locs)
-        LuxorGraphPlot.draw_text(loc, "$(round(x; digits=2))$(axes_unit)";
-            color=axes_text_color, fontsize=axes_text_fontsize*unit/60, fontface="")
+    locs = [[coo(x, ymax+config.axes_y_offset) for x in xs]...,
+        [coo(xmin-config.axes_x_offset, y) for y in ys]...]
+    Luxor.@layer begin
+        Luxor.sethue(config.axes_text_color)
+        Luxor.fontsize(config.axes_text_fontsize)
+        for (x, loc) in zip(xys, locs)
+            Luxor.text("$(round(x; digits=2))$(config.axes_unit)", loc)
+        end
     end
 end
 
 Base.@kwdef struct LatticeDisplayConfig
     # line, node and text
     background_color = DEFAULT_BACKGROUND_COLOR[]
-    scale::Float64 = 1.0
+    scale::Float64 = 60.0
     xpad::Float64 = 2.5
     ypad::Float64 = 1.5
-    unit::Int = 60
 
     # axes
     axes_text_color = DEFAULT_LINE_COLOR[]  # NOTE: follow the line color!
@@ -228,33 +206,42 @@ Base.@kwdef struct LatticeDisplayConfig
     grid_stroke_width::Float64=1
     grid_stroke_style::String="dashed"
 end
+function extract_atom_graph_display_config(config::LatticeDisplayConfig)
+    GraphDisplayConfig(; background=config.background_color, fontsize=config.node_text_fontsize,
+        vertex_shape=:circle, vertex_line_width=config.node_stroke_linewidth, vertex_line_style="solid",
+        vertex_text_color=config.node_text_color, vertex_stroke_color=config.node_stroke_color, vertex_color=config.node_fill_color,
+        vertex_size=config.node_size * config.scale, edge_color=config.bond_color, edge_line_width=config.bond_linewidth, edge_line_style="solid")
+end
+function extract_blockade_graph_display_config(config::LatticeDisplayConfig)
+    GraphDisplayConfig(; background=config.background_color, fontsize=config.node_text_fontsize,
+        vertex_shape=:circle, vertex_line_width=config.blockade_stroke_linewidth, vertex_line_style="dashed",
+        vertex_text_color=config.node_text_color, vertex_stroke_color=config.blockade_stroke_color, vertex_color=config.blockade_fill_color,
+        vertex_size=config.blockade_radius * config.scale, edge_color=config.bond_color, edge_line_width=config.bond_linewidth, edge_line_style="solid")
+end
 
-function _viz_atoms(locs, edges, colors, vectors, texts, config)
+function _viz_atoms(diag, colors, vectors, texts, config::LatticeDisplayConfig)
     # show the blockade
     if config.blockade_style != "none"
-        blockadeconfig = LuxorGraphPlot.GraphDisplayConfig(; vertex_stroke_color=config.blockade_stroke_color, vertex_line_width=config.blockade_stroke_linewidth,
-            vertex_fill_color=Colors.RGBA(LuxorGraphPlot.sethue(config.blockade_fill_color)..., config.blockade_fill_opacity),
-            vertex_size=config.blockade_style=="half" ? config.blockade_radius/2 : config.blockade_radius,
-            vertex_line_style="dashed",
-            xpad=config.xpad, ypad=config.ypad, xpad_right=config.xpad, ypad_bottom=config.ypad,
-            #vertex_stroke_opacity=config.blockade_fill_opacity,
-            unit=config.unit)
-        LuxorGraphPlot.unitless_show_graph(locs, Tuple{Int,Int}[], nothing, nothing, nothing, nothing, nothing, nothing, texts, blockadeconfig)
+        show_diagram(diag; config = extract_blockade_graph_display_config(config))
     end
 
     # show the arrows
-    for v in vectors
-        LuxorGraphPlot.draw_edge(Point(v[1])*config.unit, Point(v[2])*config.unit; color=config.arrow_color, line_width=config.arrow_linewidth,
-            arrow=true, arrowheadlength=config.arrow_head_length, line_style="solid")
+    Luxor.@layer begin
+        Luxor.sethue(config.arrow_color)
+        Luxor.setline(config.arrow_linewidth)
+        Luxor.setdash("solid")
+        for v in vectors
+            Luxor.arrow(Point(v[1])*config.unit, Point(v[2])*config.unit; arrowheadlength=config.arrow_head_length)
+        end
     end
 
     # show the graph
-    graphconfig = LuxorGraphPlot.GraphDisplayConfig(; vertex_stroke_color=config.node_stroke_color, vertex_line_width=config.node_stroke_linewidth,
-        vertex_size=config.node_size, vertex_fill_color=config.node_fill_color,
-        vertex_text_color=config.node_text_color, fontsize=config.node_text_fontsize,
-        xpad=config.xpad, ypad=config.ypad, xpad_right=config.xpad, ypad_bottom=config.ypad,
-        edge_color=config.bond_color, edge_line_width=config.bond_linewidth, unit=config.unit)
-    LuxorGraphPlot.unitless_show_graph(locs, edges, colors, nothing, nothing, nothing, nothing, nothing, texts, graphconfig)
+    LuxorGraphPlot.show_diagram(diag; config=extract_atom_graph_display_config(config), texts,
+        vertex_colors=colors,
+        vertex_stroke_colors=nothing,
+        vertex_text_colors=nothing,
+        edge_colors=nothing
+        )
 end
 
 struct ByDensity

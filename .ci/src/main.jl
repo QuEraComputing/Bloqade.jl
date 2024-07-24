@@ -162,15 +162,21 @@ develop the Bloqade components into environment.
 end
 
 function collect_lib_deps(path::String)
-    libs = readdir(root_dir("lib"))
-    d = TOML.parsefile(root_dir(path, "Project.toml"))
-    names = [name for name in keys(d["deps"]) if name in libs || name == "Bloqade"]
-    paths = map(names) do name
-        name == "Bloqade" && return "."
-        return root_dir("lib", name)
-    end
+    paths = unique!(collect_lib_deps_recur!(path, String[]))
     pkgs = map(paths) do path
         return Pkg.PackageSpec(; path = root_dir(path))
     end
     return pkgs
+end
+
+function collect_lib_deps_recur!(path::String, paths::Vector{String})
+    libs = readdir(root_dir("lib"))
+    d = TOML.parsefile(root_dir(path, "Project.toml"))
+    names = [name for name in keys(d["deps"]) if name in libs || name == "Bloqade"]
+    map(names) do name
+        subpath = name == "Bloqade" ? "." : root_dir("lib", name)
+        push!(paths, subpath)
+        collect_lib_deps_recur!(subpath, paths)
+    end
+    return paths
 end

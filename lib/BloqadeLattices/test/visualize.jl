@@ -14,11 +14,11 @@ using Documenter
     @test img_atoms(lt; colors = nothing) isa LuxorGraphPlot.Drawing
     @test img_atoms(lt; node_fill_color = "red") isa LuxorGraphPlot.Drawing
     @test img_atoms(lt; colors = fill("blue", length(lt))) isa LuxorGraphPlot.Drawing
-    @test img_atoms(lt; colors = ByDensity(randn(length(lt)); vmax = 10)) isa LuxorGraphPlot.Drawing
+    @test img_atoms(lt; colors = ByDensity(rand(0:10, length(lt)); vmax = 10)) isa LuxorGraphPlot.Drawing
     @test img_atoms(blt; colors = nothing) isa LuxorGraphPlot.Drawing
     @test img_atoms(blt; node_fill_color = "red") isa LuxorGraphPlot.Drawing
     @test img_atoms(blt; colors = fill("blue", length(lt))) isa LuxorGraphPlot.Drawing
-    @test img_atoms(blt; colors = ByDensity(randn(length(lt)); vmax = 10)) isa LuxorGraphPlot.Drawing
+    @test img_atoms(blt; colors = ByDensity(rand(0:10, length(lt)); vmax = 10)) isa LuxorGraphPlot.Drawing
     @test img_maskedgrid(grd) isa LuxorGraphPlot.Drawing
     @test show(IOBuffer(), MIME"image/svg+xml"(), grd) === nothing
     @test show(IOBuffer(), MIME"image/svg+xml"(), lt) === nothing

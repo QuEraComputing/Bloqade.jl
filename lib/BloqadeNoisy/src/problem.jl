@@ -433,11 +433,11 @@ over the series of save times.
 """
 function simulation_series_mean(sim; index=false)
     ntraj = length(sim)
-    times = length(sim[1])
+    times = length(sim[:, 1])
     if index == false
-        [mean([sim[i][t] for i in 1:ntraj]) for t in 1:times]
+        [mean([sim[t, i] for i in 1:ntraj]) for t in 1:times]
     else
-        [mean([sim[i][t][index] for i in 1:ntraj]) for t in 1:times]
+        [mean([sim[t, i][index] for i in 1:ntraj]) for t in 1:times]
     end
 end
 
@@ -453,11 +453,11 @@ Convenience method to estimate the sampling error in the ensemble solution
 """
 function simulation_series_err(sim; index=false, factor=2)
     ntraj = length(sim)
-    times = length(sim[1])
+    times = length(sim[:, 1])
     if index == false
-        [factor * std([sim[i][t] for i in 1:ntraj]) / sqrt(ntraj) for t in 1:times]
+        [factor * std([sim[t, i] for i in 1:ntraj]) / sqrt(ntraj) for t in 1:times]
     else
-        [factor * std([sim[i][t][index] for i in 1:ntraj]) / sqrt(ntraj) for t in 1:times]
+        [factor * std([sim[t, i][index] for i in 1:ntraj]) / sqrt(ntraj) for t in 1:times]
     end
 end
 

@@ -8,6 +8,7 @@ using StatsBase
 using LuxorGraphPlot
 using LuxorGraphPlot: Point
 using LuxorGraphPlot.Luxor: Colors
+import LuxorGraphPlot.Luxor
 using LinearAlgebra
 import Base.deleteat!
 

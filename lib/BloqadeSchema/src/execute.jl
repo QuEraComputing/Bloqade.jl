@@ -51,7 +51,7 @@ function execute(task::QuEraTaskSpecification)
     reg = zero_state(n_atoms)
     problem = SchrodingerProblem(reg, total_time, h)
     BloqadeExpr.emulate!(problem)
-    bitstrings = reg |> measure(; nshots=task.nshots)
+    bitstrings = reg |> BloqadeExpr.measure(; nshots=task.nshots)
 
     return JSON.json(Configurations.to_dict(to_task_output(bitstrings)))
 end

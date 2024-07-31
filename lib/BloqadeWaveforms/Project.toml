@@ -1,6 +1,6 @@
 name = "BloqadeWaveforms"
 uuid = "bd27d05e-4ce1-5e79-84dd-c5d7d508bbe7"
-version = "0.2.0"
+version = "0.2.1"
 
 [deps]
 BloqadeExpr = "bd27d05e-4ce1-5e79-84dd-c5d7d508abe2"

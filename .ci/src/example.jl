@@ -141,7 +141,6 @@ in parallel.
     example_dir = root_dir("examples")
     script = """
     using Pkg
-    using CondaPkg
     using Literate
     for name in readdir(\"$example_dir\")
         project_dir = joinpath(\"$example_dir\", name)
@@ -149,7 +148,6 @@ in parallel.
 
         Pkg.activate(project_dir)
         Pkg.instantiate()
-        CondaPkg.resolve()
 
         @info "building" project_dir
         Literate.$target(

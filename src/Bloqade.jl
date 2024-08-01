@@ -42,15 +42,7 @@ using Reexport
 
 export rydberg_density, rydberg_corr, bitstring_hist, bitstring_hist!, get_average_rydberg_densities
 
-using PythonCall
-const plt = PythonCall.pynew()
-
-function __init__()
-    # copied from PyPlotCall.jl
-    PythonCall.pycopy!(plt, pyimport("matplotlib.pyplot"))
-    return
-end
-
+using CairoMakie
 using Colors, ColorSchemes
 
 include("plots/plots.jl")

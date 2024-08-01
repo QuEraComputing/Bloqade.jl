@@ -20,10 +20,9 @@
 # To start, we first import the required libraries:
 
 using Bloqade
-using PythonCall
+using Bloqade.CairoMakie
 using Random
 
-plt = pyimport("matplotlib.pyplot");
 # # Many-Body Rabi Oscillations with Rydberg Blockade
 
 # We first demonstrate that the strong Rydberg interactions have important effects on the Rabi oscillations of Rydberg atoms.
@@ -57,11 +56,9 @@ end
 # Here, we use a [`KrylovEvolution`](@ref) object to simulate the dynamics for a time-independent Hamiltonian.
 # One can also use ODE to simulate the dynamics. For an example, see the [Adiabatic Evolution](@ref) tutorial.
 # The Rydberg density of this atom exhibits Rabi oscillations as a function of time, shown by the plot below:
-fig, ax = plt.subplots()
-ax.plot(clocks, density1[1, :])
-ax.set_xlabel("Time (μs)")
-ax.set_ylabel("Single Rydberg Probability")
-ax.set_title("Rabi Oscillation: Single Atom Case")
+fig = Figure()
+ax = Axis(fig[1,1], xlabel = "Time (μs)", ylabel = "Single Rydberg Probability", title = "Rabi Oscillation: Single Atom Case")
+lines!(ax, clocks, density1[1, :], label = "1 atom")
 fig
 
 # For the case of 2 and 3 atoms, if they are separated far enough with negligible interactions, the total Rydberg excitation densities are simply the sum of the Rydberg density for each atom.
@@ -92,14 +89,12 @@ density3 = sum(density3, dims = 1);
 # where ``N`` is the number of atoms.
 # For more information, please refer to [H. Bernien, et al. (10.1038/nature24622)](https://www.nature.com/articles/nature24622).
 # The total Rydberg density for the 1-, 2-, and 3-atom system is plotted below:
-fig, ax = plt.subplots()
-ax.plot(clocks, density1[1, :])
-ax.plot(clocks, density2[1, :])
-ax.plot(clocks, density3[1, :])
-ax.set_xlabel("Time (μs)")
-ax.set_ylabel("Rydberg Probability")
-ax.set_title("Many-body Rabi Oscillation for 1-, 2-, and 3-atom system")
-ax.legend(["1 atom", "2 atoms", "3 atoms"], loc = "lower right")
+fig = Figure()
+ax = Axis(fig[1,1], xlabel = "Time (μs)", ylabel = "Rydberg Probability", title = "Many-body Rabi Oscillation for 1-, 2-, and 3-atom system")
+lines!(ax, clocks, density1[1, :], label = "1 atom")
+lines!(ax, clocks, density2[1, :], label = "2 atoms")
+lines!(ax, clocks, density3[1, :], label = "3 atoms")
+axislegend(position = :rb)
 fig
 
 # From this plot, we can see that the total Rydberg density for 2 (3) atom case does not exceed 1. This is because
@@ -134,11 +129,13 @@ atoms = generate_sites(ChainLattice(), nsites, scale = 5.72)
 Ω_tot = append(Ω1, Ω2);
 Δ_tot = append(Δ1, Δ2);
 
-fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+fig = Figure(size=(960, 320))
+ax1 = Axis(fig[1, 1], ylabel = "Ω/2π (MHz)")
+ax2 = Axis(fig[1, 2], ylabel = "Δ/2π (MHz)")
 Bloqade.plot!(ax1, Ω_tot)
 Bloqade.plot!(ax2, Δ_tot)
-ax1.set_ylabel("Ω/2π (MHz)")
-ax2.set_ylabel("Δ/2π (MHz)")
+fig[1, 1] = ax1
+fig[1, 2] = ax2
 fig
 
 # Note that the total evolution time is 4.2 μs.
@@ -171,28 +168,23 @@ end
 # We first plot the Rydberg density for each site as a function of time:
 
 clocks = 0:1e-3:total_time
-D = hcat(densities...)
+D = hcat(densities...)'
 
-fig, ax = plt.subplots(figsize = (10, 4))
-shw = ax.imshow(real(D), interpolation = "nearest", aspect = "auto", extent = [0, total_time, 0.5, nsites + 0.5])
-ax.set_xlabel("time (μs)")
-ax.set_ylabel("site")
-ax.set_xticks(0:0.4:total_time)
-ax.set_yticks(1:nsites)
-bar = fig.colorbar(shw)
+fig = Figure(size=(800, 320))
+ax = Axis(fig[1, 1]; xlabel = "Time (μs)", ylabel = "Site", xticks = 0:0.4:total_time, yticks = (0.5:1:nsites, string.(1:nsites)))
+shw = heatmap!(ax, LinRange(0, total_time, size(D, 1)), LinRange(0.5, nsites - 0.5, size(D, 2)), real(D), colormap = :viridis)
+bar = Colorbar(fig[1, 2], shw)
 fig
-
 # We can see that the state evolves to a Neel state after the first part of the pulse (time around 2.2 μs). 
 # After that, there are clear oscillations between the two patterns of the Rydberg density, which is a signature of the quantum scar.
 
 # We can also plot the entanglement as a function of time:
 
-fig, ax = plt.subplots(figsize = (10, 4))
-ax.plot(clocks, entropy)
-ax.set_xlabel("time (μs)")
-ax.set_ylabel("entanglement entropy")
+fig = Figure(size=(800, 320))
+ax = Axis(fig[1, 1]; xlabel = "time (μs)", ylabel = "entanglement entropy")
+line = lines!(ax, clocks, entropy)
+fig[1, 1] = ax
 fig
-
 # # A Different Initial State 
 
 # In order to see that the revivals depends strongly on the initial state, 
@@ -204,26 +196,18 @@ clocks = 0.0:1e-2:total_time;
 
 init_d = product_state(bit"100000101")
 prob_d = KrylovEvolution(init_d, clocks, hd)
-density_mat_d = zeros(nsites, length(clocks))
+density_mat_d = zeros(length(clocks), nsites)
 
 for info in prob_d
     for i in 1:nsites
-        density_mat_d[i, info.step] = rydberg_density(info.reg, i)
+        density_mat_d[info.step, i] = rydberg_density(info.reg, i)
     end
 end
 
-fig, ax = plt.subplots(figsize = (10, 4))
-shw = ax.imshow(
-    real(density_mat_d),
-    interpolation = "nearest",
-    aspect = "auto",
-    extent = [0, total_time, 0.5, nsites + 0.5],
-)
-ax.set_xlabel("time (μs)")
-ax.set_ylabel("site")
-ax.set_xticks(0:0.2:total_time)
-ax.set_yticks(1:nsites)
-bar = fig.colorbar(shw)
+fig = Figure(size=(800, 320))
+ax = Axis(fig[1, 1]; xlabel = "time (μs)", ylabel = "site", xticks = 0:0.2:total_time, yticks = (0.5:1.0:nsites, string.(1:nsites)))
+shw = heatmap!(ax, LinRange(0.0, total_time, size(density_mat_d, 1)), LinRange(0.5, nsites - 0.5, size(density_mat_d, 2)), density_mat_d, colormap = :viridis)
+bar = Colorbar(fig[1, 2], shw)
 fig
 
 # From this figure, we see that the density does not show long-lived oscillations.

@@ -457,7 +457,7 @@ scatterlines!(ax,
     marker = :circle, markersize = 6,
     label = "ideal"
     )
-scatterlines!(ax, [expectation_value_noisy(Aquila(), p, mat(put(N, i=>Op.n))) for i in 1:N], marker = :square, markersize = 6, label = "noisy")
+scatterlines!(ax, [expectation_value_noisy(Aquila(), p, mat(put(N, i=>Op.n))) for i in 1:N], marker = :rect, markersize = 6, label = "noisy")
 ylims!(ax, 0,1)
 axislegend(ax, position = :rt)
 fig

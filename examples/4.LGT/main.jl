@@ -13,9 +13,7 @@
 # We first import the required packages 
 
 using Bloqade
-using PythonCall
-plt = pyimport("matplotlib.pyplot");
-
+using Bloqade.CairoMakie
 
 # ## Mapping between the Rydberg system and the LGT
 
@@ -59,15 +57,12 @@ total_time = 3.5;
 Ω1 = piecewise_linear(clocks = [0.0, 0.2, total_time], values = [0.0, Ωmax, Ωmax]);
 
 # The waveforms for the detuning and the Rabi frequency are shown below
-fig1, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+fig1 = Figure(size=(960, 320))
+ax1 = Axis(fig1[1, 1], ylabel="Ω1/2π (MHz)", xgridvisible=true, ygridvisible=true)
+ax2 = Axis(fig1[1, 2], ylabel="Δ1/2π (MHz)", xgridvisible=true, ygridvisible=true)
 Bloqade.plot!(ax1, Ω1)
 Bloqade.plot!(ax2, Δ1)
-ax1.set_ylabel("Ω1/2π (MHz)")
-ax2.set_ylabel("Δ1/2π (MHz)")
-ax1.grid()
-ax2.grid()
 fig1
-
 
 # In order to simulate the gauge theory dynamics, we define the function
 # `get_average_rydberg_densities` which takes in a detuning
@@ -93,11 +88,11 @@ end;
 # by simulating the dynamics governed by the waveforms, followed by plotting the density profile, as shown below:
 
 dens1 = get_average_rydberg_densities(Δ1, Ω1) ;
-fig2, ax = plt.subplots(figsize = (10, 4)) ;
-ax.bar(1:N, dens1[end]) ;
-ax.set_xlabel("site index")
-ax.set_ylabel("Average Rydberg densities")
-fig2 
+
+fig2 = Figure(size = (800, 320))
+ax = Axis(fig2[1, 1], xlabel="site index", ylabel="Average Rydberg densities")
+barplot!(ax, 1:N, dens1[end])
+fig2
 
 # Recalling the mapping between the Rydberg chain and the LGT illustrated above, 
 # we see that the final state is an approximation of the anti-string state of the LGT, or a $Z_2$ ordered state of the Rydberg chain. 
@@ -148,7 +143,10 @@ end ;
 
 # As an example, for the case with a single defect, we show the detuning for the central site, which is the defect, and those for other sites separately below:
 
-fig3, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
+fig3 = Figure(size=(960, 320))
+ax1 = Axis(fig3[1, 1], title="Detuning for the central site", xgridvisible=true, ygridvisible=true)
+ax2 = Axis(fig3[1, 2], title="Detunings for other sites", xgridvisible=true, ygridvisible=true)
+
 for idx in 1 : length(atoms)
     if idx == floor(Int, N/2)+1
         Bloqade.plot!(ax1, Δ2_single_defect[idx])
@@ -156,10 +154,6 @@ for idx in 1 : length(atoms)
         Bloqade.plot!(ax2, Δ2_single_defect[idx])
     end
 end
-ax1.grid()
-ax2.grid()
-ax1.set_title("Detuning for the central site")
-ax2.set_title("Detunings for other sites")
 
 fig3
 
@@ -169,13 +163,12 @@ fig3
 dens2 = get_average_rydberg_densities(Δ2_single_defect, Ω2)
 dens3 = get_average_rydberg_densities(Δ2_two_defects, Ω2)
 
-fig4, (ax1, ax2) = plt.subplots(nrows = 2, figsize = (10, 4), frameon=false)
-ax1.bar(1:N, dens2[end])
-ax2.bar(1:N, dens3[end])
-fig4.supxlabel("site index")
-fig4.supylabel("Average Rydberg densities", x=0.06)
+fig4 = Figure(size=(800, 320))
+ax1 = Axis(fig4[1, 1], xlabel="site index", ylabel="Average Rydberg densities")
+ax2 = Axis(fig4[2, 1], xlabel="site index", ylabel="Average Rydberg densities")
+barplot!(ax1, 1:N, dens2[end])
+barplot!(ax2, 1:N, dens3[end])
 fig4
-
 
 # Again, we see that the Rydberg density at the defects are not exactly zero, but the prepared states,
 # as we shall see below, serve as good initial states to study the propagation of particle-antiparticle pairs in LGT. 
@@ -197,20 +190,15 @@ end
 # Again, as an example, for the case with a single defect, we show the detuning for the central site, 
 # which is the defect, and those for other sites separately below:
 
-fig5, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 4))
-for idx in 1 : length(atoms)
-    if idx == floor(Int, N/2)+1
-        Bloqade.plot!(ax1, Δ3_single_defect[idx])
-    else
-        Bloqade.plot!(ax2, Δ3_single_defect[idx])
-    end
-end
-Bloqade.plot!(ax1, Ω3)
-ax1.grid()
-ax2.grid()
-ax1.legend(["Detuning for the central site", "Rabi frequency for all sites"])
-ax2.legend(["Detunings for other sites"], loc="center left")
+fig5 = Figure(size=(960, 320))
+ax1 = Axis(fig5[1, 1], xlabel="Time", ylabel="Detuning", xgridvisible=true, ygridvisible=true)
+ax2 = Axis(fig5[1, 2], xlabel="Time", ylabel="Detuning", xgridvisible=true, ygridvisible=true)
 
+Bloqade.plot!(ax1, Δ3_single_defect[floor(Int, N/2)+1], label="Detuning for the central site")
+Bloqade.plot!(ax2, Δ3_single_defect[1], label="Detunings for other sites")
+Bloqade.plot!(ax1, Ω3; label="Rabi frequency for all sites")
+axislegend(ax1, position=:rb)
+axislegend(ax2, position=:rb)
 fig5
 
 # ### Simulating Particle-Antiparticle Pairs in LGT Dynamics 
@@ -235,16 +223,15 @@ clocks = clocks[ind0: end];
 # Then we plot the Rydberg density as a function of time, where the two panels correspond to the cases with single and two defects respectively:
 yticks = range(clocks[1], stop=clocks[end], length=10);
 yticks = [string(ytick)[1:4] for ytick in yticks][end:-1:1];
-fig6, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (12, 8), sharey=true)
-ax1.imshow(transpose(D_single_defect)[end:-1:1,:], aspect="auto", interpolation="none")
-ax1.set_xlabel("sites")
-ax1.set_ylabel("time (μs)")
-ax1.set_yticks(range(1, stop = length(clocks), length=10), yticks)
-im = ax2.imshow(transpose(D_two_defects)[end:-1:1,:], aspect="auto", interpolation="none")
-ax2.set_xlabel("sites")
-fig6.colorbar(im, ax=[ax1, ax2])
-fig6 
 
+fig6 = Figure(size=(960, 640))
+ax1 = Axis(fig6[1, 1], xlabel = "sites", ylabel = "time (μs)", yticks = (range(1, stop = length(clocks), length = 10), string.(round.(range(clocks[1], stop=clocks[end], length=10); digits=2))))
+ax2 = Axis(fig6[1, 2], xlabel = "sites", yticklabelsvisible=false)
+clims = (0.0, 1.0)
+img1 = image!(ax1, D_single_defect[end:-1:1, :], colormap = :inferno, colorrange=clims, interpolate=false)
+img2 = image!(ax2, D_two_defects[end:-1:1, :], colormap = :inferno, colorrange=clims, interpolate=false)
+Colorbar(fig6[1, 3]; limits=clims)
+fig6
 # From the left panel, we can observe a light-cone-shaped region originating from the particle-antiparticle pair in the vacuum. 
 # At the right panel, we show the interference of two light cones, which produces an additional change of periodicity corresponding to the elastic scattering. 
 # When the particle or antiparticle reaches the boundary of the chain, it will be scattered back as observed. 

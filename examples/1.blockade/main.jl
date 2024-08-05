@@ -345,26 +345,29 @@ for _ in TimeChoiceIterator(integrator2, 0.0:dt:Tmax)
 end
 
 # Plot the data:
-using PythonCall # Use matplotlib to generate plots
-matplotlib = pyimport("matplotlib")
-plt = pyimport("matplotlib.pyplot")
+using Bloqade.CairoMakie # Use CairoMakie to generate plots
 
-ax = plt.subplot(1, 1, 1)
-plt.plot(times, real(densities), "k", label = "Full space")
-plt.plot(times, real(densities2), "r--", label = "Subspace")
-ax.axis([0, Tmax, 0, 0.45])
-plt.xlabel("Time (us)")
-plt.ylabel("Rydberg density")
-plt.tight_layout()
-plt.legend()
+fig = Figure()
+ax = Axis(fig[1, 1], xlabel = "Time (us)", ylabel = "Rydberg density", limits=(0.0, Tmax, 0.0, 0.45))
+lines!(ax, times, real(densities), label = "Full space", color=:black)
+lines!(ax, times, real(densities2), label = "Subspace", color=:red, linestyle=:dash)
+axislegend(ax, position = :rt)
+fig
 
-inset_axes = pyimport("mpl_toolkits.axes_grid1.inset_locator")
-ax2 = inset_axes.inset_axes(ax, width = "20%", height = "30%", loc = "lower right", borderpad = 1)
-plt.plot(times, real(densities - densities2))
-plt.axis([0, 0.5, -0.001, 0.003])
-plt.ylabel("Difference", fontsize = 12)
-plt.yticks(LinRange(-0.001, 0.003, 5), fontsize = 12);
-plt.xticks([0, 0.2, 0.4, 0.6], fontsize = 12);
+# The inset axis
+ax2 = Axis(fig[1, 1],
+    width=Relative(0.2),
+    height=Relative(0.3),
+    halign=0.9,
+    valign=0.1,
+    limits=(0.0, 0.5, -0.001, 0.003),
+    ylabel="Difference",
+    yticks=LinRange(-0.001, 0.003, 5),
+    xticks=[0, 0.2, 0.4, 0.6],
+    backgroundcolor=:lightgray)
+
+lines!(ax2, times, real(densities - densities2), color = :black)
+fig;
 
 # ![RydbergBlockadeSubspace](../../../assets/RydbergBlockadeSubspace.png)
 

@@ -40,13 +40,11 @@ using Yao
 using CSV
 using DataFrames
 using JSON
-using LaTeXStrings
 using LinearAlgebra
-using Plots
+using Bloqade.CairoMakie
 using StatsBase
 using Printf
 using ProgressBars
-pythonplot()
 
 
 # ## Noisy Single-Qubit Rabi Oscillations
@@ -117,21 +115,24 @@ sol = emulate_noisy(
     report_error = true
 )
 
-plot(
+fig = Figure()
+ax = Axis(fig[1, 1]; xlabel = "Rabi periods", ylabel = L"\langle \hat{n} \rangle", title="Noisy Rabi Oscillation")
+ylims!(ax, 0, 1)
+x_plot = lines!(ax,
     save_times,
     sol.expectations[1],
-    ribbon = sol.twosigma[1],
-    title = "Noisy Rabi Oscillation",
-    xlabel = "Rabi periods",
-    ylabel = L"\langle \hat n \rangle",
-    label = "simulated"
+    label = "simulated",
+    color=:black
 )
-plot!(
+band!(ax, save_times, sol.expectations[1] .- sol.twosigma[1], sol.expectations[1] .+ sol.twosigma[1], alpha=0.2, color=:cyan)
+plot!(ax,
     save_times,
     1/2 .- 1/2*exp.(-4γ * save_times) .* cos.(Ω * save_times),
-    label = "analytic"
+    label = "analytic",
+    color=:blue
 )
-ylims!(0,1)
+axislegend(ax, position = :rt)
+fig
 
 # ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_depolarizingrabi.png")
 
@@ -172,16 +173,21 @@ em = ErrorModel(
 prob = NoisySchrodingerProblem(zero_state(1), times, h, em)
 sim = emulate_noisy(prob, 2000, [mat(Z)]; report_error = true);
 
-plot(
-    times, sim.expectations[1], ribbon = sim.twosigma[1], 
-    label = "simulated", ylabel = L"\langle Z \rangle",
-    xlabel = "Rabi periods", title = "Coherent noise"
+fig = Figure()
+ax = Axis(fig[1, 1]; xlabel = "Rabi periods", ylabel = L"\langle Z \rangle", title="Coherent noise")
+lines!(ax,
+    times, sim.expectations[1],
+    label = "simulated",
+    color=:black
 )
-plot!(
+band!(ax, times, sim.expectations[1] .- sim.twosigma[1], sim.expectations[1] .+ sim.twosigma[1], alpha=0.2, color=:cyan)
+scatter!(ax,
     times, 
     (t->cos(Ω*t)*exp.(-σ^2*t^2/2 - 4γ*t)).(times), 
     label = "analytic"
 )
+axislegend(ax, position = :rt)
+fig
 
 # ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_coherentnoise_rabi.png")
 
@@ -214,7 +220,7 @@ plot!(
 # ### Experimental validation
 # The experimental data used to calibrate the noise model is taken from the Aquila whitepaper [3]. Readout error can be added to expectation values in the computational basis by passing `readout = true` to `emulate`. The operators must be of type `Diagonal`. Below, we show the estimation of a noisy expectation value incorporating the effect of readout error and compare to the experimental whitepaper data.
 
-whitepaper_data = CSV.read("/Bloqade.jl/lib/BloqadeNoisy/examples/whitepaper_comparison/data/15MHz_long.csv", DataFrame, delim = ",", header = false)
+whitepaper_data = CSV.read(pkgdir(Bloqade, "lib", "BloqadeNoisy", "examples", "whitepaper_comparison", "data", "15MHz_long.csv"), DataFrame; delim = ",", header = false)
 times = collect(whitepaper_data[1,:])
 data = collect(whitepaper_data[2,:])
 save_times = LinRange(0, last(times), 400)
@@ -226,12 +232,15 @@ H = rydberg_h([(0.0,)]; Ω = Ω, Δ = Δ)
 prob = NoisySchrodingerProblem(zero_state(1), save_times, H, Aquila())
 sim = emulate_noisy(prob, 1000, [mat(Op.n)]; readout_error = true);
 
-plot(times, data, marker = :diamond,
+fig = Figure()
+ax = Axis(fig[1, 1]; xlabel = "Rabi periods", ylabel = L"\langle \hat{n} \rangle", title="Simulation vs Data")
+scatterlines!(ax, times, data, marker = :diamond,
     markersize = 4, color = :green, linestyle = :dash,
-    xlabel = L"t \ (\mu s)", ylabel = L"\langle \hat n \rangle",
-    label = "Data", title = "Simulation vs Data"
+    label = "Data"
 )
-plot!(save_times, sim[1], color = :blue, label = "Sim")
+plot!(ax, save_times, sim[1], color = :blue, label = "Sim")
+axislegend(ax, position = :rt)
+fig
 
 # ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_whitepapercomparison.png")
 
@@ -257,7 +266,7 @@ new_error_model = load_error_model(default_error_model);
 Ω = 2π
 C = 862690 * 2π
 Rb = (C/Ω)^(1/6)
-N = 14
+N = 12
 
 atoms = generate_sites(ChainLattice(), N, scale = .65*Rb)
 Δ_NNN = 1/(2N) * sum(
@@ -289,21 +298,25 @@ H = rydberg_h(atoms; Ω = Ω, Δ = Δ)
 
 expt_times = LinRange(t_prep, t_prep+t_quench, 70)
 prob = NoisySchrodingerProblem(zero_state(N), expt_times, H, Aquila())
-@time sim = emulate_noisy(prob, 500, [mat(chain(igate(N)-put(N, i=>Op.n) for i in 1:N))];
+@time sim = emulate_noisy(prob, 10, [mat(chain(igate(N)-put(N, i=>Op.n) for i in 1:N))];
     readout_error = true, report_error = true, shots = 1000,
     ensemble_algo = EnsembleThreads()
 )
 
-plot(times, [abs(p[1])^2 for p in ψ.u],
+fig = Figure()
+ax = Axis(fig[1, 1]; xlabel = L"t (\mu s)", ylabel = L"\langle (1-\hat{n})^{\otimes N}\rangle", title="Many-body scar simulation")
+lines!(ax, times, [abs(p[1])^2 for p in ψ.u],
     label = "ideal",
-    color = :blue, title = "Many-body scar simulation"
+    color = :blue
 )
-scatter!(expt_times, sim.expectations, 
-    yerr = sqrt.(sim.shot_error[1].^2 .+ sim.propagated_err[1].^2),
-    xlabel = L"t \ (\mu s)",
-    ylabel = L"\langle (1-\hat n)^{\otimes N}\rangle",
+errorbars!(ax, expt_times, sim.expectations[1], 
+    sqrt.(sim.shot_error[1].^2 .+ sim.propagated_err[1].^2),
+    color = :red
+)
+scatter!(ax, expt_times, sim.expectations[1], 
     label = "noisy", color = :red,
 )
+fig
 
 # ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_manybodyscar.png")
 
@@ -330,7 +343,7 @@ tend = 10
 Ω = Waveform(t-> 2.5*2π*(sin(sqrt(10)*2π*t)+cos(sqrt(2)*2π*t)), tend)
 R = (862690/2.5)^(1/6)
 
-N = 12
+N = 10
 D = 2^N
 atoms = [(R*i+.05*randn(),) for i in 1:N]
 
@@ -348,7 +361,7 @@ function sim_depol(γ)
         h, 
         depol(γ, N)
     )
-    sim = emulate_noisy(prob, 1000, 
+    sim = emulate_noisy(prob, 20, 
         sol -> [
             abs.(sol[end]).^2, 
             abs(sol[end]' * ψ)^2
@@ -365,19 +378,23 @@ p = [sim_depol(γ) for γ in depol_strengths];
 
 colors = [:blue, :green, :purple]
 
-plot(xlabel = L"p", ylabel = L"P(p)", title = "Probability distribution vs noise strength")
-stephist!(abs.(ψ).^2, yaxis =:log, normalize =true, color = :black, label = "γ = 0")
-plot!(x->D*exp(-D*x), 0, .002, color = :black, linestyle = :dash, label = "")
+fig = Figure()
+ps = 0:1e-4:0.006
+ax = Axis(fig[1, 1]; xlabel = L"p", ylabel = L"P(p)", title = "Probability distribution vs noise strength", yscale=log10)
+xlims!(ax, 0, .006)
+ylims!(ax, 3, 1f4)
+stephist!(normalize!(abs2.(ψ), 1), color = :black, label = "γ = 0")
+lines!(ax, ps, D .* exp.(-D .* ps), color = :black, linestyle = :dash)
 
 for (p, c, r) in zip(p, colors, depol_strengths)
     F = exp(-r * 3N * tend)
-    stephist!(p[1][1], yaxis =:log, normalize =true, color = c, label = "γ = $(@sprintf("%.3f", r))")
-    plot!(x->D/F*exp((1-F)/F)*exp(-D* x/F), (1-F)/D, .002, color = c, linestyle = :dash, label = "")
-    plot!([(1-F)/D, (1-F)/D], [0, D/F], color = c, linestyle = :dash, label = "")
+    ps = (1-F)/D:1e-4:0.006
+    stephist!(normalize(p[1][1], 1), color = c, label = "γ = $(@sprintf("%.3f", r))")
+    lines!(ax, ps, D ./ F .* exp((1-F)/F) .* exp.(-D .* ps ./ F), color = c, linestyle = :dash)
+    lines!(ax, [(1-F)/D, (1-F)/D], [0, D/F], color = c, linestyle = :dash)
 end
-
-ylims!(10, 2f4)
-xlims!(0, .0015)
+axislegend(ax, position = :rt)
+fig
 
 # ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_depol_dists.png")
 
@@ -399,9 +416,14 @@ xlims!(0, .0015)
 # ```
 # Substituting these in gives ``\text{XEB} = D^2(2/D^2)F + D^2(1-F)/D^2 - 1 = F``. Thus all three quantities estimate ``F``.
 
-plot(depol_strengths, [p[i][1][2] for i in 1:3], title = "Depolarizing fidelity and cross-entropy", xlabel = L"\gamma", ylabel = "fidelity", label = L"F", yerr = [p[i][2][2] for i in 1:3])
-plot!(depol_strengths, exp.(-3N * tend .* depol_strengths), label = L"e^{-3\gamma N T}")
-plot!(depol_strengths, [(2^N*sum(p[i][1][1] .* abs.(ψ).^2)-1) for i in 1:3], label = "XEB")
+fig = Figure()
+ax = Axis(fig[1, 1]; title = "Depolarizing fidelity and cross-entropy", xlabel = L"\gamma", ylabel = "fidelity")
+errorbars!(ax, depol_strengths, [p[i][1][2] for i in 1:3], [p[i][2][2] for i in 1:3])
+scatter!(ax, depol_strengths, [p[i][1][2] for i in 1:3], label = L"F")
+lines!(ax, depol_strengths, exp.(-3N * tend .* depol_strengths), label = L"e^{-3\gamma N T}")
+lines!(ax, depol_strengths, [(2^N*sum(p[i][1][1] .* abs.(ψ).^2)-1) for i in 1:3], label = "XEB")
+axislegend(ax, position = :rt)
+fig
 
 # ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_fidelitymeasures.png")
 
@@ -409,7 +431,7 @@ plot!(depol_strengths, [(2^N*sum(p[i][1][1] .* abs.(ψ).^2)-1) for i in 1:3], la
 # When simulating large systems, memory can be an issue. The `NoisySchrodingerProblem` can also be used directly with the `DifferentialEquations` interface to simulate each trajectory manually if more control is required. The `randomize` function reinitializes the trajectory with a new sample from the specified distirbution of Hamiltonian parameters and chooses a random initial condition.
 
 R = (862690/2.5)^(1/6)
-atoms = generate_sites(SquareLattice(), 4, 4, scale = .85*R)
+atoms = generate_sites(SquareLattice(), 4, 3, scale = .85*R)
 N = length(atoms)
 tend = 3.0
 Ω = 2.5*2π
@@ -419,24 +441,26 @@ h = rydberg_h(atoms; Ω = Ω, Δ = 0)
 ψ = solve(SchrodingerProblem(zero_state(N), tend, h), DP8()).u;
 
 p = zeros(2^N)
-ntraj = 250
+ntraj = 100
 prob = NoisySchrodingerProblem(zero_state(N), [tend], h, Aquila())
 for i in ProgressBar(1:ntraj)
     sample = randomize(prob)
     int = init(sample, DP8())
     solve!(int)
-    p .+= abs.(int.u).^2/ntraj
+    p .+= abs2.(int.u)/ntraj
 end
 
-scatter(
+fig = Figure()
+ax = Axis(fig[1, 1]; xlabel = "state", ylabel = "probability", title = "Memory-constrained simulation")
+scatterlines!(ax, 
     [real(ψ[end]' * mat(put(N, i=>Op.n)) * ψ[end]) for i in 1:N],
-    marker = :circle, markersize = 6, title = "Noisy vs noiseless excitation number",
-    xlabel = "site #",
-    ylabel = L"\langle \hat n_i \rangle",
+    marker = :circle, markersize = 6,
     label = "ideal"
     )
-scatter!([expectation_value_noisy(Aquila(), p, mat(put(N, i=>Op.n))) for i in 1:N], marker = :square, markersize = 6, label = "noisy")
-ylims!(0,1)
+scatterlines!(ax, [expectation_value_noisy(Aquila(), p, mat(put(N, i=>Op.n))) for i in 1:N], marker = :rect, markersize = 6, label = "noisy")
+ylims!(ax, 0,1)
+axislegend(ax, position = :rt)
+fig
 
 # ![BloqadeNoisy]("../../../assets/BloqadeNoisy_tutorial/noisy_numberdensity.png")
 

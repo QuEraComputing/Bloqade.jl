@@ -57,8 +57,6 @@ Built on top of Ubuntu Server 20.04 LTS, this image includes
 - [Yao.jl](https://yaoquantum.org/)
 - [Revise.jl](https://github.com/timholy/Revise.jl)
 - [BenchmarkTools.jl](https://juliaci.github.io/BenchmarkTools.jl/stable/)
-- [PythonCall.jl](https://cjdoris.github.io/PythonCall.jl/stable/) 
-- Conda package manager, provided by [Miniconda](https://docs.conda.io/en/latest/miniconda.html) 
 
 #### Bloqade CUDA AMI
 
@@ -227,8 +225,6 @@ Built on top of Ubuntu Server 20.04 LTS, this image includes
 - [Yao.jl](https://yaoquantum.org/)
 - [Revise.jl](https://github.com/timholy/Revise.jl)
 - [BenchmarkTools.jl](https://juliaci.github.io/BenchmarkTools.jl/stable/)
-- [PythonCall.jl](https://cjdoris.github.io/PythonCall.jl/stable/)
-- Conda package manager, provided by [Mamba](https://mamba.readthedocs.io/en/latest/index.html)
 - Jupyter Lab interface with dedicated Julia and Python kernels
 - Integrated Terminal for interactive command-line sessions
 

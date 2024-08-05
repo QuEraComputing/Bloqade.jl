@@ -16,9 +16,7 @@ Random.seed!(42)
 using Graphs
 using GenericTensorNetworks
 using GenericTensorNetworks: unit_disk_graph
-using Bloqade
-using PythonCall
-plt = pyimport("matplotlib.pyplot");
+using Bloqade, Bloqade.CairoMakie
 
 # We now specify the atom locations and construct an example  
 # unit disk graph on a square lattice with nearest-neighbor connections. 
@@ -26,7 +24,7 @@ plt = pyimport("matplotlib.pyplot");
 # and all vertices closer than a distance 1.5 are connected by an edge:
 locs = [(1, -1), (4, 0), (1, 1), (2, 0), (0, 0), (2, 2), (2, -2), (3, 1), (3, -1)];
 g = unit_disk_graph(locs, 1.5)
-show_graph(g; locs = locs, vertex_colors = ["white" for i in 1:nv(g)])
+show_graph(g, map(x->60 .* x, locs); vertex_colors = ["white" for i in 1:nv(g)])
 
 # We then assign random weights to each vertex for this example problem:
 weights = [rand() for i in 1:nv(g)];
@@ -34,9 +32,10 @@ weights = [rand() for i in 1:nv(g)];
 # We can solve the MWIS problem classically for this graph
 # using the [GenericTensorNetworks](https://github.com/QuEraComputing/GenericTensorNetworks.jl) package. 
 # The MWIS is shown in red.
-configs_mapped = GenericTensorNetworks.solve(IndependentSet(g; weights = weights), ConfigsMax())[]
+wmis_problem = IndependentSet(g, weights)
+configs_mapped = GenericTensorNetworks.solve(GenericTensorNetwork(wmis_problem), ConfigsMax())[]
 MIS_config = configs_mapped.c[1]
-show_graph(g; locs = locs, vertex_colors = [iszero(MIS_config[i]) ? "white" : "red" for i in 1:nv(g)])
+show_graph(g, map(x->60 .* x, locs), vertex_colors = [iszero(MIS_config[i]) ? "white" : "red" for i in 1:nv(g)])
 
 # # Quantum Adiabatic Algorithm to Solve the MWIS Problem
 
@@ -85,13 +84,13 @@ end
 t_max = 1.5
 H, Ω, Δ = build_adiabatic_sweep(g, Ω_max, Δ_max, t_max, weights);
 
-fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (14, 4))
+fig = Figure(; size=(700, 200))
+ax1 = Axis(fig[1, 1]; ylabel = "Ω/2π (MHz)")
+ax2 = Axis(fig[1, 2]; ylabel = "Δ/2π (MHz)")
 Bloqade.plot!(ax1, Ω)
-ax1.set_ylabel("Ω/2π (MHz)")
 for i in 1:nv(g)
     Bloqade.plot!(ax2, Δ[i])
 end
-ax2.set_ylabel("Δ/2π (MHz)")
 fig
 
 # ## Compute the MIS Probability and the Adiabatic Timescale
@@ -130,14 +129,12 @@ a, b = linear_fit(t_list[P_MWIS.>0.9], y)
 T_LZ = -1 / b;
 
 # Finally, we plot the results:
-fig, (ax1, ax2) = plt.subplots(ncols = 2, figsize = (16, 6))
-ax1.scatter(t_list, P_MWIS)
-ax1.set_ylabel("MWIS Probability")
-ax1.set_xlabel("Time (μs)")
+fig = Figure(; size=(800, 300))
+ax1 = Axis(fig[1, 1]; ylabel = "MWIS Probability", xlabel = "Time (μs)")
+ax2 = Axis(fig[1, 2]; ylabel = "log(1 - MWIS Probability)", xlabel = "Time (μs)")
 
-ax2.scatter(t_list, broadcast(log, 1 .- P_MWIS))
-ax2.plot(t_list, a .+ b .* t_list)
-ax2.set_xlabel("Time (μs)")
-ax2.set_ylabel("log(1 - MWIS Probability)")
+scatter!(ax1, t_list, P_MWIS)
+scatter!(ax2, t_list, broadcast(log, 1 .- P_MWIS))
+lines!(ax2, t_list, a .+ b .* t_list)
 
 fig

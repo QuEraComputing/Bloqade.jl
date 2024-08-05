@@ -17,14 +17,11 @@ which is a created by providing a callable object and a real number `duration`:
 Bloqade gives users the flexibility to specify general waveforms by inputting functions. The following code constructs a sinusoidal waveform with a time duration of 2 μs:
 
 ```@example waveform
-using Bloqade
-using PythonCall
-plt = pyimport("matplotlib.pyplot")
+using Bloqade, Bloqade.CairoMakie
 waveform = Waveform(t->2.2*2π*sin(2π*t), duration = 2);
 Bloqade.plot(waveform)
 ```
-In our documentation, we use the
-python package [`matplotlib`](https://matplotlib.org) for plotting.
+In our documentation, we use the [`CairoMakie`](https://docs.makie.org/) for plotting.
 
 Bloqade supports built-in waveforms for convenience (see References below). 
 For example, the codes below create different waveform shapes with a single line:
@@ -63,7 +60,9 @@ wf1 = piecewise_linear(;clocks, values=values1);
 values2 = 2π*rand(length(clocks)-1)
 wf2 = piecewise_constant(;clocks, values=values2); 
 
-fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
+fig = Figure(size=(960, 400))
+ax1 = Axis(fig[1, 1])
+ax2 = Axis(fig[1, 2])
 Bloqade.plot!(ax1, wf1)
 Bloqade.plot!(ax2, wf2)
 fig
@@ -104,7 +103,9 @@ waveform:
 wf = piecewise_linear(clocks=[0.0, 2.0, 3.0, 4.0], values=2π*[0.0, 3.0, 1.1, 2.2]);
 swf = smooth(wf;kernel_radius=0.1);
 
-fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
+fig = Figure(size=(960, 400))
+ax1 = Axis(fig[1, 1])
+ax2 = Axis(fig[1, 2])
 Bloqade.plot!(ax1, wf)
 Bloqade.plot!(ax2, swf)
 fig
@@ -120,7 +121,9 @@ wf2 = sinusoidal(duration = 2.2, amplitude = 2.2*2π);
 wf3 = wf1 + wf2; 
 wf4 = wf1 - wf2;
 
-fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
+fig = Figure(size=(960, 400))
+ax1 = Axis(fig[1, 1])
+ax2 = Axis(fig[1, 2])
 Bloqade.plot!(ax1, wf3)
 Bloqade.plot!(ax2, wf4)
 fig
@@ -133,7 +136,9 @@ To increase the strength of a waveform by some factors, we can directly use `*`:
 wf = linear_ramp(;duration=2.2, start_value=0.0, stop_value=1.0*2π);
 wf_t = 3 * wf;
 
-fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
+fig = Figure(size=(960, 400))
+ax1 = Axis(fig[1, 1])
+ax2 = Axis(fig[1, 2])
 Bloqade.plot!(ax1, wf)
 Bloqade.plot!(ax2, wf_t)
 fig
@@ -144,7 +149,9 @@ Such operations can also be broadcasted by using `.*`:
 ```@example waveform
 wf2, wf3 = [2.0, 3.0] .* wf1; 
 
-fig, (ax1, ax2) = plt.subplots(figsize=(12, 4), ncols=2)
+fig = Figure(size=(960, 400))
+ax1 = Axis(fig[1, 1])
+ax2 = Axis(fig[1, 2])
 Bloqade.plot!(ax1, wf2)
 Bloqade.plot!(ax2, wf3)
 fig

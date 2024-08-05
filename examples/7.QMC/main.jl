@@ -27,11 +27,10 @@
 
 using BloqadeQMC
 using Random
-using Plots
 
 # In addition, we will import some libraries that can be used later to check our QMC against ED results for small system sizes: 
 
-using Bloqade
+using Bloqade, Bloqade.CairoMakie
 using Yao: mat, ArrayReg
 using LinearAlgebra
 using Measurements
@@ -184,12 +183,9 @@ end
 
 # Let us plot the results.
 
-using Plots: bar
-    
-
-results_plot = bar(densities_QMC, label="")
-xlabel!("Site number")
-ylabel!("Occupation density")
+fig = Figure()
+ax = Axis(fig[1, 1]; xlabel="Site number", ylabel="Occupation density")
+results_plot = barplot!(ax, densities_QMC)
 results_plot
 
 # As expected, we see a $\mathbb{Z}_2$ pattern has emerged, just as we saw using the exact diagonalization method. 
@@ -302,11 +298,13 @@ for ii in 1:Δ_step
     energy_ED[ii] = sum(w .* energies) / sum(w)
 end
 
-fig_energy = scatter(Δ/2π, energy_ED, label="ED", marker=:x);
-scatter!(Δ/2π, value.(energy_QMC); yerror=uncertainty.(energy_QMC), label="QMC", marker=:x)
-xlabel!("Δ/2π")
-ylabel!("Energy")
-fig_energy
+fig = Figure()
+ax = Axis(fig[1, 1]; xlabel="Δ/2π", ylabel="Energy")
+scatter!(ax, Δ/2π, energy_ED, label="ED", marker=:x);
+errorbars!(ax, Δ/2π, value.(energy_QMC), uncertainty.(energy_QMC))
+scatter!(ax, Δ/2π, value.(energy_QMC); label="QMC", marker=:x)
+axislegend(ax, position=:rt)
+fig
 
 # We see that using the QMC, we have achieved the same results as for the ED with high accuracy.
 
@@ -345,8 +343,9 @@ for ii in 1:Δ_step
     append!(order_param_QMC, measurement(mean(BD), std_error(BD)*sqrt(ratio)) )
 end
 
-
-fig_order = scatter(Δ/2π, value.(order_param_QMC); yerror=uncertainty.(order_param_QMC), label="", marker=:x);
-xlabel!("Δ/2π (MHz)")
-ylabel!("Stag mag")
-fig_order
+fig = Figure()
+ax = Axis(fig[1, 1]; xlabel="Δ/2π", ylabel="Stag mag")
+errorbars!(ax, Δ/2π, value.(order_param_QMC), uncertainty.(order_param_QMC))
+fig_order = scatter!(ax, Δ/2π, value.(order_param_QMC); label="", marker=:x)
+axislegend(ax, position=:rt)
+fig

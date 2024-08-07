@@ -84,7 +84,7 @@ function doc_build_script(pages, repo)
             sidebar_sitename=false,
         ),
         pages=$pages,
-        checkdocs=false,
+        checkdocs=:none,
         linkcheck=false,
         warnonly=true,
     )

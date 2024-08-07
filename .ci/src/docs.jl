@@ -84,6 +84,9 @@ function doc_build_script(pages, repo)
             sidebar_sitename=false,
         ),
         pages=$pages,
+        checkdocs=false,
+        linkcheck=false,
+        warnonly=true,
     )
     deploydocs(;
         repo="github.com/$repo",

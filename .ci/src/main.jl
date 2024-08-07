@@ -1,6 +1,7 @@
 using Pkg
 using TOML
 using Comonicon
+using Comonicon: @main
 using CoverageTools
 
 root_dir(xs...) = joinpath(dirname(dirname(@__DIR__)), xs...)

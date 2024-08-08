@@ -82,6 +82,8 @@ function doc_build_script(pages, repo)
             analytics="G-SRKGL6MJHS",
             assets=String[indigo, "assets/favicon.ico"],
             sidebar_sitename=false,
+            size_threshold_warn=3072000,
+            size_threshold=6144000,
         ),
         pages=$pages,
         checkdocs=:none,

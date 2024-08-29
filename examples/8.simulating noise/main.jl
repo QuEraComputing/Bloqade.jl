@@ -6,14 +6,14 @@
 # Open quantum systems in the limit of ultraweak coupling to a Markovian bath can be modelled using the Lindblad master equation:
 # ```math
 # \frac{\partial \rho}{\partial t} = i[\rho, \mathcal H_{eff}] + \sum_{k}\gamma_k L_k\rho L_k^\dagger
-# ``
+# ```
 # where `` \mathcal H_{eff}`` is the effective Hamiltonian, `` L_k`` are the quantum jump operators, and `` \gamma_k`` are the jump rates. The jump operators describe the coupling to the bath, and they are without loss of generality taken to be traceless. The effective Hamiltonian is non-Hermitian and is related to the closed-system Hamiltonian ``\mathcal H`` via ``\mathcal H_{eff} = \mathcal H-\frac{i}{2}\sum_{k}\gamma_k L_k^\dagger L_k``. 
 #
 # ### Stochastic wavefunction method
 # The infinitesimal form of this channel can be put into Kraus map form as
 # ```math
 # \rho(t+dt) = (1-i dt \mathcal H_{eff})\rho(t) (1+i dt \mathcal H_{eff}) + dt\sum_{k}\gamma_k L_k \rho(t) L_k^\dagger
-# ``
+# ```
 # This corresponds to a quantum jump `` L_k`` with probability `` dp_k = dt\gamma_k\operatorname{Tr}(L_k \rho L_k^\dagger)``. If `` \rho = |\psi\rangle\langle \psi|``is a (normalized) pure state, then 
 # `` dp_k = dt \gamma_k \Vert L_k|\psi\rangle\Vert^2``, the norm of the state after undergoing the quantum jump. With probability `` 1-dp`` where `` dp = \sum_k dp_k`` is the total probability of experencing a quantum jump, the system evolves to ``(1-i dt \mathcal H_{eff})\rho (1+i dt \mathcal H_{eff}) \approx \rho + i dt[\rho, \mathcal H_{eff}]``. This corresponds to the normal Liouville-Von Neumann equation with the non-Hermitian effective Hamiltonian ``\mathcal H_{eff}``. The physical interpretation of this is that an absence of a quantum jump also has an affect on the system evolution.
 #

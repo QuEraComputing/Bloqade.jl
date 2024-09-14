@@ -11,9 +11,11 @@
 [![CI](https://github.com/QuEraComputing/Bloqade.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/QuEraComputing/Bloqade.jl/actions/workflows/CI.yml)
 [![codecov](https://codecov.io/gh/QuEraComputing/Bloqade.jl/branch/master/graph/badge.svg?token=DYm2XwiTaR)](https://codecov.io/gh/QuEraComputing/Bloqade.jl)
 
-Bloqade is a package developed for quantum computation and quantum simulation based on the neutral-atom architecture with the ability to submit tasks to [QuEra's *Aquila* quantum processor](https://www.quera.com/aquila). Please refer to the [documentation](https://queracomputing.github.io/Bloqade.jl/dev/) page to learn more about Bloqade.
+> [!IMPORTANT]
+>
+> We recommend using [bloqade-python](https://github.com/QuEraComputing/bloqade-python) to access Aquila, QuEra’s analog computer. Bloqade.jl has reached a stable state and is not anticipated to undergo major changes currently. It is still open for contributions and bug fixes. If you have suggestions or encounter any issues, please feel free to open an issue or submit a pull request. Stay tuned for our future gate-based SDK and simulator!
 
-**Bloqade is currently under public release beta. High-level APIs are stable, but please expect some further exploration and rough edges.**
+Bloqade is a package developed for quantum computation and quantum simulation based on the neutral-atom architecture with the ability to submit tasks to [QuEra's *Aquila* quantum processor](https://www.quera.com/aquila). Please refer to the [documentation](https://queracomputing.github.io/Bloqade.jl/dev/) page to learn more about Bloqade.
 
 ## Installation
 

@@ -24,7 +24,7 @@ Base.size(m::ThreadedMatrix) = size(m.matrix)
 Base.size(m::ThreadedMatrix, i) = size(m.matrix)[i]
 Base.eltype(m::ThreadedMatrix) = eltype(m.matrix)
 Base.pointer(m::T) where {T <: Diagonal} = pointer(m.diag)
-
+Base.eltype(m::T) where {T <: ThreadedMatrix} = eltype(m.matrix) 
 
 precision_type(m::T) where {T <: Number} = real(typeof(m))
 precision_type(m::T) where {T <: Diagonal} = real(eltype(m))

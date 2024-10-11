@@ -3,6 +3,7 @@ using BloqadeExpr
 using LinearAlgebra
 using Random
 using LuxurySparse
+using ForwardDiff
 using BloqadeExpr: Hamiltonian
 
 
@@ -21,7 +22,7 @@ using BloqadeExpr: Hamiltonian
     println(hlist.ts)
 
     for t in 0:0.1:2
-        src = derivative(hlist, t)
+        src = ForwardDiff.derivative(hlist, t)
         tar = htar(t)
 
         @test to_matrix(src) == to_matrix(tar)

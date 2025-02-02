@@ -9,6 +9,14 @@ if "docstring" in ARGS
     exit()
 end
 
+@testset "acfet21_sinX" begin
+    include("acfet21_sinX.jl")
+end
+
+@testset "acfet42_sinX" begin
+    include("acfet42_sinX.jl")
+end
+
 
 
 @testset "expm_multiply" begin

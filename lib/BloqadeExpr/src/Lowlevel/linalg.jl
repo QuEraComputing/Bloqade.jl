@@ -201,7 +201,7 @@ end
 #    return SumOfLinop{Hermitian}(ForwardDiff.derivative.(h.fs,t), h.ts)
 #end
 
-function derivative(h::Hamiltonian, t::Real)
+function ForwardDiff.derivative(h::Hamiltonian, t::Real)
     ## remove terms that are zero
     fvals = ForwardDiff.derivative.(h.fs,t)
     mask = collect(fvals .!= 0)

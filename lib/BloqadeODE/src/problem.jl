@@ -99,7 +99,7 @@ function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=DP8(), kw..
         dense = false,
         reltol=1e-10,
         abstol=1e-10,
-        alias_u0 = true,
+        alias = ODEAliasSpecifier(alias_u0 = true)
     )
     kw = pairs(merge(default_ode_options, kw))
 
@@ -178,7 +178,7 @@ function DiffEqBase.solve(prob::SchrodingerProblem, args...; sensealg = nothing,
     else
         u0 = prob.u0
     end
-    return DiffEqBase.solve_up(prob, sensealg, u0, nothing, args...; kw...)
+    return DiffEqBase.solve_up(prob, sensealg, u0, nothing, args...;kw...)
 end
 
 DiffEqBase.get_concrete_problem(prob::SchrodingerProblem, isadapt; kw...) = prob

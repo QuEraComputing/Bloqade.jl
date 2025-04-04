@@ -112,3 +112,7 @@ Base.to_index(ss::Subspace) = ss.subspace_v .+ 1
 function Base.:(==)(x::Subspace, y::Subspace)
     return (x.nqubits == y.nqubits) && (x.map == y.map) && (x.subspace_v == y.subspace_v)
 end
+
+function Adapt.adapt_structure(to, x::Subspace{T, S <: AbstractVector{T}}) where T
+    return Subspace{T,S}(x.nqubits,x.map, Adapt.adapt_structure(to, x.subspace_v))
+end

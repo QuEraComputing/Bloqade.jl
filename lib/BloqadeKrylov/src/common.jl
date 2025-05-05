@@ -28,10 +28,10 @@ function Base.iterate(prob::Evolver)
     info = (; step = 1, reg = prob.reg, clock = prob.start_clock, duration = zero(prob.start_clock))
     return info, (2, prob.start_clock)
 end
-#function Base.iterate(prob::ADEvolver)
-#    info = (; step = 1, reg = prob.reg, clock = prob.start_clock, duration = zero(prob.start_clock))
-#    return info, (2, prob.start_clock)
-#end
+function Base.iterate(prob::ADEvolver)
+     info = (; step = 1, reg = prob.reg, clock = prob.start_clock, duration = zero(prob.start_clock))
+    return info, (2, prob.start_clock)
+end
 
 Base.@propagate_inbounds function Base.iterate(prob::Evolver, (step, clock))
     step > length(prob) && return
@@ -47,7 +47,7 @@ Base.@propagate_inbounds function Base.iterate(prob::ADEvolver, (step, clock))
     clock >= prob.end_clock && return
 
     duration = prob.step_size
-    emulate_step!(prob, step, clock, duration)
+    emulate_step!(prob, step, clock, prob.step_tol)
 
     info = (; step, reg = prob.reg, clock = clock + duration, duration)
     return info, (step + 1, clock + duration)
@@ -71,12 +71,33 @@ function BloqadeExpr.emulate!(prob::Evolver)
     return prob
 end
 
+
+## driver function, user entry point
+function BloqadeExpr.emulate!(prob::ADEvolver)
+    #niterations = length(prob)
+    @inbounds if prob.options.progress
+        ProgressLogging.progress() do id
+            for info in prob
+                if prob.options.progress && mod(info.step, prob.options.progress_step) == 0
+                    @info prob.options.progress_name progress = (info.clock - prob.start_clock) / (prob.end_clock-prob.start_clock) _id = id
+                end
+            end
+        end
+    else
+        for info in prob
+        end
+    end
+    return prob
+end
+
 tab(indent) = " "^indent
 
 function Base.show(io::IO, mime::MIME"text/plain", prob::Evolver)
     indent = get(io, :indent, 0)
     if typeof(prob) <: CFETEvolution
         println(io, tab(indent), "CFETEvolution", "<",Base.typename(typeof(prob.alg_table)).wrapper, ">:")
+    elseif typeof(prob) <:ADEvolver
+        println(io, tab(indent), "ACFETEvolution", "<",Base.typename(typeof(prob.alg_table)).wrapper, ">:")
     else
         println(io, tab(indent), Base.typename(typeof(prob)).wrapper, ":")
     end
@@ -101,7 +122,7 @@ function Base.show(io::IO, mime::MIME"text/plain", prob::Evolver)
     end
 end
 
-function print_state_info(io::IO, prob::Evolver)
+function print_state_info(io::IO, prob::Union{Evolver,ADEvolver})
     indent = get(io, :indent, 0)
     println(io, tab(indent + 2), "register info:")
     print(io, tab(indent + 4), "type: ")
@@ -143,3 +164,5 @@ function uniquetol_list(itr::Array{T,1},tol=1e-6) where {T<:Complex}
     end # pri2, tol-large gap in reals
     return out
 end
+
+

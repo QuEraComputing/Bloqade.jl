@@ -3,7 +3,7 @@
 
 Krylov evolution options.
 """
-@option struct KrylovOptions #{R <: Real}
+@option struct KrylovOptions
     progress::Bool = false
     progress_step::Int = 1
     progress_name::String = "emulating"

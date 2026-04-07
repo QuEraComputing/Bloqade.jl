@@ -25,7 +25,7 @@ function expmv(
     t::Number,
     A,
     vec::AbstractVector{T};
-    tol::Real = 1e-7,
+    tol::Real = 1f-7,
     m::Int = min(30, size(A, 1)),
     norm = LinearAlgebra.norm,
     anorm = default_anorm(A),
@@ -40,7 +40,7 @@ function expmv!(
     t::Number,
     A,
     vec::AbstractVector{T};
-    tol::Real = 1e-7,
+    tol::Real = 1f-7,
     m::Int = min(30, size(A, 1)),
     norm = LinearAlgebra.norm,
     anorm = default_anorm(A),
@@ -58,26 +58,27 @@ function expmv!(
     t::Number,
     A,
     vec::AbstractVector{T};
-    tol::Real = 1e-7,
+    tol::Real = 1f-7,
     m::Int = min(30, size(A, 1)),
     norm = LinearAlgebra.norm,
     anorm = default_anorm(A),
     expmethod = real(T) <: LinearAlgebra.BlasReal ? ExpMethodHigham2005() : ExpMethodGeneric(),
 ) where {T}
+    FT = real(T)
     if size(vec, 1) != size(A, 2)
         error("dimension mismatch")
     end
     # safety factors
-    gamma = 0.9
+    gamma = FT(0.9)
     delta = 1.2
-    btol = 1e-7     # tolerance for "happy-breakdown"
+    btol = 1f-7     # tolerance for "happy-breakdown"
     maxiter = 10    # max number of time-step refinements
     rndoff = anorm * eps()
     # estimate first time-step and round to two significant digits
-    beta = norm(vec)
-    r = 1 / m
+    beta = FT(norm(vec))
+    r = FT(1 / m)
     fact = (((m + 1) / exp(1.0))^(m + 1)) * sqrt(2.0 * pi * (m + 1))
-    tau = (1.0 / anorm) * ((fact * tol) / (4.0 * beta * anorm))^r
+    tau = FT((1.0 / anorm) * ((fact * tol) / (4.0 * beta * anorm))^r)
     tau = round(unwrap_value(tau), sigdigits = 2)
     # storage for Krylov subspace vectors
     vm = Array{typeof(w)}(undef, m + 1)
@@ -112,7 +113,7 @@ function expmv!(
                 # F = expm(tsgn*tau*hm[1:j,1:j])
                 # F = expm!(scale(tsgn*tau,view(hm,1:j,1:j)))
                 L = tsgn * tau * view(hm, 1:j, 1:j)
-                F = ExponentialUtilities.exponential!(L, expmethod)
+                F = ExponentialUtilities.exponential!(L, expmethod)                
                 fill!(w, zero(T))
                 for k in 1:j
                     # w[:] = w + beta*vm[k]*F[k,1]
@@ -138,13 +139,13 @@ function expmv!(
             err2 = abs(beta * F[m+2, 1] * avnorm)
             if err1 > 10 * err2# err1 >> err2
                 err_loc = err2
-                r = 1 / m
+                r = FT(1 / m)
             elseif err1 > err2
                 err_loc = (err1 * err2) / (err1 - err2)
-                r = 1 / m
+                r = FT(1 / m)
             else
                 err_loc = err1
-                r = 1 / (m - 1)
+                r = FT(1 / (m - 1))
             end
             # time-step sufficient?
             if err_loc <= delta * tau * (tau * tol / err_loc)^r

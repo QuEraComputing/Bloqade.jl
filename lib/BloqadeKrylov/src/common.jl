@@ -9,7 +9,7 @@ Krylov evolution options.
     progress_name::String = "emulating"
     normalize_step::Int = 5
     normalize_finally::Bool = true
-    tol::Float64 = 1e-7
+    tol::Float32 = 1f-7
     expmv_backend = expmv!
 end
 

@@ -97,8 +97,8 @@ function SchrodingerProblem(reg::AbstractRegister, tspan, expr; algo=DP8(), kw..
         save_start = false,
         save_on = false,
         dense = false,
-        reltol=1e-10,
-        abstol=1e-10,
+        reltol=1f-10,
+        abstol=1f-10,
         alias = ODEAliasSpecifier(alias_u0 = true)
     )
     kw = pairs(merge(default_ode_options, kw))

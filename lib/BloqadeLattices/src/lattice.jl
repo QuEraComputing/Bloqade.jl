@@ -104,7 +104,7 @@ The vectors are defined as:
 - 𝐚₁ = (1.0, 0.0)
 - 𝐚₂ = (0.5, 0.5√3)
 """
-lattice_vectors(::HoneycombLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
+lattice_vectors(::HoneycombLattice) = ((1.0f0, 0.0f0), (0.5f0, 0.5f0 * sqrt(3f0))) # force this to Float32 to use Metal (potential probelm if you care about precision)
 
 """
     lattice_sites(::HoneycombLattice)
@@ -116,7 +116,7 @@ The sites are defined as:
 - (0.0, 0.0)
 - (0.5, 0.5√3)
 """
-lattice_sites(::HoneycombLattice) = ((0.0, 0.0), (0.5, 0.5 / sqrt(3)))
+lattice_sites(::HoneycombLattice) = ((0.0f0, 0.0f0), (0.5f0, 0.5f0 / sqrt(3f0))) # force this to Float32 to use Metal (potential probelm if you care about precision)
 
 """
     struct SquareLattice <: AbstractLattice{2}
@@ -155,7 +155,7 @@ The vectors are defined as:
 - 𝐚₁ = (1.0, 0.0)
 - 𝐚₂ = (0.0, 1.0)
 """
-lattice_vectors(::SquareLattice) = ((1.0, 0.0), (0.0, 1.0))
+lattice_vectors(::SquareLattice) = ((1.0f0, 0.0f0), (0.0f0, 1.0f0))
 
 """
     lattice_sites(::SquareLattice)
@@ -166,7 +166,7 @@ floats.
 The sites are defined as:
 - (0.0, 0.0)
 """
-lattice_sites(::SquareLattice) = ((0.0, 0.0),)
+lattice_sites(::SquareLattice) = ((0.0f0, 0.0f0),)
 
 """
     struct TriangularLattice <: AbstractLattice{2}
@@ -205,7 +205,7 @@ The vectors are defined as:
 - 𝐚₁ = (1.0, 0.0)
 - 𝐚₂ = (0.5, 0.5√3)
 """
-lattice_vectors(::TriangularLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
+lattice_vectors(::TriangularLattice) = ((1.0f0, 0.0f0), (0.5f0, 0.5f0 * sqrt(3f0))) # force this to Float32 to use Metal (potential probelm if you care about precision)
 
 """
     lattice_sites(::TriangularLattice)
@@ -216,7 +216,7 @@ floats.
 The sites are defined as:
 - (0.0, 0.0)
 """
-lattice_sites(::TriangularLattice) = ((0.0, 0.0),)
+lattice_sites(::TriangularLattice) = ((0.0f0, 0.0f0),)
 
 """
     struct ChainLattice <: AbstractLattice{1}
@@ -253,7 +253,7 @@ floats.
 The vectors are defined as:
 - 𝐚₁ = (1.0,)
 """
-lattice_vectors(::ChainLattice) = ((1.0,),)
+lattice_vectors(::ChainLattice) = ((1.0f0,),)
 
 """
     lattice_sites(::ChainLattice)
@@ -264,7 +264,7 @@ floats.
 The sites are defined as:
 - (0.0,)
 """
-lattice_sites(::ChainLattice) = ((0.0,),)
+lattice_sites(::ChainLattice) = ((0.0f0,),)
 
 """
     struct LiebLattice <: AbstractLattice{2}
@@ -302,7 +302,7 @@ The vectors are defined as:
 - 𝐚₁ = (1.0, 0.0)
 - 𝐚₂ = (0.0, 1.0)
 """
-lattice_vectors(::LiebLattice) = ((1.0, 0.0), (0.0, 1.0))
+lattice_vectors(::LiebLattice) = ((1.0f0, 0.0f0), (0.0f0, 1.0f0))
 
 """
     lattice_sites(::LiebLattice)
@@ -315,7 +315,7 @@ The sites are defined as:
 - (0.5, 0.0)
 - (0.0, 0.5)
 """
-lattice_sites(::LiebLattice) = ((0.0, 0.0), (0.5, 0.0), (0.0, 0.5))
+lattice_sites(::LiebLattice) = ((0.0f0, 0.0f0), (0.5f0, 0.0f0), (0.0f0, 0.5f0))
 
 """
     struct KagomeLattice <: AbstractLattice{2}
@@ -353,7 +353,7 @@ The vectors are defined as:
 - 𝐚₁ = (1.0, 0.0)
 - 𝐚₂ = (0.5, 0.5√3)
 """
-lattice_vectors(::KagomeLattice) = ((1.0, 0.0), (0.5, 0.5 * sqrt(3)))
+lattice_vectors(::KagomeLattice) = ((1.0f0, 0.0f0), (0.5f0, 0.5f0 * sqrt(3f0))) # force this to Float32 to use Metal (potential probelm if you care about precision)
 
 """
     lattice_sites(::KagomeLattice)
@@ -366,7 +366,7 @@ The sites are defined as:
 - (0.25, 0.25√3)
 - (0.75, 0.25√3)
 """
-lattice_sites(::KagomeLattice) = ((0.0, 0.0), (0.25, 0.25 * sqrt(3)), (0.75, 0.25 * sqrt(3)))
+lattice_sites(::KagomeLattice) = ((0.0f0, 0.0f0), (0.25f0, 0.25f0 * sqrt(3f0)), (0.75f0, 0.25f0 * sqrt(3f0))) # force this to Float32 to use Metal (potential probelm if you care about precision)
 
 """
     struct RectangularLattice <: AbstractLattice{2}
@@ -394,7 +394,7 @@ Overriden functions to return lattice vectors and sites exists as
 [`lattice_sites(::RectangularLattice)`](@ref).
 """
 struct RectangularLattice <: AbstractLattice{2}
-    aspect_ratio::Float64
+    aspect_ratio::Float32
 end
 
 """
@@ -405,9 +405,9 @@ floats.
         
 The vectors are defined as:
 - 𝐚₁ = (1.0, 0.0)
-- 𝐚₂ = (0.0, `r.aspect_ratio`), where `aspect_ratio` is a `Float64`.
+- 𝐚₂ = (0.0, `r.aspect_ratio`), where `aspect_ratio` is a `Float32`.
 """
-lattice_vectors(r::RectangularLattice) = ((1.0, 0.0), (0.0, r.aspect_ratio))
+lattice_vectors(r::RectangularLattice) = ((1.0f0, 0.0f0), (0.0f0, r.aspect_ratio)) # force this to Float32 to use Metal (potential probelm if you care about precision)
 
 """
     lattice_sites(::RectangularLattice)
@@ -418,7 +418,7 @@ floats.
 The sites are defined as:
 - (0.0, 0.0)
 """
-lattice_sites(::RectangularLattice) = ((0.0, 0.0),)
+lattice_sites(::RectangularLattice) = ((0.0f0, 0.0f0),)
 
 """
     AtomList{D, T} <: AbstractVector{NTuple{D, T}}

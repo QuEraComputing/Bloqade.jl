@@ -52,30 +52,30 @@ function rydberg_density_sum end
 rydberg_density_sum(x) = rydberg_density_sum(identity, x)
 
 struct SubspaceMap
-    d::Dict{Int,Int}
+    d::Dict{Int64,Int64}
 end
 
 function SubspaceMap(f, subspace::Subspace)
-    key = Vector{Int}(undef, length(subspace))
-    val = Vector{Int}(undef, length(subspace))
+    key = Vector{Int64}(undef, length(subspace))
+    val = Vector{Int64}(undef, length(subspace))
     origin = vec(subspace)
     @inbounds Threads.@threads for idx in 1:length(origin)
         cfg = origin[idx]
         key[idx] = cfg
         val[idx] = to_int64(f(cfg))
     end
-    return SubspaceMap(Dict{Int,Int}(zip(key, val)))
+    return SubspaceMap(Dict{Int64,Int64}(zip(key, val)))
 end
 
 Base.length(map::SubspaceMap) = length(map.d)
-Base.getindex(map::SubspaceMap, cfg::Int) = map.d[cfg]
-(map::SubspaceMap)(cfg::Int) = map[cfg]
+Base.getindex(map::SubspaceMap, cfg::Integer) = map.d[cfg]
+(map::SubspaceMap)(cfg::Integer) = map[cfg]
 
 function to_int64(b::BitVector) # workaround type piracy
     length(b) <= 64 || throw(ArgumentError("length is larger than 64"))
     # NOTE: since we only use this to calculate number of ones
     # thus we don't need to check top bit
-    return reinterpret(Int, b.chunks[1])
+    return reinterpret(Int64, b.chunks[1])
 end
 
 struct ConfigAmplitude{Reg<:YaoAPI.AbstractRegister}
